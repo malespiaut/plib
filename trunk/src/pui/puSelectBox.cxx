@@ -89,6 +89,42 @@ void puSelectBox::draw ( int dx, int dy )
   puGroup::draw ( dx, dy ) ;
 }
 
+int puSelectBox::checkKey ( int key, int updown )
+{
+  if ( ! input -> isAcceptingInput () || ! isVisible () || ! isActive () || ( window != puGetWindow () ) )
+    return FALSE ;
+
+  switch ( key )
+  {
+    case PU_KEY_HOME      :
+      setCurrentItem ( 0 ) ;
+      break ;
+
+    case PU_KEY_END       :
+      setCurrentItem ( num_items - 1 ) ;
+      break ;
+
+    case PU_KEY_UP        :
+    case PU_KEY_PAGE_UP   :
+      setCurrentItem ( curr_item + 1 ) ;
+      break ;
+
+    case PU_KEY_DOWN      :
+    case PU_KEY_PAGE_DOWN :
+      setCurrentItem ( curr_item - 1 ) ;
+      break ;
+
+    default :
+      /* We might decide to make the input box editable on request
+         in future - and it does not hurt ... */
+      return input -> checkKey ( key, updown ) ;
+      break ;
+  }
+
+  return TRUE ;
+}
+
+
 puSelectBox::puSelectBox ( int minx, int miny, int maxx, int maxy,
                          char **entries ) :
    puGroup( minx, miny )

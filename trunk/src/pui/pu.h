@@ -1614,6 +1614,8 @@ public:
   void setCurrentItem ( const char *item_ptr ) ;
 
   void draw ( int dx, int dy ) ;
+  int  checkHit ( int button, int updown, int x, int y ) ;
+  int  checkKey ( int key, int updown ) ;
 
   puComboBox ( int minx, int miny, int maxx, int maxy,
                char **list, int editable = TRUE ) ;
@@ -1653,6 +1655,7 @@ public:
   }
 
   void draw ( int dx, int dy ) ;
+  int  checkKey ( int key, int updown ) ;
 
   puSelectBox ( int minx, int miny, int maxx, int maxy,
                 char **list ) ;
