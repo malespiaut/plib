@@ -1,7 +1,7 @@
 
 #include "ul.h"
 
-static char            _ulErrorBuffer [ 256 ] ;
+static char            _ulErrorBuffer [ 256 ] = { '\0' } ;
 static ulErrorCallback _ulErrorCB = 0 ;
 
 static const char* _ulSeverityText [ UL_MAX_SEVERITY ] =
@@ -10,12 +10,6 @@ static const char* _ulSeverityText [ UL_MAX_SEVERITY ] =
   "WARNING",
   "FATAL",
 };
- 
-
-void ulInit ( void )
-{
-  _ulErrorBuffer [0] = 0 ;
-}
  
 
 void ulSetError ( int severity, const char *fmt, ... )
