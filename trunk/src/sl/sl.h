@@ -357,7 +357,7 @@ typedef void (*slCallBack) ( slSample *, slEvent, int ) ;
 
 class slEnvelope
 {
-public:  /* SJB TESTING! */
+protected:
 
   float *time  ;
   float *value ;
