@@ -1,3 +1,5 @@
+if BUILD_PUI
+
 lib_LIBRARIES = libplibpu.a
 
 include_HEADERS = pu.h
@@ -15,6 +17,8 @@ libplibpu_a_SOURCES = \
 
 INCLUDES = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/fnt
 INCLUDES += -I$(top_srcdir)/src/util
+
+endif
 
 EXTRA_DIST = pui.dsp
 
