@@ -104,6 +104,8 @@ ssgSimpleState::~ssgSimpleState (void)
 
 void ssgSimpleState::apply (void)
 {
+  preApply () ;
+
   int turn_off = ~dont_care & ~enables & _ssgCurrentContext->getState()->enables & 0x3F ;
   (*(__ssgDisableTable[turn_off]))() ;
   _ssgCurrentContext->getState()->enables &= ~turn_off ;
@@ -203,10 +205,13 @@ void ssgSimpleState::apply (void)
   int turn_on = ~dont_care & enables & ~_ssgCurrentContext->getState()->enables & 0x3F ;
   (*(__ssgEnableTable [turn_on ]))() ;
   _ssgCurrentContext->getState()->enables |= turn_on ;
+
+  preDraw () ;
 }
 
 void ssgSimpleState::force (void)
 {
+  preApply () ;
   int turn_off = ~dont_care & ~enables & 0x3F ;
   (*(__ssgDisableTable[turn_off]))() ;
   _ssgCurrentContext->getState()->enables &= ~turn_off ;
@@ -288,6 +293,7 @@ void ssgSimpleState::force (void)
   int turn_on = ~dont_care & enables & 0x3F ;
   (*(__ssgEnableTable [turn_on ]))() ;
   _ssgCurrentContext->getState()->enables |= turn_on ;
+  preDraw () ;
 }
 
 
@@ -454,14 +460,14 @@ use gkGetTexParamiv or so.
 
 int ssgSimpleState::getWrapU()
 {
-int    wrapu = TRUE, wrapv = TRUE ;
+  int wrapu = TRUE, wrapv = TRUE ;
 
-	if ( filename == NULL )
-		return TRUE;
-	if ( filename[0] == 0 )
-		return TRUE;
-	GLuint texture_handle = getTextureHandle ();
-	
+  if ( filename == NULL )
+    return TRUE;
+  if ( filename[0] == 0 )
+    return TRUE;
+
+  GLuint texture_handle = getTextureHandle () ;
 }
 */
 

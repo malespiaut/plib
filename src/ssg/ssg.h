@@ -728,6 +728,19 @@ public:
   virtual char *getTypeName(void) ;
 } ;
 
+typedef int (*ssgCallback)( ssgEntity * ) ;
+#define SSG_CALLBACK_PREDRAW   1
+#define SSG_CALLBACK_POSTDRAW  2
+
+typedef int (*ssgTravCallback)( ssgEntity *entity, int traversal_mask ) ;
+#define SSG_CALLBACK_PRETRAV   1
+#define SSG_CALLBACK_POSTTRAV  2
+
+class ssgState ;
+
+typedef int (*ssgStateCallback)( ssgState *entity ) ;
+
+#define SSG_CALLBACK_PREAPPLY   3
 
 class ssgState : public ssgBase
 {
@@ -735,14 +748,41 @@ class ssgState : public ssgBase
 
   int external_property_index ;
 
+  ssgStateCallback preApplyCB ;
+  ssgStateCallback preDrawCB  ;
+  ssgStateCallback postDrawCB ;
+
+
 protected:
 
+  void preApply () ;
+  void preDraw  () ;
+
 public:
+
   virtual void copy_from ( ssgState *src, int clone_flags ) ;
   ssgState (void) ;
   virtual ~ssgState (void) ;
 
   virtual char *getTypeName(void) ;
+
+  ssgStateCallback getStateCallback ( int cb_type )
+  {
+    return ( cb_type == SSG_CALLBACK_PREAPPLY ) ? preApplyCB :
+           ( cb_type == SSG_CALLBACK_PREDRAW  ) ? preDrawCB :
+                                                  postDrawCB ;
+  }
+ 
+  void setStateCallback ( int cb_type, ssgStateCallback cb )
+  {
+    if ( cb_type == SSG_CALLBACK_PREAPPLY )
+      preApplyCB = cb ;
+    else
+    if ( cb_type == SSG_CALLBACK_PREDRAW )
+      preDrawCB = cb ;
+    else
+      postDrawCB = cb ;
+  }
 
   int  getExternalPropertyIndex (void) { return external_property_index ; }
   void setExternalPropertyIndex ( int i ) { external_property_index = i ; }
@@ -1035,14 +1075,6 @@ struct ssgEntityBinding
   char       *nameOrPath ;
 } ;
 
-
-typedef int (*ssgCallback)( ssgEntity * ) ;
-#define SSG_CALLBACK_PREDRAW   1
-#define SSG_CALLBACK_POSTDRAW  2
-
-typedef int (*ssgTravCallback)( ssgEntity *entity, int traversal_mask ) ;
-#define SSG_CALLBACK_PRETRAV   1
-#define SSG_CALLBACK_POSTTRAV  2
 
 class ssgEntity : public ssgBase
 {
