@@ -1207,8 +1207,10 @@ protected:
   ssgIndexArray      *indices;
 
   virtual void draw_geometry () ;
+  virtual void copy_from ( ssgVtxArray *src, int clone_flags ) ;
 
 public:
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgVtxArray () ;
 
   ssgVtxArray ( GLenum ty, ssgVertexArray   *vl,
