@@ -122,6 +122,9 @@ void puInput::doHit ( int button, int updown, int x, int /* y */ )
     puDeactivateWidget () ;
   }
 
+  if ( updown != PU_DRAG )
+    puMoveToLast ( this );
+
   if ( button == PU_LEFT_BUTTON )
   {
     /* Most GUI's activate a button on button-UP not button-DOWN. */
@@ -183,8 +186,8 @@ int puInput::checkKey ( int key, int /* updown */ )
     case '\n' : /* Carriage return/Line Feed/TAB  -- End of input */
       rejectInput () ;
       normalize_cursors () ;
-      invokeCallback () ;
       puDeactivateWidget () ;
+      invokeCallback () ;
       break ;
 
     case '\b' : /* Backspace */

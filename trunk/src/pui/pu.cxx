@@ -257,6 +257,13 @@ void puInit ( void )
   }
 }
 
+void puRemoveEntireInterface ()
+{
+  puInterface *interf = puGetUltimateLiveInterface () ;
+  interf->empty() ;
+  delete interf ;
+}
+
 static void puSetOpenGLState ( void )
 {
   int w = puGetWindowWidth  () ;
@@ -388,6 +395,30 @@ int puMouse ( int x, int y )
   puCleanUpJunk () ;
   
   return return_value ;
+}
+
+void puMoveToLast (puObject *ob)
+{
+  puGroup *parent = ob -> getParent () ;
+
+  /* If no parent interface, return. */
+
+  if ( ! parent ) return;
+
+  /* Remove "ob" from present place in the "dlist" list */
+
+  parent -> remove (ob) ;
+
+  /* Place at the end of the list */
+
+  parent -> add (ob) ;
+
+  /*
+    Now repeat the process for the parent interface so that the interface will
+    be drawn last of all interfaces.
+  */
+
+  puMoveToLast ( parent );
 }
 
 void puDeactivateWidget ()  {  active_widget = NULL ; }

@@ -83,6 +83,15 @@ void puDial::draw ( int dx, int dy )
 
 void puDial::doHit ( int button, int updown, int x, int y )
 {
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
+  if ( updown != PU_DRAG )
+    puMoveToLast ( this );
+
   if ( button == PU_LEFT_BUTTON )
   {
     int x_cen = ( abox.max [0] + abox.min [0] ) / 2 ;

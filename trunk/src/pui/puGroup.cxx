@@ -64,6 +64,32 @@ void puGroup::remove ( puObject *obj )
   recalc_bbox () ;
 }
 
+void puGroup::empty ( void )
+{
+  puObject *obj = dlist ;
+  while ( obj != NULL )
+  {
+    if ( obj->getType () & PUCLASS_GROUP )
+    {
+      puGroup *group = (puGroup *)obj ;
+      group->empty () ;
+    }
+
+    if ( obj->getUserData () )
+    {
+      puGroup *group = (puGroup *)( obj->getUserData () ) ;
+      group->empty () ;
+      obj->setUserData ( NULL ) ;
+    }
+
+    puObject *temp = obj->getNextObject () ;
+    delete obj ;
+    obj = temp ;
+  }
+
+  dlist = NULL ;
+}
+
 void puGroup::add ( puObject *new_obj )
 {
   if ( dlist == NULL )
@@ -133,12 +159,63 @@ int puGroup::checkHit ( int button, int updown, int x, int y )
     the click order is the same as the DRAW order.
   */
 
-  for ( bo = dlist ; bo->next != NULL ; bo = bo->next )
-    /* Find the last object in our list. */ ;
+  if ( !mouse_active )
+  {
+    /* Find the last object in our list. */
 
-  for ( ; bo != NULL ; bo = bo->prev )
-    if ( bo -> checkHit ( button, updown, x, y ) )
+    for ( bo = dlist ; bo->next != NULL ; bo = bo->next ) ;
+
+    for ( ; bo != NULL ; bo = bo->prev )
+      if ( bo -> checkHit ( button, updown, x, y ) )
+        return TRUE ;
+  }
+
+  /*
+    If right mouse button is pressed, save mouse coordinates for
+    dragging and dropping.  Do this only if the "floating" flag is set.
+  */
+
+  if ( mouse_active || ( isHit ( x+abox.min[0], y+abox.min[1]) &&
+       floating && ( button == PU_RIGHT_BUTTON ) ) )
+  {
+    puMoveToLast ( this );
+
+    /*
+      Return (x, y) to coordinates of parent interface to avoid "jumping" of
+      present interface as mouse drags
+    */
+
+    x += abox.min[0] ;
+    y += abox.min[1] ;
+
+    if ( updown == PU_DOWN )
+    {
+      mouse_x = x;  /* Save mouse coordinates for dragging */
+      mouse_y = y;
+
+      mouse_active = TRUE ;
+
       return TRUE ;
+    }
+    else if ( updown == PU_DRAG )
+    {
+      int curr_x, curr_y;
+
+      getPosition ( &curr_x, &curr_y );
+      setPosition ( curr_x+x-mouse_x, curr_y+y-mouse_y );  /* Move to new position */
+
+      mouse_x = x;  /* Save new coordinates */
+      mouse_y = y;
+
+      return TRUE ;
+    }
+    else if ( updown == PU_UP )
+    {
+      mouse_active = FALSE ;
+
+      return TRUE ;
+    }
+  }
 
   return FALSE ;
 }

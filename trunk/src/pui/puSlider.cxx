@@ -63,6 +63,9 @@ void puSlider::doHit ( int button, int updown, int x, int y )
     puDeactivateWidget () ;
   }
 
+  if ( updown != PU_DRAG )
+    puMoveToLast ( this );
+
   if ( button == PU_LEFT_BUTTON )
   {
     int sd = isVertical() ;
@@ -88,18 +91,18 @@ void puSlider::doHit ( int button, int updown, int x, int y )
       case PUSLIDER_CLICK :
         if ( updown == active_mouse_edge )
         {
-    	  last_cb_value = next_value ;
-        puSetActiveWidget ( this ) ;
-    	  invokeCallback () ;
+	  last_cb_value = next_value ;
+    puSetActiveWidget ( this ) ;
+	  invokeCallback () ;
         }
         break ;
 
       case PUSLIDER_DELTA :
         if ( fabs ( last_cb_value - next_value ) >= cb_delta )
         {
-        last_cb_value = next_value ;
-        puSetActiveWidget ( this ) ;
-        invokeCallback () ;
+	  last_cb_value = next_value ;
+    puSetActiveWidget ( this ) ;
+	  invokeCallback () ;
         }
         break ;
 
