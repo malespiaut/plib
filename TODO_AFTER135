@@ -129,75 +129,28 @@ Misc:
   enabled by uncommenting "radius *= sgLengthVec3(m[0])" in
   sgSphere::orthoXform. It is currently disabled because that extra
   calculation would degrade performance on non-scaled matrices.
-- Reduce compiler warnings.
-- Reduce lint warnings. I (wk) will try to this until 1.4. 
-  It is important. Lint is an error checking tool that gives warnings 
+- Reduce lint warnings. Lint is an error checking tool that gives warnings 
   where things *could be* wrong as opposed to the compiler that tells 
   you where they are wrong.
 
-- It would be great if we had one or even two new native .ssg 
-  file formats for 1.4.0
+- It would be great if we had one or even two working native .ssg 
+  file formats. Currently (16.12.2001) the format work most of the time, but not all 
+  entities are implemented.
 - We should write the GetWrapU/GetWrapV function, since 
   loading /writing .ssg files can't work 100% without it.
 - When saving, there is often a warning that "ref count doesn't 
   tally with parent count"
 - Go through the mailing list for unfinished business.
-- I (wk) am not sure 2D file format conversion works. I will look
-  into this and will shout for help if I need some.
-  Locally, I have put it into the .FLT loader also.
 - Someone, preferably a native english speaker with ssg-knowledge,
   should go through the new ssg-doc and fix any mistakes. It should be 
   fairly complete by now.
 - Add Per's new Formats to the doc?
 - For the other parts of plib, people should bring the doc up to 
   date.
-- Go through both the task manager and the bug list on Sourceforge
-  and look what needs to be done now, what can be done later and 
-  mark the things already done as closed. For example, once we have 
-  done the docs, we can close task number 18398 (for now).
-  Has task number 18384 been done (Mac patches)?
 - There is a bug in the 3Dfx driver for Linux (tdfx_dri-4.0.1-1) that
   causes the "complex" example program to crash in "fxSetupBlend".
   This is fixed in more recent DRI snapshots (requires kernel 2.4.x).
 
-Testing:
-========
-
-- More loader / writer testing. See
-  article of Wolfram Kuss on plib user, "does anyone use .ssg files?" from
-  17.1.2001
-- Automatically check PPE, all examples and probably tuxkart, tux_aqfh
-  and toobular for memory leaks. MSVC has such a feature.
-- WK: IMHO we should have fgfs, tuxkart, tux_aqfh and toobular compilable
-  before releasing PLIB 1.4.0. AFAIK, fgfs compiles.
-- Are all the plib-applications and examples still
-  compilable and do they work?
-  Especially, is the texture coordinate bug in Tux Racer gone?
-- It would be nice if there was one or a few models that contain 
-  all the (non-deprecated) features of plib, for example ssgVtxArray
-  and ssgVtxTable with all the OpenGL types, textures of all formats,
-  untextured faces, transparent/translucent faces etc. 
-  To create this is no easy task.
-- People from the other plib-parts should test their part and maybe 
-  write lists what to test.
-- Testing on "non-standard" operating systems and hardware.
-  Especially interesting are 64 bit machines. And computers with
-  the other endianess (sp?). That means mainly MACs, doesn't it?
-  Darrell, are you listening ;-)?
-- Test the current stripifier.
-
-Releasing:
-==========
-- Update docs to the new state:
-  Change version numbers.
-  Create change history (?).
-  Change "In the cvs you will find" to
-  "In 1.4.0 you will find"
-- Do the file release
-- Announce it:
-  On plib-announce
-  On Sourceforge as news item
-  On other web sites(?)
 
 Probably after 1.4.0:
 =====================
