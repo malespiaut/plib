@@ -713,13 +713,57 @@ void ssgStripify ( ssgEntity *ent )
   These routines are essentially non-realtime tree optimisations.
 */
 
+static void safe_replace_kid ( ssgBranch *parent, ssgEntity *old_kid, ssgEntity *new_kid )
+{
+  /*
+    Replace old_kid by new_kid in a "safe" manner.
+    new_kid may be null, in which case old_kid is removed.
+    If parent is null then loop over all parents of old_kid.
+  */
+
+  if ( parent == NULL )
+  {
+    for ( ssgBranch *p = old_kid -> getParent ( 0 ) ; p != NULL ;
+	             p = old_kid -> getNextParent () )
+      safe_replace_kid ( p, old_kid, new_kid ) ;
+    return ;
+  }
+
+  assert ( parent -> searchForKid ( old_kid ) >= 0 ) ;
+
+  if ( new_kid == NULL )
+  {
+    if ( parent -> isAKindOf ( ssgTypeRangeSelector () ) )
+    {
+      ssgRangeSelector *s = (ssgRangeSelector *) parent ;
+      for ( int i = s -> searchForKid ( old_kid ) ; 
+	        i < s -> getNumKids () ; i++ )
+	s -> setRange ( i, s -> getRange ( i + 1 ) ) ;
+    }
+
+    else if ( parent -> isAKindOf ( ssgTypeSelector () ) )
+    { 
+      /* ssgTimedSelector among others -- jarnspikar */
+      parent -> replaceKid ( old_kid, new ssgInvisible ) ;
+      return ;
+    }
+
+    parent -> removeKid ( old_kid ) ;
+  }
+  else
+  {
+    parent -> replaceKid ( old_kid, new_kid ) ;
+  }
+}
+
 static void strip ( ssgEntity *ent )
 {
   /*
     Strip off all branches with no kids - and snip out all
     simple branches with just one kid.
+    A node with user data is always left unchanged.
   */
-
+  
   if ( ! ent -> isAKindOf ( ssgTypeBranch () ) )
     return ;
 
@@ -729,28 +773,34 @@ static void strip ( ssgEntity *ent )
 				 k = b_ent -> getNextKid () )
     strip ( k ) ;
 
-  if ( ! ent -> isA ( ssgTypeBranch () ) )
-    return ;
-
   if ( b_ent -> getNumKids () == 1 )
   {
-    for ( ssgBranch *p = b_ent -> getParent ( 0 ) ; p != NULL ;
-				  p = b_ent -> getNextParent () )
-       p -> addKid ( b_ent -> getKid ( 0 ) ) ; 
+    ssgEntity *kid = b_ent -> getKid ( 0 ) ;
 
-    b_ent -> removeKid ( 0 ) ;
+    if ( b_ent -> isA ( ssgTypeBranch () ) &&
+	 b_ent -> getUserData () == NULL )
+      safe_replace_kid ( NULL, b_ent, kid ) ;
+    
+    else if ( kid -> isA ( ssgTypeBranch () ) &&
+	      kid -> getUserData () == NULL &&
+	      ! b_ent -> isAKindOf ( ssgTypeSelector () ) )
+    {
+      ssgBranch *b_kid = (ssgBranch *) kid ;
+      for ( ssgEntity *k = b_kid -> getKid ( 0 ) ; k != NULL ;
+  	               k = b_kid -> getNextKid () )
+        b_ent -> addKid ( k ) ;
+      b_ent -> removeKid ( b_kid ) ;
+    }
   }
 
   if ( b_ent -> getNumKids () == 0 )
   {
-    for ( ssgBranch *p = b_ent -> getParent ( 0 ) ;
-				p != NULL ; p = b_ent -> getNextParent () )
-       p -> removeKid ( b_ent ) ; 
+    if ( b_ent -> getUserData() == NULL )
+      safe_replace_kid ( NULL, b_ent, NULL ) ;
   }
 }
 
-
-static void flatten ( ssgEntity *ent, sgMat4 m )
+static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
 {
   /*
     Move all transforms down to the leaf nodes and
@@ -758,75 +808,139 @@ static void flatten ( ssgEntity *ent, sgMat4 m )
     tree after calling this.
   */
 
-  if ( ent -> isAKindOf ( ssgTypeLeaf () ) )
-  {
-    ((ssgLeaf *) ent) -> transform ( m ) ;
-    return ;
-  }
+  sgMat4 mat2 ;
 
-  if ( ent -> isAKindOf ( ssgTypeCutout () ) )
+  /*
+    The following nodes may (currently) not be flattened:
+    - ssgCutout,
+    - ssgRangeSelector, and
+    - ssgTransform with user data.
+  */
+  if ( ent -> isAKindOf ( ssgTypeCutout () ) ||
+       ent -> isAKindOf ( ssgTypeRangeSelector () ) ||
+       ( ent -> isAKindOf ( ssgTypeTransform () ) &&
+	 ( ent -> getUserData () != NULL || 
+	   ! ent -> isA ( ssgTypeTransform () ) )))
   {
-/*
-    ulSetError ( UL_WARNING, "ssgFlatten: Can't flatten subtrees containing Cutout nodes" ) ; 
-*/
+    /* Insert a transform node if needed. */
+    if ( mat != NULL ) {
+      ssgTransform *tr = new ssgTransform ;
+      tr -> setTransform ( mat ) ;
+      tr -> addKid ( ent ) ;
+      safe_replace_kid ( parent, ent, tr ) ;
+    }
+
+    /* Traverse as usual. */
+    if ( ent -> isAKindOf ( ssgTypeBranch () ) )
+    {
+      ssgBranch *b_ent = (ssgBranch *) ent ;
+      for ( ssgEntity *k = b_ent -> getKid ( 0 ) ; k != NULL ;
+                       k = b_ent -> getNextKid () )
+        flatten ( b_ent, k, NULL ) ;
+    }
+
     return ;
   }
 
   /*
-    Transforms with userdata are assumed to be
-    special and cannot be flattened.
+    Clone the node if needed (there is no need to clone it recursively,
+    especially not past unflattable nodes).
   */
+  if ( ent -> getRef () > 1 && mat != NULL ) 
+  {
+    ssgEntity *clone = (ssgEntity *) ent -> clone ( SSG_CLONE_GEOMETRY |
+  				                    SSG_CLONE_USERDATA ) ;
+    safe_replace_kid ( parent, ent, clone ) ;
+    ent = clone ;
+  }
 
-  if ( ent -> isAKindOf ( ssgTypeTransform () ) &&
-       ent -> getUserData () == NULL )
+  /*
+    Apply the transformation on leaf nodes.
+  */
+  if ( ent -> isAKindOf ( ssgTypeLeaf () ) )
+  {
+    if ( mat != NULL )
+      ((ssgLeaf *) ent) -> transform ( mat ) ;
+    return ;
+  }
+
+  /*
+    Replace transform nodes with simple branches.
+   */
+  if ( ent -> isAKindOf ( ssgTypeTransform () ) )
   {
     ssgTransform *t_ent = (ssgTransform *) ent ;
-    ssgBranch *br = new ssgBranch () ;
-    sgMat4 tmp1, tmp2 ;
 
-    t_ent -> getTransform ( tmp1 ) ;
-    sgCopyMat4 ( tmp2, m ) ;
-    sgPreMultMat4 ( tmp2, tmp1 ) ;
-
-    ssgEntity *k ;
-
-    while ( (k = t_ent -> getKid ( 0 )) != NULL )
-    {
-      flatten ( k, tmp2 ) ;
+    t_ent -> getTransform ( mat2 ) ;
+    if ( mat != NULL )
+      sgPostMultMat4 ( mat2, mat ) ;
+    mat = mat2 ;
+    
+    ssgBranch *br = new ssgBranch ;
+    /*
+      FIXME! It would have been very neat to do:
+      br -> copy_from ( t_ent, 0 ) ;
+    */
+    br -> setName ( t_ent -> getName () ) ;
+    for ( ssgEntity *k = t_ent -> getKid ( 0 ) ; k != NULL ;
+	             k = t_ent -> getNextKid () )
       br -> addKid ( k ) ;
-      t_ent -> removeKid ( k ) ;
-    }
+    t_ent -> removeAllKids () ;
 
-    br    -> recalcBSphere () ;
-    t_ent -> recalcBSphere () ;
-
-    for ( ssgBranch *p = t_ent -> getParent ( 0 ) ;
-		     p != NULL ; p = t_ent -> getNextParent () )
-    {
-      p -> addKid ( br ) ;
-      p -> recalcBSphere () ;
-    }
+    safe_replace_kid ( NULL, ent, br ) ;
+    ent = br ;
   }
-  else
+
+  /*
+    Finally traverse the kids.
+  */
+  if ( ent -> isAKindOf ( ssgTypeBranch () ) )
   {
     ssgBranch *b_ent = (ssgBranch *) ent ;
-
     for ( ssgEntity *k = b_ent -> getKid ( 0 ) ; k != NULL ;
-                                      k = b_ent -> getNextKid () )
-      flatten ( k, m ) ;
+                     k = b_ent -> getNextKid () )
+      flatten ( b_ent, k, mat ) ;
   }
-}
 
+}
 
 void ssgFlatten ( ssgEntity *ent )
 {
-  sgMat4 m ;
-  sgMakeIdentMat4 ( m ) ;
+  if ( ! ent -> isAKindOf ( ssgTypeBranch () ) )
+     return ;
 
-  flatten ( ent, m ) ;
-  strip   ( ent ) ;
+  ssgBranch *b_ent = (ssgBranch *) ent ;
+  sgVec4 *mat = NULL ;
+  sgMat4 xform, ident ;
 
-  ent -> recalcBSphere () ;
+  /*
+    If the top level node is a ssgTransform, then do not replace it;
+    instead load an identity transform and multiply out the matrix.
+   */
+
+  if ( b_ent -> isA ( ssgTypeTransform () ) && 
+       b_ent -> getUserData () == NULL )
+  {
+    sgMakeIdentMat4 ( ident ) ;
+    ((ssgTransform *) b_ent) -> getTransform ( xform ) ;
+    ((ssgTransform *) b_ent) -> setTransform ( ident ) ;
+    mat = xform ;
+  }
+
+  /*
+    Since the top level node may not be removed, loop over the kids.
+    Done in two passes because *kid* may be removed.
+  */
+
+  for ( ssgEntity *kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
+	           kid = b_ent -> getNextKid () )
+    flatten ( b_ent, kid, mat ) ;
+
+  for ( ssgEntity *kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
+	           kid = b_ent -> getNextKid () )
+    strip ( kid ) ;
+
+  b_ent -> recalcBSphere () ;
 }
 
 
@@ -843,11 +957,44 @@ void ssgFlatten ( ssgEntity *ent )
 */
 void ssgTransTool ( ssgEntity *ent, const sgMat4 trans )
 {
-  sgMat4 m ;
-  sgCopyMat4 ( m, trans ) ;
+  if ( ent -> isAKindOf ( ssgTypeLeaf () ) )
+  {
+    ((ssgLeaf *) ent) -> transform ( (sgMat4) trans ) ;
+    return ;
+  }
 
-  flatten ( ent, m ) ;
-  strip   ( ent ) ;
+  if ( ! ent -> isAKindOf ( ssgTypeBranch () ) )
+    return ;
 
-  ent -> recalcBSphere () ;
+  ssgBranch *b_ent = (ssgBranch *) ent ;
+  sgMat4 mat, ident, xform ;
+  
+  sgCopyMat4 ( mat, trans ) ;
+  
+  if ( b_ent -> isA ( ssgTypeTransform () ) && 
+       b_ent -> getUserData () == NULL )
+  {
+    sgMakeIdentMat4 ( ident ) ;
+    ((ssgTransform *) b_ent) -> getTransform ( xform ) ;
+    ((ssgTransform *) b_ent) -> setTransform ( ident ) ;
+    sgPreMultMat4 ( mat, xform ) ;
+  }
+
+  else if ( b_ent -> isAKindOf ( ssgTypeTransform () ) ||
+	    b_ent -> isAKindOf ( ssgTypeCutout () ) ||
+	    b_ent -> isAKindOf ( ssgTypeRangeSelector () ) )
+  {
+    ulSetError ( UL_WARNING, 
+		 "ssgTransTool: Cannot handle this kind of node at top level." ) ;
+    return ;
+  }
+
+  for ( ssgEntity *kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
+	           kid = b_ent -> getNextKid () )
+    flatten ( b_ent, kid, mat ) ;
+
+  for ( ssgEntity *kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
+	           kid = b_ent -> getNextKid () )
+    strip ( kid ) ;
+
 }
