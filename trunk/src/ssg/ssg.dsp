@@ -112,6 +112,10 @@ SOURCE=.\ssgAnimation.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgAnimTransform.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgAxisTransform.cxx
 # End Source File
 # Begin Source File
