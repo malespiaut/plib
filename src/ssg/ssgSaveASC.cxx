@@ -164,7 +164,8 @@ static void save_geom ( ssgEntity *e )
 
     if ( br -> isAKindOf ( ssgTypeSelector() ) )
     {
-      save_geom ( br -> getKid ( 0 ) ) ;
+      for ( int i = 0 ; i < br -> getNumKids () ; i++ )
+        save_geom ( br -> getKid ( i ) ) ;
     }
     else
     {
@@ -178,7 +179,7 @@ static void save_geom ( ssgEntity *e )
 	  if(bUseSpare)
 			if( 1 != e->getSpare() )
 				bSaveIt = FALSE;
-
+		
 		if ( bSaveIt )
 		{
 			ssgVtxTable *vt = (ssgVtxTable *) e ;
