@@ -105,6 +105,7 @@ Non-class functions:</h3>
   <li>  <a href="#puMenuBar">puMenuBar</a>  </li> 
   <li> <a href="#puVerticalMenu">puVerticalMenu</a></li> 
   <li> <a href="#puListBox">puListBox</a></li> 
+  <li>  <a href="#puFileSelector">puFileSelector</a>  </li>
   <li>  <a href="#puFilePicker">puFilePicker</a>  </li>
 </ul>
 </td>
@@ -435,6 +436,7 @@ the puObject base class:
   #define PUCLASS_LISTBOX
   #define PUCLASS_DIAL
   #define PUCLASS_FILEPICKER
+  #define PUCLASS_FILESELECTOR
   #define PUCLASS_BISLIDER
   #define PUCLASS_TRISLIDER
   #define PUCLASS_VERTMENU
@@ -1128,6 +1130,11 @@ you use the following functions:
 This will avoid, for example, the user typing his name into an input box
 that is supposed to accept his birthdate.
 <p>
+If the text is too long to fit in the widget, only the rightmost
+characters will be displayed. One space is always left to the right
+of the text to give the user the impression that there is still room
+to type.
+<p>
 <a NAME="puLargeInput"></a>
 <h3>
 puLargeInput</h3>
@@ -1468,7 +1475,7 @@ the <a href="#puMenuBar">puMenuBar</a> widget.
 <h3>
 puListBox</h3>
 The puListBox widget is a multiple-line text widget which was designed
-to support the <a href="#puFilePicker">puFilePicker</a> widget.  It
+to support the <a href="#puFileSelector">puFileSelector</a> widget.  It
 is derived from the <a href="#puButton">puButton</a> widget and supports
 that widget's entire API.  You create a puListBox by invoking the
 contructor method:
@@ -1498,29 +1505,43 @@ API.  They are as follows:
   void puListBox::setTopItem  ( int item_index ) ;  /* Set the index of the top item to be displayed */
 
 </pre>
+If the text is too wide for the box, it'll be truncated with "..." displayed
+to the right of it to show the user that there is some missing text.
 <a NAME="puFilePicker"></a>
 <h3>
 puFilePicker</h3>
-<img SRC="puFilePicker.png" ALT="view of puFilePicker widget" height=227 width=308 align=RIGHT>The
-puFilePicker class is derived from <a href="#puDialogBox">puDialogBox</a>.
-FilePicker creates a dialog box for selecting a file.  The puFilePicker
-widget contains a <a href="#puListBox">puListBox</a> widget, a <a href="#puSlider">puSlider</a>
-widget, two <a href="#puOneShot">puOneShot</a> button widgets, and zero,
-two, or four <a href="#puArrowButton">puArrowButton</a> widgets, depending
-on what you ask for.
-<p>
-The API for puFilePicker:
+puFilePicker is now obsolete. Please use puFileSelector instead.
+<a NAME="puFileSelector"></a>
+<h3>
+puFileSelector</h3>
+<img SRC="puFilePicker.png" ALT="view of puFileSelector widget" height=227 width=308 align=RIGHT>The
+puFileSelector class is derived from <a href="#puDialogBox">puDialogBox</a>.
+FileSelector creates a dialog box for selecting a file.  The puFileSelector
+widget contains:
+<ul>
+<li>A <a href="#puText">puText</a> widget for some text at the top of
+    the dialog box.
+<li>A <a href="#puListBox">puListBox</a> widget for listing the files.
+<li>A <a href="#puSlider">puSlider</a> widget with zero, two, or four
+    <a href="#puArrowButton">puArrowButton</a> widgets (depending
+    on what you ask for) to scroll the file list.
+<li>A two <a href="#puOneShot">puOneShot</a> button widgets for
+    the OK and Cancel buttons.
+<li>A <a href="#puInput">puInput</A> to allow the user to type
+    in the filename by hand.
+</ul>
+The API for puFileSelector:
 <pre>
 
-  puFilePicker::puFilePicker ( int x, int y, const char* dir,
-                               const char* title ) ;
-  puFilePicker::puFilePicker ( int x, int y, int arrows,
-                               const char* dir, const char* title ) ;
-  puFilePicker::puFilePicker ( int x, int y, int w, int h,
-                               const char* dir, const char* title ) ;
-  puFilePicker::puFilePicker ( int x, int y, int w, int h,
-                               int arrows, const char* dir,
-                               const char* title ) ;
+  puFileSelector::puFileSelector ( int x, int y, const char* dir,
+                                   const char* title ) ;
+  puFileSelector::puFileSelector ( int x, int y, int arrows,
+                                   const char* dir, const char* title ) ;
+  puFileSelector::puFileSelector ( int x, int y, int w, int h,
+                                   const char* dir, const char* title ) ;
+  puFileSelector::puFileSelector ( int x, int y, int w, int h,
+                                   int arrows, const char* dir,
+                                   const char* title ) ;
 
 </pre>
 The first constructor sets the possition but uses a default value for the
@@ -1528,20 +1549,32 @@ size of the dialog box, currently defaulting to 170,220.  The second
 is like the first but also allows you to specify up- and down-arrows (0
 for none, 1 for single arrows, 2 for single and double arrows) next to
 the list box.  The third and fourth constructors allow you to also
-select the size of the dialog box as well.  The "dir" argument is
-a character string which is the name of the directory whose files are to
-be listed as a starting point, and "title" is a title that is displayed
-in the puFilePicker widget.
+select the size of the dialog box as well.
+<p>
+The "dir" argument is the name of the directory whose files are to
+be listed as a starting point - it can be either absolute or relative
+to the current working directory.
+<p>
+"title" is a title that is displayed in the puFileSelector widget.
 <p>
 When a file has been picked by the user, the string value of the widget will
-be set to the pathname of the file <b>relative to 'dir'</b> - beware, this
-can be a little confusing.
+be set to the absolute pathname of the file.
 <pre>
 
-  puFilePicker::setSize ( int w, int h) ;
+  puFileSelector::setSize ( int w, int h) ;
 
 </pre>
 This method is used to set the current width and height of the dialog box.
+<p>
+<pre>
+
+  puFileSelector::setInitialValue ( char *pathname ) ;
+
+</pre>
+Sets the initial value within the type-in area of the widget.  This
+is generally a simple file name - but it could be a full path
+either relative to the 'dir' you specified in the constructor or
+or an absolute path.
 <h2>
 Non-Class Functions.</h2>
 The following functions are not a part of any classes:

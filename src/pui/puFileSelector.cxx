@@ -476,6 +476,22 @@ static int puFileSelectorStringCompare ( const char *s1, const char *s2,
   return 0 ;
 }
 
+
+void puFileSelector::setInitialValue ( char *s )
+{
+  if ( ulIsAbsolutePathName ( s ) )
+  {
+    input -> setValue ( s ) ;
+    input -> invokeCallback () ;
+  }
+  else
+  {
+    strcat ( input -> getStringValue (), s ) ;
+    input -> invokeCallback () ;
+  }
+}
+
+
 static void puFileSelectorSort ( char** list, char *flags, int size )
 //
 //  comb sort - a modified bubble sort
