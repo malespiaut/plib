@@ -1,4 +1,4 @@
-SUBDIRS = src
+SUBDIRS = src data
 
 EXTRA_DIST = README CHANGES LICENSE NOTICE acsite.m4
 
@@ -7,5 +7,6 @@ dist-hook:
              src/ssg/tux/data \
              src/ssg/majik/data \
              src/fnt/data     \
+             data     \
 	   | ( cd $(distdir) ; tar xf - )
 
