@@ -1146,12 +1146,14 @@ public:
 class puMenuBar : public puInterface
 {
 protected:
+  int bar_height ;
+
 public:
-  puMenuBar ( int h = -1 ) :
-         puInterface ( 0, h < 0 ? puGetWindowHeight() -
-                      ( puGetDefaultLegendFont().getStringHeight () + PUSTR_TGAP + PUSTR_BGAP ) : h )
+  puMenuBar ( int h = -1 ) : puInterface ( 0, 0 )
   {
     type |= PUCLASS_MENUBAR ;
+
+    bar_height = h ;
   }
 
   void add_submenu ( const char *str, char *items[], puCallback _cb[] ) ;
@@ -1280,6 +1282,7 @@ public:
     input_disabled = FALSE ;
 
     setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
+    setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; /* Colour of 'I' bar cursor */
   }
 
   ~puInput ()
