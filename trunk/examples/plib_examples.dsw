@@ -27,18 +27,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "bend"=.\src\ssg\tux\bend.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "complex"=.\src\pui\complex.dsp - Package Owner=<4>
 
 Package=<5>
