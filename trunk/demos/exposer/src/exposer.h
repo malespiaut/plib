@@ -16,9 +16,6 @@
 #include <plib/ul.h>
 
 #include "event.h"
+#include "model.h"
 #include "bones.h"
-
-void createJoint ( sgVec4 colour, Bone *b ) ;
-
-void setShowAngle ( float a ) ;
 
