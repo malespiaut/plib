@@ -26,5 +26,5 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 INCLUDES += -I$(top_srcdir)/src/sg
 INCLUDES += -I$(top_srcdir)/src/util
 
-EXTRA_DIST = ssg.dsp libssg.bpr
+EXTRA_DIST = ssg.dsp
 
