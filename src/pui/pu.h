@@ -763,6 +763,8 @@ public:
   void getDefaultValue ( int   *i ) { default_value.getValue ( i ) ; }
   void getDefaultValue ( float *f ) { default_value.getValue ( f ) ; }
   void getDefaultValue ( char **s ) { default_value.getValue ( s ) ; }
+  void getDefaultValue ( char  *s ) { default_value.getValue ( s ) ; }
+
   int  getDefaultValue ( void )     { return default_value.getValue () ; } /* Obsolete ! */
 
   int  getDefaultIntegerValue () { return default_value.getIntegerValue () ; }
