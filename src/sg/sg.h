@@ -482,7 +482,7 @@ inline int sgCompareVec3 ( const sgVec3 a, const sgVec3 b, const SGfloat tol )
 }
 
 inline int sgCompareVec4 ( const sgVec4 a, const sgVec4 b, const SGfloat tol )
-
+{
   if ( sgCompareFloat( a[0], b[0], tol ) != 0 ) return FALSE ;
   if ( sgCompareFloat( a[1], b[1], tol ) != 0 ) return FALSE ;
   if ( sgCompareFloat( a[2], b[2], tol ) != 0 ) return FALSE ;
