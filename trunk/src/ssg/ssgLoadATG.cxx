@@ -68,7 +68,6 @@ It goes something like this:
 #include  "ssgLocal.h"
 #include "ssgLoaderWriterStuff.h" 
 #include "ssgParser.h"
-#include "../util/ul.h"
 
 
 extern sgVec4 currentDiffuse;
@@ -105,34 +104,6 @@ static int Ascii2Int(int &retVal, const char *token, const char* name )
 	}
 }
 
-static int Ascii2UInt(unsigned int &retVal, const char *token, const char* name )
-// returns TRUE on success
-{
-  char *endptr;
-  retVal = (unsigned int)(strtol( token, &endptr, 10));
-	if ( (endptr == NULL) || (*endptr == 0))
-    return TRUE;
-	else
-	{ parser.error("The field %s should contain an integer number but contains %s",name, token) ;
-		return FALSE;
-	}
-}
-
-// Fixme: have this only once.
-static int Ascii2Float(SGfloat &retVal, const char *token, const char* name )
-// returns TRUE on success
-{
-  char *endptr;
-  retVal = SGfloat(strtod( token, &endptr));
-	if ( (endptr == NULL) || (*endptr == 0))
-    return TRUE;
-	else
-	{ parser.error("The field %s should contain an integer number but contains %s",name, token) ;
-		return FALSE;
-	}
-}
-
-
 
 
 #define MAX_NO_VERTICES_PER_FACE 1000
@@ -141,9 +112,7 @@ static class ssgLoaderWriterMesh _theMesh;
 
 
 
-
-
-static int _ssgNoFaces, _ssgNoVertices, _ssgNoVertexNormals, _ssgNoVertexTC;
+static int _ssgNoFaces, _ssgNoVertices, _ssgNoVertexNormals, _ssgNoVertexTC; //lint !e551
 
 static char * _current_usemtl = NULL, * _last_usemtl = NULL;
 static int _current_material_index = -1;
@@ -299,26 +268,27 @@ static int parse()
 
 			currentState  ->disable(GL_ALPHA_TEST); //needed?
 
-			if ( FALSE ) //currentDiffuse[3] > 0.0f )
+/*			if ( currentDiffuse[3] > 0.0f )
 			{
 				currentState -> disable ( GL_ALPHA_TEST ) ;
 				currentState -> enable  ( GL_BLEND ) ;
 				currentState -> setTranslucent () ;
 			}
-			else
+			else */
 			{
 				currentState -> disable ( GL_BLEND ) ;
 				currentState -> setOpaque () ;
 			}
 			currentState -> disable( GL_TEXTURE_2D );
-			if (TRUE) // textured
+//			if (textured)
 			{	
 				char * fileName =	new char [ strlen ( _current_usemtl ) + 5 ] ;
+				assert( fileName != NULL );
 				strcpy ( fileName, _current_usemtl ) ;
 				strcat( fileName, ".rgb" );
       
 				currentState -> setTexture( current_options -> createTexture( fileName ) );
-			  delete fileName;
+			  delete [] fileName;
 				currentState -> enable( GL_TEXTURE_2D );
 			}
 			// add SimpleState
@@ -336,12 +306,14 @@ static int parse()
 		{ strncpy(buffer, ptr, 1024);
 			ptr2Slash = strchr(buffer, '/');
 			if ( ptr2Slash != NULL)
-				*ptr2Slash = 0;
-			ptr2Slash++;
-					  
+			{	*ptr2Slash = 0;
+				ptr2Slash++;
+				if ( ! Ascii2Int( aiTCs[ nNoOfVerticesForThisFace ], ptr2Slash, "texture coord. index"))
+					return FALSE;
+			}		  
+			else
+				aiTCs[ nNoOfVerticesForThisFace ]=0;
 			if ( ! Ascii2Int( aiVertices[ nNoOfVerticesForThisFace ], buffer, "vertex index"))
-				return FALSE;
-			if ( ! Ascii2Int( aiTCs[ nNoOfVerticesForThisFace ], ptr2Slash, "texture coord. index"))
 				return FALSE;
 			nNoOfVerticesForThisFace++;
 			assert(nNoOfVerticesForThisFace<MAX_NO_VERTICES_PER_FACE);
@@ -397,19 +369,11 @@ static int parse()
 
 	ss  ->disable(GL_ALPHA_TEST); //needed?
 
-	if ( FALSE ) //currentDiffuse[3] > 0.0f )
-	{
-		ss -> disable ( GL_ALPHA_TEST ) ;
-		ss -> enable  ( GL_BLEND ) ;
-		ss -> setTranslucent () ;
-	}
-	else
-	{
-		ss -> disable ( GL_BLEND ) ;
-		ss -> setOpaque () ;
-	}
+	ss -> disable ( GL_BLEND ) ;
+	ss -> setOpaque () ;
+
 	ss -> disable( GL_TEXTURE_2D );
-  _theMesh.checkMe(); // For debug
+  _theMesh.checkMe(); //lint !e534 // For debug
 	_theMesh.add2SSG(
 		ss, // super kludge. NIV135
 		current_options,

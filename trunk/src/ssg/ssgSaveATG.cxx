@@ -76,6 +76,7 @@ int ssgSaveATG( const char* fname, ssgEntity *ent ) {
 		  if ( ss->getTextureFilename() != NULL)
 			{ // remove .rgb
 				char *s1, *s2, * s = new char [ strlen(ss->getTextureFilename()) +1 ];
+				assert ( s != NULL );
 			  strcpy(s, ss->getTextureFilename());
 				char *p = strchr(s, '.');
 				if ( p != NULL ) 
@@ -88,7 +89,7 @@ int ssgSaveATG( const char* fname, ssgEntity *ent ) {
 				if ( s1 != NULL )
 					s2 = ++s1;
 				fprintf(fd, "# usemtl %s\n", s2); 
-			  delete s;
+			  delete [] s;
 			}
  
 		}
