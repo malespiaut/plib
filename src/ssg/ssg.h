@@ -1822,6 +1822,7 @@ _SSG_PUBLIC:
   int   start ;
   int   end   ;
 
+protected:
   ssgAnimTimeMode time_mode ;
   static ulClock ck ;
 
@@ -1833,7 +1834,6 @@ _SSG_PUBLIC:
       loop_time += times [ k ] ;
   }
 
-protected:
   virtual void copy_from ( ssgTimedSelector *src, int clone_flags ) ;
 
   double get_time() const
