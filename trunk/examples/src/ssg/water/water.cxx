@@ -10,7 +10,29 @@
 #include <math.h>
 #include <plib/ssg.h>
 #include <plib/ssgAux.h>
+#include <plib/pu.h>
 #include <GL/glut.h>
+
+#define GUI_BASE      80
+#define VIEW_GUI_BASE 20
+
+puSlider    *trainLengthSlider  = (puSlider    *) NULL ;
+puSlider    *trainSpeedSlider   = (puSlider    *) NULL ;
+puSlider    *trainLambdaSlider  = (puSlider    *) NULL ;
+puSlider    *trainHeightSlider  = (puSlider    *) NULL ;
+puButton    *trainEnableButton  = (puButton    *) NULL ;
+puOneShot   *trainDisableButton = (puOneShot   *) NULL ;
+puDial      *trainHeadingDial   = (puDial      *) NULL ;
+puSelectBox *trainSelectBox     = (puSelectBox *) NULL ;
+
+puDial      *viewHeadingDial    = (puDial      *) NULL ;
+puDial      *viewPitchDial      = (puDial      *) NULL ;
+puSlider    *viewRangeSlider    = (puSlider    *) NULL ;
+puButton    *viewWireframeButton= (puButton    *) NULL ;
+
+puSlider    *waveTextureSlider  = (puSlider    *) NULL ;
+puSlider    *waveSizeSlider     = (puSlider    *) NULL ;
+puSlider    *wavePolycountSlider= (puSlider    *) NULL ;
 
 ssgRoot            *scene        = NULL ;
 ssgTransform       *teapot       = NULL ;
@@ -25,9 +47,155 @@ ssgSimpleState     *splash_state = NULL ;
 ssgSimpleState     *teapot_state = NULL ;
 ssgSimpleState     *plinth_state = NULL ;
 
-ssgaWaveTrain trainA ;
-ssgaWaveTrain trainB ;
-ssgaWaveTrain trainC ;
+ssgaWaveTrain trains [ 16 ] ;
+
+char *trainNameList[] =
+{
+  "Train 0" , "Train 1" , "Train 2" , "Train 3" , "Train 4" ,
+  "Train 5" , "Train 6" , "Train 7" , "Train 8" , "Train 9" ,
+  "Train 10", "Train 11", "Train 12", "Train 13", "Train 14",
+  "Train 15",
+  NULL
+} ;
+
+int   curr_train = 0 ;
+int   wireframe  = FALSE ;
+float cam_range  = 25.0f ;
+
+sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
+
+
+void waveTextureSlider_cb ( puObject *ob )
+{
+  ocean   -> setTexScale ( ob -> getFloatValue (),
+                           ob -> getFloatValue () ) ;
+}
+
+
+void waveSizeSlider_cb ( puObject *ob )
+{
+  cam_range = ob -> getFloatValue () ;
+  ocean   -> setSize ( ob -> getFloatValue () ) ;
+}
+
+
+void wavePolycountSlider_cb ( puObject *ob )
+{
+  ocean -> setNumTris ( ob -> getIntegerValue () ) ;
+}
+
+
+void viewHeadingDial_cb ( puObject *ob )
+{
+  campos.hpr[0] = ob -> getFloatValue () ;
+
+  sgVec3 r = { 0, -cam_range, 0 } ;
+  sgMat4 mat ;
+
+  sgMakeRotMat4 ( mat, campos.hpr ) ;
+  sgXformVec3 ( campos.xyz, r, mat ) ;
+}
+
+
+void viewPitchDial_cb ( puObject *ob )
+{
+  campos . hpr [ 1 ] = ob -> getFloatValue () ;
+
+  sgVec3 r = { 0, -cam_range, 0 } ;
+  sgMat4 mat ;
+
+  sgMakeRotMat4 ( mat, campos.hpr ) ;
+  sgXformVec3 ( campos.xyz, r, mat ) ;
+}
+
+
+void viewRangeSlider_cb ( puObject *ob )
+{
+  cam_range = ob -> getFloatValue () ;
+
+  sgVec3 r = { 0, -cam_range, 0 } ;
+  sgMat4 mat ;
+
+  sgMakeRotMat4 ( mat, campos.hpr ) ;
+  sgXformVec3 ( campos.xyz, r, mat ) ;
+}
+
+
+void viewWireframeButton_cb ( puObject *ob )
+{
+  wireframe = ob -> getIntegerValue () ;
+}
+
+
+void trainLengthSlider_cb ( puObject *ob )
+{
+  trains[curr_train].setLength ( ob -> getFloatValue () ) ;
+  ob -> setLegend ( ob -> getStringValue () ) ;
+}
+
+
+void trainSpeedSlider_cb ( puObject *ob )
+{
+  trains[curr_train].setSpeed ( ob -> getFloatValue () ) ;
+  ob -> setLegend ( ob -> getStringValue () ) ;
+}
+
+
+void trainLambdaSlider_cb ( puObject *ob )
+{
+  trains[curr_train].setLambda ( ob -> getFloatValue () ) ;
+  ob -> setLegend ( ob -> getStringValue () ) ;
+}
+
+
+void trainHeightSlider_cb ( puObject *ob )
+{
+  trains[curr_train].setWaveHeight ( ob -> getFloatValue () ) ;
+  ob -> setLegend ( ob -> getStringValue () ) ;
+}
+
+void trainDisableButton_cb ( puObject *ob )
+{
+  for ( int i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
+    ocean -> setWaveTrain ( i, NULL ) ;
+
+  trainEnableButton -> setValue ( 0 ) ;
+}
+
+void trainEnableButton_cb ( puObject *ob )
+{
+  if ( ob -> getIntegerValue () )
+    ocean -> setWaveTrain ( curr_train, & trains [ curr_train ] ) ;
+  else
+    ocean -> setWaveTrain ( curr_train, NULL ) ;
+}
+
+void trainHeadingDial_cb ( puObject *ob )
+{
+  trains[curr_train].setHeading ( ob -> getFloatValue () ) ;
+  ob -> setLegend ( ob -> getStringValue () ) ;
+}
+
+void trainSelectBox_cb ( puObject *ob )
+{
+  curr_train = ((puSelectBox *) ob) -> getCurrentItem () ;
+
+  if ( curr_train < 0 )
+    curr_train = 0 ;
+
+  if ( curr_train >= SSGA_MAX_WAVETRAIN )
+    curr_train = SSGA_MAX_WAVETRAIN - 1 ;
+
+  trainEnableButton -> setValue (
+                              ocean -> getWaveTrain ( curr_train ) != NULL ) ;
+
+  trainLengthSlider -> setValue ( trains[curr_train].getLength     () ) ;
+  trainSpeedSlider  -> setValue ( trains[curr_train].getSpeed      () ) ;
+  trainLambdaSlider -> setValue ( trains[curr_train].getLambda     () ) ;
+  trainHeightSlider -> setValue ( trains[curr_train].getWaveHeight () ) ;
+  trainHeadingDial  -> setValue ( trains[curr_train].getHeading    () ) ;
+}
+
 
 float getDepth ( float x, float y )
 {
@@ -38,17 +206,7 @@ float getDepth ( float x, float y )
 
 void update_motion ( int frameno )
 {
-  sgCoord campos ;
   sgCoord tptpos ;
-
-  /* Move the camera in some kind of interesting way */
-
-  if ( frameno > 600 )
-    sgSetCoord ( & campos, 0.0f, -20.0f, 8.0f,
-                         25.0f * (float) sin(frameno/100.0), -30.0f, 0.0f ) ;
-  else
-    sgSetCoord ( & campos, 0.0f, 0.0f, 3.5f,
-                         frameno, -10.0f, 0.0f ) ;
 
   sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, -frameno, 0.0f, 0.0f ) ;
 
@@ -77,7 +235,7 @@ void update_motion ( int frameno )
   The GLUT window reshape event
 */
 
-void reshape ( int w, int h )
+static void reshape ( int w, int h )
 {
   glViewport ( 0, 0, w, h ) ;
 }
@@ -85,12 +243,30 @@ void reshape ( int w, int h )
 
 
 /*
-  The GLUT keyboard event
+  The GLUT keyboard/mouse events
 */
 
-void keyboard ( unsigned char, int, int )
+
+static void keyboard ( unsigned char key, int, int )
 {
-  exit ( 0 ) ;
+  puKeyboard ( key, PU_DOWN ) ;
+}
+
+
+static void specialfn ( int key, int x, int y )
+{
+  puKeyboard ( key + PU_KEY_GLUT_SPECIAL_OFFSET, PU_DOWN ) ;
+}
+
+
+static void motionfn ( int x, int y )
+{
+  puMouse ( x, y ) ;
+}
+
+static void mousefn ( int button, int updown, int x, int y )
+{
+  puMouse ( button, updown, x, y ) ;
 }
 
 
@@ -108,12 +284,15 @@ frameno++ ;
 
   glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
-if ( frameno % 2000 > 1900 )
-  glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE ) ;
-else
-  glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL ) ;
+  if ( wireframe )
+    glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE ) ;
+  else
+    glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL ) ;
 
   ssgCullAndDraw ( scene ) ;
+
+  glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL ) ;
+  puDisplay () ;
 
   glutPostRedisplay () ;
   glutSwapBuffers () ;
@@ -142,11 +321,12 @@ void init_graphics ()
   glutDisplayFunc        ( redraw   ) ;
   glutReshapeFunc        ( reshape  ) ;
   glutKeyboardFunc       ( keyboard ) ;
- 
-  /*
-    Initialise SSG
-  */
+  glutSpecialFunc        ( specialfn ) ;
+  glutMouseFunc          ( mousefn   ) ;
+  glutMotionFunc         ( motionfn  ) ;
+  glutPassiveMotionFunc  ( motionfn  ) ;
 
+  puInit  () ;
   ssgInit () ;
 
   /*
@@ -279,15 +459,21 @@ void load_database ()
                                       droplet_update, NULL ) ;
   fountain -> setState ( splash_state ) ;
 
-  trainA . setWaveHeight ( 0.2f ) ;
-  trainA . setTheta      ( 0.0f ) ;
-  trainB . setWaveHeight ( 0.1f ) ;
-  trainB . setTheta      ( 25.0f ) ;
-  trainB . setOmega      ( 17.0f ) ;
-  trainC . setWaveHeight ( 0.1f ) ;
-  trainC . setTheta      ( 45.0f ) ;
-  trainC . setOmega      ( 17.0f ) ;
-  trainC . setKappa      ( 2.4f ) ;
+  /* Set up some interesting defaults. */
+
+  trains[0] . setWaveHeight (  0.2f ) ;
+  trains[0] . setHeading    (  0.0f ) ;
+  trains[1] . setSpeed      ( 10.0f ) ;
+
+  trains[1] . setWaveHeight (  0.1f ) ;
+  trains[1] . setHeading    ( 25.0f ) ;
+  trains[1] . setSpeed      ( 17.0f ) ;
+  trains[2] . setLength     (  1.2f ) ;
+
+  trains[2] . setWaveHeight (  0.1f ) ;
+  trains[2] . setHeading    ( 45.0f ) ;
+  trains[2] . setSpeed      ( 10.0f ) ;
+  trains[2] . setLength     (  0.6f ) ;
 
   ocean   =  new ssgaWaveSystem ( 10000 ) ;
   ocean   -> setColour        ( WHITE ) ;
@@ -297,9 +483,9 @@ void load_database ()
   ocean   -> setDepthCallback ( getDepth ) ;
   ocean   -> setKidState      ( sea_state ) ;
   ocean   -> setWindSpeed     ( 10.0f ) ;
-  ocean   -> setWaveTrain     ( 0, & trainA ) ;
-  ocean   -> setWaveTrain     ( 1, & trainB ) ;
-  ocean   -> setWaveTrain     ( 2, & trainC ) ;
+  ocean   -> setWaveTrain     ( 0, & trains[0] ) ;
+  ocean   -> setWaveTrain     ( 1, & trains[1] ) ;
+  ocean   -> setWaveTrain     ( 2, & trains[2] ) ;
   ocean   -> regenerate       () ;
 
   ped_obj =  new ssgaCube     () ;
@@ -329,6 +515,156 @@ void load_database ()
 }
 
 
+void init_gui ()
+{
+  static puFont     *sorority ;
+  static fntTexFont *fnt      ;
+
+  fnt      = new fntTexFont () ;
+  fnt     -> load ( "data/sorority.txf" ) ;
+  sorority = new puFont ( fnt, 10 ) ;
+
+  puSetDefaultFonts        ( *sorority, *sorority ) ;
+  puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
+  puSetDefaultColourScheme ( 1.0, 0.6, 0.2, 0.5 ) ;
+
+  puGroup *window_group = new puGroup ( 0, 0 ) ;
+
+  trainLengthSlider = new puSlider ( 193, GUI_BASE+28, 90, false, 20 ) ;
+  trainLengthSlider->setMaxValue   ( 20.0f ) ;
+  trainLengthSlider->setMinValue   (  0.1f ) ;
+  trainLengthSlider->setStepSize   (  0.1f ) ;
+  trainLengthSlider->setCBMode     ( PUSLIDER_ALWAYS ) ;
+  trainLengthSlider->setCallback   ( trainLengthSlider_cb ) ;
+  trainLengthSlider->setLabel      ( "Wave Length" ) ;
+  trainLengthSlider->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
+  
+  trainSpeedSlider = new puSlider  ( 193, GUI_BASE+56, 90, false, 20 ) ;
+  trainSpeedSlider->setMaxValue    ( 20.0f ) ;
+  trainSpeedSlider->setMinValue    ( 0.0f ) ;
+  trainSpeedSlider->setStepSize    ( 0.1f ) ;
+  trainSpeedSlider->setCBMode      ( PUSLIDER_ALWAYS ) ;
+  trainSpeedSlider->setCallback    ( trainSpeedSlider_cb ) ;
+  trainSpeedSlider->setLabel       ( "Wave Speed" ) ;
+  trainSpeedSlider->setLabelPlace  ( PUPLACE_CENTERED_LEFT ) ;
+  
+  trainLambdaSlider = new puSlider ( 294, GUI_BASE+28, 90, false, 20 ) ;
+  trainLambdaSlider->setMaxValue   ( 2.0f ) ;
+  trainLambdaSlider->setMinValue   ( 0.0f ) ;
+  trainLambdaSlider->setStepSize   ( 0.1f ) ;
+  trainLambdaSlider->setCBMode     ( PUSLIDER_ALWAYS ) ;
+  trainLambdaSlider->setCallback   ( trainLambdaSlider_cb ) ;
+  trainLambdaSlider->setLabel      ( "Wave Curl" ) ;
+  trainLambdaSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  
+  trainHeightSlider = new puSlider ( 295, GUI_BASE+56, 90, false, 20 ) ;
+  trainHeightSlider->setMaxValue   ( 5.0f ) ;
+  trainHeightSlider->setMinValue   ( 0.0f ) ;
+  trainHeightSlider->setStepSize   ( 0.1f ) ;
+  trainHeightSlider->setCBMode     ( PUSLIDER_ALWAYS ) ;
+  trainHeightSlider->setCallback   ( trainHeightSlider_cb ) ;
+  trainHeightSlider->setLabel      ( "Wave Height (meters)" ) ;
+  trainHeightSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  
+  trainEnableButton = new puButton ( 194, GUI_BASE+84, " " ) ;
+  trainEnableButton->setStyle      ( PUSTYLE_RADIO ) ;
+  trainEnableButton->setCallback   ( trainEnableButton_cb ) ;
+  trainEnableButton->setLabel      ( "Enable this Wave Train" ) ;
+  trainEnableButton->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
+  
+  trainDisableButton = new puOneShot( 450, GUI_BASE+109,
+                                                "Disable All WaveTrains" ) ;
+  trainDisableButton->setCallback  ( trainDisableButton_cb ) ;
+  
+  trainHeadingDial = new puDial    ( 294, GUI_BASE+82, 50 ) ;
+  trainHeadingDial->setWrap        ( 1 ) ;
+  trainHeadingDial->setMaxValue    ( 360 ) ;
+  trainHeadingDial->setMinValue    ( 0 ) ;
+  trainHeadingDial->setStepSize    ( 1 ) ;
+  trainHeadingDial->setCBMode      ( PUSLIDER_ALWAYS ) ;
+  trainHeadingDial->setCallback    ( trainHeadingDial_cb ) ;
+  trainHeadingDial->setLabel       ( "Wave Direction" ) ;
+  trainHeadingDial->setLabelPlace  ( PUPLACE_CENTERED_RIGHT ) ;
+  trainHeadingDial->setLegendPlace ( PUPLACE_BOTTOM_CENTERED ) ;
+  
+  trainSelectBox = new puSelectBox ( 190, GUI_BASE+109, 280, GUI_BASE+139,
+                                     trainNameList ) ;
+  trainSelectBox->setCallback      ( trainSelectBox_cb ) ;
+  trainSelectBox->setCurrentItem   ( 0 ) ;
+  trainSelectBox->setLabel         ( "Edit Wave Train Number" ) ;
+  trainSelectBox->setLabelPlace    ( PUPLACE_CENTERED_LEFT ) ;
+  
+  /* Set everything up on the first time around */
+  trainSelectBox_cb ( trainSelectBox ) ;
+
+  viewHeadingDial = new puDial (  50, VIEW_GUI_BASE, 50 ) ;
+  viewHeadingDial->setValue       ( 0.0f ) ;
+  viewHeadingDial->setWrap        ( 1 ) ;
+  viewHeadingDial->setMaxValue    ( 360 ) ;
+  viewHeadingDial->setMinValue    ( 0 ) ;
+  viewHeadingDial->setStepSize    ( 0 ) ;
+  viewHeadingDial->setCBMode      ( PUSLIDER_ALWAYS ) ;
+  viewHeadingDial->setCallback    ( viewHeadingDial_cb ) ;
+  viewHeadingDial->setLabel       ( "Pan" ) ;
+  viewHeadingDial->setLabelPlace  ( PUPLACE_BOTTOM_CENTERED ) ;
+
+  viewPitchDial  = new puDial ( 100, VIEW_GUI_BASE, 50 ) ;
+  viewPitchDial  ->setValue       ( -45.0f ) ;
+  viewPitchDial  ->setWrap        ( 1 ) ;
+  viewPitchDial  ->setMaxValue    ( 360 ) ;
+  viewPitchDial  ->setMinValue    ( 0 ) ;
+  viewPitchDial  ->setStepSize    ( 0 ) ;
+  viewPitchDial  ->setCBMode      ( PUSLIDER_ALWAYS ) ;
+  viewPitchDial  ->setCallback    ( viewPitchDial_cb ) ;
+  viewPitchDial  ->setLabel       ( "Tilt" ) ;
+  viewPitchDial  ->setLabelPlace  ( PUPLACE_BOTTOM_CENTERED ) ;
+
+  viewRangeSlider = new puSlider ( 150, VIEW_GUI_BASE, 90, false, 20 ) ;
+  viewRangeSlider->setValue      ( 25.0f ) ;
+  viewRangeSlider->setMaxValue   ( 150.0f ) ;
+  viewRangeSlider->setMinValue   ( 0.0f ) ;
+  viewRangeSlider->setStepSize   ( 0 ) ;
+  viewRangeSlider->setCBMode     ( PUSLIDER_ALWAYS ) ;
+  viewRangeSlider->setCallback   ( viewRangeSlider_cb ) ;
+  viewRangeSlider->setLabel      ( "Range" ) ;
+  viewRangeSlider->setLabelPlace ( PUPLACE_BOTTOM_CENTERED ) ;
+  
+  viewWireframeButton= new puButton ( 400, VIEW_GUI_BASE, "Wireframe" ) ;
+  viewWireframeButton->setCallback  ( viewWireframeButton_cb ) ;
+  viewWireframeButton->setValue     ( FALSE ) ;
+
+  waveTextureSlider = new puSlider ( 500, VIEW_GUI_BASE   , 90, false, 20 ) ;
+  waveTextureSlider->setValue      ( 1.0f ) ;
+  waveTextureSlider->setMaxValue   ( 50.0f ) ;
+  waveTextureSlider->setMinValue   ( 0.01f ) ;
+  waveTextureSlider->setStepSize   ( 0 ) ;
+  waveTextureSlider->setCBMode     ( PUSLIDER_ALWAYS ) ;
+  waveTextureSlider->setCallback   ( waveTextureSlider_cb ) ;
+  waveTextureSlider->setLabel      ( "Texture" ) ;
+  waveTextureSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  
+  waveSizeSlider = new puSlider ( 500, VIEW_GUI_BASE+30, 90, false, 20 ) ;
+  waveSizeSlider->setValue      ( 25.0f ) ;
+  waveSizeSlider->setMaxValue   ( 500.0f ) ;
+  waveSizeSlider->setMinValue   (  10.0f ) ;
+  waveSizeSlider->setStepSize   ( 0 ) ;
+  waveSizeSlider->setCBMode     ( PUSLIDER_ALWAYS ) ;
+  waveSizeSlider->setCallback   ( waveSizeSlider_cb ) ;
+  waveSizeSlider->setLabel      ( "Size" ) ;
+  waveSizeSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+
+  wavePolycountSlider= new puSlider ( 500, VIEW_GUI_BASE+60, 90, false, 20 ) ;
+  wavePolycountSlider->setValue      ( 10000 ) ;
+  wavePolycountSlider->setMaxValue   ( 50000 ) ;
+  wavePolycountSlider->setMinValue   (  4000 ) ;
+  wavePolycountSlider->setStepSize   ( 0 ) ;
+  wavePolycountSlider->setCBMode     ( PUSLIDER_ALWAYS ) ;
+  wavePolycountSlider->setCallback   ( wavePolycountSlider_cb ) ;
+  wavePolycountSlider->setLabel      ( "Polygons" ) ;
+  wavePolycountSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  
+  window_group->close () ;
+}
 
 /*
   The works.
@@ -338,6 +674,7 @@ int main ( int, char ** )
 {
   init_graphics () ;
   load_database () ;
+  init_gui      () ;
   glutMainLoop  () ;
   return 0 ;
 }
