@@ -31,9 +31,9 @@ int num_springs ;
 
 void initSMD ()
 {
-  particle [ 0 ] = new sgParticle ( 1.0f,  4.0f, -4.0f, 4.0f ) ;
-  particle [ 1 ] = new sgParticle ( 1.0f,  8.0f,  0.0f, 4.0f ) ;
-  particle [ 2 ] = new sgParticle ( 1.0f,  4.0f,  4.0f, 4.0f ) ;
+  particle [ 0 ] = new sgParticle ( 1.0f,  2.0f, -4.0f, 4.0f ) ;
+  particle [ 1 ] = new sgParticle ( 1.0f,  2.4f,  0.0f, 6.0f ) ;
+  particle [ 2 ] = new sgParticle ( 1.0f,  2.0f,  4.0f, 4.0f ) ;
   particle [ 3 ] = new sgParticle ( 1.0f,  4.0f, -4.0f, 0.0f ) ;
   particle [ 4 ] = new sgParticle ( 1.0f,  0.0f, -4.0f, 0.0f ) ;
   particle [ 5 ] = new sgParticle ( 1.0f,  4.0f,  4.0f, 0.0f ) ;
@@ -41,23 +41,28 @@ void initSMD ()
 
   num_particles = 7 ;
 
-  spring [ 0] = new sgSpringDamper ( particle[0], particle[1], 0.1f, 1.0f ) ;
-  spring [ 1] = new sgSpringDamper ( particle[0], particle[2], 0.1f, 1.0f ) ;
-  spring [ 2] = new sgSpringDamper ( particle[0], particle[3], 0.1f, 1.0f ) ;
-  spring [ 3] = new sgSpringDamper ( particle[0], particle[4], 0.1f, 1.0f ) ;
-  spring [ 4] = new sgSpringDamper ( particle[0], particle[5], 0.1f, 1.0f ) ;
-  spring [ 5] = new sgSpringDamper ( particle[1], particle[2], 0.1f, 1.0f ) ;
-  spring [ 6] = new sgSpringDamper ( particle[2], particle[3], 0.1f, 1.0f ) ;
-  spring [ 7] = new sgSpringDamper ( particle[2], particle[5], 0.1f, 1.0f ) ;
-  spring [ 8] = new sgSpringDamper ( particle[2], particle[6], 0.1f, 1.0f ) ;
-  spring [ 9] = new sgSpringDamper ( particle[3], particle[4], 0.1f, 1.0f ) ;
-  spring [10] = new sgSpringDamper ( particle[3], particle[5], 0.1f, 1.0f ) ;
-  spring [11] = new sgSpringDamper ( particle[4], particle[6], 0.1f, 1.0f ) ;
-  spring [12] = new sgSpringDamper ( particle[5], particle[6], 0.1f, 1.0f ) ;
-  spring [13] = new sgSpringDamper ( particle[3], particle[6], 0.1f, 1.0f ) ;
-  spring [14] = new sgSpringDamper ( particle[4], particle[5], 0.1f, 1.0f ) ;
+  int s=0;
 
-  num_springs = 15 ;
+  spring [s++] = new sgSpringDamper ( particle[0], particle[1], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[0], particle[2], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[0], particle[3], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[0], particle[4], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[0], particle[5], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[1], particle[2], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[2], particle[3], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[2], particle[5], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[2], particle[6], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[3], particle[4], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[3], particle[5], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[4], particle[6], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[5], particle[6], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[3], particle[6], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[4], particle[5], 50.0f, 1.0f ) ;
+
+  spring [s++] = new sgSpringDamper ( particle[2], particle[4], 50.0f, 1.0f ) ;
+  spring [s++] = new sgSpringDamper ( particle[0], particle[6], 50.0f, 1.0f ) ;
+
+  num_springs = s ;
   
   for ( int i = 0 ; i < num_particles ; i++ )
   {
@@ -78,14 +83,14 @@ void updateSMD ( float dt )
   {
     sgVec3 friction ;
 
-    sgScaleVec3 ( friction, particle[i]->getVel (), -1.0 ) ;
+    sgScaleVec3 ( friction, particle[i]->getVel (), 0.1 ) ;
 
     if ( particle [ i ] -> getPos()[2] <= 0.0f )
       particle [ i ] -> zeroForce () ;
     else
       particle [ i ] -> gravityOnly () ;
 
-//  particle [ i ] -> addForce ( friction ) ;
+    particle [ i ] -> subForce ( friction ) ;
   }
 
   for ( int i = 0 ; i < num_springs ; i++ )
@@ -119,8 +124,12 @@ void update_motion ( int frameno )
 
   float t  = ck . getAbsTime   () ;
   float dt = ck . getDeltaTime () ;
+
+  if ( dt > 0.05f ) dt = 0.05f ;
+
   ocean -> updateAnimation ( t ) ;
-  updateSMD ( dt/10.0f ) ;
+
+  updateSMD ( dt ) ;
 }
 
 

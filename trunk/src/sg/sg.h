@@ -2674,8 +2674,8 @@ public:
 
   sgParticle ( float mass, float x = 0.0f, float y = 0.0f, float z = 0.0f )
   {
-    setMass    ( mass ) ;
-    sgSetVec3  ( pos, x, y, z) ;
+    setMass    ( mass  ) ;
+    sgSetVec3  ( pos, x, y, z ) ;
     sgZeroVec3 (  vel  ) ;
     sgZeroVec3 ( force ) ;
   }
@@ -2686,14 +2686,13 @@ public:
   float  getOneOverMass () { return ooMass   ; }
   float  getMass        () { return 1.0f / ooMass ; }
 
-  void   setPos      ( sgVec3 p ) { sgCopyVec3 ( pos  , p ) ; }
-  void   setVel      ( sgVec3 v ) { sgCopyVec3 ( vel  , v ) ; }
-  void   setForce    ( sgVec3 f ) { sgCopyVec3 ( force, f ) ; }
-
+  void   setPos   ( sgVec3 p ) { sgCopyVec3 ( pos  , p ) ; }
+  void   setVel   ( sgVec3 v ) { sgCopyVec3 ( vel  , v ) ; }
+  void   setForce ( sgVec3 f ) { sgCopyVec3 ( force, f ) ; }
 
   void   setOneOverMass ( float oom ) { ooMass = oom ; }
 
-  void   setMass     ( float  m )
+  void   setMass ( float m )
   {
     assert ( m > 0.0f ) ;
     ooMass = 1.0f / m ;
