@@ -135,22 +135,11 @@ void ssgAddModelFormat ( const char* extension,
 }
 
 
-	// Changes 14.Feb.2001, Wolfram Kuss:
-	// I need this functionality *now* so that I can at last publish my homepage.
-	// This code *may* not be very elegant, but should be 
-	// portable and works.
-	// For more, see mailing list.
-	// I/we will decide on a final solution shortly.
 
-#if defined(WIN32) && !defined(__CYGWIN__)
-  #include "Shlwapi.h"
-	#include "assert.h"
-  #define appendPath(a, b) assert( PathAppend(a, b));
-#else
-//wk stop1
+#if !defined(WIN32) || defined(__CYGWIN__)
 
 static void appendPath(char *a, char *b)
-// appends b to a
+// appends b to a. a has to be long enough to hold the result.
 {
   if ( b[0] == '/' )
     strcpy ( a, b ) ;  /* b is an absolute path - replace a by b */
@@ -177,44 +166,35 @@ static void appendPath(char *a, char *b)
 
 #endif
   
-
-ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
+void savePathInAPOM(const char * pathAndFileName )
 {
-  if ( fname == NULL || *fname == '\0' )
-    return NULL ;
-
-
 	// save path in _ssgAPOM (actual path of model):
-#ifdef EXPERIMENTAL_WINDOWS_APOM
-	// 14.Feb.2001:
-	// This is experimental code by Wolfram Kuss. It runs only on Windows.
-	// It will be removed in favour of a final version shortly.
 
-	// start alt + neu1
-	strncpy( _ssgAPOM, fname, 1024);
+  // two different algorithms are used:
+	// On Windo$, _fullpath is used to get the absolute path.
+	// This is not possible under Unix.
+#if defined(WIN32) && !defined(__CYGWIN__)
+
+	char *path_only = new char [ strlen(pathAndFileName) + 1 ];
+	strcpy( path_only, pathAndFileName );
 	char *s_ptr;
-	s_ptr = &(_ssgAPOM[strlen(_ssgAPOM)-1]);
-	while ((s_ptr > _ssgAPOM) && (*s_ptr != '/') && (*s_ptr != '\\')) 
+	s_ptr = &(path_only[strlen(path_only)-1]);
+	while ((s_ptr > path_only) && (*s_ptr != '/') && (*s_ptr != '\\')) 
 		s_ptr--;
-	if ( s_ptr >= _ssgAPOM ) *s_ptr = 0;
-	// stop alt + neu1
-  // wk start neu1
-	char buffer[1024];
-  if ( NULL != _fullpath( buffer, _ssgAPOM, 1024 ))
+	if ( s_ptr >= path_only ) *s_ptr = 0;
+	char buffer[ _MAX_PATH ];
+  if ( NULL != _fullpath( buffer, path_only, _MAX_PATH ))
 		strncpy( _ssgAPOM, buffer, 1024);
-	// stop neu1
 
 #else
 
-	// Changes 14.Feb.2001, Wolfram Kuss:
 	// This code accumulates all the relative pathes that make up
 	// _ssgAPOM. This code may not be very elegant, but should be 
-	// portable and avoid the problems with ssgGetAPOM.
+	// portable and avoids the problems with creating absolute paths on Unix.
 	// For more, see mailing list.
-	// I/we will decide on a final solution shortly.
-
+	
 	char buffer[16*1024];
-	strncpy( buffer, fname, 16*1024);
+	strncpy( buffer, pathAndFileName, 16*1024);
 	char *s_ptr;
 	s_ptr = &(buffer[strlen(buffer)-1]);
 	while ((s_ptr > buffer) && (*s_ptr != '/') && (*s_ptr != '\\')) 
@@ -222,12 +202,17 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
 	if ( s_ptr >= buffer ) *s_ptr = 0;
 	appendPath(_ssgAPOM, buffer);
 #endif
+}
 
-	// end of 14.Feb.2001 changes
-	
+ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
+{
+  if ( fname == NULL || *fname == '\0' )
+    return NULL ;
 
+	// saves path of fname:
+  savePathInAPOM( fname );
 
-  // find appropiate loader and call its loadfunc
+	// find appropiate loader and call its loadfunc
   const char *extn = file_extension ( fname ) ;
   if ( *extn != '.' )
   {
