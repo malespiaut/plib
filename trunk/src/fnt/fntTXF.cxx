@@ -125,7 +125,7 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
 
 int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 {
-  if ( glGetCurrentContext () == NULL )
+  if ( ulGetCurrentContext () == NULL )
   {
     fprintf ( stderr,
     "FATAL: FNT font loader called without a valid OpenGL context.\n");
