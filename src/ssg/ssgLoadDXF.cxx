@@ -777,14 +777,11 @@ static int dxf_read ( FILE *filein )
 
           if ( ent_type == ENT_INSERT || current_block != NULL ) {
 
-            if ( ent_type == ENT_INSERT && block_name == NULL ) {
-              block_name = new char[ strlen(input2)+1 ] ;
-              strcpy ( block_name, input2 ) ;
-            }
+            if ( ent_type == ENT_INSERT && block_name == NULL )
+              block_name = ulStrDup ( input2 ) ;
 
             if ( current_block != NULL && current_block->getName() == NULL ) {
-              char* name = new char[ strlen(input2)+1 ] ;
-              strcpy ( name, input2 ) ;
+              char* name = ulStrDup ( input2 ) ;
               current_block->setName( name ) ;
             }
           }

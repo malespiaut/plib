@@ -241,8 +241,7 @@ static void load_materials ( const char* fname )
       if ( count == 1 ) {
         index ++ ;
         memset( &materials[ index ], 0, sizeof(matData) ) ;
-        materials[ index ].name = new char [ strlen ( name ) + 1 ] ;
-        strcpy ( materials[ index ].name, name ) ;
+        materials[ index ].name = ulStrDup ( name ) ;
         materials[ index ].amb[3] = 1.0f ;
         materials[ index ].diff[3] = 1.0f ;
         materials[ index ].spec[3] = 1.0f ;
@@ -285,10 +284,8 @@ static void load_materials ( const char* fname )
       char tfname[MAX_LINE_LEN];
       count = sscanf ( next, "%s%n", tfname, &width ) ;
 
-      if ( count == 1 && index >= 0 ) {
-        materials[ index ].tfname = new char [ strlen( tfname )+1 ] ;
-        strcpy ( materials[ index ].tfname, tfname ) ;
-      }
+      if ( count == 1 && index >= 0 )
+        materials[ index ].tfname = ulStrDup ( tfname ) ;
     }
   }
 

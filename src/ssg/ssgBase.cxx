@@ -95,10 +95,7 @@ void ssgBase::setName ( const char *nm )
   if ( nm == NULL )
     name = NULL ;
   else
-  {
-    name = new char [ strlen ( nm ) + 1 ] ;
-    strcpy ( name, nm ) ;
-  }
+    name = ulStrDup ( nm ) ;
 }
                                                                                 
 void ssgBase::zeroSpareRecursive (){ zeroSpare () ; }
