@@ -1,4 +1,4 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -45,12 +45,11 @@ of a base class (puObject) from which all the interesting widgets are derived.
 Most of the packages functionality is concentrated in the puObject class.
 <h2>
 Contributions</h2>
-Mark Danks <mdanks@Stormfront.com>contributed code for making PUI
-run without GLUT under Win32,
+<a href="mailto:mdanks@Stormfront.com">Mark Danks</a> contributed code for making PUI run without GLUT under Win32,
 <p>
 
-AbdulWajid Mohamed <shammi@bu.edu>added the 'PUSTYLE_SHADED' and
-'PUSTYLE_SMALL_SHADED' code. He also fixed a number of bug fixes.
+<a href="mailto:shammi@bu.edu">AbdulWajid Mohamed</a> added the 'PUSTYLE_SHADED' and 'PUSTYLE_SMALL_SHADED' code.
+He also fixed a number of bug fixes.
 <p>
 
 Dave McClurg added the puListBox and puFilePicker widgets.
@@ -178,7 +177,7 @@ Hello World in PUI.</h2>
 button widget that prints 'Hello World.' to stdout when you click it. (This
 program is in the PUI examples directory as 'simple.cxx').</td>
 
-<td><img SRC="simple.png" ></td>
+<td><img SRC="simple.png" ALT="Simple PUI example"></td>
 </tr>
 </table>
 
@@ -271,6 +270,7 @@ If the your application opens multiple windows, you can place user interface
 widgets in any window you please.  The widget coordinates are calculated
 from the lower left-hand corner of the window.  There are a few recommended
 practices when using PUI in connection with multiple windows:
+<ul>
 <li>
 Make the first widget in a new window a "puGroup" widget and place all
 of that window's widgets in that group.  This is simply good organization.</li>
@@ -286,7 +286,7 @@ If the user will be able to reshape the window, include a window reshape
 function that adjusts the positions and sizes of the widgets.  If
 the user should not resize the window then the window reshape function
 should reset the window to its original size.</li>
-<p>
+</ul>
  
 <table>
 <tr>
@@ -297,7 +297,7 @@ two sliders which allow the user to control the speed and direction of
 the cube's rotation.  A third window contains a bi-slider and a tri-slider
 which truncate the cube in two directions.</td>
 
-<td><img SRC="complex.png" ></td>
+<td><img SRC="complex.png" ALT="Complex PUI example"></td>
 </tr>
 </table>
 
@@ -746,7 +746,7 @@ You can also move the LEGEND text around inside the widget.
   where 'place' is one of:
 </pre>
 
-<table width=100%>
+<table width="100%">
 <tr><td>
 <pre>
       PUPLACE_ABOVE_LEFT
@@ -786,7 +786,7 @@ You can also move the LEGEND text around inside the widget.
   where 'place' is one of:
 </pre>
 
-<table width=100%>
+<table width="100%">
 <tr><td>
 <pre>
       PUPLACE_TOP_LEFT
@@ -1990,10 +1990,9 @@ widgets.  The cut, copy, and paste commands are the standard CTRL-X,
 CTRL-C, and CTRL-V.
 <h2>
 Miscellany</h2>
-Mark Danks <mdanks@Stormfront.com>has succeeded in getting PUI to
-function in a WIN32 environment without using GLUT. This is certainly not
-the intended way to use PUI - even under WIN32 - but it's interesting to
-know that it
+<a href="mailto:mdanks@Stormfront.com">Mark Danks</a> has succeeded in getting PUI to function in a WIN32 environment
+without using GLUT. This is certainly not the intended way to use PUI -
+even under WIN32 - but it's interesting to know that it
 <b>is</b> possible.
 <p>
 In fact, this neatly demolishes my hope that people would write their
