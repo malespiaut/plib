@@ -117,8 +117,6 @@ void puLargeInput::removeSelectRegion ( void )
 puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text ) :
                            puGroup ( x, y )
 {
-  setLegendFont ( PUFONT_8_BY_13 ) ;  // Constant pitch font
-
   // Set the variables
 
   type |= PUCLASS_LARGEINPUT ;
