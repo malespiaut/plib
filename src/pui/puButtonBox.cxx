@@ -103,7 +103,7 @@ void puButtonBox::draw ( int dx, int dy )
 {
   if ( !visible || ( window != puGetWindow () ) ) return ;
 
-  abox . draw ( dx, dy, style, colour, isReturnDefault() ) ;
+  abox.draw ( dx, dy, style, colour, isReturnDefault(), border_thickness ) ;
 
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;
@@ -113,16 +113,16 @@ void puButtonBox::draw ( int dx, int dy )
     {
       puBox tbox ;
 
-      tbox . min [ 0 ] = abox.min [ 0 ] + PUSTR_LGAP + PUSTR_LGAP ;
-      tbox . min [ 1 ] = abox.min [ 1 ] + ((abox.max[1]-abox.min[1]-PUSTR_TGAP-PUSTR_BGAP)/num_kids) * (num_kids-1-i) ;
-      tbox . max [ 0 ] = tbox.min [ 0 ] ;
-      tbox . max [ 1 ] = tbox.min [ 1 ] ;
+      tbox.min [ 0 ] = abox.min [ 0 ] + PUSTR_LGAP + PUSTR_LGAP ;
+      tbox.min [ 1 ] = abox.min [ 1 ] + ((abox.max[1]-abox.min[1]-PUSTR_TGAP-PUSTR_BGAP)/num_kids) * (num_kids-1-i) ;
+      tbox.max [ 0 ] = tbox.min [ 0 ] ;
+      tbox.max [ 1 ] = tbox.min [ 1 ] ;
 
       if (( one_only && i == getValue() ) ||
           ( !one_only && ((1<<i) & getValue() ) != 0 ) ) 
-        tbox . draw ( dx, dy + PUSTR_BGAP + PUSTR_BGAP, -PUSTYLE_RADIO, colour, FALSE ) ;
+        tbox.draw ( dx, dy + PUSTR_BGAP + PUSTR_BGAP, -PUSTYLE_RADIO, colour, FALSE, border_thickness ) ;
       else
-        tbox . draw ( dx, dy + PUSTR_BGAP + PUSTR_BGAP, PUSTYLE_RADIO, colour, FALSE ) ;
+        tbox.draw ( dx, dy + PUSTR_BGAP + PUSTR_BGAP, PUSTYLE_RADIO, colour, FALSE, border_thickness ) ;
 
       /* If greyed out then halve the opacity when drawing the label and legend */
 

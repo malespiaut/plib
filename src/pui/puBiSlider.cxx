@@ -29,10 +29,9 @@ void puBiSlider::draw ( int dx, int dy )
 
   // Draw the slider box itself
 
-  abox . draw ( dx, dy,
-                (style==PUSTYLE_BEVELLED||
-                 style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
-                colour, FALSE ) ;
+  abox.draw ( dx, dy, (style==PUSTYLE_BEVELLED||
+                       style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
+                       colour, FALSE, border_thickness ) ;
 
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;

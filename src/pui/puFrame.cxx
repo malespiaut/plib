@@ -29,7 +29,7 @@ void puFrame::draw ( int dx, int dy )
 {
   if ( !visible || ( window != puGetWindow () ) ) return ;
 
-  abox . draw ( dx, dy, style, colour, FALSE ) ;
+  abox.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
 
   /* If greyed out then halve the opacity when drawing the label and legend */
 

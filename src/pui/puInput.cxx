@@ -90,9 +90,9 @@ void puInput::draw ( int dx, int dy )
 
   /* 3D Input boxes look nicest if they are always in inverse style. */
 
-  abox . draw ( dx, dy, ( (style==PUSTYLE_SMALL_BEVELLED ||
-                           style==PUSTYLE_SMALL_SHADED) ) ? -style :
-                        (accepting ? -style : style ), colour, FALSE ) ;
+  abox.draw ( dx, dy, ( (style==PUSTYLE_SMALL_BEVELLED ||
+                         style==PUSTYLE_SMALL_SHADED) ) ? -style :
+                        (accepting ? -style : style ), colour, FALSE, border_thickness ) ;
 
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;

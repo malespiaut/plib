@@ -112,6 +112,7 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   active_cb   = NULL ;
   down_cb     = NULL ;
   r_cb        = NULL ;
+  border_thickness = 2 ;
   render_data = NULL ;
   user_data   = NULL ;
   next = prev = NULL ;

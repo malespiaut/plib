@@ -30,10 +30,9 @@ void puDial::draw ( int dx, int dy )
 
   // Draw the active box.
 
-  abox . draw ( dx, dy,
-                (style==PUSTYLE_BEVELLED||
-                 style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
-                colour, FALSE ) ;
+  abox.draw ( dx, dy, (style==PUSTYLE_BEVELLED||
+                       style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
+                       colour, FALSE, border_thickness ) ;
 
   // If greyed out then halve the opacity when drawing the label and legend
 
