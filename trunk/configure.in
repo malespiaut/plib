@@ -28,6 +28,7 @@ AC_PROG_CXXCPP
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
+
 dnl Command line arguments
 dnl for Loring Holden's Solaris system
 
@@ -39,6 +40,7 @@ if test "x$GL_PREFIX" != "xauto"; then
     LDFLAGS="$LDFLAGS -L$GL_PREFIX/lib"
     CPPFLAGS="$CPPFLAGS -I$GL_PREFIX/include"
 fi
+
 
 dnl Checks for header files.
 
@@ -53,20 +55,9 @@ if test "x$ac_cv_header_GL_glut_h" = "xno" && test "x$ac_cv_header_GL_freeglut_h
    AC_MSG_ERROR([found neither GLUT nor freeglut header file])
 fi
 
+
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
-
-if test "$HOSTTYPE" = "macintosh"; then
-
-   dnl Mac OS X
-
-   dnl OpenGL libraries
-   LIBS="$LIBS -framework OpenGL -framework GLUT"
-
-   dnl Sound libraries
-   LIBS="$LIBS -framework Carbon"
-
-else
 
 AC_CANONICAL_HOST
 
@@ -74,8 +65,26 @@ case "${host}" in
 *-*-cygwin* | *-*-mingw32*)
   dnl CygWin under Windoze.
 
+  AC_CHECK_LIB(winmm, joyGetNumDevs)
+
   dnl OpenGL libraries
-  LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32"
+  AC_CHECK_LIB(opengl32, glNewList,,
+  AC_MSG_ERROR([could not find working GL library]))
+
+  AC_CHECK_LIB(glu32, gluLookAt,,
+  AC_MSG_ERROR([could not find working GLU library]))
+
+  AC_CHECK_LIB(glut32, glutGetModifiers,,
+  AC_MSG_ERROR([could not find working GLUT library]))
+	;;
+*-apple-darwin*)
+   dnl Mac OS X
+
+   dnl OpenGL libraries
+   LIBS="$LIBS -framework OpenGL -framework GLUT"
+
+   dnl Sound libraries
+   LIBS="$LIBS -framework Carbon"
 	;;
 *)
     dnl Check for X11
@@ -100,12 +109,20 @@ dnl =========================================================
     if test "x$ac_cv_lib_GL_glNewList" = "xno" ; then
         dnl if no GL, check for MesaGL
         AC_CHECK_LIB(MesaGL, glNewList,,,$x_suffix)
+
+        if test "x$ac_cv_lib_MesaGL_glNewList" = "xno" ; then
+                AC_MSG_ERROR([could not find working GL library])
+        fi
     fi
 
     AC_CHECK_LIB(GLU, gluLookAt,,,$x_suffix)
     if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
         dnl if no GLU, check for MesaGLU
         AC_CHECK_LIB(MesaGLU, gluLookAt,,,$x_suffix)
+
+        if test "x$ac_cv_lib_MesaGLU_gluLookAt" = "xno" ; then
+                AC_MSG_ERROR([could not find working GLU library])
+	fi
     fi
 
     opengl_LIBS="$LIBS $x_suffix"
@@ -124,22 +141,24 @@ dnl =========================================================
     CPPFLAGS="$CPPFLAGS -I/usr/local/include"
     LDFLAGS="$LDFLAGS -L/usr/local/lib"
 
-    WFLAG="-Wall"
-    case "$host" in
-    mips-sgi-irix*)
-        if test "x$CXX" = "xCC"; then
-            WFLAG="-fullwarn";
-        fi
-	;;
-    esac
-
-    CFLAGS="$CFLAGS $WFLAG"
-    CXXFLAGS="$CXXFLAGS $WFLAG"
-
     LIBS="$LIBS $x_suffix"
 	;;
 esac
-fi
+
+
+dnl Warning flags
+WFLAG="-Wall"
+case "$host" in
+mips-sgi-irix*)
+    if test "x$CXX" = "xCC"; then
+        WFLAG="-fullwarn";
+    fi
+	;;
+esac
+
+CFLAGS="$CFLAGS $WFLAG"
+CXXFLAGS="$CXXFLAGS $WFLAG"
+
 
 dnl Check SGI audio library
 AC_CHECK_LIB(audio, ALopenport)
@@ -148,6 +167,7 @@ if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
   dnl this is an SGI machine...
   LIBS="$LIBS -laudio"
 fi
+
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
@@ -168,6 +188,7 @@ AC_MSG_RESULT(size_t)
 AC_DEFINE(socklen_t,size_t)], [
 AC_MSG_RESULT(int)
 AC_DEFINE(socklen_t,int)])])
+
 
 AC_OUTPUT( \
 	Makefile \
