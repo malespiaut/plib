@@ -263,29 +263,50 @@ static int parse_mapname( char **p, unsigned int length )
   int mat_num;
   ssgSimpleState *sametex = NULL;
   char *texname = *p;
+
   // find a material with the same texture
+  // since texture path is in common, just store (and compare) tex file name
+
   for (mat_num = 0; mat_num < num_materials-1; mat_num++)
-    // since texture path is in common, just store (and compare) tex file name
-    if ( mat_tfnames[mat_num] != (char *)NULL && strcmp( texname, mat_tfnames[mat_num] ) == 0 ) {
+    if ( mat_tfnames[mat_num] != (char *)NULL &&
+         strcmp( texname, mat_tfnames[mat_num] ) == 0 )
+    {
       sametex = materials[mat_num];
       break;
     }
 
-  if (dbgtex) printf("%s\t mat #%03d (%s)", texname,num_materials,material_names[num_materials-1]);
-  if ( sametex == (ssgSimpleState *)NULL ) {
+  if (dbgtex)
+    printf("%s\t mat #%03d (%s)", texname,num_materials,
+                                   material_names[num_materials-1]);
+
+  if ( sametex == (ssgSimpleState *)NULL )
+  {
     current_material -> setTexture( filename );
 
-    char *tf = mat_tfnames[num_materials-1] = strdup( texname );
+    if ( texname == NULL )
+      mat_tfnames[num_materials-1] = NULL ;
+    else
+    {
+      mat_tfnames[num_materials-1] = new char [ strlen(texname) + 1 ] ;
+      strcpy( mat_tfnames[num_materials-1], texname );
+    }
+
+    char *tf = mat_tfnames[num_materials-1] ;
+
     if ( tf == (char *)NULL )
       perror("problems with malloc - can't store old texnames\n");
-    else {
+    else
+    {
       if (dbgtex) printf(" new!\n");
     }
   }
-  else {
+  else
+  {
     current_material -> setTexture( sametex->getTextureHandle() );
+
     if (dbgtex) printf(" found at mat #%03d (%s)\n", mat_num+1,material_names[mat_num]);
   }
+
   current_material -> enable(GL_TEXTURE_2D);
 
   mat_flag[num_materials-1] |= HAS_TEXTURE;

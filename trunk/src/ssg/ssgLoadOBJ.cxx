@@ -246,7 +246,8 @@ static void load_materials ( const char* fname )
       if ( count == 1 ) {
         index ++ ;
         memset( &materials[ index ], 0, sizeof(matData) ) ;
-        materials[ index ].name = strdup( name ) ;
+        materials[ index ].name = new char [ strlen ( name ) + 1 ] ;
+        strcpy ( materials[ index ].name, name ) ;
         materials[ index ].amb[3] = 1.0f ;
         materials[ index ].diff[3] = 1.0f ;
         materials[ index ].spec[3] = 1.0f ;
@@ -291,7 +292,8 @@ static void load_materials ( const char* fname )
       _ssgMakePath(path,_ssgTexturePath,tfname) ;
 
       if ( count == 1 && index >= 0 ) {
-        materials[ index ].tfname = strdup( path ) ;
+        materials[ index ].tfname = new char [ strlen( path )+1 ] ;
+        strcpy ( materials[ index ].tfname, path ) ;
         materials[ index ].tex = new ssgTexture ( path ) ;
       }
     }
@@ -305,9 +307,10 @@ static void load_materials ( const char* fname )
 
 static void add_mesh ( int mat_index )
 {
+  int i ;
+
   //count faces with same material
   int num = 0 ;
-  int i ;
   for ( i=0; i<num_face; i++ )
      if ( face[i].mat_index == mat_index )
         num ++ ;

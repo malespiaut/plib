@@ -142,6 +142,7 @@ AC_OUTPUT( \
 	Makefile \
 	src/Makefile \
 	src/js/Makefile \
+	src/ul/Makefile \
 	src/pui/Makefile \
 	src/sg/Makefile \
 	src/sl/Makefile \

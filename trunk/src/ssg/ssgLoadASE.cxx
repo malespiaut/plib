@@ -555,7 +555,8 @@ static void add_mesh( aseMesh* mesh, aseMaterial* mat )
     strcpy(name,mesh->name);
     
   ssgCreateData *data = new ssgCreateData ;
-  data->parentName = strdup ( name ) ;
+  data->parentName = new char [ strlen(name)+1 ] ;
+  strcpy ( data->parentName, name ) ;
   data->gltype = GL_TRIANGLES ;
   data->vl = vlist ;
   data->nl = nlist ;
