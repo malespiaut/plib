@@ -60,6 +60,11 @@ class ssgRoot          ;
 
 void  ssgDeRefDelete ( ssgBase *br ) ;
 
+/* 
+  Think twice before assigning new type bits, it is rather complicated.
+  Perhaps some kind of automatic assignment would be good?
+ */
+
 #define SSG_BACKWARDS_REFERENCE 0x0000000  /* For SSG format files */
 
 #define SSG_TYPE_BASE          0x00000001
@@ -74,7 +79,7 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 #define SSG_TYPE_BASETRANSFORM 0x00000080
 #define SSG_TYPE_TRANSFORM     0x00001000
 #define SSG_TYPE_TEXTRANS      0x00002000
-#define SSG_TYPE_AXISTRANSFORM 0x00003000
+#define SSG_TYPE_AXISTRANSFORM 0x00004000
 #define SSG_TYPE_SELECTOR      0x00000100
 #define SSG_TYPE_RANGESELECTOR 0x00001000
 #define SSG_TYPE_TIMEDSELECTOR 0x00002000
@@ -323,6 +328,9 @@ protected:
   {
     if ( (total+n) > limit )
     {
+      if ( ! own_mem )
+        ulSetError( UL_FATAL, "ssgSimpleList: Cannot resize array." );
+
       /* how big should we make the list? */
       limit += limit ;  /* double it */
 			if ( limit <= 0 )
