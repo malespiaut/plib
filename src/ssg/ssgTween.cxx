@@ -210,6 +210,14 @@ void ssgTween::setColours ( ssgColourArray *cl )
 
 ssgTween::~ssgTween ()
 {
+  /* Need to ref these one more time to avoid problems when the base class destructor
+    deletes them */
+
+  vertices  -> ref () ;
+  normals   -> ref () ;
+  texcoords -> ref () ;
+  colours   -> ref () ;
+
   for ( int i = 0 ; i < getNumBanks () ; i++ )
   {
     ssgDeRefDelete ( (ssgVertexArray   *) banked_vertices  -> getEntity (i)) ;

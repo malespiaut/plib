@@ -474,7 +474,8 @@ static ssgLeaf** build_leaf_list ( ssgEntity *ent, ssgLeaf** leaf_list=0 )
       build_leaf_list ( k, leaf_list ) ;
     }
   }
-  else if ( ent -> isAKindOf ( ssgTypeLeaf () ) )
+  else
+  if ( ent -> isAKindOf ( ssgTypeLeaf () ) && ! ent -> isAKindOf ( ssgTypeTween() ) )
   {
     ssgLeaf  *l = (ssgLeaf *) ent ;
 
@@ -621,27 +622,28 @@ void ssgStripify ( ssgEntity *ent )
   for ( ssgEntity *k = b_ent -> getKid ( 0 ) ; k != NULL ;
 				 k = b_ent -> getNextKid () )
   {
-    if ( k -> isAKindOf ( ssgTypeVtxTable () ) )
+    if ( k -> isAKindOf ( ssgTypeVtxTable () ) && ! k -> isAKindOf ( ssgTypeTween() ) )
     {
-			GLenum thisType = ((ssgVtxTable *)k)->getPrimitiveType ();
-			if ((thisType != GL_POINTS) && (thisType != GL_LINES) &&
-				  (thisType != GL_LINE_STRIP) && (thisType != GL_LINE_LOOP))
-			{
-				int i ;
-				ssgState *s = ((ssgLeaf *) k ) -> getState() ;
-				int       c = ((ssgLeaf *) k ) -> getCullFace() ;
+      GLenum thisType = ((ssgVtxTable *)k)->getPrimitiveType ();
 
-				for ( i = 0 ; i < stot ; i++ )
-		if ( s == slist [ i ] && c == cflist [ i ] )
-			break ;
+      if ((thisType != GL_POINTS) && (thisType != GL_LINES) &&
+          (thisType != GL_LINE_STRIP) && (thisType != GL_LINE_LOOP))
+      {
+	int i ;
+	ssgState *s = ((ssgLeaf *) k ) -> getState() ;
+	int       c = ((ssgLeaf *) k ) -> getCullFace() ;
 
-				if ( i >= stot )
-				{
-		slist  [ i ] = s ;
-		cflist [ i ] = c ;
-		stot++ ;
-				}
-			}
+	for ( i = 0 ; i < stot ; i++ )
+	  if ( s == slist [ i ] && c == cflist [ i ] )
+  	    break ;
+
+	if ( i >= stot )
+	{
+	  slist  [ i ] = s ;
+	  cflist [ i ] = c ;
+ 	  stot++ ;
+	}
+      }
     }
     else
     if ( k -> isAKindOf ( ssgTypeBranch () ) )
@@ -668,18 +670,20 @@ void ssgStripify ( ssgEntity *ent )
     
     while ( k != NULL )
     {
-      if ( k -> isAKindOf ( ssgTypeVtxTable () ) &&
+      if ( k -> isAKindOf ( ssgTypeVtxTable () ) && ! k -> isAKindOf ( ssgTypeTween() ) &&
            ((ssgLeaf *) k ) -> getState() == slist [ i ] &&
            ((ssgLeaf *) k ) -> getCullFace() == cflist [ i ] )
       {
-				GLenum thisType = ((ssgVtxTable *)k)->getPrimitiveType ();
-				if ((thisType != GL_POINTS) && (thisType != GL_LINES) &&
-						(thisType != GL_LINE_STRIP) && (thisType != GL_LINE_LOOP))
-        {	list . add ( (ssgVtxTable *) k ) ;
-					b_ent -> removeKid ( k ) ;
-					k = b_ent -> getKid ( 0 ) ;
-				}
-				else
+        GLenum thisType = ((ssgVtxTable *)k)->getPrimitiveType ();
+
+	if ((thisType != GL_POINTS) && (thisType != GL_LINES) &&
+	    (thisType != GL_LINE_STRIP) && (thisType != GL_LINE_LOOP))
+        {
+          list . add ( (ssgVtxTable *) k ) ;
+	  b_ent -> removeKid ( k ) ;
+	  k = b_ent -> getKid ( 0 ) ;
+        }
+	else
           k = b_ent -> getNextKid () ;
       }
       else
@@ -850,6 +854,7 @@ static void strip ( ssgEntity *ent )
 	      b_ent -> getKid ( 0 ) -> getUserData () == NULL )
     {
       ssgBranch *b_kid = (ssgBranch *) b_ent -> getKid ( 0 ) ;
+
       for ( ssgEntity *k = b_kid -> getKid ( 0 ) ; k != NULL ;
   	               k = b_kid -> getNextKid () )
         b_ent -> addKid ( k ) ;
@@ -875,18 +880,21 @@ static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
   sgMat4 mat2 ;
 
   /*
-    The following nodes may (currently) not be flattened:
-    - ssgCutout,
-    - ssgRangeSelector, and
-    - ssgTransform with user data.
+    The following nodes may (currently) be flattened:
+    - any ssgBranch (not derived types - *exact* ssgBranch nodes only)
+    - any ssgTransform with no user data.
   */
-  if ( ent -> isAKindOf ( ssgTypeCutout () ) ||
-       ent -> isAKindOf ( ssgTypeRangeSelector () ) ||
-       ( ent -> isA ( ssgTypeTransform () ) &&
-         ent -> getUserData () != NULL ) )
+
+  int eligable_for_flattening =
+                     ( ent -> isA ( ssgTypeBranch    () ) ||
+                     ( ent -> isA ( ssgTypeTransform () ) && ent -> getUserData () == NULL ) ) ;
+
+  if ( ! eligable_for_flattening )
   {
     /* Insert a transform node if needed. */
-    if ( mat != NULL ) {
+
+    if ( mat != NULL )
+    {
       ssgTransform *tr = new ssgTransform ;
       tr -> setTransform ( mat ) ;
       tr -> addKid ( ent ) ;
@@ -894,6 +902,7 @@ static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
     }
 
     /* Traverse as usual. */
+
     if ( ent -> isAKindOf ( ssgTypeBranch () ) )
     {
       ssgBranch *b_ent = (ssgBranch *) ent ;
@@ -930,6 +939,7 @@ static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
   /*
     Replace transform nodes with simple branches.
    */
+
   if ( ent -> isAKindOf ( ssgTypeTransform () ) )
   {
     ssgTransform *t_ent = (ssgTransform *) ent ;
@@ -941,14 +951,18 @@ static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
     mat = sgClassifyMat4 ( mat2 ) != 0 ? mat2 : NULL ;
     
     ssgBranch *br = new ssgBranch ;
+
     /*
       FIXME! It would have been very neat to do:
       br -> copy_from ( t_ent, 0 ) ;
     */
+
     br -> setName ( t_ent -> getName () ) ;
+
     for ( ssgEntity *k = t_ent -> getKid ( 0 ) ; k != NULL ;
 	             k = t_ent -> getNextKid () )
       br -> addKid ( k ) ;
+
     t_ent -> removeAllKids () ;
 
     safe_replace_kid ( NULL, ent, br ) ;
@@ -958,6 +972,7 @@ static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
   /*
     Finally traverse the kids.
   */
+
   if ( ent -> isAKindOf ( ssgTypeBranch () ) )
   {
     ssgBranch *b_ent = (ssgBranch *) ent ;
@@ -995,7 +1010,8 @@ void ssgFlatten ( ssgEntity *ent )
     Since the top level node may not be removed, loop over the kids.
     Done in two passes because *kid* may be removed.
   */
-	ssgEntity *kid;
+
+  ssgEntity *kid;
 
   for ( kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
 	           kid = b_ent -> getNextKid () )
@@ -1021,11 +1037,12 @@ void ssgFlatten ( ssgEntity *ent )
 *   ent   -- the entity to process
 *   trans -- transform
 */
+
 void ssgTransTool ( ssgEntity *ent, const sgMat4 trans )
 {
   if ( ent -> isAKindOf ( ssgTypeLeaf () ) )
   {
-		((ssgLeaf *) ent) -> transform ( trans ) ;
+    ((ssgLeaf *) ent) -> transform ( trans ) ;
     return ;
   }
 
@@ -1066,3 +1083,5 @@ void ssgTransTool ( ssgEntity *ent, const sgMat4 trans )
 
   b_ent -> recalcBSphere () ;
 }
+
+
