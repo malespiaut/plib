@@ -25,6 +25,8 @@
 
 #include "ssgLocal.h"
 
+char *ssgTweenController::getTypeName (void) { return "ssgTweenController" ; }
+
 void ssgTweenController::copy_from ( ssgTweenController *src, int clone_flags )
 {
   selectBank ( src->getCurrBank () ) ;
@@ -77,6 +79,18 @@ int ssgTweenController::save ( FILE *fd )
 {
   _ssgWriteFloat ( fd, curr_bank ) ;
   return ssgBranch::save ( fd ) ;
+}
+
+ 
+ 
+void ssgTweenController::print ( FILE *fd, char *indent, int how_much )
+{
+  if ( how_much == 0 )
+    return ;
+ 
+  fprintf ( fd, "%sCurrent Bank = %f\n", indent, curr_bank );
+ 
+  ssgBranch::print ( fd, indent, how_much ) ;
 }
 
 

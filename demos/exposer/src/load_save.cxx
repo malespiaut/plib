@@ -53,7 +53,6 @@ void dialog ( char *msg, float r, float g, float b )
 void twsavepickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
-  char fname [ PUSTRING_MAX ] ;
 
   file_selector -> getValue ( path ) ;
 
@@ -66,8 +65,18 @@ void twsavepickfn ( puObject * )
     return ;
   }
 
+  saveTweenFile ( path, TRUE ) ;
+}
+
+
+void saveTweenFile ( char *path, int interactive )
+{
+  char orig_path [ PUSTRING_MAX ] ;
+  char fname [ PUSTRING_MAX ] ;
   char *p = NULL ;
   int i ;
+
+  strcpy ( orig_path, path ) ;
 
   for ( i = strlen(path) ; i >= 0 ; i-- )
     if ( path[i] == '/' || path[i] == '\\' )
@@ -92,12 +101,20 @@ void twsavepickfn ( puObject * )
 
   /* SAVE THE TWEENED MODEL */
 
-  if ( file_selector->getStringValue()[0] == '\0' )
+  if ( orig_path[0] == '\0' )
   {
-    puDeleteObject ( file_selector ) ;
-    file_selector = NULL ;
-    dialog ( "FAILED TO SAVE TWEENED MODEL!", 1, 0, 0 ) ;
-    return ;
+    if ( interactive )
+    {
+      puDeleteObject ( file_selector ) ;
+      file_selector = NULL ;
+      dialog ( "FAILED TO SAVE TWEENED MODEL!", 1, 0, 0 ) ;
+      return ;
+    }
+    else
+    {
+      perror ( "saveTween:" ) ;
+      exit ( 1 ) ;
+    }
   }
 
   tweenScene = (ssgRoot *) makeTweenCopy ( skinScene ) ;
@@ -111,18 +128,28 @@ void twsavepickfn ( puObject * )
     makeTweenCopy ( tweenScene, skinScene ) ;
   }
 
-  if ( ! ssgSave ( file_selector->getStringValue(), tweenScene ) )
+  if ( ! ssgSave ( orig_path, tweenScene ) )
+  {
+    if ( interactive )
+    {
+      puDeleteObject ( file_selector ) ;
+      file_selector = NULL ;
+      dialog ( "FAILED TO SAVE TWEENED MODEL!", 1, 0, 0 ) ;
+      return ;
+    }
+    else
+    {
+      perror ( "saveTween:" ) ;
+      exit ( 1 ) ;
+    }
+  }
+
+  if ( interactive )
   {
     puDeleteObject ( file_selector ) ;
     file_selector = NULL ;
-    dialog ( "FAILED TO SAVE TWEENED MODEL!", 1, 0, 0 ) ;
-    return ;
+    dialog ( "TWEENED MODEL WAS SAVED OK.", 1, 1, 0 ) ;
   }
-
-  puDeleteObject ( file_selector ) ;
-  file_selector = NULL ;
-
-  dialog ( "TWEENED MODEL WAS SAVED OK.", 1, 1, 0 ) ;
 }
 
 
@@ -204,7 +231,6 @@ void bnsavepickfn ( puObject * )
 void bnpickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
-  char fname [ PUSTRING_MAX ] ;
 
   file_selector -> getValue ( path ) ;
  
@@ -215,8 +241,17 @@ void bnpickfn ( puObject * )
     return ;
   }
 
+  loadBoneFile ( path, TRUE ) ;
+}
+
+void loadBoneFile ( char *path, int interactive )
+{
+  char orig_path [ PUSTRING_MAX ] ;
+  char fname [ PUSTRING_MAX ] ;
   char *p = NULL ;
   int i ;
+
+  strcpy ( orig_path, path ) ;
 
   for ( i = strlen(path) ; i >= 0 ; i-- )
     if ( path[i] == '/' || path[i] == '\\' )
@@ -241,20 +276,36 @@ void bnpickfn ( puObject * )
 
   /* LOAD THE BONES */
 
-  if ( file_selector->getStringValue()[0] == '\0' )
+  if ( orig_path[0] == '\0' )
   {
-    puDeleteObject ( file_selector ) ;
-    file_selector = NULL ;
-    return ;
+    if ( interactive )
+    {
+      puDeleteObject ( file_selector ) ;
+      file_selector = NULL ;
+      return ;
+    }
+    else
+    {
+      perror ( "loadBones:" ) ;
+      exit ( 1 ) ;
+    }
   }
 
-  FILE *fd = fopen ( file_selector->getStringValue(), "ra" ) ;
+  FILE *fd = fopen ( orig_path, "ra" ) ;
 
   if ( fd == NULL )
   {
-    puDeleteObject ( file_selector ) ;
-    file_selector = NULL ;
-    return ;
+    if ( interactive )
+    {
+      puDeleteObject ( file_selector ) ;
+      file_selector = NULL ;
+      return ;
+    }
+    else
+    {
+      perror ( "loadBones:" ) ;
+      exit ( 1 ) ;
+    }
   }
 
   timebox->deleteAll () ;
@@ -262,9 +313,11 @@ void bnpickfn ( puObject * )
   int numbones, numevents ;
   float floor_z_coord, maxtime, new_ground_speed ;
 
-  fscanf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
-                &numbones, &numevents,
-                &maxtime, &floor_z_coord, &new_ground_speed ) ;
+  fscanf ( fd,
+	"NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
+	&numbones, &numevents,
+	&maxtime, &floor_z_coord, &new_ground_speed ) ;
+
 
   /* Don't use the floor_z_coord from the file. */
   /* ground -> setZcoord ( floor_z_coord ) ; */
@@ -275,7 +328,7 @@ void bnpickfn ( puObject * )
   if ( numbones != getNumBones () )
   {
     fprintf ( stderr,
-      "Number of bones in model doesn't agree with number in bones file!\n" ) ;
+      "Number of bones in model (%d) doesn't agree with number in bones file (%d)!\n", getNumBones (), numbones ) ;
     exit ( 1 ) ;
   }
 
@@ -285,8 +338,12 @@ void bnpickfn ( puObject * )
   eventList -> read ( numevents, fd ) ;
 
   fclose ( fd ) ;
-  puDeleteObject ( file_selector ) ;
-  file_selector = NULL ;
+
+  if ( interactive )
+  {
+    puDeleteObject ( file_selector ) ;
+    file_selector = NULL ;
+  }
 }
 
 
@@ -344,7 +401,6 @@ void scpickfn ( puObject * )
 void pickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
-  char fname [ PUSTRING_MAX ] ;
 
   file_selector -> getValue ( path ) ;
  
@@ -362,6 +418,12 @@ void pickfn ( puObject * )
     return ;
   }
 
+  loadFile ( path, TRUE ) ;
+}
+
+void loadFile ( char *path, int interactive )
+{
+  char fname [ PUSTRING_MAX ] ;
   char *p = NULL ;
 
   for ( int i = strlen(path) ; i >= 0 ; i-- )
@@ -389,6 +451,8 @@ void pickfn ( puObject * )
   strcpy ( lastModelFileName, fname ) ;
 
   skinScene -> addKid ( ssgLoad ( fname, NULL ) ) ;
+  ssgFlatten  ( skinScene -> getKid ( 0 ) ) ;
+  ssgStripify ( skinScene -> getKid ( 0 ) ) ;
   boneScene -> addKid ( extractBones ( skinScene ) ) ;
 
   extractVertices ( skinScene ) ;

@@ -409,8 +409,11 @@ static void init_database ()
 static void help ()
 {
   fprintf ( stderr, "\n\n" ) ;
-  fprintf ( stderr, "exposer: Usage -\n\n" ) ;
+  fprintf ( stderr, "exposer: Interactive Usage -\n\n" ) ;
   fprintf ( stderr, "    exposer\n" ) ;
+  fprintf ( stderr, " ...or...\n" ) ;
+  fprintf ( stderr, "exposer: Batch Tweenfile generation Usage -\n\n" ) ;
+  fprintf ( stderr, "    exposer -f framerate modelfile bonefile tweenfile\n" );
   fprintf ( stderr, "\n\n" ) ;
 }
 
@@ -422,12 +425,23 @@ int main ( int argc, char **argv )
   init_graphics     () ;
   init_database     () ;
   init_bones        () ;
+  initBoneGUI       () ;
 
-  loadCB ( NULL ) ;
+  /* Interactive? */
 
-  glutPostRedisplay () ;
-  glutMainLoop      () ;
-  return 0 ;
+  if ( argc <= 1 )
+  { 
+    loadCB ( NULL ) ;
+
+    glutPostRedisplay () ;
+    glutMainLoop      () ;
+    return 0 ;
+  }
+
+  setTweenInterval ( 1.0f / atof ( argv [ 2 ] ) ) ;
+  loadFile      ( argv [ 3 ], FALSE ) ;
+  loadBoneFile  ( argv [ 4 ], FALSE ) ;
+  saveTweenFile ( argv [ 5 ], FALSE ) ;
 }
 
 

@@ -16,8 +16,6 @@ void init_bones ()
     bone = new Bone [ 1000 ] ;
 
   sgZeroVec3 ( curr_translate ) ;
-
-  initBoneGUI () ;
 }
 
 
@@ -42,7 +40,7 @@ void Bone::read ( FILE *fd )
   hb -> setValue ( (shb == 'H') ? 0 : 1 ) ;
   pb -> setValue ( (spb == 'P') ? 0 : 1 ) ;
   rb -> setValue ( (srb == 'R') ? 0 : 1 ) ;
- 
+
   hide_headingCB ( hb ) ;
   hide_pitchCB   ( pb ) ;
   hide_rollCB    ( rb ) ;
