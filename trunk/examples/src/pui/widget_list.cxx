@@ -57,6 +57,9 @@ puArrowButton *arrow_button ;
 int dial_window ;
 puDial *dial ;
 
+int list_box_window ;
+puListBox *list_box ;
+
 int file_selector_window ;
 puFileSelector *file_selector ;
 
@@ -367,6 +370,22 @@ int main ( int argc, char **argv )
   dial = new puDial ( 10, 10, 60 ) ;
   dial->setLabel ( "Label" ) ;
   dial->setLegend ( "Legend" ) ;
+
+  list_box_window = glutCreateWindow      ( "List Box" ) ;
+  glutPositionWindow    ( 200, 100 ) ;
+  glutReshapeWindow     ( 180, 100  ) ;
+  glutDisplayFunc       ( displayfn ) ;
+  glutKeyboardFunc      ( keyfn     ) ;
+  glutSpecialFunc       ( specialfn ) ;
+  glutMouseFunc         ( mousefn   ) ;
+  glutMotionFunc        ( motionfn  ) ;
+
+  tim -> load ( "../fnt/data/times_bold.txf" ) ;
+
+  char *list_box_entries [] = { "First Entry", "Second Entry", "Third Entry", "Very long Entry that will get truncated", NULL };
+  list_box = new puListBox ( 10, 10, 130, 80, list_box_entries ) ;
+  list_box->setLabel ( "Label" ) ;
+  list_box->setLegend ( "Legend" ) ;
 
   file_selector_window = glutCreateWindow      ( "File Selector Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
