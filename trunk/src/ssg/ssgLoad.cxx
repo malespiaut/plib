@@ -87,7 +87,7 @@ ssgLeaf* ssgLoaderOptions::createLeaf ( ssgLeaf* leaf,
   {
     /* try to do some state sharing */
     ssgState* st = leaf -> getState () ;
-    if ( st != NULL && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+    if ( st != NULL && st -> isA ( ssgTypeSimpleState () ) )
     {
       ssgSimpleState *ss = (ssgSimpleState*) st ;
       ssgSimpleState *match = shared_states.findMatch ( ss ) ;
