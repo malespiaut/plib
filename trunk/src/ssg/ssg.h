@@ -2722,6 +2722,7 @@ int				 ssgSavePOV  ( const char *fname, ssgEntity *ent ) ;
 ssgEntity *ssgLoad     ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoad3ds  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadAC3D ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadASC  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadSSG  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadASE  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadDOF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
