@@ -85,6 +85,21 @@ Bugs:
   or relative path. Load another object from the same path. It has 
   happened to me that plib now doesn't find the textures. I will look 
   into this.
+- Sam wrote:
+  Has anyone here debugged with plib under Windoze 2000 and MSVC++?
+  I get a whole bunch of
+  "Free Heap block modifed after it was free"
+  warnings with the ssgFlatten and ssgStripify.
+  I'll try and hunt this one down.
+  ...
+  I think it may be because I'm using MFC which (if I remember 
+  correctly) enables a bunch more memory checks.  Also I'm doing
+  #ifdef _WIN32
+      #ifdef _DEBUG
+          #define new DEBUG_NEW
+      #endif
+  #endif
+
 
 Working with ssg, especially the file loaders and writers leads
 to problems very quickly, therefore the above list might just be a
