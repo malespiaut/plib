@@ -159,6 +159,59 @@ void puComboBox::draw ( int dx, int dy )
   puGroup::draw ( dx, dy ) ;
 }
 
+int puComboBox::checkHit ( int button, int updown, int x, int y )
+{
+  if ( input -> checkHit ( button, updown, x-abox.min[0], y-abox.min[1] ) )
+  {
+    popup_menu -> hide () ;
+
+    return TRUE ;
+  }
+  else
+    return puGroup::checkHit ( button, updown, x, y ) ;
+}
+
+int puComboBox::checkKey ( int key, int updown )
+{
+  if ( ! input -> isAcceptingInput () || ! isVisible () || ! isActive () || ( window != puGetWindow () ) )
+    return FALSE ;
+
+  switch ( key )
+  {
+    case PU_KEY_HOME      :
+      setCurrentItem ( 0 ) ;
+      break ;
+
+    case PU_KEY_END       :
+      setCurrentItem ( num_items - 1 ) ;
+      break ;
+
+    case PU_KEY_UP        :
+      setCurrentItem ( getCurrentItem () + 1 ) ;
+      break ;
+
+    case PU_KEY_DOWN      :
+      setCurrentItem ( getCurrentItem () - 1 ) ;
+      break ;
+
+    case PU_KEY_PAGE_UP   :
+    case PU_KEY_PAGE_DOWN :
+      if ( ! popup_menu -> isVisible () )
+        popup_menu -> reveal () ;
+      else
+        popup_menu -> hide () ;
+
+      break ;
+
+    default :
+      return input -> checkKey ( key, updown ) ;
+      break ;
+  }
+
+  return TRUE ;
+}
+
+
 puComboBox::puComboBox ( int minx, int miny, int maxx, int maxy,
                          char **entries, int editable ) :
    puGroup( minx, miny )
