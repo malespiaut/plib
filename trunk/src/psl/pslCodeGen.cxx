@@ -49,6 +49,18 @@ void pslCompiler::pushLineNumber ( int l )
 }
 
 
+void pslCompiler::pushCharConstant ( char c )
+{
+  /* A bit wasteful but... */
+
+  pushCodeByte ( OPCODE_PUSH_INT_CONSTANT ) ;
+  pushCodeByte ( c ) ;
+  pushCodeByte ( 0 ) ;
+  pushCodeByte ( 0 ) ;
+  pushCodeByte ( 0 ) ;
+}
+
+
 void pslCompiler::pushConstant ( const char *c )
 {
   int isInteger = TRUE ;

@@ -102,6 +102,12 @@ int pslCompiler::pushPrimitive ()
     }
   }
 
+  if ( c [ 0 ] == '\'' )
+  {
+    pushCharConstant ( c [ 1 ] ) ;
+    return TRUE ;
+  }
+
   if ( c [ 0 ] == '"' )
   {
     pushStringConstant ( & c [ 1 ] ) ;
