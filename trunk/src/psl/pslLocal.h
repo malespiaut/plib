@@ -78,9 +78,9 @@
 
 /* Token Parser */
 
-void  ungetToken     ( const char *c ) ;
-void  getToken       ( char *c, FILE *fd = NULL ) ;
-void  setDefaultFile ( FILE *fd ) ;
+void  PSL_UngetToken     ( const char *c ) ;
+void  PSL_GetToken       ( char *c, FILE *fd = NULL ) ;
+void  PSL_SetDefaultFile ( FILE *fd ) ;
 
 /*
   Address/Opcodes are:

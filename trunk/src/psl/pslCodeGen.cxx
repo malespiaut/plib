@@ -46,7 +46,7 @@ int PSL_Parser::parse ( const char *fname )
 
 int PSL_Parser::parse ( FILE *fd )
 {
-  setDefaultFile ( fd ) ;
+  PSL_SetDefaultFile ( fd ) ;
   pushProgram () ;
   return TRUE ;
 }

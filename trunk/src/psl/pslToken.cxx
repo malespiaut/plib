@@ -31,13 +31,13 @@ static char ungotten_token [ MAX_UNGET ][ MAX_TOKEN ] ;
 static int  unget_stack_depth = 0 ;
 
 
-void setDefaultFile ( FILE *fd )
+void PSL_SetDefaultFile ( FILE *fd )
 {
   defaultFile = fd ;
 }
 
 
-void getToken ( char *res, FILE *fd )
+void PSL_GetToken ( char *res, FILE *fd )
 {
   if ( unget_stack_depth > 0 )
   {
@@ -89,7 +89,7 @@ void getToken ( char *res, FILE *fd )
 }
 
 
-void ungetToken ( const char *s )
+void PSL_UngetToken ( const char *s )
 {
   if ( unget_stack_depth >= MAX_UNGET-1 )
   {
