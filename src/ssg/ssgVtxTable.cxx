@@ -440,8 +440,8 @@ void ssgVtxTable::hot_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
 
     float ap = (float) fabs ( ep1 + ep2 + ep3 ) ;
     float ai = (float) ( fabs ( e1 + ep1 - e2 ) +
-               fabs ( e2 + ep2 - e3 ) +
-               fabs ( e3 + ep3 - e1 ) ) ;
+                         fabs ( e2 + ep2 - e3 ) +
+                         fabs ( e3 + ep3 - e1 ) ) ;
 
     if ( ai > ap * 1.01 )
       continue ;
