@@ -572,7 +572,9 @@ ssgSimpleState* createTextureState(char *name)
   state->setShininess(DEF_SHININESS);
   state->enable(GL_LIGHTING);
   state->disable(GL_COLOR_MATERIAL);
-  state->enable(GL_TEXTURE_2D);
+
+  state->setTexture( current_options -> createTexture(name, FALSE, FALSE) ) ;
+  state->enable( GL_TEXTURE_2D );
 
   DEBUGPRINT( "  Creating texture state: name = " << name << std::endl);
 
@@ -637,9 +639,9 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
  
   vertex_array_ = new ssgVertexArray();
   normal_array_ = new ssgNormalArray();
+  vertex_array_ -> ref();
+  normal_array_ -> ref();
  
-  //vertex_array_tex_ = new ssgVertexArray();
-  //normal_array_tex_ = new ssgNormalArray();
   tex_coords_ = new ssgTexCoordArray();
  
   unsigned int code_len;
@@ -764,7 +766,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
       vtab -> setCullFace ( TRUE ) ;
       vtab -> setState ( st ) ;
 
-      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL, NULL ) ;
+      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -832,7 +834,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
       vtab -> setCullFace ( TRUE ) ;
       vtab -> setState ( st ) ;
 
-      ssgLeaf* leaf = current_options -> createLeaf ( vtab, curr_tex_name_, NULL ) ;
+      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -890,7 +892,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
       vtab -> setCullFace ( TRUE ) ;
       vtab -> setState ( st ) ;
 
-      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL, NULL ) ;
+      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -1118,6 +1120,9 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
   
   delete curr_vtx_;
   delete curr_norm_;
+
+  vertex_array_ -> deRef();
+  normal_array_ -> deRef();
 
   //joinChildren( model_ );
   

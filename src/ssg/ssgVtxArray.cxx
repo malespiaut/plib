@@ -212,8 +212,8 @@ int ssgVtxArray::getNumTriangles ()
 
 void ssgVtxArray::print ( FILE *fd, char *indent )
 {
-  ssgVtxTable::print ( fd, indent ) ;
-  indices   -> print ( fd, indent ) ;
+  //ssgVtxTable::print ( fd, indent ) ;
+  //indices   -> print ( fd, indent ) ;
 }
 
 

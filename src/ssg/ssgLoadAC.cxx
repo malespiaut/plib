@@ -196,6 +196,13 @@ static ssgSimpleState *get_state ( _ssgMaterial *mat )
     st -> setOpaque () ;
   }
 
+  if (current_tfname != NULL) {
+    st -> setTexture( current_options -> createTexture(current_tfname) ) ;
+    st -> enable( GL_TEXTURE_2D ) ;
+  } else {
+    st -> disable( GL_TEXTURE_2D ) ;
+  }
+
   return st ;
 }
 
@@ -543,7 +550,7 @@ int do_refs     ( char *s )
     vtab -> setState ( get_state ( current_material ) ) ;
     vtab -> setCullFace ( ! ( (current_flags>>4) & 0x02 ) ) ;
 
-    ssgLeaf* leaf = current_options -> createLeaf ( vtab, current_tfname, 0 ) ;
+    ssgLeaf* leaf = current_options -> createLeaf ( vtab, 0 ) ;
 
     if ( leaf )
        current_branch -> addKid ( leaf ) ;
