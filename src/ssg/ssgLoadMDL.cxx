@@ -1170,6 +1170,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         }
         
         ssgBranch* grp = getCurrGroup();
+        ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
         grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
       }
       break;
@@ -1234,6 +1235,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         }
         
         ssgBranch* grp = getCurrGroup();
+        ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
         grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
       }
       break;
@@ -1284,6 +1286,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         }
         
         ssgBranch* grp = getCurrGroup();
+        ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
         grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
       }
       break;
@@ -1338,6 +1341,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         }
         
         ssgBranch* grp = getCurrGroup();
+        ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
         grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
       }
       break;
@@ -1491,3 +1495,4 @@ bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
 
 
 #endif
+
