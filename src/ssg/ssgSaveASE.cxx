@@ -78,7 +78,7 @@ static void save_states ()
 }
 
 
-static void save_mesh ( ssgVtxTable *vt )
+static void save_vtx_table ( ssgVtxTable *vt )
 {
   GLenum mode = vt -> getGLtype () ;
   if ( mode != GL_TRIANGLES &&
@@ -247,14 +247,21 @@ static void save_geom ( ssgEntity *e )
   {
     ssgBranch *br = (ssgBranch *) e ;
 
-    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      save_geom ( br -> getKid ( i ) ) ;
+    if ( br -> isAKindOf ( SSG_TYPE_SELECTOR ) )
+    {
+      save_geom ( br -> getKid ( 0 ) ) ;
+    }
+    else
+    {
+      for ( int i = 0 ; i < br -> getNumKids () ; i++ )
+        save_geom ( br -> getKid ( i ) ) ;
+    }
   }
   else
   if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
   {
     ssgVtxTable *vt = (ssgVtxTable *) e ;
-    save_mesh ( vt ) ;
+    save_vtx_table ( vt ) ;
   }
 }
 
