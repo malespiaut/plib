@@ -164,7 +164,12 @@ void load_database ()
   ssgEntity *ped_obj = ssgLoadAC ( "pedestal.ac" ) ;
   ssgEntity *tux_obj = ssgLoadSSG ( "tuxedo.ssg" ) ;
 
-tux_obj->print();
+  if ( ped_obj == NULL )
+    ulSetError ( UL_FATAL, "Cannot load pedastal.ac" ) ;
+  if ( tux_obj == NULL )
+    ulSetError ( UL_FATAL, "Cannot load tuxedo.ssg -- Please run 'save' first" ) ;
+
+  tux_obj->print();
 
   penguin  -> addKid ( tux_obj  ) ;
   pedestal -> addKid ( ped_obj  ) ;

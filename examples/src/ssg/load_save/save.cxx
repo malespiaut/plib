@@ -49,7 +49,7 @@ void load_database ()
 
 void save_database ()
 {
-  ssgSaveSSG ( "tuxedo.ssg", object ) ;
+  ssgSaveSSG ( "data/tuxedo.ssg", object ) ;
 }
 
 
