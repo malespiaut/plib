@@ -43,8 +43,7 @@ public:
 
   pslFile ( FILE *_fd, const char *_fname )
   {
-    fname = new char [ strlen ( _fname ) + 1 ] ;
-    strcpy ( fname, _fname ) ;
+    fname = ulStrDup ( _fname ) ;
 
     fd = _fd ;
     ungetSP  = 0 ;
