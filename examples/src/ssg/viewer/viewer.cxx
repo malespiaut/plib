@@ -7,13 +7,11 @@
 *   animate the model, and manipulate the camera.
 *   several models can be loaded at the same time.
 *
-* AUTHOR
-*   Dave McClurg <dpm@efn.org>
-*
 * CREATION DATE
-*   September 6, 2000
+*   Sep-2000 Dave McClurg <dpm@efn.org>
 *
 * MODIFICATION HISTORY
+*   Sep-2001 Dave McClurg <dpm@efn.org> Added wireframe toggle
 ****/
 
 #include <stdio.h>
@@ -72,6 +70,12 @@ int speed_index = 0 ;
 int anim_delay = -1 ;
 int anim_frame ;
 int num_anim_frames ;
+
+/*
+wire vars
+*/
+int wire_flag = 0 ;
+sgVec4 wire_colour = { 1.0f, 1.0f, 1.0f, 1.0f } ;
 
 /*
 spinner vars
@@ -257,6 +261,34 @@ void set_anim_frame( ssgEntity *e )
 }
 
 
+int wire_draw ( ssgEntity* e )
+{
+  if ( e -> isAKindOf ( ssgTypeLeaf() ) )
+  {
+    ssgLeaf* leaf = (ssgLeaf*) e ;
+    leaf -> drawHighlight ( wire_colour ) ;
+  }
+  return 1 ;
+}
+
+
+void wire_update ( ssgEntity *e, int flag )
+{
+  if ( e -> isAKindOf ( ssgTypeBranch() ) )
+  {
+    ssgBranch *br = (ssgBranch *) e ;
+    
+    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
+      wire_update ( br -> getKid ( i ), flag ) ;
+  }
+  else if ( e -> isAKindOf ( ssgTypeLeaf() ) )
+  {
+    ssgLeaf* leaf = (ssgLeaf *) e ;
+    leaf -> setCallback ( SSG_CALLBACK_POSTDRAW, flag? wire_draw: NULL ) ;
+  }
+}
+
+
 void make_matrix( sgMat4 mat )
 {
   SGfloat angle = -EyeAz * SG_DEGREES_TO_RADIANS ;
@@ -354,6 +386,7 @@ void display(void)
     text -> puts ( " <esc> : exit\n" ) ;
     text -> puts ( " c : clear\n" ) ;
     text -> puts ( " l : load a shape or sequence\n" ) ;
+    text -> puts ( " w : toggle wireframe\n" ) ;
     text -> puts ( " <key.pad.plus> : faster animation\n" ) ;
     text -> puts ( " <key.pad.minus> : slower animation\n" ) ;
     text -> puts ( " <left.mouse.button> : rotate\n" ) ;
@@ -543,9 +576,9 @@ void pick_cb ( puObject * )
 #endif
 
 #if 0
-  ssgSaveASE ( "data/temp.ase", obj ) ;
+  ssgSaveDXF ( "temp.dxf", obj ) ;
   delete obj ;
-  obj = ssgLoadASE ( "temp.ase" ) ;
+  obj = ssgLoadDXF ( "temp.dxf" ) ;
 #endif
   
   if ( !obj )
@@ -555,6 +588,7 @@ void pick_cb ( puObject * )
 
   num_anim_frames = 0 ;
   count_anim_frames ( scene ) ;
+  wire_update ( scene, wire_flag ) ;
   
   SGfloat radius = scene->getBSphere()->getRadius();
   EyeDist = float( radius * 1.5f / tan( float( FOV/2 * SG_DEGREES_TO_RADIANS ) ) );
@@ -619,6 +653,10 @@ void keyboard(unsigned char key, int, int)
       file_selector -> setCallback ( pick_cb ) ;
     }
     break;
+  case 'w':
+    wire_flag = !wire_flag ;
+    wire_update ( scene, wire_flag ) ;
+    break ;
   case 'c':
     //scene -> removeKid ( obj );
     scene -> removeAllKids () ;
