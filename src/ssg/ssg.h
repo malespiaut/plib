@@ -429,7 +429,8 @@ protected:
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgTexture ( char *fname, int wrapu = TRUE, int wrapv = TRUE )
+  ssgTexture ( char *fname, int wrapu = TRUE, int wrapv = TRUE,
+	       int mipmap = TRUE )
   {
 #ifdef GL_VERSION_1_1
     glGenTextures ( 1, & handle ) ;
@@ -449,7 +450,7 @@ public:
 
     glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ) ;
     glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                                              GL_LINEAR_MIPMAP_LINEAR ) ;
+		      mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR ) ;
     glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapu ? GL_REPEAT : GL_CLAMP ) ;
     glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapv ? GL_REPEAT : GL_CLAMP ) ;
 #ifdef GL_VERSION_1_1
@@ -522,6 +523,7 @@ _SSG_PUBLIC:
   char  *filename  ;
   int    wrapu ;
   int    wrapv ;
+  int    mipmap;
 
   int colour_material_mode ;
   sgVec4 specular_colour ;
@@ -563,7 +565,8 @@ public:
   virtual void  setTextureFilename ( char *fname ) ;
   virtual void  setTexture ( char *fname,
                              int _wrapu = TRUE,
-                             int _wrapv = TRUE ) ;
+                             int _wrapv = TRUE,
+			     int _mipmap = TRUE ) ;
 
   virtual GLuint getTextureHandle (void)
   {
@@ -705,7 +708,10 @@ public:
   char *getTextureFilename(void) ;
   void  setTextureFilename(char *fname) ;
 
-  void   setTexture ( char *fname, int _wrapu = TRUE, int _wrapv = TRUE ) ;
+  void   setTexture ( char *fname,
+		      int _wrapu = TRUE,
+		      int _wrapv = TRUE,
+		      int _mipmap = TRUE ) ;
   GLuint getTextureHandle (void)   ; 
   void   setTexture ( ssgTexture *tex ) ; 
 
