@@ -262,11 +262,11 @@ inline bool jsJoystick::getOEMProductName ( char *buf, int buf_sz )
 #endif
 
 
+#ifdef macintosh
+
 inline void jsJoystick::open ()
 {
   name [0] = '\0' ;
-
-#ifdef macintosh
 
   /*
     FIXME: get joystick name in Mac
@@ -369,8 +369,13 @@ inline void jsJoystick::open ()
     setError () ;
     num_buttons = num_axes = 0 ;
   }
+}
 
 #elif defined( WIN32 )
+
+inline void jsJoystick::open ()
+{
+  name [0] = '\0' ;
 
   js . dwFlags = JOY_RETURNALL ;
   js . dwSize  = sizeof ( js ) ;
@@ -421,8 +426,13 @@ inline void jsJoystick::open ()
     dead_band [ i ] = 0.0f ;
     saturate  [ i ] = 1.0f ;
   }
+}
 
 #else
+
+inline void jsJoystick::open ()
+{
+  name [0] = '\0' ;
 
   /* Default for older Linux systems. */
 
@@ -537,8 +547,9 @@ inline void jsJoystick::open ()
   }
 
 #  endif
-#endif
 }
+
+#endif
 
 
 inline void jsJoystick::close ()
@@ -549,11 +560,9 @@ inline void jsJoystick::close ()
 #endif
 
 #ifdef macintosh
-
-  ISpSuspend ();
-  ISpStop ();
-  ISpShutdown ();
-
+  ISpSuspend  () ;
+  ISpStop     () ;
+  ISpShutdown () ;
 #endif
 }
 
@@ -642,6 +651,9 @@ inline void jsJoystick::read ( int *buttons, float *axes )
       axes[i] = fudge_axis ( raw_axes[i], i ) ;
 }
 
+
+#ifdef macintosh
+
 inline void jsJoystick::rawRead ( int *buttons, float *axes )
 {
   if ( error )
@@ -655,8 +667,6 @@ inline void jsJoystick::rawRead ( int *buttons, float *axes )
 
     return ;
   }
-
-#ifdef macintosh
 
   int i ;
   int err ;
@@ -685,8 +695,24 @@ inline void jsJoystick::rawRead ( int *buttons, float *axes )
        axes [i] = (float) state ;
      }
   }
+}
 
 #elif defined ( WIN32 )
+
+inline void jsJoystick::rawRead ( int *buttons, float *axes )
+{
+  if ( error )
+  {
+    if ( buttons )
+      *buttons = 0 ;
+
+    if ( axes )
+      for ( int i = 0 ; i < num_axes ; i++ )
+        axes[i] = 1500.0f ;
+
+    return ;
+  }
+
   MMRESULT status = joyGetPosEx ( js_id, &js ) ;
 
   if ( status != JOYERR_NOERROR )
@@ -754,7 +780,23 @@ inline void jsJoystick::rawRead ( int *buttons, float *axes )
     }
 //lint -restore
   }
+}
+
 #else
+
+inline void jsJoystick::rawRead ( int *buttons, float *axes )
+{
+  if ( error )
+  {
+    if ( buttons )
+      *buttons = 0 ;
+
+    if ( axes )
+      for ( int i = 0 ; i < num_axes ; i++ )
+        axes[i] = 1500.0f ;
+
+    return ;
+  }
 
 # ifdef JS_NEW
 
@@ -837,8 +879,9 @@ inline void jsJoystick::rawRead ( int *buttons, float *axes )
     axes[1] = (float) js.y ;
   }
 # endif
-#endif
 }
+
+#endif
 
 //lint -restore
 
