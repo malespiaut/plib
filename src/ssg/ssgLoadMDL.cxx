@@ -481,16 +481,11 @@ static void createTriangIndices(ssgIndexArray *ixarr,
       }
 
       // Ensure counter-clockwise ordering
-      bool flip;
       sgMakeNormal(cross, 
 		   curr_part_->vtx->get(ix0), 
 		   curr_part_->vtx->get(ix1), 
 		   curr_part_->vtx->get(ix2));
-      if (sgScalarProductVec3(cross, s_norm) > 0.0) {
-	flip = false;
-      } else {
-	flip = true;
-      }
+      bool flip = (sgScalarProductVec3(cross, s_norm) < 0.0);
 
       curr_part_->idx->add(ix0);
       for(int i = 1; i < numverts; i++)
