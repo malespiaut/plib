@@ -64,8 +64,44 @@ int ssgSaveATG( const char* fname, ssgEntity *ent ) {
 															vertices->get(i)[1],
 															vertices->get(i)[2]);
   }
+// hack calc normal
+
+  ssgNormalArray *na=new ssgNormalArray (vertices->getNum());
+	sgVec3 myVec3;
+	myVec3[0]=0.0; myVec3[1]=0.0; myVec3[2]=1.0;
+	sgVec3 n;
+  int ind1, ind2, ind3;
+	for (i = 0; i < vertices->getNum(); i++)
+		na->add(myVec3);
+
+
+  for (i = 0; i < indices->getNum(); i += 3) {
+		ind1 = *indices->get(i);
+    ind2 = *indices->get(i + 1);
+		ind3 = *indices->get(i + 2);
+		if ((vertices->get(ind1)!=NULL) && (vertices->get(ind2)!=NULL) &&
+			  (vertices->get(ind3)!=NULL)) // wk: kludge: why can it be NULL?
+		{  sgMakeNormal( n, 
+        vertices->get(ind1),
+        vertices->get(ind2),
+        vertices->get(ind3) );
+    
+    sgCopyVec3( na->get(ind1), n );
+    sgCopyVec3( na->get(ind2), n );
+    sgCopyVec3( na->get(ind3), n );
+		}
+  }
+
+
+
+
+
+
+
   for (i = 0; i < vertices->getNum(); i++) 
-    fprintf(fd, "vn     1.0000     1.0000     1.0000\n"); // Fixme: Hm, strange normal ...
+	{ float *f = na->get(i);
+    fprintf(fd, "vn     %f %f %f\n", f[0], f[1], f[2]); 
+	}
 	for (i = 0; i < texCoordArray->getNum(); i++) 
     fprintf(fd, "vt %f %f\n", texCoordArray->get(i)[0], texCoordArray->get(i)[1]);
   
