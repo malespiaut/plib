@@ -61,8 +61,11 @@ public:
   netAddress () {}
   netAddress ( cchar* host, int port ) ;
 
+  void set ( cchar* host, int port ) ;
   cchar* getHost () const ;
   int getPort() const ;
+
+  static cchar* getLocalHost () ;
 };
 
 
@@ -75,13 +78,14 @@ class netSocket
 
 public:
 
-  netSocket () : handle (-1) {}
-  virtual ~netSocket () {}
+  netSocket () ;
+  virtual ~netSocket () ;
 
   int getHandle () const { return handle; }
   void setHandle (int handle) ;
   
   bool  open        ( bool stream=true ) ;
+  void  close		    ( void ) ;
   int   bind        ( cchar* host, int port ) ;
   int   listen	    ( int backlog ) ;
   int   accept      ( netAddress* addr ) ;
@@ -90,7 +94,6 @@ public:
   int   sendto      ( const void * buffer, int size, int flags, const netAddress* to ) ;
   int   recv		    ( void * buffer, int size, int flags = 0 ) ;
   int   recvfrom    ( void * buffer, int size, int flags, netAddress* from ) ;
-  void  close		    ( void ) ;
 
   void setBlocking ( bool blocking ) ;
 

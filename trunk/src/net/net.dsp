@@ -106,6 +106,10 @@ SOURCE=.\netChat.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\netList.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\netMessage.cxx
 # End Source File
 # Begin Source File
@@ -122,6 +126,10 @@ SOURCE=.\netMonitor.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\netRoom.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\netRoom.h
 # End Source File
 # Begin Source File
@@ -130,23 +138,11 @@ SOURCE=.\netRoomClient.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\netRoomClient.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\netRoomMaster.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\netRoomMaster.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\netRoomServer.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\netRoomServer.h
 # End Source File
 # Begin Source File
 

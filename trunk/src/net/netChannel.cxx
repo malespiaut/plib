@@ -48,14 +48,15 @@ netChannel::setHandle (int handle, bool is_connected)
   close () ;
   netSocket::setHandle ( handle ) ;
   connected = is_connected ;
+  //if ( connected ) this->handleConnect();
   closed = false ;
 }
 
 bool
-netChannel::open ( bool stream )
+netChannel::open (void)
 {
   close();
-  if (netSocket::open(stream)) {
+  if (netSocket::open(true)) {
     closed = false ;
     setBlocking ( false ) ;
     return true ;
@@ -76,7 +77,7 @@ netChannel::connect ( cchar* host, int port )
   int result = netSocket::connect ( host, port ) ;
   if (result == 0) {
     connected = true ;
-    this->handleConnect();
+    //this->handleConnect();
     return 0;
   } else if (isNonBlockingError ()) {
     return 0;
@@ -153,11 +154,12 @@ netChannel::handleReadEvent (void)
   if (accepting) {
     if (!connected) {
       connected = true ;
+      //this->handleConnect();
     }
     this->handleAccept();
   } else if (!connected) {
-    this->handleConnect();
     connected = true ;
+    //this->handleConnect();
     this->handleRead();
   } else {
     this->handleRead();
@@ -168,8 +170,8 @@ void
 netChannel::handleWriteEvent (void)
 {
   if (!connected) {
-    this->handleConnect();
     connected = true ;
+    //this->handleConnect();
   }
   write_blocked = false ;
   this->handleWrite();
@@ -189,9 +191,8 @@ netChannel::poll (u32 timeout)
   int nwrites = 0 ;
   int ndeletes = 0 ;
   int nopen = 0 ;
-
-  netChannel* ch ;
-  for ( ch = channels; ch != NULL; ch = ch -> next_channel )
+  netChannel* ch;
+  for (  ch = channels; ch != NULL; ch = ch -> next_channel )
   {
     if ( ch -> should_delete )
     {

@@ -30,8 +30,6 @@
 
 #include "netSocket.h"
 
-#define NET_VERSION 1
-
 class netChannel : public netSocket
 {
   bool closed, connected, accepting, write_blocked, should_delete ;
@@ -53,12 +51,12 @@ public:
   // socket methods
   // --------------------------------------------------
   
-  bool  open        ( bool stream=true ) ;
-  int   listen	    ( int backlog ) ;
-  int   connect     ( cchar* host, int port ) ;
-  int   send		    ( const void * buf, int size, int flags = 0 ) ;
-  int   recv		    ( void * buf, int size, int flags = 0 ) ;
-  void  close		    ( void ) ;
+  bool  open    ( void ) ;
+  void  close   ( void ) ;
+  int   listen  ( int backlog ) ;
+  int   connect ( cchar* host, int port ) ;
+  int   send    ( const void * buf, int size, int flags = 0 ) ;
+  int   recv    ( void * buf, int size, int flags = 0 ) ;
 
   // poll() eligibility predicates
   virtual bool readable (void) { return (connected || accepting); }
@@ -72,23 +70,20 @@ public:
   void handleWriteEvent (void);
   
   // These are meant to be overridden.
-  virtual void handleConnect (void) {
-    //fprintf(stderr,"%d: unhandled connect\n",handle);
+  virtual void handleClose (void) {
+    //fprintf(stderr,"Network: %d: unhandled close\n",getHandle());
   }
   virtual void handleRead (void) {
-    fprintf(stderr,"%d: unhandled read\n",getHandle());
+    fprintf(stderr,"Network: %d: unhandled read\n",getHandle());
   }
   virtual void handleWrite (void) {
-    fprintf(stderr,"%d: unhandled write\n",getHandle());
-  }
-  virtual void handleClose (void) {
-    fprintf(stderr,"%d: unhandled close\n",getHandle());
+    fprintf(stderr,"Network: %d: unhandled write\n",getHandle());
   }
   virtual void handleAccept (void) {
-    fprintf(stderr,"%d: unhandled accept\n",getHandle());
+    fprintf(stderr,"Network: %d: unhandled accept\n",getHandle());
   }
   virtual void handleError (int error) {
-    fprintf(stderr,"%d: unhandled errno: %d\n",getHandle(),errno);
+    fprintf(stderr,"Network: %d: errno: %s(%d)\n",getHandle(),strerror(errno),errno);
   }
 
   static bool poll (u32 timeout = 0 ) ;

@@ -22,57 +22,19 @@
 #include "netChat.h"
 
 
-class netMonitorServer ;
-
-
-class netMonitorChannel : public netChat
-{
-  netMonitorServer* server ;
-  bool authorized ;
-  netBuffer buffer;
-
-  void prompt () ;
-
-  virtual void handleConnect (void) ;
-  virtual void handleClose (void)
-  {
-    printf("%d: Client disconnected.\n",getHandle());
-    shouldDelete () ;
-  }
-
-  virtual void collectIncomingData	(const char* s, int n) ;
-  virtual void foundTerminator (void) ;
-
-public:
-
-  netMonitorChannel ( netMonitorServer* server ) ;
-} ;
-
-		
-class netMonitorServer : public netChannel
+class netMonitorServer : private netChannel
 {
   char* name ;
   char* password ;
   char* prompt ;
-  void (*cmdfunc)(cchar*, netMonitorChannel*) ;
+  void (*cmdfunc)(cchar*) ;
+  class netMonitorChannel* active ;
 
   friend class netMonitorChannel ;
 
-  virtual bool writable (void)
-  {
-    return false ;
-  }
-
-  virtual void handleAccept (void)
-  {
-    netAddress addr ;
-    int s = accept ( &addr ) ;
-		printf("%d: Client %s:%d connected\n",s,addr.getHost(),addr.getPort());
-
-    netMonitorChannel * mc = new netMonitorChannel ( this ) ;
-    mc -> setHandle (s);
-  }
-
+  virtual bool writable (void) { return false ; }
+  virtual void handleAccept (void) ;
+  
 public:
 
   netMonitorServer( cchar* _name, int port )
@@ -81,12 +43,13 @@ public:
     password = strdup("") ;
 		prompt = strdup(">>> ");
     cmdfunc = 0 ;
+    active = 0 ;
 
-		open ();
-		bind ("localhost", port);
-		listen (5);
+		open () ;
+		bind ("", port);
+		listen (1);
 
-    printf("Monitor server \"%s\" started on port %d\n",name,port);
+    printf("Monitor \"%s\" started on port %d\n",name,port);
   }
 
   ~netMonitorServer()
@@ -109,10 +72,12 @@ public:
     prompt = strdup ( string?string:"" ) ;
   }
 
-  void setCommandFunc ( void (*func)(cchar*, netMonitorChannel*) )
+  void setCommandFunc ( void (*func)(cchar*) )
   {
     cmdfunc = func ;
   }
+
+  bool push (const char* s) ;
 } ;
 
 #endif // NET_MONITOR_H

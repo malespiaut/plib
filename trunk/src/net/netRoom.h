@@ -3,8 +3,6 @@
 *   netRoom - game room classes
 *
 * DESCRIPTION
-*   game room player, game, and server info classes
-*
 *   Game rooms are a client-server design pattern where
 *   you select a game to play, choose a game room, and
 *   then enter the room lobby where you can chat,
@@ -21,157 +19,71 @@
 #define __NET_ROOM__
 
 
-#include "netMessage.h"
+#include "netList.h"
 
 
-class netRoom
+#define TINY_INTERNAL
+class netRoom : public netThing
 {
 public:
-
+    
   enum MessageType
   {
-    //App message types start at 0
-    
     //Client2Client
-    CHAT=200,
+    MSG_SAY=0,
 
-    //Client2App
-    PLAYER_LEFT,        //player left the game you are in
-    PLAYER_JOINED,      //player joined the game you are in
-    YOU_ARE_HOST,       //you are now the host of the game
+    /* App message types (0-199) */
+    APPMSG_BASE=1,
+
+    /* Sys message types (200-255) */
+    SYSMSG_BASE=200,
 
     //Client2Server
-    LOGIN,
-    LOGOUT,
-    CREATE_GAME,
-    JOIN_GAME,
-    LEAVE_GAME,
-    START_GAME,
+    SYSMSG_ENTER_ROOM=SYSMSG_BASE,
+    SYSMSG_LEAVE_ROOM,
+    SYSMSG_CREATE_GAME,
+    SYSMSG_JOIN_GAME,
+    SYSMSG_LEAVE_GAME,
+    SYSMSG_START_GAME,
+    SYSMSG_SET_GAME_MASTER,
+    SYSMSG_UNUSED1,
 
     //Server2Client
-    ERROR_REPLY,
-    INIT_GAME_LIST,
-    UPDATE_GAME_LIST,
-    INIT_PLAYER_LIST,
-    UPDATE_PLAYER_LIST,
-    
+    SYSMSG_ERROR_REPLY,
+    SYSMSG_REMOVE_ALL_GAMES,
+    SYSMSG_REMOVE_GAME,
+    SYSMSG_UPDATE_GAME,
+    SYSMSG_REMOVE_ALL_PLAYERS,
+    SYSMSG_REMOVE_PLAYER,
+    SYSMSG_UPDATE_PLAYER,
+
     //Client2Master
-    REQUEST_SERVER_LIST,  //browser
-    //UPDATE_SERVER_LIST, //advertiser
+    SYSMSG_BROWSE_ROOMS,
+    SYSMSG_ADVERTISE_ROOM,
 
     //Master2Client
-    INIT_SERVER_LIST,
-    UPDATE_SERVER_LIST,
+    SYSMSG_REMOVE_ALL_ROOMS,
+    SYSMSG_UPDATE_ROOM
   };
 
-  enum Error
+  enum ErrorType
   {
-    ERROR_NONE,
-    ERROR_TOO_MANY_GAMES,
+    ERROR_NONE=0,
+    ERROR_TOO_MANY_GAMES=100, /* > last system errno */
+    ERROR_TOO_MANY_ROOMS,
     ERROR_INVALID_GAME,
     ERROR_GAME_IS_FULL,
     ERROR_WRONG_GAME_PASSWORD,
     ERROR_WRONG_SERVER_PASSWORD,
-    ERROR_WRONG_NET_VERSION,
-    ERROR_WRONG_GAME_GUID,
-    NUM_ERRORS
+    ERROR_WRONG_VERSION,
+    ERROR_WRONG_GUID
   };
 
-} ;
-
-
-class netRoomPlayerInfo
-{
-public:
-
-  int id ;
-  char name [ NET_MAX_NAME+1 ] ;
-  int game_id ;
-  bool watching ;
-
-  void get ( const netMessage& msg )
-  {
-    id = msg.geti () ;
-    msg.gets( name, sizeof(name) ) ;
-    game_id = msg.geti () ;
-    watching = msg.getb () ;
-  }
-
-  void put ( netMessage& msg ) const
-  {
-    msg.puti ( id ) ;
-    msg.puts ( name ) ;
-    msg.puti ( game_id ) ;
-    msg.putb ( watching ) ;
-  }
-
-  void push ( netChat* channel ) const
-  {
-    channel -> push ( "netRoomPlayerInfo:\r\n" ) ;
-    channel -> push ( netFormat ( "  id = %d\r\n", id ) ) ;
-    channel -> push ( netFormat ( "  name = %s\r\n", name ) ) ;
-    channel -> push ( netFormat ( "  game_id = %d\r\n", game_id ) ) ;
-    channel -> push ( netFormat ( "  watching = %d\r\n", watching ) ) ;
-  }
-};
-
-
-class netRoomGameInfo
-{
-public:
-
-  int id ;
-  char name [ NET_MAX_NAME+1 ] ;
-  int host_id ;
-  int max_players ;
-  bool in_progress ;
-  bool has_password ;
-
-  void get ( const netMessage& msg )
-  {
-    id = msg.geti () ;
-    msg.gets( name, sizeof(name) ) ;
-    host_id = msg.geti () ;
-    max_players = msg.geti () ;
-    in_progress = msg.getb () ;
-    has_password = msg.getb () ;
-  }
-
-  void put ( netMessage& msg ) const
-  {
-    msg.puti ( id ) ;
-    msg.puts ( name ) ;
-    msg.puti ( host_id ) ;
-    msg.puti ( max_players ) ;
-    msg.putb ( in_progress ) ;
-    msg.putb ( has_password ) ;
-  }
-
-  void push ( netChat* channel ) const
-  {
-    channel -> push ( "netRoomGameInfo:\r\n" ) ;
-    channel -> push ( netFormat ( "  id = %d\r\n", id ) ) ;
-    channel -> push ( netFormat ( "  name = %s\r\n", name ) ) ;
-    channel -> push ( netFormat ( "  host_id = %d\r\n", host_id ) ) ;
-    channel -> push ( netFormat ( "  max_players = %d\r\n", max_players ) ) ;
-    channel -> push ( netFormat ( "  in_progress = %d\r\n", in_progress ) ) ;
-    channel -> push ( netFormat ( "  has_password = %d\r\n", has_password ) ) ;
-  }
-};
-
-
-class netRoomServerInfo
-{
-public:
-
-  char name [ NET_MAX_NAME+1 ] ;
-  int net_version ; //network library version
   bool has_password ;
 
   //address
   char host [ NET_MAX_NAME+1 ] ;
   int port ;
-  netGuid game_guid ;
 
   int max_games ;
   int max_players ;
@@ -179,76 +91,307 @@ public:
   int num_players ;
   int num_openings ;
 
-  netRoomServerInfo () {}
-
-  netRoomServerInfo ( cchar* _host, int _port, const netGuid& _game_guid )
-  {
-    memset ( this, 0, sizeof(netRoomServerInfo) ) ;
-    net_version = NET_VERSION ;
-    has_password = false ;
-
-    netCopyName ( host, _host ) ;
-    port = _port ;
-    memcpy ( &game_guid, &_game_guid, sizeof(game_guid) ) ;
-
-    max_games = 64 ;
-    max_players = 64 ;
-  }
-
-  void get ( const netMessage& msg )
-  {
-    msg.gets ( name, sizeof(name) ) ;
-    net_version = msg.geti () ;
-    has_password = msg.getb () ;
-
-    msg.gets ( host, sizeof(host) ) ;
-    port = msg.geti () ;
-    msg.geta ( &game_guid, sizeof(game_guid) ) ;
-
-    max_games = msg.geti () ;
-    max_players = msg.geti () ;
-    num_games = msg.geti () ;
-    num_players = msg.geti () ;
-    num_openings = msg.geti () ;
-  }
-
-  void put ( netMessage& msg ) const
-  {
-    msg.puts ( name ) ;
-    msg.puti ( net_version ) ;
-    msg.putb ( has_password ) ;
-
-    msg.puts ( host ) ;
-    msg.puti ( port ) ;
-    msg.puta ( &game_guid, sizeof(game_guid) ) ;
-
-    msg.puti ( max_games ) ;
-    msg.puti ( max_players ) ;
-    msg.puti ( num_games ) ;
-    msg.puti ( num_players ) ;
-    msg.puti ( num_openings ) ;
-  }
-
-  void push ( netChat* channel, char *indent = "" ) const
-  {
-    channel -> push ( "netRoomServerInfo:\r\n" ) ;
-
-    channel -> push ( netFormat ( "  name = %s\r\n", name ) ) ;
-    channel -> push ( netFormat ( "  net_version = %d\r\n", net_version ) ) ;
-    channel -> push ( netFormat ( "  has_password = %d\r\n", has_password ) ) ;
-
-    channel -> push ( netFormat ( "  host = %s\r\n", host ) ) ;
-    channel -> push ( netFormat ( "  port = %d\r\n", port ) ) ;
-    channel -> push ( "  game_guid = " ) ;
-    game_guid.push ( channel ) ;
-
-    channel -> push ( netFormat ( "  max_games = %d\r\n", max_games ) ) ;
-    channel -> push ( netFormat ( "  max_players = %d\r\n", max_players ) ) ;
-    channel -> push ( netFormat ( "  num_games = %d\r\n", num_games ) ) ;
-    channel -> push ( netFormat ( "  num_players = %d\r\n", num_players ) ) ;
-    channel -> push ( netFormat ( "  num_openings = %d\r\n", num_openings ) ) ;
-  }
+  netRoom () ;
+  netRoom ( cchar* _host, int _port ) ;
+  virtual void get ( const netMessage& msg ) ;
+  virtual void put ( netMessage& msg ) const ;
+  virtual void copy ( const netRoom* src ) ;
 };
+
+
+class netRoomPlayer : public netThing
+{
+public:
+
+  int game_id ;
+  bool watching ;
+
+  netRoomPlayer () ;
+  virtual void get ( const netMessage& msg ) ;
+  virtual void put ( netMessage& msg ) const ;
+  virtual void copy ( const netRoomPlayer* src ) ;
+  bool inGame () const { return game_id != 0 ; }
+};
+
+
+class netRoomGame : public netThing
+{
+public:
+
+  int master_id ;
+  int max_players ;
+  bool in_progress ;
+  bool has_password ;
+
+  netRoomGame () ;
+  virtual void get ( const netMessage& msg ) ;
+  virtual void put ( netMessage& msg ) const ;
+  virtual void copy ( const netRoomGame* src ) ;
+  int getMaxPlayers () const { return max_players ; }
+  bool inProgress () const { return in_progress ; }
+  bool hasPassword () const { return has_password ; }
+};
+
+
+class netRoomList : public netList
+{
+public:
+
+  netRoom* get ( int id )
+    { return (netRoom *) netList::get ( id ) ; }
+  netRoom* add ( netRoom* thing )
+    { return (netRoom *) netList::add ( thing ) ; }
+  netRoom* findByName ( cchar* name )
+    { return (netRoom *) netList::findByName ( name ) ; }
+
+  netRoom* findByAddr ( cchar* host, int port )
+  {
+    for ( int id = 1; id <= getNum (); id ++ )
+    {
+      netRoom* p = get ( id ) ;
+      if ( p && strcasecmp ( p -> host, host ) == 0 && p -> port == port )
+        return p ;
+    }
+    return NULL ;
+  }
+} ;
+
+
+/*
+**  game room master
+**
+**  a game room master server keeps track of which
+**  game room servers are running and information
+**  about each one.  game room servers send updates
+**  and game room clients download the list
+**  of game room servers.
+*/
+
+class netRoomMasterServer : private netChannel
+{
+  virtual bool writable (void) { return false ; }
+  virtual void handleAccept (void) ;
+
+public:
+
+  netGuid guid ;
+  int version ;
+  netRoomList rooms ;
+
+  netRoomMasterServer ( int port, const netGuid& _guid, int _version )
+  {
+    memcpy ( &guid, &_guid, sizeof(guid) ) ;
+    version = _version ;
+		open () ;
+		bind ("", port);
+		listen (5);
+    printf("Master Server started on port %d\n",port);
+  }
+} ;
+
+
+class netRoomBrowser : private netMessageChannel
+{
+  netGuid guid ;
+  int version ;
+  netRoomList* rooms ;
+  int last_error ;
+
+  virtual void handleMessage ( const netMessage& msg ) ;
+  virtual void handleError (int error)
+  {
+    if ( errno )
+      last_error = errno ;
+  }
+
+public:
+
+  netRoomBrowser ( const netGuid& _guid, int _version )
+  {
+    memcpy ( &guid, &_guid, sizeof(guid) ) ;
+    version = _version ;
+    rooms = 0 ;
+    last_error = 0 ;
+  }
+
+  int getError ()
+  {
+    int error = last_error ;
+    last_error = 0 ;
+    return error ;
+  }
+
+  void browse ( cchar* host, int port, netRoomList* _rooms ) ;
+  void close ( void ) { netMessageChannel::close () ; }
+  virtual netRoom* handleNewRoom () { return new netRoom ; }
+} ;
+
+
+class netRoomAdvertiser : private netMessageChannel
+{
+  netGuid guid ;
+  int version ;
+
+public:
+
+  netRoomAdvertiser ( const netGuid& _guid, int _version )
+  {
+    memcpy ( &guid, &_guid, sizeof(guid) ) ;
+    version = _version ;
+  }
+
+  void advertise ( cchar* host, int port, const netRoom& room ) ;
+  void update ( const netRoom& room ) ;
+} ;
+
+
+/*
+**  Game Room Server
+**
+**  a game room server keeps track of who is in what game and routes
+**  or broadcasts messages for the players.
+**
+**  Game rooms are a client-server design pattern where
+**  you select a game to play, choose a game room, and
+**  then enter the room lobby where you can chat,
+**  create a game, or join/watch an existing game.
+*/
+
+
+class netRoomServer : private netChannel
+{
+  virtual bool writable (void) { return false ; }
+  virtual void handleAccept (void) ;
+
+public:
+
+  netRoomServer ( const netRoom& room, const netGuid& _guid, int _version ) ;
+  ~netRoomServer () ;
+
+  const netRoom* getInfo () ;
+  const netRoomPlayer* getPlayer ( int id ) ;
+  const netRoomGame* getGame ( int id ) ;
+  int getNumPlayers () const ;
+  int getNumGames () const ;
+
+  void setPassword ( cchar* _password ) ;
+  void gagPlayer ( int player_id, bool flag=true ) ;
+  void kickPlayer ( int player_id ) ;
+  void banPlayer ( int player_id, bool flag=true ) ;
+} ;
+
+
+/*
+**  game room client
+**
+**  a game room client connects to a game room server and
+**  create/join/leave games through this interface.
+**
+**  Game rooms are a client-server design pattern where
+**  you select a game to play, choose a game room, and
+**  then enter the room lobby where you can chat,
+**  create a game, or join/watch an existing game.
+*/
+
+class netRoomClient : private netMessageChannel
+{
+  enum States
+  {
+    STATE_DISCONNECT,
+    STATE_LOGIN_REPLY,
+    STATE_JOIN_REPLY,
+    STATE_READY,
+    NUM_STATES
+  };
+  
+  netGuid guid ;
+  int version ;
+  int local_id ;
+  int state;
+  int last_error ;
+
+  void processUpdateGame ( const netMessage& msg ) ;
+  void processUpdatePlayer ( const netMessage& msg ) ;
+
+  virtual void handleError (int error)
+  {
+    if ( errno )
+      last_error = errno ;
+  }
+
+protected:
+
+  netList games ;
+  netList players ;
+
+public:
+
+  netRoomClient ( const netGuid& _guid, int _version ) ;
+  ~netRoomClient () ;
+
+  int getError ()
+  {
+    int error = last_error ;
+    last_error = 0 ;
+    return error ;
+  }
+
+  /* room */
+
+  void enterRoom ( cchar* player_name, const netRoom& room, cchar* room_password=0 ) ;
+  void leaveRoom () ;
+  bool inRoom () const
+  {
+    return( isConnected() && state > STATE_LOGIN_REPLY );
+  }
+  
+  /* games */
+
+  void createGame ( cchar* game_name, cchar* password, int max_players ) ;
+  void joinGame ( cchar* game_name, cchar* password ) ;
+  void watchGame ( cchar* game_name, cchar* password ) ;
+  void leaveGame () ;
+  void startGame () ;
+  bool inGame () const ;
+  bool isGameMaster () const ;
+  int getGameMaster () const ;
+  void setGameMaster ( int player_id ) ;
+
+  virtual void handleSay ( cchar* text ) {}
+  virtual void handleJoinGame ( int player_id ) {}
+  virtual void handleLeaveGame ( int player_id ) {}
+
+  /* players */
+
+  int getLocalID () const { return local_id ; }
+
+  /* messages */
+
+  bool sendMessage ( netMessage& msg )
+  {
+    msg.setFromID ( local_id ) ;
+    return netMessageChannel::sendMessage ( msg ) ;
+  }
+
+  virtual void handleMessage ( const netMessage& msg ) ;
+
+  /* list methods */
+
+  virtual netRoomGame* handleNewGame () { return new netRoomGame ; }
+  virtual netRoomPlayer* handleNewPlayer () { return new netRoomPlayer ; }
+
+  int getNumGames () const { return games . getNum () ; }
+  netRoomGame* getGame ( int id )
+    { return (netRoomGame*) games . get ( id ) ; }
+  netRoomGame* findGame ( cchar* name )
+    { return (netRoomGame*) games . findByName ( name ) ; }
+
+  int getNumPlayers () const { return players . getNum () ; }
+  netRoomPlayer* getPlayer ( int id )
+    { return (netRoomPlayer*) players . get ( id ) ; }
+  netRoomPlayer* findPlayer ( cchar* name )
+    { return (netRoomPlayer*) players . findByName ( name ) ; }
+} ;
 
 
 #endif //__NET_ROOM__

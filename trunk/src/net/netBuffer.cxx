@@ -8,7 +8,7 @@ netBufferChannel::handleRead (void)
   {
     char* data = in_buffer.getData() + in_buffer.getLength() ;
     int num_read = recv (data, max_read) ;
-    if (num_read)
+    if (num_read > 0)
     {
       in_buffer.append (num_read) ;
       //fprintf ( stderr, "netBufferChannel: %d read\n", num_read ) ;
@@ -32,7 +32,7 @@ netBufferChannel::handleWrite (void)
         length=512;
       int num_sent = netChannel::send (
         out_buffer.getData(), length);
-      if (num_sent)
+      if (num_sent > 0)
       {
         out_buffer.remove (0, num_sent);
         //fprintf ( stderr, "netBufferChannel: %d sent\n", num_sent ) ;

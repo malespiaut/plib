@@ -23,6 +23,12 @@
 
 netAddress::netAddress ( cchar* host, int port )
 {
+  set ( host, port ) ;
+}
+
+
+void netAddress::set ( cchar* host, int port )
+{
 	memset(this, 0, sizeof(netAddress));
 
   sin_family = AF_INET ;
@@ -41,6 +47,7 @@ netAddress::netAddress ( cchar* host, int port )
 	}
   else
   {
+#if 0
   	int d1, d2, d3, d4;
   	char ch;
   	if (sscanf(host, "%d.%d.%d.%d%c", &d1, &d2, &d3, &d4, &ch) == 4 &&
@@ -51,6 +58,10 @@ netAddress::netAddress ( cchar* host, int port )
   			((long) d3 << 8) | ((long) d4 << 0));
   	}
     else  //let's try gethostbyname()
+#else
+    sin_addr = inet_addr(host);
+    if ( sin_addr == INADDR_NONE )
+#endif
     {
     	struct hostent *hp = gethostbyname(host);
     	if (hp != NULL)
@@ -65,17 +76,22 @@ netAddress::netAddress ( cchar* host, int port )
   }
 }
 
+
 /* Create a string object representing an IP address.
    This is always a string of the form 'dd.dd.dd.dd' (with variable
    size numbers). */
 
 cchar* netAddress::getHost () const
 {
+#if 0
+  cchar* buf = inet_ntoa ( sin_addr ) ;
+#else
   static char buf [32];
 	long x = ntohl(sin_addr);
 	sprintf(buf, "%d.%d.%d.%d",
 		(int) (x>>24) & 0xff, (int) (x>>16) & 0xff,
 		(int) (x>> 8) & 0xff, (int) (x>> 0) & 0xff );
+#endif
   return buf;
 }
 
@@ -85,8 +101,35 @@ int netAddress::getPort() const
   return ntohs(sin_port);
 }
 
-void
-netSocket::setHandle (int _handle)
+cchar* netAddress::getLocalHost ()
+{
+  //gethostbyname(gethostname())
+
+  char buf[256];
+  memset(buf, 0, sizeof(buf));
+  gethostname(buf, sizeof(buf)-1);
+  const hostent *hp = gethostbyname(buf);
+	if (hp && *hp->h_addr_list)
+  {
+    in_addr addr = *((in_addr*)*hp->h_addr_list);
+    cchar* host = inet_ntoa(addr);
+    if ( host )
+      return host ;
+	}
+  return "127.0.0.1" ;
+}
+
+netSocket::netSocket ()
+{
+  handle = -1 ;
+}
+
+netSocket::~netSocket ()
+{
+  close () ;
+}
+
+void netSocket::setHandle (int _handle)
 {
   close () ;
   handle = _handle ;
@@ -96,7 +139,7 @@ bool
 netSocket::open ( bool stream )
 {
   close () ;
-  handle = (int) ::socket ( AF_INET, ( stream? SOCK_STREAM: SOCK_DGRAM ), 0 ) ;
+  handle = ::socket ( AF_INET, (stream? SOCK_STREAM: SOCK_DGRAM), 0 ) ;
   return (handle != -1);
 }
 
@@ -127,7 +170,7 @@ netSocket::bind ( cchar* host, int port )
 {
   assert ( handle != -1 ) ;
   netAddress addr ( host, port ) ;
-  return ::bind(handle,(sockaddr*)&addr,sizeof(netAddress));
+  return ::bind(handle,(const sockaddr*)&addr,sizeof(netAddress));
 }
 
 int
@@ -141,7 +184,7 @@ int
 netSocket::accept ( netAddress* addr )
 {
   assert ( handle != -1 ) ;
-  socklen_t addr_len = sizeof(netAddress) ;
+  int addr_len = sizeof(netAddress) ;
   return ::accept(handle,(sockaddr*)addr,&addr_len);
 }
 
@@ -178,7 +221,7 @@ int
 netSocket::recvfrom ( void * buffer, int size, int flags, netAddress* from )
 {
   assert ( handle != -1 ) ;
-  socklen_t fromlen = sizeof(netAddress) ;
+  int fromlen = sizeof(netAddress) ;
   return ::recvfrom(handle,(char*)buffer,size,flags,(sockaddr*)from,&fromlen);
 }
 

@@ -5,15 +5,15 @@ void
 netMessageChannel::handleBufferRead (netBuffer& in_buffer)
 {
   int n = in_buffer.getLength () ;
-  while ( n > 0 )
+  while ( n >= 2 )
   {
-    u8 msg_len = *( (u8*)in_buffer.getData() ) ;
+    u16 msg_len = *( (u16*)in_buffer.getData() ) ;
     if ( n >= msg_len )
     {
-      //we have a complete message; process it
+      //we have a complete message; handle it
       netMessage msg(in_buffer.getData(),msg_len);
       in_buffer.remove(0,msg_len);
-      processMessage ( msg );
+      handleMessage ( msg );
 
       //fprintf ( stderr, "netMessageChannel: %d read\n", msg_len ) ;
       n -= msg_len ;

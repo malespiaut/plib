@@ -5,7 +5,7 @@ class HTTPClient : public netBufferChannel
 {
 public:
 
-  HTTPClient ( cchar* host, cchar* path ) //: out_buffer(512)
+  HTTPClient ( cchar* host, cchar* path )
   {
 		open ();
 		connect (host, 80);
@@ -17,7 +17,6 @@ public:
   virtual void handleBufferRead (netBuffer& buffer)
   {
     const char* s = buffer.getData();
-    printf("%s",s);
     while (*s)
       fputc(*s++,stdout);
 
@@ -31,7 +30,7 @@ main (int argc, char * argv[])
 {
   netInit(&argc,argv);
 
-  HTTPClient* hc = new HTTPClient( "www.dynamix.com", "/index.html" );
+  HTTPClient* hc = new HTTPClient( "www.dynamix.com", "/index.php" );
 
   netChannel::loop(0);
   return 0;
