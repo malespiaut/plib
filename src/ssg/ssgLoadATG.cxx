@@ -113,7 +113,7 @@ static int Ascii2Int(int &retVal, const char *token, const char* name )
 
 
 
-#define MAX_NO_VERTICES_PER_FACE 1000
+#define MAX_NO_VERTICES_PER_FACE 10000
 
 static class ssgLoaderWriterMesh _theMesh;
 
@@ -354,7 +354,34 @@ static int parse()
 		_ssgNoFaces++;
 ////////////////////
 		// use array aiVertices
-		
+// Wk: Its is not clear to me, whether DOTRIANGLES always has to be on.
+#define DOTRIANGLES 1
+#ifdef DOTRIANGLES
+		unsigned int j, k, l;
+		k = nNoOfVerticesForThisFace / 3;
+		assert( 3*k==nNoOfVerticesForThisFace);
+		for(l=0;l<k;l++)
+		{	ssgTexCoordArray * sca = new ssgTexCoordArray (3);
+			sca->ref();
+			for(j=0;j<3;j++)
+			{
+				if ( ! linearListTCPFAV->get(aiTCs[l*3+j]) )
+				{	parser.error("Internal error while reading *.atg-file: aiTCs[j] == NULL \n");
+					return FALSE;
+				}
+				sca->add(linearListTCPFAV->get(aiTCs[l*3+j]));
+			}
+
+			// ****** add face to mesh *****
+			_theMesh.addTCPFAV ( &sca ) ;
+			int carray[3];
+			carray[0]=aiVertices[3*l+0];
+			carray[1]=aiVertices[3*l+1];
+			carray[2]=aiVertices[3*l+2];
+			_theMesh.AddFaceFromCArray(3, carray); 
+			_theMesh.addMaterialIndex ( _current_material_index ) ;
+		}
+#else		
 		unsigned int j;
 		ssgTexCoordArray * sca = new ssgTexCoordArray (nNoOfVerticesForThisFace);
 		sca->ref();
@@ -372,7 +399,7 @@ static int parse()
 		_theMesh.addFaceFromIntegerArray(nNoOfVerticesForThisFace, aiVertices); 
 		_theMesh.addMaterialIndex ( _current_material_index ) ;
 		
-
+#endif
 
 		token = parser_getLine();
 		if ( token == NULL )
