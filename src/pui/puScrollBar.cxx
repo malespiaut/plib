@@ -151,7 +151,7 @@ void puScrollBar::doHit ( int button, int updown, int x, int y )
 
     float next_value = getFloatValue () ;
     float step = getStepSize () ;
-    if ( step == 0.0 ) step = ( getMaxValue () - getMinValue () ) / 10.0 ;
+    if ( step == 0.0f ) step = ( getMaxValue () - getMinValue () ) / 10.0f ;
 
     /* Check for hitting a button */
 
@@ -161,10 +161,10 @@ void puScrollBar::doHit ( int button, int updown, int x, int y )
     if( arrow_count == 2 )
     {
       if ( coord < abox.min[sd] + width )  /* Fast down button */
-        next_value -= 10.0 * step ;
+        next_value -= 10.0f * step ;
 
       if ( coord > abox.max[sd] - width )  /* Fast up button */
-        next_value += 10.0 * step ;
+        next_value += 10.0f * step ;
     }
 
     if ( arrow_count > 0 )
