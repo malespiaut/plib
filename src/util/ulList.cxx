@@ -106,7 +106,10 @@ void ulList::removeEntity ( unsigned int n )
  
 void ulList::replaceEntity ( unsigned int n, void *new_entity )
 {
-  entity_list [ n ] = new_entity;
-}                                                                               
+  if ( n >= 0 )
+    entity_list [ n ] = new_entity;
+  else
+    addEntity ( new_entity ) ;
+}
 
 
