@@ -3,6 +3,29 @@
 
 #define HL_DELTA 0.04f
 
+void ssgVtxArray::copy_from ( ssgVtxArray *src, int clone_flags )
+{
+  ssgVtxTable::copy_from ( src, clone_flags ) ;
+
+  ssgDeRefDelete ( indices ) ;
+
+  if ( src->indices != NULL && ( clone_flags & SSG_CLONE_GEOMETRY ) )
+    indices = (ssgIndexArray *)( src -> indices -> clone ( clone_flags )) ;
+  else
+    indices = src -> indices ;
+
+  if ( indices != NULL )
+    indices -> ref () ;
+}
+
+ssgBase *ssgVtxArray::clone ( int clone_flags )
+{
+  ssgVtxArray *b = new ssgVtxArray ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgVtxArray::ssgVtxArray () : ssgVtxTable()
 {
   type |= SSG_TYPE_VTXARRAY ;
