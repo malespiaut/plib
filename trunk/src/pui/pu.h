@@ -268,11 +268,10 @@ extern int puRefresh ;
 #define PUCLASS_BISLIDER         0x00080000
 #define PUCLASS_TRISLIDER        0x00100000
 #define PUCLASS_VERTMENU         0x00200000
-#define PUCLASS_LARGEINPUT       0x00400000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
-void puSetResizeMode ( bool mode ) ;
+void puSetResizeMode ( int mode ) ;
 
 int  puGetWindow       () ;
 int  puGetWindowHeight () ;
@@ -991,7 +990,6 @@ public:
 
   void setActiveButton ( int i ) { active_button = i ; }
   int getActiveButton ( void ) { return active_button ; }
-
 } ;
 
 
@@ -1013,7 +1011,6 @@ public:
 
    int getFreezeEnds () {  return freeze_ends ;  }
    void setFreezeEnds ( int val ) {  freeze_ends = val ;  }
-
 } ;
 
 
@@ -1033,7 +1030,6 @@ public:
   int getNumItems() const { return num ; }
   int getTopItem() const { return top ; }
   void setTopItem( int item_index ) ;
-
 } ;
 
 
@@ -1074,6 +1070,7 @@ public:
   }
 } ;
 
+
 class puPopupMenu : public puPopup
 {
 protected:
@@ -1088,6 +1085,7 @@ public:
   int  checkKey ( int key   , int updown ) ;
   void close ( void ) ;
 } ;
+
 
 class puMenuBar : public puInterface
 {
@@ -1118,8 +1116,8 @@ public:
                      ( puGetStringHeight( puGetDefaultLegendFont() )
                        + PUSTR_TGAP + PUSTR_BGAP ) : y)
   {
-    floating = TRUE ;
     type |= PUCLASS_VERTMENU ;
+    floating = TRUE ;
   }
 
   void add_submenu ( char *str, char *items[], puCallback cb[] ) ;
@@ -1133,6 +1131,7 @@ class puInput : public puObject
   int cursor_position ;
   int select_start_position ;
   int select_end_position ;
+  char *valid_data ;
 
   void normalize_cursors ( void ) ;
 
@@ -1166,6 +1165,40 @@ public:
     if ( e ) *e = select_end_position   ;
   }
 
+  char *getValidData () { return valid_data ; }
+  void setValidData ( char *data )
+  {
+    if ( valid_data )
+    {
+      free ( valid_data ) ;
+      valid_data = NULL ;
+    }
+
+    if ( data )
+    {
+      valid_data = (char *)malloc ( ( strlen ( data ) + 1 ) * sizeof(char) ) ;
+      strcpy ( valid_data, data ) ;
+    }
+  }
+
+  void addValidData ( char *data )
+  {
+    int new_data_len = 1 ;
+    if ( valid_data ) new_data_len += strlen ( valid_data ) ;
+    if ( data )       new_data_len += strlen ( data ) ;
+    char *new_data = (char *)malloc ( new_data_len * sizeof(char) ) ;
+    strcpy ( new_data, "\0" ) ;
+    if ( valid_data ) strcat ( new_data, valid_data ) ;
+    if ( data )       strcat ( new_data, data ) ;
+    free ( valid_data ) ;
+    valid_data = new_data ;
+  }
+
+  int isValidCharacter ( char c )
+  {
+    return ( ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ) ;
+  }
+
   puInput ( int minx, int miny, int maxx, int maxy ) :
              puObject ( minx, miny, maxx, maxy )
   {
@@ -1177,7 +1210,14 @@ public:
     select_start_position = -1 ;
     select_end_position   = -1 ;
 
+    valid_data = NULL ;
+
     setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
+  }
+
+  ~puInput ()
+  {
+    if ( valid_data ) free ( valid_data ) ;
   }
 
   virtual void invokeDownCallback ( void )

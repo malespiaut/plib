@@ -71,6 +71,7 @@ void puObject::setColourScheme ( float r, float g, float b, float a )
 puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
 {
   type |= PUCLASS_OBJECT ;
+
   bbox.min[0] = abox.min[0] = minx ;
   bbox.min[1] = abox.min[1] = miny ;
   bbox.max[0] = abox.max[0] = maxx ;
@@ -257,27 +258,3 @@ int puObject::checkHit ( int button, int updown, int x, int y )
 }
 
  
-char *puValue::getTypeString ( void )
-{
-  int i = getType () ;
-
-  if ( i & PUCLASS_DIALOGBOX   ) return "puDialogBox" ;
-  if ( i & PUCLASS_SLIDER      ) return "puSlider" ;
-  if ( i & PUCLASS_BUTTONBOX   ) return "puButtonBox" ;
-  if ( i & PUCLASS_INPUT       ) return "puInput" ;
-  if ( i & PUCLASS_MENUBAR     ) return "puMenuBar" ;
-  if ( i & PUCLASS_POPUPMENU   ) return "puPopupMenu" ;
-  if ( i & PUCLASS_POPUP       ) return "puPopup" ;
-  if ( i & PUCLASS_ONESHOT     ) return "puOneShot" ;
-  if ( i & PUCLASS_BUTTON      ) return "puButton" ;
-  if ( i & PUCLASS_TEXT        ) return "puText" ;
-  if ( i & PUCLASS_FRAME       ) return "puFrame" ;
-  if ( i & PUCLASS_GROUP       ) return "puGroup" ;
-  if ( i & PUCLASS_INTERFACE   ) return "puInterface" ;
-  if ( i & PUCLASS_OBJECT      ) return "puObject" ;
-  if ( i & PUCLASS_VALUE       ) return "puValue" ;
-
-  return "Unknown Object type." ;
-}
-
-

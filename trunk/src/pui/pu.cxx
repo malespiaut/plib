@@ -37,10 +37,10 @@ static int fontBase = 0;
 static int fontSize[257];
 #else
 
-static bool openGLSize = false;
+static int openGLSize = 0 ;
 
 
-void puSetResizeMode ( bool mode ) {
+void puSetResizeMode ( int mode ) {
   openGLSize = mode ;
 }
 
@@ -94,7 +94,7 @@ puColour _puDefaultColourTable[] =
 } ;
  
 
-static bool glIsValidContext ()
+static int glIsValidContext ()
 {
 #if defined(CONSOLE)
   return true ;
@@ -207,7 +207,7 @@ void puInit ( void )
 
   if ( firsttime )
   {
-    if ( ! glIsValidContext () )
+    if ( glIsValidContext () == 0 )
     {
       fprintf ( stderr,
       "FATAL: puInit called without a valid OpenGL context.\n");
