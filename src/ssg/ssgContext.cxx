@@ -41,7 +41,7 @@ ssgContext::ssgContext ()
   currentState -> force () ;
 
   basicState->dont_care      = 0 ;
-  basicState->texture_handle = 0 ;
+  basicState->setTexture ( (ssgTexture*) NULL ) ;
   basicState->colour_material_mode = GL_AMBIENT_AND_DIFFUSE ;
   sgSetVec4(basicState->specular_colour,1.0f,1.0f,1.0f,1.0f);
   sgSetVec4(basicState->emission_colour,0.0f,0.0f,0.0f,1.0f);
