@@ -1,17 +1,17 @@
 
 void drawStatusText ( int score ) ;
 
-void stPrintf ( char *fmt, ... ) ;
-void stToggle () ;
+/*void stPrintf ( char *fmt, ... ) ;
+void stToggle () ;*/
 
-void memorial    () ;
+//void memorial    () ;
 void about       () ;
 void credits     () ;
 void versions    () ;
 void help        () ;
 void hide_status () ;
 
-double read_time_of_day () ;
+/*double read_time_of_day () ;
 void start_stopwatch () ;
 
-extern int time_out ;
+extern int time_out ;*/

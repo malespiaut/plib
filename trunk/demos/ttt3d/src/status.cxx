@@ -10,13 +10,13 @@
 #define MAX_STRING          30
 #define MAX_STRING_LENGTH  256
 
-int displayed_score = 0 ;
+static int displayed_score = 0 ;
 
 static fntRenderer *text = NULL ;
 
 char debug_strings [ MAX_STRING ][ MAX_STRING_LENGTH ] ;
-int next_string   = 0 ;
-int stats_enabled = FALSE ;
+/*int next_string   = 0 ;
+int stats_enabled = FALSE ;*/
 
 static int    about_timer = 99999 ;
 static int versions_timer = 99999 ;
@@ -31,7 +31,7 @@ void credits     () {  credits_timer = 0 ; }
 void versions    () { versions_timer = 0 ; }
 void help        () {     help_timer = 0 ; }
 
-void drawText ( char *str, int sz, int x, int y )
+static void drawText ( const char *str, int sz, int x, int y )
 {
   text -> setFont      ( font ) ;
   text -> setPointSize ( sz ) ;
@@ -43,7 +43,7 @@ void drawText ( char *str, int sz, int x, int y )
 }
 
 
-void drawInverseDropShadowText ( char *str, int sz, int x, int y )
+static void drawInverseDropShadowText ( const char *str, int sz, int x, int y )
 {
   glColor4f ( 1.0f, 1.0f, 1.0f, 1.0f ) ;
   drawText ( str, sz, x, y ) ;
@@ -52,7 +52,7 @@ void drawInverseDropShadowText ( char *str, int sz, int x, int y )
 }
 
 
-void drawDropShadowText ( char *str, int sz, int x, int y )
+static void drawDropShadowText ( const char *str, int sz, int x, int y )
 {
   glColor4f ( 0.0f, 0.0f, 0.0f, 1.0f ) ;
 
@@ -64,7 +64,7 @@ void drawDropShadowText ( char *str, int sz, int x, int y )
 }
 
 
-void drawHelpText ()
+static void drawHelpText ()
 {
   drawDropShadowText ( "Press SPACE to toggle the menu.", 18, 70, 400 ) ;
   drawDropShadowText ( "Press ESCAPE to exit the game.", 18, 70, 370 ) ;
@@ -74,14 +74,14 @@ void drawHelpText ()
 }
 
 
-void drawTitleText ()
+static void drawTitleText ()
 {
   drawDropShadowText ( "TTT3D", 20, 70, 400 ) ;
   drawDropShadowText ( "By Steve Baker", 12, 170, 385 ) ;
 }
 
 
-void drawIntroText ()
+static void drawIntroText ()
 {
   drawTitleText () ;
 
@@ -91,14 +91,14 @@ void drawIntroText ()
 }
 
 
-char *aboutText [] =
+static const char *aboutText [] =
 {
   "  Yada, yada, yada.",
   NULL
 } ;
 
 
-void drawVersionsText ()
+static void drawVersionsText ()
 {
   char str [ 256 ] ;
 
@@ -143,7 +143,7 @@ void drawVersionsText ()
 }
 
 
-void drawAboutText ()
+static void drawAboutText ()
 {
   drawTitleText () ;
 
@@ -157,7 +157,7 @@ void drawAboutText ()
 }
 
 
-char *creditsText [] =
+static const char *creditsText [] =
 {
   "  Steve  Baker    - Coding, design, bug insertion.",
   NULL
@@ -165,7 +165,7 @@ char *creditsText [] =
 
 
 
-void drawCreditsText ()
+static void drawCreditsText ()
 {
   drawTitleText () ;
 
@@ -183,7 +183,7 @@ void drawCreditsText ()
 
 
 
-void drawScore ()
+static void drawScore ()
 {
   if ( displayed_score > 0 )
   {
@@ -195,7 +195,7 @@ void drawScore ()
 
 
 
-void drawInGameScore ()
+static void drawInGameScore ()
 {
   char str [ 50 ] ;
 
@@ -217,7 +217,7 @@ void drawInGameScore ()
 
 
 
-void drawGameOverText ( int score )
+static void drawGameOverText ( int score )
 {
   static int timer = 0 ;
 
@@ -255,7 +255,7 @@ void drawGameOverText ( int score )
 }
 
 
-void drawGameIntroText ()
+static void drawGameIntroText ()
 {
   static int timer = 0 ;
 
@@ -279,7 +279,7 @@ void drawGameIntroText ()
 }
 
 
-void drawGameRunningText ( int score )
+static void drawGameRunningText ( int score )
 {
   displayed_score = score ;
   drawInGameScore () ;

@@ -23,7 +23,7 @@ public:
     sched -> setSafetyMargin ( t ) ;
   }
 
-  void  change_track ( char *fname ) ;
+  void  change_track ( const char *fname ) ;
   void disable_music () ;
   void  enable_music () ;
 

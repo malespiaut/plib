@@ -4,19 +4,19 @@
 #include <ctype.h>
 #include "game.h"
 
-char board [4][4][4] ;
-int last_x = -1 ;
-int last_y = -1 ;
-int last_z = -1 ;
+static char board [4][4][4] ;
+static int last_x = -1 ;
+static int last_y = -1 ;
+static int last_z = -1 ;
 
 #define NUM_ROWS  ( 3 * 16 + 3 * 8 + 4 )
 
-char *row       [ NUM_ROWS ][ 4 ] ;
-char  rowptr    [ 4 ][ 4 ][ 4 ][ 8 ] ;
-char  rowptrctr [ 4 ][ 4 ][ 4 ] ;
+static char *row       [ NUM_ROWS ][ 4 ] ;
+static char  rowptr    [ 4 ][ 4 ][ 4 ][ 8 ] ;
+static char  rowptrctr [ 4 ][ 4 ][ 4 ] ;
 
 
-void setupRowArray ()
+static void setupRowArray ()
 {
   int x, y, z;
 
@@ -184,7 +184,7 @@ void setupRowArray ()
 }
 
 
-void clearBoard ()
+static void clearBoard ()
 {
   for ( int x = 0 ; x < 4 ; x++ )
     for ( int y = 0 ; y < 4 ; y++ )
@@ -193,7 +193,7 @@ void clearBoard ()
 }
 
 
-void printBoard ( int winrow )
+/*void printBoard ( int winrow )
 {
   int x, y, z;
 	
@@ -275,11 +275,11 @@ void printBoard ( int winrow )
 
   printf ( "\n" ) ;
   printf ( "\n" ) ;
-}
+}*/
 
 
 
-int value [4][4] =  /* Value of 1000000 means play here to win. */
+static int value [4][4] =  /* Value of 1000000 means play here to win. */
 {
   {    1, 3,10, 1000000 },   /* No    enemy, 0,1,2,3 of ours */
   {    2, 0, 0,       0 },   /* One   enemy, 0,1,2,3 of ours */
@@ -292,7 +292,7 @@ int value [4][4] =  /* Value of 1000000 means play here to win. */
 static int win = STILL_PLAYING ;
 
 
-int countRow ( int r )
+static int countRow ( int r )
 {
   int x = 0 ;
   int o = 0 ;
@@ -318,7 +318,7 @@ int countRow ( int r )
 
 
 
-int getLoc ( char *msg )
+/*int getLoc ( char *msg )
 {
 
   while ( 1 )
@@ -348,7 +348,7 @@ int getLoc ( char *msg )
     else
       printf ( "Please type a NUMBER in the range 0 to 63.\n" ) ;
   }
-}
+}*/
 
 
 

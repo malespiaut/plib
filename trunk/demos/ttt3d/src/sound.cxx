@@ -3,7 +3,7 @@
 
 struct Sound
 {
-   char *fname ;
+   const char *fname ;
    slSample *s ;
 } ;
 
@@ -33,7 +33,7 @@ void SoundSystem::disable_music ()
 }
 
 
-void SoundSystem::change_track ( char *fname )
+void SoundSystem::change_track ( const char *fname )
 {
   if ( fname == NULL )
     fname = "" ;

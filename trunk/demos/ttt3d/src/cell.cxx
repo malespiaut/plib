@@ -2,9 +2,9 @@
 #include "p3d.h"
 #include <plib/ssgAux.h>
 
-ssgBranch *wire_cube = NULL ;
-ssgBranch *   X_cube = NULL ;
-ssgBranch *   O_cube = NULL ;
+static ssgBranch *wire_cube = NULL ;
+static ssgBranch *   X_cube = NULL ;
+static ssgBranch *   O_cube = NULL ;
 
 
 ssgTransform *makeGround ()
@@ -163,7 +163,7 @@ ssgTransform *makeBlueWireCube()
 }
 
 
-void makeWireCube()
+static void makeWireCube()
 {
   wire_cube = new ssgBranch () ;
 
@@ -204,7 +204,7 @@ void makeWireCube()
 }
 
 
-ssgBranch *X ()
+static ssgBranch *X ()
 {
   ssgaCube *XXX = new ssgaCube () ;
 
@@ -215,7 +215,7 @@ ssgBranch *X ()
 }
 
 
-ssgBranch *O ()
+static ssgBranch *O ()
 {
   ssgaSphere *OOO = new ssgaSphere ( 300 ) ;
 
@@ -226,14 +226,14 @@ ssgBranch *O ()
 }
 
 
-void makeXcube ()
+static void makeXcube ()
 {
   X_cube = new ssgBranch () ;
   X_cube -> addKid ( X () ) ;
 }
 
 
-void makeOcube ()
+static void makeOcube ()
 {
   O_cube = new ssgBranch () ;
   O_cube -> addKid ( O () ) ;

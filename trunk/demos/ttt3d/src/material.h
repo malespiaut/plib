@@ -21,8 +21,8 @@ public:
 
 
 void initMaterials () ;
-Material *getMaterial ( ssgState *s ) ;
-Material *getMaterial ( ssgLeaf  *l ) ;
+/*Material *getMaterial ( ssgState *s ) ;
+Material *getMaterial ( ssgLeaf  *l ) ;*/
 
 extern ssgSimpleState *default_gst, *O_gst, *X_gst, *ground_gst, *ctrls_gst ;
 

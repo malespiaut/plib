@@ -20,12 +20,12 @@ int getGLUTKeystroke ()
   return k ;
 }
 
-void reshape ( int w, int h )
+static void reshape ( int w, int h )
 {
   glViewport ( 0, 0, w, h ) ;
 }
 
-void initWindow ( int w, int h )
+static void initWindow ( int w, int h )
 {
   int fake_argc = 1 ;
   char *fake_argv[3] ;

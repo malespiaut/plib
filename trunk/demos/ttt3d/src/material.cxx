@@ -3,7 +3,7 @@
 
 ssgSimpleState *default_gst, *O_gst, *X_gst, *ground_gst, *ctrls_gst ;
 
-Material gs_setup [] =
+static Material gs_setup [] =
 {
   /*    gst          texture_map       clamp, trans,aref,light,frctn,0 */
   { &default_gst, "",                  FALSE, TRUE , 0.0, FALSE, 1.0, 0 },
@@ -61,7 +61,7 @@ void Material::install ( int index )
 
 
 
-ssgState *getAppState ( char *fname )
+static ssgState *getAppState ( char *fname )
 {
   if ( fname == NULL || fname[0] == '\0' )
     return gs_setup [ 0 ] . getState() ;
@@ -139,7 +139,7 @@ void initMaterials ()
 }
 
 
-Material *getMaterial ( ssgState *s )
+/*Material *getMaterial ( ssgState *s )
 {
   return & ( gs_setup [ s -> getExternalPropertyIndex () ] ) ;
 }
@@ -148,5 +148,5 @@ Material *getMaterial ( ssgState *s )
 Material *getMaterial ( ssgLeaf *l )
 {
   return getMaterial ( l -> getState () ) ;
-}
+}*/
 
