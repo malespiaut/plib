@@ -277,7 +277,7 @@ int define_widget_window ()
 
   puGroup *widget_group = new puGroup ( 0, 0 ) ;
 
-  puFrame *widget_frame = new puFrame ( 0, 0, 4 * ln + 5 * sp,  5 * ht + 6 * sp ) ;
+  new puFrame ( 0, 0, 4 * ln + 5 * sp,  5 * ht + 6 * sp ) ;
 
   puButton *button = (puButton *)NULL ;
   button = new puButton ( sp, 5*sp+4*ht, sp+ln, 5*sp+5*ht ) ;

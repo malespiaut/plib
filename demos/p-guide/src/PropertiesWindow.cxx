@@ -229,7 +229,7 @@ int define_properties_window ()
   // Set up the widgets
 
   properties_group = new puGroup ( 0, 0 ) ;
-  puFrame *properties_frame = new puFrame ( 0, 0, 500, 250 ) ;
+  new puFrame ( 0, 0, 500, 250 ) ;
 
   puText *properties_instructions = new puText ( 250, 230 );
   properties_instructions->setLabelPlace(PUPLACE_TOP_CENTERED);
