@@ -3,8 +3,15 @@
 // This is a loader for Microsoft Flight Simulator / Flight Shop models
 // (MDL-files) to SSG. 
 //
-// Original code by Thomas Engh Sevaldrud, adapted to SSG by
+// Original code by Thomas Engh Sevaldrud, extended and adapted to SSG by
 // Per Liedman.
+//===========================================================================
+
+/* 
+   This loader is intended for loading MDL models constructed with 
+   Flight Shop (a model editor for MSFS). Models not created with 
+   Flight Shop or hand tweaked afterwards might not work without problems.
+*/
 
 #include <iostream.h>
 #include "ssgLocal.h"
@@ -14,7 +21,7 @@
 #define MSFS_MAX_STATES 256
 
 // Define DEBUG if you want some debug info
-/*#define DEBUG 1*/
+#define DEBUG 1
 
 #ifdef DEBUG
 #include <iostream>
@@ -150,27 +157,31 @@ static bool findPart(FILE* fp)
 	{
 	  if(pattern[i] == pattern1[i]) match1++;
 	  if(pattern[i] == pattern2[i]) match2++;
-	  if((pattern[i] == 0x24 || pattern[i] == 0x1c /*||
-				   pattern[i] == 0x7C ||
-				   pattern[i] == 0xB3*/
-	      ) && matchpos < 0) matchpos = i;
+	  if((pattern[i] == 0x24 || pattern[i] == 0x1c) && matchpos < 0) 
+	    matchpos = i;
 	}
 
       if(match1 == 4)
 	{
 	  fseek(fp, -4, SEEK_CUR);
-	  DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) << std::dec << std::endl);
+	  DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) 
+		      << std::dec << std::endl);
 	  return true;
 	}
 
       else if(match2 == 4)
 	{
 	  fseek(fp, -4, SEEK_CUR);
-	  DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) << std::dec << std::endl);
+	  DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) 
+		      << std::dec << std::endl);
 	  return true;
 	}
       else if(matchpos >= 0) 
 	{
+	  /* this section of the code takes care of moving parts. 
+	     (all moving parts are currently handled by the BGL_IFIN1
+	     op-code) */
+
 	  long pos = ftell(fp);
 
 	  unsigned short var;
@@ -183,6 +194,11 @@ static bool findPart(FILE* fp)
 	  next_op = get_word();
 
 	  int part_idx, kid_idx;
+
+	  // for moving parts except propeller, this seems
+	  // to work
+	  kid_idx = ( (next_op & 0xff00) == 0x0d00 ) ? 0 : 1;
+
 	  switch (var) {
 	  case 0x5200:
 	  case 0x6c00:
@@ -192,7 +208,11 @@ static bool findPart(FILE* fp)
 	    part_idx = PART_GEAR; break;
 	  case 0x5a00:
 	  case 0x7400:
-	    part_idx = PART_PROP; break;
+	    part_idx = PART_PROP;
+	    /* I'm not sure if the division always occurs at
+	       low == 0. Perhaps other RPM settings are possible. /PL */
+	    kid_idx  = (low == 0) ? 0 : 1;
+	    break;
 	  case 0x5c00:
 	  case 0x7600:
 	    part_idx = PART_LIGHTS; break;
@@ -204,12 +224,6 @@ static bool findPart(FILE* fp)
 	    part_idx = PART_SPOILERS; break;
 	  default:
 	    part_idx = -1; break;
-	  }
-
-	  if ( (next_op & 0xFF00) == 0x0D00) {
-	    kid_idx = 0;
-	  } else {
-	    kid_idx = 1;
 	  }
 
 	  DEBUGPRINT( "IfVarRange(" << std::hex << offset << " " << var
@@ -233,10 +247,6 @@ static bool findPart(FILE* fp)
 
 	    curr_branch_ = (ssgBranch*)moving_parts_[part_idx]->
 	      getKid(kid_idx);
-	    if (curr_branch_ == NULL) {
-	      moving_parts_[part_idx]->print(stdout, "  ");
-	      exit(0);
-	    }
 	  }
 
 	  fseek(fp, pos, SEEK_SET);
@@ -668,10 +678,10 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	      std::dec << std::endl );
   fseek(model_file_, offset, SEEK_SET);
 
-  //unsigned int code_len;
-  //code_len = get_dword();
-  //code_len -= 0x12;  
-  //DEBUGPRINT( "code length = " << code_len << " bytes\n");
+  unsigned int code_len;
+  code_len = get_dword();
+  code_len -= 0x12;  
+  DEBUGPRINT( "code length = " << code_len << " bytes\n");
   
   start_idx_ = 0;
   last_idx_  = 0;
