@@ -107,6 +107,9 @@ inline void sgMakeCoordMat4( sgMat4 dst, const sgCoord *src )
   sgMakeCoordMat4 ( dst, src->xyz, src->hpr ) ;
 }
 
+extern void sgMakeLookAtMat4 ( sgMat4 dst,
+        const sgVec3 eye, const sgVec3 center, const sgVec3 up ) ;
+
 extern void sgMakeRotMat4   ( sgMat4 dst, const SGfloat angle, const sgVec3 axis ) ;
 
 inline void sgMakeRotMat4   ( sgMat4 dst, const sgVec3 hpr )

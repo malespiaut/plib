@@ -59,6 +59,42 @@ void sgMakeRotMat4( sgMat4 mat, const SGfloat angle, const sgVec3 axis )
   mat[3][3] = SG_ONE ;
 }
 
+void sgMakeLookAtMat4 ( sgMat4 dst, const sgVec3 eye, const sgVec3 center, const sgVec3 up )
+{
+  // Caveats:
+  // 1) In order to compute the line of sight, the eye point must not be equal
+  //    to the center point.
+  // 2) The up vector must not be parallel to the line of sight from the eye
+  //    to the center point.
+
+  /* Compute the direction vectors */
+  sgVec3 x,y,z;
+
+  /* Y vector = center - eye */
+  sgSubVec3 ( y, center, eye ) ;
+
+  /* Z vector = up */
+  sgCopyVec3 ( z, up ) ;
+
+  /* X vector = Y cross Z */
+  sgVectorProductVec3 ( x, y, z ) ;
+
+  /* Recompute Z = X cross Y */
+  sgVectorProductVec3 ( z, x, y ) ;
+
+  /* Normalize everything */
+  sgNormaliseVec3 ( x ) ;
+  sgNormaliseVec3 ( y ) ;
+  sgNormaliseVec3 ( z ) ;
+
+  /* Build the matrix */
+#define M(row,col)  dst[row][col]
+  M(0,0) = x[0];    M(0,1) = x[1];    M(0,2) = x[2];    M(0,3) = 0.0;
+  M(1,0) = y[0];    M(1,1) = y[1];    M(1,2) = y[2];    M(1,3) = 0.0;
+  M(2,0) = z[0];    M(2,1) = z[1];    M(2,2) = z[2];    M(2,3) = 0.0;
+  M(3,0) = eye[0];  M(3,1) = eye[1];  M(3,2) = eye[2];  M(3,3) = 1.0;
+#undef M
+}
 
 /*********************\
 *    sgBox routines   *

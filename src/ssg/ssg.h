@@ -1769,6 +1769,20 @@ inline void ssgSetCamera ( sgCoord *coord )
   _ssgCurrentContext-> setCamera ( coord ) ;
 }
 
+inline void ssgLookAt ( SGfloat eyex, SGfloat eyey, SGfloat eyez,
+  SGfloat centerx, SGfloat centery, SGfloat centerz,
+  SGfloat upx, SGfloat upy, SGfloat upz )
+{
+  sgVec3 eye, center, up ;
+  sgSetVec3 ( eye, eyex, eyey, eyez ) ;
+  sgSetVec3 ( center, centerx, centery, centerz ) ;
+  sgSetVec3 ( up, upx, upy, upz ) ;
+
+  sgMat4 mat ;
+  sgMakeLookAtMat4 ( mat, eye, center, up ) ;
+  _ssgCurrentContext-> setCamera ( mat ) ;
+}
+
 inline void ssgLoadProjectionMatrix ()
 {
   _ssgCurrentContext->loadProjectionMatrix () ;
