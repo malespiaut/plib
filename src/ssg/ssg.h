@@ -446,6 +446,7 @@ public:
     limit = total = 0 ;
   }
 
+	int compare(ssgSimpleList *other, int print_result=TRUE);
   int getSizeOf (void) { return size_of ; }
   int getNum (void) { return total ; }
 
@@ -683,6 +684,7 @@ bool ssgLoadTexture ( const char *fname, ssgTextureInfo* info=0 ) ;
   bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info ) ;
   bool ssgLoadTGA ( const char *fname, ssgTextureInfo* info ) ;
   bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info ) ;
+	bool ssgLoadPCX ( const char *fname, ssgTextureInfo* info ) ;
 
 void ssgAddTextureFormat ( const char* extension,
                           bool (*) (const char*, ssgTextureInfo* info) ) ;
@@ -1415,6 +1417,7 @@ _SSG_PUBLIC:
   ssgColourArray   *colours   ;
 
 public:
+	int compare(ssgVtxTable *other, int print_result=TRUE);
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgVtxTable () ;
 
@@ -2697,6 +2700,7 @@ int        ssgSaveQHI  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveATG  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveVRML1( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveASC  ( const char *fname, ssgEntity *ent ) ;
+int				 ssgSavePOV  ( const char *fname, ssgEntity *ent ) ;
 
 
 ssgEntity *ssgLoad     ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
