@@ -25,6 +25,14 @@
 #ifndef _SSGAUX_H_
 #define _SSGAUX_H_ 1
 
+#ifdef __APPLE__
+#  include <OpenGL/gl.h>
+#  include <OpenGL/glu.h>
+#else
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#endif
+
 #include "sg.h"
 #include "ssg.h"
 #include "ssgaShapes.h"
