@@ -213,6 +213,30 @@ int _ssgParser::getNextInt( int & retVal, const char* name )
 	}
 }
 
+int _ssgParser::getNextString(char *&retVal, const char* name ) // returns TRUE on success
+// wk: This is only for strings where we know they are inside spec.quote_chars, correct?
+{
+   char *token = getNextToken( NULL );
+   
+   if ( spec.quote_char && *token == spec.quote_char )
+     {
+	//knock off the quotes
+	token++ ;
+	int len = strlen( token ) ;
+	if (len > 0 && token[len-1] == spec.quote_char)
+	  token[len-1] = 0;
+     }
+   
+   if( name != NULL && strcmp( token, name  ) ) 
+     {
+	error("Expected %s but got %s instead", name, token) ;
+	return FALSE;	
+     }
+      
+   retVal = token;
+   return TRUE;
+}
+
 int _ssgParser::getNextUInt( unsigned int & retVal, const char* name )
 // returns TRUE on success
 { char *endptr, *token = getNextToken(name);
@@ -434,7 +458,7 @@ int _ssgParser::parseString(char *&retVal, const char* name ) // returns TRUE on
 	    error("missing %s",name) ;
 		return FALSE;
 	}
-	retVal = token;
+   retVal = token;
   return TRUE;
 }
 

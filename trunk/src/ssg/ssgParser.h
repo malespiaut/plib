@@ -97,14 +97,15 @@ public :
 
 // ************************** line structure independant API **************************
 
-	// These six functions get the next token - regardless of what line it is on
-	char *getNextToken( const char* name );
+  // These six functions get the next token - regardless of what line it is on
+  char *getNextToken( const char* name );
   char *peekAtNextToken( const char* name );
   // These return TRUE on success:
   int getNextFloat( SGfloat &retVal, const char* name ); 
-  int getNextInt( int & retVal, const char* name ); 
-	int getNextUInt( unsigned int & retVal, const char* name ); 
-	void expectNextToken( const char* name );
+  int getNextInt( int & retVal, const char* name );
+  int getNextString(char *&retVal, const char* name );
+  int getNextUInt( unsigned int & retVal, const char* name );
+  void expectNextToken( const char* name );
  } ;
 
 
