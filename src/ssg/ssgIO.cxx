@@ -507,16 +507,7 @@ char* _ssgMakePath( char* path, const char* dir, const char* fname )
 {
   if ( fname )
   {
-#if 0
-    //strip existing directory from fname
-    char* slash = strrchr ( fname, '/' ) ;
-    if ( !slash )
-      slash = strrchr ( fname, '\\' ) ; //for dos
-    if ( slash )
-      fname = slash + 1 ;
-#endif
-    
-    if ( fname [ 0 ] != '/' &&
+    if ( fname [ 0 ] != '\0' && fname [ 0 ] != '/' &&
        dir != NULL && dir[0] != '\0' )
     {
       strcpy ( path, dir ) ;
