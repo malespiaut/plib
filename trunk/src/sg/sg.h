@@ -782,7 +782,7 @@ public:
   void orthoXform ( const sgMat4 m )
   {
     sgXformPnt3 ( center, center, m ) ;
-    radius *= sgLengthVec3 ( m[0] ) ;
+    // radius *= sgLengthVec3 ( m[0] ) ;  -- degrades performance for non-scaled matrices ...
   }
 
   void extend ( const sgSphere *s ) ;
@@ -1959,7 +1959,7 @@ public:
   void orthoXform ( const sgdMat4 m )
   {
     sgdXformPnt3 ( center, center, m ) ;
-    radius *= sgdLengthVec3 ( m[0] ) ;
+    // radius *= sgdLengthVec3 ( m[0] ) ;
   }
 
   void extend ( const sgdSphere *s ) ;
