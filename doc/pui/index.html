@@ -2126,36 +2126,66 @@ Cut and Paste</h3>
 You can cut and paste text between different <a href="#puInput">puInput</a>
 widgets and <a href="#puInput">puLargeInput</a> widgets. The cut, copy,
 and paste commands are the standard CTRL-X, CTRL-C, and CTRL-V.<a NAME="Misc"></a>
-<h2>
-Miscellany</h2>
-It is possible to get PUI to function without using GLUT. <a href="mailto:mdanks@Stormfront.com">Mark
-Danks</a> had initially implemented that for a WIN32 environment. Later,
-his changes were improved and verified to work under other operating systems
-as well.
-<p>However, this is certainly not the intended way to use PUI - even under
-WIN32 - but it's interesting to know that it <b>is</b> possible.
-<p>All you have to do is pass the option --without-glut to the PLIB
-configure script and define the PU_NOT_USING_GLUT macro before
-including "pu.h" from your code.
-<p>Since there is no longer any way for PUI to glutGet() the screen dimensions,
-your application must now tell PUI every time it changes the screen dimensions.
-<pre>&nbsp;&nbsp;&nbsp; puSetWindowSize ( int width, int height ) ;
-
+<h2> Interfacing with Windowing Libraries. </h2>
+PUI works with many windowing libraries (Currently: GLUT, freeglut, SDL,
+FLTK and PLIB's own 'PW' library).  Prior to version 1.8.1, PLIB required
+GLUT or <A HREF="http://freeglut.sf.net">freeglut</A> - and that library is
+used in most of our example programs and demo's.
+<p>
+You have a choice about how to tell PUI which windowing library you are using:
+<p>
+EITHER:
+<ol>
+<li> #define PU_USE_GLUT or PU_USE_PW or PU_USE_FLTK or PU_USE_SDL ...to
+     explicitly tell PUI which windowing library you want it to use.
+     Make sure you define this symbol BEFORE you '#include &lt;plib/pu.h&gt;'.
+     I would generally do this with a '-D' directive on your compile line.
+<pre>
+   eg:
+      #define PU_USE_FLTK  1
+      #include &lt;plib/pu.h&gt;
 </pre>
-There are two portability functions:
-<pre>&nbsp;&nbsp; int puGetWindowWidth&nbsp; ( void ) ;
-&nbsp;&nbsp; int puGetWindowHeight ( void ) ;
-
+<p>
+...OR...
+<li> Include the header file for whatever windowing library you are
+     using (PW, SDL, FLTK, GLUT, etc) BEFORE you '#include &lt;plib/pu.h&gt;'.
+     pu.h will then automatically detect which windowing library you are
+     using and set PU_USE_<whatever> appropriately.
+<pre>
+   eg:
+      #include &lt;FL/Fl_Gl_Window.H&gt;
+      #include &lt;plib/pu.h&gt;
 </pre>
-These return the most recent puSetWindowSize() parameters without GLUT
-- and do a nice portable glutGet() otherwise.
-<p>Without GLUT, PUI can also not create the default PUI fonts from the seven
-GLUT bitmap fonts like it normally would. Instead, it tries to load some
-textured fonts in the <a href="#puInit">puInit</a> routine. Hence, you have
-to ensure that Courier.txf, Times-Roman.txf and Helvetica.txf from
-examples/src/fnt/data/ are in the working directory when using the GLUT-free
-PUI library. Additionally, note that currently spreading PUI widgets across
-multiple windows won't work properly when using the non-GLUT hack.
+<p>
+...OR...
+<li> #define PU_USE_NONE before you include pu.h -  and PUI will assume
+     nothing about your windowing library. This is an OK thing to do for
+     every source file EXCEPT the one that calls puInit() which must use one
+     of the other mechanisms.  Use this technique if you are doing something
+     like writing a library of your own that uses PLIB but which also
+     needs to be independent of any windowing library.
+<p>
+...OR...
+<li> #define PU_USE_NATIVE before you include pu.h -  and PUI will try to
+     figure out what it needs to know using native commands such as those
+     in the wgl/glX/agl library - in the absence of a windowing library.
+     This may result in some problems if you want to do certain
+     operations for which PUI needs to query the windowing library.
+     Use of PU_USE_NATIVE is not recommended in systems that allow you
+     to resize the window or open multiple windows.
+<p>
+...OR...
+<li> Do none of the above - in which case PUI will assume you are using
+     GLUT/freeglut.  It has to work like this for reverse-compatibility
+     with applications written for PLIB 1.7.x and earlier.
+</ol>
+Check out the example programs for PU - notably fltk_demo and sdl_example
+in the examples/src/pui area and pw_pui in the examples/src/pw area.
+<p>
+If you have your own windowing library (ie not PW, GLUT, SDL or FLTK),
+then you can make it work properly with PUI by defining four inline
+functions and passing them into 'puSetWindowFuncs'.  Look at (for
+example) puGLUT.h to see how this is done.
 <hr>
 <table>
 <tr>
@@ -2167,6 +2197,6 @@ multiple windows won't work properly when using the non-GLUT hack.
 </td>
 </tr>
 </table>
-
 </body>
 </html>
+
