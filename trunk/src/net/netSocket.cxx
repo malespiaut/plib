@@ -45,7 +45,7 @@
 
 #endif
 
-#if !defined(STDC_HEADERS) && !defined(socklen_t)
+#if defined(_MSC_VER) && !defined(socklen_t)
 #define socklen_t int
 #endif
 
