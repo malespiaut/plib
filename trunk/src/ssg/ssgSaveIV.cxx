@@ -96,11 +96,13 @@ static void writeLeaf ( ssgLeaf *leaf, FILE *f )
   indent( f );
   fprintf( f, "# %d triangles, %d verts, %d normals, %d colours, %d texturecoords\n", cnt, nv,nn,nc,nt ) ;
 
-  if ( st )
-    state = dynamic_cast<ssgSimpleState*>( st ) ;
-
-  if ( state )
+  if ( st && st -> isAKindOf ( ssgTypeSimpleState() ) )
+  {
+    state = (ssgSimpleState*) st ;
     textureName = state->getTextureFilename();
+  }
+  else
+    state = NULL ;
 
   if ( state || nc )
   {
@@ -230,30 +232,27 @@ static void preHandle ( ssgEntity *ent, FILE *f )
   const char *name = ent->getName() ;
   fprintf( f, "# %s (%s)\n", ent->getTypeName(), (name)?name:"unnamed") ;
 
-  ssgBranch *branch = dynamic_cast<ssgBranch*>( ent ) ;
-  if ( branch )
+  if ( ent && ent -> isAKindOf ( ssgTypeBranch () ) )
   {
+    ssgBranch *branch = (ssgBranch*) ent ;
+
     // ssg's branch nodes are translated to inventor's separator node.
     indent( f ) ;
     fprintf( f,"Separator {\n" ) ;
     indentLevel++ ;
-    ssgTransform *transform = dynamic_cast<ssgTransform*>( branch ) ;
-    // If this branch is a transform, we need to convert it.
-    if ( transform )
-      writeTransform( transform, f ) ;
-  }
 
-  ssgLeaf *leaf = dynamic_cast<ssgLeaf*>( ent ) ;
-  if ( leaf )
-    writeLeaf( leaf, f ) ;
+    if ( branch -> isAKindOf ( ssgTypeTransform() ) )
+      writeTransform( (ssgTransform*) branch, f ) ;
+  }
+  else
+    writeLeaf( (ssgLeaf*) ent, f ) ;
 }
 
 
 // Handles post-order traversal of the ssg hierarchy.
 static void postHandle ( ssgEntity *ent, FILE *f )
 {
-  ssgBranch *branch = dynamic_cast<ssgBranch*>( ent ) ;
-  if ( branch )
+  if ( ent && ent -> isAKindOf ( ssgTypeBranch() ) )
   {
     // For branches, we use IV's Seperator, which we need to close now.
     indentLevel-- ;
@@ -267,9 +266,10 @@ static void postHandle ( ssgEntity *ent, FILE *f )
 static void walkTree ( ssgEntity *ent, FILE *f )
 {
   preHandle( ent, f ) ;
-  ssgBranch *branch = dynamic_cast<ssgBranch*>( ent ) ;
-  if ( branch )
+  if ( ent && ent -> isAKindOf ( ssgTypeBranch() ) )
   {
+    ssgBranch *branch = (ssgBranch*) ent ;
+
     for ( int i=0; i<branch->getNumKids(); i++ )
     {
       ssgEntity *kid = branch->getKid( i );
