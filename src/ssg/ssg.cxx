@@ -2,6 +2,27 @@
 #define _UL_GENERATE_CODE_
 #include "ssgLocal.h"
 
+#ifndef WIN32
+#  ifndef macintosh
+#    include <GL/glx.h>
+#  else
+#    include <agl.h>
+#  endif
+#endif
+
+static bool glIsValidContext ()
+{
+#if defined(CONSOLE)
+  return true ;
+#elif defined(WIN32)
+  return ( wglGetCurrentContext () != NULL ) ;
+#elif defined(macintosh)
+  return ( aglGetCurrentContext() != NULL ) ;
+#else
+  return ( glXGetCurrentContext() != NULL ) ;
+#endif
+}
+
 sgMat4 _ssgOpenGLAxisSwapMatrix =
 {
   {  1.0f,  0.0f,  0.0f,  0.0f },
@@ -60,7 +81,7 @@ ssgLight *ssgGetLight ( int i )
 
 void ssgInit ()
 {
-  if ( ulGetCurrentContext () == NULL )
+  if ( ! glIsValidContext () )
   {
     ulSetError ( UL_FATAL, "ssgInit called without a valid OpenGL context.");
   }

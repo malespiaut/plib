@@ -1,14 +1,6 @@
 
 #include "ul.h"
 
-#ifndef WIN32
-#  ifndef macintosh
-#    include <GL/glx.h>
-#  else
-#    include <agl.h>
-#  endif
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -128,21 +120,4 @@ void ulCloseDir ( ulDir* dir )
 #endif
     delete dir;
   }
-}
-
-int ulGetCurrentContext ()
-{
-#ifdef WIN32
-   if (wglGetCurrentContext () == NULL )
-      return 0;
-#else
-#  if defined(macintosh)
-      if (aglGetCurrentContext() == NULL )
-         return 0;
-#  else
-      if (glXGetCurrentContext() == NULL )
-         return 0
-#  endif
-#endif
-return 1;
 }
