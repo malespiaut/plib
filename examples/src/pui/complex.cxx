@@ -20,31 +20,30 @@
 *                                   *
 \***********************************/
 
-int          main_window ;
-puMenuBar   *main_menu_bar ;
-puButton    *hide_menu_button ;
-puDialogBox *dialog_box ;
-puText      *dialog_box_message ;
-puOneShot   *dialog_box_ok_button ;
-puText      *timer_text ;
-puGroup *mygroup ;
-puInput *input1 ;
-puInput *input2 ;
+static int          main_window ;
+static puMenuBar   *main_menu_bar ;
+static puButton    *hide_menu_button ;
+static puDialogBox *dialog_box ;
+static puText      *dialog_box_message ;
+static puOneShot   *dialog_box_ok_button ;
+static puText      *timer_text ;
+static puGroup *mygroup ;
+static puInput *input1 ;
+static puInput *input2 ;
 
-int          slider_window ;
-puSlider    *rspeedSlider ;
-puSlider    *directSlider ;
+static int          slider_window ;
+static puSlider    *rspeedSlider ;
+static puSlider    *directSlider ;
 
-int          save_window ;
-puFileSelector *file_selector ;
+static int          save_window ;
+static puFileSelector *file_selector ;
 
-int          coordinate_window ;
-puGroup     *coordinate_group ;
-puBiSlider  *x_coordinate ;
-puTriSlider *y_coordinate ;
+static int          coordinate_window ;
+static puBiSlider  *x_coordinate ;
+static puTriSlider *y_coordinate ;
 
-fntTexFont *hel ;
-fntTexFont *tim ;
+//static fntTexFont *hel ;
+//static fntTexFont *tim ;
 
 /***********************************\
 *                                   *
@@ -52,22 +51,22 @@ fntTexFont *tim ;
 *                                   *
 \***********************************/
 
-GLfloat light_diffuse [] = {0.0, 1.0, 0.0, 1.0} ;  /* Red diffuse light. */
-GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0} ;  /* Infinite light location. */
+static const GLfloat light_diffuse [] = {0.0, 1.0, 0.0, 1.0} ;  /* Red diffuse light. */
+static const GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0} ;  /* Infinite light location. */
 
-GLfloat cube_n[6][3] =  /* Normals */
+static const GLfloat cube_n[6][3] =  /* Normals */
 {
  {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {1.0, 0.0, 0.0},
  { 0.0,-1.0, 0.0}, {0.0, 0.0,-1.0}, {0.0, 0.0, 1.0}
 } ;
 
-GLint cube_i[6][4] =  /* Vertex indices */
+static const GLint cube_i[6][4] =  /* Vertex indices */
 {
   {0, 1, 2, 3}, {3, 2, 6, 7}, {7, 6, 5, 4},
   {4, 5, 1, 0}, {5, 6, 2, 1}, {7, 4, 0, 3}
 } ;
 
-GLfloat cube_v[8][3] =  /* Vertices */
+static const GLfloat cube_v[8][3] =  /* Vertices */
 {
   {-1.0,-1.0, 1.0}, {-1.0,-1.0,-1.0}, {-1.0, 1.0,-1.0}, {-1.0, 1.0, 1.0},
   { 1.0,-1.0, 1.0}, { 1.0,-1.0,-1.0}, { 1.0, 1.0,-1.0}, { 1.0, 1.0, 1.0}
@@ -76,7 +75,7 @@ GLfloat cube_v[8][3] =  /* Vertices */
 
 static int firsttime;
 
-void drawCube (void)
+static void drawCube (void)
 {
 
   if ( firsttime )
@@ -291,7 +290,7 @@ static void coorddisplayfn (void)
 *                                   *
 \***********************************/
 
-void hide_menu_cb ( puObject *cb )
+static void hide_menu_cb ( puObject *cb )
 {
   if ( cb -> getValue () )
   {
@@ -306,7 +305,7 @@ void hide_menu_cb ( puObject *cb )
 }
 
 
-void go_away_cb ( puObject * )
+static void go_away_cb ( puObject * )
 {
   // Delete the dialog box when its 'OK' button is pressed.
 
@@ -314,7 +313,7 @@ void go_away_cb ( puObject * )
   dialog_box = NULL ;
 }
 
-void mk_dialog ( char *fmt, ... )
+static void mk_dialog ( char *fmt, ... )
 {
   static char txt [ PUSTRING_MAX ] ;
 
@@ -337,7 +336,7 @@ void mk_dialog ( char *fmt, ... )
   dialog_box -> reveal () ;
 }
 
-void pick_cb ( puObject * )
+static void pick_cb ( puObject * )
 {
   char* filename ;
   file_selector -> getValue ( &filename ) ;
@@ -356,19 +355,19 @@ void pick_cb ( puObject * )
     mk_dialog ( "Save canceled" ) ;
 }
 
-void savereshapefn ( int w, int h )
+static void savereshapefn ( int w, int h )
 {
   file_selector->setSize ( w, h ) ;
 }
 
-void coordreshapefn ( int w, int h )
+static void coordreshapefn ( int w, int h )
 {
   x_coordinate->setSize ( 20, h-40 ) ;
   y_coordinate->setSize ( 20, h-40 ) ;
   y_coordinate->setPosition ( w/2 - 5, 30 ) ;
 }
 
-void save_cb ( puObject * )
+static void save_cb ( puObject * )
 {
   static int save_count = 0 ;  // Number of buttons in file picker
   int w = 320, h = 270 ;
@@ -385,26 +384,26 @@ void save_cb ( puObject * )
   file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
 }
 
-void ni_cb ( puObject * )
+static void ni_cb ( puObject * )
 {
   mk_dialog ( "Warning:\nSorry, that function isn't implemented" ) ;
 }
 
-void about_cb ( puObject * )
+static void about_cb ( puObject * )
 {
   mk_dialog ( "About:\nThis is the PUI 'complex' program" ) ;
 }
 
-void help_cb ( puObject * )
+static void help_cb ( puObject * )
 {
   mk_dialog ( "Help:\nSorry, no help is available for this demo" ) ;
 }
 
-void edit_cb ( puObject * )
+static void edit_cb ( puObject * )
 {
 }
 
-void exit_cb ( puObject * )
+static void exit_cb ( puObject * )
 {
   fprintf ( stderr, "Exiting PUI demo program.\n" ) ;
   exit ( 1 ) ;
@@ -412,22 +411,22 @@ void exit_cb ( puObject * )
 
 /* Menu bar entries: */
 
-char      *file_submenu    [] = {  "Exit", "Close", "------------", "Print - this is a long entry", "------------", "Save", "New", NULL } ;
-puCallback file_submenu_cb [] = { exit_cb, exit_cb, NULL, ni_cb, NULL, save_cb, ni_cb, NULL } ;
+static char      *file_submenu    [] = {  "Exit", "Close", "------------", "Print - this is a long entry", "------------", "Save", "New", NULL } ;
+static puCallback file_submenu_cb [] = { exit_cb, exit_cb, NULL, ni_cb, NULL, save_cb, ni_cb, NULL } ;
 
-char      *edit_submenu    [] = { "Do nothing", NULL } ;
-puCallback edit_submenu_cb [] = {     edit_cb, NULL } ;
+static char      *edit_submenu    [] = { "Do nothing", NULL } ;
+static puCallback edit_submenu_cb [] = {     edit_cb, NULL } ;
 
-char      *help_submenu    [] = { "About...",  "Help", NULL } ;
-puCallback help_submenu_cb [] = {   about_cb, help_cb, NULL } ;
+static char      *help_submenu    [] = { "About...",  "Help", NULL } ;
+static puCallback help_submenu_cb [] = {   about_cb, help_cb, NULL } ;
 
 
-void sliderCB( puObject *)
+static void sliderCB( puObject *)
 {
   glutPostRedisplay();
 }
 
-void coordCB( puObject *)
+static void coordCB( puObject *)
 {
   glutPostRedisplay();
 }
@@ -459,13 +458,13 @@ int main ( int argc, char **argv )
   puShowCursor () ;
 #endif
 
-  hel = new fntTexFont ;
-  tim = new fntTexFont ;
-  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
-  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
-  puFont helvetica ( hel, 15 ) ;
-  puFont times_medium ( tim, 13 ) ;
-  puSetDefaultFonts        ( helvetica, times_medium ) ;
+  //hel = new fntTexFont ;
+  //tim = new fntTexFont ;
+  //hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
+  //puFont helvetica ( hel, 15 ) ;
+  //puFont times_medium ( tim, 13 ) ;
+  //puSetDefaultFonts        ( helvetica, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
   puSetDefaultColourScheme ( 0.3f, 0.4f, 0.6f, 1.0f) ;
 
@@ -508,8 +507,8 @@ int main ( int argc, char **argv )
   glutIdleFunc          ( sliderdisplayfn ) ;
 
   //load the texture for the 2nd window
-  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
-  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
+  //hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
 
   puGroup *slider_group = new puGroup ( 0, 0 ) ;  // Necessary so that "sliderdisplayfn" will draw all widgets
 
@@ -542,8 +541,8 @@ int main ( int argc, char **argv )
   glutHideWindow        () ;
 
   //load the texture for the save window
-  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
-  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
+  //hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
 
   // Coordinate Selection Window
 
@@ -560,8 +559,8 @@ int main ( int argc, char **argv )
   glutReshapeFunc       ( coordreshapefn ) ;
 
   //load the texture for the 2nd window
-  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
-  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
+  //hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
 
   puGroup *coordinate_group = new puGroup ( 0, 0 ) ;  // Necessary so that "groupdisplayfn" will draw all widgets
 
