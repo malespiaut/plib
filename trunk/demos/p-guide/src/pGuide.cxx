@@ -862,13 +862,17 @@ int main ( int argc, char **argv )
 
 // If we're using windows, ignore the C: or whatnot 
 
-#ifdef WIN32 
+#ifdef WIN32
+  #define PATH_SEPARATOR   '\\'
   strcpy (pguide_current_directory, argv[0]+2);
 #else
+  #define PATH_SEPARATOR   '/'
   strcpy (pguide_current_directory, argv[0]);
 #endif
   i = strlen(pguide_current_directory);
-  while (pguide_current_directory[i] != '\\') { 
+
+
+  while (pguide_current_directory[i] != PATH_SEPARATOR) {
       if (i>0) i-- ;
       else break ;
   }

@@ -25,6 +25,12 @@
 
 #include "WidgetList.h"
 
+#ifdef WIN32
+  #define PATH_SEPARATOR   '\\'
+#else
+  #define PATH_SEPARATOR   '/'
+#endif
+
 // From the Main Window:
 
 extern WidgetList *widgets ;
@@ -65,14 +71,14 @@ void write_code ( puObject *ob )
       return ;
   }        
 
-    /* Save the new current directory */
-    strcpy(pguide_current_directory, filename) ;
-    int i = strlen(pguide_current_directory);
-    while (pguide_current_directory[i] != '\\') { 
-        if (i>0) i-- ;
-        else break ;
-    }
-    pguide_current_directory[i+1] = '\0' ;
+  /* Save the new current directory */
+  strcpy(pguide_current_directory, filename) ;
+  int i = strlen(pguide_current_directory);
+  while (pguide_current_directory[i] != PATH_SEPARATOR) {
+      if (i>0) i-- ;
+      else break ;
+  }
+  pguide_current_directory[i+1] = '\0' ;
 
   /* If they didn't give an extension, then tack ".cxx" onto the end. */
   if(!strstr(filename, "."))

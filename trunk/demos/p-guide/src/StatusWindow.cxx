@@ -886,7 +886,7 @@ int define_status_window ()
   // Set up the widgets
 
   puGroup *status_group = new puGroup ( 0, 0 ) ;
-  puFrame *status_frame = new puFrame ( 0, 0, 500, 380 ) ;
+  new puFrame ( 0, 0, 500, 380 ) ;
 
   menubar = new puMenuBar () ; 
   {

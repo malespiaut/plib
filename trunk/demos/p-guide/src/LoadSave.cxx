@@ -39,6 +39,12 @@
 #define CALLBACK_ACTIVE     0x00000002
 #define CALLBACK_DOWN       0x00000004
 
+#ifdef WIN32
+  #define PATH_SEPARATOR   '\\'
+#else
+  #define PATH_SEPARATOR   '/'
+#endif
+
 // From the Main Window:
 
 extern WidgetList *widgets ;
@@ -94,7 +100,7 @@ void saveProject ( puObject *ob ) {
     /* Save the new current directory */
     strcpy(pguide_current_directory, filename) ;
     int i = strlen(pguide_current_directory);
-    while (pguide_current_directory[i] != '\\') { 
+    while (pguide_current_directory[i] != PATH_SEPARATOR) {
         if (i>0) i-- ;
         else break ;
     }
@@ -257,24 +263,6 @@ void gotoNextLine( char* buffer )
 }
 
 void loadProject ( puObject *ob ) {
-    extern puInput *object_size_x ;
-    extern puInput *object_size_y ;
-    extern puInput *object_position_x ;
-    extern puInput *object_position_y ;
-
-    extern puInput *object_label ;
-    extern puComboBox *object_vert_label_place ;
-    extern puComboBox *object_horz_label_place ;
-    extern puInput *object_legend ;
-    extern puComboBox *object_vert_legend_place ;
-    extern puComboBox *object_horz_legend_place ;
-
-    extern puInput *object_name ;
-    extern puButtonBox *object_callbacks ;
-
-    extern puButtonBox *object_visible ;
-    extern puSpinBox *object_layer ;
-
     extern puInput *window_name ;
     extern puInput *window_size_x ;
     extern puInput *window_size_y ;
@@ -300,7 +288,7 @@ void loadProject ( puObject *ob ) {
     /* Save the new current directory */
     strcpy(pguide_current_directory, filename) ;
     int i = strlen(pguide_current_directory);
-    while (pguide_current_directory[i] != '\\') { 
+    while (pguide_current_directory[i] != PATH_SEPARATOR) {
         if (i>0) i-- ;
         else break ;
     }
