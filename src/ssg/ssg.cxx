@@ -136,8 +136,8 @@ void ssgInit ()
   ssgAddModelFormat ( ".off"  , ssgLoadOFF  , ssgSaveOFF ) ;
   ssgAddModelFormat ( ".atg"  , ssgLoadATG  , ssgSaveATG ) ;
   ssgAddModelFormat ( ".qhi"  , NULL        , ssgSaveQHI ) ;
-  ssgAddModelFormat ( ".wrl", ssgLoadVRML , NULL ) ;
-  ssgAddModelFormat ( ".iv", ssgLoadVRML , NULL ) ;
+  ssgAddModelFormat ( ".wrl", ssgLoadVRML1 , NULL ) ;
+  ssgAddModelFormat ( ".iv", ssgLoadIV , NULL ) ;
 
 
 #ifdef SSG_LOAD_MDL_SUPPORTED
