@@ -34,7 +34,7 @@
 #endif
 
 
-#if defined(WIN32)
+#if defined(WIN32) && !defined(__CYGWIN__)
 #define SLASH "\\"
 #else
 #define SLASH "/"
@@ -443,7 +443,7 @@ int ulIsAbsolutePathName ( const char *pathname )
 	if ( (pathname == NULL) || (pathname [0] == 0) )
 		return FALSE;
 
-#if defined(WIN32)
+#if defined(WIN32) && !defined(__CYGWIN__)
  
   /*
     Under WinDOS, it's an absolute path if it starts

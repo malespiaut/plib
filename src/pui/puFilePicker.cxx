@@ -42,7 +42,7 @@
 
 #include "puLocal.h"
 
-#if defined(WIN32)
+#if defined(WIN32) && !defined(__CYGWIN__)
 #define DOTDOTSLASH "..\\"
 #define SLASH       "\\"
 #else
