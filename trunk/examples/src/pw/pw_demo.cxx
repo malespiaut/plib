@@ -58,20 +58,35 @@ void kbFunc ( int key, int updn, int x, int y )
 
   fprintf ( stderr, "\n" ) ;
 
-  if ( key == '<' ) pwSetSize ( 100, 100 ) ;
-  else
-  if ( key == '>' ) pwSetSize ( 640, 480 ) ;
-
-  if ( key == 0x1B ) /* ESC */
+  if ( updn == PW_DOWN )
   {
-    pwCleanup () ;
-    exit ( 0 ) ;
+    if ( key == '<' ) pwSetSize ( 100, 100 ) ;
+    else
+    if ( key == '>' ) pwSetSize ( 640, 480 ) ;
+    else
+    if ( key == 'a' ) pwSetAutoRepeatKey ( true ) ;
+    else
+    if ( key == 'b' ) pwSetAutoRepeatKey ( false ) ;
+
+    if ( key == 0x1B ) /* ESC */
+    {
+      pwCleanup () ;
+      exit ( 0 ) ;
+    }
   }
 }
 
 
 int main ( int, char ** )
 {
+  printf ( "PLIB/PW Demo.\n" ) ;
+  printf ( "=============\n\n" ) ;
+  printf ( "Type or mouse in the window to see PW callbacks in action.\n" ) ;
+  printf ( "Hit '<' or '>' to resize the window from within the program.\n" ) ;
+  printf ( "Hit 'a' or 'b' to enable or disable auto key repeat.\n" ) ;
+  printf ( "Hit ESC to exit.\n" ) ;
+  printf ( "\n" ) ;
+
   pwInit ( 100, 100, 640, 480, false, "PLIB Window Demo", true, 0 ) ;
 
   pwSetCallbacks ( kbFunc, msFunc, mpFunc, rsFunc, exFunc ) ;

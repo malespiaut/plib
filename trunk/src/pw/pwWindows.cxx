@@ -183,6 +183,12 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 }
 
 
+void pwSetAutoRepeatKey ( bool enable )
+{
+  fprintf(stderr,"pwSetAutoRepeatKey is not yet functional under Windows.\n" ) ;
+}
+
+
 void pwSetCallbacks ( pwKeybdFunc *kb, pwMouseFunc *ms,
                       pwMousePosFunc *mp, pwResizeCB *rcb, pwExitCB *ecb )
 {
