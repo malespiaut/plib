@@ -854,20 +854,15 @@ static void add_leaf( _3dsMat *material, int listed_faces,
 
   }
 
-  ssgCreateData* data = new ssgCreateData ;
-  data->parentName = NULL ;
-  data->gltype = GL_TRIANGLES ;
-  data->vl = vertices ;
-  data->nl = normals ;
-  data->tl = texcrds ;
-  data->cl = NULL ;
-  data->il = NULL ;
-  data->st = get_state( material ) ;
-  data->tfname = material -> tex_name ;
-  data->cull_face = TRUE ;
+  ssgVtxTable* vtab = new ssgVtxTable ( GL_TRIANGLES,
+    vertices, normals, texcrds, NULL ) ;
+  vtab -> setState ( get_state( material ) ) ;
+  vtab -> setCullFace ( TRUE ) ;
 
-  ssgLeaf* leaf = (*_ssgCreateFunc) ( data ) ;
-  current_transform -> addKid( leaf );
+  ssgLeaf* leaf = (*_ssgCreateFunc) ( vtab, material -> tex_name, 0 ) ;
+
+  if ( leaf )
+    current_transform -> addKid( leaf );
 }
 
 static int parse_face_materials( unsigned int length ) {

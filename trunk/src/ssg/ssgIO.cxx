@@ -293,6 +293,9 @@ static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
   {
     ssgSimpleState *st2 = shared_states [ i ] ;
 
+    if ( st == st2 )
+      return NULL ; //same pointer -- don't change state
+
     if ( st->isEnabled ( GL_TEXTURE_2D ) != st2->isEnabled ( GL_TEXTURE_2D ) )
       continue ;
 
@@ -326,117 +329,77 @@ static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
          st -> getShininess () != st2 -> getShininess () )
       continue ;
 
-    delete st ; //~~T.G. Note: No ssgDeRefDelete here as st assumed to be newly created
-    return st2 ;//    as this function acts as a factory for states
+    return st2 ;//switch to this state
   }
 
+  //we have a state we've never seen before
   if ( num_shared_states < MAX_SHARED_STATES )
   {
-     st->ref(); //~~T.G. we dont want state to be deleted if it has no clients down the track
-     shared_states [ num_shared_states++ ] = st ;
+    st -> ref();  // deref'ed in _ssgShareReset()
+    shared_states [ num_shared_states++ ] = st ;
   }
-  return st ;
+  return NULL ; //don't change state
 }
 
-
-ssgCreateData::ssgCreateData ()
+static ssgLeaf* default_createfunc ( ssgLeaf* leaf,
+  const char* tfname, const char* parent_name ) /* context of leaf creation */
 {
-  parentName = NULL ;
-
-  gltype = GL_TRIANGLES ;
-  vl = NULL ;
-  nl = NULL ;
-  tl = NULL ;
-  cl = NULL ;
-  il = NULL ;
-
-  st = NULL ;
-  tfname = NULL ;
-  cull_face = TRUE ;
-}
-
-ssgCreateData::~ssgCreateData ()
-{
-  delete parentName ;
-  delete vl ;
-  delete nl ;
-  delete tl ;
-  delete cl ;
-  delete il ;
-  delete st ;
-  delete tfname ;
-}
-
-static ssgLeaf* default_createfunc ( ssgCreateData* data )
-{
-  ssgState *st = NULL ;
-  ssgVtxTable *vtab = 0 ;
-
-  if ( data )
-  {
-    if ( data -> il != NULL )
-      vtab = new ssgVtxArray ( data->gltype,
-        data->vl, data->nl, data->tl, data->cl, data->il ) ;
-    else
-      vtab = new ssgVtxTable ( data->gltype,
-        data->vl, data->nl, data->tl, data->cl ) ;
-
-    vtab -> setCullFace ( data -> cull_face ) ;
-
-    /* do we have a global AppState function? */
-    if ( _ssgGetAppState != NULL &&
-         data -> tfname != NULL && data -> tfname[0] != 0 )
-    {
-      st = _ssgGetAppState ( data -> tfname ) ;
-
-      if ( st != NULL )
-      {
-        delete data -> st ;
-        data -> st = NULL ;
-      }
-    }
- 
-    if ( st == NULL && data -> st != NULL )
-    {
-      char filename [ 1024 ] ;
-      _ssgMakePath ( filename, _ssgTexturePath, data->tfname ) ;
-
-      GLuint texture_handle = _ssgShareTexture ( filename ) ;
-
-      if ( texture_handle )
-      {
-        /* Don't change the order of these two statements! */
-        data -> st -> setTexture         ( texture_handle ) ;
-        data -> st -> setTextureFilename ( filename ) ;
- 
-        data -> st -> enable ( GL_TEXTURE_2D ) ;
-      }
-      else
-        data -> st -> disable ( GL_TEXTURE_2D ) ;
-
-      // DaveM 10-Sept-2000: re-enabled state sharing
-      // let me know if it breaks any applications
-#if 1
-      st = _ssgShareState ( data -> st ) ;
-#else
-      st = data -> st ;
-#endif
-    }
-    //~~T.G. No need to ref() state in this func, done via ssgLeaf inherited setState func
-    vtab -> setState ( st ) ;
-  }
-  else
+  /* is this just a sharing 'reset' */
+  if ( leaf == NULL )
   {
      _ssgShareReset () ;
+     return NULL ;
   }
 
-  return vtab ;
+  /* do we have a global AppState function? */
+  if ( _ssgGetAppState != NULL &&
+    tfname != NULL && tfname[0] != 0 )
+  {
+    ssgState *st = _ssgGetAppState ( (char*)tfname ) ;
+    if ( st != NULL )
+    {
+      leaf -> setState ( st ) ;
+      return leaf ;
+    }
+  }
+
+  /* do we have a texture filename? */
+  ssgState* st = leaf -> getState () ;
+  if ( st != NULL && tfname != NULL && tfname[0] != 0 )
+  {
+    assert ( st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) ) ;
+    ssgSimpleState *ss = (ssgSimpleState*) st ;
+
+    char filename [ 1024 ] ;
+    _ssgMakePath ( filename, _ssgTexturePath, tfname ) ;
+
+    /*
+    load the texture
+    */
+    GLuint texture_handle = _ssgShareTexture ( filename ) ;
+    if ( texture_handle )
+    {
+      /* Don't change the order of these two statements! */
+      ss -> setTexture         ( texture_handle ) ;
+      ss -> setTextureFilename ( filename ) ;
+
+      ss -> enable ( GL_TEXTURE_2D ) ;
+    }
+    else
+      ss -> disable ( GL_TEXTURE_2D ) ;
+
+    ss = _ssgShareState ( ss ) ;
+    if ( ss != NULL )
+      leaf -> setState ( ss ) ;
+  }
+
+  return leaf ;
 }
 
 
-ssgLeaf *(*_ssgCreateFunc)(ssgCreateData *) = default_createfunc ;
+ssgLeaf *(*_ssgCreateFunc)(ssgLeaf*,const char*,const char*) = default_createfunc ;
 
-void ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgCreateData *) )
+void ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgLeaf*,const char*,const char*) )
 {
    _ssgCreateFunc = cb ;
 }
