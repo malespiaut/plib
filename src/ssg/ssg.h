@@ -2247,7 +2247,6 @@ class ssgContext
   ssgSimpleState *basicState   ;
   sgFrustum      *frustum      ;
 
-  int    orthographic         ;
   sgMat4 cameraMatrix         ;
   int    cullFace             ;
   int    ovTexture            ;
@@ -2307,21 +2306,22 @@ public:
   int  cullfaceIsEnabled  () { return cullFace   ; }
 
   sgFrustum *getFrustum () { return frustum ; }
-  void setFrustum ( const SGfloat l, const SGfloat r,
-					const SGfloat b, const SGfloat t,
-					const SGfloat n, const SGfloat f )
-  {
-	  frustum->setFrustum ( l,r,b,t,n,f );
-  }
 
+  // make a perspective projection
+  void setFrustum ( float l, float r, float b, float t, float n, float f ) ;
+
+  // make an orthographic projection
+  void setOrtho   ( float l, float r, float b, float t, float n, float f ) ;
+  
   void getNearFar ( float *n, float *f ) ;
   void getFOV     ( float *w, float *h ) ;
   void getOrtho   ( float *w, float *h ) ;
-  void setNearFar ( float  n, float  f ) ;
-  void setOrtho   ( float  w, float  h ) ;
-  void setFOV     ( float  w, float  h ) ;
 
-  int  isOrtho () { return orthographic ; }
+  void setNearFar ( float  n, float  f ) ;
+  void setOrtho   ( float  w, float  h ) ; // make orthographic
+  void setFOV     ( float  w, float  h ) ; // make perspective
+
+  int  isOrtho () { return frustum -> isOrtho () ; } // is orthographic
 
   ssgSimpleState *getState () { return currentState ; }
   void cull ( ssgRoot *r ) ;
@@ -2380,6 +2380,16 @@ inline void ssgGetFOV ( float *w, float *h )
 inline void ssgGetOrtho ( float *w, float *h )
 {
   _ssgCurrentContext->getOrtho ( w, h ) ;
+}
+
+inline void ssgSetFrustum ( float l, float r, float b, float t, float n, float f )
+{
+  _ssgCurrentContext->setFrustum ( l, r, b, t, n, f ) ;
+}
+
+inline void ssgSetOrtho ( float l, float r, float b, float t, float n, float f )
+{
+  _ssgCurrentContext->setOrtho ( l, r, b, t, n, f ) ;
 }
 
 inline void ssgSetFOV ( float w, float h )
@@ -2457,14 +2467,6 @@ inline  sgFrustum *ssgGetFrustum ()
 {
   return _ssgCurrentContext -> getFrustum() ;
 }
-
-inline void ssgSetFrustum ( const SGfloat l, const SGfloat r,
-							const SGfloat b, const SGfloat t,
-							const SGfloat n, const SGfloat f )
-{
-	ssgGetFrustum()->setFrustum ( l,r,b,t,n,f );
-}
-
 
 void ssgInit () ;
 

@@ -44,7 +44,7 @@ ssgContext::ssgContext ()
   makeCurrent () ;
   currentState     = NULL  ;
   basicState       = NULL  ;
-  orthographic     = FALSE ;
+  //orthographic     = FALSE ;
   cullFace         = TRUE  ;
   ovTexture        = FALSE ;
   ovCullface       = FALSE ;
@@ -120,6 +120,17 @@ void ssgContext::overrideCullface ( int on_off )
   ovCullface = on_off ;
 }
 
+ 
+void ssgContext::setFrustum ( float l, float r, float b, float t, float n, float f )
+{
+  frustum -> setFrustum ( l, r, b, t, n, f ) ;
+}
+
+void ssgContext::setOrtho ( float l, float r, float b, float t, float n, float f )
+{
+  frustum -> setOrtho ( l, r, b, t, n, f ) ;
+}
+
 void ssgContext::getNearFar ( float *n, float *f )
 {
   frustum -> getNearFar ( n, f ) ;
@@ -137,26 +148,19 @@ void ssgContext::setNearFar ( float n, float f )
 
 void ssgContext::getOrtho ( float *w, float *h )
 {
-  if ( w != NULL )
-    *w = frustum -> getRight() - frustum -> getLeft() ;
-
-  if ( h != NULL )
-    *h = frustum -> getTop() - frustum -> getBot() ;
+  frustum -> getOrtho ( w, h ) ;
 }
 
 void ssgContext::setOrtho ( float w, float h )
 {
-  orthographic = TRUE ;
-  frustum -> setFrustum ( -w/2, w/2, -h/2, h/2,
-                          frustum -> getNear (),
-                          frustum -> getFar () ) ;
+  frustum -> setOrtho ( w, h ) ;
 }
 
 void ssgContext::setFOV ( float w, float h )
 {
-  orthographic = FALSE ;
   frustum -> setFOV ( w, h ) ;
 }
+
 
 void ssgContext::setCamera ( sgMat4 mat )
 {
@@ -211,7 +215,7 @@ void ssgContext::pushProjectionMatrix ()
 
 void ssgContext::pushProjectionMatrix ( sgFrustum *f )
 {
-  if ( orthographic )
+  if ( f -> isOrtho() )
     glOrtho   ( f -> getLeft() , f -> getRight(),
                 f -> getBot () , f -> getTop  (),
                 f -> getNear() , f -> getFar  () ) ;
@@ -223,26 +227,7 @@ void ssgContext::pushProjectionMatrix ( sgFrustum *f )
 
 void ssgContext::getProjectionMatrix ( sgMat4 dst )
 {
-  if ( orthographic )
-  {
-    float l =  frustum -> getLeft  () ;
-    float r =  frustum -> getRight () ;
-    float b =  frustum -> getBot   () ;
-    float t =  frustum -> getTop   () ;
-    float n =  frustum -> getNear  () ;
-    float f =  frustum -> getFar   () ;
-
-    sgMakeIdentMat4 ( dst ) ;
-    dst[0][0] =  2.0f / ( r - l ) ;
-    dst[1][1] =  2.0f / ( t - b ) ;
-    dst[2][2] = -2.0f / ( f - n ) ;
-
-    dst[3][0] = - ( r + l ) / ( r - l ) ;
-    dst[3][1] = - ( t + b ) / ( t - b ) ;
-    dst[3][2] = - ( f + n ) / ( f - n ) ;
-  }
-  else
-    frustum -> getMat4 ( dst ) ;
+  frustum -> getMat4 ( dst ) ;
 }
 
 void ssgContext::getModelviewMatrix ( sgMat4 dst )
