@@ -1,5 +1,7 @@
 #include "netSocket.h"
 
+#define SOCKET_TYPE int
+
 #if defined(__CYGWIN__) || !defined (WIN32)
 
 #include <sys/socket.h>
@@ -87,7 +89,7 @@ netSocket::create ( bool stream )
 {
   int type = stream? SOCK_STREAM: SOCK_DGRAM ;
   int protocol = 0 ;
-  handle = ::socket ( AF_INET, type, protocol ) ;
+  handle = (int) ::socket ( AF_INET, type, protocol ) ;
   return (handle != -1);
 }
 
@@ -96,17 +98,17 @@ netSocket::setBlocking ( bool blocking )
 {
 #if defined(__CYGWIN__) || !defined (WIN32)
 
-	int delay_flag = ::fcntl (handle, F_GETFL, 0);
+	int delay_flag = ::fcntl ((SOCKET_TYPE)handle, F_GETFL, 0);
 	if (blocking)
 		delay_flag &= (~O_NDELAY);
 	else
 		delay_flag |= O_NDELAY;
-  ::fcntl (handle, F_SETFL, delay_flag);
+  ::fcntl ((SOCKET_TYPE)handle, F_SETFL, delay_flag);
 
 #else
 
   u_long nblocking = blocking? 0: 1;
-  ::ioctlsocket(handle, FIONBIO, &nblocking);
+  ::ioctlsocket((SOCKET_TYPE)handle, FIONBIO, &nblocking);
 
 #endif
 }
@@ -115,53 +117,53 @@ int
 netSocket::bind ( cchar* host, int port )
 {
   netAddress addr ( host, port ) ;
-  return ::bind(handle,(sockaddr*)&addr,sizeof(netAddress));
+  return ::bind((SOCKET_TYPE)handle,(sockaddr*)&addr,sizeof(netAddress));
 }
 
 int
 netSocket::listen ( int backlog )
 {
   assert ( handle != -1 ) ;
-  return ::listen(handle,backlog);
+  return ::listen((SOCKET_TYPE)handle,backlog);
 }
 
 int
 netSocket::accept ( netAddress* addr )
 {
   int addr_len = sizeof(netAddress) ;
-  return ::accept(handle,(sockaddr*)addr,&addr_len);
+  return ::accept((SOCKET_TYPE)handle,(sockaddr*)addr,&addr_len);
 }
 
 int
 netSocket::connect ( cchar* host, int port )
 {
   netAddress addr ( host, port ) ;
-  return ::connect(handle,(const sockaddr*)&addr,sizeof(netAddress));
+  return ::connect((SOCKET_TYPE)handle,(const sockaddr*)&addr,sizeof(netAddress));
 }
 
 int
 netSocket::send (const void * buffer, int size, int flags)
 {
-  return ::send (handle, (cchar*)buffer, size, flags);
+  return ::send ((SOCKET_TYPE)handle, (cchar*)buffer, size, flags);
 }
 
 int
 netSocket::sendto ( const void * buffer, int size, int flags, const netAddress* to )
 {
-  return ::sendto(handle,(cchar*)buffer,size,flags,(const sockaddr*)to,sizeof(netAddress));
+  return ::sendto((SOCKET_TYPE)handle,(cchar*)buffer,size,flags,(const sockaddr*)to,sizeof(netAddress));
 }
 
 int
 netSocket::recv (void * buffer, int size, int flags)
 {
-  return ::recv (handle, (char*)buffer, size, flags);
+  return ::recv ((SOCKET_TYPE)handle, (char*)buffer, size, flags);
 }
 
 int
 netSocket::recvfrom ( void * buffer, int size, int flags, netAddress* from )
 {
   int fromlen = sizeof(netAddress) ;
-  return ::recvfrom(handle,(char*)buffer,size,flags,(sockaddr*)from,&fromlen);
+  return ::recvfrom((SOCKET_TYPE)handle,(char*)buffer,size,flags,(sockaddr*)from,&fromlen);
 }
 
 void
@@ -170,9 +172,9 @@ netSocket::close (void)
   if ( handle != -1 )
   {
 #if defined(__CYGWIN__) || !defined (WIN32)
-    ::close( handle );
+    ::close( (SOCKET_TYPE)handle );
 #else
-    ::closesocket( handle );
+    ::closesocket( (SOCKET_TYPE)handle );
 #endif
     handle = -1 ;
   }

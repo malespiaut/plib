@@ -1,6 +1,12 @@
 #include "netRoomMaster.h"
 
 
+#if !defined (WIN32)
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+#endif
+
+
 void netRoomMasterChannel::processRequest ( const netMessage &msg )
 {
   int net_version = msg.geti () ;

@@ -19,10 +19,7 @@
 
 
 #include "ul.h"
-
-#if defined(__CYGWIN__) || !defined (WIN32)
 #include <errno.h>
-#endif
 
 
 /*

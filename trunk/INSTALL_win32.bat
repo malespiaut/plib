@@ -14,6 +14,7 @@ copy src\sg\*.h \usr\include\plib
 copy src\ssg\*.h \usr\include\plib
 copy src\sl\*.h \usr\include\plib
 copy src\util\*.h \usr\include\plib
+copy src\net\*.h \usr\include\plib
 
 copy src\fnt\debug\*.lib \usr\lib
 copy src\net\debug\*.lib \usr\lib
@@ -22,3 +23,4 @@ copy src\sg\debug\*.lib \usr\lib
 copy src\ssg\debug\*.lib \usr\lib
 copy src\sl\debug\*.lib \usr\lib
 copy src\util\debug\*.lib \usr\lib
+copy src\net\debug\*.lib \usr\lib
