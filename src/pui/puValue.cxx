@@ -38,7 +38,7 @@ void puValue::update_res ()
   if ( res_string  ) strcpy ( res_string, string ) ;
 }
 
-char *puValue::getTypeString ( void )
+const char *puValue::getTypeString ( void )
 {
   int i = getType () ;
 

@@ -311,7 +311,7 @@ puGroup::~puGroup ()
 }
 
 
-void puGroup::setChildStyle ( int childs, int style, int recursive )
+void puGroup::setChildStyle ( int childs, int which, int recursive )
 {
   puObject *curr_obj ;
 

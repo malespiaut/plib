@@ -35,9 +35,6 @@
 #include <iostream.h>
 #endif
 
-#define PU_STRING_X_FUDGE 6
-#define PU_STRING_Y_FUDGE 6
-
 int puRefresh = TRUE ;
 
 static int puWindowWidth  = 400 ;

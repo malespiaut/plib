@@ -58,8 +58,8 @@ static void puFileSelectorHandleSlider ( puObject * slider )
   val = 1.0f - val ;
 
   puListBox* list_box = (puListBox*) slider -> getUserData () ;
-  int index = int ( list_box -> getNumItems () * val ) ;
-  list_box -> setTopItem ( index ) ;
+  int idx = int ( list_box -> getNumItems () * val ) ;
+  list_box -> setTopItem ( idx ) ;
 }
 
 static void puFileSelectorHandleArrow ( puObject *arrow )
@@ -79,12 +79,12 @@ static void puFileSelectorHandleArrow ( puObject *arrow )
   int num_items = list_box->getNumItems () - 1 ;
   if ( num_items > 0 )
   {
-    int index = int ( num_items * val + 0.5 ) + inc ;
-    if ( index > num_items ) index = num_items ;
-    if ( index < 0 ) index = 0 ;
+    int idx = int ( num_items * val + 0.5 ) + inc ;
+    if ( idx > num_items ) idx = num_items ;
+    if ( idx < 0 ) idx = 0 ;
 
-    slider -> setValue ( 1.0f - (float)index / num_items ) ;
-    list_box -> setTopItem ( index ) ;
+    slider -> setValue ( 1.0f - (float)idx / num_items ) ;
+    list_box -> setTopItem ( idx ) ;
   }
 }
 
@@ -133,22 +133,22 @@ static void go_up_one_directory ( char *fname )
 }
 
 
-void puFileSelector::input_entered ( puObject* input )
+void puFileSelector::input_entered ( puObject* inp )
 {
-  puFileSelector* file_selector = (puFileSelector*) (input -> getUserData ()) ;
+  puFileSelector* file_selector = (puFileSelector*) (inp -> getUserData ()) ;
 
   /*
     If the input selector is empty - do nothing
   */
 
-  if ( input -> getStringValue() [ 0 ] == '\0' )
+  if ( inp -> getStringValue() [ 0 ] == '\0' )
     return ;
 
-  if ( ulIsAbsolutePathName ( input -> getStringValue () ) )
-    strcpy ( file_selector->getStringValue (), input ->getStringValue () ) ;
+  if ( ulIsAbsolutePathName ( inp -> getStringValue () ) )
+    strcpy ( file_selector->getStringValue (), inp ->getStringValue () ) ;
   else
   if ( strlen ( file_selector->__getStartDir() ) +
-       strlen ( input->getStringValue() ) + 2 >= PUSTRING_MAX )
+       strlen ( inp->getStringValue() ) + 2 >= PUSTRING_MAX )
   {
     ulSetError ( UL_WARNING,
       "PUI:puFileSelector - path name is too long");
@@ -161,7 +161,7 @@ void puFileSelector::input_entered ( puObject* input )
     //strcat ( file_selector->getStringValue (), input -> getStringValue () ) ;
 
     ulMakePath ( file_selector->getStringValue (),
-      file_selector->__getStartDir(), input -> getStringValue () ) ;
+      file_selector->__getStartDir(), inp -> getStringValue () ) ;
   }
 
   /*
@@ -177,12 +177,12 @@ void puFileSelector::input_entered ( puObject* input )
 }
 
 
-void puFileSelector::handle_select ( puObject* list_box )
+void puFileSelector::handle_select ( puObject* l_box )
 {
-  puFileSelector* file_selector = (puFileSelector*) list_box -> getUserData () ;
+  puFileSelector* file_selector = (puFileSelector*) l_box -> getUserData () ;
 
   int selected ;
-  list_box -> getValue ( &selected ) ;
+  l_box -> getValue ( &selected ) ;
 
   if ( selected >= 0 && selected < file_selector -> num_files )
   {
@@ -490,7 +490,7 @@ static int puFileSelectorStringCompare ( const char *s1, const char *s2,
 }
 
 
-void puFileSelector::setInitialValue ( char *s )
+void puFileSelector::setInitialValue ( const char *s )
 {
   if ( ulIsAbsolutePathName ( s ) )
   {

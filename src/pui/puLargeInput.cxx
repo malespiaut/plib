@@ -32,8 +32,8 @@ static void puLargeInputHandleRightSlider ( puObject * slider )
   val = 1.0f - val ;
 
   puLargeInput* text = (puLargeInput*) slider->getUserData () ;
-  int index = int ( text->getNumLines () * val ) ;
-  text->setTopLineInWindow ( index ) ;
+  int idx = int ( text->getNumLines () * val ) ;
+  text->setTopLineInWindow ( idx ) ;
 }
 
 static void puLargeInputHandleArrow ( puObject *arrow )
@@ -53,12 +53,12 @@ static void puLargeInputHandleArrow ( puObject *arrow )
   int num_lines = text->getNumLines () ;
   if ( num_lines > 0 )
   {
-    int index = int ( num_lines * val + 0.5 ) + inc ;
-    if ( index > num_lines ) index = num_lines ;
-    if ( index < 0 ) index = 0 ;
+    int idx = int ( num_lines * val + 0.5 ) + inc ;
+    if ( idx > num_lines ) idx = num_lines ;
+    if ( idx < 0 ) idx = 0 ;
 
-    slider->setValue ( 1.0f - (float)index / num_lines ) ;
-    text->setTopLineInWindow ( index ) ;
+    slider->setValue ( 1.0f - (float)idx / num_lines ) ;
+    text->setTopLineInWindow ( idx ) ;
   }
 }
 
@@ -273,7 +273,7 @@ void  puLargeInput::selectEntireLine ( void )
   if ( select_end_position == 1 ) select_end_position = strlen ( temp_text ) ;
 }
 
-void  puLargeInput::addNewLine ( char *l )
+void  puLargeInput::addNewLine ( const char *l )
 {
   if ( cursor_position > 0 )  // If not at start of line, go to start of next line
     cursor_position = int (strchr ( text + cursor_position - 1, '\n' ) - text + 1) ;
@@ -282,7 +282,7 @@ void  puLargeInput::addNewLine ( char *l )
   addText ( l ) ;
 }
 
-void  puLargeInput::addText ( char *l )
+void  puLargeInput::addText ( const char *l )
 {
   if ( !l ) return ;
 
@@ -311,7 +311,7 @@ void  puLargeInput::addText ( char *l )
   setCursor ( select_end_position ) ;
 }
 
-void  puLargeInput::appendText ( char *l )
+void  puLargeInput::appendText ( const char *l )
 {
   if ( !l ) return ;
 
@@ -348,7 +348,7 @@ void  puLargeInput::removeText ( int start, int end )
   delete temp_text ;
 }
 
-void  puLargeInput::setText ( char *l )
+void  puLargeInput::setText ( const char *l )
 {
   if ( text )
   {
@@ -613,16 +613,16 @@ void puLargeInput::draw ( int dx, int dy )
 
             *end_of_line = '\0' ;     // Make end-of-line be an end-of-string
 
-            int beg_pos      // Position in window of start of line, in pixels
+            int begpos      // Position in window of start of line, in pixels
                     = (int)( ( box_width - max_width ) * bottom_value ) ;
             int end_pos      // Position in window of end of line, in pixels
-                    = (int)( beg_pos + legendFont.getStringWidth ( val ) ) ;
+                    = (int)( begpos + legendFont.getStringWidth ( val ) ) ;
 
-            while ( ( beg_pos < 0 ) && ( val < end_of_line ) )   // Step down line
+            while ( ( begpos < 0 ) && ( val < end_of_line ) )   // Step down line
             {                                                    // until it is in the window
               char chr = *(val+1) ;
               *(val+1) = '\0' ;
-              beg_pos += legendFont.getStringWidth ( val ) ;
+              begpos += legendFont.getStringWidth ( val ) ;
               *(val+1) = chr ;
               val++ ;
             }
@@ -633,12 +633,12 @@ void puLargeInput::draw ( int dx, int dy )
               end_of_line--;
               temp_char = *end_of_line ;
               *end_of_line = '\0' ;
-              end_pos = beg_pos + legendFont.getStringWidth ( val ) ;
+              end_pos = begpos + legendFont.getStringWidth ( val ) ;
             }
 
             if ( val < end_of_line )                 // If any text shows in the window,
               legendFont.drawString ( val,           // draw it.
-                                      dx + abox.min[0] + xx + beg_pos,
+                                      dx + abox.min[0] + xx + begpos,
                                       dy + abox.min[1] + yy ) ;
 
             *end_of_line = temp_char ;     // Restore the end-of-line character
@@ -692,11 +692,11 @@ void puLargeInput::draw ( int dx, int dy )
 
         if ( ( line_count > top_line_in_window ) && ( line_count <= end_lin+1 ) )
         {
-          int beg_pos      // Position in window of start of line, in pixels
+          int begpos      // Position in window of start of line, in pixels
                     = (int)( ( box_width - max_width ) * bottom_value ) ;
 
           int cpos = (int)( legendFont.getStringWidth ( start_of_line ) + xx +
-                     abox.min[0] + beg_pos ) ;
+                     abox.min[0] + begpos ) ;
           int top = (int)( abox.min[1] + yy + legendFont.getStringHeight () ) ;
           int bot = (int)( abox.min[1] + yy - legendFont.getStringDescender () ) ;
 

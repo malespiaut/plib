@@ -26,7 +26,7 @@
 
 extern void puMenuBar_drop_down_the_menu ( puObject *b );
 
-void puVerticalMenu::add_submenu ( char *str, char *items[], puCallback cb[] )
+void puVerticalMenu::add_submenu ( const char *str, char *items[], puCallback _cb[] )
 {
   int w, h ;
   getSize ( &w, &h ) ;
@@ -53,7 +53,7 @@ void puVerticalMenu::add_submenu ( char *str, char *items[], puCallback cb[] )
     b -> setUserData ( p ) ;
 
     for ( int i = 0 ; items[i] != NULL ; i++ )
-      p -> add_item ( items[i], cb[i] ) ;
+      p -> add_item ( items[i], _cb[i] ) ;
 
     p->close () ;
   }
@@ -69,7 +69,7 @@ void puVerticalMenu::add_submenu ( char *str, char *items[], puCallback cb[] )
                            colour[PUCOL_FOREGROUND][2],
                            colour[PUCOL_FOREGROUND][3] ) ;
 
-    b -> setCallback ( cb[0] );
+    b -> setCallback ( _cb[0] );
     b -> setActiveDirn ( PU_UP ) ;
 
     b -> setUserData ( NULL ) ;

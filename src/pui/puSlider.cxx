@@ -24,7 +24,7 @@
 
 #include "puLocal.h"
 
-void puSlider::draw_slider_box ( int dx, int dy, float val, char *box_label )
+void puSlider::draw_slider_box ( int dx, int dy, float val, const char *box_label )
 {
   int sd, od ;
   if ( isVertical() ) { sd = 1 ; od = 0 ; } else { sd = 0 ; od = 1 ; }
