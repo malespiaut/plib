@@ -77,6 +77,12 @@ void puListBox::draw ( int dx, int dy )
 
 void puListBox::doHit ( int button, int updown, int x, int y )
 {
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   if ( button == PU_LEFT_BUTTON )
   {
     lowlight () ;
@@ -91,6 +97,7 @@ void puListBox::doHit ( int button, int updown, int x, int y )
     setValue ( index ) ;
     
     invokeCallback () ;
+    puSetActiveWidget ( this ) ;
   }
   else
     lowlight () ;

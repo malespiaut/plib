@@ -86,6 +86,9 @@ puFilePicker::~puFilePicker ()
     files = 0;
   }
   num_files = 0;
+
+  if ( this == puActiveWidget () )
+    puDeactivateWidget () ;
 }
 
 void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, const char *dir,

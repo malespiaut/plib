@@ -205,6 +205,9 @@ puGroup::~puGroup ()
     bo = bo->next ;
     delete dlist  ;
   }
+
+  if ( this == puActiveWidget () )
+    puDeactivateWidget () ;
 }
 
 

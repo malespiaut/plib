@@ -22,6 +22,12 @@ int puButtonBox::checkKey ( int key, int updown )
        ( key != '\r' && key != '\n' ) || ( window != puGetWindow () ) )
     return FALSE ;
 
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   int v = getValue () ;
 
   if ( ! one_only )
@@ -32,6 +38,7 @@ int puButtonBox::checkKey ( int key, int updown )
 
   setValue ( v ) ;
   invokeCallback() ;
+  puSetActiveWidget ( this ) ;
   return TRUE ;
 }
 
@@ -42,6 +49,12 @@ int puButtonBox::checkHit ( int /*button*/, int updown, int x, int y )
        ( updown != active_mouse_edge &&
          active_mouse_edge != PU_UP_AND_DOWN ) )
     return FALSE ;
+
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
 
   int i = num_kids - 1 - (( y - abox.min[1] - PUSTR_BGAP ) * num_kids ) /
                           ( abox.max[1] - abox.min[1] - PUSTR_BGAP - PUSTR_TGAP ) ;
@@ -55,6 +68,7 @@ int puButtonBox::checkHit ( int /*button*/, int updown, int x, int y )
     setValue ( getValue () ^ ( 1 << i ) ) ;
 
   invokeCallback () ;
+  puSetActiveWidget ( this ) ;
   return TRUE ;
 }
 

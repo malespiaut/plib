@@ -56,8 +56,14 @@ void puPopupMenu::close ( void )
 
 int puPopupMenu::checkKey ( int key, int updown )
 {
-  if ( dlist == NULL || ! isVisible () || ! isActive () )
+  if ( dlist == NULL || ! isVisible () || ! isActive () || ( window != puGetWindow () ) )
     return FALSE ;
+
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
 
   if ( updown == PU_DOWN )
   {

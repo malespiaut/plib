@@ -48,6 +48,12 @@ void puButton::draw ( int dx, int dy )
 
 void puButton::doHit ( int button, int updown, int, int )
 {
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   if ( button == PU_LEFT_BUTTON )
   {
     if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )
@@ -55,6 +61,7 @@ void puButton::doHit ( int button, int updown, int, int )
       lowlight () ;
       setValue ( (int) ! getValue () ) ;
       invokeCallback () ;
+      puSetActiveWidget ( this ) ;
     }
     else
       highlight () ;

@@ -84,6 +84,8 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   window            = puGetWindow () ;
 
   cb          = NULL ;
+  active_cb   = NULL ;
+  down_cb     = NULL ;
   r_cb        = NULL ;
   render_data = NULL ;
   user_data   = NULL ;
@@ -111,6 +113,9 @@ puObject::~puObject ()
 {
   if ( parent != this && parent != NULL )
     parent -> remove ( this ) ;
+
+  if ( this == puActiveWidget () )
+    puDeactivateWidget () ;
 }
 
 void puObject::recalc_bbox ( void )
@@ -169,6 +174,12 @@ int puObject::checkKey ( int key, int updown )
   if ( updown == PU_UP )
     return FALSE ;
 
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   if ( isReturnDefault() && ( key == '\r' || key == '\n' ) && ( window == puGetWindow () ) )
   {
     checkHit ( PU_LEFT_BUTTON, PU_DOWN, (abox.min[0]+abox.max[0])/2,
@@ -184,12 +195,19 @@ int puObject::checkKey ( int key, int updown )
 
 void puObject::doHit ( int button, int updown, int /* x */, int /* y */ )
 {
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   if ( button == PU_LEFT_BUTTON )
   {
     if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )
     {
       lowlight () ;
       invokeCallback () ;
+      puSetActiveWidget ( this ) ;
     }
     else
       highlight () ;

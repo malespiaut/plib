@@ -9,19 +9,6 @@
 #  endif
 #endif
 
-static bool glIsValidContext ()
-{
-#if defined(CONSOLE)
-  return true ;
-#elif defined(WIN32)
-  return ( wglGetCurrentContext () != NULL ) ;
-#elif defined(macintosh)
-  return ( aglGetCurrentContext() != NULL ) ;
-#else
-  return ( glXGetCurrentContext() != NULL ) ;
-#endif
-}
-
 #ifdef PU_NOT_USING_GLUT
 #include <iostream.h>
 #endif
@@ -106,6 +93,19 @@ puColour _puDefaultColourTable[] =
   { 0.0f, 0.0f, 0.0f, 0.0f }  /* ILLEGAL */
 } ;
  
+
+static bool glIsValidContext ()
+{
+#if defined(CONSOLE)
+  return true ;
+#elif defined(WIN32)
+  return ( wglGetCurrentContext () != NULL ) ;
+#elif defined(macintosh)
+  return ( aglGetCurrentContext() != NULL ) ;
+#else
+  return ( glXGetCurrentContext() != NULL ) ;
+#endif
+}
 
 puValue::~puValue () {}  
 
@@ -199,6 +199,8 @@ static void puCleanUpJunk ()
 }
 
 
+puObject *active_widget ;  /* Widget which is currently receiving user input */
+
 void puInit ( void )
 {
   static int firsttime = TRUE ;
@@ -215,6 +217,9 @@ void puInit ( void )
     puInterface *base_interface = new puInterface ( 0, 0 ) ;
     puPushGroup         ( base_interface ) ;
     puPushLiveInterface ( base_interface ) ;
+
+    active_widget = NULL ;
+
     firsttime = FALSE ;
 #ifdef PU_NOT_USING_GLUT
 
@@ -384,3 +389,8 @@ int puMouse ( int x, int y )
   
   return return_value ;
 }
+
+void puDeactivateWidget ()  {  active_widget = NULL ; }
+void puSetActiveWidget ( puObject *w ) {   active_widget = w ; }
+puObject *puActiveWidget () {   return active_widget ; }
+

@@ -123,6 +123,12 @@ void puBiSlider::doHit ( int button, int updown, int x, int y )
 //  if ( updown != PU_DRAG )
 //    puMoveToLast ( this );
 
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   if ( button == PU_LEFT_BUTTON )
   {
     int sd = isVertical() ;
@@ -177,6 +183,7 @@ void puBiSlider::doHit ( int button, int updown, int x, int y )
         {
           last_cb_value = next_value ;
           invokeCallback () ;
+          puSetActiveWidget ( this ) ;
         }
         break ;
 
@@ -185,6 +192,7 @@ void puBiSlider::doHit ( int button, int updown, int x, int y )
         {
           last_cb_value = next_value ;
           invokeCallback () ;
+          puSetActiveWidget ( this ) ;
         }
         break ;
 
@@ -192,6 +200,7 @@ void puBiSlider::doHit ( int button, int updown, int x, int y )
       default :
         last_cb_value = next_value ;
         invokeCallback () ;
+        puSetActiveWidget ( this ) ;
         break ;
     }
   }

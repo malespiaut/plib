@@ -90,5 +90,8 @@ puInterface::~puInterface ()
     bo = bo->next ;
     delete dlist  ;
   }
+
+  if ( this == puActiveWidget () )
+    puDeactivateWidget () ;
 }
 
