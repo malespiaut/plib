@@ -1,34 +1,34 @@
-# Microsoft Developer Studio Project File - Name="tux_example" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="water" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=tux_example - Win32 Debug
+CFG=water - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "tux_example.mak".
+!MESSAGE NMAKE /f "water.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "tux_example.mak" CFG="tux_example - Win32 Debug"
+!MESSAGE NMAKE /f "water.mak" CFG="water - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "tux_example - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "tux_example - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "water - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "water - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "tux_example"
+# PROP Scc_ProjName "water"
 # PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "tux_example - Win32 Release"
+!IF  "$(CFG)" == "water - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -50,9 +50,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssg.lib sg.lib ul.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /machine:I386 /out:"tux_example.exe" /libpath:"..\..\..\..\..\plib"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib pui.lib fnt.lib ssgAux.lib ssg.lib sg.lib ul.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /machine:I386 /out:"water.exe" /libpath:"..\..\..\..\..\plib"
 
-!ELSEIF  "$(CFG)" == "tux_example - Win32 Debug"
+!ELSEIF  "$(CFG)" == "water - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -74,17 +74,17 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssg_d.lib sg_d.lib ul_d.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /debug /machine:I386 /out:"tux_example.exe" /pdbtype:sept /libpath:"..\..\..\..\..\plib"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib pui_d.lib fnt_d.lib ssgAux_d.lib ssg_d.lib sg_d.lib ul_d.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /debug /machine:I386 /out:"water.exe" /pdbtype:sept /libpath:"..\..\..\..\..\plib"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "tux_example - Win32 Release"
-# Name "tux_example - Win32 Debug"
+# Name "water - Win32 Release"
+# Name "water - Win32 Debug"
 # Begin Source File
 
-SOURCE=.\tux_example.cxx
+SOURCE=.\water.cxx
 # End Source File
 # End Target
 # End Project
