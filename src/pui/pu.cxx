@@ -23,14 +23,6 @@
 
 #include "puLocal.h"
 
-#ifndef WIN32
-#  ifndef macintosh
-#    include <GL/glx.h>
-#  else
-#    include <agl.h>
-#  endif
-#endif
-
 int puRefresh = TRUE ;
 
 static int puWindowWidth  = 400 ;
@@ -109,19 +101,6 @@ puColour _puDefaultColourTable[] =
   { 0.0f, 0.0f, 0.0f, 1.0f }  /* PUCOL_MISC       */
 } ;
 
-
-static int glIsValidContext ( void )
-{
-#if defined(CONSOLE)
-  return true ;
-#elif defined(WIN32)
-  return ( wglGetCurrentContext () != NULL ) ;
-#elif defined(macintosh)
-  return ( aglGetCurrentContext() != NULL ) ;
-#else
-  return ( glXGetCurrentContext() != NULL ) ;
-#endif
-}
 
 static int _puCursor_enable = FALSE ;
 static int _puCursor_x      = 0 ;
@@ -234,7 +213,7 @@ void puInit ( void )
 
   if ( firsttime )
   {
-    if ( glIsValidContext () == 0 )
+    if ( ! ulIsValidContext () )
     {
       ulSetError ( UL_FATAL,
         "puInit called without a valid OpenGL context.");
