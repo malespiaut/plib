@@ -20,7 +20,6 @@
 
      $Id$
 */
-
 #ifndef __INCLUDED_JS_H__
 #define __INCLUDED_JS_H__ 1
 
@@ -109,7 +108,7 @@
 #define JS_FALSE 0
 
 #ifdef WIN32
-#  define _JS_MAX_AXES 6
+#  define _JS_MAX_AXES 8  /* X,Y,Z,R,U,V,POV_X,POV_Y */
 #elif defined (macintosh)
 #  define _JS_MAX_AXES 9
 #else
@@ -281,8 +280,15 @@ class jsJoystick
     }
     else
     {
-      /* accept all the axis */
-      num_axes = _JS_MAX_AXES ;
+      // Windows joystick drivers may provide any combination of
+      // X,Y,Z,R,U,V,POV - not necessarily the first n of these.
+      if ( jsCaps.wCaps & JOYCAPS_HASPOV ) {
+        num_axes = _JS_MAX_AXES ;
+        min[7] = -1.0 ; max[7] = 1.0 ;  // POV Y
+        min[6] = -1.0 ; max[6] = 1.0 ;  // POV X
+      } else {
+        num_axes = 6 ;
+      }
       min[5] = (float)jsCaps.wVmin ; max[5] = (float)jsCaps.wVmax ;
       min[4] = (float)jsCaps.wUmin ; max[4] = (float)jsCaps.wUmax ;
       min[3] = (float)jsCaps.wRmin ; max[3] = (float)jsCaps.wRmax ;
@@ -585,7 +591,9 @@ public:
     }
 
     if ( buttons )
+    {
       *buttons = (int) js . dwButtons ;
+    }
 
     if ( axes )
     {
@@ -594,15 +602,40 @@ public:
 
       switch ( num_axes )
       {
-				case 6: axes[5] = (float) js . dwVpos ;
-				case 5: axes[4] = (float) js . dwUpos ;
-				case 4: axes[3] = (float) js . dwRpos ;
-				case 3: axes[2] = (float) js . dwZpos ;
-				case 2: axes[1] = (float) js . dwYpos ;
-				case 1: axes[0] = (float) js . dwXpos ;
-					break;
-				default:
-					ulSetError ( UL_WARNING, "PLIB_JS: Wrong num_axes. Joystick input is now invalid" ) ;
+        case 8:
+          // Generate two POV axes from the POV hat angle.
+          // Low 16 bits of js.dwPOV gives heading (clockwise from ahead) in
+          //   hundredths of a degree, or 0xFFFF when idle.
+          if ( (js.dwPOV & 0xFFFF) == 0xFFFF ) {
+            axes[6] = 0.0;
+            axes[7] = 0.0;
+          } else {
+            // This is the contentious bit: how to convert angle to X/Y.
+						// wk: I know of no define for PI that we could use here:
+						// SG_PI would pull in sg, M_PI is undefined for MSVC
+						// But the accuracy of the value of PI is very unimportant at this point.
+            float s = sin((js.dwPOV & 0xFFFF) * (0.01 * 3.1415926535f / 180));
+            float c = cos((js.dwPOV & 0xFFFF) * (0.01 * 3.1415926535f / 180));
+            // Convert to coordinates on a square so that North-East
+            // is (1,1) not (.7,.7), etc.
+            // s and c cannot both be zero so we won't divide by zero.
+            if (fabs(s) < fabs(c)) {
+              axes[6] = (c < 0.0) ? -s/c : s/c;
+              axes[7] = (c < 0.0) ? -1.0 : 1.0;
+            } else {
+              axes[6] = (s < 0.0) ? -1.0 : 1.0;
+              axes[7] = (s < 0.0) ? -c/s : c/s;
+            }
+          }
+        case 6: axes[5] = (float) js . dwVpos ;
+        case 5: axes[4] = (float) js . dwUpos ;
+        case 4: axes[3] = (float) js . dwRpos ;
+        case 3: axes[2] = (float) js . dwZpos ;
+        case 2: axes[1] = (float) js . dwYpos ;
+        case 1: axes[0] = (float) js . dwXpos ;
+                break;
+        default:
+                ulSetError ( UL_WARNING, "PLIB_JS: Wrong num_axes. Joystick input is now invalid" ) ;
 
       }
 //lint -restore
