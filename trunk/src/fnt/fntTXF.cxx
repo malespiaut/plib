@@ -246,6 +246,7 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
     glyph . y       = _fnt_readShort () ;
 
     setGlyph ( (char) glyph.ch,
+          (float)  glyph.step              / (float) max_height,
           (float)  glyph.x                 / (float) w + xstep,
           (float)( glyph.x + glyph.w )     / (float) w + xstep,
           (float)  glyph.y                 / (float) h + ystep,

@@ -59,7 +59,7 @@ public:
   virtual float getWidth     () const    = 0 ;
   virtual float getGap       () const    = 0 ;
 
-  virtual int hasGlyph ( char c ) = 0 ;
+  virtual int hasGlyph ( char c ) const = 0 ;
 } ;
 
 
@@ -89,6 +89,10 @@ private:
     given a negative v_bot. Most capitals will have
     v_bot==0.0 and v_top==1.0.
   */
+
+  /* Nominal baseline widths */
+
+  float widths  [ FNTMAX_CHAR ] ;
 
   /* Texture coordinates */
 
@@ -171,19 +175,39 @@ public:
   float getGap       () const { return gap       ; } 
 
 
-  void setGlyph ( char c,
+  void setGlyph ( char c, float wid,
                   float tex_left, float tex_right,
                   float tex_bot , float tex_top  ,
                   float vtx_left, float vtx_right,
                   float vtx_bot , float vtx_top  ) ;
+  void setGlyph ( char c,
+                  float tex_left, float tex_right,
+                  float tex_bot , float tex_top  ,
+                  float vtx_left, float vtx_right,
+                  float vtx_bot , float vtx_top  ) /* deprecated */
+  {
+    setGlyph ( c, vtx_right,
+               tex_left, tex_right, tex_bot, tex_top,
+               vtx_left, vtx_right, vtx_bot, vtx_top ) ;
+  }
   
-  int  getGlyph ( char c,
+  int  getGlyph ( char c, float* wid,
                   float *tex_left = NULL, float *tex_right = NULL,
                   float *tex_bot  = NULL, float *tex_top   = NULL,
                   float *vtx_left = NULL, float *vtx_right = NULL,
                   float *vtx_bot  = NULL, float *vtx_top   = NULL) ;
+  int  getGlyph ( char c,
+                  float *tex_left = NULL, float *tex_right = NULL,
+                  float *tex_bot  = NULL, float *tex_top   = NULL,
+                  float *vtx_left = NULL, float *vtx_right = NULL,
+                  float *vtx_bot  = NULL, float *vtx_top   = NULL) /* deprecated */
+  {
+    return getGlyph ( c, NULL,
+                      tex_left, tex_right, tex_bot, tex_top,
+                      vtx_left, vtx_right, vtx_bot, vtx_top ) ;
+  }
 
-  int hasGlyph ( char c ) { return getGlyph ( c ) ; }
+  int hasGlyph ( char c ) const { return exists[ c ] ; }
 
   void getBBox ( const char *s, float pointsize, float italic,
                  float *left, float *right,
