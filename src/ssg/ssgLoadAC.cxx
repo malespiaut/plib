@@ -138,6 +138,7 @@ static Tag top_tags [] =
 {
   { "MATERIAL", do_material },
   { "OBJECT"  , do_object   },
+  { NULL, NULL }
 } ;
 
 
@@ -345,18 +346,16 @@ static int do_name ( char *s )
 }
 
 
-static int do_data     ( char *s )
+static int do_data ( char *s )
 {
   int len = strtol ( s, NULL, 0 ) ;
+  char buffer [ len + 3 ] ;            /* data + \r + \n + \0 */
+  fgets ( buffer, len + 3, loader_fd ) ;
 
   current_data = new char [ len + 1 ] ;
 
-  for ( int i = 0 ; i < len ; i++ )
-    current_data [ i ] = getc ( loader_fd ) ;
-
+  strncpy ( current_data, buffer, len ) ;
   current_data [ len ] = '\0' ;
-
-  getc ( loader_fd ) ;  /* Final RETURN */
 
   ssgBranch *br = current_options -> createBranch ( current_data ) ;
 
