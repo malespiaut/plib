@@ -278,7 +278,7 @@ void load_database ()
   ocean   =  new ssgaWaveSystem ( 10000 ) ;
   ocean   -> setColour        ( WHITE ) ;
   ocean   -> setSize          ( 50 ) ;
-  ocean   -> setTexScale      ( 6, 6 ) ;
+  ocean   -> setTexScale      ( 8, 8 ) ;
   ocean   -> setCenter        ( pos ) ;
   ocean   -> setDepthCallback ( getDepth ) ;
   ocean   -> setKidState      ( sea_state ) ;

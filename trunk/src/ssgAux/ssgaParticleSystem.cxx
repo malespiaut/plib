@@ -53,7 +53,7 @@ ssgaParticleSystem::ssgaParticleSystem ( int num, int initial_num,
     for ( i = 0 ; i < initial_num ; i++ )
       (*particle_create) ( this, i, & particle [ i ] ) ;
 
-  update ( 0.1 ) ;
+  update ( 0.1f ) ;
 }
 
 
