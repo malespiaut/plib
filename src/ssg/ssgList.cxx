@@ -91,7 +91,7 @@ int ssgList::searchForEntity ( ssgEntity *entity )
 void ssgList::removeAllEntities ()
 {
   while ( total > 0 )
-    removeEntity ( (unsigned int) 0 ) ;
+    removeEntity ( (unsigned int) total-1 ) ;
 }
 
 void ssgList::removeEntity ( unsigned int n )
@@ -112,7 +112,8 @@ entity_list[n]->deadBeefCheck();
   ssgList::removeEntity ( n ) ;
 
   e -> deadBeefCheck () ;
-  ssgDeRefDelete ( e ) ;
+  // wk 20.4.2002 problems with mywalk... when merging hiearchy nodes:
+	ssgDeRefDelete ( e ) ;
 }
 
 
