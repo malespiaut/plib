@@ -72,8 +72,9 @@ static void refreshModifiers ()
 
 LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-  int key = -1 ;
+  static int key = -1 ;
   static int updown = PW_UP ;
+  static int old_key = -1 ;  // We need this because "key" changes case
   int button = -1 ;
   static int mb = 0 ;
   static int lastx = 0 ;
@@ -120,13 +121,19 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 
     case WM_KEYDOWN:
       /* If the key is already down, we are on auto-repeat.  Break if the autorepeat is disabled. */
-      if ( ( updown == PW_DOWN ) && !autoRepeat ) break ;
+      if ( ( updown == PW_DOWN ) && ( int(wParam) == old_key ) && !autoRepeat ) break ;
 
       updown = PW_DOWN ;
+      old_key = wParam ;
       /* FALLTHROUGH */
     case WM_KEYUP:
       if ( uMsg == WM_KEYUP ) updown = PW_UP ;
       key = wParam ;
+
+      /* Disable CTRL, SHIFT, CapsLock keys from making a callback */
+      if ( ( key == VK_CONTROL ) || ( key == VK_SHIFT ) || ( key == VK_CAPITAL ) )
+        break ;
+
       switch ( key )
       {
         case VK_F1:     key = PW_KEY_F1;        break;
@@ -152,6 +159,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
         case VK_HOME:   key = PW_KEY_HOME;      break;
         case VK_END:    key = PW_KEY_END;       break;
         case VK_INSERT: key = PW_KEY_INSERT;    break;
+
 				default:
 					// don't do this for WinCE
           BYTE state[ 256 ];
