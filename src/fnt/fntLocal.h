@@ -25,13 +25,13 @@
 #include "fnt.h"
 
 
-extern int   isSwapped     ;
-extern FILE *curr_image_fd ;
+extern int   _fntIsSwapped   ;
+extern FILE *_fntCurrImageFd ;
 
 
 inline void _fnt_swab_short ( unsigned short *x )
 {
-  if ( isSwapped )
+  if ( _fntIsSwapped )
     *x = (( *x >>  8 ) & 0x00FF ) | 
          (( *x <<  8 ) & 0xFF00 ) ;
 }
@@ -39,7 +39,7 @@ inline void _fnt_swab_short ( unsigned short *x )
 
 inline void _fnt_swab_int ( unsigned int *x )
 {
-  if ( isSwapped )
+  if ( _fntIsSwapped )
     *x = (( *x >> 24 ) & 0x000000FF ) | 
          (( *x >>  8 ) & 0x0000FF00 ) | 
          (( *x <<  8 ) & 0x00FF0000 ) | 
@@ -49,7 +49,7 @@ inline void _fnt_swab_int ( unsigned int *x )
 
 inline void _fnt_swab_int_array ( int *x, int leng )
 {
-  if ( ! isSwapped )
+  if ( ! _fntIsSwapped )
     return ;
 
   for ( int i = 0 ; i < leng ; i++ )
@@ -66,14 +66,14 @@ inline void _fnt_swab_int_array ( int *x, int leng )
 inline unsigned char _fnt_readByte ()
 {
   unsigned char x ;
-  fread ( & x, sizeof(unsigned char), 1, curr_image_fd ) ;
+  fread ( & x, sizeof(unsigned char), 1, _fntCurrImageFd ) ;
   return x ;
 }
 
 inline unsigned short _fnt_readShort ()
 {
   unsigned short x ;
-  fread ( & x, sizeof(unsigned short), 1, curr_image_fd ) ;
+  fread ( & x, sizeof(unsigned short), 1, _fntCurrImageFd ) ;
   _fnt_swab_short ( & x ) ;
   return x ;
 }
@@ -81,7 +81,7 @@ inline unsigned short _fnt_readShort ()
 inline unsigned int _fnt_readInt ()
 {
   unsigned int x ;
-  fread ( & x, sizeof(unsigned int), 1, curr_image_fd ) ;
+  fread ( & x, sizeof(unsigned int), 1, _fntCurrImageFd ) ;
   _fnt_swab_int ( & x ) ;
   return x ;
 }

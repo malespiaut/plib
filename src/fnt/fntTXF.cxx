@@ -49,8 +49,8 @@ static bool glIsValidContext ( void )
 #endif
 }
 
-FILE *curr_image_fd ;
-int isSwapped = FALSE ;
+FILE *_fntCurrImageFd ;
+int _fntIsSwapped = FALSE ;
 
 static void tex_make_mip_maps ( GLubyte *image, int xsize,
                                      int ysize, int zsize )
@@ -187,7 +187,7 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
     return FNT_FALSE ;
   }
 
-  curr_image_fd = fd ;
+  _fntCurrImageFd = fd ;
 
   unsigned char magic [ 4 ] ;
 
@@ -206,10 +206,10 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
     return FNT_FALSE ;
   }
 
-  isSwapped  = FALSE ;
+  _fntIsSwapped  = FALSE ;
   int endianness  = _fnt_readInt () ;
 
-  isSwapped  = ( endianness != 0x12345678 ) ;
+  _fntIsSwapped  = ( endianness != 0x12345678 ) ;
 
   int format      = _fnt_readInt () ;
   int tex_width   = _fnt_readInt () ;
