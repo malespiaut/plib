@@ -1,3 +1,4 @@
+
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
@@ -63,8 +64,8 @@ sgVec4 currentDiffuse;
 // ***********************************************************************
 
 void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray* vertices,
-																ssgIndexArray*  indices, SGfloat epsilon, ssgSimpleStateArray* ssa,
-																ssgIndexArray*  materialIndices, ssgTexCoordArray *texCoordArray) 
+			       ssgIndexArray*  indices, SGfloat epsilon, ssgSimpleStateArray* ssa,
+			       ssgIndexArray*  materialIndices, ssgTexCoordArray *texCoordArray)
 // Accumulates all vertices and Faces (indexes of vertices making up faces)
 // from node and any node below.
 // Calls itself recursively.
@@ -73,124 +74,124 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
 // there is no vertex inside epsilon yet
 {
 
-	assert( vertices != NULL );
-	assert( (epsilon < 0.0) || (indices == NULL) ); // sorry: using epsilon AND using indices not implemented
-	if ( ssa != NULL ) { assert( indices != NULL ); }
-	assert ( ((ssa==NULL) && (materialIndices==NULL)) || ((ssa!=NULL) && (materialIndices!=NULL)));
-  if ( node->isAKindOf( ssgTypeTransform() ) ) {
-    sgMat4 local_transform;
-    ssgTransform *t_node = (ssgTransform*)node;
+   assert( vertices != NULL );
+   assert( (epsilon < 0.0) || (indices == NULL) ); // sorry: using epsilon AND using indices not implemented
+   if ( ssa != NULL ) { assert( indices != NULL ); }
+   assert ( ((ssa==NULL) && (materialIndices==NULL)) || ((ssa!=NULL) && (materialIndices!=NULL)));
+   if ( node->isAKindOf( ssgTypeTransform() ) ) {
+      sgMat4 local_transform;
+      ssgTransform *t_node = (ssgTransform*)node;
     
-    t_node->getTransform(local_transform);
-    sgPostMultMat4( local_transform, transform );
+      t_node->getTransform(local_transform);
+      sgPostMultMat4( local_transform, transform );
 
-    for (ssgEntity* kid = t_node->getKid(0); kid != NULL; 
-	 kid = t_node->getNextKid()) {
-      ssgAccumVerticesAndFaces( kid, local_transform, vertices, indices, epsilon, ssa, materialIndices, texCoordArray);
-    }
-  } else if ( node->isAKindOf( ssgTypeBranch() ) ) {
-    ssgBranch *b_node = (ssgBranch*)node;
-    for (ssgEntity* kid = b_node->getKid(0); kid != NULL; 
-	 kid = b_node->getNextKid()) {
-      ssgAccumVerticesAndFaces( kid, transform, vertices, indices, epsilon, ssa, materialIndices, texCoordArray);
-    }    
-  } else if ( node->isAKindOf( ssgTypeLeaf() ) ) {
-    ssgLeaf* l_node = (ssgLeaf*)node;
-    int i, vert_low = vertices->getNum();
-		
-		int useTexture = FALSE;
-		if ( texCoordArray )
-			if ( l_node->getState() )
-        if (l_node->getState()->isAKindOf(ssgTypeSimpleState())) 
-				{ ssgSimpleState * ss = (ssgSimpleState *) l_node->getState();
-					if ( ss->isEnabled ( GL_TEXTURE_2D ) )
+      for (ssgEntity* kid = t_node->getKid(0); kid != NULL; 
+	   kid = t_node->getNextKid()) {
+	 ssgAccumVerticesAndFaces( kid, local_transform, vertices, indices, epsilon, ssa, materialIndices, texCoordArray);
+      }
+   } 
+   else if ( node->isAKindOf( ssgTypeBranch() ) ) {
+      ssgBranch *b_node = (ssgBranch*)node;
+      for (ssgEntity* kid = b_node->getKid(0); kid != NULL; 
+	   kid = b_node->getNextKid()) {
+	 ssgAccumVerticesAndFaces( kid, transform, vertices, indices, epsilon, ssa, materialIndices, texCoordArray);
+      }    
+   } 
+   else if ( node->isAKindOf( ssgTypeLeaf() ) ) {
+      ssgLeaf* l_node = (ssgLeaf*)node;
+      int i, vert_low = vertices->getNum();
+      
+      int useTexture = FALSE;
+      if ( texCoordArray )
+	if ( l_node->getState() )
+	  if (l_node->getState()->isAKindOf(ssgTypeSimpleState())) 
+	    { 
+	       ssgSimpleState * ss = (ssgSimpleState *) l_node->getState();
+	       if ( ss->isEnabled ( GL_TEXTURE_2D ) )
 // wk kludge!!!						if ( l_node -> getNumTexCoords () == l_node -> getNumVertices() )
-							useTexture = TRUE;
-				}
+		 useTexture = TRUE;
+	    }
     
-		for (i = 0; i < l_node->getNumVertices(); i++) {
-      sgVec3 new_vertex;
-      sgXformVec3(new_vertex, l_node->getVertex(i), transform);
-
-			if ( epsilon < 0.0 )
-			{
-        vertices->add(new_vertex);
-				if ( useTexture )
-					texCoordArray ->add ( l_node->getTexCoord(i) );
-				else if ( texCoordArray )
-					texCoordArray ->add ( _ssgTexCoord00 );
-			}
-			else
-			{ int j, bFound = FALSE, nv1 = vertices -> getNum ();
-				for ( j = 0; j < nv1; j++)
-				{	float *oldvertex = vertices -> get(j);
-					if (( new_vertex[0] - oldvertex[0] > -epsilon) &&
-							( new_vertex[0] - oldvertex[0] < epsilon) &&
-							( new_vertex[1] - oldvertex[1] > -epsilon) &&
-							( new_vertex[1] - oldvertex[1] < epsilon) &&
-							( new_vertex[2] - oldvertex[2] > -epsilon) &&
-							( new_vertex[2] - oldvertex[2] < epsilon))
-					{ float *f;
-					  if ( useTexture )
-						{	assert( texCoordArray ); // if texCoordArray would be NULL, useTexture would not be set.
-							f = texCoordArray -> get(j);
-						}
-						if ( !useTexture || ((l_node->getTexCoord(i)[0] == f[0]) &&
-							         (l_node->getTexCoord(i)[1] == f[1])))
-						{
-							bFound = TRUE;
-							break;
-						}
-					}
-				}
-				if ( ! bFound )
-				{
-					vertices -> add ( new_vertex );
-					if ( useTexture )
-						texCoordArray ->add ( l_node->getTexCoord(i) );
-					else if ( texCoordArray )
-						texCoordArray ->add ( _ssgTexCoord00 );
-				}
-			}
-    }
-
-		if ( indices != NULL )
-		{ int index=-1;
-			if ( ssa != NULL )
-			{ 
-				ssgState *s = l_node->getState();
-				if ( s != NULL )
-				{ index = ssa->findIndex (reinterpret_cast <class ssgSimpleState *> (s) );
-				  if ( index < 0 )
-					{ ssa -> add(reinterpret_cast <class ssgSimpleState *> (s) );
-					  index = ssa->getNum()-1;
-					}
-				}
-			}
-			for (i = 0; i < l_node->getNumTriangles(); i++) {
-				short v1, v2, v3;
-				l_node->getTriangle(i, &v1, &v2, &v3);
-				indices->add( vert_low + v1 );
-				indices->add( vert_low + v2 );
-				indices->add( vert_low + v3 );
-				if ( materialIndices != NULL )
-					materialIndices->add(index); // index is -1 for leafs without state
-			}
+      for (i = 0; i < l_node->getNumVertices(); i++) {
+	 sgVec3 new_vertex;
+	 sgXformVec3(new_vertex, l_node->getVertex(i), transform);
+	 
+	 if ( epsilon < 0.0 )
+	   {
+	      vertices->add(new_vertex);
+	      if ( useTexture )
+		texCoordArray ->add ( l_node->getTexCoord(i) );
+	      else if ( texCoordArray )
+		texCoordArray ->add ( _ssgTexCoord00 );
+	   }
+	 else
+	   { 
+	      int j, bFound = FALSE, nv1 = vertices -> getNum ();
+	      for ( j = 0; j < nv1; j++)
+		{
+		   float *oldvertex = vertices -> get(j);
+		   if (( new_vertex[0] - oldvertex[0] > -epsilon) &&
+		       ( new_vertex[0] - oldvertex[0] < epsilon) &&
+		       ( new_vertex[1] - oldvertex[1] > -epsilon) &&
+		       ( new_vertex[1] - oldvertex[1] < epsilon) &&
+		       ( new_vertex[2] - oldvertex[2] > -epsilon) &&
+		       ( new_vertex[2] - oldvertex[2] < epsilon))
+		     { 
+			float *f;
+			if ( useTexture )
+			  {
+			     assert( texCoordArray ); // if texCoordArray would be NULL, useTexture would not be set.
+			     f = texCoordArray -> get(j);
+			  }
+			if ( !useTexture || ((l_node->getTexCoord(i)[0] == f[0]) &&
+					     (l_node->getTexCoord(i)[1] == f[1])))
+			  {
+			     bFound = TRUE;
+			     break;
+			  }
+		     }
 		}
+	      if ( ! bFound )
+		{
+		   vertices -> add ( new_vertex );
+		   if ( useTexture )
+		     texCoordArray ->add ( l_node->getTexCoord(i) );
+		   else if ( texCoordArray )
+		     texCoordArray ->add ( _ssgTexCoord00 );
+		}
+	   }
+      }
+
+      if ( indices != NULL )
+	{
+	   int index=-1;
+	   if ( ssa != NULL )
+	     { 
+		ssgState *s = l_node->getState();
+		if ( s != NULL )
+		  { index = ssa->findIndex (reinterpret_cast <class ssgSimpleState *> (s) );
+		     if ( index < 0 )
+		       { ssa -> add(reinterpret_cast <class ssgSimpleState *> (s) );
+			  index = ssa->getNum()-1;
+		       }
+		  }
+	     }
+	   for (i = 0; i < l_node->getNumTriangles(); i++) {
+	      short v1, v2, v3;
+	      l_node->getTriangle(i, &v1, &v2, &v3);
+	      indices->add( vert_low + v1 );
+	      indices->add( vert_low + v2 );
+	      indices->add( vert_low + v3 );
+	      if ( materialIndices != NULL )
+		materialIndices->add(index); // index is -1 for leafs without state
+	   }
 	}
-	if ( texCoordArray )
-	{	assert( vertices->getNum() == texCoordArray->getNum() );
-	}
+   }
+   if ( texCoordArray )
+     {
+	assert( vertices->getNum() == texCoordArray->getNum() );
+     }
 } ;
-
-
-
-
-
-
-
-
-
 
 void ssgFindOptConvertTexture( char * filepath, char * tfname ) 
 // Find and optionally (= if necessary) convert texture
@@ -252,7 +253,7 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname )
   ssgTriangulate - triangulate a simple polygon.
 */
 
-static int triangulate_concave(sgVec3 *coords, int *w, int n, int x, int y, int *tris)
+static int triangulateConcave(sgVec3 *coords, int *w, int n, int x, int y, int *tris) // was: triangulate_concave
 {
    struct Vtx {
       int index;
@@ -360,7 +361,7 @@ static int triangulate_concave(sgVec3 *coords, int *w, int n, int x, int y, int 
    return num_tris;
 }
 
-int _ssgTriangulate(sgVec3 *coords, int *w, int n, int *tris)
+int _ssgTriangulate( sgVec3 *coords, int *w, int n, int *tris )
 {
    float *a, *b;
    int i, x, y;
@@ -420,7 +421,7 @@ int _ssgTriangulate(sgVec3 *coords, int *w, int n, int *tris)
 	 x1 = b[x] - a[x];
 	 y1 = b[y] - a[y];
 	 if (x0 * y1 - x1 * y0 < 0)
-	    return triangulate_concave(coords, w, n, x, y, tris);
+	    return triangulateConcave(coords, w, n, x, y, tris);
       }
    }
 
@@ -457,276 +458,270 @@ int _ssgTriangulate(sgVec3 *coords, int *w, int n, int *tris)
 // ******************** class ssgLoaderWriterMesh ************************
 // ***********************************************************************
  
-
-
-void ssgLoaderWriterMesh::ReInit(void)
+void ssgLoaderWriterMesh::reInit(void) // was: ReInit
 {
-  theVertices					= NULL ; 
-	materialIndexes			= NULL ; 
-	theFaces						= NULL ; 
-	tCPFAV							= NULL ; 
-	theMaterials				= NULL ;
-	tCPV								= NULL ;
-	bTCs_are_per_vertex	= TRUE ;
+   theVertices = NULL ; 
+   materialIndices = NULL ; 
+   theFaces = NULL ;
+   perFaceAndVertexTextureCoordinates2 = NULL ;
+   theMaterials	= NULL ;
+   perVertexTextureCoordinates2 = NULL ;
+   textureCoordinatesArePerVertex = TRUE ;
 }
 	
 ssgLoaderWriterMesh::ssgLoaderWriterMesh()
-{ ReInit();
+{
+   reInit();
 }
 
 ssgLoaderWriterMesh::~ssgLoaderWriterMesh()
 {}
 
-void ssgLoaderWriterMesh::deleteTCPFAV()
+void ssgLoaderWriterMesh::deletePerFaceAndVertexTextureCoordinates2() // was: deleteTCPFAV
 {}
 
 // creation stuff:
 
-void ssgLoaderWriterMesh::ThereAreNVertices( int n ) 
+void ssgLoaderWriterMesh::createVertices( int numReservedVertices ) // was: ThereAreNVertices
 {
-	assert( theVertices == NULL );
-	theVertices = new ssgVertexArray ( n );
+   assert( theVertices == NULL );
+   theVertices = new ssgVertexArray ( numReservedVertices );
 }
 
-void ssgLoaderWriterMesh::addVertex ( sgVec3 v ) 
+void ssgLoaderWriterMesh::addVertex( sgVec3 v ) 
 {
 	assert(theVertices!=NULL);
 	theVertices->add ( v );
 }
 
-
-void ssgLoaderWriterMesh::ThereAreNFaces( int n ) 
+void ssgLoaderWriterMesh::createFaces( int numReservedFaces ) // was: ThereAreNFaces
 {
 	assert( theFaces == NULL );
-	theFaces = new ssgListOfLists ( n );
+	theFaces = new ssgListOfLists ( numReservedFaces );
 }
 
-void ssgLoaderWriterMesh::addFace ( ssgIndexArray **ia ) 
+void ssgLoaderWriterMesh::addFace( ssgIndexArray **indexArray ) 
 {
 	assert(theFaces!=NULL);
-	theFaces->add ( (ssgSimpleList **)ia );
+	theFaces->add ( (ssgSimpleList **)indexArray );
 }
 
-
-void ssgLoaderWriterMesh::ThereAreNTCPFAV( int n ) 
+void ssgLoaderWriterMesh::addFaceFromIntegerArray( int numVertices, int *vertices )
 {
-	assert( tCPFAV == NULL );
-	tCPFAV = new ssgListOfLists ( n );
+   int j;
+   class ssgIndexArray *oneFace = new ssgIndexArray( numVertices ); 
+   oneFace->ref();
+   for( j=0; j<numVertices; j++ )
+     oneFace->add( vertices[j] );
+
+   addFace( (ssgIndexArray **) &oneFace );
 }
 
-void ssgLoaderWriterMesh::addTCPFAV ( ssgTexCoordArray **tca ) 
+void ssgLoaderWriterMesh::createPerFaceAndVertexTextureCoordinates2( int numReservedTextureCoordinateLists ) // was: ThereAreNTCPFAV
 {
-	assert(tCPFAV!=NULL);
-	tCPFAV->add ( (ssgSimpleList **)tca );
+   assert( perFaceAndVertexTextureCoordinates2 == NULL );
+   perFaceAndVertexTextureCoordinates2 = new ssgListOfLists( numReservedTextureCoordinateLists );
 }
 
-void ssgLoaderWriterMesh::ThereAreNTCPV( int n ) 
+void ssgLoaderWriterMesh::addPerFaceAndVertexTextureCoordinate2( ssgTexCoordArray **textureCoordinates2 ) // was: addTCPFAV
 {
-	assert( tCPV == NULL );
-	tCPV = new ssgTexCoordArray ( n );
+   assert( perFaceAndVertexTextureCoordinates2 != NULL );
+   perFaceAndVertexTextureCoordinates2->add ( (ssgSimpleList **)textureCoordinates2 );
 }
 
-void ssgLoaderWriterMesh::addTCPV ( sgVec2 tc ) 
+void ssgLoaderWriterMesh::createPerVertexTextureCoordinates2( int numReservedTextureCoordinates )
 {
-	assert(tCPV!=NULL);
-	tCPV->add ( tc );
+   assert( perVertexTextureCoordinates2 == NULL );
+   perVertexTextureCoordinates2 = new ssgTexCoordArray ( numReservedTextureCoordinates );
 }
 
-
-
-void ssgLoaderWriterMesh::ThereAreNMaterialIndexes( int n ) 
+void ssgLoaderWriterMesh::addPerVertexTextureCoordinate2( sgVec2 textureCoordinate ) 
 {
-	assert( materialIndexes == NULL );
-	materialIndexes = new ssgIndexArray ( n );
+   assert( perVertexTextureCoordinates2 != NULL );
+   perVertexTextureCoordinates2->add ( textureCoordinate );
 }
 
-void ssgLoaderWriterMesh::addMaterialIndex ( short mi ) 
+void ssgLoaderWriterMesh::createMaterialIndices( int numReservedMaterialIndices ) // ThereAreNMaterialIndexes
 {
-	assert(materialIndexes!=NULL);
-	materialIndexes->add ( mi );
+   assert( materialIndices == NULL );
+   materialIndices = new ssgIndexArray ( numReservedMaterialIndices );
 }
 
-
-void ssgLoaderWriterMesh::ThereAreNMaterials( int n ) 
+void ssgLoaderWriterMesh::addMaterialIndex( short materialIndex ) 
 {
-	assert( theMaterials == NULL );
-	theMaterials = new ssgSimpleStateList ( n );
+   assert( materialIndices != NULL );
+   materialIndices->add ( materialIndex );
 }
 
-void ssgLoaderWriterMesh::addMaterial ( class ssgSimpleState **ss ) 
+void ssgLoaderWriterMesh::createMaterials( int numReservedMaterials ) // ThereAreNMaterials( int n ) 
 {
-	assert(theMaterials!=NULL);
-	theMaterials->add ( ss );
+   assert( theMaterials == NULL );
+   theMaterials = new ssgSimpleStateList( numReservedMaterials );
 }
 
-static void recalcNormals( ssgIndexArray* il, ssgVertexArray* vl, ssgNormalArray *nl ) 
+void ssgLoaderWriterMesh::addMaterial ( class ssgSimpleState **simpleState ) 
 {
-//  DEBUGPRINT( "Calculating normals." << std::endl);
-  sgVec3 v1, v2, n;
-
-  for (int i = 0; i < il->getNum() / 3; i++) {
-    short ix0 = *il->get(i*3    );
-    short ix1 = *il->get(i*3 + 1);
-    short ix2 = *il->get(i*3 + 2);
-
-    sgSubVec3(v1, vl->get(ix1), vl->get(ix0));
-    sgSubVec3(v2, vl->get(ix2), vl->get(ix0));
-    
-    sgVectorProductVec3(n, v1, v2);
-		SGfloat f= static_cast<SGfloat> (sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]));
-		if (f>0.00001)
-		{ f=1.0F/f;
-		  n[0] *= f; n[1] *= f; n[2] *= f;
-			assert(((n[0]*n[0]+n[1]*n[1]+n[2]*n[2])-1)<0.001);
-			assert(((n[0]*n[0]+n[1]*n[1]+n[2]*n[2])-1)>-0.001);
-		}
-		sgCopyVec3( nl->get(ix0), n );
-    sgCopyVec3( nl->get(ix1), n );
-    sgCopyVec3( nl->get(ix2), n );
-  }
+   assert( theMaterials != NULL );
+   theMaterials->add( simpleState );
 }
 
-void ssgLoaderWriterMesh::AddFaceFromCArray(int nNoOfVerticesForThisFace, 
-																						int *vertices)
+static void recalcNormals( ssgIndexArray* indexList, ssgVertexArray* vertexList, ssgNormalArray *normalList ) 
+// wl: modified to use more code from sg
 {
-	int j;
-	class ssgIndexArray *oneFace = new ssgIndexArray( nNoOfVerticesForThisFace ); 
-	oneFace->ref();
-	for(j=0;j<nNoOfVerticesForThisFace;j++)
-		oneFace->add(vertices[j]);
-	assert(theFaces!=NULL);
-	theFaces->add( (ssgSimpleList **) &oneFace ); 
+   sgVec3 v1, v2, n;
+   
+   for (int i = 0; i < indexList->getNum() / 3; i++) {
+      short indices[3] = { *indexList->get( i*3 ), *indexList->get( i*3 + 1), *indexList->get( i*3 + 2) };
+      
+      sgSubVec3(v1, vertexList->get(indices[1]), vertexList->get(indices[0]));
+      sgSubVec3(v2, vertexList->get(indices[2]), vertexList->get(indices[0]));
+      
+      sgVectorProductVec3( n, v1, v2 );
+      SGfloat normalLength = sgLengthVec3( n );
+      if( normalLength > 0.00001 )
+	   sgNormaliseVec3( n );
 
+      sgCopyVec3( normalList->get( indices[0] ), n );
+      sgCopyVec3( normalList->get( indices[1] ), n );
+      sgCopyVec3( normalList->get( indices[2] ), n );
+   }
 }
 
+// addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates: this function replicates each vertex (based on face usage) and
+// assigns the appropriate texture coordinates to them (based on the per-face texture indices)
+void ssgLoaderWriterMesh::addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2( class ssgVertexArray *theVertices,
+										 class ssgListOfLists *thePerFaceAndVertexTextureCoordinates2,
+										 class ssgListOfLists *theFaces,
+										 class ssgSimpleState *currentState,// Pfusch, kludge. NIV135
+										 class ssgLoaderOptions* current_options,
+										 class ssgBranch *curr_branch_) // was: AddOneNode2SSGFromCPFAV
 
-void ssgLoaderWriterMesh::AddOneNode2SSGFromCPFAV(class ssgVertexArray *theVertices, 
-						class ssgListOfLists *theTCPFAV,
-						class ssgListOfLists *theFaces,
-						class ssgSimpleState *currentState,// Pfusch, kludge. NIV135
-						class ssgLoaderOptions* current_options,
-						class ssgBranch *curr_branch_)
-
-{ int i, j;
-
-	assert(theVertices!=NULL);
-	assert(theFaces!=NULL);
-	// note: I am changing theVertices here, but that is allowed.
-	class ssgTexCoordArray *tcArray = new ssgTexCoordArray(theVertices->getNum());
-	sgVec2 unUsed;
-	unUsed[0]=-99999; // FixMe: It would be nicer to have an extra array of booleans
-	unUsed[1]=-99999;
-	for(i=0;i<theVertices->getNum();i++)
-		tcArray->add(unUsed); 
-	for(i=0;i<theFaces->getNum();i++)
-	{
-		class ssgIndexArray *oneFace = *((class ssgIndexArray **) theFaces->get( i )); 
-		class ssgTexCoordArray *textureCoordsForOneFace = *((ssgTexCoordArray **) theTCPFAV->get ( i ));
-		if ( textureCoordsForOneFace  != NULL ) // It is allowed that some or even all faces are untextured.
-		{
-			for(j=0;j<oneFace->getNum();j++)
-			{ short *ps = oneFace->get(j);
-				float *newTC = textureCoordsForOneFace->get(j);
-				float *oldTC = tcArray->get(*ps);
+{
+   int i, j;
+   
+   assert( theVertices!=NULL );
+   assert( theFaces!=NULL );
+   
+   // note: I am changing theVertices here, but that is allowed.
+   class ssgTexCoordArray *perVertexTextureCoordinates2 = new ssgTexCoordArray( theVertices->getNum() );
+   sgVec2 unUsed;
+   unUsed[0]=-99999; // FixMe: It would be nicer to have an extra array of booleans
+   unUsed[1]=-99999;
+   for( i=0; i<theVertices->getNum(); i++)
+     perVertexTextureCoordinates2->add( unUsed ); 
+   for( i=0; i<theFaces->getNum(); i++)
+     {
+	class ssgIndexArray *oneFace = *((class ssgIndexArray **) theFaces->get( i )); 
+	class ssgTexCoordArray *textureCoordsForOneFace = *( (ssgTexCoordArray **) thePerFaceAndVertexTextureCoordinates2->get( i ) );
+	if ( textureCoordsForOneFace != NULL ) // It is allowed that some or even all faces are untextured.
+	  {
+	     for( j=0; j<oneFace->getNum(); j++ )
+	       { 
+		  short *ps = oneFace->get(j);
+		  float *newTextureCoordinate2 = textureCoordsForOneFace->get( j );
+		  float *oldTextureCoordinate2 = perVertexTextureCoordinates2->get( *ps );
 					
-				assert( oldTC != NULL );
-				if ((oldTC[0]==-99999) && (oldTC[1]==-99999)) // tc unused until now. Use it
-				{ sgVec2 pv; // FixMe: mem leak?
-					pv[0]=newTC[0];
-					pv[1]=newTC[1];
-					tcArray->set(pv, *ps);
-				}
-				else
-				{ // can we simply use the "old" value?
-					if ( TC_EPSILON < ABS ( newTC[0]-oldTC[0] ) +
-								            ABS ( newTC[1]-oldTC[1] ))
-					{ // NO, we can't. Duplicate vertex
-						// not allowed: theVertices->add(theVertices->get(*ps)); // create duplicate 3D. FixMe: clone needed?
-						float * f = theVertices->get(*ps);
-						sgVec3 v;
-						v[0] = f[0]; v[1] = f[1]; v[2] = f[2]; 
-						theVertices->add(v);
-						sgVec2 pv;
-						pv[0]=newTC[0];
-						pv[1]=newTC[1];
-						tcArray->add(pv); // create duplicate 2D
-						*ps=theVertices->getNum()-1;  // use duplicate
-						assert ( *oneFace->get(j) == theVertices->getNum()-1);
-					}
-				}
-			}
-		}
-	}
-	AddOneNode2SSGFromCPV(theVertices, tcArray, theFaces, currentState, 
-			            current_options, curr_branch_);
+		  assert( oldTextureCoordinate2 != NULL );
+		  if ((oldTextureCoordinate2[0]==-99999) && (oldTextureCoordinate2[1]==-99999)) // tc unused until now. Use it
+		    { 
+		       sgVec2 pv; // FixMe: mem leak?
+		       pv[0]=newTextureCoordinate2[0];
+		       pv[1]=newTextureCoordinate2[1];
+		       perVertexTextureCoordinates2->set( pv, *ps );
+		    }
+		  else
+		    { // can we simply use the "old" value?
+		       if ( TC_EPSILON < ABS ( newTextureCoordinate2[0]-oldTextureCoordinate2[0] ) +
+			    ABS ( newTextureCoordinate2[1]-oldTextureCoordinate2[1] ))
+			 { // NO, we can't. Duplicate vertex
+			    // not allowed: theVertices->add(theVertices->get(*ps)); 
+			    // create duplicate 3D. FixMe: clone needed?
+			    			   
+			    float * f = theVertices->get(*ps);
+			    sgVec3 v;
+			    v[0] = f[0]; v[1] = f[1]; v[2] = f[2]; 
+			    theVertices->add( v );
+			    sgVec2 pv;
+			    pv[0]=newTextureCoordinate2[0];
+			    pv[1]=newTextureCoordinate2[1];
+			    perVertexTextureCoordinates2->add( pv ); // create duplicate 2D
+			    *ps=theVertices->getNum()-1;  // use duplicate
+			    assert ( *oneFace->get(j) == theVertices->getNum()-1);
+			 }
+		    }
+	       }
+	  }
+     }
+   addOneNodeToSSGFromPerVertexTextureCoordinates2(theVertices, perVertexTextureCoordinates2, theFaces, currentState, 
+						  current_options, curr_branch_);
 }
 
-void ssgLoaderWriterMesh::AddOneNode2SSGFromCPV(class ssgVertexArray *theVertices, 
-	class ssgTexCoordArray *theTC,
-	class ssgListOfLists *theFaces,
-	class ssgSimpleState *currentState,// kludge NIV135 
-	class ssgLoaderOptions* current_options,
-	class ssgBranch *curr_branch_)
+void ssgLoaderWriterMesh::addOneNodeToSSGFromPerVertexTextureCoordinates2( class ssgVertexArray *theVertices,
+									   class ssgTexCoordArray *theTextureCoordinates2,
+									   class ssgListOfLists *theFaces,
+									   class ssgSimpleState *currentState,// kludge NIV135
+									   class ssgLoaderOptions* current_options,
+									   class ssgBranch *curr_branch_) // was: AddOneNode2SSGFromCPV
+{
+   int i, j;
+   //start Normals, FixMe, kludge NIV135
 
-{ int i, j;
-		//start Normals, FixMe, kludge NIV135
+   ssgNormalArray *normalList = new ssgNormalArray( theVertices->getNum() );
+   sgVec3 kludge;
+   for( i=0; i<theVertices->getNum(); i++ )
+     normalList->add(kludge); //currentMesh.vl->get(i));
 
-	ssgNormalArray *nl = new ssgNormalArray(theVertices->getNum());
-	sgVec3 kludge;
-	for (i=0;i<theVertices->getNum();i++)
-		nl->add(kludge); //currentMesh.vl->get(i));
+   class ssgIndexArray* indexList = new ssgIndexArray ( theFaces->getNum() * 3 ) ; // there are MINIMAL n * 3 indexes
 
-
-	class ssgIndexArray* il = new ssgIndexArray ( theFaces->getNum() * 3 ) ; // there are MINIMAL n * 3 indexes
-
-	for(i=0;i<theFaces->getNum();i++)
-	{
-		class ssgIndexArray *oneFace = *((class ssgIndexArray **) theFaces->get( i )); 
-		if ( oneFace->getNum() >= 3 )
-		{	for(j=0;j<oneFace->getNum();j++)
-			{ 
-				if (j<3)
-					il->add(*oneFace->get(j));
-				else // add a complete triangle
-				{ il->add(*oneFace->get(0));
-					il->add(*oneFace->get(j-1));
-					il->add(*oneFace->get(j));
-				}
-			}
-		}
-	}
-  recalcNormals(il,theVertices, nl); // Fixme, NIV14: only do this if there are no normals in the file
+   for( i=0; i<theFaces->getNum(); i++ )
+     {
+	class ssgIndexArray *oneFace = *((class ssgIndexArray **) theFaces->get( i )); 
+	if ( oneFace->getNum() >= 3 )
+	  {	
+	     for(j=0;j<oneFace->getNum();j++)
+	       { 
+		  if (j<3)
+		    indexList->add(*oneFace->get(j));
+		  else // add a complete triangle
+		    {
+		       indexList->add(*oneFace->get(0));
+		       indexList->add(*oneFace->get(j-1));
+		       indexList->add(*oneFace->get(j));
+		    }
+	       }
+	  }
+     }
+   recalcNormals( indexList, theVertices, normalList ); // Fixme, NIV14: only do this if there are no normals in the file
 	
-	ssgColourArray* cl = NULL ;
+   ssgColourArray* colours = NULL ;
   
-  if ( currentState -> isEnabled ( GL_LIGHTING ) )
-  {
-    if ( cl == NULL )
-    {
-      cl = new ssgColourArray ( 1 ) ;
-      cl -> add ( currentDiffuse ) ;
-    }
-  }
-
-	ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES,
-		theVertices, nl , theTC, cl, il ) ;
-	leaf -> setCullFace ( TRUE ) ;
-	leaf -> setState ( currentState ) ;
-
-	ssgEntity *model=	current_options -> createLeaf ( leaf, NULL)  ;
-	assert( model != NULL );
-	curr_branch_->addKid(model);
+   if ( currentState -> isEnabled ( GL_LIGHTING ) )
+     {
+	if ( colours == NULL )
+	  {
+	     colours = new ssgColourArray ( 1 ) ;
+	     colours -> add ( currentDiffuse ) ;
+	  }
+     }
+   
+   ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES, theVertices, normalList, theTextureCoordinates2, colours, indexList ) ;
+   leaf -> setCullFace ( TRUE ) ;
+   leaf -> setState ( currentState ) ;
+   
+   ssgEntity *model = current_options -> createLeaf ( leaf, NULL)  ;
+   assert( model != NULL );
+   curr_branch_->addKid(model);
 }
 
 
-void ssgLoaderWriterMesh::add2SSG(
-		class ssgSimpleState *currentState,// FixMe, kludge. NIV135
-		class ssgLoaderOptions* current_options,
-		class ssgBranch *curr_branch_)
-{ int i, j, k;
-  unsigned short oldVertexIndex, newVertexIndex;
-	class ssgIndexArray *thisFace;
-
+void ssgLoaderWriterMesh::addToSSG(
+				   class ssgSimpleState *currentState,// FixMe, kludge. NIV135
+				   class ssgLoaderOptions* current_options,
+				   class ssgBranch *curr_branch_ )
+{ 
+   int i, j, k;
+   unsigned short oldVertexIndex, newVertexIndex;
+   class ssgIndexArray *thisFace;
   
 #ifdef WRITE_MESH_TO_STDOUT	
 	if ( theMaterials == NULL )
@@ -738,112 +733,117 @@ void ssgLoaderWriterMesh::add2SSG(
 		{ fprintf(stdout, "%ld\n", (long)theMaterials->get(i));
 		}
 	}
-	if ( materialIndexes == NULL )
-		fprintf(stdout, "( materialIndexes == NULL )\n");
+	if ( materialIndices == NULL )
+		fprintf(stdout, "( materialIndices == NULL )\n");
 	else
 	{
-		fprintf(stdout, "%d Material Indexes:\n", materialIndexes->getNum());
-		for(i=0;i<materialIndexes->getNum();i++)
-		{ short s=*(materialIndexes->get(i));
+		fprintf(stdout, "%d Material Indexes:\n", materialIndices->getNum());
+		for(i=0;i<materialIndices->getNum();i++)
+		{ short s=*(materialIndices->get(i));
 			fprintf(stdout, "%ld\n", (long)s);
 		}
 	}
 #endif
-	if ( theMaterials == NULL )
-	{ if ( tCPFAV == NULL )
-		  AddOneNode2SSGFromCPV(theVertices, tCPV /* may be NULL */, theFaces, currentState, current_options, curr_branch_);
-		else
-			AddOneNode2SSGFromCPFAV(theVertices, tCPFAV, theFaces, currentState, 
-			                current_options, curr_branch_);
+   if ( theMaterials == NULL )
+	{ 
+	   if ( perFaceAndVertexTextureCoordinates2 == NULL )
+	     addOneNodeToSSGFromPerVertexTextureCoordinates2( theVertices, perVertexTextureCoordinates2 /* may be NULL */, theFaces, currentState, current_options, curr_branch_);
+	   else
+	     addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2(theVertices, perFaceAndVertexTextureCoordinates2, theFaces, currentState, 
+				     current_options, curr_branch_);
 	}
-	else
-	{	assert(theVertices!=NULL);
-		assert(theFaces!=NULL);
-		// FixMe: What about faces without state? They should have material -1
-		for(i=0;i<theMaterials->getNum();i++)
-		{	
-			// I often allocate too much; This is wastefull on memory, but fast since it never "resizes":
-			class ssgVertexArray *newVertices = new ssgVertexArray ( theVertices->getNum() );
-			class ssgListOfLists *newFaces = new ssgListOfLists ( theFaces->getNum() );
-			class ssgIndexArray *oldVertexInd2NewVertexInd = new ssgIndexArray ( theVertices->getNum() );
-		  class ssgListOfLists *newTCPFAV = NULL;
-			class ssgTexCoordArray *newTCPV = NULL;
-	
-			if ( tCPFAV != NULL )
-				newTCPFAV = new ssgListOfLists();
-			if ( tCPV != NULL )
-				newTCPV = new ssgTexCoordArray();
-
-			
-			for (j=0;j<theVertices->getNum();j++)
-				oldVertexInd2NewVertexInd->add ( short(0xFFFF) ); // 0xFFFF stands for "unused in new Mesh"
-
-			// Go through all the old Faces, look for the correct material and copy those
-			// faces and indexes into the new
-			// FixMe, 2do, NIV135: if the Materials just differ through the colour, one would not need
-			// several meshes, but could use the colour array. However, this is not possible,
-			// if they differ by for example the texture
-			assert(materialIndexes!=NULL);
-			for (j=0;j<theFaces->getNum();j++)
-				if ( i == *(materialIndexes->get(
-					       // for *.x-files, there may be less materialIndexes than faces. I then simply repeat 
-								 // the last index all the time:
-				 	            j<materialIndexes->getNum() ? j : materialIndexes->getNum()-1 )) 
+   else
+     {	
+	assert( theVertices != NULL );
+	assert( theFaces != NULL );
+	// FixMe: What about faces without state? They should have material -1
+	for( i=0; i < theMaterials->getNum(); i++ )
+	  {	
+	     // I often allocate too much; This is wastefull on memory, but fast since it never "resizes":
+	     class ssgVertexArray *newVertices = new ssgVertexArray ( theVertices->getNum() );
+	     class ssgListOfLists *newFaces = new ssgListOfLists ( theFaces->getNum() );
+	     class ssgIndexArray *oldVertexIndexToNewVertexIndex = new ssgIndexArray ( theVertices->getNum() ); 
+	     class ssgListOfLists *newPerFaceAndVertexTextureCoordinates2 = NULL;
+	     class ssgTexCoordArray *newPerVertexTextureCoordinates2 = NULL;
+	     
+	     if(  perFaceAndVertexTextureCoordinates2 != NULL )
+	       newPerFaceAndVertexTextureCoordinates2 = new ssgListOfLists();
+	     if ( perVertexTextureCoordinates2 != NULL )
+	       newPerVertexTextureCoordinates2 = new ssgTexCoordArray();
+	     
+	     for (j=0; j<theVertices->getNum(); j++)
+	       oldVertexIndexToNewVertexIndex->add ( short(0xFFFF) ); // 0xFFFF stands for "unused in new Mesh"
+	     
+	     // Go through all the old Faces, look for the correct material and copy those
+	     // faces and indexes into the new
+	     // FixMe, 2do, NIV135: if the Materials just differ through the colour, one would not need
+	     // several meshes, but could use the colour array. However, this is not possible,
+	     // if they differ by for example the texture
+	     assert( materialIndices != NULL );
+	     for ( j=0; j<theFaces->getNum(); j++ )
+	       if ( i == *(materialIndices->get(
+						// for *.x-files, there may be less materialIndices than faces. I then simply repeat 
+						// the last index all the time:
+						j<materialIndices->getNum() ? j : materialIndices->getNum()-1 )) 
 				 							)
-				{ 
-					// take this face
-					thisFace = *((class ssgIndexArray **) theFaces->get( j )); 
-					newFaces->add( (class ssgSimpleList **)&thisFace); 
-					//thisFace = *((class ssgIndexArray **) newFaces->get( newFaces->getNum()-1 )); 
-					
-					if ( tCPFAV != NULL )
-						newTCPFAV ->add ( tCPFAV -> get( j ) );
+		 { 
+		    // take this face
+		    thisFace = *((class ssgIndexArray **) theFaces->get( j )); 
+		    newFaces->add( (class ssgSimpleList **)&thisFace); 
+		    //thisFace = *((class ssgIndexArray **) newFaces->get( newFaces->getNum()-1 )); 
+		    
+		    if( perFaceAndVertexTextureCoordinates2 != NULL )
+		      newPerFaceAndVertexTextureCoordinates2 ->add( perFaceAndVertexTextureCoordinates2 -> get( j ) );
 					 
-					for(k=0;k<thisFace->getNum();k++)
-					{ oldVertexIndex = * thisFace->get(k);
-					  newVertexIndex = *oldVertexInd2NewVertexInd->get(oldVertexIndex);
-					  if ( 0xFFFF == newVertexIndex )
-						{ newVertexIndex = newVertices->getNum();
-						  newVertices->add ( theVertices->get(oldVertexIndex) );
-							if ( tCPV != NULL )
-								newTCPV -> add( tCPV->get(oldVertexIndex) );
-							oldVertexInd2NewVertexInd->set(newVertexIndex, oldVertexIndex);
-						}
-						// From here on the indexes in thisFace are only valid in relation to
-						// newVertices and newTCPV. Since this face will not be used for any 
-						// further material, this doesn't lead to problems.
-				    thisFace->set(newVertexIndex, k);
-					}	
-				}
+		    for( k=0; k < thisFace->getNum(); k++ )
+		      { 
+			 oldVertexIndex = * thisFace->get(k);
+			 newVertexIndex = *oldVertexIndexToNewVertexIndex->get( oldVertexIndex );
+
+			 if ( 0xFFFF == newVertexIndex )
+			   { 
+			      newVertexIndex = newVertices->getNum();
+			      newVertices->add( theVertices->get( oldVertexIndex ) );
+			      oldVertexIndexToNewVertexIndex->set( newVertexIndex, oldVertexIndex );
+			   }
+			 if ( perVertexTextureCoordinates2 != NULL )
+			   newPerVertexTextureCoordinates2 -> add( perVertexTextureCoordinates2->get( oldVertexIndex ) );
+			 // From here on the indexes in thisFace are only valid in relation to
+			 // newVertices and newtextureCoordinatePerVertex. Since this face will not be used for any 
+			 // further material, this doesn't lead to problems.
+			 thisFace->set( newVertexIndex, k );
+		      }	
+		 }
 #ifdef WRITE_MESH_TO_STDOUT	
-			fprintf(stdout, "NumVert: %d\n", newVertices->getNum());
-			for(j=0;j<newVertices->getNum();j++)
-			{ float *f=newVertices->get(j);
-			  fprintf(stdout, "%f, %f, %f\n",f[0], f[1], f[2]);
-			}
-			for(j=0;j<newFaces->getNum();j++)
+	     fprintf(stdout, "NumVert: %d\n", newVertices->getNum());
+	     for(j=0;j<newVertices->getNum();j++)
+	       { float *f=newVertices->get(j);
+		  fprintf(stdout, "%f, %f, %f\n",f[0], f[1], f[2]);
+	       }
+	     for(j=0;j<newFaces->getNum();j++)
 			{
-				thisFace = *((class ssgIndexArray **) newFaces->get( j )); 	
-				fprintf(stdout, "%d EP:", thisFace->getNum());
-				for(k=0;k<thisFace->getNum();k++)
-				{ oldVertexIndex = * thisFace->get(k);
-				  fprintf(stdout, "%d, ", oldVertexIndex);
-				}
-				fprintf(stdout, "\n");
+			   thisFace = *((class ssgIndexArray **) newFaces->get( j )); 	
+			   fprintf(stdout, "%d EP:", thisFace->getNum());
+			   for(k=0;k<thisFace->getNum();k++)
+			     {
+				oldVertexIndex = * thisFace->get(k);
+				fprintf(stdout, "%d, ", oldVertexIndex);
+			     }
+			   fprintf(stdout, "\n");
 			}
 #endif	
-			if ( newFaces->getNum() > 0 )
-			{
-				currentState = *theMaterials->get(i);
-				if ( tCPFAV == NULL )
-					// FixMe: tCPV-indices are not compatible to newVertices-indices?!?
-					AddOneNode2SSGFromCPV(newVertices, newTCPV /* may be NULL */, newFaces, currentState, current_options, curr_branch_);
-				else
-					AddOneNode2SSGFromCPFAV(newVertices, newTCPFAV, newFaces, currentState, 
-			                current_options, curr_branch_);
-			}
-		}
-	}
+	     if ( newFaces->getNum() > 0 )
+	       {
+		  currentState = *theMaterials->get(i);
+		  if ( perFaceAndVertexTextureCoordinates2 == NULL )
+		    // FixMe: textureCoordinatePerVertex-indices are not compatible to newVertices-indices?!?
+		    addOneNodeToSSGFromPerVertexTextureCoordinates2( newVertices, newPerVertexTextureCoordinates2 /* may be NULL */, newFaces, currentState, current_options, curr_branch_);
+		  else
+		    addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2(newVertices, newPerFaceAndVertexTextureCoordinates2, newFaces, currentState, 
+					    current_options, curr_branch_);
+	       }
+	  }
+     }
 }
 	
 int ssgLoaderWriterMesh::checkMe()
@@ -852,41 +852,42 @@ int ssgLoaderWriterMesh::checkMe()
 // and a bit of debug info as UL_DEBUG
 // May stop on first error.
 
-// FixMe; todo: tCPV and tCPFAV. NIV135
-{ int i, oneIndex;
-  class ssgIndexArray * vertexIndsForOneFace;
-	class ssgTexCoordArray * textureCoordsForOneFace;
+// FixMe; todo: textureCoordinatePerVertex and tCPFAV. NIV135
+{
+   int i, oneIndex;
+   class ssgIndexArray * vertexIndsForOneFace;
+   class ssgTexCoordArray * textureCoordsForOneFace;
 
   // **** check theVertices *****
 	if ( theVertices == NULL )
-	{ if (( materialIndexes == NULL ) &&
-				(theFaces == NULL ) &&
-				( tCPFAV == NULL ))
-		{	ulSetError( UL_DEBUG, "LoaderWriterMesh::checkMe(): The mesh is empty\n");
-			return TRUE;
-		}
-		else
-		{	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): No theVertices is NULL; but not the rest!\n");
-			return FALSE;
-		}
-
+	{ if (( materialIndices == NULL ) &&
+	      (theFaces == NULL ) &&
+	      ( perFaceAndVertexTextureCoordinates2 == NULL ))
+       {	ulSetError( UL_DEBUG, "LoaderWriterMesh::checkMe(): The mesh is empty\n");
+	  return TRUE;
+       }
+	   else
+	     {	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): No theVertices is NULL; but not the rest!\n");
+		return FALSE;
+	     }
+	   
 	}
-	// **** check materialIndexes and theMaterials *****
+	// **** check materialIndices and theMaterials *****
 	/* FixMe; kludge: 2do. NIV135
 	// one index per face:
-	class ssgIndexArray *materialIndexes; 
+	class ssgIndexArray *materialIndices; 
 
 	theMaterials
 	*/
-	if ((( theMaterials == NULL ) && ( materialIndexes != NULL )) ||
-		  (( theMaterials != NULL ) && ( materialIndexes == NULL )))
+	if ((( theMaterials == NULL ) && ( materialIndices != NULL )) ||
+		  (( theMaterials != NULL ) && ( materialIndices == NULL )))
 	{	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): "
-	                     "One of theMaterials and materialIndexes was NULL and the other != NULL!\n");
+	                     "One of theMaterials and materialIndices was NULL and the other != NULL!\n");
 		return FALSE;
 	}
-	if ( materialIndexes != NULL ) 
-	{ for (i=0;i<materialIndexes->getNum();i++)
-		{ oneIndex = *materialIndexes->get(i);
+	if ( materialIndices != NULL ) 
+	{ for (i=0;i<materialIndices->getNum();i++)
+		{ oneIndex = *materialIndices->get(i);
 			assert(theMaterials!=NULL);
 	    if (( oneIndex < 0 ) || ( oneIndex >= theMaterials->getNum()))
 			{	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): "
@@ -906,35 +907,39 @@ int ssgLoaderWriterMesh::checkMe()
 		return FALSE;
 	}
 	for(i=0;i<theFaces->getNum();i++)
-	{ vertexIndsForOneFace = *((ssgIndexArray **) theFaces->get ( i ));
-	  if ( vertexIndsForOneFace == NULL )
-		{	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): the vertexindexes for one face are NULL!\n");
-			return FALSE;
-		}
+	{
+	   vertexIndsForOneFace = *((ssgIndexArray **) theFaces->get ( i ));
+	   if ( vertexIndsForOneFace == NULL )
+	     {	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): the vertexindexes for one face are NULL!\n");
+		return FALSE;
+	     }
 	}
-	// **** check textureCoordinates *****
-  // Each sublist is of type ssgTexCoordArray and contains the texture coordinates
-	if ( tCPFAV != NULL ) // may be NULL
-	{ if ( theFaces->getNum() != tCPFAV->getNum())
+   // **** check textureCoordinates *****
+   // Each sublist is of type ssgTexCoordArray and contains the texture coordinates
+	if ( perFaceAndVertexTextureCoordinates2 != NULL ) // may be NULL
+	{ if ( theFaces->getNum() != perFaceAndVertexTextureCoordinates2->getNum())
 		{	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): "
 		              "There must be as many faces in theFaces as in textureCoordinates. But "
 		              "theFaces->getNum() =%d, tCPFAV->getNum() = %d!\n",
-									theFaces->getNum(), tCPFAV->getNum());
+									theFaces->getNum(), perFaceAndVertexTextureCoordinates2->getNum());
 			return FALSE;
 		}
-		for(i=0;i<tCPFAV->getNum();i++)
-		{ textureCoordsForOneFace = *((ssgTexCoordArray **) tCPFAV->get ( i ));
-			if ( textureCoordsForOneFace  != NULL ) // It is allowed that some or even all faces are untextured.
-			{ vertexIndsForOneFace = *((ssgIndexArray **) theFaces->get ( i ));
-			  if ( textureCoordsForOneFace->getNum() != vertexIndsForOneFace ->getNum())
-				{	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): Face %d: "
-											"Each face must have as many texture corrdinates (or none) as vertices. But "
-											"textureCoordsForOneFace->getNum() =%d, vertexIndsForOneFace ->getNum() = %d!\n",
-											i, textureCoordsForOneFace->getNum(), vertexIndsForOneFace ->getNum());
-					return FALSE;
-				}
-			}
+		for(i=0;i<perFaceAndVertexTextureCoordinates2->getNum();i++)
+		{
+		   textureCoordsForOneFace = *((ssgTexCoordArray **) perFaceAndVertexTextureCoordinates2->get ( i ));
+		   if ( textureCoordsForOneFace  != NULL ) // It is allowed that some or even all faces are untextured.
+		     {
+			vertexIndsForOneFace = *((ssgIndexArray **) theFaces->get ( i ));
+			if ( textureCoordsForOneFace->getNum() != vertexIndsForOneFace ->getNum())
+			  {
+			     ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): Face %d: "
+					 "Each face must have as many texture corrdinates (or none) as vertices. But "
+					 "textureCoordsForOneFace->getNum() =%d, vertexIndsForOneFace ->getNum() = %d!\n",
+					 i, textureCoordsForOneFace->getNum(), vertexIndsForOneFace ->getNum());
+			     return FALSE;
+			  }
+		     }
 		}
 	}
-	return TRUE; // success
+   return TRUE; // success
 }
