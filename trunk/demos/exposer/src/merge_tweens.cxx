@@ -37,8 +37,9 @@ int main ( int argc, char **argv )
   totalEvents =  0   ;
   totalTime   = 0.0f ;
 
+  int i ;
 
-  for ( int i = 1 ; i < argc ; i++ )
+  for ( i = 1 ; i < argc ; i++ )
   {
     FILE *fd = fopen ( argv[i], "ra" ) ;
 
@@ -94,7 +95,7 @@ int main ( int argc, char **argv )
 
   float nextTime = 0.0f ;
 
-  for ( int i = 1 ; i < argc ; i++ )
+  for ( i = 1 ; i < argc ; i++ )
   {
     FILE *fd = fopen ( argv[i], "ra" ) ;
 
