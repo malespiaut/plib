@@ -114,6 +114,14 @@ pslResult pslContext::step ()
       }
       return PSL_PROGRAM_CONTINUE ;
 
+    case OPCODE_STACK_DUPLICATE :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+        pushNumber ( v1 ) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
     case OPCODE_SUB :
       {
         pslValue *v1 = & stack [ sp - 1 ] ;

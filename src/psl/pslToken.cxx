@@ -151,6 +151,8 @@ void pslCompiler::getToken ( char *res, FILE *fd )
           case 'a' : res [ tp++ ] = '\a' ; break ;
           default: res [ tp++ ] =   c  ; break ;
         }
+
+        isBkSlash = FALSE ;
       }
       else
         res [ tp++ ] = c ;

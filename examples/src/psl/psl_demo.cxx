@@ -51,7 +51,6 @@ pslValue my_printf ( int argc, pslValue *argv, pslProgram *p )
       }
     }
   }
-  printf ( "\n" ) ;
 
   pslValue ret ;
   return ret ;
@@ -100,7 +99,7 @@ int main ()
   while ( 1 )
   {
     if ( prog_1 -> step () == PSL_PROGRAM_END ) break ;
-    if ( prog_2 -> step () == PSL_PROGRAM_END ) break ;
+//    if ( prog_2 -> step () == PSL_PROGRAM_END ) break ;
   }
 
   exit ( 0 ) ;

@@ -34,18 +34,16 @@ int pslCompiler::pushPrimitive ()
   {
     if ( ! pushExpression () )
     {
-      error ( "Missing expression after '('" ) ;
       ungetToken ( c ) ;
-      return FALSE ;
+      return error ( "Missing expression after '('" ) ;
     }
 
     getToken ( c ) ;
 
     if ( c [ 0 ] != ')' )
     {
-      error ( "Missing ')' (found '%s')", c );
       ungetToken ( c ) ;
-      return FALSE ;
+      return error ( "Missing ')' (found '%s')", c );
     }
 
     return TRUE ;

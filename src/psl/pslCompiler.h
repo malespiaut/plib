@@ -62,6 +62,7 @@ class pslCompiler
 
   /* Basic low level code generation.  */
 
+  void pushStackDup     () ;
   void pushPop          () ;
   void pushSubtract     () ;
   void pushAdd          () ;
@@ -107,6 +108,7 @@ class pslCompiler
 
   int  pushReturnStatement     () ;
   int  pushPauseStatement      () ;
+  int  pushSwitchStatement     () ;
   int  pushWhileStatement      () ;
   int  pushDoWhileStatement    () ;
   int  pushForStatement        () ;
@@ -117,9 +119,9 @@ class pslCompiler
   int  pushStatement           () ;
 
   int  pushFunctionDeclaration       ( const char *fn ) ;
-  int  pushLocalVariableDeclaration  ( pslType t ) ;
-  int  pushGlobalVariableDeclaration ( const char *fn, pslType t ) ;
-  int  pushStaticVariableDeclaration () ;
+  int  pushLocalVarDecl  ( pslType t ) ;
+  int  pushGlobalVarDecl ( const char *fn, pslType t ) ;
+  int  pushStaticVarDecl () ;
 
   int  pushGlobalDeclaration         () ;
   void pushProgram                   () ;
@@ -146,8 +148,8 @@ private:
 
   const char *getProgName () const { return progName ; }
 
-  void error   ( const char *fmt, ... ) ;
-  void warning ( const char *fmt, ... ) ;
+  int error   ( const char *fmt, ... ) ;
+  int warning ( const char *fmt, ... ) ;
 
   int next_var   ;
   int next_label ;
