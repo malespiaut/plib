@@ -466,7 +466,7 @@ int ulStrNEqual ( const char *s1, const char *s2, int len )
   offering.
 
   **** ATTENTION ****
-  WK: If you used strnicmp, make sure you realise the completely 
+  WK: If you used stricmp, make sure you realise the completely 
   changed meaning of the return value - 0 means not equal!
 */
 
