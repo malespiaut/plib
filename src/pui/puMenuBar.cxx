@@ -24,7 +24,6 @@ void puMenuBar::add_submenu ( const char *str, char *items[], puCallback cb[] )
   getSize ( &w, &h ) ;
 
   puOneShot    *b = new puOneShot ( w+10, 0, str ) ;
-fprintf ( stderr, "Created new oneshot '%s' @ %p\n", str, b ) ;
 
   b -> setStyle ( PUSTYLE_SPECIAL_UNDERLINED ) ;
   b -> setColourScheme ( colour[PUCOL_FOREGROUND][0],
