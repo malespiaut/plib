@@ -5,11 +5,20 @@ void ssgSimpleState::copy_from ( ssgSimpleState *src, int clone_flags )
 {
   ssgState::copy_from ( src, clone_flags ) ;
 
-  setTextureFilename ( src -> getTextureFilename () ) ;
+  ssgTexture *tex = src -> getTexture () ;
+
+  ssgDeRefDelete(texture); 
+  
+  if ( tex != NULL && ( clone_flags & SSG_CLONE_TEXTURE ) )
+    texture = (ssgTexture *)( tex -> clone ( clone_flags ) ) ;
+  else
+    texture = tex ;
+  
+  if (texture != NULL)  
+    texture->ref(); 
 
   dont_care      = src -> dont_care ;
   enables        = src -> enables   ;
-  texture_handle = src -> texture_handle ;
 
   colour_material_mode = src -> colour_material_mode ;
 
@@ -46,7 +55,7 @@ void _ssgForceLineState ()
 ssgSimpleState::ssgSimpleState ( int /* I_am_currstate */ )
 {
   type |= SSG_TYPE_SIMPLESTATE ;
-  filename  = NULL ;
+  texture  = NULL ;
   dont_care = 0xFFFFFFFF ;
   disable ( GL_TEXTURE_2D  ) ;
   enable  ( GL_CULL_FACE   ) ;
@@ -61,13 +70,13 @@ ssgSimpleState::ssgSimpleState (void)
 {
   type |= SSG_TYPE_SIMPLESTATE ;
 
-  filename  = NULL ;
+  texture  = NULL ;
   dont_care = 0xFFFFFFFF ;
 }
 
 ssgSimpleState::~ssgSimpleState (void)
 {
-  delete filename ;
+  ssgDeRefDelete ( texture ) ;
 }
 
 void ssgSimpleState::apply (void)
@@ -142,16 +151,16 @@ void ssgSimpleState::apply (void)
   }
 
   if ( ( ~ dont_care & (1<<SSG_GL_TEXTURE) ) && 
-    _ssgCurrentContext->getState()->texture_handle != texture_handle )
+    _ssgCurrentContext->getState()->getTexture() != getTexture() )
   {
     stats_bind_textures++ ;
 #ifdef GL_VERSION_1_1
-    glBindTexture ( GL_TEXTURE_2D, texture_handle ) ;
+    glBindTexture ( GL_TEXTURE_2D, getTextureHandle() ) ;
 #else
     /* For ancient SGI machines */
-    glBindTextureEXT ( GL_TEXTURE_2D, texture_handle ) ;
+    glBindTextureEXT ( GL_TEXTURE_2D, getTextureHandle() ) ;
 #endif
-    _ssgCurrentContext->getState()->texture_handle = texture_handle ;
+    _ssgCurrentContext->getState()->setTexture ( getTexture () ) ;
   }
 
   if ( ( ~ dont_care & (1<<SSG_GL_SHADE_MODEL) ) &&
@@ -227,12 +236,12 @@ void ssgSimpleState::force (void)
   {
     stats_bind_textures++ ;
 #ifdef GL_VERSION_1_1
-    glBindTexture ( GL_TEXTURE_2D, texture_handle ) ;
+    glBindTexture ( GL_TEXTURE_2D, getTextureHandle() ) ;
 #else
     /* For ancient SGI machines */
-    glBindTextureEXT ( GL_TEXTURE_2D, texture_handle ) ;
+    glBindTextureEXT ( GL_TEXTURE_2D, getTextureHandle() ) ;
 #endif
-    _ssgCurrentContext->getState()->texture_handle = texture_handle ;
+    _ssgCurrentContext->getState()->setTexture ( getTexture () ) ;
   }
 
   if ( ~ dont_care & (1<<SSG_GL_SHADE_MODEL ) )
@@ -369,14 +378,8 @@ void ssgSimpleState::enable  ( GLenum mode )
 
 int ssgSimpleState::load ( FILE *fd )
 {
-  delete filename ;
-	int    wrapu, wrapv ;
-
   _ssgReadInt   ( fd, & dont_care            ) ;
   _ssgReadInt   ( fd, & enables              ) ;
-  _ssgReadString( fd, & filename             ) ;
-  _ssgReadInt   ( fd, & wrapu                ) ;
-  _ssgReadInt   ( fd, & wrapv                ) ;
   _ssgReadInt   ( fd, & colour_material_mode ) ;
   _ssgReadVec4  ( fd, specular_colour        ) ;
   _ssgReadVec4  ( fd, emission_colour        ) ;
@@ -386,10 +389,31 @@ int ssgSimpleState::load ( FILE *fd )
   _ssgReadFloat ( fd, & shininess            ) ;
   _ssgReadFloat ( fd, & alpha_clamp          ) ;
 
-  if ( filename != NULL && filename[0] != '\0' )
-    setTexture ( filename, wrapu, wrapv ) ;
+  int key, t ;
+
+  _ssgReadInt ( fd, & t ) ;
+  if ( t == SSG_BACKWARDS_REFERENCE )
+  {
+    _ssgReadInt ( fd, & key ) ;
+    
+    if ( key == 0 )
+      setTexture  ( (ssgTexture*) NULL );  
+    else
+      setTexture  ( (ssgTexture*) _ssgGetFromList ( key ) );
+  }
   else
-    texture_handle = 0 ;
+    if ( t == ssgTypeTexture() )
+    {
+      setTexture  ( new ssgTexture ); 
+      
+      if ( ! texture -> load ( fd ) )
+        return FALSE ;
+    }
+    else
+    {
+      ulSetError ( UL_WARNING, "ssgSimpleState::load - Unrecognised ssgTexture type 0x%08x", t ) ;
+      texture = NULL ;
+    }
 
   return ssgState::load(fd) ;
 }
@@ -397,11 +421,12 @@ int ssgSimpleState::load ( FILE *fd )
 
 int ssgSimpleState::save ( FILE *fd )
 {
-  int    wrapu = TRUE /*getWrapU()*/, wrapv = TRUE /*getWrapV()*/; // FIXME, TODO
-
   _ssgWriteInt   ( fd, dont_care            ) ;
   _ssgWriteInt   ( fd, enables              ) ;
-#ifdef WRITE_SSG_VERSION_ZERO
+
+//NOTE: we don't store filenames in states anymore
+//#ifdef WRITE_SSG_VERSION_ZERO
+#if 0
 	// change *.?af filename into *?.bmp, for example catalina.3af into catalina3.bmp
 	if ( (filename != NULL) &&
 		   (strlen(filename) > 2) && 
@@ -420,11 +445,10 @@ int ssgSimpleState::save ( FILE *fd )
 	}
 	else
 		_ssgWriteString( fd, filename             ) ;
-#else
-  _ssgWriteString( fd, filename             ) ;
-#endif
   _ssgWriteInt   ( fd, wrapu                ) ;
   _ssgWriteInt   ( fd, wrapv                ) ;
+#endif
+
   _ssgWriteInt   ( fd, colour_material_mode ) ;
   _ssgWriteVec4  ( fd, specular_colour      ) ;
   _ssgWriteVec4  ( fd, emission_colour      ) ;
@@ -434,20 +458,26 @@ int ssgSimpleState::save ( FILE *fd )
   _ssgWriteFloat ( fd, shininess            ) ;
   _ssgWriteFloat ( fd, alpha_clamp          ) ;
 
-  return ssgState::save(fd) ;
-}
-
-void ssgSimpleState::setTextureFilename ( const char *fname )
-{
-  delete filename ;
-
-  if ( fname == NULL )
-    filename = NULL ;
-  else
+  if ( texture == NULL )
   {
-    filename = new char [ strlen(fname)+1 ] ;
-    strcpy ( filename, fname ) ;
+    _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
+    _ssgWriteInt ( fd, 0 ) ;
   }
+  else
+    if ( texture -> getSpare () > 0 )
+    {
+      _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
+      _ssgWriteInt ( fd, texture -> getSpare () ) ;
+    }
+    else
+    {
+      _ssgWriteInt ( fd, texture->getType() ) ;
+      
+      if ( ! texture -> save ( fd ) )
+        return FALSE ;
+    }
+    
+  return ssgState::save(fd) ;
 }
 
 /*
@@ -468,17 +498,7 @@ int    wrapu = TRUE, wrapv = TRUE ;
 }
 */
 
-void ssgSimpleState::setTexture ( char *fname, int _wrapu, int _wrapv,
-				  int _mipmap )
-{
-  mipmap = _mipmap ;
-  ssgTexture *tex = new ssgTexture ( fname, _wrapu, _wrapv, mipmap ) ;
-  setTexture ( tex ) ;
-  delete tex ;
-}
 
-
- 
 static void printStateString ( FILE *fd, unsigned int bits )
 {
   if ( bits & (1<<SSG_GL_TEXTURE_EN) ) fprintf ( fd, "TEXTURE2D " ) ;
@@ -504,9 +524,9 @@ void ssgSimpleState::print ( FILE *fd, char *indent, int how_much )
              printStateString ( fd, enables ) ;
              fprintf ( fd, "\n" ) ;
 
-  fprintf ( fd, "%s  TexHandle    = %d\n", indent, texture_handle ) ;
+  fprintf ( fd, "%s  TexHandle    = %d\n", indent, getTextureHandle() ) ;
   fprintf ( fd, "%s  TexFilename  = '%s'\n", indent,
-                           (filename==NULL) ? "<none>" : filename ) ;
+                           (getTextureFilename()==NULL) ? "<none>" : getTextureFilename() ) ;
   fprintf ( fd, "%s  Shade Model  = %d\n", indent, shade_model ) ;
   fprintf ( fd, "%s  Shininess    = %f\n", indent, shininess ) ;
   fprintf ( fd, "%s  AlphaClamp   = %f\n", indent, alpha_clamp ) ;

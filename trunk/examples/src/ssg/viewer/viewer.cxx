@@ -500,6 +500,12 @@ void pick_cb ( puObject * )
   ssgEntity *obj = ssgLoad ( (char*)fname ); //"test_Med.ase" ) ;
 
 #if 0
+  ssgSaveSSG ( "temp.ssg", obj ) ;
+  delete obj ;
+  obj = ssgLoadSSG ( "temp.ssg" ) ;
+#endif
+
+#if 0
   ssgSaveASE ( "data/temp.ase", obj ) ;
   delete obj ;
   obj = ssgLoadASE ( "temp.ase" ) ;

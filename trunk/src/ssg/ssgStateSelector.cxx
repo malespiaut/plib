@@ -197,16 +197,6 @@ char *ssgStateSelector::getTextureFilename (void)
     return s -> getTextureFilename();
 }
 
-void ssgStateSelector::setTextureFilename ( char *fname )  
-{
-  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
-
-  if ( s == this )
-    ssgSimpleState::setTextureFilename ( fname ) ;
-  else
-    s -> setTextureFilename ( fname ) ;
-}
-
 GLuint ssgStateSelector::getTextureHandle (void)  
 {
   ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
@@ -227,14 +217,32 @@ void ssgStateSelector::setTexture ( ssgTexture *tex )
     s -> setTexture(tex) ;
 }
 
+void ssgStateSelector::setTextureFilename ( char *fname )  
+{
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  ssgTexture* texture ;
+  if ( s == this )
+    texture = ssgSimpleState::getTexture () ;
+  else
+    texture = s -> getTexture () ;
+
+  if ( texture != NULL )
+    texture -> setFilename ( fname ) ;
+}
+
 void ssgStateSelector::setTexture ( GLuint tex )
 {
   ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
 
+  ssgTexture* texture ;
   if ( s == this )
-    ssgSimpleState::setTexture(tex) ;
+    texture = ssgSimpleState::getTexture () ;
   else
-    s -> setTexture(tex) ;
+    texture = s -> getTexture () ;
+  
+  if ( texture != NULL )
+    texture -> setHandle (tex) ;
 }
 
 void ssgStateSelector::setColourMaterial(GLenum which)
