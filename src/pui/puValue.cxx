@@ -132,7 +132,7 @@ void puValue::copy_stringval ( const char *str )
     if ( new_size != string_size )
     /* If the array size has changed, allocate a new array */
     {
-      delete string ;
+      delete [] string ;
       string = new char [ new_size ] ;
       string_size = new_size ;
     }
