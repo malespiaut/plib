@@ -282,6 +282,10 @@ SOURCE=.\ssgLoadX.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadXPlaneObj.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLocal.h
 # End Source File
 # Begin Source File
