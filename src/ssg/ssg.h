@@ -2339,7 +2339,6 @@ int        ssgSaveQHI  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSave3ds  ( const char *fname, ssgEntity *ent ) ;
 
 ssgEntity *ssgLoad     ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
-ssgEntity *ssgLoadVRML ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoad3ds  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadAC3D ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadSSG  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;

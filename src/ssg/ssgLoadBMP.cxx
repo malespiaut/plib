@@ -1,10 +1,6 @@
 
 #include "ssgLocal.h"
 
-#ifdef SSG_LOAD_MDL_SUPPORTED
-#include "ssgMSFSPalette.h"
-#endif
-
 #ifdef SSG_LOAD_BMP_SUPPORTED
 
 static FILE          *curr_image_fd ;
@@ -302,65 +298,6 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
 {
   ulSetError ( UL_WARNING,
     "ssgLoadTexture: '%s' - BMP support not configured", fname ) ;
-  return false ;
-}
-
-#endif
-
-#ifdef SSG_LOAD_MDL_SUPPORTED
-
-// This really simple (raw paletted) format is used by older MSFS for textures
-bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
-{
-  FILE *tfile;
-  if ( (tfile = fopen(fname, "rb")) == NULL) {
-    ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname );
-    return false ;
-  }
-  
-  fseek(tfile, 0, SEEK_END);
-  unsigned long file_length = ftell(tfile);
-  
-  if (file_length != 65536) {
-    // this is not a MSFS-formatted texture, so it's probably a BMP
-    fclose(tfile);
-    return ssgLoadBMP( fname, info );
-  } else {
-    fseek(tfile, 0, SEEK_SET);
-    
-    unsigned char *texels = new unsigned char[256 * 256 * 4];
-    int c = 0;
-    for (int y = 0; y < 256; y++) {
-      for (int x = 0; x < 256; x++) {
-        unsigned char b;
-        fread(&b, 1, 1, tfile);
-        texels[c++] = fsTexPalette[b*4    ];
-        texels[c++] = fsTexPalette[b*4 + 1];
-        texels[c++] = fsTexPalette[b*4 + 2];
-        texels[c++] = fsTexPalette[b*4 + 3];
-      }
-    }
-    
-    fclose(tfile);
-    
-    if ( info != NULL )
-    {
-      info -> width = 256 ;
-      info -> height = 256 ;
-      info -> depth = 4 ;
-      info -> alpha = FALSE ;  //??
-    }
-    
-    return ssgMakeMipMaps ( texels, 256, 256, 4 ) ;
-  }
-}
-
-#else
-
-bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
-{
-  ulSetError ( UL_WARNING,
-    "ssgLoadTexture: '%s' - MDL support not configured", fname ) ;
   return false ;
 }
 

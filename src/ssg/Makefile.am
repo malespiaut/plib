@@ -10,11 +10,11 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgStats.cxx  ssgTexTrans.cxx ssgTexture.cxx ssgTransform.cxx \
 	ssgStateSelector.cxx ssgRangeSelector.cxx ssgLoadTexture.cxx \
   ssgLoadBMP.cxx ssgLoadSGI.cxx ssgLoadPNG.cxx ssgLoadTGA.cxx \
-        ssgInvisible.cxx ssgLoadSSG.cxx ssgLoadVRML.cxx ssgVTable.cxx \
-        ssgSimpleList.cxx ssgVtxTable.cxx ssgIO.cxx ssgLoad3ds.cxx \
-        ssgSaveASE.cxx ssgLoadASE.cxx ssgParser.cxx ssgParser.h \
-        ssgLoadDXF.cxx ssgSaveDXF.cxx ssgLoadTRI.cxx ssgSaveTRI.cxx \
-        ssgLoadOBJ.cxx ssgSaveOBJ.cxx ssgVtxArray.cxx ssgLoadMD2.cxx \
+  ssgInvisible.cxx ssgLoadSSG.cxx ssgVTable.cxx \
+  ssgSimpleList.cxx ssgVtxTable.cxx ssgIO.cxx ssgLoad3ds.cxx \
+  ssgSaveASE.cxx ssgLoadASE.cxx ssgParser.cxx ssgParser.h \
+  ssgLoadDXF.cxx ssgSaveDXF.cxx ssgLoadTRI.cxx ssgSaveTRI.cxx \
+  ssgLoadOBJ.cxx ssgSaveOBJ.cxx ssgVtxArray.cxx ssgLoadMD2.cxx \
 	ssgLoadMDL.cxx ssgLoadX.cxx ssgSaveX.cxx ssgLoaderWriterStuff.cxx \
 	ssgLoadFLT.cxx ssgLoadM.cxx ssgSaveM.cxx ssgLoadStrip.cxx \
 	ssgLoadOFF.cxx ssgSaveOFF.cxx ssgSaveQHI.cxx \

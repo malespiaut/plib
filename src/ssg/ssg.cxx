@@ -101,16 +101,15 @@ void ssgInit ()
 
   new ssgContext ;  /* Sets the current context with defaults */
 
+  ssgAddModelFormat ( ".ssg",   ssgLoadSSG  , ssgSaveSSG ) ;
+
   ssgAddModelFormat ( ".3ds",   ssgLoad3ds  , ssgSave3ds ) ;
   ssgAddModelFormat ( ".ac" ,   ssgLoadAC3D , ssgSaveAC  ) ;
   ssgAddModelFormat ( ".ase",   ssgLoadASE  , ssgSaveASE ) ;
   ssgAddModelFormat ( ".dxf",   ssgLoadDXF  , ssgSaveDXF ) ;
   ssgAddModelFormat ( ".obj",   ssgLoadOBJ  , ssgSaveOBJ ) ;
-  ssgAddModelFormat ( ".ssg",   ssgLoadSSG  , ssgSaveSSG ) ;
   ssgAddModelFormat ( ".tri",   ssgLoadTRI  , ssgSaveTRI ) ;
-  ssgAddModelFormat ( ".wrl",   ssgLoadVRML , NULL       ) ;
   ssgAddModelFormat ( ".md2",   ssgLoadMD2  , NULL       ) ;
-  ssgAddModelFormat ( ".mdl",   ssgLoadMDL  , NULL       ) ;
   ssgAddModelFormat ( ".x"  ,   ssgLoadX    , ssgSaveX   ) ;
   ssgAddModelFormat ( ".flt",   ssgLoadFLT  , NULL       ) ;
   ssgAddModelFormat ( ".strip", ssgLoadStrip, NULL       ) ;
@@ -118,14 +117,32 @@ void ssgInit ()
   ssgAddModelFormat ( ".off"  , ssgLoadOFF  , ssgSaveOFF ) ;
   ssgAddModelFormat ( ".qhi"  , NULL        , ssgSaveQHI ) ;
 
+
+#ifdef SSG_LOAD_MDL_SUPPORTED
+  ssgAddModelFormat ( ".mdl",   ssgLoadMDL  , NULL       ) ;
+#endif
+
+#ifdef SSG_LOAD_TGA_SUPPORTED
   ssgAddTextureFormat ( ".tga" ,   ssgLoadTGA ) ;
+#endif
+
+#ifdef SSG_LOAD_BMP_SUPPORTED
   ssgAddTextureFormat ( ".bmp" ,   ssgLoadBMP ) ;
+#endif
+
+#ifdef SSG_LOAD_PNG_SUPPORTED
   ssgAddTextureFormat ( ".png" ,   ssgLoadPNG ) ;
+#endif
+
+#ifdef SSG_LOAD_SGI_SUPPORTED
   ssgAddTextureFormat ( ".rgb" ,   ssgLoadSGI ) ;
   ssgAddTextureFormat ( ".rgba" ,  ssgLoadSGI ) ;
   ssgAddTextureFormat ( ".int" ,   ssgLoadSGI ) ;
   ssgAddTextureFormat ( ".inta" ,  ssgLoadSGI ) ;
   ssgAddTextureFormat ( ".bw" ,    ssgLoadSGI ) ;
+#endif
+
+#ifdef SSG_LOAD_MDL_SUPPORTED
   ssgAddTextureFormat ( ".0af" ,   ssgLoadMDLTexture ) ;
   ssgAddTextureFormat ( ".1af" ,   ssgLoadMDLTexture ) ;
   ssgAddTextureFormat ( ".2af" ,   ssgLoadMDLTexture ) ;
@@ -147,6 +164,8 @@ void ssgInit ()
   ssgAddTextureFormat ( ".iaf" ,   ssgLoadMDLTexture ) ;
   ssgAddTextureFormat ( ".jaf" ,   ssgLoadMDLTexture ) ;
   ssgAddTextureFormat ( ".kaf" ,   ssgLoadMDLTexture ) ;
+#endif
+
 }
 
 

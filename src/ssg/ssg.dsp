@@ -242,10 +242,6 @@ SOURCE=.\ssgLoadTRI.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgLoadVRML.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\ssgLoadX.cxx
 # End Source File
 # Begin Source File
