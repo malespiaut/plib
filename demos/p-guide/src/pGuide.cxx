@@ -20,6 +20,10 @@
      $Id$
 */
 
+#ifdef VERSION
+#undef VERSION
+#endif
+
 #define VERSION = "0.1a"
 
 // Program to allow the user to build a PUI Graphical User Interface
@@ -33,14 +37,14 @@ int max_layer = 1 ;
 
 puObject *active_object = (puObject *)NULL ;
 WidgetList *active_widget = (WidgetList *)NULL ;
-short activity_flag = 0 ;  // 0 - inactive; 1 - moving; 2 - resizing xmin, 3 - resizing ymin, 4 - resizing xmax, 5 - resizing ymax
-int resize_symmetric = 1 ;
-int resize_corner = 0 ;
+static short activity_flag = 0 ;  // 0 - inactive; 1 - moving; 2 - resizing xmin, 3 - resizing ymin, 4 - resizing xmax, 5 - resizing ymax
+static int resize_symmetric = 1 ;
+static int resize_corner = 0 ;
 
-int mouse_x_position_in_object = 0 ;
-int mouse_y_position_in_object = 0 ;
+static int mouse_x_position_in_object = 0 ;
+static int mouse_y_position_in_object = 0 ;
 
-int pguide_last_buttons = 0 ; // Because puMouse isn't called, we have to do our own last_buttons checking
+static int pguide_last_buttons = 0 ; // Because puMouse isn't called, we have to do our own last_buttons checking
 
 // Main window parameters
 int main_window = 0 ;  // Main window handle
@@ -53,7 +57,7 @@ float main_window_color_r = 1.0, main_window_color_g = 1.0,
       main_window_color_b = 1.0, main_window_color_a = 1.0 ;
 
 bool main_window_changed = false ;
-bool done_first_setup = false ;
+static bool done_first_setup = false ;
 bool currently_loading = false ;
 
 static int ctrl_key_down = 0 ;
@@ -70,7 +74,7 @@ int widget_number = 0 ;
 bool autolock = false ;
 
 // Properties popup
-puPopupMenu *context_menu;
+static puPopupMenu *context_menu;
 
 // From the status window:
 extern void setStatusWidgets ( WidgetList *wid ) ;
@@ -80,7 +84,7 @@ extern int properties_window;
 
 // Properties Callback
 
-void cb_edit_properties ( puObject *ob )
+static void cb_edit_properties ( puObject *ob )
 {
     if (properties_window)
     {
@@ -96,7 +100,7 @@ void cb_edit_properties ( puObject *ob )
     define_properties_window();
 }
 
-void cb_lock_toggle ( puObject *ob )
+static void cb_lock_toggle ( puObject *ob )
 {
   WidgetList *wid = widgets ;
   while ( wid )
@@ -112,7 +116,7 @@ void cb_lock_toggle ( puObject *ob )
   }
 }
 
-void cb_popup_delete ( puObject *ob )
+static void cb_popup_delete ( puObject *ob )
 {
   WidgetList *wid = widgets ;
   WidgetList *prv = (WidgetList *)NULL ;
@@ -460,7 +464,7 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
           } else {
               context_menu->hide();
           }
-      } else /*if ( context_menu->isVisible() == 1) { context_menu->hide(); } /* The user did something funny, so hide the menu since they've been naughty */
+      } else /*if ( context_menu->isVisible() == 1) { context_menu->hide(); } * The user did something funny, so hide the menu since they've been naughty */
       {
       // Downclick:  Place a new widget, activate an existing widget, deactivate widget, or select from menu.
       if ( updown == GLUT_DOWN )

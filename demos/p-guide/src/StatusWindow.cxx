@@ -52,19 +52,19 @@ puInput *object_size_y ;
 puInput *object_position_x ;
 puInput *object_position_y ;
 
-puInput *object_label ;
-puComboBox *object_vert_label_place ;
-puComboBox *object_horz_label_place ;
-puInput *object_legend ;
-puComboBox *object_vert_legend_place ;
-puComboBox *object_horz_legend_place ;
+static puInput *object_label ;
+static puComboBox *object_vert_label_place ;
+static puComboBox *object_horz_label_place ;
+static puInput *object_legend ;
+static puComboBox *object_vert_legend_place ;
+static puComboBox *object_horz_legend_place ;
 
-puInput *object_name ;
-puButtonBox *object_callbacks ;
+static puInput *object_name ;
+static puButtonBox *object_callbacks ;
 
-puButtonBox *object_visible ;
-puOneShot *reveal_all_objects ;
-puInput *object_layer ;
+static puButtonBox *object_visible ;
+static puOneShot *reveal_all_objects ;
+static puInput *object_layer ;
 
 puInput *window_name ;
 puInput *window_size_x ;
@@ -72,31 +72,31 @@ puInput *window_size_y ;
 puInput *window_position_x ;
 puInput *window_position_y ;
 
-puText *window_color_label ;
+static puText *window_color_label ;
 puSpinBox *window_color_r ;
 puSpinBox *window_color_g ;
 puSpinBox *window_color_b ;
 puSpinBox *window_color_a ;
 
-puButtonBox *autolock_toggle ;
+static puButtonBox *autolock_toggle ;
 
-puDialogBox *dialog = (puDialogBox *)NULL ;
-puInput *newname = (puInput *)NULL ;
+static puDialogBox *dialog = (puDialogBox *)NULL ;
+static puInput *newname = (puInput *)NULL ;
 
-puMenuBar *menubar ;
+static puMenuBar *menubar ;
 
 // Saving Window Parameters
 
 puFileSelector *file_selector ;
 
-int write_window = 0 ;
+static int write_window = 0 ;
 
 // Extra needed prototyping
-void dupname_ok_cb ( puObject *ob ) ;
+static void dupname_ok_cb ( puObject *ob ) ;
 
 // Function to set the widgets from the active object
 
-void setHorizontalPlaceWidget ( puComboBox *ob, int place )
+static void setHorizontalPlaceWidget ( puComboBox *ob, int place )
 {
   switch ( place )
   {
@@ -120,7 +120,7 @@ void setHorizontalPlaceWidget ( puComboBox *ob, int place )
   }
 }
 
-void setVerticalPlaceWidget ( puComboBox *ob, int place )
+static void setVerticalPlaceWidget ( puComboBox *ob, int place )
 {
   switch ( place )
   {
@@ -280,14 +280,14 @@ extern void saveProject ( puObject *ob ) ;
 
 extern void loadProject ( puObject *ob ) ;
 
-void write_window_reshapefn ( int w, int h )
+static void write_window_reshapefn ( int w, int h )
 {
   file_selector->setSize ( w, h ) ;
 }
 
 // Clear Objects callbacks
 
-void window_wiper ( puObject *ob )
+static void window_wiper ( puObject *ob )
 {
 
   // Prepare to clear the properties window 
@@ -340,7 +340,7 @@ void window_wiper ( puObject *ob )
   setStatusWidgets ( active_widget ) ;
 }
 
-void write_code_cb ( puObject *ob )
+static void write_code_cb ( puObject *ob )
 {
   int w = 320, h = 270 ;
   if ( write_window )
@@ -372,7 +372,7 @@ void write_code_cb ( puObject *ob )
   file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
 }
 
-void saveProject_cb ( puObject *ob )
+static void saveProject_cb ( puObject *ob )
 {
   int w = 320, h = 270 ;
   if ( write_window )
@@ -405,7 +405,7 @@ void saveProject_cb ( puObject *ob )
   file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
 }
 
-void loadProject_ok_cb ( puObject *ob )
+static void loadProject_ok_cb ( puObject *ob )
 {
   puDeleteObject ( dialog ) ;  // Delete the dialog box
   dialog = (puDialogBox *)NULL ;
@@ -443,14 +443,14 @@ void loadProject_ok_cb ( puObject *ob )
   file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
 }
 
-void clear_ok_cb ( puObject *ob )
+static void clear_ok_cb ( puObject *ob )
 {
   window_wiper( ob );
   puDeleteObject ( dialog ) ;  // Delete the dialog box
   dialog = (puDialogBox *)NULL ;
 }
 
-void cancel_cb ( puObject *ob )
+static void cancel_cb ( puObject *ob )
 {
   // Don't do whatever you were planning to do (clear the widget list or quit)
   // but do delete the dialog box.
@@ -458,7 +458,7 @@ void cancel_cb ( puObject *ob )
   dialog = (puDialogBox *)NULL ;
 }
 
-void clear_cb ( puObject *ob )
+static void clear_cb ( puObject *ob )
 {
   if ( main_window_changed )
   {
@@ -477,7 +477,7 @@ void clear_cb ( puObject *ob )
     clear_ok_cb ( (puObject *)NULL ) ;
 }
 
-void loadProject_cb ( puObject *ob )
+static void loadProject_cb ( puObject *ob )
 {
   if ( main_window_changed )
   {
@@ -496,12 +496,12 @@ void loadProject_cb ( puObject *ob )
     loadProject_ok_cb ( (puObject *)NULL ) ;
 }
 
-void quit_ok_cb ( puObject *ob )
+static void quit_ok_cb ( puObject *ob )
 {
   exit ( 0 ) ;
 }
 
-void quit_cb ( puObject *ob )
+static void quit_cb ( puObject *ob )
 {
   if ( main_window_changed )
   {
@@ -520,7 +520,7 @@ void quit_cb ( puObject *ob )
     quit_ok_cb ( (puObject *)NULL ) ;
 }
 
-void object_size_cb ( puObject *ob )
+static void object_size_cb ( puObject *ob )
 {
   if ( active_object )
   {
@@ -543,7 +543,7 @@ void object_size_cb ( puObject *ob )
   }
 }
 
-void object_position_cb ( puObject *ob )
+static void object_position_cb ( puObject *ob )
 {
   if ( active_object )
   {
@@ -559,7 +559,7 @@ void object_position_cb ( puObject *ob )
   }
 }
 
-void window_size_cb ( puObject *ob )
+static void window_size_cb ( puObject *ob )
 {
   extern int main_window_width  ;
   extern int main_window_height ;
@@ -578,7 +578,7 @@ void window_size_cb ( puObject *ob )
   glutSetWindow ( status_window ) ;
 }
 
-void window_name_cb ( puObject *ob )
+static void window_name_cb ( puObject *ob )
 {
   extern int main_window ;
 
@@ -588,7 +588,7 @@ void window_name_cb ( puObject *ob )
   glutSetWindow ( status_window ) ;
 }
 
-void label_cb ( puObject *ob )
+static void label_cb ( puObject *ob )
 {
   //if ( active_widget )
   //{
@@ -600,7 +600,7 @@ void label_cb ( puObject *ob )
   //}
 }
 
-void label_place_cb ( puObject *ob )
+static void label_place_cb ( puObject *ob )
 {
   if ( active_object )
   {
@@ -682,7 +682,7 @@ void label_place_cb ( puObject *ob )
   }
 }
 
-void legend_cb ( puObject *ob )
+static void legend_cb ( puObject *ob )
 {
   if ( active_widget )
   {
@@ -693,7 +693,7 @@ void legend_cb ( puObject *ob )
   }
 }
 
-void legend_place_cb ( puObject *ob )
+static void legend_place_cb ( puObject *ob )
 {
   if ( active_object )
   {
@@ -768,7 +768,7 @@ void legend_place_cb ( puObject *ob )
   }
 }
 
-void name_cb ( puObject *ob )
+static void name_cb ( puObject *ob )
 {
   if ( active_widget )
   {
@@ -814,7 +814,7 @@ void name_cb ( puObject *ob )
   }
 }
 
-void dupname_ok_cb ( puObject *ob )
+static void dupname_ok_cb ( puObject *ob )
 {
   /* The user's new name from the dialog has already been set to the object_name*/
   /* Close dialogbox and update main window ...*/
@@ -826,12 +826,12 @@ void dupname_ok_cb ( puObject *ob )
   name_cb(ob);
 }
 
-void callback_cb ( puObject *ob )
+static void callback_cb ( puObject *ob )
 {
   if ( active_widget ) active_widget->callbacks = ob->getIntegerValue () ;
 }
 
-void reveal_all_cb ( puObject *ob )
+static void reveal_all_cb ( puObject *ob )
 {
   extern WidgetList *widgets ;
   WidgetList *wid = widgets ;
@@ -842,12 +842,12 @@ void reveal_all_cb ( puObject *ob )
   }
 }
 
-void visible_cb ( puObject *ob )
+static void visible_cb ( puObject *ob )
 {
   if ( active_widget ) active_widget->visible = ( ob->getIntegerValue () != 0 ) ;
 }
 
-void layer_cb ( puObject *ob )
+static void layer_cb ( puObject *ob )
 {
   if ( ob->getIntegerValue () < 0 ) ob->setValue ( 0 ) ;
   if ( active_widget )
@@ -857,7 +857,7 @@ void layer_cb ( puObject *ob )
   }
 }
 
-void autolock_cb ( puObject *ob )
+static void autolock_cb ( puObject *ob )
 {
     if ( ob->getIntegerValue () == 1 )
         autolock = true ;
@@ -867,8 +867,8 @@ void autolock_cb ( puObject *ob )
 
 // Setup Menubar
 
-char      *file_submenu    [] = {  "Exit", "------------", "Export Code", "------------", "Save Project", "Load Project", "New Project", NULL } ;
-puCallback file_submenu_cb [] = { quit_cb, NULL, write_code_cb, NULL, saveProject_cb, loadProject_cb, clear_cb, NULL } ;
+static char      *file_submenu    [] = {  "Exit", "------------", "Export Code", "------------", "Save Project", "Load Project", "New Project", NULL } ;
+static puCallback file_submenu_cb [] = { quit_cb, NULL, write_code_cb, NULL, saveProject_cb, loadProject_cb, clear_cb, NULL } ;
 
 // Function to define the window
 

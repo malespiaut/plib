@@ -34,7 +34,7 @@ char *selected_type_string ;
 puButton *active_button = (puButton *)NULL ;
 
 // Widget window parameters
-int widget_window = 0 ;  // Window handle
+static int widget_window = 0 ;  // Window handle
 
 // GLUT Widget Window Callbacks
 
@@ -99,7 +99,7 @@ static void widget_window_displayfn ( void )
 
 // PUI Callback Functions:
 
-void frame_cb ( puObject *ob )
+static void frame_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_FRAME ;
@@ -107,7 +107,7 @@ void frame_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void text_cb ( puObject *ob )
+static void text_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_TEXT ;
@@ -115,7 +115,7 @@ void text_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void menu_bar_cb ( puObject *ob )
+static void menu_bar_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_MENUBAR ;
@@ -123,7 +123,7 @@ void menu_bar_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void vertical_menu_cb ( puObject *ob )
+static void vertical_menu_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_VERTMENU ;
@@ -131,7 +131,7 @@ void vertical_menu_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void input_cb ( puObject *ob )
+static void input_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_INPUT ;
@@ -139,7 +139,7 @@ void input_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void large_input_cb ( puObject *ob )
+static void large_input_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_LARGEINPUT ;
@@ -147,7 +147,7 @@ void large_input_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void select_box_cb ( puObject *ob )
+static void select_box_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_SELECTBOX ;
@@ -155,7 +155,7 @@ void select_box_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void file_selector_cb ( puObject *ob )
+static void file_selector_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_FILESELECTOR ;
@@ -163,7 +163,7 @@ void file_selector_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void list_box_cb ( puObject *ob )
+static void list_box_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_LISTBOX ;
@@ -173,7 +173,7 @@ void list_box_cb ( puObject *ob )
 
 
 
-void button_cb ( puObject *ob )
+static void button_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_BUTTON ;
@@ -181,7 +181,7 @@ void button_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void one_shot_cb ( puObject *ob )
+static void one_shot_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_ONESHOT ;
@@ -189,7 +189,7 @@ void one_shot_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void arrow_button_cb ( puObject *ob )
+static void arrow_button_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_ARROW ;
@@ -197,7 +197,7 @@ void arrow_button_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void button_box_cb ( puObject *ob )
+static void button_box_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_BUTTONBOX ;
@@ -205,7 +205,7 @@ void button_box_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void combo_box_cb ( puObject *ob )
+static void combo_box_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_COMBOBOX ;
@@ -215,7 +215,7 @@ void combo_box_cb ( puObject *ob )
 
 
 
-void dial_cb ( puObject *ob )
+static void dial_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_DIAL ;
@@ -223,7 +223,7 @@ void dial_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void slider_cb ( puObject *ob )
+static void slider_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_SLIDER ;
@@ -231,7 +231,7 @@ void slider_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void bislider_cb ( puObject *ob )
+static void bislider_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_BISLIDER ;
@@ -239,7 +239,7 @@ void bislider_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void trislider_cb ( puObject *ob )
+static void trislider_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_TRISLIDER ;
@@ -247,7 +247,7 @@ void trislider_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-void spinbox_cb ( puObject *ob )
+static void spinbox_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
   selected_object_type = PUCLASS_SPINBOX ;
