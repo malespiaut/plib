@@ -863,7 +863,10 @@ static int parse_oneunit( unsigned int length ) {
 #ifdef DEBUG
   float oneunit = get_float();
   DEBUGPRINT("%sOne unit: %.3f%s%s\n", oneunit, "", "");
+#else
+  get_float() ;
 #endif
+
   return PARSE_OK;
 }
 
@@ -953,6 +956,7 @@ ssgEntity *ssgLoad3ds( const char *filename, ssgHookFunc hookfunc ) {
 
   if ( model == NULL ) {
     ulSetError(UL_WARNING, "ssgLoad3ds: Failed to open '%s' for reading\n", filepath ) ;
+
     return NULL ;
   }
 
@@ -978,3 +982,5 @@ ssgEntity *ssgLoad3ds( const char *filename, ssgHookFunc hookfunc ) {
 
   return top_object; 
 }
+
+
