@@ -320,7 +320,7 @@ void puGroup::setChildStyle ( int childs, int style, int recursive = FALSE )
         curr_obj = curr_obj->getNextObject () )
   {
     if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
-      ((puGroup*)curr_obj)->setChildStyle ( childs, style ) ;
+      ((puGroup*)curr_obj)->setChildStyle ( childs, style, TRUE ) ;
     else
     {
       if ( curr_obj->getType () & childs )
@@ -338,7 +338,7 @@ void puGroup::setChildBorderThickness ( int childs, int t, int recursive = FALSE
         curr_obj = curr_obj->getNextObject () )
   {
     if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
-      ((puGroup*)curr_obj)->setChildBorderThickness ( childs, t ) ;
+      ((puGroup*)curr_obj)->setChildBorderThickness ( childs, t, TRUE ) ;
     else
     {
       if ( curr_obj->getType () & childs )
@@ -356,7 +356,7 @@ void puGroup::setChildColour ( int childs, int which, float r, float g, float b,
         curr_obj = curr_obj->getNextObject () )
   {
     if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
-      ((puGroup*)curr_obj)->setChildColour ( childs, which, r, g, b, a ) ;
+      ((puGroup*)curr_obj)->setChildColour ( childs, which, r, g, b, a, TRUE ) ;
     else
     {
       if ( curr_obj->getType () & childs )
@@ -374,7 +374,7 @@ void puGroup::setChildColourScheme ( int childs, float r, float g, float b, floa
         curr_obj = curr_obj->getNextObject () )
   {
     if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
-      ((puGroup*)curr_obj)->setChildColourScheme ( childs, r, g, b, a ) ;
+      ((puGroup*)curr_obj)->setChildColourScheme ( childs, r, g, b, a, TRUE ) ;
     else
     {
       if ( curr_obj->getType () & childs )
