@@ -1,7 +1,7 @@
 
-These antialiased '.txf' fonts were generated from postscript fonts by
-Andy Ross using his afm2txf script which can be found in the 'tools'
-area of PLIB.
+These antialiased '.txf' fonts were generated from Ghostscript fonts
+(published under the terms of the GPL) by Andy Ross using his afm2txf
+script which can be found in the 'tools' area of PLIB.
 
 
 Things that make them better than existing fonts are (quoted from Andy):
