@@ -1586,7 +1586,7 @@ void sgReflectInPlaneVec3 ( sgVec3 dst, const sgVec3 src, const sgVec4 plane )
 
 int sgClassifyMat4 ( const sgMat4 m )
 {
-  const SGfloat epsilon = 1e-6 ;
+  const SGfloat epsilon = 1e-6f ;
 
   int flags = 0 ;
 
