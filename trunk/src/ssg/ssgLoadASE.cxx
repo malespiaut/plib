@@ -51,17 +51,14 @@ struct aseMaterial
   f32 trans ;
   
   char tfname[ 256 ] ;
-  ssgTexture* tex ;
   sgVec2 texrep ;
   sgVec2 texoff ;
 };
 
 
-enum { MAX_MATERIALS = 1000, MAX_STATES = 1000 };
+enum { MAX_MATERIALS = 1000 };
 static aseMaterial** materials ;
 static u32 num_materials ;
-static ssgSimpleState** states ;
-static u32 num_states ;
 
 static u32 first_frame ;
 static u32 last_frame ;
@@ -71,6 +68,7 @@ static u32 num_frames ;
 
 static _ssgParser parser;
 static ssgBranch* current_branch;
+static ssgCreateFunc current_createFunc = NULL ;
 
 
 void aseMesh::init()
@@ -127,49 +125,10 @@ static aseMaterial* find_material( u32 mat_index, u32 sub_index )
 }
 
 
-static ssgSimpleState* find_state( aseMaterial* mat )
+static ssgSimpleState* get_state( aseMaterial* mat )
 {
-  ssgTexture* tex = mat->tex ;
-  
-  for ( u32 i = 0 ; i < num_states ; i++ )
-  {
-    ssgSimpleState *st2 = states [ i ] ;
-
-    if ( tex == NULL && st2->isEnabled ( GL_TEXTURE_2D ) )
-      continue ;
-
-    if ( tex != NULL && ! st2->isEnabled ( GL_TEXTURE_2D ) )
-      continue ;
-
-    if ( tex != NULL && tex -> getHandle() != st2 -> getTextureHandle () )
-      continue ;
-
-    if ( ! sgEqualVec4 ( mat->amb, st2->getMaterial ( GL_AMBIENT ) ) ||
-         ! sgEqualVec4 ( mat->diff, st2->getMaterial ( GL_DIFFUSE ) ) ||
-         ! sgEqualVec4 ( mat->spec, st2->getMaterial ( GL_SPECULAR ) ) ||
-         (int)( mat->trans < 0.99 ) != st2 -> isTranslucent () ||
-         mat -> shine != st2->getShininess () )
-      continue ;
-
-    return st2 ;
-  }
-
-  if ( num_states >= MAX_STATES )
-  {
-    parser.error( "too many states" );
-    return 0 ;
-  }
   ssgSimpleState *st = new ssgSimpleState () ;
-  states [ num_states++ ] = st ;
   
-  if ( tex != NULL )
-  {
-    st -> setTexture ( tex ) ;
-    st -> enable     ( GL_TEXTURE_2D ) ;
-  }
-  else
-    st -> disable    ( GL_TEXTURE_2D ) ;
-
   st -> setMaterial ( GL_AMBIENT, mat -> amb ) ;
   st -> setMaterial ( GL_DIFFUSE, mat -> diff ) ;
   st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
@@ -205,30 +164,20 @@ static void parse_map( aseMaterial* mat )
   {
     if (!strcmp(token,"*BITMAP"))
     {
-      if ( mat->tex )
+      if ( mat->tfname[0] != 0 )
         parser.error("multiple textures for material: %s",mat->name);
       else
       {
          char* fname = parser.parseString("bitmap filename") ;
-         _ssgMakePath(mat->tfname,_ssgTexturePath,fname) ;
-   
-         //re-use textures when possible
-         for ( u32 i = 0 ; i < (num_materials-1) ; i++ )
-         {
-           if ( strcmp ( mat->tfname, materials[ i ]->tfname ) == 0 )
-           {
-             mat->tex = materials[ i ]->tex ;
-             break ;
-           }
-         }
-   
-         //load texture
-         if ( ! mat->tex )
-         {
-           mat->tex = new ssgTexture ( mat->tfname ) ;
-           if ( ! mat->tex )
-             parser.error("cannot load texture: %s",mat->tfname) ;
-         }
+
+         //strip existing directory from fname
+         char* slash = strrchr ( fname, '/' ) ;
+         if ( !slash )
+           slash = strrchr ( fname, '\\' ) ; //for dos
+         if ( slash )
+           fname = slash + 1 ;
+
+         strcpy ( mat->tfname, fname ) ;
       }
     }
     else if (!strcmp(token,"*UVW_U_TILING"))
@@ -598,12 +547,6 @@ static void add_mesh( aseMesh* mesh, aseMaterial* mat )
       }
     }
   }
-  
-  ssgState *st = NULL ;
-  if ( _ssgGetAppState != NULL && mat->tfname[0] != 0 )
-    st =_ssgGetAppState ( mat->tfname ) ;
-  if ( st == NULL )
-    st = find_state ( mat ) ;
 
   char name[ 256 ];
   if ( mat->sub_flag )
@@ -611,13 +554,24 @@ static void add_mesh( aseMesh* mesh, aseMaterial* mat )
   else
     strcpy(name,mesh->name);
     
-  ssgVtxTable *vtab = new ssgVtxTable ( GL_TRIANGLES,
-    vlist, nlist, tlist, clist ) ; 
-  vtab -> setCullFace ( TRUE );
-  if ( st )
-     vtab -> setState ( st ) ;
-  vtab -> setName ( name ) ;
-  current_branch -> addKid ( vtab ) ;
+  ssgCreateData *data = new ssgCreateData ;
+  data->parentName = strdup ( name ) ;
+  data->gltype = GL_TRIANGLES ;
+  data->vl = vlist ;
+  data->nl = nlist ;
+  data->tl = tlist ;
+  data->cl = clist ;
+  data->st = get_state ( mat ) ;
+  data->tfname = mat -> tfname ;
+  data->cull_face = TRUE ;
+ 
+  ssgLeaf* vtab = (*current_createFunc) ( data ) ;
+
+  if ( vtab )
+  {
+     vtab -> setName ( name ) ;
+     current_branch -> addKid ( vtab ) ;
+  }
   
   //printf( "add_mesh: %s (%s)\n", name, mat -> tfname ) ;
 }
@@ -707,15 +661,13 @@ static void parse_object()
 static bool parse()
 {
   materials = new aseMaterial* [ MAX_MATERIALS ];
-  states = new ssgSimpleState* [ MAX_STATES ];
-  if ( !materials || !states )
+  if ( !materials )
   {
     parser.error("not enough memory");
     return false ;
   }
 
   num_materials = 0 ;
-  num_states = 0 ;
   
   first_frame = 0 ;
   last_frame = 0 ;
@@ -781,22 +733,18 @@ static bool parse()
 
 static void parse_free()
 {
-  u32 i ;
-  for ( i = 0 ; i < num_materials ; i++ )
+  for ( u32 i = 0 ; i < num_materials ; i++ )
     delete materials[ i ] ;
   delete[] materials ;
   materials = 0 ;
-
-//Note: don't delete states because they are used in the scene graph
-//  for ( i = 0 ; i < num_states ; i++ )
-//    delete states[ i ] ;
-  delete[] states ;
-  states = 0 ;
 }
 
 
 ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
 {
+  current_createFunc = ( createfunc != NULL )? createfunc: _ssgCreateFunc ;
+  (*current_createFunc) ( 0 ) ;  //reset
+
   current_branch = new ssgBranch ;
   parser.openFile( fname );
   if ( !parse() )
@@ -806,6 +754,8 @@ ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createf
   }
   parse_free();
   parser.closeFile();
+
+  (*current_createFunc) ( 0 ) ;  //reset
   return current_branch ;
 }
 

@@ -541,7 +541,8 @@ int do_refs     ( char *s )
    
     ssgLeaf* vtab = (*current_createFunc) ( data ) ;
 
-    current_branch -> addKid ( vtab ) ;
+    if ( vtab )
+       current_branch -> addKid ( vtab ) ;
   }
 
   return PARSE_POP ;
