@@ -3,6 +3,12 @@
 #define FILE_SELECTOR_ARGS  (640-320)/2,(480-270)/2,320,270,1
 
 
+float tweeninterval = 1.0f/8.0f ;
+
+void  setTweenInterval ( float t ) { tweeninterval = t ;    }
+float getTweenInterval ()          { return tweeninterval ; }
+
+
 puFileSelector *file_selector = NULL ;
 
 
@@ -12,6 +18,7 @@ char lastModelFileName [ PUSTRING_MAX ] ;
 void dismissDialogCB ( puObject * ) ;
 
 puButton *dialog_button  = NULL ;
+
 
 void initDialog ()
 {
@@ -26,11 +33,13 @@ void initDialog ()
   dialog_button -> hide           () ;
 }
 
+
 void dismissDialogCB ( puObject * )
 {
   initDialog () ;
   dialog_button  -> hide () ;
 }
+
 
 void dialog ( char *msg, float r, float g, float b )
 {
@@ -93,12 +102,12 @@ void twsavepickfn ( puObject * )
 
   tweenScene = (ssgRoot *) makeTweenCopy ( skinScene ) ;
 
-  for ( int i = 0 ; i <= (int)( timebox->getMaxTime() * 10.0f ) ; i++ )
+  for ( int i = 0 ; i <= (int)( timebox->getMaxTime() / tweeninterval ) ; i++ )
   {
     if ( i != 0 )
       addTweenBank ( tweenScene ) ;
 
-    transformModel ( boneScene, (float) i / 10.0f ) ;
+    transformModel ( boneScene, (float) i * tweeninterval ) ;
     makeTweenCopy ( tweenScene, skinScene ) ;
   }
 

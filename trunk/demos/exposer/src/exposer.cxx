@@ -25,6 +25,16 @@ puDial     * tiltSlider ;
 
 puInput    *show_angle  ;
 
+void save_60th_CB ( puObject * ) { setTweenInterval ( 1.0f/60.0f ) ; }
+void save_30th_CB ( puObject * ) { setTweenInterval ( 1.0f/30.0f ) ; }
+void save_20th_CB ( puObject * ) { setTweenInterval ( 1.0f/20.0f ) ; }
+void save_15th_CB ( puObject * ) { setTweenInterval ( 1.0f/15.0f ) ; }
+void save_10th_CB ( puObject * ) { setTweenInterval ( 1.0f/10.0f ) ; }
+void save_8th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 8.0f ) ; }
+void save_4th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 4.0f ) ; }
+void save_2th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 2.0f ) ; }
+void save_1th_CB  ( puObject * ) { setTweenInterval ( 1.0f ) ; }
+
 void setShowAngle ( float a )
 {
   show_angle -> setValue ( a ) ;
@@ -240,6 +250,30 @@ puCallback view_submenu_cb [] = { zoom_in_CB,
 				  zoom_nrm_CB,
                                   NULL } ;
 
+char      *pref_submenu    [] = { "1/60th second", 
+                                  "1/30th second",
+                                  "1/20th second",
+                                  "1/15th second",
+                                  "1/10th second",
+                                  "eighth second",
+                                  "quarter second",
+                                  "half second",
+                                  "second",
+                                  "Save a tween bank every...",
+                                  NULL } ;
+
+puCallback pref_submenu_cb [] = { save_60th_CB,
+                                  save_30th_CB,
+                                  save_20th_CB,
+                                  save_15th_CB,
+                                  save_10th_CB,
+                                  save_8th_CB,
+                                  save_4th_CB,
+                                  save_2th_CB,
+                                  save_1th_CB,
+                                  NULL,
+                                  NULL } ;
+
 char      *time_submenu    [] = { "Add 5 seconds", 
                                   "Add 2 seconds",
                                   "Add 1 second",
@@ -316,6 +350,7 @@ static void init_graphics ()
     menuBar -> add_submenu ( "File", file_submenu, file_submenu_cb ) ;
     menuBar -> add_submenu ( "View", view_submenu, view_submenu_cb ) ;
     menuBar -> add_submenu ( "Time", time_submenu, time_submenu_cb ) ;
+    menuBar -> add_submenu ( "SavePrefs", pref_submenu, pref_submenu_cb ) ;
   }
   menuBar -> close () ;
 
