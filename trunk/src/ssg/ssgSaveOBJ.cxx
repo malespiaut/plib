@@ -15,7 +15,7 @@ static void save_vtx_table ( ssgVtxTable *vt )
 	short iv1, iv2;
 
   GLenum mode = vt -> getPrimitiveType () ;
-	//fprintf ( fileout, "g test\n" ); wk: Pfusch fixme: is this necessary?
+	//fprintf ( fileout, "g test\n" ); wk: Pfusch fixme: is this necessary? NIV135
   
   if (( mode == GL_LINES ) || ( mode == GL_LINE_LOOP) || ( mode == GL_LINE_STRIP))
   {

@@ -289,7 +289,7 @@ static int parse()
 		
 
 	theMesh.add2SSG(
-		ss, // Pfusch
+		ss, // kludge. NIV135
 		current_options,
 		top_branch);
 
