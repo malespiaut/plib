@@ -311,28 +311,10 @@ void  puDisplay ( void )
 }
 
 
-void  puDisplay ( int window_number )  /* Redraw only the current window */
+void  puDisplay ( int window_number )  /* Deprecated */
 {
-  puCleanUpJunk () ;
-
-  puSetOpenGLState () ;
-  puInterface *base_interface = puGetUltimateLiveInterface () ;
-  puObject *ob = base_interface -> getFirstChild () ;
-  while ( ob )
-  {
-    if ( ob -> getWindow () == window_number )
-      ob -> draw ( 0, 0 ) ;
-
-    ob = ob -> getNextObject () ;
-  }
-
-  int h = puGetWindowHeight () ;
-
-  if ( _puCursor_enable )
-    puDrawCursor ( _puCursor_x,
-                   h - _puCursor_y ) ;
-
-  puRestoreOpenGLState () ;
+  if ( window_number == puGetWindow () )
+    puDisplay () ;
 }
 
 
