@@ -22,17 +22,24 @@ ssgLeaf::ssgLeaf (void)
   cull_face = TRUE ;
   state = NULL ;
   type |= SSG_TYPE_LEAF ;
+
+#ifdef _SSG_USE_DLIST
   dlist = 0 ;
-   preDrawCB = NULL ;
+#endif
+
+  preDrawCB = NULL ;
   postDrawCB = NULL ;
 }
 
 ssgLeaf::~ssgLeaf (void)
 {
+#ifdef _SSG_USE_DLIST
   deleteDList () ;
+#endif
 }
 
 
+#ifdef _SSG_USE_DLIST
 void ssgLeaf::deleteDList ()
 {
   if ( dlist != 0 )
@@ -40,7 +47,6 @@ void ssgLeaf::deleteDList ()
 
   dlist = 0 ;
 }
-
 
 void ssgLeaf::makeDList ()
 {
@@ -50,6 +56,8 @@ void ssgLeaf::makeDList ()
     draw_geometry () ;
   glEndList () ; 
 }
+#endif // #ifdef _SSG_USE_DLIST
+
 
 void ssgLeaf::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {

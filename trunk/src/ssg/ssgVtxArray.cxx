@@ -140,9 +140,11 @@ void ssgVtxArray::draw ()
   stats_num_leaves++ ;
   stats_num_vertices += getNumIndices() ;
 
+#ifdef _SSG_USE_DLIST
   if ( dlist )
     glCallList ( dlist ) ;
   else
+#endif
     draw_geometry () ;
 
   if ( postDrawCB != NULL )
@@ -150,6 +152,7 @@ void ssgVtxArray::draw ()
 }
 
 
+#ifdef _SSG_USE_PICK
 void ssgVtxArray::pick ( int baseName )
 {
   int i ;
@@ -180,6 +183,7 @@ void ssgVtxArray::pick ( int baseName )
 
   glPopClientAttrib ( ) ;
 }
+#endif // #ifdef _SSG_USE_PICK
 
 
 void ssgVtxArray::draw_geometry ()

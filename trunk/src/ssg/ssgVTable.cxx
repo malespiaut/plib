@@ -208,9 +208,11 @@ void ssgVTable::draw ()
   stats_num_leaves++ ;
   stats_num_vertices += num_vertices ;
 
+#ifdef _SSG_USE_DLIST
   if ( dlist )
     glCallList ( dlist ) ;
   else
+#endif
     draw_geometry () ;
 
   if ( postDrawCB != NULL )
@@ -225,6 +227,7 @@ void ssgVTable::drawHighlight ( sgVec4 /* colour */ )
 {
 }
 
+#ifdef _SSG_USE_PICK
 void ssgVTable::pick ( int baseName )
 {
   int i ;
@@ -275,7 +278,7 @@ void ssgVTable::pick ( int baseName )
 
   glPopName () ;
 }
-
+#endif // #ifdef _SSG_USE_PICK
 
 void ssgVTable::draw_geometry ()
 {
