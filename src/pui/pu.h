@@ -917,15 +917,15 @@ public:
   void draw  ( int dx, int dy ) ;
   puSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
      puObject ( minx, miny, vertical ?
-                             ( minx + puGetStringWidth ( puGetDefaultLegendFont(), "W" ) +
-                                      PUSTR_LGAP + PUSTR_RGAP ) :
-                             ( minx + sz ),
-                            vertical ?
-                             ( miny + sz ) :
-                             ( miny + puGetStringHeight ( puGetDefaultLegendFont() ) +
-                                      puGetStringDescender ( puGetDefaultLegendFont() ) +
-                                      PUSTR_TGAP + PUSTR_BGAP )
-                           )
+	       ( minx + puGetStringWidth ( puGetDefaultLegendFont(), "W" ) +
+			PUSTR_LGAP + PUSTR_RGAP ) :
+	       ( minx + sz ),
+	      vertical ?
+	       ( miny + sz ) :
+	       ( miny + puGetStringHeight ( puGetDefaultLegendFont() ) +
+			puGetStringDescender ( puGetDefaultLegendFont() ) +
+			PUSTR_TGAP + PUSTR_BGAP )
+	     )
   {
     type |= PUCLASS_SLIDER ;
     slider_fraction = 0.1f ;
@@ -1070,6 +1070,7 @@ public:
     type |= PUCLASS_DIAL ;
     setValue ( 0.0f ) ;
     wrap = TRUE ;
+    setSize ( sz, sz ) ; /* Override the funky math that the base slider did! */
   }
 
   void setWrap ( int in )  {  wrap = in ;  }
