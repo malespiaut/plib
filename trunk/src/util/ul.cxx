@@ -458,22 +458,18 @@ int ulIsAbsolutePathName ( const char *pathname )
     a colon and a slash.
   */
 
-  if ( pathname [0] == SLASH || pathname [0] == '\\')
-		return TRUE;
-	if ( pathname[1] == 0 || pathname[2] == 0)
-		return FALSE;
-  char drive_letter = pathname[0] ;
-  return( (
-						 ( drive_letter >= 'a' && drive_letter <= 'z' ) ||
-						 ( drive_letter >= 'A' && drive_letter <= 'Z' )
-					 ) &&
-					 pathname[1] == ':' &&
-					 ( pathname[2] == SLASH || pathname [2] == '\\')
-				 ) ;
+  return pathname [0] == SLASH ||
+         (
+           (
+             ( drive_letter >= 'a' && drive_letter <= 'z' ) ||
+             ( drive_letter >= 'A' && drive_letter <= 'Z' )
+           ) &&
+           pathname[1] == ':' &&
+           ( pathname[2] == SLASH || pathname[2] == '/' )
+         ) ;
 #elif defined(macintosh)
-	  return (pathname [0] != ':' && NULL != strchr( pathname, ':'));
+  return (pathname [0] != ':' && strchr( pathname, ':') != NULL );
 #else 
-
   return pathname [0] == SLASH ;
 #endif
 }
