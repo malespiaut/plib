@@ -13,6 +13,7 @@ AC_PROG_RANLIB
 
 plib_suffix="-lplibsl -lplibssgaux -lplibssg -lplibpu -lplibfnt -lplibsg"
  
+AC_LANG_CPLUSPLUS
 AC_CHECK_LIB(plibul, ulInit,,,)
 
 dnl Checks for library functions.

@@ -23,13 +23,15 @@ int curr_button = 0 ;
 #define MODE_ADD      0
 #define MODE_SELECT   1
 
-int event_mode = MODE_SELECT ;
+int    event_mode = MODE_SELECT ;
 Event *curr_event = NULL ;
 
-unsigned int floor_texhandle  = 0 ;
-float floor_z_coord  = -1 ;
+unsigned int floor_texhandle =  0 ;
+       float floor_z_coord   = -1 ;
 
-puFileSelector* file_selector = 0 ;                                                 
+puFileSelector *file_selector = NULL ;
+puButton *dialog_button  = NULL ;
+
 ssgRoot        *skinScene  = NULL ;
 ssgRoot        *boneScene  = NULL ;
 
@@ -409,18 +411,32 @@ static void mousefn ( int button, int updown, int x, int y )
 }
 
 
+
+void dismissDialogCB ( puObject * )
+{
+  dialog_button  -> hide () ;
+}
+
+void dialog ( char *msg, float r, float g, float b )
+{
+  dialog_button -> setLegend ( msg ) ;
+  dialog_button -> setColorScheme ( r, g, b, 1 ) ;
+  dialog_button -> reveal () ;
+}
+
 void bnsavepickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
   char fname [ PUSTRING_MAX ] ;
 
   file_selector -> getValue ( path ) ;
- 
 
   if ( path [ 0 ] == '\0' )
   {
     puDeleteObject ( file_selector ) ;
-    file_selector = 0 ;
+    file_selector = NULL ;
+
+    dialog ( "FAILED TO SAVE BONES!", 1, 0, 0 ) ;
     return ;
   }
 
@@ -451,12 +467,23 @@ void bnsavepickfn ( puObject * )
   /* SAVE THE BONES */
 
   if ( file_selector->getStringValue()[0] == '\0' )
+  {
+    puDeleteObject ( file_selector ) ;
+    file_selector = NULL ;
+    dialog ( "FAILED TO SAVE BONES!", 1, 0, 0 ) ;
     return ;
+  }
 
   FILE *fd = fopen ( file_selector->getStringValue(), "wa" ) ;
 
+  puDeleteObject ( file_selector ) ;
+  file_selector = NULL ;
+
   if ( fd == NULL )
+  {
+    dialog ( "FAILED TO SAVE BONES!", 1, 0, 0 ) ;
     return ;
+  }
 
   fprintf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
                         getNumBones(), getNumEvents(), timebox_maxtime,
@@ -469,9 +496,7 @@ void bnsavepickfn ( puObject * )
     getEvent ( i ) -> write ( fd ) ;
 
   fclose ( fd ) ;
-
-  puDeleteObject ( file_selector ) ;
-  file_selector = 0 ;
+  dialog ( "BONES WERE SAVED OK.", 1, 1, 0 ) ;
 }
 
 
@@ -486,7 +511,7 @@ void bnpickfn ( puObject * )
   if ( path [ 0 ] == '\0' )
   {
     puDeleteObject ( file_selector ) ;
-    file_selector = 0 ;
+    file_selector = NULL ;
     return ;
   }
 
@@ -519,7 +544,7 @@ void bnpickfn ( puObject * )
   if ( file_selector->getStringValue()[0] == '\0' )
   {
     puDeleteObject ( file_selector ) ;
-    file_selector = 0 ;
+    file_selector = NULL ;
     return ;
   }
 
@@ -528,7 +553,7 @@ void bnpickfn ( puObject * )
   if ( fd == NULL )
   {
     puDeleteObject ( file_selector ) ;
-    file_selector = 0 ;
+    file_selector = NULL ;
     return ;
   }
 
@@ -564,7 +589,7 @@ void bnpickfn ( puObject * )
 
   fclose ( fd ) ;
   puDeleteObject ( file_selector ) ;
-  file_selector = 0 ;
+  file_selector = NULL ;
 }
 
 
@@ -577,7 +602,7 @@ void pickfn ( puObject * )
   file_selector -> getValue ( path ) ;
  
   puDeleteObject ( file_selector ) ;
-  file_selector = 0 ;
+  file_selector = NULL ;
 
   if ( path [ 0 ] == '\0' )
     return ;
@@ -1170,6 +1195,13 @@ void init_graphics ()
                   FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
                   floorTexture3 ) ;
   glBindTexture ( GL_TEXTURE_2D, 0 ) ;
+
+  dialog_button = new puButton    ( 300, 240, "" ) ;
+  dialog_button -> setSize ( 300, 40 ) ;
+  dialog_button -> setLegendFont  ( PUFONT_TIMES_ROMAN_24 ) ;
+  dialog_button -> setCallback    ( dismissDialogCB ) ;
+  dialog_button -> setColorScheme ( 1, 1, 0, 1 ) ;
+  dialog_button -> hide () ;
 }
 
 void init_database ()
