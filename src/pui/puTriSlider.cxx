@@ -158,6 +158,12 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
 //  if ( updown != PU_DRAG )
 //    puMoveToLast ( this );
 
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   if ( button == PU_LEFT_BUTTON )
   {
     int sd = isVertical() ;
@@ -176,7 +182,7 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
 
     next_value = (next_value < 0.0f) ? 0.0f : (next_value > 1.0) ? 1.0f : next_value ;
 
-    int new_value = getMinValue() + next_value * ( getMaxValue() - getMinValue() ) ;
+    int new_value = getMinValue() + (int)( next_value * ( getMaxValue() - getMinValue() ) + 0.5 ) ;
 
     if ( getFreezeEnds() )  // Cannot move end sliders, must move middle one
     {
@@ -233,6 +239,7 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
         {
           last_cb_value = next_value ;
           invokeCallback () ;
+          puSetActiveWidget ( this ) ;
         }
         break ;
 
@@ -241,6 +248,7 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
         {
           last_cb_value = next_value ;
           invokeCallback () ;
+          puSetActiveWidget ( this ) ;
         }
         break ;
 
@@ -248,6 +256,7 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
       default :
         last_cb_value = next_value ;
         invokeCallback () ;
+        puSetActiveWidget ( this ) ;
         break ;
     }
   }
