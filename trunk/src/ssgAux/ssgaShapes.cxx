@@ -8,13 +8,27 @@ void ssgaShape::copy_from ( ssgaShape *src, int clone_flags )
   if ( src -> isCorrupt () ) makeCorrupt () ;
   sgCopyVec3 ( center, src->center ) ;
   sgCopyVec3 ( size  , src->size   ) ;
-  ntriangles = src -> ntriangles ;
+  ntriangles    = src -> ntriangles ;
+  kidState      = src -> getKidState      () ;
+  kidPreDrawCB  = src -> getKidPreDrawCB  () ;
+  kidPostDrawCB = src -> getKidPostDrawCB () ;
 }
 
 
 void ssgaCube    ::copy_from ( ssgaCube     *src, int clone_flags ) { ssgaShape::copy_from ( src, clone_flags ) ;} 
 void ssgaSphere  ::copy_from ( ssgaSphere   *src, int clone_flags ) { ssgaShape::copy_from ( src, clone_flags ) ;}
 void ssgaCylinder::copy_from ( ssgaCylinder *src, int clone_flags ) { ssgaShape::copy_from ( src, clone_flags ) ;}
+
+
+ssgBase *ssgaShape   ::clone ( int clone_flags = 0 )
+{
+/*
+  ssgaShape *b = new ssgaShape ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+*/
+  return NULL ;
+}
 
 
 ssgBase *ssgaCube    ::clone ( int clone_flags = 0 )
@@ -59,17 +73,19 @@ void ssgaShape::init ()
   corrupted = FALSE ;
   sgZeroVec3 ( center ) ;
   sgSetVec3 ( size, 1.0f, 1.0f, 1.0f ) ;
-  regenerate () ;
+  kidState      = NULL ;
+  kidPreDrawCB  = NULL ;
+  kidPostDrawCB = NULL ;
 } 
 
-ssgaCube    ::ssgaCube     ( void ) : ssgaShape ()     { type |= SSGA_TYPE_CUBE     ; } 
-ssgaCube    ::ssgaCube     (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_CUBE     ; } 
+ssgaCube    ::ssgaCube     ( void ) : ssgaShape ()     { type |= SSGA_TYPE_CUBE     ; regenerate () ; } 
+ssgaCube    ::ssgaCube     (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_CUBE     ; regenerate () ; } 
 
-ssgaSphere  ::ssgaSphere   ( void ) : ssgaShape ()     { type |= SSGA_TYPE_SPHERE   ; } 
-ssgaSphere  ::ssgaSphere   (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_SPHERE   ; } 
+ssgaSphere  ::ssgaSphere   ( void ) : ssgaShape ()     { type |= SSGA_TYPE_SPHERE   ; regenerate () ; } 
+ssgaSphere  ::ssgaSphere   (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_SPHERE   ; regenerate () ; } 
 
-ssgaCylinder::ssgaCylinder ( void ) : ssgaShape ()     { type |= SSGA_TYPE_CYLINDER ; }
-ssgaCylinder::ssgaCylinder (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_CYLINDER ; }
+ssgaCylinder::ssgaCylinder ( void ) : ssgaShape ()     { type |= SSGA_TYPE_CYLINDER ; regenerate () ; }
+ssgaCylinder::ssgaCylinder (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_CYLINDER ; regenerate () ; }
 
 ssgaShape   ::~ssgaShape    (void) {}
 ssgaCube    ::~ssgaCube     (void) {}
@@ -95,49 +111,59 @@ void ssgaCube    ::regenerate ()
   ssgColourArray   *c0 = new ssgColourArray   ( 8 ) ; ssgColourArray   *c1 = new ssgColourArray   ( 8 ) ;
   ssgTexCoordArray *t0 = new ssgTexCoordArray ( 8 ) ; ssgTexCoordArray *t1 = new ssgTexCoordArray ( 8 ) ;
 
+  vt0 -> setPrimitiveType ( GL_TRIANGLE_STRIP ) ;
+  vt1 -> setPrimitiveType ( GL_TRIANGLE_STRIP ) ;
+
   addKid ( vt0 ) ; addKid ( vt1 ) ;
 
-  sgVec3 v ; sgVec3 n ; sgVec2 t ; sgVec4 c ;
+  vt0 -> setState    ( getKidState () ) ;
+  vt1 -> setState    ( getKidState () ) ;
+  vt0 -> setCallback ( SSG_CALLBACK_PREDRAW , getKidPreDrawCB  () ) ;
+  vt1 -> setCallback ( SSG_CALLBACK_PREDRAW , getKidPreDrawCB  () ) ;
+  vt0 -> setCallback ( SSG_CALLBACK_POSTDRAW, getKidPostDrawCB () ) ;
+  vt1 -> setCallback ( SSG_CALLBACK_POSTDRAW, getKidPostDrawCB () ) ;
 
-  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]-size[1]/2.0f, center[2]-size[2]/2.0f ) ; v0->add ( v ) ;
-  sgSetVec3 ( n,          1            ,          0            ,          0             ) ; n0->add ( n ) ;
-  sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
-  sgSetVec2 ( t,          0                       ,                0                    ) ; t0->add ( t ) ;
+  sgVec3 v ; sgVec3 n ; sgVec2 t ; sgVec4 c ;
 
   sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]-size[1]/2.0f, center[2]+size[2]/2.0f ) ; v0->add ( v ) ;
   sgSetVec3 ( n,          1            ,          0            ,          0             ) ; n0->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
   sgSetVec2 ( t,          0                       ,                1                    ) ; t0->add ( t ) ;
 
-  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]+size[1]/2.0f, center[2]-size[2]/2.0f ) ; v0->add ( v ) ;
+  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]-size[1]/2.0f, center[2]-size[2]/2.0f ) ; v0->add ( v ) ;
   sgSetVec3 ( n,          1            ,          0            ,          0             ) ; n0->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
-  sgSetVec2 ( t,          1                       ,                0                    ) ; t0->add ( t ) ;
+  sgSetVec2 ( t,          0                       ,                0                    ) ; t0->add ( t ) ;
 
   sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]+size[1]/2.0f, center[2]+size[2]/2.0f ) ; v0->add ( v ) ;
   sgSetVec3 ( n,          1            ,          0            ,          0             ) ; n0->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
   sgSetVec2 ( t,          1                       ,                1                    ) ; t0->add ( t ) ;
 
-  sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]+size[1]/2.0f, center[2]-size[2]/2.0f ) ; v0->add ( v ) ;
-  sgSetVec3 ( n,          0            ,          1            ,          0             ) ; n0->add ( n ) ;
+  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]+size[1]/2.0f, center[2]-size[2]/2.0f ) ; v0->add ( v ) ;
+  sgSetVec3 ( n,          1            ,          0            ,          0             ) ; n0->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
-  sgSetVec2 ( t,          2                       ,                0                    ) ; t0->add ( t ) ;
+  sgSetVec2 ( t,          1                       ,                0                    ) ; t0->add ( t ) ;
 
   sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]+size[1]/2.0f, center[2]+size[2]/2.0f ) ; v0->add ( v ) ;
   sgSetVec3 ( n,          0            ,          1            ,          0             ) ; n0->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
   sgSetVec2 ( t,          2                       ,                1                    ) ; t0->add ( t ) ;
 
-  sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]-size[1]/2.0f, center[2]-size[2]/2.0f ) ; v0->add ( v ) ;
-  sgSetVec3 ( n,         -1            ,          0            ,          0             ) ; n0->add ( n ) ;
+  sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]+size[1]/2.0f, center[2]-size[2]/2.0f ) ; v0->add ( v ) ;
+  sgSetVec3 ( n,          0            ,          1            ,          0             ) ; n0->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
-  sgSetVec2 ( t,          3                       ,                0                    ) ; t0->add ( t ) ;
+  sgSetVec2 ( t,          2                       ,                0                    ) ; t0->add ( t ) ;
 
   sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]-size[1]/2.0f, center[2]+size[2]/2.0f ) ; v0->add ( v ) ;
   sgSetVec3 ( n,         -1            ,          0            ,          0             ) ; n0->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
   sgSetVec2 ( t,          3                       ,                1                    ) ; t0->add ( t ) ;
+
+  sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]-size[1]/2.0f, center[2]-size[2]/2.0f ) ; v0->add ( v ) ;
+  sgSetVec3 ( n,         -1            ,          0            ,          0             ) ; n0->add ( n ) ;
+  sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c0->add ( c ) ;
+  sgSetVec2 ( t,          3                       ,                0                    ) ; t0->add ( t ) ;
 
   vt0 -> setVertices  ( v0 ) ;
   vt0 -> setNormals   ( n0 ) ;
@@ -146,45 +172,45 @@ void ssgaCube    ::regenerate ()
 
   vt0 -> recalcBSphere () ;
 
-  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]+size[1]/2.0f, center[2]-size[2]/2.0f ) ; v1->add ( v ) ;
-  sgSetVec3 ( n,          0            ,          0            ,         -1             ) ; n1->add ( n ) ;
-  sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
-  sgSetVec2 ( t,          1                       ,                0                    ) ; t1->add ( t ) ;
-
   sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]+size[1]/2.0f, center[2]-size[2]/2.0f ) ; v1->add ( v ) ;
   sgSetVec3 ( n,          0            ,          0            ,         -1             ) ; n1->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
   sgSetVec2 ( t,          0                       ,                0                    ) ; t1->add ( t ) ;
 
-  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]-size[1]/2.0f, center[2]-size[2]/2.0f ) ; v1->add ( v ) ;
+  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]+size[1]/2.0f, center[2]-size[2]/2.0f ) ; v1->add ( v ) ;
   sgSetVec3 ( n,          0            ,          0            ,         -1             ) ; n1->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
-  sgSetVec2 ( t,          1                       ,                1                    ) ; t1->add ( t ) ;
+  sgSetVec2 ( t,          1                       ,                0                    ) ; t1->add ( t ) ;
 
   sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]-size[1]/2.0f, center[2]-size[2]/2.0f ) ; v1->add ( v ) ;
   sgSetVec3 ( n,          0            ,          0            ,         -1             ) ; n1->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
   sgSetVec2 ( t,          0                       ,                1                    ) ; t1->add ( t ) ;
 
-  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]-size[1]/2.0f, center[2]+size[2]/2.0f ) ; v1->add ( v ) ;
-  sgSetVec3 ( n,          0            ,         -1            ,          0             ) ; n1->add ( n ) ;
+  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]-size[1]/2.0f, center[2]-size[2]/2.0f ) ; v1->add ( v ) ;
+  sgSetVec3 ( n,          0            ,          0            ,         -1             ) ; n1->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
-  sgSetVec2 ( t,          1                       ,                2                    ) ; t1->add ( t ) ;
+  sgSetVec2 ( t,          1                       ,                1                    ) ; t1->add ( t ) ;
 
   sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]-size[1]/2.0f, center[2]+size[2]/2.0f ) ; v1->add ( v ) ;
   sgSetVec3 ( n,          0            ,         -1            ,          0             ) ; n1->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
   sgSetVec2 ( t,          0                       ,                2                    ) ; t1->add ( t ) ;
 
-  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]+size[1]/2.0f, center[2]+size[2]/2.0f ) ; v1->add ( v ) ;
-  sgSetVec3 ( n,          0            ,          0            ,          1             ) ; n1->add ( n ) ;
+  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]-size[1]/2.0f, center[2]+size[2]/2.0f ) ; v1->add ( v ) ;
+  sgSetVec3 ( n,          0            ,         -1            ,          0             ) ; n1->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
-  sgSetVec2 ( t,          1                       ,                3                    ) ; t1->add ( t ) ;
+  sgSetVec2 ( t,          1                       ,                2                    ) ; t1->add ( t ) ;
 
   sgSetVec3 ( v, center[0]-size[0]/2.0f, center[1]+size[1]/2.0f, center[2]+size[2]/2.0f ) ; v1->add ( v ) ;
   sgSetVec3 ( n,          0            ,          0            ,          1             ) ; n1->add ( n ) ;
   sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
   sgSetVec2 ( t,          0                       ,                3                    ) ; t1->add ( t ) ;
+
+  sgSetVec3 ( v, center[0]+size[0]/2.0f, center[1]+size[1]/2.0f, center[2]+size[2]/2.0f ) ; v1->add ( v ) ;
+  sgSetVec3 ( n,          0            ,          0            ,          1             ) ; n1->add ( n ) ;
+  sgSetVec4 ( c,          1            ,    1     ,     1      ,          1             ) ; c1->add ( c ) ;
+  sgSetVec2 ( t,          1                       ,                3                    ) ; t1->add ( t ) ;
 
   vt1 -> setVertices  ( v1 ) ;
   vt1 -> setNormals   ( n1 ) ;
