@@ -104,10 +104,6 @@ void ssgLoadBMP ( const char *fname )
 
   BMPHeader bmphdr ;
 
-  /* Get texture manager */
-
-  ssgTextureManager* tm = ssgTextureManager::get () ;
-
   /* Open file & get size */
 
   strcpy ( curr_image_fname, fname ) ;
@@ -282,24 +278,22 @@ void ssgLoadBMP ( const char *fname )
   else
   {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Can't load %d bpp BMP textures.", bpp ) ;
-    tm -> loadDummy () ;
+    ssgLoadDummyTexture () ;
     return ;
   }
 
-  tm -> setAlphaFlag ( z == 4 ) ;
-  tm -> make_mip_maps ( image, w, h, z ) ;
+  _ssgSetTextureAlphaFlag ( z == 4 ) ;
+  ssgMakeMipMaps ( image, w, h, z ) ;
 }
 
 
 // This really simple (raw paletted) format is used by older MSFS for textures
 void ssgLoadMDLTexture ( const char *fname )
 {
-  ssgTextureManager* tm = ssgTextureManager::get () ;
-
   FILE *tfile;
   if ( (tfile = fopen(fname, "rb")) == NULL) {
     ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname );
-    tm -> loadDummy () ;
+    ssgLoadDummyTexture () ;
     return;
   }
 
@@ -330,6 +324,6 @@ void ssgLoadMDLTexture ( const char *fname )
     fclose(tfile);
     
     // tm -> setAlphaFlag ( TRUE ) ; ??
-    tm -> make_mip_maps ( texels, 256, 256, 4 ) ;
+    ssgMakeMipMaps ( texels, 256, 256, 4 ) ;
   }
 }

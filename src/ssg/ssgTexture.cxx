@@ -2,12 +2,6 @@
 #include "ssgLocal.h"
 
 
-inline bool getAlphaFlag ()
-{
-  return ssgTextureManager::get () -> getAlphaFlag () != 0 ;
-}
-
-
 void ssgTexture::copy_from ( ssgTexture *src, int clone_flags )
 {
   ssgBase::copy_from ( src, clone_flags ) ;
@@ -20,7 +14,7 @@ void ssgTexture::copy_from ( ssgTexture *src, int clone_flags )
 
   alloc_handle () ;
   ssgLoadTexture( filename ) ;
-  has_alpha = getAlphaFlag () ;
+  has_alpha = _ssgGetTextureAlphaFlag () != 0 ;
 	setDefaultGlParams(wrapu, wrapv, mipmap);
 }
 
@@ -87,8 +81,7 @@ ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize
   alloc_handle () ;
   //ssgLoadTexture( filename ) ;
   has_alpha = (zsize == 4) ;
-  ssgTextureManager* tm = ssgTextureManager::get () ;
-	tm -> make_mip_maps ( image, xsize, ysize, zsize );
+	ssgMakeMipMaps ( image, xsize, ysize, zsize );
 	setDefaultGlParams(wrapu, wrapv, TRUE);
 }
 
@@ -110,7 +103,7 @@ ssgTexture::ssgTexture ( const char *fname, int _wrapu, int _wrapv, int _mipmap 
 
   alloc_handle () ;
   ssgLoadTexture( filename ) ;
-  has_alpha = getAlphaFlag () ;
+  has_alpha = _ssgGetTextureAlphaFlag () != 0 ;
 	setDefaultGlParams(wrapu, wrapv, mipmap);
 }
 
@@ -184,7 +177,7 @@ int ssgTexture::load ( FILE *fd )
 
   alloc_handle () ;
   ssgLoadTexture( filename ) ;
-  has_alpha = getAlphaFlag () ;
+  has_alpha = _ssgGetTextureAlphaFlag () != 0 ;
 	setDefaultGlParams(wrapu, wrapv, mipmap);
 
   return ssgBase::load ( fd ) ;

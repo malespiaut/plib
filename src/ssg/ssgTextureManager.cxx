@@ -2,16 +2,47 @@
 #include "ssgLocal.h"
 
 
-ssgTextureManager* ssgTextureManager::current = 0 ;
+struct _ssgTextureFormat
+{
+  const char *extension ;
+  void (*loadfunc) ( const char * ) ;
+} ;
 
 
-void ssgTextureManager::make_mip_maps ( GLubyte *image, int xsize, int ysize, int zsize )
+enum { MAX_FORMATS = 100 } ;
+
+static _ssgTextureFormat formats [ MAX_FORMATS ] ;
+static int num_formats = 0 ;
+
+static int total_texels_loaded = 0 ;
+static int alpha_flag = FALSE ;
+
+
+int ssgGetNumTexelsLoaded ()
+{
+  return total_texels_loaded ;
+}
+
+
+int _ssgGetTextureAlphaFlag ()
+{
+  return alpha_flag ;
+}
+
+
+void _ssgSetTextureAlphaFlag ( int flag )
+{
+  alpha_flag = flag ;
+}
+
+
+void ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
 {
   if ( ! ((xsize & (xsize-1))==0) ||
        ! ((ysize & (ysize-1))==0) )
   {
     ulSetError ( UL_WARNING, "Map is not a power-of-two in size!" ) ;
-    loadDummy () ;
+    ssgLoadDummyTexture () ;
     return ;
   }
 
@@ -124,7 +155,7 @@ void ssgTextureManager::make_mip_maps ( GLubyte *image, int xsize, int ysize, in
 }
 
 
-void ssgTextureManager::loadDummy ()
+void ssgLoadDummyTexture ()
 {
   GLubyte *image = new GLubyte [ 4 * 3 ] ;
 
@@ -135,12 +166,12 @@ void ssgTextureManager::loadDummy ()
   image [ 6 ] = 255 ; image [ 7 ] = 255 ; image [ 8 ] = 255 ;
   image [ 9 ] = 255 ; image [ 10] =  0  ; image [ 11] =  0  ;
 
-  make_mip_maps ( image, 2, 2, 3 ) ;
+  ssgMakeMipMaps ( image, 2, 2, 3 ) ;
 }
 
 
-void ssgTextureManager::addFormat ( const char* extension,
-  void (*loadfunc) ( const char* fname ) )
+void ssgAddTextureFormat ( const char* extension,
+                          void (*loadfunc) ( const char* fname ) )
 {
   if ( num_formats < MAX_FORMATS )
   {
@@ -155,9 +186,9 @@ void ssgTextureManager::addFormat ( const char* extension,
 }
 
 
-void ssgTextureManager::load ( const char *fname )
+void ssgLoadTexture ( const char *fname )
 {
-  setAlphaFlag ( FALSE ) ;
+  _ssgSetTextureAlphaFlag ( FALSE ) ;
 
   if ( fname == NULL || *fname == '\0' )
     return ;
@@ -182,33 +213,33 @@ void ssgTextureManager::load ( const char *fname )
     }
 
   ulSetError ( UL_WARNING, "ssgLoadTexture: Unrecognised file type '%s'", extn ) ;
-  loadDummy () ;
+  ssgLoadDummyTexture () ;
 }
 
 
-void ssgTextureManager::clear ()
+void ssgTextureArray::add ( ssgTexture* tex )
 {
-  for ( int i = 0; i < num_shared_textures; i++ )
-    ssgDeRefDelete ( shared_textures[i] ) ;
-  num_shared_textures = 0 ;
-}
-
-
-void ssgTextureManager::add ( ssgTexture* tex )
-{
-  if ( tex && num_shared_textures < MAX_SHARED_TEXTURES )
+  if ( tex )
   {
-    tex -> ref() ;
-    shared_textures [ num_shared_textures++ ] = tex ;
+    tex -> ref () ;
+    raw_add ( (char *) &tex ) ;
   }
 }
 
 
-ssgTexture* ssgTextureManager::find ( const char* fname )
+void ssgTextureArray::removeAll ()
 {
-  for ( int i = 0 ; i < num_shared_textures ; i++ )
+  for ( int i = 0; i < getNum (); i++ )
+    ssgDeRefDelete ( get (i) ) ;
+  ssgSimpleList::removeAll () ;
+}
+
+
+ssgTexture* ssgTextureArray::find ( const char* fname )
+{
+  for ( int i = 0; i < getNum (); i++ )
   {
-    ssgTexture *tex = shared_textures [ i ] ;
+    ssgTexture *tex = get (i) ;
     if ( _ssgStrEqual ( fname, tex->getFilename() ) )
 	    return tex ;
   }
