@@ -40,6 +40,8 @@ struct pslFwdRef
     return symbol != NULL && strcmp ( s, symbol ) == 0 ;
   }
 
+   pslFwdRef () { symbol = NULL ; }
+  ~pslFwdRef () { delete [] symbol ; }
 } ;
 
 
@@ -334,9 +336,9 @@ public:
     {
       delete [] define_token       [ i ] ;
       delete [] define_replacement [ i ] ;
-      delete [] symtab      [ i ] . symbol ;
-      delete [] code_symtab [ i ] . symbol ;
-      delete [] forward_ref [ i ] . symbol ;
+      delete [] symtab      [ i ] . symbol ; symtab      [ i ] . symbol = NULL ;
+      delete [] code_symtab [ i ] . symbol ; code_symtab [ i ] . symbol = NULL ;
+      delete [] forward_ref [ i ] . symbol ; forward_ref [ i ] . symbol = NULL ;
     }
   }
 
