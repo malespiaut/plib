@@ -166,7 +166,7 @@ void puInput::draw ( int dx, int dy )
         int top = yy + legendFont.getStringHeight () ;
         int bot = yy - legendFont.getStringDescender() ;
 
-        glColor3f ( 0.1f, 0.1f, 1.0f ) ;
+        glColor4fv ( colour [ PUCOL_MISC ] ) ;
         glBegin   ( GL_LINES ) ;
         glVertex2i ( cpos    , dy + abox.min[1] + bot ) ;
         glVertex2i ( cpos    , dy + abox.min[1] + top ) ;
