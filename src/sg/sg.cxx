@@ -551,7 +551,7 @@ int sgFrustum::contains ( const sgSphere *s ) const
 
 void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat z, const SGfloat h, const SGfloat p, const SGfloat r )
 {
-  double ch, sh, cp, sp, cr, sr, srsp, crsp, srcp ;
+  SGfloat ch, sh, cp, sp, cr, sr, srsp, crsp, srcp ;
 
   if ( h == SG_ZERO )
   {
@@ -560,8 +560,8 @@ void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat
   }
   else
   {
-    sh = (SGfloat) sin( (double)( h * SG_DEGREES_TO_RADIANS )) ;
-    ch = (SGfloat) cos( (double)( h * SG_DEGREES_TO_RADIANS )) ;
+    sh = (SGfloat) sin( h * SG_DEGREES_TO_RADIANS ) ;
+    ch = (SGfloat) cos( h * SG_DEGREES_TO_RADIANS ) ;
   }
 
   if ( p == SG_ZERO )
@@ -571,8 +571,8 @@ void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat
   }
   else
   {
-    sp = sin( (double)( p * SG_DEGREES_TO_RADIANS )) ;
-    cp = cos( (double)( p * SG_DEGREES_TO_RADIANS )) ;
+    sp = (SGfloat) sin( p * SG_DEGREES_TO_RADIANS ) ;
+    cp = (SGfloat) cos( p * SG_DEGREES_TO_RADIANS ) ;
   }
 
   if ( r == SG_ZERO )
@@ -585,8 +585,8 @@ void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat
   }
   else
   {
-    sr   = sin( (double)( r * SG_DEGREES_TO_RADIANS )) ;
-    cr   = cos( (double)( r * SG_DEGREES_TO_RADIANS )) ;
+    sr   = (SGfloat) sin( r * SG_DEGREES_TO_RADIANS ) ;
+    cr   = (SGfloat) cos( r * SG_DEGREES_TO_RADIANS ) ;
     srsp = sr * sp ;
     crsp = cr * sp ;
     srcp = sr * cp ;
@@ -845,17 +845,17 @@ void sgXformVec3 ( sgVec3 dst, const sgVec3 src, const sgMat4 mat )
   SGfloat t1 = src[ 1 ] ;
   SGfloat t2 = src[ 2 ] ;
 
-  dst[0] = ( t0 * mat[ 0 ][ 0 ] +
-             t1 * mat[ 1 ][ 0 ] +
-             t2 * mat[ 2 ][ 0 ] ) ;
+  dst[0] = t0 * mat[ 0 ][ 0 ] +
+           t1 * mat[ 1 ][ 0 ] +
+           t2 * mat[ 2 ][ 0 ] ;
 
-  dst[1] = ( t0 * mat[ 0 ][ 1 ] +
-             t1 * mat[ 1 ][ 1 ] +
-             t2 * mat[ 2 ][ 1 ] ) ;
+  dst[1] = t0 * mat[ 0 ][ 1 ] +
+           t1 * mat[ 1 ][ 1 ] +
+           t2 * mat[ 2 ][ 1 ] ;
 
-  dst[2] = ( t0 * mat[ 0 ][ 2 ] +
-             t1 * mat[ 1 ][ 2 ] +
-             t2 * mat[ 2 ][ 2 ] ) ;
+  dst[2] = t0 * mat[ 0 ][ 2 ] +
+           t1 * mat[ 1 ][ 2 ] +
+           t2 * mat[ 2 ][ 2 ] ;
 }
 
 
@@ -865,20 +865,20 @@ void sgXformPnt3 ( sgVec3 dst, const sgVec3 src, const sgMat4 mat )
   SGfloat t1 = src[ 1 ] ;
   SGfloat t2 = src[ 2 ] ;
 
-  dst[0] = ( t0 * mat[ 0 ][ 0 ] +
-             t1 * mat[ 1 ][ 0 ] +
-             t2 * mat[ 2 ][ 0 ] +
-                  mat[ 3 ][ 0 ] ) ;
+  dst[0] = t0 * mat[ 0 ][ 0 ] +
+           t1 * mat[ 1 ][ 0 ] +
+           t2 * mat[ 2 ][ 0 ] +
+                mat[ 3 ][ 0 ] ;
 
-  dst[1] = ( t0 * mat[ 0 ][ 1 ] +
-             t1 * mat[ 1 ][ 1 ] +
-             t2 * mat[ 2 ][ 1 ] +
-                  mat[ 3 ][ 1 ] ) ;
+  dst[1] = t0 * mat[ 0 ][ 1 ] +
+           t1 * mat[ 1 ][ 1 ] +
+           t2 * mat[ 2 ][ 1 ] +
+                mat[ 3 ][ 1 ] ;
 
-  dst[2] = ( t0 * mat[ 0 ][ 2 ] +
-             t1 * mat[ 1 ][ 2 ] +
-             t2 * mat[ 2 ][ 2 ] +
-                  mat[ 3 ][ 2 ] ) ;
+  dst[2] = t0 * mat[ 0 ][ 2 ] +
+           t1 * mat[ 1 ][ 2 ] +
+           t2 * mat[ 2 ][ 2 ] +
+                mat[ 3 ][ 2 ] ;
 }
 
 
@@ -889,25 +889,25 @@ void sgXformPnt4 ( sgVec4 dst, const sgVec4 src, const sgMat4 mat )
   SGfloat t2 = src[ 2 ] ;
   SGfloat t3 = src[ 3 ] ;
 
-  dst[0] = ( t0 * mat[ 0 ][ 0 ] +
-             t1 * mat[ 1 ][ 0 ] +
-             t2 * mat[ 2 ][ 0 ] +
-             t3 * mat[ 3 ][ 0 ] ) ;
+  dst[0] = t0 * mat[ 0 ][ 0 ] +
+           t1 * mat[ 1 ][ 0 ] +
+           t2 * mat[ 2 ][ 0 ] +
+           t3 * mat[ 3 ][ 0 ] ;
 
-  dst[1] = ( t0 * mat[ 0 ][ 1 ] +
-             t1 * mat[ 1 ][ 1 ] +
-             t2 * mat[ 2 ][ 1 ] +
-             t3 * mat[ 3 ][ 1 ] ) ;
+  dst[1] = t0 * mat[ 0 ][ 1 ] +
+           t1 * mat[ 1 ][ 1 ] +
+           t2 * mat[ 2 ][ 1 ] +
+           t3 * mat[ 3 ][ 1 ] ;
 
-  dst[2] = ( t0 * mat[ 0 ][ 2 ] +
-             t1 * mat[ 1 ][ 2 ] +
-             t2 * mat[ 2 ][ 2 ] +
-             t3 * mat[ 3 ][ 2 ] ) ;
+  dst[2] = t0 * mat[ 0 ][ 2 ] +
+           t1 * mat[ 1 ][ 2 ] +
+           t2 * mat[ 2 ][ 2 ] +
+           t3 * mat[ 3 ][ 2 ] ;
 
-  dst[3] = ( t0 * mat[ 0 ][ 3 ] +
-             t1 * mat[ 1 ][ 3 ] +
-             t2 * mat[ 2 ][ 3 ] +
-             t3 * mat[ 3 ][ 3 ] ) ;
+  dst[3] = t0 * mat[ 0 ][ 3 ] +
+           t1 * mat[ 1 ][ 3 ] +
+           t2 * mat[ 2 ][ 3 ] +
+           t3 * mat[ 3 ][ 3 ] ;
 }
 
 
@@ -1031,7 +1031,7 @@ void sgMatrixToQuat( sgQuat quat, sgMat4 m )
     if (m[2][2] > m[i][i]) i = 2;
     j = nxt[i];
     k = nxt[j];
-    s = sqrt ((m[i][i] - (m[j][j] + m[k][k])) + SG_ONE);
+    s = (SGfloat) sqrt ((m[i][i] - (m[j][j] + m[k][k])) + SG_ONE);
     q[i] = s * SG_HALF;
             
     if (s != SG_ZERO) s = SG_HALF / s;
@@ -1122,10 +1122,10 @@ void sgEulerToQuat(sgQuat quat, sgVec3 ypr )
 
 void sgQuatToEuler( sgVec3 euler, const sgQuat quat )
 {
-  float matrix[3][3];
-  float cx,sx;
-  float cy,sy,yr;
-  float cz,sz;
+  SGfloat matrix[3][3];
+  SGfloat cx,sx;
+  SGfloat cy,sy,yr;
+  SGfloat cz,sz;
 
   // CONVERT QUATERNION TO MATRIX - I DON'T REALLY NEED ALL OF IT
 
@@ -1148,7 +1148,7 @@ void sgQuatToEuler( sgVec3 euler, const sgQuat quat )
                         - (SG_TWO * quat[SG_Y] * quat[SG_Y]);
 
   sy = -matrix[2][0];
-  cy = sqrt(SG_ONE - (sy * sy));
+  cy = (SGfloat)sqrt(SG_ONE - (sy * sy));
   yr = (SGfloat)atan2(sy,cy);
   euler[1] = yr * SG_RADIANS_TO_DEGREES ;
 
@@ -1211,7 +1211,7 @@ void sgQuatToMatrix ( sgMat4 dst, sgQuat q )
 //from gamasutra.com
 //by nb@netcom.ca 
 void sgMakeRotMat42( sgMat4 m, sgQuat quat ){
-  float wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
+ SGfloat wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
 
   // calculate coefficients
   x2 = quat[SG_X] + quat[SG_X]; y2 = quat[SG_Y] + quat[SG_Y]; 
@@ -1233,53 +1233,61 @@ void sgMakeRotMat42( sgMat4 m, sgQuat quat ){
   m[3][2] = 0;			m[3][3] = 1;
 }
 
-
-
 //from gamasutra.com
 //by nb@netcom.ca 
-void sgSlerpQuat2( sgQuat dst, const sgQuat from, const sgQuat to, const float t )
+
+void sgSlerpQuat2( sgQuat dst, const sgQuat from, const sgQuat to, const SGfloat t )
 {
-	float           to1[4];
-	double        omega, cosom, sinom, scale0, scale1;
+  SGfloat to1[4];
+  SGfloat omega, cosom, sinom, scale0, scale1;
 
-        // calc cosine
-        cosom = from[SG_X] * to[SG_X] + from[SG_Y] * to[SG_Y] + from[SG_Z] * to[SG_Z]
-			       + from[SG_W] * to[SG_W];
+  // calc cosine
+  cosom = from[SG_X] * to[SG_X] +
+          from[SG_Y] * to[SG_Y] +
+          from[SG_Z] * to[SG_Z] +
+          from[SG_W] * to[SG_W];
 
-        // adjust signs (if necessary)
-        if ( cosom <SG_ZERO  ){ 
-			cosom = -cosom; 
-			to1[0] = - to[SG_X];
-		to1[1] = - to[SG_Y];
-		to1[2] = - to[SG_Z];
-		to1[3] = - to[SG_W];
-        } else  {
-		to1[0] = to[SG_X];
-		to1[1] = to[SG_Y];
-		to1[2] = to[SG_Z];
-		to1[3] = to[SG_W];
-        }
+  // adjust signs (if necessary)
 
-        // calculate coefficients
+  if ( cosom < SG_ZERO )
+  { 
+    cosom = -cosom; 
+    to1[0] = - to[SG_X];
+    to1[1] = - to[SG_Y];
+    to1[2] = - to[SG_Z];
+    to1[3] = - to[SG_W];
+  }
+  else
+  {
+    to1[0] = to[SG_X];
+    to1[1] = to[SG_Y];
+    to1[2] = to[SG_Z];
+    to1[3] = to[SG_W];
+  }
+
+  // calculate coefficients
 #define DELTA SG_ZERO 
-       if ( (SG_ONE- cosom) > DELTA ) {
-                // standard case (slerp)
-                omega = acos(cosom);
-                sinom = sin(omega);
-                scale0 = sin((SG_ONE- t) * omega) / sinom;
-                scale1 = sin(t * omega) / sinom;
-
-        } else {        
+  if ( (SG_ONE- cosom) > DELTA )
+  {
+    // standard case (slerp)
+    omega = (SGfloat) acos(cosom);
+    sinom = (SGfloat) sin(omega);
+    scale0 = (SGfloat) sin((SG_ONE- t) * omega) / sinom;
+    scale1 = (SGfloat) sin(t * omega) / sinom;
+  }
+  else
+  {        
     // "from" and "to" quaternions are very close 
-	    //  ... so we can do a linear interpolation
-                scale0 = SG_ONE- t;
-                scale1 = t;
-        }
-	// calculate final values
-	dst[SG_X] = scale0 * from[SG_X] + scale1 * to1[0];
-	dst[SG_Y] = scale0 * from[SG_Y] + scale1 * to1[1];
-	dst[SG_Z] = scale0 * from[SG_Z] + scale1 * to1[2];
-	dst[SG_W] = scale0 * from[SG_W] + scale1 * to1[3];
+    //  ... so we can do a linear interpolation
+    scale0 = SG_ONE- t;
+    scale1 = t;
+  }
+
+  // calculate final values
+  dst[SG_X] = scale0 * from[SG_X] + scale1 * to1[0];
+  dst[SG_Y] = scale0 * from[SG_Y] + scale1 * to1[1];
+  dst[SG_Z] = scale0 * from[SG_Z] + scale1 * to1[2];
+  dst[SG_W] = scale0 * from[SG_W] + scale1 * to1[3];
 }
 
 void sgSlerpQuat( sgQuat dst, const sgQuat from, const sgQuat to, const SGfloat t )

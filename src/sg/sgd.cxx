@@ -515,7 +515,7 @@ int sgdFrustum::contains ( const sgdSphere *s ) const
 
 void sgdMakeCoordMat4 ( sgdMat4 m, const SGDfloat x, const SGDfloat y, const SGDfloat z, const SGDfloat h, const SGDfloat p, const SGDfloat r )
 {
-  double ch, sh, cp, sp, cr, sr, srsp, crsp, srcp ;
+  SGDfloat ch, sh, cp, sp, cr, sr, srsp, crsp, srcp ;
 
   if ( h == SGD_ZERO )
   {
@@ -1085,15 +1085,15 @@ void sgdEulerToQuat(sgdQuat quat, sgdVec3 ypr )
 
 void sgdQuatToEuler( sgdVec3 euler, const sgdQuat quat )
 {
-  float matrix[3][3];
-  float cx,sx;
-  float cy,sy,yr;
-  float cz,sz;
+  SGDfloat matrix[3][3];
+  SGDfloat cx,sx;
+  SGDfloat cy,sy,yr;
+  SGDfloat cz,sz;
 
   // CONVERT QUATERNION TO MATRIX - I DON'T REALLY NEED ALL OF IT
 
   matrix[0][0] = SGD_ONE - (SGD_TWO * quat[SGD_Y] * quat[SGD_Y])
-                        - (SGD_TWO * quat[SGD_Z] * quat[SGD_Z]);
+                         - (SGD_TWO * quat[SGD_Z] * quat[SGD_Z]);
 //matrix[0][1] = (SGD_TWO * quat->x * quat->y) - (SGD_TWO * quat->w * quat->z);
 //matrix[0][2] = (SGD_TWO * quat->x * quat->z) + (SGD_TWO * quat->w * quat->y);
 
@@ -1174,7 +1174,7 @@ void sgdQuatToMatrix ( sgdMat4 dst, sgdQuat q )
 //from gamasutra.com
 //by nb@netcom.ca 
 void sgdMakeRotMat42( sgdMat4 m, sgdQuat quat ){
-  float wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
+  SGDfloat wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
 
   // calculate coefficients
   x2 = quat[SGD_X] + quat[SGD_X]; y2 = quat[SGD_Y] + quat[SGD_Y]; 
@@ -1200,10 +1200,10 @@ void sgdMakeRotMat42( sgdMat4 m, sgdQuat quat ){
 
 //from gamasutra.com
 //by nb@netcom.ca 
-void sgdSlerpQuat2( sgdQuat dst, const sgdQuat from, const sgdQuat to, const float t )
+void sgdSlerpQuat2( sgdQuat dst, const sgdQuat from, const sgdQuat to, const SGDfloat t )
 {
-	float           to1[4];
-	double        omega, cosom, sinom, scale0, scale1;
+	SGDfloat           to1[4];
+	SGDfloat        omega, cosom, sinom, scale0, scale1;
 
         // calc cosine
         cosom = from[SGD_X] * to[SGD_X] + from[SGD_Y] * to[SGD_Y] + from[SGD_Z] * to[SGD_Z]

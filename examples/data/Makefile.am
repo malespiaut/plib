@@ -1,3 +1,3 @@
 
-EXTRA_DIST = *.rgb *.ac *.ase *.bmp *.3ds
+# EXTRA_DIST = *.rgb *.ac *.ase *.bmp *.3ds
 

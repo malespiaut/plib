@@ -107,9 +107,9 @@ fi
 
 dnl Check SGI audio library
 
-AC_CHECK_LIB(audio, ALopenport)
+AC_CHECK_LIB(audio, alOpenPort)
 
-if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
+if test "x$ac_cv_lib_audio_alOpenPort" = "xyes" ; then
   dnl this is an SGI machine...
   LIBS="$LIBS -laudio"
 fi
@@ -165,5 +165,6 @@ AC_OUTPUT( \
 	src/sg/Makefile \
 	src/sl/Makefile \
 	src/ssg/Makefile \
+	src/ssgAux/Makefile \
 	src/fnt/Makefile )
 
