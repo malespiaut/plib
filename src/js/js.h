@@ -3,6 +3,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h> // -dw- for memcpy
+
+#ifdef macintosh
+#  include <InputSprocket.h>
+#endif
 
 /*
   FreeBSD port - courtesy of Stephen Montgomery-Smith
@@ -77,6 +82,8 @@
 
 #ifdef WIN32
 #  define _JS_MAX_AXES 6
+#elif defined (macintosh)
+#  define _JS_MAX_AXES 9
 #else
 #  if defined(__FreeBSD__) || defined(__NetBSD__)
 #  define _JS_MAX_AXES 2
@@ -84,9 +91,21 @@
 #  define _JS_MAX_AXES 9
 #  endif
 #endif
-
+  
 class jsJoystick
 {
+#ifdef macintosh
+   
+   #define  isp_num_axis   9
+   #define  isp_num_needs  41
+   
+   ISpElementReference     isp_elem[isp_num_needs];
+   ISpNeed isp_needs       [isp_num_needs];
+    
+#endif
+
+
+
 #if defined(__FreeBSD__) || defined(__NetBSD__)
   int          id ;
 #endif
@@ -117,7 +136,107 @@ class jsJoystick
 
   void open ()
   {
-#ifdef WIN32
+
+#ifdef macintosh
+   
+   OSStatus err;
+      
+   err = ISpStartup ();      
+      
+	if ( err == noErr ) {
+   	   	
+   	#define ISP_CHECK_ERR(x) if (x != noErr) { setError(); return; }
+   	
+   	setError ();
+    
+      // initialize the needs structure
+      ISpNeed temp_isp_needs[isp_num_needs] = 
+      {
+          {"\pX-Axis",   128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+          {"\pY-Axis",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+          {"\pZ-Axis",    128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+          {"\pR-Axis",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+          {"\pAxis   4",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+          {"\pAxis   5",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+          {"\pAxis   6",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+          {"\pAxis   7",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+          {"\pAxis   8",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
+         
+          {"\pButton 0",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 1",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 2",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 3",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 4",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 5",    128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 6",   128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 7",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 8",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 9",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 10", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 11", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 12", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 13", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 14", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 15", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 16", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 17", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 18", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 19", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 20", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 21", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 22", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 23", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 24", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 25", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 26", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 27", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 28", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 29", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 30", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+          {"\pButton 31", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
+      };
+
+      memcpy (isp_needs, temp_isp_needs, sizeof (temp_isp_needs) );
+         
+      
+      // next two calls allow keyboard and mouse to emulate other input devices (gamepads, joysticks, etc)
+      
+      /*
+      err = ISpDevices_ActivateClass (kISpDeviceClass_Keyboard);
+      ISP_CHECK_ERR(err)
+      
+      
+      err = ISpDevices_ActivateClass (kISpDeviceClass_Mouse);
+      ISP_CHECK_ERR(err)
+      */
+      
+      err = ISpElement_NewVirtualFromNeeds (isp_num_needs, isp_needs, isp_elem, 0);
+      ISP_CHECK_ERR(err)
+         
+      err = ISpInit (isp_num_needs, isp_needs, isp_elem, 'PLIB', nil, 0, 128, 0);
+      ISP_CHECK_ERR(err)
+      
+      num_buttons = isp_num_needs - isp_num_axis;
+      num_axes    = isp_num_axis;
+            
+      for ( int i = 0; i < num_axes; i++ ) {
+      
+         dead_band[i] = 0;
+         saturate [i] = 1;
+         center[i]    = kISpAxisMiddle;         
+         max [i]      = kISpAxisMaximum;
+         min [i]      = kISpAxisMinimum;
+      }
+      
+      error = false;
+   }
+   else {
+     setError ();
+     num_buttons = num_axes = 0; 
+   }
+         
+#elif defined( WIN32 )
+
     JOYCAPS jsCaps ;
 
     js . dwFlags = JOY_RETURNALL ;
@@ -127,7 +246,6 @@ class jsJoystick
 
     error = ( joyGetDevCaps( js_id, &jsCaps, sizeof(jsCaps) )
                  != JOYERR_NOERROR ) ;
-
     if ( jsCaps.wNumAxes == 0 )
     {
       num_axes = 0 ;
@@ -171,8 +289,9 @@ class jsJoystick
     tmp_buttons = 0 ;
 #  endif
 
-    fd = ::open ( fname, O_RDONLY | O_NONBLOCK ) ;
-
+   // fd = ::open ( fname, O_RDONLY | O_NONBLOCK ) ;
+    fd = ::open ( fname, O_RDONLY ) ;
+    
     error = ( fd < 0 ) ;
 
     if ( error )
@@ -265,9 +384,17 @@ class jsJoystick
 
   void close ()
   {
-#ifndef WIN32
+#if !defined( WIN32 ) && !defined( macintosh )
     if ( ! error )
       ::close ( fd ) ;
+#endif
+
+#ifdef macintosh
+
+   ISpSuspend ();
+   ISpStop ();
+   ISpShutdown ();   
+
 #endif
   }
 
@@ -318,6 +445,8 @@ public:
       case 1  : js_id = JOYSTICKID2 ; open () ; break;
       default :    num_axes = 0 ; setError () ; break ;
     }
+
+   
 #else
 #  if defined(__FreeBSD__) || defined(__NetBSD__)
     id = ident;
@@ -368,9 +497,10 @@ public:
 
     rawRead ( buttons, raw_axes ) ;
 
+    
     if ( axes )
       for ( int i = 0 ; i < num_axes ; i++ )
-        axes[i] = fudge_axis ( raw_axes[i], i ) ; 
+        axes[i] = fudge_axis ( raw_axes[i], i ) ;
   }
 
   void rawRead ( int *buttons, float *axes )
@@ -387,7 +517,37 @@ public:
       return ;
     }
 
-#ifdef WIN32
+#ifdef macintosh
+   
+      int i;
+      int err;
+      UInt32 state;
+      
+      if (buttons) {
+      
+         *buttons = 0;
+      
+         for (i = 0; i < num_buttons; i++) {
+                  
+            err = ISpElement_GetSimpleState (isp_elem[i + isp_num_axis ], &state);
+            ISP_CHECK_ERR (err)
+            
+            *buttons  |= state << i;   
+         }
+      }
+      
+      if (axes) {
+                  
+         for (i = 0; i < num_axes; i++) {
+         
+            err = ISpElement_GetSimpleState (isp_elem[ i ], &state);
+            ISP_CHECK_ERR  (err);
+            
+            axes [i] = (float) state;
+         }
+      }
+
+#elif defined ( WIN32 )
     MMRESULT status = joyGetPosEx ( js_id, &js ) ;
 
     if ( status != JOYERR_NOERROR )
@@ -473,7 +633,7 @@ public:
 # else
 
     int status = ::read ( fd, &js, JS_RETURN ) ;
-
+    
     if ( status != JS_RETURN )
     {
       perror ( fname ) ;
@@ -499,4 +659,3 @@ public:
 } ;
 
 #endif
-
