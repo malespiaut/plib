@@ -303,16 +303,22 @@ void OptVertexList::makeNormals()
   for ( i = 0 ; i < tnum ; i++ )
   {
     sgVec3 tmp ;
+    short j ;
     
     sgMakeNormal ( tmp, vlist [ tlist [ i*3+ 0 ] ] -> vertex,
       vlist [ tlist [ i*3+ 1 ] ] -> vertex,
       vlist [ tlist [ i*3+ 2 ] ] -> vertex ) ;
-    
-    sgAddVec3 ( vlist [ tlist [ i*3+ 0 ] ] -> normal, tmp ) ;
-    sgAddVec3 ( vlist [ tlist [ i*3+ 1 ] ] -> normal, tmp ) ;
-    sgAddVec3 ( vlist [ tlist [ i*3+ 2 ] ] -> normal, tmp ) ;
+
+    for ( j = 0; j < vnum; j++ ) {
+      if (sgEqualVec3(vlist[j]->vertex, vlist[tlist[i*3+0]]->vertex))
+	sgAddVec3(vlist[j]->normal, tmp);
+      if (sgEqualVec3(vlist[j]->vertex, vlist[tlist[i*3+1]]->vertex))
+	sgAddVec3(vlist[j]->normal, tmp);
+      if (sgEqualVec3(vlist[j]->vertex, vlist[tlist[i*3+2]]->vertex))
+	sgAddVec3(vlist[j]->normal, tmp);
+    }
   }
-  
+
   for ( i = 0 ; i < vnum ; i++ )
     if ( sgScalarProductVec2 ( vlist[i]->normal, vlist[i]->normal ) < 0.001 )
       sgSetVec3 ( vlist[i]->normal, 0.0f, 0.0f, 1.0f ) ;
