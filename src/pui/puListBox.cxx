@@ -124,20 +124,27 @@ void puListBox::doHit ( int button, int updown, int x, int y )
 
   if ( button == PU_LEFT_BUTTON )
   {
-    lowlight () ;
+    if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )
+    {
+      lowlight () ;
     
-    int yinc = puGetStringHeight(legendFont) + PUSTR_BGAP ;
-    int index = top + ( abox.max[1] - PUSTR_BGAP - y ) / yinc;
-    if ( index < 0 )
-      index = 0;
-    else if ( index >= num )
-      index = num-1;
+      int yinc = puGetStringHeight(legendFont) + PUSTR_BGAP ;
+      int index = top + ( abox.max[1] - PUSTR_BGAP - y ) / yinc;
+      if ( index < 0 )
+        index = 0;
+      else if ( index >= num )
+        index = num-1;
     
-    setValue ( index ) ;
+      setValue ( index ) ;
     
-    puSetActiveWidget ( this ) ;
-    invokeCallback () ;
+      puSetActiveWidget ( this ) ;
+      invokeCallback () ;
+    }
+    else
+      highlight () ;                                                            
   }
   else
     lowlight () ;
 }
+
+
