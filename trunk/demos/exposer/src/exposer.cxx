@@ -386,7 +386,7 @@ static void init_graphics ()
 
   scroller     =  new puSlider  ( 5, 70, 400, TRUE ) ;
   scroller     -> setCBMode     ( PUSLIDER_DELTA   ) ;
-  scroller     -> setDelta      ( 0.01             ) ;
+  scroller     -> setDelta      ( 0.01f             ) ;
   scroller     -> setCallback   ( scrollerCB       ) ;
 
     panSlider  =  new puDial    ( 0, 0, 40 ) ;
@@ -416,7 +416,7 @@ static void init_graphics ()
 
   rangeSlider  =  new puSlider  ( 80, 20, 141, FALSE ) ;
   rangeSlider  -> setCBMode     ( PUSLIDER_DELTA ) ;
-  rangeSlider  -> setDelta      ( 0.01    ) ;
+  rangeSlider  -> setDelta      ( 0.01f    ) ;
   message      =  new puText    ( 80, 40 ) ;
   message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
   message      -> setLabel      ( "Zoom"  ) ;

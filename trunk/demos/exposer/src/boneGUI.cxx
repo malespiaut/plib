@@ -229,7 +229,7 @@ void initBoneGUI ()
 
   ZtranslateSlider = new puSlider ( 80, 485, 120, FALSE ) ;
   ZtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
-  ZtranslateSlider -> setDelta    ( 0.01    ) ;
+  ZtranslateSlider -> setDelta    ( 0.01f    ) ;
   ZtranslateSlider -> setCallback ( currTranslateZCB ) ;
   message = new puText ( 205,485 ) ; message->setLabel ( "Z" ) ; 
 
@@ -238,7 +238,7 @@ void initBoneGUI ()
 
   YtranslateSlider = new puSlider ( 80, 505, 120, FALSE ) ;
   YtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
-  YtranslateSlider -> setDelta    ( 0.01    ) ;
+  YtranslateSlider -> setDelta    ( 0.01f    ) ;
   YtranslateSlider -> setCallback ( currTranslateYCB ) ;
   message = new puText ( 205,505 ) ; message->setLabel ( "Y" ) ; 
 
@@ -247,7 +247,7 @@ void initBoneGUI ()
 
   XtranslateSlider = new puSlider ( 80, 525, 120, FALSE ) ;
   XtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
-  XtranslateSlider -> setDelta    ( 0.01    ) ;
+  XtranslateSlider -> setDelta    ( 0.01f    ) ;
   XtranslateSlider -> setCallback ( currTranslateXCB ) ;
   message = new puText ( 205,525 ) ; message->setLabel ( "X" ) ; 
 }
