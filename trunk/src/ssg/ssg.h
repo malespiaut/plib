@@ -1045,6 +1045,8 @@ class ssgLeaf : public ssgEntity
   ssgState *state ;
 
 protected:
+  GLenum gltype ;
+
   ssgCallback  preDrawCB ;
   ssgCallback postDrawCB ;
 
@@ -1095,6 +1097,12 @@ public:
       postDrawCB = cb ;
   }
 
+  virtual void setPrimitiveType ( GLenum ty ) { gltype = ty ; }
+  virtual GLenum getPrimitiveType () { return gltype ; }
+
+  /* For backwards compatibility only -- DEPRECATED */
+  GLenum getGLtype () { return getPrimitiveType() ; }
+
   virtual int getNumVertices  () { return 0 ; }
   virtual int getNumNormals   () { return 0 ; }
   virtual int getNumColours   () { return 0 ; }
@@ -1140,7 +1148,6 @@ class ssgVTable : public ssgLeaf
 protected:
   sgBox bbox ;
   int indexed ;
-  GLenum gltype ;
 
   sgVec3 *vertices  ; int num_vertices  ; unsigned short *v_index ;
   sgVec3 *normals   ; int num_normals   ; unsigned short *n_index ;
@@ -1221,7 +1228,6 @@ public:
                              return (num_texcoords<=0) ? _ssgTexCoord00 :
                                     ((indexed)?texcoords[t_index[i]]:texcoords[i]);}
 
-  GLenum getGLtype () { return gltype ; }
 
   virtual ~ssgVTable (void) ;
 
@@ -1241,7 +1247,6 @@ class ssgVtxTable : public ssgLeaf
 {
 protected:
   sgBox bbox ;
-  GLenum gltype ;
 
   virtual void draw_geometry () ;
   virtual void copy_from ( ssgVtxTable *src, int clone_flags ) ;
@@ -1268,9 +1273,6 @@ public:
   virtual void pick ( int baseName ) ;
 #endif
   virtual void transform ( const sgMat4 m ) ;
-
-  void setPrimitiveType ( GLenum ty ) { gltype = ty ; }
-  GLenum getPrimitiveType () { return gltype ; }
 
   void setVertices  ( ssgVertexArray   *vl ) ;
   void setNormals   ( ssgNormalArray   *nl ) ;
@@ -1304,8 +1306,6 @@ public:
   float *getColour  (int i){ if(i>=getNumColours())i=getNumColours()-1;
 			     return (getNumColours()<=0) ?
 				    _ssgColourWhite : colours->get(i);}
-
-  GLenum getGLtype () { return gltype ; }
 
   virtual ~ssgVtxTable (void) ;
 

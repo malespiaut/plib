@@ -80,7 +80,7 @@ static void save_states ()
 
 static void save_vtx_table ( ssgVtxTable *vt )
 {
-  GLenum mode = vt -> getGLtype () ;
+  GLenum mode = vt -> getPrimitiveType () ;
   if ( mode != GL_TRIANGLES &&
     mode != GL_TRIANGLE_FAN &&
     mode != GL_TRIANGLE_STRIP )

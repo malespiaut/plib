@@ -127,7 +127,7 @@ ssgVtxTable::~ssgVtxTable ()
 
 void ssgVtxTable::getTriangle ( int n, short *v1, short *v2, short *v3 )
 {
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :
@@ -171,7 +171,7 @@ void ssgVtxTable::getTriangle ( int n, short *v1, short *v2, short *v3 )
 
 int ssgVtxTable::getNumTriangles ()
 {
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :
@@ -201,7 +201,7 @@ int ssgVtxTable::getNumTriangles ()
 
 int ssgVtxTable::getNumLines ()
 {
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :
@@ -227,7 +227,7 @@ int ssgVtxTable::getNumLines ()
 void ssgVtxTable::getLine ( int n, short *v1, short *v2 )
 { 
 	assert( n>=0 );
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :

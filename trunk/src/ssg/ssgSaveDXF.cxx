@@ -9,7 +9,7 @@ static FILE *fileout ;
 
 static void save_vtx_table ( ssgVtxTable *vt )
 {
-  GLenum mode = vt -> getGLtype () ;
+  GLenum mode = vt -> getPrimitiveType () ;
   if (( mode == GL_LINES ) || ( mode == GL_LINE_LOOP) || ( mode == GL_LINE_STRIP))
   {
     int num_vert = vt -> getNumVertices () ;
