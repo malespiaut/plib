@@ -66,17 +66,17 @@ public:
 
   pslNumber () { t = PSL_VOID ; s = NULL ; }
 
-  virtual void set ( int          ) = 0 ;
-  virtual void set ( float        ) = 0 ;
-  virtual void set ( const char * ) = 0 ;
-  virtual void set ( pslNumber  * ) = 0 ;
+  virtual void set ( int                ) = 0 ;
+  virtual void set ( float              ) = 0 ;
+  virtual void set ( const char *       ) = 0 ;
+  virtual void set ( const pslNumber  * ) = 0 ;
 
   void reset () { t = PSL_VOID ; i = 0 ; delete [] s ; s = NULL ; }
 
-  pslType getType ()                { return t  ; }
+  pslType getType () const          { return t  ; }
   void    setType ( pslType _type ) { t = _type ; }
 
-  int getInt ()
+  int getInt () const
   {
     switch ( t )
     {
@@ -88,7 +88,7 @@ public:
     return 0 ;
   }
 
-  float getFloat ()
+  float getFloat () const
   {
     switch ( t )
     {
@@ -100,7 +100,7 @@ public:
     return 0.0f ;
   }
 
-  char *getString ()
+  char *getString () const
   {
     switch ( t )
     {
@@ -131,7 +131,7 @@ public:
                                          s = new char [ strlen(v)+1 ] ;
                                          strcpy ( s, v ) ; }
 
-  virtual void set ( pslNumber *v )
+  virtual void set ( const pslNumber *v )
   {
     t = v -> getType ()  ;
 
@@ -191,7 +191,7 @@ public:
     }
   }
 
-  virtual void set ( pslNumber *v )
+  virtual void set ( const pslNumber *v )
   {
     switch ( t )
     {

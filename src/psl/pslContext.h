@@ -46,10 +46,10 @@ public:
 
   ~pslContext () {} ;
 
-  void pushInt    ( int        x ) { stack [ sp++ ] . set ( x ) ; }
-  void pushFloat  ( float      x ) { stack [ sp++ ] . set ( x ) ; }
-  void pushString ( char      *x ) { stack [ sp++ ] . set ( x ) ; }
-  void pushNumber ( pslNumber *x ) { stack [ sp++ ] . set ( x ) ; }
+  void pushInt    ( int              x ) { stack [ sp++ ] . set ( x ) ; }
+  void pushFloat  ( float            x ) { stack [ sp++ ] . set ( x ) ; }
+  void pushString ( const char      *x ) { stack [ sp++ ] . set ( x ) ; }
+  void pushNumber ( const pslNumber *x ) { stack [ sp++ ] . set ( x ) ; }
 
   void   popVoid    () {                --sp                  ; }
   int    popInt     () { return stack [ --sp ] . getInt    () ; }
