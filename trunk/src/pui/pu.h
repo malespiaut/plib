@@ -1127,8 +1127,16 @@ class puInput : public puObject
   void normalize_cursors ( void ) ;
   void removeSelectRegion ( void ) ;
 
+  int input_disabled ;
+
 public:
   void draw     ( int dx, int dy ) ;
+  int checkHit ( int button, int updown, int x, int y )
+  {
+    if ( input_disabled ) return FALSE ;
+    return puObject::checkHit ( button, updown, x, y ) ;
+  }
+
   void doHit    ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key, int updown ) ;
 
@@ -1203,6 +1211,7 @@ public:
     select_end_position   = -1 ;
 
     valid_data = NULL ;
+    input_disabled = FALSE ;
 
     setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
   }
@@ -1218,6 +1227,10 @@ public:
     normalize_cursors () ;
     if ( down_cb ) (*down_cb)(this) ;
   }
+
+  void enableInput ()  {  input_disabled = FALSE ;  }
+  void disableInput () {  input_disabled = TRUE ;  }
+  int  inputDisabled ()  {  return input_disabled ;  }
 } ;
 
 
@@ -1360,12 +1373,21 @@ class puLargeInput : public puGroup
   int select_end_position ;
   char *valid_data ;
 
+  puFrame *frame ;
+
   puSlider *bottom_slider ;    // Horizontal slider at bottom of window
   puSlider *right_slider ;     // Vertical slider at right of window
+
+  puArrowButton *down_arrow ;
+  puArrowButton *fastdown_arrow ;
+  puArrowButton *up_arrow ;
+  puArrowButton *fastup_arrow ;
 
   char *text ;                 // Pointer to text in large input box
 
   short arrow_count ;          // Number of up/down arrows above and below the right slider
+
+  int input_disabled ;
 
   void normalize_cursors ( void ) ;
   void removeSelectRegion ( void ) ;
@@ -1440,12 +1462,19 @@ public:
     return ( ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ) ;
   }
 
+  void enableInput ()  {  input_disabled = FALSE ;  }
+  void disableInput () {  input_disabled = TRUE ;  }
+  int  inputDisabled ()  {  return input_disabled ;  }
+
   void  setText ( char *l ) ;
   char *getText ( void ) { return text ; }
   void  addNewLine ( char *l ) ;
   void  addText ( char *l ) ;
   void  appendText ( char *l ) ;
   void  removeText ( int start, int end ) ;
+
+  void setStyle ( int style ) ;
+  void setColour ( int which, float  r, float g, float  b, float  a = 1.0f ) ;
 } ;
 
 #endif

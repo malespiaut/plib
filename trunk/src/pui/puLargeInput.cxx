@@ -28,18 +28,18 @@
 static void puLargeInputHandleRightSlider ( puObject * slider )
 {
   float val ;
-  slider -> getValue ( &val ) ;
+  slider->getValue ( &val ) ;
   val = 1.0f - val ;
 
-  puLargeInput* text = (puLargeInput*) slider -> getUserData () ;
-  int index = int ( text -> getNumLines () * val ) ;
-  text -> setTopLineInWindow ( index ) ;
+  puLargeInput* text = (puLargeInput*) slider->getUserData () ;
+  int index = int ( text->getNumLines () * val ) ;
+  text->setTopLineInWindow ( index ) ;
 }
 
 static void puLargeInputHandleArrow ( puObject *arrow )
 {
   puSlider *slider = (puSlider *) arrow->getUserData () ;
-  puLargeInput* text = (puLargeInput*) slider -> getUserData () ;
+  puLargeInput* text = (puLargeInput*) slider->getUserData () ;
 
   int type = ((puArrowButton *)arrow)->getArrowType() ;
   int inc = ( type == PUARROW_DOWN     ) ?   1 :
@@ -48,7 +48,7 @@ static void puLargeInputHandleArrow ( puObject *arrow )
             ( type == PUARROW_FASTUP   ) ? -10 : 0 ;
 
   float val ;
-  slider -> getValue ( &val ) ;
+  slider->getValue ( &val ) ;
   val = 1.0f - val ;
   int num_lines = text->getNumLines () ;
   if ( num_lines > 0 )
@@ -57,8 +57,8 @@ static void puLargeInputHandleArrow ( puObject *arrow )
     if ( index > num_lines ) index = num_lines ;
     if ( index < 0 ) index = 0 ;
 
-    slider -> setValue ( 1.0f - (float)index / num_lines ) ;
-    text -> setTopLineInWindow ( index ) ;
+    slider->setValue ( 1.0f - (float)index / num_lines ) ;
+    text->setTopLineInWindow ( index ) ;
   }
 }
 
@@ -139,44 +139,49 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
 
   // Set up the widgets
 
-//  new puFrame ( 0, 0, w, h );
+  frame = new puFrame ( 0, 0, w, h );
 
   bottom_slider = new puSlider ( 0, 0, w - slider_width, 0, slider_width ) ,
-  bottom_slider -> setValue ( 0.0f ) ;   // All the way to the left
+  bottom_slider->setValue ( 0.0f ) ;   // All the way to the left
   bottom_slider->setDelta(0.1f);
   bottom_slider->setSliderFraction (1.0f) ;
   bottom_slider->setCBMode( PUSLIDER_DELTA );
 
   right_slider = new puSlider ( w - slider_width, slider_width*(1+arrows),
                                 h - slider_width * ( 1 + 2 * arrows ), 1, slider_width ) ,
-  right_slider -> setValue ( 1.0f ) ;    // All the way to the top
+  right_slider->setValue ( 1.0f ) ;    // All the way to the top
   right_slider->setDelta(0.1f);
   right_slider->setSliderFraction (1.0f) ;
   right_slider->setCBMode( PUSLIDER_DELTA );
-  right_slider -> setUserData ( this ) ;
-  right_slider -> setCallback ( puLargeInputHandleRightSlider ) ;
+  right_slider->setUserData ( this ) ;
+  right_slider->setCallback ( puLargeInputHandleRightSlider ) ;
+
+  down_arrow = (puArrowButton *)NULL; fastdown_arrow = (puArrowButton *)NULL;
+  up_arrow = (puArrowButton *)NULL; fastup_arrow = (puArrowButton *)NULL;
 
   if ( arrows > 0 )
   {
-    puArrowButton *down_arrow = new puArrowButton ( w-slider_width, slider_width*arrows, w, slider_width*(1+arrows), PUARROW_DOWN ) ;
+    down_arrow = new puArrowButton ( w-slider_width, slider_width*arrows, w, slider_width*(1+arrows), PUARROW_DOWN ) ;
     down_arrow->setUserData ( right_slider ) ;
     down_arrow->setCallback ( puLargeInputHandleArrow ) ;
 
-    puArrowButton *up_arrow = new puArrowButton ( w-slider_width, h-slider_width*arrows, w, h-slider_width*(arrows-1), PUARROW_UP ) ;
+    up_arrow = new puArrowButton ( w-slider_width, h-slider_width*arrows, w, h-slider_width*(arrows-1), PUARROW_UP ) ;
     up_arrow->setUserData ( right_slider ) ;
     up_arrow->setCallback ( puLargeInputHandleArrow ) ;
   }
 
   if ( arrows == 2 )
   {
-    puArrowButton *down_arrow = new puArrowButton ( w-slider_width, slider_width, w, slider_width*2, PUARROW_FASTDOWN ) ;
-    down_arrow->setUserData ( right_slider ) ;
-    down_arrow->setCallback ( puLargeInputHandleArrow ) ;
+    fastdown_arrow = new puArrowButton ( w-slider_width, slider_width, w, slider_width*2, PUARROW_FASTDOWN ) ;
+    fastdown_arrow->setUserData ( right_slider ) ;
+    fastdown_arrow->setCallback ( puLargeInputHandleArrow ) ;
 
-    puArrowButton *up_arrow = new puArrowButton ( w-slider_width, h-slider_width, w, h, PUARROW_FASTUP ) ;
-    up_arrow->setUserData ( right_slider ) ;
-    up_arrow->setCallback ( puLargeInputHandleArrow ) ;
+    fastup_arrow = new puArrowButton ( w-slider_width, h-slider_width, w, h, PUARROW_FASTUP ) ;
+    fastup_arrow->setUserData ( right_slider ) ;
+    fastup_arrow->setCallback ( puLargeInputHandleArrow ) ;
   }
+
+  input_disabled = FALSE ;
 
   text = NULL ;
   setText ( "\n" ) ;
@@ -196,34 +201,20 @@ puLargeInput::~puLargeInput ()
 
 void puLargeInput::setSize ( int w, int h )
 {
-  puObject *ob ;
-  for ( ob = dlist; ob != NULL; ob = ob->next )
-  {
-/*     if ( ob->getType() & PUCLASS_FRAME )  // Resize the frame
-      ob->setSize ( w, h ) ;
-    else */ if ( ob->getType() & PUCLASS_SLIDER )  /* Resize and position the slider */
-    {
-      if ( ob == bottom_slider )
-        ob->setSize ( w - slider_width, slider_width ) ;
-      else  // Right slider
-      {
-        ob->setPosition ( w-slider_width, slider_width*(1+arrow_count) ) ;
-        ob->setSize ( slider_width, h-slider_width*(1+2*arrow_count) ) ;
-      }
-    }
-    else if ( ob->getType() & PUCLASS_ARROW )  /* Position the arrow buttons */
-    {
-      int type = ((puArrowButton *)ob)->getArrowType () ;
-      if ( type == PUARROW_DOWN )
-        ob->setPosition ( w-slider_width, slider_width*arrow_count ) ;
-      else if ( type == PUARROW_FASTDOWN )
-        ob->setPosition ( w-slider_width, slider_width ) ;
-      else if ( type == PUARROW_UP )
-        ob->setPosition ( w-slider_width, h-slider_width*arrow_count ) ;
-      else  /* fast up */
-        ob->setPosition ( w-slider_width, h-slider_width ) ;
-    }
-  }
+  // Resize the frame:
+  frame->setSize ( w, h ) ;
+
+  // Resize and reposition the sliders
+  if ( bottom_slider ) bottom_slider->setSize ( w - slider_width, slider_width ) ;
+
+  right_slider->setPosition ( w-slider_width, slider_width*(1+arrow_count) ) ;
+  right_slider->setSize ( slider_width, h-slider_width*(1+2*arrow_count) ) ;
+
+  // Reposition the arrow buttons
+  if ( down_arrow ) down_arrow->setPosition ( w-slider_width, slider_width*arrow_count ) ;
+  if ( fastdown_arrow ) fastdown_arrow->setPosition ( w-slider_width, slider_width ) ;
+  if ( up_arrow ) up_arrow->setPosition ( w-slider_width, h-slider_width*arrow_count ) ;
+  if ( fastup_arrow ) fastup_arrow->setPosition ( w-slider_width, h-slider_width ) ;
 
   lines_in_window = ( h - slider_width ) /
                     ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
@@ -435,6 +426,12 @@ void puLargeInput::draw ( int dx, int dy )
     r_cb ( this, dx, dy, render_data ) ;
   else
   {
+    // Draw the frame widget
+
+    int xwidget = abox.min[0] + dx ;
+    int ywidget = abox.min[1] + dy ;
+    frame->draw ( xwidget, ywidget ) ;
+
     // Calculate window parameters:
 
     int line_size = legendFont.getStringHeight () +         // Height of a line
@@ -445,9 +442,9 @@ void puLargeInput::draw ( int dx, int dy )
                                                   // Input box height, in lines
 
     float bottom_value ;
-    bottom_slider -> getValue ( &bottom_value ) ;
+    bottom_slider->getValue ( &bottom_value ) ;
     float right_value ;
-    right_slider -> getValue ( &right_value ) ;
+    right_slider->getValue ( &right_value ) ;
 
     int beg_pos      // Position in window of start of line, in pixels
                 = (int)(( box_width - max_width ) * bottom_value ) ;
@@ -701,20 +698,45 @@ void puLargeInput::draw ( int dx, int dy )
         val[ cursor_position ] = temp_char ;
       }
     }
+
+    // Draw the other widgets in the large input box
+
+    if ( bottom_slider ) bottom_slider->draw ( xwidget, ywidget ) ;
+    right_slider->draw ( xwidget, ywidget ) ;
+    if ( up_arrow ) up_arrow->draw ( xwidget, ywidget ) ;
+    if ( down_arrow ) down_arrow->draw ( xwidget, ywidget ) ;
+    if ( fastup_arrow ) fastup_arrow->draw ( xwidget, ywidget ) ;
+    if ( fastdown_arrow ) fastdown_arrow->draw ( xwidget, ywidget ) ;
   }
 
   draw_label ( dx, dy ) ;
-
-  // Draw the other widgets in the large input box
-
-  puGroup::draw ( dx, dy ) ;
 }
 
 
 int puLargeInput::checkHit ( int button, int updown, int x, int y )
 {
-  if ( puGroup::checkHit ( button, updown, x, y ) )
-    return TRUE ;
+  int xwidget = x - abox.min[0] ;
+  int ywidget = y - abox.min[1] ;
+
+  if ( bottom_slider )
+  {
+    if ( bottom_slider->checkHit ( button, updown, xwidget, ywidget ) ) return TRUE ;
+  }
+
+  if ( right_slider->checkHit ( button, updown, xwidget, ywidget ) ) return TRUE ;
+  if ( up_arrow )
+  {
+    if ( up_arrow->checkHit ( button, updown, xwidget, ywidget ) ) return TRUE ;
+    if ( down_arrow->checkHit ( button, updown, xwidget, ywidget ) ) return TRUE ;
+  }
+
+  if ( fastup_arrow )
+  {
+    if ( fastup_arrow->checkHit ( button, updown, xwidget, ywidget ) ) return TRUE ;
+    if ( fastdown_arrow->checkHit ( button, updown, xwidget, ywidget ) ) return TRUE ;
+  }
+
+  if ( input_disabled ) return FALSE ;
 
   // If the user has clicked within the bottom slider or to its right, don't activate.
 
@@ -733,7 +755,7 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
   {
     // Active widget exists and is not this one; call its down callback if it exists
 
-    puActiveWidget() -> invokeDownCallback () ;
+    puActiveWidget()->invokeDownCallback () ;
     puDeactivateWidget () ;
   }
 
@@ -754,9 +776,9 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
                                                // Input box height, in lines
 
     float bottom_value ;
-    bottom_slider -> getValue ( &bottom_value ) ;
+    bottom_slider->getValue ( &bottom_value ) ;
     float right_value ;
-    right_slider -> getValue ( &right_value ) ;
+    right_slider->getValue ( &right_value ) ;
 
     int beg_pos      // Position in window of start of line, in pixels
                 = (int)( ( box_width - max_width ) * bottom_value ) ;
@@ -862,14 +884,14 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   extern void puSetPasteBuffer ( char *ch ) ;
   extern char *puGetPasteBuffer () ;
 
-  if ( !isAcceptingInput () || !isActive () || !isVisible () || ( window != puGetWindow () ) )
+  if ( input_disabled || !isAcceptingInput () || !isActive () || !isVisible () || ( window != puGetWindow () ) )
     return FALSE ;
 
   if ( puActiveWidget() && ( this != puActiveWidget() ) )
   {
     // Active widget exists and is not this one; call its down callback if it exists
 
-    puActiveWidget() -> invokeDownCallback () ;
+    puActiveWidget()->invokeDownCallback () ;
     puDeactivateWidget () ;
   }
 
@@ -1062,4 +1084,43 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   return TRUE ;
 }
 
+void puLargeInput::setStyle( int style )
+{
+  frame->setStyle ( style ) ;
+  bottom_slider->setStyle ( style ) ;
+  right_slider->setStyle ( style ) ;
+
+  if ( down_arrow != NULL )
+  {
+    down_arrow->setStyle ( style ) ;
+    up_arrow->setStyle ( style ) ;
+    if ( fastdown_arrow != NULL )
+    {
+      fastdown_arrow->setStyle ( style ) ;
+      fastup_arrow->setStyle ( style ) ;
+    }
+  }
+
+  puObject::setStyle ( style ) ;
+}
+
+void puLargeInput::setColour( int which, float r, float g, float b, float  a )
+{
+  frame->setColour ( which, r, g, b, a ) ;
+  bottom_slider->setColour ( which, r, g, b, a ) ;
+  right_slider->setColour ( which, r, g, b, a ) ;
+
+  if ( down_arrow != NULL )
+  {
+    down_arrow->setColour ( which, r, g, b, a ) ;
+    up_arrow->setColour ( which, r, g, b, a ) ;
+    if ( fastdown_arrow != NULL )
+    {
+      fastdown_arrow->setColour ( which, r, g, b, a ) ;
+      fastup_arrow->setColour ( which, r, g, b, a ) ;
+    }
+  }
+
+  puObject::setColour ( which, r, g, b, a ) ;
+}
 
