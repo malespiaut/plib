@@ -200,6 +200,10 @@ ulDir* ulOpenDir ( const char* dirname ) ;
 ulDirEnt* ulReadDir ( ulDir* dir ) ;
 void ulCloseDir ( ulDir* dir ) ;
 
+// file handling
+
+int ulFileExists ( char *fileName );
+
 /*
   UDP Networking Class NetWork Libriary
   by Ben Woodhead

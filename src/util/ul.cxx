@@ -121,3 +121,19 @@ void ulCloseDir ( ulDir* dir )
     delete dir;
   }
 }
+
+int ulFileExists ( char *fileName )
+{
+  struct stat buf ;
+
+  if ( stat ( fileName, &buf ) < 0 )
+    return FALSE ;
+
+// wk: _MSC_VER is predefined by Microsoft (Visual) C++
+// MSVC doesnt know S_ISREG
+#ifdef _MSC_VER
+  return ((S_IFREG & buf.st_mode ) !=0);
+#else
+  return S_ISREG ( buf.st_mode ) ;
+#endif
+}
