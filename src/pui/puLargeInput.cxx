@@ -1047,7 +1047,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
 
         break ;
 
-      case 0x15 /* ^U */ : string [ 0 ] = '\0' ; break ;
+      case 0x15 /* ^U */ : getText () [ 0 ] = '\0' ; break ;
       case 0x03 /* ^C */ :
       case 0x18 /* ^X */ :  /* Cut or copy selected text */
         if ( select_start_position != select_end_position )
@@ -1122,7 +1122,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   return TRUE ;
 }
 
-void puLargeInput::wrapText()
+void puLargeInput::wrapText ( void )
 {
   // Wrap the text in "text" and put it in "wrapped_text"
 
