@@ -129,7 +129,7 @@ static void displayfn (void)
 
   /* Make PUI redraw */
 
-  puDisplay ( glutGetWindow () ) ;
+  puDisplay () ;
 
   /* Swap buffers */
 
@@ -204,7 +204,6 @@ int main ( int argc, char **argv )
   char *button_box_entries [] = { "First Entry", "Second Entry", "Third Entry", NULL } ;
   button_box = new puButtonBox ( 10, 10, 130, 80, button_box_entries, TRUE ) ;
   button_box->setLabel ( "Label" ) ;
-  button_box->setLegend ( "Legend" ) ;
 
   frame_window = glutCreateWindow      ( "Frame Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -234,7 +233,6 @@ int main ( int argc, char **argv )
 
   text = new puText ( 10, 10 ) ;
   text->setLabel ( "Label" ) ;
-  text->setLegend ( "Legend" ) ;
 
   button_window = glutCreateWindow      ( "Button Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -281,8 +279,6 @@ int main ( int argc, char **argv )
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   popup_menu = new puPopupMenu ( 10, 10 ) ;
-  popup_menu->setLabel ( "Label" ) ;
-  popup_menu->setLegend ( "Legend" ) ;
   popup_menu->add_item ( "Cut", NULL ) ;
   popup_menu->add_item ( "Copy", NULL ) ;
   popup_menu->add_item ( "Paste", NULL ) ;
@@ -308,8 +304,6 @@ int main ( int argc, char **argv )
     menu_bar -> add_submenu ( "Help", help_submenu, help_submenu_cb ) ;
   }
   menu_bar -> close () ; 
-  menu_bar->setLabel ( "Label" ) ;
-  menu_bar->setLegend ( "Legend" ) ;
 
   input_window = glutCreateWindow      ( "Input Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -324,7 +318,6 @@ int main ( int argc, char **argv )
 
   input = new puInput ( 10, 10, 90, 30 ) ;
   input->setLabel ( "Label" ) ;
-  input->setLegend ( "Legend" ) ;
 
   slider_window = glutCreateWindow      ( "Slider Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -354,7 +347,6 @@ int main ( int argc, char **argv )
 
   arrow_button = new puArrowButton ( 10, 10, 50, 50, PUARROW_RIGHT ) ;
   arrow_button->setLabel ( "Label" ) ;
-  arrow_button->setLegend ( "Legend" ) ;
 
   dial_window = glutCreateWindow      ( "Dial Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -385,7 +377,6 @@ int main ( int argc, char **argv )
   char *list_box_entries [] = { "First Entry", "Second Entry", "Third Entry", "Very long Entry that will get truncated", NULL };
   list_box = new puListBox ( 10, 10, 130, 80, list_box_entries ) ;
   list_box->setLabel ( "Label" ) ;
-  list_box->setLegend ( "Legend" ) ;
 
   file_selector_window = glutCreateWindow      ( "File Selector Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -399,8 +390,6 @@ int main ( int argc, char **argv )
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   file_selector = new puFileSelector ( 10, 10, 280, 200, "." ) ;
-  file_selector->setLabel ( "Label" ) ;
-  file_selector->setLegend ( "Legend" ) ;
 
   bislider_window = glutCreateWindow      ( "BiSlider Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -457,8 +446,6 @@ int main ( int argc, char **argv )
     vertical_menu -> add_submenu ( "Help", help_submenu, help_submenu_cb ) ;
   }
   vertical_menu -> close () ; 
-  vertical_menu->setLabel ( "Label" ) ;
-  vertical_menu->setLegend ( "Legend" ) ;
 
   dialog_box_window = glutCreateWindow      ( "Dialog Box Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -472,8 +459,6 @@ int main ( int argc, char **argv )
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   dialog_box = new puDialogBox ( 10, 10 ) ;
-  dialog_box->setLabel ( "Label" ) ;
-  dialog_box->setLegend ( "Legend" ) ;
   new puOneShot ( 20, 20, "OK" ) ;
   new puOneShot ( 100, 20, "Cancel" ) ;
   puText *dialog_text = new puText ( 20, 60 ) ;
@@ -494,7 +479,6 @@ int main ( int argc, char **argv )
 
   large_input = new puLargeInput ( 10, 10, 240, 180, 2, 20 ) ;
   large_input->setLabel ( "Label" ) ;
-  large_input->setLegend ( "Legend" ) ;
   large_input->setText ( "This is text in the Large Input widget.\n"
                          "This is a second line of text" ) ;
 
