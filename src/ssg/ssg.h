@@ -2157,9 +2157,9 @@ public:
   int  cullfaceIsEnabled  () { return cullFace   ; }
 
   sgFrustum *getFrustum () { return frustum ; }
-  void setFrustum ( const SGDfloat l, const SGDfloat r,
-					const SGDfloat b, const SGDfloat t,
-					const SGDfloat n, const SGDfloat f )
+  void setFrustum ( const SGfloat l, const SGfloat r,
+					const SGfloat b, const SGfloat t,
+					const SGfloat n, const SGfloat f )
   {
 	  frustum->setFrustum ( l,r,b,t,n,f );
   }
@@ -2308,9 +2308,9 @@ inline  sgFrustum *ssgGetFrustum ()
   return _ssgCurrentContext -> getFrustum() ;
 }
 
-inline void ssgSetFrustum ( const SGDfloat l, const SGDfloat r,
-							const SGDfloat b, const SGDfloat t,
-							const SGDfloat n, const SGDfloat f )
+inline void ssgSetFrustum ( const SGfloat l, const SGfloat r,
+							const SGfloat b, const SGfloat t,
+							const SGfloat n, const SGfloat f )
 {
 	ssgGetFrustum()->setFrustum ( l,r,b,t,n,f );
 }
@@ -2496,6 +2496,7 @@ ssgEntity *ssgLoadTRI  ( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadOBJ  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadMD2  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadMDL  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+//ssgEntity *ssgLoadBGL  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadX    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadFLT  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadM    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
