@@ -84,13 +84,13 @@
 
 #define UL_SOLARIS   1
 
-#elif (defined(__unix__) || defined(unix)) && !defined(USG)
-
-#define UL_BSD       1
-
 #elif defined(hpux)
 
 #define UL_HPUX      1
+
+#elif (defined(__unix__) || defined(unix)) && !defined(USG)
+
+#define UL_BSD       1
 
 #endif
 
