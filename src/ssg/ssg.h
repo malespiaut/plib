@@ -24,7 +24,6 @@
 #define _SSG_PUBLIC  protected
 #endif
 
-
 extern int sgebug ;
 
 enum ssgCullResult
