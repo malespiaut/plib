@@ -90,7 +90,7 @@ void puGroup::remove ( puObject *obj )
 
 void puGroup::empty ( void )
 {
-  puObject *obj = dlist ;
+  puObject *obj = getLastChild () ;
   while ( obj != NULL )
   {
     if ( obj->getType () & PUCLASS_GROUP )
@@ -99,7 +99,7 @@ void puGroup::empty ( void )
       group->empty () ;
     }
 
-    puObject *temp = obj->getNextObject () ;
+    puObject *temp = obj->getPrevObject () ;
     delete obj ;
     obj = temp ;
   }
