@@ -5,6 +5,9 @@ PLIB Change Log.
 PLIB v1.3.1 (??)
 ~~~~~~~~~~~~~~~~
 
+  * Added 'SSGAUX' library - include <plib/ssgAux.h>
+    and link to /usr/lib/libplibssgaux.a
+
   * Added 'UL' library.  Applications MUST link to
     -lplibul  (/usr/lib/libplibul.a) - and should
     include <plib/ul.h> and call ulInit() before
