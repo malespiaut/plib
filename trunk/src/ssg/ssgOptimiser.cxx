@@ -1,9 +1,19 @@
 
 #include "ssgLocal.h"
 
-#define DISTANCE_SLOP   0.01f   /* One centimeter */
-#define COLOUR_SLOP     0.04f   /* Four percent */
-#define TEXCOORD_SLOP   0.004f  /* One texel on a 256 map */
+static float default_vtol [3] =
+{
+  0.01f,   /* DISTANCE_SLOP = One centimeter */
+  0.04f,   /* COLOUR_SLOP = Four percent */
+  0.004f,  /* TEXCOORD_SLOP = One texel on a 256 map */
+} ;
+
+static float* vtol = 0 ;
+static bool make_normals = false ;
+
+#define DISTANCE_SLOP   vtol[0]
+#define COLOUR_SLOP     vtol[1]
+#define TEXCOORD_SLOP   vtol[2]
 
 inline float frac ( float x )
 {
@@ -17,14 +27,14 @@ struct OptVertex
   sgVec2 texcoord ;
   sgVec4 colour ;
   int    counter ;
-
+  
   void print () { ulSetError ( UL_DEBUG, "%d:(%g,%g,%g):(%g,%g):(%g,%g,%g,%g):(%g,%g,%g)",
-          counter,
-          vertex[0],vertex[1],vertex[2],
-          texcoord[0],texcoord[1],
-          colour[0],colour[1],colour[2],colour[3],
-          normal[0],normal[1],normal[2] ) ; }
-
+    counter,
+    vertex[0],vertex[1],vertex[2],
+    texcoord[0],texcoord[1],
+    colour[0],colour[1],colour[2],colour[3],
+    normal[0],normal[1],normal[2] ) ; }
+  
   OptVertex ( sgVec3 v, sgVec2 t, sgVec4 c )
   {
     sgCopyVec3 ( vertex  , v ) ;
@@ -33,20 +43,20 @@ struct OptVertex
     sgSetVec3  ( normal  , 0.0f, 0.0f, 0.0f ) ;
     counter = 1 ;
   }
-
+  
   int equal ( sgVec3 v, sgVec2 t, sgVec4 c, int tex_frac )
   {
     if ( ! sgCompareVec3 ( vertex  , v, DISTANCE_SLOP ) == 0 ||
-         ! sgCompareVec4 ( colour  , c, COLOUR_SLOP   ) == 0 )
+      ! sgCompareVec4 ( colour  , c, COLOUR_SLOP   ) == 0 )
       return FALSE ;
-
+    
     if ( ! tex_frac )
       return sgCompareVec2 ( texcoord, t, TEXCOORD_SLOP ) == 0 ;
-
+    
     return fabs ( frac ( texcoord[0] ) - frac ( t[0] ) ) <= TEXCOORD_SLOP &&
-           fabs ( frac ( texcoord[1] ) - frac ( t[1] ) ) <= TEXCOORD_SLOP ;
+      fabs ( frac ( texcoord[1] ) - frac ( t[1] ) ) <= TEXCOORD_SLOP ;
   }
-
+  
   void bump () { counter++ ; }
   void dent () { counter-- ; }
   int getCount () { return counter ; }
@@ -63,48 +73,48 @@ public:
   short      *tlist ;
   ssgState  *state ;
   int        cullface ;
-
+  
   OptVertexList ( ssgState *s, int cf )
   {
     /*
-      Have to dynamically allocate these to get
-      around Mac's CodeWarrior restriction on
-      32Kb as max structure size.
+    Have to dynamically allocate these to get
+    around Mac's CodeWarrior restriction on
+    32Kb as max structure size.
     */
-
+    
     vlist = new OptVertex* [ MAX_OPT_VERTEX_LIST ] ;
     tlist = new short [ MAX_OPT_VERTEX_LIST * 3 ] ;
     state = s ;
     cullface = cf ;
     vnum = tnum = 0 ;
   }
-
+  
   ~OptVertexList ()
   {
     for ( int i = 0 ; i < vnum ; i++ )
       delete vlist [ i ] ;
-
+    
     delete vlist ;
     delete tlist ;
   }
-
+  
   short find ( sgVec3 v, sgVec2 t, sgVec4 c, int tex_fraction_only = FALSE ) ;
-
+  
   short add ( sgVec3 v1, sgVec2 t1, sgVec4 c1,
-              sgVec3 v2, sgVec2 t2, sgVec4 c2,
-              sgVec3 v3, sgVec2 t3, sgVec4 c3 ) ;
+    sgVec3 v2, sgVec2 t2, sgVec4 c2,
+    sgVec3 v3, sgVec2 t3, sgVec4 c3 ) ;
   short add ( sgVec3 v, sgVec2 t, sgVec4 c ) ;
   short add ( short v1, short v2, short v3 ) ;
-  void  add ( ssgVtxTable *vt ) ;
-
+  void  add ( ssgLeaf *l ) ;
+  
   void makeNormals () ;
-
+  
   void print ()
   {
     ulSetError ( UL_DEBUG, "LIST: %d unique vertices and %d triangles",
-                                 vnum, tnum ) ;
+      vnum, tnum ) ;
   }
-
+  
   void follow ( int tri, int v1, int v2, int backwards, int *len, short *list, short *next ) ;
 
   int getLeastConnected ( short *t, short *v )
@@ -167,53 +177,53 @@ public:
 
 
 short OptVertexList::add ( sgVec3 v1, sgVec2 t1, sgVec4 c1,
-                           sgVec3 v2, sgVec2 t2, sgVec4 c2,
-                           sgVec3 v3, sgVec2 t3, sgVec4 c3 )
+                          sgVec3 v2, sgVec2 t2, sgVec4 c2,
+                          sgVec3 v3, sgVec2 t3, sgVec4 c3 )
 {
   /*
-    Sharing vertices is tricky because of texture coordinates
-    that have the same all-important fractional part - but
-    differ in their integer parts.
+  Sharing vertices is tricky because of texture coordinates
+  that have the same all-important fractional part - but
+  differ in their integer parts.
   */
-
+  
   sgVec2 adjust ;
-
+  
   /* Find which (if any) of the vertices are a match for one in the list */
-
+  
   short vi1 = find ( v1, t1, c1, TRUE ) ;
   short vi2 = find ( v2, t2, c2, TRUE ) ;
   short vi3 = find ( v3, t3, c3, TRUE ) ;
-
+  
   /* Compute texture offset coordinates (if needed) to make everything match */
-
+  
   if ( vi1 >= 0 )
     sgSubVec2 ( adjust, t1, vlist[vi1]->texcoord ) ;
   else
-  if ( vi2 >= 0 )
-    sgSubVec2 ( adjust, t2, vlist[vi2]->texcoord ) ;
-  else
-  if ( vi3 >= 0 )
-    sgSubVec2 ( adjust, t3, vlist[vi3]->texcoord ) ;
-  else
-  {
-    /*
+    if ( vi2 >= 0 )
+      sgSubVec2 ( adjust, t2, vlist[vi2]->texcoord ) ;
+    else
+      if ( vi3 >= 0 )
+        sgSubVec2 ( adjust, t3, vlist[vi3]->texcoord ) ;
+      else
+      {
+      /*
       OK, there was no match - so just remove
       any large numbers from the texture coords
-    */
-
-    adjust [ 0 ] = (float) floor ( t1[0] ) ;
-    adjust [ 1 ] = (float) floor ( t1[1] ) ;
-  }
-
-  /*
-    Now adjust the texture coordinates and add them into the list
-  */
-  sgVec2 tmp ;
-  sgSubVec2 ( tmp, t1, adjust ) ; vi1 = add ( v1, tmp, c1 ) ;
-  sgSubVec2 ( tmp, t2, adjust ) ; vi2 = add ( v2, tmp, c2 ) ;
-  sgSubVec2 ( tmp, t3, adjust ) ; vi3 = add ( v3, tmp, c3 ) ;
-
-  return add ( vi1, vi2, vi3 ) ;
+        */
+        
+        adjust [ 0 ] = (float) floor ( t1[0] ) ;
+        adjust [ 1 ] = (float) floor ( t1[1] ) ;
+      }
+      
+      /*
+      Now adjust the texture coordinates and add them into the list
+      */
+      sgVec2 tmp ;
+      sgSubVec2 ( tmp, t1, adjust ) ; vi1 = add ( v1, tmp, c1 ) ;
+      sgSubVec2 ( tmp, t2, adjust ) ; vi2 = add ( v2, tmp, c2 ) ;
+      sgSubVec2 ( tmp, t3, adjust ) ; vi3 = add ( v3, tmp, c3 ) ;
+      
+      return add ( vi1, vi2, vi3 ) ;
 }
 
 
@@ -226,11 +236,11 @@ short OptVertexList::add ( short v1, short v2, short v3 )
     vlist [ v3 ] -> dent () ;
     return -1 ;
   }
-
+  
   tlist [ tnum*3+ 0 ] = v1 ;
   tlist [ tnum*3+ 1 ] = v2 ;
   tlist [ tnum*3+ 2 ] = v3 ;
-
+  
   return tnum++ ;
 }
 
@@ -238,23 +248,23 @@ short OptVertexList::add ( short v1, short v2, short v3 )
 void OptVertexList::makeNormals()
 {
   short i ;
-
+  
   for ( i = 0 ; i < vnum ; i++ )
     sgSetVec3 ( vlist [ i ] -> normal, 0.0f, 0.0f, 0.0f ) ;
-
+  
   for ( i = 0 ; i < tnum ; i++ )
   {
     sgVec3 tmp ;
-
+    
     sgMakeNormal ( tmp, vlist [ tlist [ i*3+ 0 ] ] -> vertex,
-                        vlist [ tlist [ i*3+ 1 ] ] -> vertex,
-                        vlist [ tlist [ i*3+ 2 ] ] -> vertex ) ;
-
+      vlist [ tlist [ i*3+ 1 ] ] -> vertex,
+      vlist [ tlist [ i*3+ 2 ] ] -> vertex ) ;
+    
     sgAddVec3 ( vlist [ tlist [ i*3+ 0 ] ] -> normal, tmp ) ;
     sgAddVec3 ( vlist [ tlist [ i*3+ 1 ] ] -> normal, tmp ) ;
     sgAddVec3 ( vlist [ tlist [ i*3+ 2 ] ] -> normal, tmp ) ;
   }
-
+  
   for ( i = 0 ; i < vnum ; i++ )
     if ( sgScalarProductVec2 ( vlist[i]->normal, vlist[i]->normal ) < 0.001 )
       sgSetVec3 ( vlist[i]->normal, 0.0f, 0.0f, 1.0f ) ;
@@ -265,96 +275,247 @@ void OptVertexList::makeNormals()
 short OptVertexList::find ( sgVec3 v, sgVec2 t, sgVec4 c, int tex_frac )
 {
   for ( short i = 0 ; i < vnum ; i++ )
+  {
     if ( vlist[i] -> equal ( v, t, c, tex_frac ) )
       return i ;
-
+  }
   return -1 ;
 }
 
 short OptVertexList::add ( sgVec3 v, sgVec2 t, sgVec4 c )
 {
   short i = find ( v, t, c, FALSE ) ;
-
+  
   if ( i >= 0 )
   {
     vlist [ i ] -> bump () ;
     return i ;
   }
-
+  
   vlist [ vnum ] = new OptVertex ( v, t, c ) ;
   return vnum++ ;
 } 
 
-void OptVertexList::add ( ssgVtxTable *vt )
+void OptVertexList::add ( ssgLeaf *l )
 {
   int j ;
 
-  switch ( vt -> getGLtype () )
+  for ( j = 0 ; j < l -> getNumTriangles () ; j ++ )
   {
-    case GL_POLYGON :
-    case GL_TRIANGLE_FAN :
-      for ( j = 0 ; j < vt->getNumVertices() - 2 ; j++ )
-	add ( vt->getVertex (  0  ), vt->getTexCoord (  0  ), vt->getColour (  0  ),
- 	      vt->getVertex ( j+1 ), vt->getTexCoord ( j+1 ), vt->getColour ( j+1 ),
-	      vt->getVertex ( j+2 ), vt->getTexCoord ( j+2 ), vt->getColour ( j+2 ) ) ;
-      break ;
-
-    case GL_TRIANGLES :
-      for ( j = 0 ; j < vt->getNumVertices() / 3 ; j++ )
-	add ( vt->getVertex ( 3*j+0 ), vt->getTexCoord ( 3*j+0 ), vt->getColour ( 3*j+0 ),
-	      vt->getVertex ( 3*j+1 ), vt->getTexCoord ( 3*j+1 ), vt->getColour ( 3*j+1 ),
-	      vt->getVertex ( 3*j+2 ), vt->getTexCoord ( 3*j+2 ), vt->getColour ( 3*j+2 ) ) ;
-      break ;
-
-    case GL_TRIANGLE_STRIP :
-      for ( j = 0 ; j < vt->getNumVertices() - 2 ; j++ )
-	if ( ( j & 1 ) == 0 )
-	  add ( vt->getVertex ( j+0 ), vt->getTexCoord ( j+0 ), vt->getColour ( j+0 ),
-	        vt->getVertex ( j+1 ), vt->getTexCoord ( j+1 ), vt->getColour ( j+1 ),
-	        vt->getVertex ( j+2 ), vt->getTexCoord ( j+2 ), vt->getColour ( j+2 ) ) ;
-	else
-	  add ( vt->getVertex ( j+2 ), vt->getTexCoord ( j+2 ), vt->getColour ( j+2 ),
-	        vt->getVertex ( j+1 ), vt->getTexCoord ( j+1 ), vt->getColour ( j+1 ),
-	        vt->getVertex ( j+0 ), vt->getTexCoord ( j+0 ), vt->getColour ( j+0 ) ) ;
-      break ;
-
-    case GL_QUADS :
-      for ( j = 0 ; j < vt->getNumVertices() / 4 ; j++ )
-      {
-	add ( vt->getVertex ( 4*j+0 ), vt->getTexCoord ( 4*j+0 ), vt->getColour ( 4*j+0 ),
-	      vt->getVertex ( 4*j+1 ), vt->getTexCoord ( 4*j+1 ), vt->getColour ( 4*j+1 ),
-	      vt->getVertex ( 4*j+2 ), vt->getTexCoord ( 4*j+2 ), vt->getColour ( 4*j+2 ) ) ;
-	add ( vt->getVertex ( 4*j+0 ), vt->getTexCoord ( 4*j+0 ), vt->getColour ( 4*j+0 ),
-	      vt->getVertex ( 4*j+2 ), vt->getTexCoord ( 4*j+2 ), vt->getColour ( 4*j+2 ),
-	      vt->getVertex ( 4*j+3 ), vt->getTexCoord ( 4*j+3 ), vt->getColour ( 4*j+3 ) ) ;
-      }
-      break ;
-
-    case GL_QUAD_STRIP :
-      for ( j = 0 ; j < (vt->getNumVertices()-2) / 2 ; j++ )
-	if (( j & 1 ) == 0 )
-	{
-	  add ( vt->getVertex ( 2*j+0 ), vt->getTexCoord ( 2*j+0 ), vt->getColour ( 2*j+0 ),
-	        vt->getVertex ( 2*j+1 ), vt->getTexCoord ( 2*j+1 ), vt->getColour ( 2*j+1 ),
-	        vt->getVertex ( 2*j+2 ), vt->getTexCoord ( 2*j+2 ), vt->getColour ( 2*j+2 ) ) ;
-	  add ( vt->getVertex ( 2*j+0 ), vt->getTexCoord ( 2*j+0 ), vt->getColour ( 2*j+0 ),
-	        vt->getVertex ( 2*j+2 ), vt->getTexCoord ( 2*j+2 ), vt->getColour ( 2*j+2 ),
-	        vt->getVertex ( 2*j+3 ), vt->getTexCoord ( 2*j+3 ), vt->getColour ( 2*j+3 ) ) ;
-	}
-	else
-	{
-	  add ( vt->getVertex ( 2*j+2 ), vt->getTexCoord ( 2*j+2 ), vt->getColour ( 2*j+2 ),
-	        vt->getVertex ( 2*j+1 ), vt->getTexCoord ( 2*j+1 ), vt->getColour ( 2*j+1 ),
-	        vt->getVertex ( 2*j+0 ), vt->getTexCoord ( 2*j+0 ), vt->getColour ( 2*j+0 ) ) ;
-	  add ( vt->getVertex ( 2*j+3 ), vt->getTexCoord ( 2*j+3 ), vt->getColour ( 2*j+3 ),
-	        vt->getVertex ( 2*j+2 ), vt->getTexCoord ( 2*j+2 ), vt->getColour ( 2*j+2 ),
-	        vt->getVertex ( 2*j+0 ), vt->getTexCoord ( 2*j+0 ), vt->getColour ( 2*j+0 ) ) ;
-	}
-      break ;
-
-    default : break ;
-  }        
+    short v1, v2, v3 ;
+    l -> getTriangle ( j, &v1, &v2, &v3 ) ;
+    add ( l->getVertex ( v1 ), l->getTexCoord ( v1 ), l->getColour ( v1 ),
+      l->getVertex ( v2 ), l->getTexCoord ( v2 ), l->getColour ( v2 ),
+      l->getVertex ( v3 ), l->getTexCoord ( v3 ), l->getColour ( v3 ) ) ;
+  }
 }
+
+
+void OptVertexList::follow ( int tri, int v1, int v2, int backwards, int *len,
+                                             short *new_vlist, short *new_vc )
+{
+  /*  WARNING  -  RECURSIVE !!  */
+
+  v1 = tlist [ tri*3+ v1 ] ;
+  v2 = tlist [ tri*3+ v2 ] ;
+
+  /*
+    This triangle's work is done - dump it.
+  */
+
+  (*len)++ ;
+  sub ( tri ) ;
+
+  /*
+    If the exit edge vertices don't *both* have a reference
+    then we are done.
+  */
+
+  if ( vlist [ v1 ] -> getCount () <= 0 ||
+       vlist [ v2 ] -> getCount () <= 0 )
+    return ;
+
+  /*
+    Search for a polygon that shares that edge in the correct
+    direction - and follow it.
+  */
+
+  for ( int i = 0 ; i < tnum ; i++ )
+  {
+    if ( tlist [ i*3+ 0 ] < 0 )  /* Deleted triangle */
+      continue ;
+
+    if ( backwards )
+    {
+      /* If the previous polygon was backwards */
+
+      if ( tlist [ i*3+ 0 ] == v1 && tlist [ i*3+ 2 ] == v2 )
+      {
+	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 1 ] ;
+	follow ( i, 0, 1, !backwards, len, new_vlist, new_vc ) ;
+        return ;
+      }
+      else
+      if ( tlist [ i*3+ 1 ] == v1 && tlist [ i*3+ 0 ] == v2 )
+      {
+	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 2 ] ;
+	follow ( i, 1, 2, !backwards, len, new_vlist, new_vc ) ;
+        return ;
+      }
+      else
+      if ( tlist [ i*3+ 2 ] == v1 && tlist [ i*3+ 1 ] == v2 )
+      {
+	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 0 ] ;
+	follow ( i, 2, 0, !backwards, len, new_vlist, new_vc ) ;
+        return ;
+      }
+    }
+    else
+    {
+      /* If the previous polygon was forwards... */
+
+      if ( tlist [ i*3+ 0 ] == v1 && tlist [ i*3+ 2 ] == v2 )
+      {
+	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 1 ] ;
+	follow ( i, 1, 2, !backwards, len, new_vlist, new_vc ) ;
+        return ;
+      }
+      else
+      if ( tlist [ i*3+ 1 ] == v1 && tlist [ i*3+ 0 ] == v2 )
+      {
+	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 2 ] ;
+	follow ( i, 2, 0, !backwards, len, new_vlist, new_vc ) ;
+        return ;
+      }
+      else
+      if ( tlist [ i*3+ 2 ] == v1 && tlist [ i*3+ 1 ] == v2 )
+      {
+	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 0 ] ;
+	follow ( i, 0, 1, !backwards, len, new_vlist, new_vc ) ;
+        return ;
+      }
+    }
+  }
+}
+
+
+
+/**********************/
+
+static void array_tool ( ssgEntity *ent )
+{
+  if ( ent -> isAKindOf ( ssgTypeBranch () ) )
+  {
+    ssgBranch *b_ent = (ssgBranch *) ent ;
+    
+    /*
+    Recurse through kid entities
+    */
+    
+    for ( ssgEntity *k = b_ent -> getKid ( 0 ) ; k != NULL ;
+    k = b_ent -> getNextKid () )
+      array_tool ( k ) ;
+  }
+  else if ( ent -> isAKindOf ( ssgTypeLeaf () ) )
+  {
+    ssgLeaf  *l = (ssgLeaf *) ent ;
+    ssgState *s = l -> getState() ;
+    int       cf = l -> getCullFace() ;
+    
+    OptVertexList list ( s, cf ) ;
+    list . add ( l ) ;
+    
+    if ( list . tnum > 0 )  /* If all the triangles are degenerate maybe */
+    {
+      ssgIndexArray    *new_index     = new ssgIndexArray    ( list . tnum * 3 ) ;
+      ssgVertexArray   *new_coords    = new ssgVertexArray   ( list . vnum ) ;
+      ssgTexCoordArray *new_texcoords = new ssgTexCoordArray ( list . vnum ) ;
+      ssgColourArray   *new_colours   = new ssgColourArray   ( list . vnum ) ;
+      ssgNormalArray   *new_normals   = 0 ;
+
+      if ( make_normals )
+      {
+        list . makeNormals () ;
+        new_normals = new ssgNormalArray ( list . vnum ) ;
+      }
+      
+      for ( int t = 0 ; t < list . tnum ; t++ )
+      {
+        new_index -> add ( list . tlist [ t*3+ 0 ] ) ;
+        new_index -> add ( list . tlist [ t*3+ 1 ] ) ;
+        new_index -> add ( list . tlist [ t*3+ 2 ] ) ;
+      }
+
+      for ( int v = 0 ; v < list . vnum ; v++ )
+      {
+        new_coords   -> add ( list . vlist[ v ]->vertex   ) ;
+        new_texcoords-> add ( list . vlist[ v ]->texcoord ) ;
+        new_colours  -> add ( list . vlist[ v ]->colour   ) ;
+        if ( make_normals )
+          new_normals  -> add ( list . vlist[ v ]->normal ) ;
+      }
+      
+      ssgVtxArray *new_varray = new ssgVtxArray ( GL_TRIANGLES,
+        new_coords, new_normals, new_texcoords, new_colours, new_index ) ;
+      new_varray -> setState ( list.state ) ;
+      new_varray -> setCullFace ( list.cullface ) ;
+      
+      ssgBranch *p ;
+
+      /*
+      Add the new leaf
+      */
+      for ( p = l -> getParent ( 0 ) ; p != NULL ;
+        p = l -> getNextParent () )
+        p -> addKid ( new_varray ) ;
+
+      /*
+      Remove the old leaf
+      */
+      for ( p = new_varray -> getParent ( 0 ) ; p != NULL ;
+        p = new_varray -> getNextParent () )
+        p -> removeKid ( new_varray ) ;
+    }
+  }
+}
+
+
+/*
+* NAME
+*   ssgArrayTool
+*
+* DESCRIPTION
+*   Process the graph and convert all leaf entities into vertex arrays.
+*
+*   Each vertex is described by a single index (instead of different
+*   indices into the v, vc, vt-arrays). This may introduce new redundant
+*   vertex data into the data set, which may seem silly. However, when
+*   rendering through OpenGL, it is in most cases the optimal solution
+*   to use indexed vertex arrays, which only have ONE index for all
+*   the vertex data.
+*
+* INPUTS
+*
+* ent - the entity to process
+*
+* vtol - an array of 3 floats used to specify tolerances
+*   vtol[0] - tolerance value for vertices
+*   vtol[1] - tolerance for colours
+*   vtol[2] - tolerance for texture coordinates
+*
+* make_normals - if true then averaged vertex normals are computed
+*/
+void ssgArrayTool ( ssgEntity *ent, float* _vtol, bool _make_normals )
+{
+  vtol = _vtol? _vtol: default_vtol ;
+  make_normals = _make_normals ;
+
+  array_tool ( ent ) ;
+  
+  ent -> recalcBSphere () ;
+}
+
+/****************/
 
 /*
   These routines are essentially non-realtime tree optimisations.
@@ -468,6 +629,9 @@ static void flatten ( ssgEntity *ent, sgMat4 m )
 
 void ssgStripify ( ssgEntity *ent )
 {
+  vtol = default_vtol ;
+  make_normals = true ;
+
   /*
     Walk down until we find a leaf node, then
     back up one level, collect all the ssgVtxTables
@@ -631,97 +795,12 @@ void ssgStripify ( ssgEntity *ent )
 }
 
 
-void OptVertexList::follow ( int tri, int v1, int v2, int backwards, int *len,
-                                             short *new_vlist, short *new_vc )
-{
-  /*  WARNING  -  RECURSIVE !!  */
-
-  v1 = tlist [ tri*3+ v1 ] ;
-  v2 = tlist [ tri*3+ v2 ] ;
-
-  /*
-    This triangle's work is done - dump it.
-  */
-
-  (*len)++ ;
-  sub ( tri ) ;
-
-  /*
-    If the exit edge vertices don't *both* have a reference
-    then we are done.
-  */
-
-  if ( vlist [ v1 ] -> getCount () <= 0 ||
-       vlist [ v2 ] -> getCount () <= 0 )
-    return ;
-
-  /*
-    Search for a polygon that shares that edge in the correct
-    direction - and follow it.
-  */
-
-  for ( int i = 0 ; i < tnum ; i++ )
-  {
-    if ( tlist [ i*3+ 0 ] < 0 )  /* Deleted triangle */
-      continue ;
-
-    if ( backwards )
-    {
-      /* If the previous polygon was backwards */
-
-      if ( tlist [ i*3+ 0 ] == v1 && tlist [ i*3+ 2 ] == v2 )
-      {
-	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 1 ] ;
-	follow ( i, 0, 1, !backwards, len, new_vlist, new_vc ) ;
-        return ;
-      }
-      else
-      if ( tlist [ i*3+ 1 ] == v1 && tlist [ i*3+ 0 ] == v2 )
-      {
-	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 2 ] ;
-	follow ( i, 1, 2, !backwards, len, new_vlist, new_vc ) ;
-        return ;
-      }
-      else
-      if ( tlist [ i*3+ 2 ] == v1 && tlist [ i*3+ 1 ] == v2 )
-      {
-	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 0 ] ;
-	follow ( i, 2, 0, !backwards, len, new_vlist, new_vc ) ;
-        return ;
-      }
-    }
-    else
-    {
-      /* If the previous polygon was forwards... */
-
-      if ( tlist [ i*3+ 0 ] == v1 && tlist [ i*3+ 2 ] == v2 )
-      {
-	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 1 ] ;
-	follow ( i, 1, 2, !backwards, len, new_vlist, new_vc ) ;
-        return ;
-      }
-      else
-      if ( tlist [ i*3+ 1 ] == v1 && tlist [ i*3+ 0 ] == v2 )
-      {
-	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 2 ] ;
-	follow ( i, 2, 0, !backwards, len, new_vlist, new_vc ) ;
-        return ;
-      }
-      else
-      if ( tlist [ i*3+ 2 ] == v1 && tlist [ i*3+ 1 ] == v2 )
-      {
-	new_vlist [ (*new_vc)++ ] = tlist [ i*3+ 0 ] ;
-	follow ( i, 0, 1, !backwards, len, new_vlist, new_vc ) ;
-        return ;
-      }
-    }
-  }
-}
-
-
 
 void ssgFlatten ( ssgEntity *ent )
 {
+  vtol = default_vtol ;
+  make_normals = true ;
+
   sgMat4 m ;
 
   sgMakeIdentMat4 ( m ) ;
@@ -731,5 +810,3 @@ void ssgFlatten ( ssgEntity *ent )
 
   ent -> recalcBSphere () ;
 }
-
-
