@@ -45,22 +45,22 @@ struct _ssgParserSpec
 
 class _ssgParser
 {
-	enum { MAX_TOKENS = 256 } ; // wk: I have > 32 Tokens per line
-  enum { MAX_DELIMITER_CHARS = 256 } ;
+	enum { MAX_TOKENS = 50000 } ; 
+  enum { MAX_DELIMITER_CHARS = 5000 } ;
 
   char path[ 256 ] ;
   _ssgParserSpec spec ;
   FILE* fileptr ;
 
   int linenum ;
-  char linebuf[ 4096 ] ;
-  char tokbuf[ 4096 ] ;
+  char linebuf[ 50000 ] ;
+  char tokbuf[ 50000 ] ;
 	char anyDelimiter [ MAX_DELIMITER_CHARS ] ;
   char* tokptr[ MAX_TOKENS ] ;
   int numtok ;
   int curtok ;
 
-	char onechartokenbuf [ 4096 ];
+	char onechartokenbuf [ 50000 ];
 	char *onechartokenbuf_ptr;
 	void addOneCharToken ( char *ptr ) ;
   
@@ -88,6 +88,7 @@ public :
   char* parseToken( const char* name );
 	// These return TRUE on success:
   int parseFloat( SGfloat &retVal, const char* name ); 
+  int parseDouble( double &retVal, const char* name ); 
   int parseInt(int &retVal, const char* name ); 
   int parseUInt(unsigned int &retVal, const char* name ); 
   int parseString(char *&retVal, const char* name ); 
