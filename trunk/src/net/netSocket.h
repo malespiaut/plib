@@ -124,7 +124,7 @@ public:
 } ;
 
 
-int netInit ( int* argc, char** argv ) ;
+int netInit ( int* argc = NULL, char** argv = NULL ) ;
 cchar* netFormat ( cchar* fmt, ... ) ;
 
 
