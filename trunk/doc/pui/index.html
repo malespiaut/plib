@@ -576,11 +576,6 @@ variable to store the widget's state.
 Each widget can also retain a pointer to user-supplied data:
 <pre>  void  puObject::setUserData ( void *data ) ;
   void *puObject::getUserData () ;</pre>
-There is another function which returns the <a href="#puGroup">puGroup</a> in which a puObject
-resides or NULL if the widget is not in a group:
-<pre>  puGroup * puObject::getParent ( void ) ;
-
-</pre>
 When the widget is drawn, the application has control of the drawing style
 and the colours in which the widget is drawn. Reasonable defaults are provided
 by PUI if you don't set them:
