@@ -1,0 +1,10 @@
+This directory contains sample VRML scenes made at the IICM.
+Distribute them freely as long as you mention their origin.
+They are also available at http://hgiicm.tu-graz.ac.at/C3d.
+
+Most of the scenes were created with Wavefont's Advanced Visualizer
+and converted with scripts into SDF, the (old) native format of the
+Harmony 3D scene viewer. VRweb was used to convert these files into
+VRML.
+
+mpichler@iicm.tu-graz.ac.at
