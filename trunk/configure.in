@@ -30,8 +30,8 @@ AC_PROG_RANLIB
 dnl Command line arguments
 dnl for Loring Holden's Solaris system
 
-AC_ARG_WITH(gl,
-[  --with-gl=DIR         set the prefix directory where GL resides],
+AC_ARG_WITH(GL,
+[  --with-GL=DIR         set the prefix directory where GL resides],
 GL_PREFIX=$withval, GL_PREFIX=auto)
 
 if test "x$GL_PREFIX" != "xauto"; then
