@@ -20,10 +20,11 @@ ssgContext::ssgContext ()
   currentState     = NULL  ;
   basicState       = NULL  ;
   orthographic     = FALSE ;
-  sgMakeIdentMat4 ( cameraMatrix ) ;
   cullFace         = TRUE  ;
   ovTexture        = FALSE ;
   ovCullface       = FALSE ;
+
+  sgCopyMat4 ( cameraMatrix, _ssgOpenGLAxisSwapMatrix ) ;
 
   frustum = new sgFrustum ;
   frustum -> setNearFar ( 1.0, 10000.0 ) ;
