@@ -132,6 +132,7 @@ void ssgInit ()
   ssgAddModelFormat ( ".3ds",   ssgLoad3ds  , ssgSave3ds ) ;
   ssgAddModelFormat ( ".ac" ,   ssgLoadAC3D , ssgSaveAC  ) ;
   ssgAddModelFormat ( ".ase",   ssgLoadASE  , ssgSaveASE ) ;
+  ssgAddModelFormat ( ".vb",    NULL        , ssgSaveVBIB) ;
   ssgAddModelFormat ( ".dof",   ssgLoadDOF  , NULL       ) ;
   ssgAddModelFormat ( ".dxf",   ssgLoadDXF  , ssgSaveDXF ) ;
   ssgAddModelFormat ( ".obj",   ssgLoadOBJ  , ssgSaveOBJ ) ;
@@ -146,7 +147,7 @@ void ssgInit ()
   ssgAddModelFormat ( ".qhi"  , NULL        , ssgSaveQHI ) ;
   ssgAddModelFormat ( ".wrl",   ssgLoadVRML1, ssgSaveVRML1 ) ;
   ssgAddModelFormat ( ".iv",    ssgLoadIV   , ssgSaveIV  ) ;
-  ssgAddModelFormat ( ".asc",   NULL        , ssgSaveASC ) ;
+  ssgAddModelFormat ( ".asc",   ssgLoadASC  , ssgSaveASC ) ;
 //ssgAddModelFormat ( ".pov",   NULL        , ssgSavePOV ) ;
 	
 
