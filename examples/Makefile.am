@@ -6,6 +6,7 @@ dist-hook:
 	tar cf - doc \
              src/ssg/tux/data \
              src/ssg/water/data \
+             src/ssg/sky/data \
              src/ssg/majik/data \
              src/psl/data \
              src/fnt/data     \

@@ -14,5 +14,7 @@ Majik -- An example I wrote for the Majik team
 Water -- A demo of some ssgAux stuff - waves, particle-systems
         a teapot and a cube.
 
+Sky   -- A demo of a sky dome, with sun, moon, stars and clouds.
+
 Dynamics -- Spring/Mass/Damper demo.
 

@@ -264,6 +264,7 @@ AC_OUTPUT( \
 	src/ssg/tween_test/Makefile \
 	src/ssg/viewer/Makefile \
 	src/ssg/water/Makefile \
+	src/ssg/sky/Makefile \
 	src/ssg/dynamics/Makefile \
 	src/fnt/Makefile \
 	src/net/Makefile \
