@@ -24,12 +24,12 @@
 
 #include "pslLocal.h"
 
-int   _pslInitialised = FALSE ;
-char *_pslScriptPath  = NULL  ;
+int _pslInitialised = FALSE ;
+static char *_pslScriptPath  = NULL  ;
 
 void pslInit () { _pslInitialised = TRUE ; }
 
-void pslScriptPath ( char *path )
+void pslScriptPath ( const char *path )
 {
   delete [] _pslScriptPath ;
   _pslScriptPath = ulStrDup ( path ) ;
