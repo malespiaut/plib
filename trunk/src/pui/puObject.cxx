@@ -221,6 +221,22 @@ void puObject::recalc_bbox ( void )
     parent -> recalc_bbox () ;
 }
 
+void puObject::getAbsolutePosition ( int *x, int *y )
+{
+  puGroup *par ;
+  *x = abox.min[0] ;
+  *y = abox.min[1] ;
+
+  for ( par = getParent () ; par != NULL ; par = par -> getParent () )
+  {
+    int x_offset, y_offset ;
+    par -> getPosition ( &x_offset, &y_offset ) ;
+
+    *x += x_offset ;
+    *y += y_offset ;
+  }
+}
+
 void puObject::draw_legend ( int dx, int dy )
 {
   if ( getStyle () == PUSTYLE_RADIO ) return ;
