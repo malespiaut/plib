@@ -1941,7 +1941,10 @@ ssgEntity *ssgLoadAC   ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;
-void ssgArrayTool ( ssgEntity *ent, float* _vtol = 0, bool _make_normals = false ) ;
+
+void ssgTransTool ( ssgEntity *ent, const sgMat4 trans ) ;
+void ssgSmoothTool ( ssgEntity *ent, float angle ) ;
+void ssgCleanTool ( ssgEntity *ent, float* vtol ) ;
 
 void ssgModelPath   ( const char *path ) ;
 void ssgTexturePath ( const char *path ) ;
