@@ -42,7 +42,7 @@ void puPushLiveInterface ( puInterface *in )
 
 void  puPopLiveInterface ( puInterface *in )
 {
-  if ( currLiveInterface <= 0 )
+  if ( currLiveInterface < 0 )
   {
     ulSetError ( UL_WARNING, "PUI: Live puInterface stack is empty!\n" ) ;
     return;
