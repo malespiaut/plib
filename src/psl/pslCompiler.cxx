@@ -29,16 +29,16 @@ int PSL_Parser::pushReturnStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c [ 0 ] == ';' )   /* Return without data == "return 0" */
   {
-    ungetToken   ( c ) ;
+    PSL_UngetToken   ( c ) ;
     pushConstant ( "0.0" ) ;
   }
   else
   {
-    ungetToken     ( c ) ;
+    PSL_UngetToken     ( c ) ;
     pushExpression () ;
   }
 
@@ -94,23 +94,23 @@ int PSL_Parser::pushIfStatement ()
 
   char c [ MAX_TOKEN ] ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c [ 0 ] != ';' )
   {
-    ungetToken ( c ) ;
+    PSL_UngetToken ( c ) ;
     return FALSE ;
   }
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( strcmp ( c, "else" ) != 0 )
   {
     code [ else_loc   ] = next_code & 0xFF ;
     code [ else_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
 
-    ungetToken ( c ) ;
-    ungetToken ( ";" ) ;
+    PSL_UngetToken ( c ) ;
+    PSL_UngetToken ( ";" ) ;
     return TRUE ;
   }
 
@@ -136,7 +136,7 @@ int PSL_Parser::pushFunctionCall ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   /*
     'var' should be the name of a function,
@@ -150,22 +150,22 @@ int PSL_Parser::pushFunctionCall ( const char *var )
     return FALSE ;
   }
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   int argc = 0 ;
 
   while ( c[0] != ')' )
   { 
-    ungetToken ( c ) ;
+    PSL_UngetToken ( c ) ;
     pushExpression () ;
     argc++ ;
-    getToken ( c ) ;
+    PSL_GetToken ( c ) ;
 
     if ( c[0] == ')' )
       break ;
 
     if ( c[0] == ',' )
-      getToken ( c ) ;
+      PSL_GetToken ( c ) ;
     else
     {
       ulSetError ( UL_WARNING,
@@ -183,11 +183,11 @@ int PSL_Parser::pushAssignmentStatement ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c [ 0 ] != '=' )
   {
-    ungetToken ( c ) ;
+    PSL_UngetToken ( c ) ;
     pushFunctionCall ( var ) ;
     pushPop () ;
     return TRUE ;
@@ -209,21 +209,21 @@ int PSL_Parser::pushCompoundStatement ()
 
   while ( pushStatement () )
   {
-    getToken ( c ) ;
+    PSL_GetToken ( c ) ;
 
     if ( c[0] != ';' )
       return FALSE ;
   }
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c[0] == '}' )
   {
-    ungetToken ( ";" ) ;
+    PSL_UngetToken ( ";" ) ;
     return TRUE ;
   }
 
-  ungetToken ( c ) ;
+  PSL_UngetToken ( c ) ;
   return FALSE ;
 }
 
@@ -232,7 +232,7 @@ int PSL_Parser::pushStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( strcmp ( c, "static" ) == 0 )
     return pushStaticVariableDeclaration () ;
@@ -258,7 +258,7 @@ int PSL_Parser::pushStatement ()
   if ( c [ 0 ] == '{' )
     return pushCompoundStatement () ;
 
-  ungetToken ( c ) ;
+  PSL_UngetToken ( c ) ;
   return FALSE ;
 }
 
@@ -281,12 +281,12 @@ void PSL_Parser::pushProgram ()
 
   while ( TRUE )
   {
-    getToken ( c ) ;
+    PSL_GetToken ( c ) ;
 
     if ( c[0] == '\0' )
       break ;
 
-    ungetToken ( c ) ;
+    PSL_UngetToken ( c ) ;
 
     pushGlobalDeclaration () ;
   }
@@ -323,13 +323,13 @@ int PSL_Parser::pushGlobalVariableDeclaration ( const char *s )
 
   setVarSymbol ( s ) ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c[0] == '=' )
   {
-    ungetToken ( c ) ;
+    PSL_UngetToken ( c ) ;
     pushAssignmentStatement ( s ) ;
-    getToken ( c ) ;
+    PSL_GetToken ( c ) ;
   }
  
   if ( c[0] != ';' )
@@ -349,13 +349,13 @@ int PSL_Parser::pushGlobalDeclaration ()
   char c  [ MAX_TOKEN ] ;
   char fn [ MAX_TOKEN ] ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( strcmp ( c, "static" ) == 0 ||
        strcmp ( c, "extern" ) == 0 )
   {
     /* Something complicated should probably happen here! */
-    getToken ( c ) ;
+    PSL_GetToken ( c ) ;
   }
 
   if ( ! (strcmp ( c, "void"  ) == 0) &&
@@ -366,19 +366,19 @@ int PSL_Parser::pushGlobalDeclaration ()
     return FALSE ;
   }
 
-  getToken ( fn ) ;
+  PSL_GetToken ( fn ) ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c[0] == '(' )
   {
-    ungetToken ( c ) ;
+    PSL_UngetToken ( c ) ;
     return pushFunctionDeclaration ( fn ) ;
   }
 
   if ( c[0] == '=' || c[0] == ';' )
   {
-    ungetToken ( c ) ;
+    PSL_UngetToken ( c ) ;
     return pushGlobalVariableDeclaration ( fn ) ;
   }
 
@@ -394,7 +394,7 @@ int PSL_Parser::pushFunctionDeclaration ( const char *fn )
 
   setCodeSymbol ( fn, next_code ) ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c[0] != '(' )
   {
@@ -403,7 +403,7 @@ int PSL_Parser::pushFunctionDeclaration ( const char *fn )
     return FALSE ;
   }
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c[0] != ')' )
   { 
@@ -412,7 +412,7 @@ int PSL_Parser::pushFunctionDeclaration ( const char *fn )
     return FALSE ;
   }
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   if ( c [ 0 ] != '{' )
     ulSetError ( UL_WARNING,
@@ -422,7 +422,7 @@ int PSL_Parser::pushFunctionDeclaration ( const char *fn )
     ulSetError ( UL_WARNING,
        "PSL: Missing '}' in function '%s'", fn ) ;
 
-  getToken ( c ) ;
+  PSL_GetToken ( c ) ;
 
   /* If we fall off the end of the function, we still need a return value */
 
