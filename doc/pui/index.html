@@ -910,6 +910,32 @@ You can also move the LEGEND text around inside the widget.
 </table>
 
 <p>
+In previous PLIB versions, a different (and smaller) set of label and
+legend place names was used. The old names are kept for backwards
+compatibility, but should be considered as deprecated. They might be
+removed in the future.
+<p>
+Here is how the old names translate into the new ones:
+<pre>
+
+  LABEL places:
+
+      PUPLACE_ABOVE          => PUPLACE_TOP_LEFT
+      PUPLACE_BELOW          => PUPLACE_BOTTOM_LEFT
+      PUPLACE_LEFT           => PUPLACE_LOWER_LEFT
+      PUPLACE_RIGHT          => PUPLACE_LOWER_RIGHT
+      PUPLACE_TOP_CENTER     => PUPLACE_TOP_CENTERED
+      PUPLACE_BOTTOM_CENTER  => PUPLACE_BOTTOM_CENTERED
+      PUPLACE_LEFT_CENTER    => PUPLACE_CENTERED_LEFT
+      PUPLACE_RIGHT_CENTER   => PUPLACE_CENTERED_RIGHT
+
+  LEGEND places:
+
+      PUPLACE_LEFT           => PUPLACE_CENTERED_LEFT
+      PUPLACE_CENTERED       => PUPLACE_CENTERED_CENTERED
+      PUPLACE_RIGHT          => PUPLACE_CENTERED_RIGHT
+
+</pre>
 Each widget can be hidden (so it isn't drawn - and can't be clicked
 on), or simply 'greyed out' (so it can't be clicked on even though it's
 drawn - but in a style that makes it clear that this is the case).
