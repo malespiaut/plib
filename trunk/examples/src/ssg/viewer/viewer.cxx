@@ -152,7 +152,7 @@ void count_anim_frames( ssgEntity *e )
     else if ( e -> isAKindOf ( SSG_TYPE_TRANSFORM ) )
     {
       ssgBase* data = e -> getUserData () ;
-      if ( data != NULL && data -> isAKindOf ( SSG_TYPE_TRANSFORM_ARRAY ) )
+      if ( data != NULL && data -> isAKindOf ( SSG_TYPE_TRANSFORMARRAY ) )
       {
         ssgTransform* p = (ssgTransform*) e ;
         ssgTransformArray* ta = (ssgTransformArray*) data ;
@@ -186,7 +186,7 @@ void set_anim_frame( ssgEntity *e )
     else if ( e -> isAKindOf ( SSG_TYPE_TRANSFORM ) )
     {
       ssgBase* data = e -> getUserData () ;
-      if ( data != NULL && data -> isAKindOf ( SSG_TYPE_TRANSFORM_ARRAY ) )
+      if ( data != NULL && data -> isAKindOf ( SSG_TYPE_TRANSFORMARRAY ) )
       {
         ssgTransform* p = (ssgTransform*) e ;
         ssgTransformArray* ta = (ssgTransformArray*) data ;
@@ -480,6 +480,12 @@ void pick_cb ( puObject * )
   file_picker = 0 ;
 
   ssgEntity *obj = ssgLoad ( (char*)fname ); //"test_Med.ase" ) ;
+
+#if 0
+  ssgSaveASE ( "data/temp.ase", obj ) ;
+  delete obj ;
+  obj = ssgLoadASE ( "temp.ase" ) ;
+#endif
   
   if ( !obj )
     return;

@@ -1,11 +1,6 @@
 #include "netRoomServer.h"
 
 
-#if !defined (WIN32)
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
-#endif
-
 //game_id and player_id must fit into message header bytes
 #define MAX_IDNUM 256
 
