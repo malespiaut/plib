@@ -49,7 +49,7 @@
 *
 * AUTHORS
 *   Sam Rushing <rushing@nightmare.com> - original version for Medusa
-*   Dave McClurg <dpm@efn.org> - modified for use in Pegasus
+*   Dave McClurg <dpm@efn.org> - modified for use in PLIB
 *
 * CREATION DATE
 *   Dec-2000
