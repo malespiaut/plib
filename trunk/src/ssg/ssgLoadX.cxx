@@ -387,7 +387,7 @@ int HandleTextureCoords(const char * /* sName */, const char *firstToken)
 	  IgnoreEntity ( 1 ); // ignores TC.
 		return FALSE;
 	}
-	currentMesh.ThereAreNTCPV( nNoOfVertices ) ;
+	currentMesh.createPerVertexTextureCoordinates2( nNoOfVertices ) ;
 
 	parser.expectNextToken(";");
 	for(i=0;i<nNoOfVertices;i++)
@@ -405,7 +405,7 @@ int HandleTextureCoords(const char * /* sName */, const char *firstToken)
 		else
 			parser.expectNextToken(",");
 
-		currentMesh.addTCPV ( tv ) ;
+		currentMesh.addPerVertexTextureCoordinate2( tv ) ;
 	}
 	parser.expectNextToken("}");
 	return TRUE;
@@ -419,10 +419,10 @@ int HandleMeshMaterialList(const char * /* sName */, const char *firstToken)
 		return FALSE;
 
 	parser.expectNextToken(";");
-	currentMesh.ThereAreNMaterials( nMaterials );
+	currentMesh.createMaterials( nMaterials );
 	if (!parser.getNextUInt(nFaceIndexes, "number of Face Indexes"))
 		return FALSE;
-	currentMesh.ThereAreNMaterialIndexes( nFaceIndexes ) ;
+	currentMesh.createMaterialIndices( nFaceIndexes ) ;
 	parser.expectNextToken(";");
 
 
@@ -493,10 +493,9 @@ int HandleMesh(const char * /* sName */, const char *firstToken)
 
 	//parser.getNextInt("number of vertices");
 
-	currentMesh.ReInit ();
-	currentMesh.ThereAreNVertices( nNoOfVertices );
-  
-	
+	currentMesh.reInit ();
+	currentMesh.createVertices( nNoOfVertices );
+ 
 	parser.expectNextToken(";");
 	for(i=0;i<nNoOfVertices;i++)
 	{ 
@@ -520,7 +519,7 @@ int HandleMesh(const char * /* sName */, const char *firstToken)
 	}
 	if (!parser.getNextUInt(nNoOfFaces, "number of faces"))
 		 return FALSE;
-	currentMesh.ThereAreNFaces ( nNoOfFaces );
+	currentMesh.createFaces( nNoOfFaces );
 
   
   
@@ -553,7 +552,7 @@ int HandleMesh(const char * /* sName */, const char *firstToken)
 #ifdef NOT_PLIB
 		CreateFaceInMdi_Edit(vl, nNoOfVerticesForThisFace, aiVertices); // This line is for the "Mdi" 3D Editor, NOT for plib
 #else
-		currentMesh.AddFaceFromCArray(nNoOfVerticesForThisFace, aiVertices); 
+		currentMesh.addFaceFromIntegerArray(nNoOfVerticesForThisFace, aiVertices); 
 #endif
 	}
 	while(TRUE)
@@ -573,7 +572,7 @@ int HandleMesh(const char * /* sName */, const char *firstToken)
 	if ( currentState == NULL )
 		currentState = new ssgSimpleState();
 
-	currentMesh.add2SSG(
+	currentMesh.addToSSG(
 		currentState // Pfusch, kludge. NIV135
 		,
 		current_options,

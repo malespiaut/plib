@@ -187,12 +187,12 @@ static int parse()
 	_ssgNoVertexNormals = 0;
 	_ssgNoVertexTC = 0;
 
-	_theMesh.ReInit ();
-	_theMesh.ThereAreNVertices(); 
-	_theMesh.ThereAreNFaces(); 
-	_theMesh.ThereAreNTCPFAV();
-	_theMesh.ThereAreNMaterials();
-	_theMesh.ThereAreNMaterialIndexes() ;
+	_theMesh.reInit ();
+	_theMesh.createVertices(); 
+	_theMesh.createFaces(); 
+	_theMesh.createPerFaceAndVertexTextureCoordinates2();
+	_theMesh.createMaterials();
+	_theMesh.createMaterialIndices() ;
   
 	token = parser_getLine();
 	if ( token == NULL )
@@ -368,8 +368,8 @@ static int parse()
 		}
 
 		// ****** add face to mesh *****
-		_theMesh.addTCPFAV ( &sca ) ;
-		_theMesh.AddFaceFromCArray(nNoOfVerticesForThisFace, aiVertices); 
+		_theMesh.addPerFaceAndVertexTextureCoordinate2 ( &sca ) ;
+		_theMesh.addFaceFromIntegerArray(nNoOfVerticesForThisFace, aiVertices); 
 		_theMesh.addMaterialIndex ( _current_material_index ) ;
 		
 
@@ -410,7 +410,7 @@ static int parse()
 
 	ss -> disable( GL_TEXTURE_2D );
   _theMesh.checkMe(); //lint !e534 // For debug
-	_theMesh.add2SSG(
+	_theMesh.addToSSG(
 		ss, // super kludge. NIV135
 		current_options,
 		top_branch);
