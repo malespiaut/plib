@@ -25,8 +25,9 @@ void _ssgParser::error( cchar *format, ... )
   vsprintf( msgptr, format, argp );
   va_end( argp );
   fprintf ( stderr, "%s\n", msgbuff );
-   
-  exit(1);
+
+  //let loader decide what to do
+  //exit(1);
 }
 
 
@@ -178,3 +179,5 @@ char* _ssgMakePath( char* path, cchar* dir, cchar* fname, cchar* ext )
     strcat ( path, ext );
   return( path );
 }
+
+

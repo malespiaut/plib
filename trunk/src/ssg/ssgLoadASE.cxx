@@ -155,7 +155,10 @@ static ssgSimpleState* find_state( aseMaterial* mat )
   }
 
   if ( num_states >= MAX_STATES )
+  {
     parser.error( "too many states" );
+    return 0 ;
+  }
   ssgSimpleState *st = new ssgSimpleState () ;
   states [ num_states++ ] = st ;
   
@@ -202,27 +205,30 @@ static void parse_map( aseMaterial* mat )
   {
     if (!strcmp(token,"*BITMAP"))
     {
-      char* fname = parser.parseString("bitmap filename") ;
       if ( mat->tex )
         parser.error("multiple textures for material: %s",mat->name);
-      _ssgMakePath(mat->tfname,_ssgTexturePath,fname,0) ;
-
-      //re-use textures when possible
-      for ( u32 i = 0 ; i < (num_materials-1) ; i++ )
+      else
       {
-        if ( strcmp ( mat->tfname, materials[ i ]->tfname ) == 0 )
-        {
-          mat->tex = materials[ i ]->tex ;
-          break ;
-        }
-      }
-
-      //load texture
-      if ( ! mat->tex )
-      {
-        mat->tex = new ssgTexture ( mat->tfname ) ;
-        if ( ! mat->tex )
-          parser.error("cannot load texture: %s",mat->tfname) ;
+         char* fname = parser.parseString("bitmap filename") ;
+         _ssgMakePath(mat->tfname,_ssgTexturePath,fname,0) ;
+   
+         //re-use textures when possible
+         for ( u32 i = 0 ; i < (num_materials-1) ; i++ )
+         {
+           if ( strcmp ( mat->tfname, materials[ i ]->tfname ) == 0 )
+           {
+             mat->tex = materials[ i ]->tex ;
+             break ;
+           }
+         }
+   
+         //load texture
+         if ( ! mat->tex )
+         {
+           mat->tex = new ssgTexture ( mat->tfname ) ;
+           if ( ! mat->tex )
+             parser.error("cannot load texture: %s",mat->tfname) ;
+         }
       }
     }
     else if (!strcmp(token,"*UVW_U_TILING"))
@@ -248,7 +254,15 @@ static void parse_map( aseMaterial* mat )
 static void parse_material( u32 mat_index, u32 sub_index, cchar* mat_name )
 {
   if ( num_materials >= MAX_MATERIALS )
+  {
     parser.error( "too many materials" );
+
+    // skip material definition
+    int startLevel = parser.level;
+    while (parser.getLine( startLevel ) != NULL)
+      ;
+    return ;
+  }
   aseMaterial* mat = new aseMaterial;
   materials [ num_materials++ ] = mat ;
 
@@ -352,8 +366,11 @@ static void parse_mesh( aseMesh* mesh )
     {
       if (mesh -> faces)
         parser.error("%s already seen",token);
-      mesh -> num_faces = parser.parseInt("num_faces");
-      mesh -> faces = new aseFace[ mesh -> num_faces ];
+      else
+      {
+        mesh -> num_faces = parser.parseInt("num_faces");
+        mesh -> faces = new aseFace[ mesh -> num_faces ];
+      }
     }
     else if (!strcmp(token,"*MESH_NUMTVFACES"))
     {
@@ -371,45 +388,57 @@ static void parse_mesh( aseMesh* mesh )
     {
       if (mesh -> verts)
         parser.error("%s already seen",token);
-      mesh -> num_verts = parser.parseInt("num_verts");
-      mesh -> verts = new sgVec3[ mesh -> num_verts ];
+      else
+      {
+        mesh -> num_verts = parser.parseInt("num_verts");
+        mesh -> verts = new sgVec3[ mesh -> num_verts ];
+      }
     }
     else if (!strcmp(token,"*MESH_NUMTVERTEX"))
     {
       if (mesh -> tverts)
         parser.error("%s already seen",token);
-      mesh -> num_tverts = parser.parseInt("num_tverts");
-      if (mesh -> num_tverts)
-        mesh -> tverts = new sgVec2[ mesh -> num_tverts ];
+      else
+      {
+        mesh -> num_tverts = parser.parseInt("num_tverts");
+        if (mesh -> num_tverts)
+          mesh -> tverts = new sgVec2[ mesh -> num_tverts ];
+      }
     }
     else if (!strcmp(token,"*MESH_NUMCVERTEX"))
     {
       if (mesh -> cverts)
         parser.error("%s already seen",token);
-      mesh -> num_cverts = parser.parseInt("num_cverts");
-      if (mesh -> num_cverts)
-        mesh -> cverts = new sgVec3[ mesh -> num_cverts ];
+      else
+      {
+        mesh -> num_cverts = parser.parseInt("num_cverts");
+        if (mesh -> num_cverts)
+          mesh -> cverts = new sgVec3[ mesh -> num_cverts ];
+      }
     }
     else if (!strcmp(token,"*MESH_FACE"))
     {
       u32 index = parser.parseInt("face #");
       if (index >= mesh -> num_faces)
         parser.error("bad face #");
-      aseFace& face = mesh -> faces[ index ];
-
-      parser.expect("A:");
-      face.v[0] = parser.parseInt("face.v[0]");
-      parser.expect("B:");
-      face.v[1] = parser.parseInt("face.v[1]");
-      parser.expect("C:");
-      face.v[2] = parser.parseInt("face.v[2]");
-
-      //search for other flags
-      while ( (token = parser.parseToken(0)) != 0 )
+      else
       {
-        if ( strcmp(token,"*MESH_MTLID") == 0 )
+        aseFace& face = mesh -> faces[ index ];
+
+        parser.expect("A:");
+        face.v[0] = parser.parseInt("face.v[0]");
+        parser.expect("B:");
+        face.v[1] = parser.parseInt("face.v[1]");
+        parser.expect("C:");
+        face.v[2] = parser.parseInt("face.v[2]");
+
+        //search for other flags
+        while ( (token = parser.parseToken(0)) != 0 )
         {
-          face.sub_index = parser.parseInt("mat #");
+          if ( strcmp(token,"*MESH_MTLID") == 0 )
+          {
+            face.sub_index = parser.parseInt("mat #");
+          }
         }
       }
     }
@@ -418,54 +447,69 @@ static void parse_mesh( aseMesh* mesh )
       u32 index = parser.parseInt("tface #");
       if (index >= mesh -> num_faces)
         parser.error("bad tface #");
-      aseFace& face = mesh -> faces[ index ];
+      else
+      {
+        aseFace& face = mesh -> faces[ index ];
 
-      face.tv[0] = parser.parseInt("tface.tv[0]");
-      face.tv[1] = parser.parseInt("tface.tv[1]");
-      face.tv[2] = parser.parseInt("tface.tv[2]");
+        face.tv[0] = parser.parseInt("tface.tv[0]");
+        face.tv[1] = parser.parseInt("tface.tv[1]");
+        face.tv[2] = parser.parseInt("tface.tv[2]");
+      }
     }
     else if (!strcmp(token,"*MESH_CFACE"))
     {
       u32 index = parser.parseInt("cface #");
       if (index >= mesh -> num_faces)
         parser.error("bad cface #");
-      aseFace& face = mesh -> faces[ index ];
+      else
+      {
+        aseFace& face = mesh -> faces[ index ];
 
-      face.cv[0] = parser.parseInt("tface.cv[0]");
-      face.cv[1] = parser.parseInt("tface.cv[1]");
-      face.cv[2] = parser.parseInt("tface.cv[2]");
+        face.cv[0] = parser.parseInt("tface.cv[0]");
+        face.cv[1] = parser.parseInt("tface.cv[1]");
+        face.cv[2] = parser.parseInt("tface.cv[2]");
+      }
     }
     else if (!strcmp(token,"*MESH_VERTEX"))
     {
       u32 index = parser.parseInt("vertex #");
       if (index >= mesh -> num_verts)
         parser.error("bad vertex #");
-      sgVec3& vert = mesh -> verts[ index ];
+      else
+      {
+        sgVec3& vert = mesh -> verts[ index ];
       
-      vert[0] = parser.parseFloat("vert.x");
-      vert[1] = parser.parseFloat("vert.y");
-      vert[2] = parser.parseFloat("vert.z");
+        vert[0] = parser.parseFloat("vert.x");
+        vert[1] = parser.parseFloat("vert.y");
+        vert[2] = parser.parseFloat("vert.z");
+      }
     }
     else if (!strcmp(token,"*MESH_TVERT"))
     {
       u32 index = parser.parseInt("tvertex #");
       if (index >= mesh -> num_tverts)
         parser.error("bad tvertex #");
-      sgVec2& tvert = mesh -> tverts[ index ];
+      else
+      {
+        sgVec2& tvert = mesh -> tverts[ index ];
       
-      tvert[0] = parser.parseFloat("tvert.x");
-      tvert[1] = parser.parseFloat("tvert.y");
+        tvert[0] = parser.parseFloat("tvert.x");
+        tvert[1] = parser.parseFloat("tvert.y");
+      }
     }
     else if (!strcmp(token,"*MESH_VERTCOL"))
     {
       u32 index = parser.parseInt("cvertex #");
       if (index >= mesh -> num_cverts)
         parser.error("bad cvertex #");
-      sgVec3& cvert = mesh -> cverts[ index ];
+      else
+      {
+        sgVec3& cvert = mesh -> cverts[ index ];
       
-      cvert[0] = parser.parseFloat("cvert.x");
-      cvert[1] = parser.parseFloat("cvert.y");
-      cvert[2] = parser.parseFloat("cvert.z");
+        cvert[0] = parser.parseFloat("cvert.x");
+        cvert[1] = parser.parseFloat("cvert.y");
+        cvert[2] = parser.parseFloat("cvert.z");
+      }
     }
     else if (!strcmp(token,"*MESH_VERTEXNORMAL"))
     {
@@ -474,11 +518,14 @@ static void parse_mesh( aseMesh* mesh )
       u32 index = parser.parseInt("vertex #");
       if (index >= mesh -> num_verts)
         parser.error("bad vertex #");
-      sgVec3& norm = mesh -> norms[ index ];
+      else
+      {
+        sgVec3& norm = mesh -> norms[ index ];
       
-      norm[0] = parser.parseFloat("norm.x");
-      norm[1] = parser.parseFloat("norm.y");
-      norm[2] = parser.parseFloat("norm.z");
+        norm[0] = parser.parseFloat("norm.x");
+        norm[1] = parser.parseFloat("norm.y");
+        norm[2] = parser.parseFloat("norm.z");
+      }
     }
   }
 }
@@ -569,7 +616,8 @@ static void add_mesh( aseMesh* mesh, aseMaterial* mat )
   ssgVtxTable *vtab = new ssgVtxTable ( GL_TRIANGLES,
     vlist, nlist, tlist, clist ) ; 
   vtab -> setCullFace ( TRUE );
-  vtab -> setState ( st ) ;
+  if ( st )
+     vtab -> setState ( st ) ;
   vtab -> setName ( name ) ;
   current_branch -> addKid ( vtab ) ;
   
@@ -647,7 +695,8 @@ static void parse_object()
   for ( u32 sub_index=0; sub_index<num_subs; sub_index++ )
   {
     aseMaterial* mat = find_material ( mat_index, sub_index );
-    add_mesh ( &mesh, mat );
+    if ( mat )
+       add_mesh ( &mesh, mat );
   }
   
   //NEED: to support mesh animations
@@ -657,13 +706,15 @@ static void parse_object()
 }
 
 
-static void parse()
+static bool parse()
 {
   materials = new aseMaterial* [ MAX_MATERIALS ];
   states = new ssgSimpleState* [ MAX_STATES ];
-
   if ( !materials || !states )
+  {
     parser.error("not enough memory");
+    return false ;
+  }
 
   num_materials = 0 ;
   num_states = 0 ;
@@ -682,9 +733,15 @@ static void parse()
     if (firsttime)
     {
       if (strcmp(token,"*3DSMAX_ASCIIEXPORT"))
+      {
         parser.error("not ASE format");
+        return false ;
+      }
       if (parser.parseInt("version number") != 200)
+      {
         parser.error("invalid %s version",token);
+        return false ;
+      }
       firsttime = false;
     }
     else if (!strcmp(token,"*SCENE"))
@@ -720,15 +777,23 @@ static void parse()
       parse_object();
     }
   }
+  return true ;
+}
 
+
+static void parse_free()
+{
   u32 i ;
   for ( i = 0 ; i < num_materials ; i++ )
     delete materials[ i ] ;
   delete[] materials ;
+  materials = 0 ;
+
 //Note: don't delete states because they are used in the scene graph
 //  for ( i = 0 ; i < num_states ; i++ )
 //    delete states[ i ] ;
   delete[] states ;
+  states = 0 ;
 }
 
 
@@ -736,7 +801,13 @@ ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc )
 {
   current_branch = new ssgBranch ;
   parser.openFile( fname );
-  parse();
+  if ( !parse() )
+  {
+     delete current_branch ;
+     current_branch = 0 ;
+  }
+  parse_free();
   parser.closeFile();
   return current_branch ;
 }
+
