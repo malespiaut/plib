@@ -191,12 +191,15 @@ pslResult pslContext::step ()
         else
         if ( v1->getType() == PSL_STRING && v2->getType() == PSL_STRING )
         {
-          char *s = new char [ strlen ( v1 -> getString () ) +
-                               strlen ( v2 -> getString () ) + 1 ] ;
-          strcpy ( s, v2 -> getString () ) ;
-          strcat ( s, v1 -> getString () ) ;
+          int v1_len = strlen ( v1 -> getString () ) ;
+          int v2_len = strlen ( v2 -> getString () ) ;
+          char *s = new char [ v1_len + v2_len + 1 ] ;
+
+          memcpy ( s, v2 -> getString (), v2_len ) ;
+          memcpy ( s+v2_len, v1 -> getString (), v1_len+1 ) ;
+
           v2 -> set ( s ) ;
-          delete s ;
+          delete [] s ;
         }
         else
           v2 -> set ( v2 -> getInt  () + v1 -> getInt  () ) ;
@@ -510,12 +513,15 @@ pslResult pslContext::step ()
         else
         if ( v -> getType () == PSL_STRING )
         {
-          char *s = new char [ strlen (     v      -> getString () ) +
-                               strlen ( stack[sp-1] . getString () ) + 1 ] ;
-          strcpy ( s,     v     ->  getString () ) ;
-          strcat ( s, stack[--sp] . getString () ) ;
+          int s1_len = strlen (     v      -> getString () ) ;
+          int s2_len = strlen ( stack[sp-1] . getString () ) ;
+          char *s = new char [ s1_len + s2_len + 1 ] ;
+
+          memcpy ( s, v -> getString (), s1_len ) ;
+          memcpy ( s+s1_len, stack[--sp] . getString (), s2_len+1 ) ;
+
           v -> set ( s ) ;
-          delete s ;
+          delete [] s ;
         }
         else
           v -> set ( v -> getFloat() + stack[--sp].getFloat()) ;
