@@ -163,7 +163,7 @@ EntityType aEntities[] =
 	{ "Animation", NULL, FALSE}, 
 	{ "AnimationSet", NULL, FALSE}, 
 	{ "template", NULL, TRUE},
-  { NULL, NULL, NULL}
+  { NULL, NULL, FALSE}
 };
 
 

@@ -100,7 +100,7 @@ class ssgLoaderWriterMesh theMesh;
 
 
 
-static int _ssgNoFacesToRead=-1, _ssgNoFacesRead=0, _ssgNoVerticesToRead;
+static int _ssgNoFacesToRead=-1, _ssgNoVerticesToRead;
 
 static int thereIs_ST=FALSE, thereIs_C=FALSE, thereIs_N=FALSE,
 					thereIs_4=FALSE, thereIs_n=TRUE;

@@ -55,8 +55,8 @@ void ssgVertexArray::print ( FILE *fd, char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
 
-	if ( how_much < 4 )
-		return;
+  if ( how_much < 4 )
+    return;
 
   for ( unsigned int i = 0 ; i < total ; i++ )
     fprintf ( fd, "%s  V%d) { %f, %f, %f }\n", indent, i,
@@ -69,8 +69,9 @@ void ssgVertexArray::print ( FILE *fd, char *indent, int how_much )
 void ssgNormalArray::print ( FILE *fd, char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
-	if ( how_much < 4 )
-		return;
+
+  if ( how_much < 4 )
+    return;
 
   for ( unsigned int i = 0 ; i < total ; i++ )
     fprintf ( fd, "%s  N%d) { %f, %f, %f }\n", indent, i,
@@ -83,8 +84,9 @@ void ssgNormalArray::print ( FILE *fd, char *indent, int how_much )
 void ssgTexCoordArray::print ( FILE *fd, char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
-	if ( how_much < 4 )
-		return;
+
+  if ( how_much < 4 )
+    return;
 
   for ( unsigned int i = 0 ; i < total ; i++ )
     fprintf ( fd, "%s  T%d) { S=%f, T=%f }\n", indent, i,
@@ -97,8 +99,9 @@ void ssgTexCoordArray::print ( FILE *fd, char *indent, int how_much )
 void ssgColourArray::print ( FILE *fd, char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
-	if ( how_much < 4 )
-		return;
+
+  if ( how_much < 4 )
+    return;
 
   for ( unsigned int i = 0 ; i < total ; i++ )
     fprintf ( fd, "%s  C%d) { R=%f, G=%f, B=%f, A=%f }\n", indent, i,
@@ -113,8 +116,8 @@ void ssgSimpleList::print ( FILE *fd, char *indent, int how_much )
 
   fprintf ( fd, "%s  Total # items = %d\n", indent, total ) ;
 
-	if ( how_much < 3 )
-		return;
+  if ( how_much < 3 )
+    return;
 
   fprintf ( fd, "%s  Size of items = %d bytes\n", indent, size_of ) ;
 }
@@ -128,13 +131,14 @@ int ssgSimpleList::load ( FILE *fd )
   _ssgReadUInt ( fd, &total   ) ;
   limit = total ;
   list = new char [ limit * size_of ] ;
-	assert(list!=NULL);
-	// wk: The old code:
+  assert(list!=NULL);
+  // wk: The old code:
   //_ssgReadFloat ( fd, limit * size_of / sizeof(float), (float *)list ) ;
-	// doesn't work since some ssgSimpleLists consist of shorts, so limit * size_of
-	// may not be divisible by sizeof(float).
-	// The new code works, but I am not 100% sure what we want in the event that there are machines with another sizeof(float).
-	_ssgReadBytes   ( fd, limit * size_of , list) ;
+  // doesn't work since some ssgSimpleLists consist of shorts, so
+  // limit * size_of may not be divisible by sizeof(float).
+  // The new code works, but I am not 100% sure what we want in
+  // the event that there are machines with another sizeof(float).
+  _ssgReadBytes   ( fd, limit * size_of , list) ;
 
   return ! _ssgReadError () ;
 }
@@ -145,7 +149,7 @@ int ssgSimpleList::save ( FILE *fd )
 {
   _ssgWriteUInt ( fd, size_of ) ;
   _ssgWriteUInt ( fd, total   ) ;
-	// see comment in ssgSimpleList::load
+  // see comment in ssgSimpleList::load
   // _ssgWriteFloat( fd, total * size_of / sizeof(float), (float *)list ) ;
   _ssgWriteBytes ( fd, total * size_of, list);
   return ! _ssgWriteError () ;

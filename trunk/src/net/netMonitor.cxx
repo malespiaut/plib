@@ -37,7 +37,7 @@ static void clean_line (char* line)
   for ( char* src = line ; *src ; src ++ )
   {
     char ch = *src ;
-    if (ch==8 || ch==177)
+    if (ch==8 || ch==127)
     {
       // backspace
       if (dst != line)

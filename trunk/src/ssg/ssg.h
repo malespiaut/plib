@@ -657,12 +657,12 @@ public:
 
   ssgTexture () ;
 
-	// This constructor loads the texture from file for you:
+  // This constructor loads the texture from file for you:
   ssgTexture ( const char *fname, int wrapu = TRUE, int wrapv = TRUE,
 	       int mipmap = TRUE );
 
   // use this constructor if you already have the texture in memory
-	ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize, int zsize, 
+  ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize, int zsize, 
 		     int wrapu = TRUE, int wrapv = TRUE);
 
   virtual ~ssgTexture (void) ;
@@ -1582,12 +1582,17 @@ public:
         rng_list [ i ] = SG_MAX ;
   }
 
-   void setRange ( unsigned int which, float range )
-   {
- 	  if ( which < 33 )
- 		  rng_list [ which ] = range ;
-   }
-   
+  void setRange ( unsigned int which, float range )
+  {
+    if ( which < 33 )
+      rng_list [ which ] = range ;
+  }
+
+  float *getRanges ()
+  {
+    return rng_list ;
+  }
+
   float getRange ( unsigned int which )
   {
     return ( which < 33 ) ? rng_list[which] : SG_MAX ;
