@@ -28,7 +28,7 @@ int ssgVertSplitter::origVert(int i)
 
 ssgVertSplitter::ssgVertSplitter(int nVerts, int nTris)
 {
-    setSharpAngle(46);
+    setSharpAngle(61);
     _nVerts = _origVerts = _vertsAlloced = nVerts;
     _verts = new float[3*_nVerts];
     _norms = new float[3*_nVerts];
