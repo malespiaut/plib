@@ -62,7 +62,27 @@
    
 inline SGfloat sgSqrt   ( const SGfloat x ) { return (SGfloat) sqrt ( x ) ; }
 inline SGfloat sgSquare ( const SGfloat x ) { return x * x ; }
-inline SGfloat sgAbs    ( const SGfloat a ) { return ( a < SG_ZERO ) ? -a : a ; }
+inline SGfloat sgAbs    ( const SGfloat a ) { return (a<SG_ZERO) ? -a : a ; }
+
+/* 
+  Type-casted sin/cos/tan/asin/acos/atan2 ANGLES IN DEGREES
+*/
+
+inline SGfloat sgASin ( SGfloat s )
+                { return (SGfloat) asin ( s ) * SG_RADIANS_TO_DEGREES ; }
+inline SGfloat sgACos ( SGfloat s )
+                { return (SGfloat) acos ( s ) * SG_RADIANS_TO_DEGREES ; }
+inline SGfloat sgATan ( SGfloat s )
+                { return (SGfloat) atan ( s ) * SG_RADIANS_TO_DEGREES ; }
+inline SGfloat sgATan2 ( SGfloat y, SGfloat x )
+                { return (SGfloat) atan2 ( y,x ) * SG_RADIANS_TO_DEGREES ; }
+inline SGfloat sgSin ( SGfloat s )
+                { return (SGfloat) sin ( s * SG_DEGREES_TO_RADIANS ) ; }
+inline SGfloat sgCos ( SGfloat s )
+                { return (SGfloat) cos ( s * SG_DEGREES_TO_RADIANS ) ; }
+inline SGfloat sgTan ( SGfloat s )
+                { return (SGfloat) tan ( s * SG_DEGREES_TO_RADIANS ) ; }
+
 
 inline int sgCompareFloat ( const SGfloat a, const SGfloat b, const SGfloat tol )
 {
@@ -800,14 +820,14 @@ SGfloat sgDistSquaredToLineSegmentVec3 ( const sgLineSegment3 line,
 inline SGfloat sgDistToLineVec3 ( const sgLine3 line,
                                   const sgVec3 pnt )
 {
-  return (SGfloat) sqrt ( (double) sgDistSquaredToLineVec3 ( line, pnt ) );
+  return sgSqrt ( sgDistSquaredToLineVec3 ( line, pnt ) );
 }
 
 
 inline SGfloat sgDistToLineSegmentVec3 ( const sgLineSegment3 line,
                                          const sgVec3 pnt )
 {
-  return (SGfloat) sqrt ( (double) sgDistSquaredToLineSegmentVec3(line,pnt) ) ;
+  return sgSqrt ( sgDistSquaredToLineSegmentVec3(line,pnt) ) ;
 }
 
 
@@ -1342,6 +1362,21 @@ bool sgPointInTriangle      ( sgVec3 point, sgVec3 tri[3] );
 inline SGDfloat sgdSqrt   ( const SGDfloat x ) { return sqrt ( x ) ; }
 inline SGDfloat sgdSquare ( const SGDfloat x ) { return x * x ; }
 inline SGDfloat sgdAbs    ( const SGDfloat a ) { return ( a < SGD_ZERO ) ? -a : a ; }
+
+inline SGDfloat sgdASin ( SGDfloat s )
+                { return (SGDfloat) asin ( s ) * SGD_RADIANS_TO_DEGREES ; }
+inline SGDfloat sgdACos ( SGDfloat s )
+                { return (SGDfloat) acos ( s ) * SGD_RADIANS_TO_DEGREES ; }
+inline SGDfloat sgdATan ( SGDfloat s )
+                { return (SGDfloat) atan ( s ) * SGD_RADIANS_TO_DEGREES ; }
+inline SGDfloat sgdATan2 ( SGDfloat y, SGDfloat x )
+                { return (SGDfloat) atan2 ( y,x ) * SGD_RADIANS_TO_DEGREES ; }
+inline SGDfloat sgdSin ( SGDfloat s )
+                { return (SGDfloat) sin ( s * SGD_DEGREES_TO_RADIANS ) ; }
+inline SGDfloat sgdCos ( SGDfloat s )
+                { return (SGDfloat) cos ( s * SGD_DEGREES_TO_RADIANS ) ; }
+inline SGDfloat sgdTan ( SGDfloat s )
+                { return (SGDfloat) tan ( s * SGD_DEGREES_TO_RADIANS ) ; }
 
 inline int sgdCompareFloat ( const SGDfloat a, const SGDfloat b, const SGDfloat tol )
 {
