@@ -74,6 +74,7 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 #define SSG_TYPE_BASETRANSFORM 0x00000080
 #define SSG_TYPE_TRANSFORM     0x00001000
 #define SSG_TYPE_TEXTRANS      0x00002000
+#define SSG_TYPE_AXISTRANSFORM 0x00003000
 #define SSG_TYPE_SELECTOR      0x00000100
 #define SSG_TYPE_RANGESELECTOR 0x00001000
 #define SSG_TYPE_TIMEDSELECTOR 0x00002000
@@ -114,6 +115,7 @@ inline int ssgTypeBranch       () { return SSG_TYPE_BRANCH    | ssgTypeEntity  (
 inline int ssgTypeBaseTransform() { return SSG_TYPE_BASETRANSFORM | ssgTypeBranch () ; }
 inline int ssgTypeTransform    () { return SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
 inline int ssgTypeTexTrans     () { return SSG_TYPE_TEXTRANS  | ssgTypeBaseTransform () ; }
+inline int ssgTypeAxisTransform() { return SSG_TYPE_AXISTRANSFORM  | ssgTypeBaseTransform () ; }
 inline int ssgTypeSelector     () { return SSG_TYPE_SELECTOR  | ssgTypeBranch  () ; }
 inline int ssgTypeRangeSelector() { return SSG_TYPE_RANGESELECTOR | ssgTypeSelector () ; }
 inline int ssgTypeTimedSelector() { return SSG_TYPE_TIMEDSELECTOR | ssgTypeSelector () ; }
@@ -1313,6 +1315,9 @@ public:
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
+
+  //virtual int       isConvex();
+  virtual ssgEntity *makeConvex();
 } ;
 
 
@@ -1740,6 +1745,36 @@ public:
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void recalcBSphere () ;
 } ;
+
+
+class ssgAxisTransform : public ssgTransform
+{
+  sgVec3 rotation_axis   ;
+  sgVec3 rotation_center ;
+  float  limit_low  ;
+  float  limit_high ;
+protected:
+  virtual void copy_from ( ssgAxisTransform *src, int clone_flags ) ;
+public:
+
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
+  ssgAxisTransform (void) ;
+  ssgAxisTransform ( sgVec3 axis, sgVec3 center ) ;
+  virtual ~ssgAxisTransform (void) ;
+
+  virtual void  setAxis     ( sgVec3 axis   ) ;
+  virtual float *getAxis    () ;
+  virtual void  setCenter   ( sgVec3 center ) ;
+  virtual float *getCenter  () ;
+  virtual void  setRotation ( float rot ) ;
+
+  virtual void setRotationLimits ( float low, float high ) ;
+  virtual void setLinearRotation ( float rot ) ;
+
+  virtual char *getTypeName(void) ;
+  virtual int load ( FILE *fd ) ;
+  virtual int save ( FILE *fd ) ;
+};
 
 
 class ssgTexTrans : public ssgBaseTransform
@@ -2238,6 +2273,7 @@ int        ssgSaveTRI  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveOBJ  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveX    ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveM    ( const char *fname, ssgEntity *ent ) ;
+int        ssgSave3ds  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveOFF  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveQHI  ( const char *fname, ssgEntity *ent ) ;
 
