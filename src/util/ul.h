@@ -44,8 +44,8 @@
 #include <ctype.h>
 #include <assert.h>
 
-#if (defined(_WIN32) || defined(__CYGWIN__)) && !defined(WIN32)
-# define WIN32
+#if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
+#  define WIN32
 #endif
 
 #if defined (WIN32)
