@@ -14,7 +14,7 @@ sgVec3 _ssgVertex000   = { 0.0f, 0.0f, 0.0f } ;
 sgVec4 _ssgColourWhite = { 1.0f, 1.0f, 1.0f, 1.0f } ;
 sgVec3 _ssgNormalUp    = { 0.0f, 0.0f, 1.0f } ;
 sgVec2 _ssgTexCoord00  = { 0.0f, 0.0f } ;
-int    _ssgIndex0      = 0;
+short  _ssgIndex0      = 0;
 
 char *_ssgModelPath   = NULL ;
 char *_ssgTexturePath = NULL ;

@@ -380,9 +380,9 @@ class ssgIndexArray : public ssgSimpleList
 {
 public:
 
-  ssgIndexArray ( int init = 3 ) : ssgSimpleList ( sizeof(int), init ) {} 
-  int   *get ( unsigned int n ) { return (int *) raw_get ( n ) ; }
-  void   add ( int      thing ) { raw_add ( (char *) &thing ) ; } ;
+  ssgIndexArray ( int init = 3 ) : ssgSimpleList ( sizeof(short), init ) {} 
+  short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
+  void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
 } ;
 
 
@@ -911,7 +911,7 @@ extern sgVec3 _ssgVertex000   ;
 extern sgVec4 _ssgColourWhite ;
 extern sgVec3 _ssgNormalUp    ;
 extern sgVec2 _ssgTexCoord00  ;
-extern int    _ssgIndex0      ;
+extern short  _ssgIndex0      ;
 
 
 class ssgVTable : public ssgLeaf
@@ -1099,7 +1099,7 @@ public:
 class ssgVtxArray : public ssgVtxTable
 {
 protected:
-  ssgIndexArray *indices;
+  ssgIndexArray      *indices;
 
   virtual void draw_geometry () ;
 
@@ -1128,7 +1128,7 @@ public:
 
   void getIndexList ( void **list ) { *list = indices  -> get ( 0 ) ; }
 
-  int *getIndex  (int i){ if(i>=getNumIndices())i=getNumIndices()-1;
+  short *getIndex  (int i){ if(i>=getNumIndices())i=getNumIndices()-1;
                              return (getNumIndices()<=0) ?
 				      &_ssgIndex0 : indices->get(i);}
 

@@ -6,7 +6,7 @@
 ssgVtxArray::ssgVtxArray () : ssgVtxTable()
 {
   type |= SSG_TYPE_VTXARRAY ;
-  indices = NULL;
+  indices = NULL ;
 }
 
 
@@ -15,7 +15,7 @@ ssgVtxArray::ssgVtxArray ( GLenum ty,
                 ssgNormalArray   *nl,
                 ssgTexCoordArray *tl,
                 ssgColourArray   *cl,
-		ssgIndexArray    *il ) : ssgVtxTable( ty, vl, nl, tl, cl )
+                ssgIndexArray    *il ) : ssgVtxTable( ty, vl, nl, tl, cl )
 {
   type |= SSG_TYPE_VTXARRAY ;
 
@@ -27,7 +27,7 @@ ssgVtxArray::ssgVtxArray ( GLenum ty,
 
 ssgVtxArray::~ssgVtxArray ()
 {
-  ssgDeRefDelete ( indices ) ;
+  ssgDeRefDelete ( indices      ) ;
 } 
 
 
@@ -48,8 +48,8 @@ void ssgVtxArray::drawHighlight ( sgVec4 colour )
   glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE ) ;
   glColor4fv ( colour ) ;
   int i = getNumIndices ();
-  int *ii = indices->get(0);
-  glDrawElements ( gltype, i, GL_UNSIGNED_INT, ii ) ;
+  short *ii = indices->get(0);
+  glDrawElements ( gltype, i, GL_UNSIGNED_SHORT, ii ) ;
   glPopAttrib () ;
   glPopClientAttrib () ;
   glEnable ( GL_DEPTH_TEST ) ;
@@ -108,8 +108,8 @@ void ssgVtxArray::pick ( int baseName )
   /* Test the entire primitive. */
 
   glPushName ( baseName ) ;
-  int *ii = indices->get(0);
-  glDrawElements ( gltype, num_vertices, GL_UNSIGNED_INT, ii ) ;
+  short *ii = indices->get(0);
+  glDrawElements ( gltype, num_vertices, GL_UNSIGNED_SHORT, ii ) ;
 
   /* Then test each vertex in turn */
 
@@ -163,23 +163,22 @@ void ssgVtxArray::draw_geometry ()
   glVertexPointer ( 3, GL_FLOAT, 0, vertices->get(0) ) ;
 
   int i = getNumIndices ();
-  int *ii = indices->get(0);
-  glDrawElements ( gltype, i, GL_UNSIGNED_INT, ii ) ;
+  short *ii = indices->get(0);
+  glDrawElements ( gltype, i, GL_UNSIGNED_SHORT, ii ) ;
 
   glPopClientAttrib ( ) ;
 }
 
  
-
 void ssgVtxArray::getTriangle ( int n, short *v1, short *v2, short *v3 )
 {
   short vv1, vv2, vv3 ;
 
   ssgVtxTable::getTriangle ( n, &vv1, &vv2, &vv3 ) ;
 
-  *v1 = (short) *( indices -> get ( vv1 ) ) ;
-  *v2 = (short) *( indices -> get ( vv2 ) ) ;
-  *v3 = (short) *( indices -> get ( vv3 ) ) ;
+  *v1 = *( indices -> get ( vv1 ) ) ;
+  *v2 = *( indices -> get ( vv2 ) ) ;
+  *v3 = *( indices -> get ( vv3 ) ) ;
 }
 
 
