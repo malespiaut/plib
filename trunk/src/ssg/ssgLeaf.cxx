@@ -28,12 +28,12 @@
  
 void ssgLeaf::setState ( ssgState *st )
 {
-    ssgDeRefDelete ( state ) ;
+  ssgDeRefDelete ( state ) ;
 
-    state = st ;
+  state = st ;
 
-    if ( state != NULL )
-      state->ref() ;
+  if ( state != NULL )
+    state->ref() ;
 }
 
 void ssgLeaf::copy_from ( ssgLeaf *src, int clone_flags )
@@ -52,12 +52,12 @@ void ssgLeaf::copy_from ( ssgLeaf *src, int clone_flags )
   else
     state = s ;
 
-   //~~ T.G. increment ref counter 
-   if (state != NULL)  
-       state->ref(); 
+  //~~ T.G. increment ref counter 
+  if (state != NULL)  
+    state->ref(); 
 
-   setCallback( SSG_CALLBACK_PREDRAW,  src->getCallback( SSG_CALLBACK_PREDRAW  ) );
-   setCallback( SSG_CALLBACK_POSTDRAW, src->getCallback( SSG_CALLBACK_POSTDRAW ) );
+  setCallback( SSG_CALLBACK_PREDRAW,  src->getCallback( SSG_CALLBACK_PREDRAW  ) );
+  setCallback( SSG_CALLBACK_POSTDRAW, src->getCallback( SSG_CALLBACK_POSTDRAW ) );
 }
 
 
