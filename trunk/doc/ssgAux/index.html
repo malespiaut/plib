@@ -616,6 +616,11 @@ The ssgaSky class models a blended sky dome, with methods to add celestial
 bodies, for example a haloed sun or a textured moon, and methods to add
 clouds, stars and planets.
 <p>
+<b>WARNING</b> - Solaris C/C++ compilers (from Sun Microsystems Inc) have
+some nasty '#define's for the word 'SUN' and 'sun'.  If you are writing
+portable software, you might want to pick an alternative word!  PLIB uses 'Sol',
+the formal astronomical name for the star that happens to be our sun.
+<p>
 The sky implements various time of day lighting effects, it plays well
 with fog and visibility effects, and implements scudded cloud fly-through
 effects. Additionally, you can wire in the output of the SimGear
@@ -653,8 +658,8 @@ public:
 	  int nplanets, sgdVec3 *planet_data,
 	  int nstars, sgdVec3 *star_data);
 
-  ssgaCelestialBody* addBody( const char *body_tex_path, const char *halo_tex_path, double size, double dist, bool sun = false );
-  ssgaCelestialBody* addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double size, double dist, bool sun = false );
+  ssgaCelestialBody* addBody( const char *body_tex_path, const char *halo_tex_path, double size, double dist, bool sol = false );
+  ssgaCelestialBody* addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double size, double dist, bool sol = false );
   ssgaCelestialBody* getBody(int i) { return bodies.get(i); }
   int getBodyCount() { return bodies.getNum(); }
 
@@ -667,7 +672,7 @@ public:
   bool reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up,
                    double lon, double lat, double alt, double spin, double gst, double dt );
 
-  bool repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, double sun_angle,
+  bool repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, double sol_angle,
 	  int nplanets, sgdVec3 *planet_data,
 	  int nstars, sgdVec3 *star_data );
 
