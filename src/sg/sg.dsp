@@ -106,7 +106,15 @@ SOURCE=.\sgd.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\sgdIsect.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\sgIsect.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\sgPerlinNoise.cxx
 # End Source File
 # End Target
 # End Project
