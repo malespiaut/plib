@@ -68,15 +68,15 @@ struct OptVertex
   
   int equal ( sgVec3 v, sgVec2 t, sgVec4 c, int tex_frac )
   {
-    if ( ! sgCompareVec3 ( vertex  , v, DISTANCE_SLOP ) == 0 ||
-      ! sgCompareVec4 ( colour  , c, COLOUR_SLOP   ) == 0 )
+    if ( ! sgCompareVec3 ( vertex  , v, DISTANCE_SLOP ) ||
+         ! sgCompareVec4 ( colour  , c, COLOUR_SLOP   ) )
       return FALSE ;
     
     if ( ! tex_frac )
-      return sgCompareVec2 ( texcoord, t, TEXCOORD_SLOP ) == 0 ;
+      return sgCompareVec2 ( texcoord, t, TEXCOORD_SLOP ) ;
     
-    return fabs ( frac ( texcoord[0] ) - frac ( t[0] ) ) <= TEXCOORD_SLOP &&
-      fabs ( frac ( texcoord[1] ) - frac ( t[1] ) ) <= TEXCOORD_SLOP ;
+    return ( fabs ( frac ( texcoord[0] ) - frac ( t[0] ) ) <= TEXCOORD_SLOP &&
+	     fabs ( frac ( texcoord[1] ) - frac ( t[1] ) ) <= TEXCOORD_SLOP ) ;
   }
   
   void bump () { counter++ ; }
