@@ -27,6 +27,28 @@ AC_PROG_CXXCPP
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
+dnl Command line arguments
+dnl for Loring Holden's Solaris system
+
+AC_ARG_WITH(glut,
+[  --with-glut=DIR         set the prefix directory where GLUT resides],
+GLUT_PREFIX=$withval, GLUT_PREFIX=auto)
+
+AC_ARG_WITH(glut-includes,
+[  --with-glut-includes=DIR
+                          set the directory where GLUT include files reside],
+GLUT_INCLUDES=$withval, GLUT_INCLUDES=auto)
+if test "x$GLUT_INCLUDES" != "xauto"; then
+    CPPFLAGS="$CPPFLAGS -I$GLUT_INCLUDES"
+else
+    if test "x$GLUT_PREFIX" != "xauto"; then
+        CPPFLAGS="$CPPFLAGS -I$GLUT_PREFIX/include"
+    fi
+fi
+if test "x$GLUT_PREFIX" != "xauto"; then
+    LIBS="$LIBS -L$GLUT_PREFIX/lib"
+fi
+
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
 
@@ -39,6 +61,12 @@ if test "x$ac_cv_header_windows_h" != "xyes" ; then
     AC_PATH_XTRA
 
     x_suffix="$X_LIBS $X_PRE_LIBS -lX11 -lXi -lXext -lXmu $X_EXTRA_LIBS -lm"
+
+dnl =========================================================
+dnl    if test "x$x_includes" != "x"; then
+dnl       CPPFLAGS="$CPPFLAGS -I$x_includes"
+dnl    fi
+dnl =========================================================
 
     dnl Reasonable stuff non-windoze variants ... :-)
 
@@ -95,8 +123,6 @@ fi
 dnl Checks for header files.
 
 AC_HEADER_STDC
-
-dnl CPPFLAGS="$CPPFLAGS $X_CFLAGS"                                                  
 
 AC_CHECK_HEADERS(GL/gl.h GL/glu.h)
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))

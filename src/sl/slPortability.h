@@ -74,7 +74,7 @@
 #  include <audio.h>
 #endif
 
-#if defined(__svr4__)
+#if defined(__svr4__) || defined(__SVR4)
 #  include <sys/audioio.h>
 #  include <sys/stropts.h>
 #  define SOLARIS

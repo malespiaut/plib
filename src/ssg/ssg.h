@@ -21,6 +21,15 @@
 #define FALSE 0
 #endif
 
+/* SUNWspro 4.2 and earlier need bool to be defined */
+
+#if defined(__SUNPRO_CC) && __SUNPRO_CC < 0x500
+typedef int bool ;
+const   int true  = 1 ;
+const   int false = 0 ;
+#endif
+
+
 #ifndef _SSG_PUBLIC
 #define _SSG_PUBLIC  protected
 #endif
