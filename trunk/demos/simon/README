@@ -1,0 +1,19 @@
+
+WELCOME TO S.I.M.O.N
+====================
+
+Which stands for:
+
+     Simple
+     Interface for
+     Making
+     Oliver's programs
+     Nice.
+
+This is a simple set of functions that hide much of the nastiness
+of 3D programming to make it possible for someone with only the
+very minimum of programming experience to write simple 3D applications.
+
+Right now, you build SIMON by running 'make' and install it by
+running 'make install' as root.  You must already have PLIB installed.
+
