@@ -797,9 +797,9 @@ static void load_database ()
 
   scene    =  new ssgRoot ;
   scene    -> addKid          ( ocean    ) ;
+  scene    -> addKid          ( fire     ) ;
   scene    -> addKid          ( pedestal ) ;
   scene    -> addKid          ( teapot   ) ;
-  scene    -> addKid          ( fire     ) ;
   scene    -> addKid          ( sun      ) ;
 }
 

@@ -32,18 +32,11 @@
 #  include <unistd.h>
 #endif
 #include <math.h>
+#include <GL/gl.h>
 #include <plib/ssg.h>
 #include <plib/ssgAux.h>
-
-#ifdef FREEGLUT_IS_PRESENT
-#  include <GL/freeglut.h>
-#else
-#  ifdef __APPLE__
-#    include <GLUT/glut.h>
-#  else
-#    include <GL/glut.h>
-#  endif
-#endif
+#include <plib/ul.h>
+#include <plib/pw.h>
 
 static ssgRoot            *scene      = NULL ;
 static ssgTweenController *tween_ctrl = NULL ;
@@ -73,67 +66,25 @@ static void update_motion ()
 }
 
 
-
-/*
-  The GLUT window reshape event
-*/
-
-static void reshape ( int w, int h )
-{
-  glViewport ( 0, 0, w, h ) ;
-}
-
-
-
-/*
-  The GLUT keyboard event
-*/
-
-static void keyboard ( unsigned char, int, int )
-{
-  exit ( 0 ) ;
-}
-
-
-
 /*
   The GLUT redraw event
 */
 
 static void redraw ()
 {
+  glClearColor ( 0.5f, 0.1f, 0.1f, 1.0 ) ;
+  glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
+
   update_motion () ;
 
-  glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
-
   ssgCullAndDraw ( scene ) ;
-
-  glutPostRedisplay () ;
-  glutSwapBuffers () ;
 }
-
 
 
 static void init_graphics ()
 {
-  int   fake_argc = 1 ;
-  char *fake_argv[3] ;
-  fake_argv[0] = "ssgTweenExample" ;
-  fake_argv[1] = "Simple Scene Graph : Tweening Example Program." ;
-  fake_argv[2] = NULL ;
-
-  /*
-    Initialise GLUT
-  */
-
-  glutInitWindowPosition ( 0, 0 ) ;
-  glutInitWindowSize     ( 640, 480 ) ;
-  glutInit               ( &fake_argc, fake_argv ) ;
-  glutInitDisplayMode    ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
-  glutCreateWindow       ( fake_argv[1] ) ;
-  glutDisplayFunc        ( redraw   ) ;
-  glutReshapeFunc        ( reshape  ) ;
-  glutKeyboardFunc       ( keyboard ) ;
+  pwInit ( 100, 100, 640, 480, false, "PLIB Window Demo", true, 0 ) ;
+  pwSetCallbacks ( NULL, NULL, NULL, NULL, NULL ) ;
  
   /*
     Initialise SSG
@@ -291,7 +242,14 @@ int main ( int, char ** )
 {
   init_graphics () ;
   load_database () ;
-  glutMainLoop  () ;
+
+  while ( 1 )
+  {
+    ulMilliSecondSleep ( 16 ) ;
+    redraw () ;
+    pwSwapBuffers () ;
+  }
+
   return 0 ;
 }
 

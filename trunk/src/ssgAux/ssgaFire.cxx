@@ -126,6 +126,7 @@ static ssgTexture     *fireTexture = NULL ;
 
 static int preFireDraw ( ssgEntity * )
 {
+  glDisable ( GL_FOG ) ;
   glBlendFunc ( GL_ONE, GL_ONE ) ;
   return TRUE ;
 }
@@ -134,6 +135,7 @@ static int preFireDraw ( ssgEntity * )
 static int postFireDraw ( ssgEntity * )
 {
   glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
+  glEnable ( GL_FOG ) ;
   return TRUE ;
 }                                                                              
 

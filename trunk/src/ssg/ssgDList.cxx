@@ -28,6 +28,7 @@
 enum _ssgDListType
 {
   SSG_DLIST_LEAF,
+  SSG_DLIST_SET_TWEEN_STATE,
   SSG_DLIST_LOAD_MATRIX,
   SSG_DLIST_PUSH_MATRIX,
   SSG_DLIST_POP_MATRIX,
@@ -42,8 +43,17 @@ public:
   _ssgDListType type ;
   sgMat4        mat  ;
   ssgLeaf      *leaf ;
+  float         tween_state ;
+  int           tween_mode  ;
 
   _ssgDList () { setEmpty () ; }
+
+  void setTweenState ( float _state, int _mode )
+  {
+    type = SSG_DLIST_SET_TWEEN_STATE ;
+    tween_state = _state ;
+    tween_mode  = _mode  ;
+  }
 
   void setPopMatrix ()
   {
@@ -90,6 +100,10 @@ public:
     {
       case SSG_DLIST_LEAF :
         leaf -> draw () ;
+        break ;
+
+      case SSG_DLIST_SET_TWEEN_STATE :
+        _ssgSetRealCurrentTweenSettings ( tween_state, tween_mode ) ;
         break ;
 
       case SSG_DLIST_POP_MATRIX :
@@ -158,6 +172,15 @@ void _ssgPushMatrix ( sgMat4 m )
     ulSetError ( UL_WARNING, "DList stack overflow!" ) ;
   else
     dlist [ next_dlist++ ] . setPushMatrix ( m ) ;
+}
+
+
+void _ssgSetTweenState ( float state, int mode )
+{
+  if ( next_dlist >= MAX_DLIST )
+    ulSetError ( UL_WARNING, "DList stack overflow!" ) ;
+  else
+    dlist [ next_dlist++ ] . setTweenState ( state, mode ) ;
 }
 
 
@@ -247,3 +270,4 @@ void _ssgDrawLeaf ( ssgLeaf *l )
   else
     dlist [ next_dlist++ ] . setDrawLeaf ( l ) ;
 }
+
