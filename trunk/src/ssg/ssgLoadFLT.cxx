@@ -1138,6 +1138,7 @@ static void Obsolete(int op)
       ulSetError(UL_WARNING, "[flt] This file is probably rather old (obsolete opcodes ignored).");
       ObsoleteFlag = 1;
    }
+   //printf("op %d obsolete\n", op);
 }
 
 static void NotImplemented(int op)
@@ -1146,6 +1147,7 @@ static void NotImplemented(int op)
       ulSetError(UL_WARNING, "[flt] This file contains opcodes that are not implemented.");
       NotImplementedFlag = 1;
    }
+   //printf("op %d not implemented\n", op);
 }
 
 static void ReportBadChunk(const ubyte *ptr, const char *name)
@@ -2135,10 +2137,12 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 	    sgSetVec2(a->range, (float)v[0], (float)v[1]);
 	    get64v(ptr + 40, v, 3);
 	    sgSetVec3(a->center, (float)v[0], (float)v[1], (float)v[2]);
-	    /* break; */
+            stack[sp] = new ssgBranch;
+	    break;
 	 }
 	 default: //lint !e616
             stack[sp] = new ssgBranch;
+	    break;
          }
 	 if (ptr[4])
 	    stack[sp]->setName((char *)ptr + 4);
@@ -2198,6 +2202,7 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
       case 101: /* Light Source Bead */
       case 122: /* Push Attribute */
       case 123: /* Pop Attribute */
+	//printf("op %d ignored\n", op);
 	 ptr += len;
 	 break;
 
@@ -2482,6 +2487,8 @@ static int TableChunks(ubyte *ptr0, ubyte *end, fltState *state)
       case 93: /* Sound Palette */
       case 97: /* Line Style Palette */
       case 102: /* Light Source Palette */
+      case 103: /* Reserved */
+      case 104: /* Reserved */
       case 112: /* Texture Mapping */
       case 114: /* Name Table */
 	 /* these are safe to ignore */
@@ -2489,6 +2496,7 @@ static int TableChunks(ubyte *ptr0, ubyte *end, fltState *state)
 	 break;
 
       default:
+	//printf("op %d: end of table chunks\n", op);
          done = 1;
       }
    }
