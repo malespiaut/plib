@@ -1,4 +1,4 @@
-SUBDIRS = examples
+SUBDIRS = src
 
 EXTRA_DIST = README CHANGES LICENSE NOTICE acsite.m4
 
