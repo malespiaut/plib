@@ -152,11 +152,11 @@ void puVerticalMenu::close (void)
   if (window != parent -> getWindow () )
   {
     int temp_window = puGetWindow () ;
-    glutSetWindow ( window ) ;
-    glutReshapeWindow ( bbox.max[0] - bbox.min[0], bbox.max[1] - bbox.min[1] ) ;
+    puSetWindow ( window ) ;
+    puSetWindowSize ( bbox.max[0] - bbox.min[0], bbox.max[1] - bbox.min[1] ) ;
     setPosition ( 0, 0 ) ;
 
-    glutSetWindow ( temp_window ) ;
+    puSetWindow ( temp_window ) ;
   }
 
 }

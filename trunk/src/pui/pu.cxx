@@ -43,9 +43,12 @@ int puRefresh = TRUE ;
 static int puWindowWidth  = 400 ;
 static int puWindowHeight = 400 ;
 
+static int openGLSize = 0 ;
+
 #ifdef PU_NOT_USING_GLUT
 
 int puGetWindow       () { return 0              ; }
+void puSetWindow ( int w ) {}
 int puGetWindowHeight () { return puWindowHeight ; }
 int puGetWindowWidth  () { return puWindowWidth  ; }
 
@@ -59,8 +62,6 @@ static int fontBase = 0;
 static int fontSize[257];
 #else
 
-static int openGLSize = 0 ;
-
 
 void puSetResizeMode ( int mode ) {
   openGLSize = mode ;
@@ -72,6 +73,8 @@ int puGetWindow ()
   return glutGetWindow () ;
 }
 
+
+void puSetWindow ( int w ) {  glutSetWindow ( w ) ;  }
 
 int puGetWindowHeight ()
 {
@@ -97,6 +100,7 @@ void puSetWindowSize ( int width, int height )
     ulSetError ( UL_WARNING, "PUI: puSetWindowSize shouldn't be used with GLUT." ) ;
   else
   {
+    glutReshapeWindow ( width, height ) ;
     puWindowWidth  = width  ;
     puWindowHeight = height ;
   }
@@ -246,36 +250,50 @@ void puInit ( void )
     firsttime = FALSE ;
 #ifdef PU_NOT_USING_GLUT
 
+    // No GLUT fonts, try some corresponding "fnt" fonts
+
+    static fntTexFont typewriter  ( "c:/plib/examples/src/fnt/data/typewriter.txf" ) ;
+    static fntTexFont times_roman ( "c:/plib/examples/src/fnt/data/times_bold.txf" ) ;
+    static fntTexFont helvetica   ( "c:/plib/examples/src/fnt/data/helvetica_bold.txf" ) ;
+
+    PUFONT_8_BY_13.initialize        ( &typewriter, 13 ) ;
+    PUFONT_9_BY_15.initialize        ( &typewriter, 15 ) ;
+    PUFONT_TIMES_ROMAN_10.initialize ( &times_roman, 10 ) ;
+    PUFONT_TIMES_ROMAN_24.initialize ( &times_roman, 24 ) ;
+    PUFONT_HELVETICA_10.initialize   ( &helvetica, 10 ) ;
+    PUFONT_HELVETICA_12.initialize   ( &helvetica, 12 ) ;
+    PUFONT_HELVETICA_18.initialize   ( &helvetica, 18 ) ;
+
     /* Create bitmaps for the device context font's first 256 glyphs */
 
-    fontBase = glGenLists(256);
-    assert(fontBase);
-    HDC hdc = wglGetCurrentDC();
+//    fontBase = glGenLists(256);
+//    assert(fontBase);
+//    HDC hdc = wglGetCurrentDC();
 
     /* Make the system font the device context's selected font */
 
-    SelectObject (hdc, GetStockObject (SYSTEM_FONT)); 
+//    SelectObject (hdc, GetStockObject (SYSTEM_FONT)); 
 
-    int *tempSize = &fontSize[1];
+//    int *tempSize = &fontSize[1];
 
-    if ( ! GetCharWidth32 ( hdc, 1, 255, tempSize ) &&
-         ! GetCharWidth   ( hdc, 1, 255, tempSize ) )
-    {
-      LPVOID lpMsgBuf ;
+//    if ( ! GetCharWidth32 ( hdc, 1, 255, tempSize ) &&
+//         ! GetCharWidth   ( hdc, 1, 255, tempSize ) )
+//    {
+//      LPVOID lpMsgBuf ;
 
-      FormatMessage ( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                      FORMAT_MESSAGE_FROM_SYSTEM,
-                      NULL,
-                      GetLastError(),
-                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                      (LPTSTR) &lpMsgBuf,
-                      0, NULL ) ;
+//      FormatMessage ( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+//                      FORMAT_MESSAGE_FROM_SYSTEM,
+//                      NULL,
+//                      GetLastError(),
+//                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+//                      (LPTSTR) &lpMsgBuf,
+//                      0, NULL ) ;
 
-      ulSetError ( UL_WARNING, "PUI: Error: %s", (char *)lpMsgBuf ) ;
-      LocalFree ( lpMsgBuf ) ;
-    }
+//      ulSetError ( UL_WARNING, "PUI: Error: %s", (char *)lpMsgBuf ) ;
+//      LocalFree ( lpMsgBuf ) ;
+//    }
 
-    wglUseFontBitmaps ( hdc, 0, 256, fontBase ) ;
+//    wglUseFontBitmaps ( hdc, 0, 256, fontBase ) ;
 #endif
   }
 }
