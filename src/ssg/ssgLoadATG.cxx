@@ -352,8 +352,7 @@ static int parse()
 		_ssgNoFaces++;
 ////////////////////
 		// use array aiVertices
-		(nNoOfVerticesForThisFace, aiTCs); 
-
+		
 		unsigned int j;
 		ssgTexCoordArray * sca = new ssgTexCoordArray ();
 		sca->ref();
