@@ -1,5 +1,11 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+   <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <TITLE>WELCOME TO S.I.M.O.N</TITLE>
+</HEAD>
+<BODY>
 
-<TITLE>WELCOME TO S.I.M.O.N</TITLE>
 <H1>WELCOME TO S.I.M.O.N</H1>
 <center>by Steve Baker</center>
 
@@ -45,12 +51,12 @@ it calls your function 'siUpdate'.
 All SIMON programs have to start with the line:
 <pre>
 
-   #include <simon.h>
+   #include &gt;simon.h&lt;
 
 </pre>
 ...this brings in all the information the compiler needs in order for you to
-write a SIMON program.  Think of it like '#include <stdio.h>' but for programs
-that are just doing 3D rendering.
+write a SIMON program.  Think of it like '#include &gt;stdio.h&lt;' but for
+programs that are just doing 3D rendering.
 <p>
 Then, you have to declare an integer variable for everything in the scene
 that your program needs - which includes at least the scenery and the camera.
@@ -246,3 +252,5 @@ A good 'Makefile' for a SIMON program would be:
   test1 : test1.cxx ; g++ ${SIMON} -o test1 test1.cxx ${LIBS}                                               
 </pre>
 
+</BODY>
+</HTML>
