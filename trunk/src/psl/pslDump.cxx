@@ -100,6 +100,16 @@ static const OpcodeDecode opcodeDecode [] =
   { "NOTEQUAL",        OPCODE_NOTEQUAL    , 0 },
   { "EQUAL",           OPCODE_EQUAL       , 0 },
 
+  { "POP_ADD_VARIABLE", OPCODE_POP_ADD_VARIABLE, 1 },
+  { "POP_SUB_VARIABLE", OPCODE_POP_SUB_VARIABLE, 1 },
+  { "POP_MUL_VARIABLE", OPCODE_POP_MUL_VARIABLE, 1 },
+  { "POP_DIV_VARIABLE", OPCODE_POP_DIV_VARIABLE, 1 },
+  { "POP_AND_VARIABLE", OPCODE_POP_AND_VARIABLE, 1 },
+  { "POP_OR_VARIABLE" , OPCODE_POP_OR_VARIABLE , 1 },
+  { "POP_XOR_VARIABLE", OPCODE_POP_XOR_VARIABLE, 1 },
+  { "POP_SHL_VARIABLE", OPCODE_POP_SHL_VARIABLE, 1 },
+  { "POP_SHR_VARIABLE", OPCODE_POP_SHR_VARIABLE, 1 },
+
   { NULL, 0, 0 }
 } ;
 
@@ -200,6 +210,15 @@ int pslCompiler::printInstruction ( FILE *fd, int addr ) const
       fprintf ( fd, "\t\t[%d],off=%d", code [ addr+1 ], code [ addr+2 ] ) ;
       break ;
 
+    case OPCODE_POP_ADD_VARIABLE :
+    case OPCODE_POP_SUB_VARIABLE :
+    case OPCODE_POP_MUL_VARIABLE :
+    case OPCODE_POP_DIV_VARIABLE :
+    case OPCODE_POP_AND_VARIABLE :
+    case OPCODE_POP_OR_VARIABLE  :
+    case OPCODE_POP_XOR_VARIABLE :
+    case OPCODE_POP_SHL_VARIABLE :
+    case OPCODE_POP_SHR_VARIABLE :
     case OPCODE_POP_VARIABLE :
       fprintf ( fd, "\t[%d]", code [ addr+1 ] ) ;
       break ;

@@ -118,6 +118,16 @@ class pslCompiler
 
   void pushVariable      ( const char *s ) ;
   void pushAssignment    ( const char *s ) ;
+  void pushAddAssignment ( const char *s ) ;
+  void pushSubAssignment ( const char *s ) ;
+  void pushMulAssignment ( const char *s ) ;
+  void pushDivAssignment ( const char *s ) ;
+  void pushAndAssignment ( const char *s ) ;
+  void pushOrAssignment  ( const char *s ) ;
+  void pushXorAssignment ( const char *s ) ;
+  void pushSHLAssignment ( const char *s ) ;
+  void pushSHRAssignment ( const char *s ) ;
+
   void pushCall          ( const char *s, int argc ) ;
   void pushReturn        () ;
 
