@@ -63,8 +63,8 @@ ssgTimedSelector::ssgTimedSelector ( int max_kids ) : ssgSelector ( max_kids )
   select ( 1 ) ;
   running = SSG_ANIM_STOP ;
   mode = SSG_ANIM_SHUTTLE ;
-  start_time = pause_time = 0.0f ;
-  loop_time = 1.0f ;
+  start_time = pause_time = 0.0 ;
+  loop_time = 1.0 ;
 
   times = new float [ max_kids ] ;
   for ( int i = 0 ; i < max_kids ; i++ )
@@ -106,7 +106,7 @@ void ssgTimedSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 
 int ssgTimedSelector::getStep ()
 {
-  float t = get_time () ;
+  double t = get_time () ;
 
   if ( running == SSG_ANIM_STOP || running == SSG_ANIM_PAUSE )
     return curr ;
@@ -128,24 +128,24 @@ int ssgTimedSelector::getStep ()
   {
     /* Compute time since start of this loop */
 
-    t = t - (float) floor ( t / loop_time ) * loop_time ;
+    t = t - floor ( t / loop_time ) * loop_time ;
   }
   else
   if ( mode == SSG_ANIM_SWING )      
   {
     /* Compute time since start of this swing loop */
 
-    t = t - (float) floor ( t / (2.0f * loop_time) ) * (2.0f * loop_time) ;
+    t = t - floor ( t / (2.0 * loop_time) ) * (2.0 * loop_time) ;
 
     /* Are we on the reverse part of the loop? */
     if ( t >= loop_time )
-      t = 2.0f * loop_time - t ;
+      t = 2.0 * loop_time - t ;
   }
 
   int k ;
 
-  for ( k = start ; t > 0.0f && k <= end ; k++ )
-    t -= times [ k ] ;
+  for ( k = start ; t > 0.0 && k <= end ; k++ )
+    t -= (double) times [ k ] ;
 
 //DaveM: i removed this line because, in shuttle mode, start plays twice
   k-- ;
@@ -170,9 +170,9 @@ int ssgTimedSelector::load ( FILE *fd )
 {
   _ssgReadInt   ( fd, (int *) & running ) ;
   _ssgReadInt   ( fd, (int *) & mode    ) ;
-  _ssgReadFloat ( fd, & start_time ) ;
-  _ssgReadFloat ( fd, & pause_time ) ;
-  _ssgReadFloat ( fd, & loop_time  ) ;
+//  _ssgReadDouble( fd, & start_time ) ;
+//  _ssgReadDouble( fd, & pause_time ) ;
+//  _ssgReadDouble( fd, & loop_time  ) ;
   _ssgReadInt   ( fd, & max_kids  ) ;
   delete [] times ;
   times = new float [ max_kids ] ;
@@ -189,9 +189,9 @@ int ssgTimedSelector::save ( FILE *fd )
 {
   _ssgWriteInt   ( fd, (int) running ) ;
   _ssgWriteInt   ( fd, (int) mode    ) ;
-  _ssgWriteFloat ( fd, start_time ) ;
-  _ssgWriteFloat ( fd, pause_time ) ;
-  _ssgWriteFloat ( fd, loop_time  ) ;
+//  _ssgWriteFloat ( fd, start_time ) ;
+//  _ssgWriteFloat ( fd, pause_time ) ;
+//  _ssgWriteFloat ( fd, loop_time  ) ;
   _ssgWriteInt   ( fd, max_kids  ) ;
   _ssgWriteFloat ( fd, max_kids, times  ) ;
   _ssgWriteInt   ( fd, curr  ) ;
