@@ -62,9 +62,9 @@ public:
 
   netMonitorServer( cchar* _name, int port )
   {
-    name = strdup(_name);
-    password = strdup("") ;
-		prompt = strdup(">>> ");
+    name = ulStrDup(_name);
+    password = ulStrDup("") ;
+		prompt = ulStrDup(">>> ");
     cmdfunc = 0 ;
     active = 0 ;
 
@@ -77,22 +77,22 @@ public:
 
   ~netMonitorServer()
   {
-    ::free(name);
-    ::free(password) ;
-    ::free(prompt) ;
+    delete[] name ;
+    delete[] password ;
+    delete[] prompt ;
   }
 
   cchar* getPassword () const { return password; }
   void setPassword ( cchar* string )
   {
-    ::free(password) ;
-    password = strdup ( string?string:"" ) ;
+    delete[] password ;
+    password = ulStrDup ( string?string:"" ) ;
   }
 
   void setPrompt ( cchar* string )
   {
-    ::free(prompt) ;
-    prompt = strdup ( string?string:"" ) ;
+    delete[] prompt ;
+    prompt = ulStrDup ( string?string:"" ) ;
   }
 
   void setCommandFunc ( void (*func)(cchar*) )
