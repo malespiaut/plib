@@ -134,6 +134,7 @@ void ssgInit ()
   ssgAddModelFormat ( ".strip", ssgLoadStrip, NULL       ) ;
   ssgAddModelFormat ( ".m"  ,   ssgLoadM    , ssgSaveM   ) ;
   ssgAddModelFormat ( ".off"  , ssgLoadOFF  , ssgSaveOFF ) ;
+  ssgAddModelFormat ( ".atg"  , ssgLoadATG  , ssgSaveATG ) ;
   ssgAddModelFormat ( ".qhi"  , NULL        , ssgSaveQHI ) ;
 
 

@@ -2383,6 +2383,8 @@ int        ssgSave3ds  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveOFF  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveQHI  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSave3ds  ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveATG  ( const char *fname, ssgEntity *ent ) ;
+
 
 ssgEntity *ssgLoad     ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoad3ds  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
@@ -2399,6 +2401,7 @@ ssgEntity *ssgLoadFLT  ( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadM    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadStrip( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadOFF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadATG  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 
 
 typedef ssgEntity *ssgLoadFunc ( const char *, const ssgLoaderOptions * ) ;
