@@ -321,6 +321,8 @@ protected:
     if ( total >= limit )
     {
       limit += limit ;
+			if ( limit <= 0 )
+				limit = 3;
       char *nlist = new char [ limit * size_of ] ;
       memmove ( nlist, list, total * size_of ) ;
       delete [] list ;
@@ -2231,6 +2233,8 @@ int        ssgSaveTRI  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveOBJ  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveX    ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveM    ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveOFF  ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveQHI  ( const char *fname, ssgEntity *ent ) ;
 
 ssgEntity *ssgLoad     ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadVRML ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
@@ -2247,6 +2251,8 @@ ssgEntity *ssgLoadX    ( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadFLT  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadM    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadStrip( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadOFF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+
 
 /* For backwards compatibility */
 
@@ -2275,6 +2281,7 @@ void  ssgDelete ( ssgBranch *br ) ;
 char *ssgGetVersion () ;
 char * ssgGetAPOM();
 
+void ssgSetLoadOFFTranslucent ( int i );
 
 #endif
 
