@@ -412,7 +412,7 @@ void sgSphere::extend ( const sgVec3 v )
   if ( d <= radius )  /* Point is already inside sphere */
     return ;
 
-  SGfloat new_radius = (radius + d) * SG_HALF ;  /* Grow radius */
+  SGfloat new_radius = (radius + d) / SG_TWO ;  /* Grow radius */
 
   SGfloat ratio = (new_radius - radius) / d ;
 
@@ -516,7 +516,7 @@ void sgSphere::extend ( const sgSphere *s )
     triangles
   */
 
-  SGfloat new_radius = (radius + d + s->getRadius() ) * SG_HALF ;
+  SGfloat new_radius = (radius + d + s->getRadius() ) / SG_TWO ;
 
   SGfloat ratio = ( new_radius - radius ) / d ;
 
@@ -569,8 +569,8 @@ void sgFrustum::update ()
 
     /* Corners of screen relative to eye... */
   
-    right = nnear * (SGfloat) tan ( hfov * SG_DEGREES_TO_RADIANS * SG_HALF ) ;
-    top   = nnear * (SGfloat) tan ( vfov * SG_DEGREES_TO_RADIANS * SG_HALF ) ;
+    right = nnear * (SGfloat) tan ( hfov * SG_DEGREES_TO_RADIANS / SG_TWO ) ;
+    top   = nnear * (SGfloat) tan ( vfov * SG_DEGREES_TO_RADIANS / SG_TWO ) ;
     left  = -right ;
     bot   = -top   ;
   }
@@ -900,11 +900,10 @@ void sgSetCoord ( sgCoord *dst, const sgMat4 src )
   }
   else
   {
-    cp = SG_ONE / cp;
-    SGfloat sr = _sgClampToUnity ( -mat[0][2] * cp ) ;
-    SGfloat cr = _sgClampToUnity (  mat[2][2] * cp ) ;
-    SGfloat sh = _sgClampToUnity ( -mat[1][0] * cp ) ;
-    SGfloat ch = _sgClampToUnity (  mat[1][1] * cp ) ;
+    SGfloat sr = _sgClampToUnity ( -mat[0][2] / cp ) ;
+    SGfloat cr = _sgClampToUnity (  mat[2][2] / cp ) ;
+    SGfloat sh = _sgClampToUnity ( -mat[1][0] / cp ) ;
+    SGfloat ch = _sgClampToUnity (  mat[1][1] / cp ) ;
 	
     if ( (sh == SG_ZERO && ch == SG_ZERO) || (sr == SG_ZERO && cr == SG_ZERO) )
     {
@@ -1223,7 +1222,7 @@ void sgAngleAxisToQuat ( sgQuat dst,
 
 void sgAngleAxisToQuat ( sgQuat dst, const SGfloat angle, const sgVec3 axis )
 {
-  SGfloat temp_angle = angle * SG_DEGREES_TO_RADIANS * SG_HALF ;
+  SGfloat temp_angle = angle * SG_DEGREES_TO_RADIANS / SG_TWO ;
 
   sgVec3 ax ;
   sgNormaliseVec3 ( ax, axis ) ;
@@ -1251,7 +1250,7 @@ void sgMatrixToQuat( sgQuat quat, const sgMat4 m )
   if (tr > SG_ZERO )
   {
     s = (SGfloat) sqrt (tr + SG_ONE);
-    quat[SG_W] = s * SG_HALF;
+    quat[SG_W] = s / SG_TWO;
     s = SG_HALF / s;
     quat[SG_X] = (m[1][2] - m[2][1]) * s;
     quat[SG_Y] = (m[2][0] - m[0][2]) * s;
@@ -1320,10 +1319,10 @@ void sgMultQuat2 ( sgQuat dst, const sgQuat a, const sgQuat b )
   H = (a[SG_W] - a[SG_Y]) * (b[SG_W] + b[SG_Z]) ;
 
 
-  dst[SG_W] =  B + (-E - F + G + H) * SG_HALF ;
-  dst[SG_X] =  A - ( E + F + G + H) * SG_HALF ; 
-  dst[SG_Y] = -C + ( E - F + G - H) * SG_HALF ;
-  dst[SG_Z] = -D + ( E - F - G + H) * SG_HALF ;
+  dst[SG_W] =  B + (-E - F + G + H) / SG_TWO ;
+  dst[SG_X] =  A - ( E + F + G + H) / SG_TWO ; 
+  dst[SG_Y] = -C + ( E - F + G - H) / SG_TWO ;
+  dst[SG_Z] = -D + ( E - F - G + H) / SG_TWO ;
 }
 
 //from gamasutra.com
