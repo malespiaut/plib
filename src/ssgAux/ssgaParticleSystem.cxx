@@ -31,7 +31,9 @@ ssgaParticleSystem::ssgaParticleSystem ( int num, int initial_num,
 
   particle = new ssgaParticle [ num ] ;
 
-  for ( int i = 0 ; i < num_verts ; i++ )
+  int i ;
+
+  for ( i = 0 ; i < num_verts ; i++ )
   {
     sgSetVec3  ( getNormal ( i ), 0, -1, 0 ) ;
     sgSetVec4  ( getColour ( i ), 1, 1, 1, 1 ) ;
@@ -39,7 +41,7 @@ ssgaParticleSystem::ssgaParticleSystem ( int num, int initial_num,
     *(getIndex( i )) = i ;
   }
 
-  for ( int i = 0 ; i < num_particles ; i++ )
+  for ( i = 0 ; i < num_particles ; i++ )
   {
     sgSetVec2 ( getTexCoord ( i*4+0 ), 0, 0 ) ;
     sgSetVec2 ( getTexCoord ( i*4+1 ), 1, 0 ) ;
@@ -48,7 +50,7 @@ ssgaParticleSystem::ssgaParticleSystem ( int num, int initial_num,
   }
 
   if ( particle_create )
-    for ( int i = 0 ; i < initial_num ; i++ )
+    for ( i = 0 ; i < initial_num ; i++ )
       (*particle_create) ( this, i, & particle [ i ] ) ;
 
   update ( 0.1 ) ;
