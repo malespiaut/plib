@@ -23,7 +23,7 @@
 
 #include "js.h"
 
-#if defined(UL_LINUX) && !defined(JS_NEW)
+#if defined (UL_LINUX) && !defined (JS_NEW)
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
