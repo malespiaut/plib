@@ -715,7 +715,7 @@ void init_graphics ()
   ** Set up PU
   */
   text = new fntRenderer () ;
-  font = new fntTexFont ( "data/sorority.txf" ) ;
+  font = new fntTexFont ( "data/default.txf" ) ;
   
   puFont font1 ( font, 12 ) ;
   puFont font2 ( font, 15 ) ;

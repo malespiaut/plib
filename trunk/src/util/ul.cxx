@@ -34,6 +34,13 @@
 #endif
 
 
+#if defined(WIN32)
+#define SLASH "\\"
+#else
+#define SLASH "/"
+#endif
+
+
 struct _ulDir
 {
   char dirname [ UL_NAME_MAX+1 ];
@@ -177,18 +184,11 @@ char* ulMakePath( char* path, const char* dir, const char* fname )
        dir != NULL && dir[0] != '\0' )
     {
       strcpy ( path, dir ) ;
-      strcat ( path, "/" ) ;
+      strcat ( path, SLASH ) ;
       strcat ( path, fname ) ;
     }
     else
       strcpy ( path, fname ) ;
-
-    //convert backward slashes to forward slashes
-    for ( char* ptr = path ; *ptr ; ptr ++ )
-    {
-      if ( *ptr == '\\' )
-        *ptr = '/' ;
-    }
   }
   else
      path [0] = 0 ;
@@ -434,13 +434,6 @@ int ulStrEqual ( const char *s1, const char *s2 )
 }
 
 
-#if defined(WIN32)
-#define SLASH '\\'
-#else
-#define SLASH '/'
-#endif
-
-
 int ulIsAbsolutePathName ( const char *pathname )
 {
   /*
@@ -458,19 +451,19 @@ int ulIsAbsolutePathName ( const char *pathname )
     a colon and a slash.
   */
 
-  return ( pathname[0] == SLASH || pathname[0] == '/' ) ||
+  return ( pathname[0] == SLASH[0] || pathname[0] == '/' ) ||
          (
            (
              ( pathname[0] >= 'a' && pathname[0] <= 'z' ) ||
              ( pathname[0] >= 'A' && pathname[0] <= 'Z' )
            ) &&
            pathname[1] == ':' &&
-           ( pathname[2] == SLASH || pathname[2] == '/' )
+           ( pathname[2] == SLASH[0] || pathname[2] == '/' )
          ) ;
 #elif defined(macintosh)
   return (pathname [0] != ':' && strchr( pathname, ':') != NULL );
 #else 
-  return pathname [0] == SLASH ;
+  return pathname [0] == SLASH[0] ;
 #endif
 }
 

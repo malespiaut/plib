@@ -8,11 +8,10 @@
 // - no support for weblinks in vrml(well, this isn't much of a tragedy) :-)
 // ..
 
-#include <stdio.h>
 #include "ssgLocal.h"
 #include "ssgParser.h"
-#include "ssgLoaderWriterStuff.h"
 
+#include "ssgLoaderWriterStuff.h"
 #include "ssgLoadVRML.h"
 
 static _ssgParserSpec parser_spec =
@@ -751,7 +750,7 @@ static bool parseRotation( vrmlData *currentData, char *defName )
      return FALSE;
    parser.expectNextToken("}");
 
-   angle /= (3.14159265/360); // convert radians to degrees 
+   angle /= (3.14159265f / 360); // convert radians to degrees 
    
    sgMakeRotMat4( rotation, angle, axis ) ;
    currentTransform->setTransform( rotation );

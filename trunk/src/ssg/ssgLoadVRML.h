@@ -1,5 +1,3 @@
-#include "ssgLocal.h"
-
 class ssgListOfNodes : public ssgSimpleList
 // list of POINTERs to ssgBase
 // used for storing/querying DEF'd info
