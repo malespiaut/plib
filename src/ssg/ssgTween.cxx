@@ -34,8 +34,20 @@ const char *ssgTween::getTypeName (void) { return "ssgTween" ; }
 int   _ssgGetCurrentTweenMode  () { return current_tween_mode  ; }
 float _ssgGetCurrentTweenState () { return current_tween_state ; }
 
-void  _ssgSetCurrentTweenMode  ( int   mode   ) { current_tween_mode = mode ; }
-void  _ssgSetCurrentTweenState ( float tstate ) { current_tween_state= tstate ;}
+
+void  _ssgSetCurrentTweenSettings ( float state, int mode )
+{
+  _ssgSetRealCurrentTweenSettings ( state, mode ) ;
+  _ssgSetTweenState ( state, mode ) ;  /* Add it into the Dlist for later */
+}
+
+
+void  _ssgSetRealCurrentTweenSettings ( float state, int mode )
+{
+   current_tween_mode = mode ;
+   current_tween_state = state ;
+}
+
 
 void ssgTween::copy_from ( ssgTween *src, int clone_flags )
 {

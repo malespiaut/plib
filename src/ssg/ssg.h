@@ -2206,8 +2206,8 @@ public:
 
   void setID ( int i ) { id = i ; }
   int  isOn () { return is_turned_on  ; }
-  void on  () { is_turned_on = TRUE  ; }
-  void off () { is_turned_on = FALSE ; }
+  void on   () { is_turned_on = TRUE  ; }
+  void off  () { is_turned_on = FALSE ; }
 
   void setPosition ( const sgVec3 pos ) { sgCopyVec3 ( position, pos ) ; }
   void getPosition ( sgVec3 pos )       { sgCopyVec3 ( pos, position ) ; }
@@ -2222,7 +2222,6 @@ public:
       case GL_SPECULAR : sgCopyVec4 ( specular, col ) ; break ;
       default : break ;
     }
-    setup () ;
   }
 
   void getColour   ( GLenum which, sgVec4 col )
@@ -2428,7 +2427,7 @@ public:
   ssgSimpleState *getState () { return currentState ; }
   void cull ( ssgBranch *r ) ;
 
-  void getCameraPosition ( sgVec3 pos ) ;
+  void getCameraPosition ( sgVec3   pos ) ;
   void setCamera ( sgMat4 mat ) ;
   void setCamera ( const sgCoord *coord ) ;
   void setCameraLookAt ( const sgVec3 eye, const sgVec3 center, const sgVec3 up ) ;

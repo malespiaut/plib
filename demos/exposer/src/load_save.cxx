@@ -113,13 +113,19 @@ void saveTweenFile ( char *path, int interactive )
   if ( p == NULL )
   {
     ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( "." ) ;
     strcpy ( fname, path ) ;
   }
   else
   {
     ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( path ) ;
     strcpy ( fname, p ) ;
   }
 
@@ -207,13 +213,19 @@ static void bnsavepickfn ( puObject * )
   if ( p == NULL )
   {
     ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( "." ) ;
     strcpy ( fname, path ) ;
   }
   else
   {
     ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( path ) ;
     strcpy ( fname, p ) ;
   }
 
@@ -288,13 +300,19 @@ void loadBoneFile ( char *path, int interactive )
   if ( p == NULL )
   {
     ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( "." ) ;
     strcpy ( fname, path ) ;
   }
   else
   {
     ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( path ) ;
     strcpy ( fname, p ) ;
   }
 
@@ -406,13 +424,22 @@ static void scpickfn ( puObject * )
   if ( p == NULL )
   {
     ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
+
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( "." ) ;
     strcpy ( fname, path ) ;
   }
   else
   {
     ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
+
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( path ) ;
+
     strcpy ( fname, p ) ;
   }
 
@@ -461,13 +488,19 @@ void loadFile ( char *path, int interactive )
   if ( p == NULL )
   {
     ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( "." ) ;
     strcpy ( fname, path ) ;
   }
   else
   {
     ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
+    if ( getenv ( "EXPOSER_TEXTURE_PATH" ) != NULL )
+      ssgTexturePath ( getenv ( "EXPOSER_TEXTURE_PATH" ) ) ;
+    else
+      ssgTexturePath ( path ) ;
     strcpy ( fname, p ) ;
   }
 

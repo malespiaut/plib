@@ -41,6 +41,7 @@ extern int    _ssgFileVersionNumber ;
 void _ssgForceLineState () ;
 
 void _ssgDrawDList () ;
+void _ssgSetTweenState ( float state, int mode ) ;
 void _ssgPushMatrix ( sgMat4 m ) ;
 void _ssgPopMatrix  () ;
 void _ssgLoadMatrix ( sgMat4 m ) ;
@@ -116,9 +117,9 @@ int _ssgReadError    ( void ) ;
 int _ssgWriteError   ( void ) ;
 
 float _ssgGetCurrentTweenState () ;
-void  _ssgSetCurrentTweenState ( float tweenstate ) ;
 int   _ssgGetCurrentTweenMode  () ;
-void  _ssgSetCurrentTweenMode  ( int   tweenmode  ) ;
+void  _ssgSetCurrentTweenSettings ( float tweenstate, int tweenmode ) ;
+void  _ssgSetRealCurrentTweenSettings ( float tweenstate, int tweenmode ) ;
 
 /*
   Routines for storing arbitrary ssgBase derived objects within SSG files.
