@@ -636,36 +636,34 @@ void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
     return;
   }
 
-  init_bytes = 1024 * 32;
-  if (_bps == 8) init_bytes /= 2;
-  if (_stereo) init_bytes /= 2;
+  init_bytes = 1024 * 16;
 
-  config = alNewConfig();
-  alSetChannels(config, _stereo ? AL_STEREO : AL_MONO);
-  alSetWidth(config, _bps == 8 ? AL_SAMPLE_8 : AL_SAMPLE_16);
-  alSetQueueSize(config, init_bytes);
-  // init_bytes = alGetQueueSize(config);
+  config  = ALnewconfig();
+ 
+  ALsetchannels (  config, _stereo ? AL_STEREO : AL_MONO );
+  ALsetwidth    (  config, _bps == 8 ? AL_SAMPLE_8 : AL_SAMPLE_16 );
+  ALsetqueuesize(  config, init_bytes );
 
-  port = alOpenPort(device, "w", config);
-    
+  port = ALopenport( device, "w", config );
+  
   if ( port == NULL )
   {
     perror ( "slDSP: open" ) ;
     error = SL_TRUE ;
   }
   else
-  {    
-    ALpv params[1];
+  {
+    long params[2] = {AL_OUTPUT_RATE, 0 };
 
-    params[0].param = AL_OUTPUT_RATE;
-    params[0].value.i = _rate;
-    if ( alSetParams(AL_DEFAULT_OUTPUT, params, 1) != 0 )
-	{
-       perror ( "slDSP: open - alSetParams" ) ;
+    params[1] = _rate;
+
+    if ( ALsetparams(AL_DEFAULT_DEVICE, params, 2) != 0 )
+        {
+       perror ( "slDSP: open - ALsetparams" ) ;
        error = SL_TRUE ;
        return;
-	}
-  
+        }
+ 
     rate    = _rate;
     stereo  = _stereo;
     bps     = _bps;
@@ -680,8 +678,8 @@ void slDSP::close ()
 {
   if ( port != NULL )
   {
-     alClosePort(port);
-     alFreeConfig(config);
+     ALcloseport ( port   );
+     ALfreeconfig( config );
      port = NULL;
   }
 }
@@ -689,16 +687,10 @@ void slDSP::close ()
 
 int slDSP::getDriverBufferSize ()
 {
-  int res; 
-
   if ( error )
     return 0 ;
 
-  res = alGetQueueSize(config);
-  if (  stereo   ) res *= 2 ;
-  if ( bps == 16 ) res *= 2 ;
-
-  return  res;
+  return  ALgetqueuesize( config );
 }
 
 void slDSP::getBufferInfo ()
@@ -708,6 +700,8 @@ void slDSP::getBufferInfo ()
 }
 
 
+#define swap_half(a) ( ((a & 0xff) << 8) | ((unsigned short)(a) >> 8) )
+
 void slDSP::write ( void *buffer, size_t length )
 {
   char *buf = (char *)buffer;
@@ -716,13 +710,14 @@ void slDSP::write ( void *buffer, size_t length )
     return ;
 
   // Steve: is this a problem ??
-  for ( int i = 0; i < (int)length; i++ )
+
+  for ( int i = 0; i < (int)length; i++ ) {
     buf[i] = buf[i] >> 1;
+    if (bps == 16)
+       buf[i] = swap_half( buf[i] );
+  }
 
-  if (  stereo   ) length /= 2;
-  if ( bps == 16 ) length /= 2;
-
-  alWriteFrames(port, buffer, length / 2);
+  ALwritesamps(port, (void *)buf, length/2 );
 }
 
 
@@ -733,7 +728,10 @@ float slDSP::secondsRemaining ()
   if ( error )
     return 0.0f ;
 
-  samples_remain = alGetFillable(port);
+  samples_remain = ALgetfillable(port);
+
+  if (  stereo   ) samples_remain /= 2 ;
+  if ( bps == 16 ) samples_remain /= 2 ;
 
   return   (float) samples_remain / (float) rate ;
 }
@@ -742,11 +740,14 @@ float slDSP::secondsRemaining ()
 float slDSP::secondsUsed ()
 {
   int   samples_used;
-  
+
   if ( error )
     return 0.0f ;
 
-  samples_used = alGetFilled(port);
+  samples_used = ALgetfilled(port);
+
+  if (  stereo   ) samples_used /= 2 ;
+  if ( bps == 16 ) samples_used /= 2 ;
 
   return   (float) samples_used / (float) rate ;
 }
