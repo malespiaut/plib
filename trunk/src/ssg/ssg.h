@@ -537,6 +537,27 @@ public:
 } ;
 
 
+class ssgTexture ;
+
+
+class ssgTextureArray : private ssgSimpleList
+{
+public:
+
+  ssgTextureArray ( int init = 3, ssgTexture** things = 0 )
+    : ssgSimpleList ( sizeof(ssgTexture*), init, (char*)things )
+  {
+    //type |= SSG_TYPE_TEXTUREARRAY ;
+  }
+
+  int getNum (void) { return total ; }
+  ssgTexture* get ( unsigned int n ) { return *( (ssgTexture**) raw_get ( n ) ) ; }
+  void add ( ssgTexture* thing ) ;
+  void removeAll () ;
+  ssgTexture* find ( const char* fname ) ;
+} ;
+
+
 struct ssgInterleavedArrayElement
 {
   sgVec2 texCoord ;
@@ -564,91 +585,20 @@ public:
 } ;
 
 
-struct _ssgTextureFormat
-{
-  const char *extension ;
-  void (*loadfunc) ( const char * ) ;
-} ;
+void ssgAddTextureFormat ( const char* extension, void (*) (const char*) ) ;
 
+int _ssgGetTextureAlphaFlag () ;
+void _ssgSetTextureAlphaFlag ( int flag ) ;
 
-class ssgTexture ;
-
-class ssgTextureManager : public ssgBase
-{
-  enum { MAX_FORMATS = 100 } ;
-  _ssgTextureFormat formats [ MAX_FORMATS ] ;
-  int num_formats ;
-
-  enum { MAX_SHARED_TEXTURES = 256 } ;
-  ssgTexture* shared_textures [ MAX_SHARED_TEXTURES ] ;
-  int num_shared_textures ;
-
-  int total_texels_loaded ;
-  int alpha_flag ;
-
-  static ssgTextureManager *current ;
-
-public:
-
-  static ssgTextureManager *get () { return current ; }
-  static void set ( ssgTextureManager *tm )
-  {
-    ssgDeRefDelete ( current ) ;
-
-    current = tm ;
-    if ( tm != NULL )
-      tm -> ref () ;
-  }
-
-  ssgTextureManager ()
-  {
-    num_formats = 0 ;
-    num_shared_textures = 0 ;
-    total_texels_loaded = 0 ;
-    alpha_flag = FALSE ;
-  }
-
-  /* extensible! */
-  void addFormat ( const char* extension, void (*) (const char*) ) ;
-
-  /* load texture via glTexImage2D () w/ current bound handle */
-  void load ( const char* fname ) ;
-
-  /* texture sharing */
-  void clear () ;
-  void add ( ssgTexture* tex ) ;
-  ssgTexture* find ( const char* fname ) ;
-
-  /* alpha detection flag */
-  int getAlphaFlag () const { return alpha_flag ; }
-  void setAlphaFlag ( int flag ) { alpha_flag = flag ; }
-
-  /* load a dummy texture via glTexImage2D () w/ current bound handle */
-  void loadDummy () ;
-
-  /* make mip maps (so we don't depend on glu) */
-  void make_mip_maps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
-
-  /* statistics */
-  int getNumTexelsLoaded () const { return total_texels_loaded ; }
-} ;
-
-
-inline int ssgGetNumTexelsLoaded ()
-{
-  ssgTextureManager::get () -> getNumTexelsLoaded () ;
-}
-
-inline void ssgLoadTexture ( const char *fname )
-{
-  ssgTextureManager::get () -> load ( fname ) ;
-}
-
-void ssgLoadPNG ( const char *fname ) ;
-void ssgLoadSGI ( const char *fname ) ;
-void ssgLoadBMP ( const char *fname ) ;
-void ssgLoadMDLTexture ( const char *fname ) ;
-void ssgLoadTGA ( const char *fname ) ;
+int ssgGetNumTexelsLoaded () ;
+void ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
+void ssgLoadTexture ( const char *fname ) ;
+  void ssgLoadPNG ( const char *fname ) ;
+  void ssgLoadSGI ( const char *fname ) ;
+  void ssgLoadBMP ( const char *fname ) ;
+  void ssgLoadTGA ( const char *fname ) ;
+  void ssgLoadMDLTexture ( const char *fname ) ;
+  void ssgLoadDummyTexture () ;
 
 
 class ssgTexture : public ssgBase

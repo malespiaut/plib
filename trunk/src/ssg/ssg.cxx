@@ -101,38 +101,35 @@ void ssgInit ()
 
   new ssgContext ;  /* Sets the current context with defaults */
 
-  ssgTextureManager* tm = new ssgTextureManager ;
-  ssgTextureManager::set ( tm ) ;
-
-  tm -> addFormat ( ".tga" ,   ssgLoadTGA ) ;
-  tm -> addFormat ( ".bmp" ,   ssgLoadBMP ) ;
-  tm -> addFormat ( ".png" ,   ssgLoadPNG ) ;
-  tm -> addFormat ( ".rgb" ,   ssgLoadSGI ) ;
-  tm -> addFormat ( ".rgba" ,  ssgLoadSGI ) ;
-  tm -> addFormat ( ".int" ,   ssgLoadSGI ) ;
-  tm -> addFormat ( ".inta" ,  ssgLoadSGI ) ;
-  tm -> addFormat ( ".bw" ,    ssgLoadSGI ) ;
-  tm -> addFormat ( ".0af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".1af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".2af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".3af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".4af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".5af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".6af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".7af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".8af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".9af" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".aaf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".baf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".caf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".daf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".eaf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".faf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".gaf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".haf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".iaf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".jaf" ,   ssgLoadMDLTexture ) ;
-  tm -> addFormat ( ".kaf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".tga" ,   ssgLoadTGA ) ;
+  ssgAddTextureFormat ( ".bmp" ,   ssgLoadBMP ) ;
+  ssgAddTextureFormat ( ".png" ,   ssgLoadPNG ) ;
+  ssgAddTextureFormat ( ".rgb" ,   ssgLoadSGI ) ;
+  ssgAddTextureFormat ( ".rgba" ,  ssgLoadSGI ) ;
+  ssgAddTextureFormat ( ".int" ,   ssgLoadSGI ) ;
+  ssgAddTextureFormat ( ".inta" ,  ssgLoadSGI ) ;
+  ssgAddTextureFormat ( ".bw" ,    ssgLoadSGI ) ;
+  ssgAddTextureFormat ( ".0af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".1af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".2af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".3af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".4af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".5af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".6af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".7af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".8af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".9af" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".aaf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".baf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".caf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".daf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".eaf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".faf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".gaf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".haf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".iaf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".jaf" ,   ssgLoadMDLTexture ) ;
+  ssgAddTextureFormat ( ".kaf" ,   ssgLoadMDLTexture ) ;
 }
 
 

@@ -9,8 +9,6 @@
  */
 void ssgLoadTGA ( const char *fname )
 {
-  ssgTextureManager* tm = ssgTextureManager::get () ;
-
   #define DEF_targaHeaderLength  12
   #define DEF_targaHeaderContent "\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
@@ -20,14 +18,14 @@ void ssgLoadTGA ( const char *fname )
 
   if ( stat(fname, &fileinfo) == -1 ) {
 	ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname);
-	tm -> loadDummy ();
+	ssgLoadDummyTexture ();
 	return;
   }
 
   FILE *tfile;
   if( (tfile = fopen(fname, "rb")) == NULL) {
 	ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname);
-	tm -> loadDummy ();
+	ssgLoadDummyTexture ();
 	return;
   }
 
@@ -39,7 +37,7 @@ void ssgLoadTGA ( const char *fname )
 
   if( memcmp( pData, DEF_targaHeaderContent, DEF_targaHeaderLength ) != 0 ) {
 	ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'. Not a targa (apparently).", fname);
-	tm -> loadDummy ();
+	ssgLoadDummyTexture ();
 	free (pData);
     return;
   }
@@ -59,7 +57,7 @@ void ssgLoadTGA ( const char *fname )
   if( ( width <= 0 ) || ( height <= 0 ) )
   {
 	ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'. Width and height < 0.", fname);
-	tm -> loadDummy ();
+	ssgLoadDummyTexture ();
 	free (pData);
     return;
   }
@@ -71,7 +69,7 @@ void ssgLoadTGA ( const char *fname )
   if( !( is24Bit || is32Bit ) )
   {
 	ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'. Not 24 or 32 bit.", fname);
-	tm -> loadDummy ();
+	ssgLoadDummyTexture ();
 	free (pData);
     return;
   }
@@ -106,8 +104,8 @@ void ssgLoadTGA ( const char *fname )
 
   free(pData);
 
-  tm -> setAlphaFlag ( is32Bit ) ;
-  tm -> make_mip_maps ( texels, width, height, 4) ;
+  _ssgSetTextureAlphaFlag ( is32Bit ) ;
+  ssgMakeMipMaps ( texels, width, height, 4) ;
 }
 
 

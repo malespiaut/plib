@@ -158,6 +158,10 @@ SOURCE=.\ssgList.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoad.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoad3ds.cxx
 # End Source File
 # Begin Source File

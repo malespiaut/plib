@@ -19,7 +19,8 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgLoadFLT.cxx ssgLoadM.cxx ssgSaveM.cxx ssgLoadStrip.cxx \
 	ssgLoadOFF.cxx ssgSaveOFF.cxx ssgSaveQHI.cxx \
 	ssgLoaderWriterStuff.h ssgMSFSPalette.h ssg3ds.h ssgLoadMDL.h \
-	ssgSave3ds.cxx ssgConvex.cxx ssgAxisTransform.cxx
+	ssgSave3ds.cxx ssgConvex.cxx ssgAxisTransform.cxx \
+  ssgLoad.cxx
 
 INCLUDES += -I$(top_srcdir)/src/sg
 INCLUDES += -I$(top_srcdir)/src/util

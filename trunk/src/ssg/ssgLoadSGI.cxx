@@ -273,7 +273,6 @@ void ssgSGIHeader::readHeader ()
 
 void ssgLoadSGI ( const char *fname )
 {
-  ssgTextureManager* tm = ssgTextureManager::get () ;
   ssgSGIHeader *sgihdr = new ssgSGIHeader () ;
 
   strcpy ( curr_image_fname, fname ) ;
@@ -283,7 +282,7 @@ void ssgLoadSGI ( const char *fname )
   {
     perror ( "ssgLoadTexture" ) ;
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", curr_image_fname ) ;
-    tm -> loadDummy () ;
+    ssgLoadDummyTexture () ;
     return ;
   }
 
@@ -394,8 +393,8 @@ void ssgLoadSGI ( const char *fname )
   delete bbuf   ;
   delete abuf   ;
 
-  tm -> setAlphaFlag ( sgihdr->zsize == 4 ) ;
-  tm -> make_mip_maps ( image, sgihdr->xsize, sgihdr->ysize, sgihdr->zsize ) ;
+  _ssgSetTextureAlphaFlag ( sgihdr->zsize == 4 ) ;
+  ssgMakeMipMaps ( image, sgihdr->xsize, sgihdr->ysize, sgihdr->zsize ) ;
 
   delete sgihdr ;
 }
