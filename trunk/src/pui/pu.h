@@ -35,41 +35,12 @@
 #define _PU_USE_GLUT_FONTS   1
 #endif
 
-/*
-  Include GLUT
- */
-
-#ifndef PU_NOT_USING_GLUT
-#  ifdef FREEGLUT_IS_PRESENT
-#    include <GL/freeglut.h>
-#  else
-#    ifdef __APPLE__
-#      include <GLUT/glut.h>
-#    else
-#      include <GL/glut.h>
-#    endif
-#  endif
-#endif
-
-#ifdef PU_NOT_USING_GLUT
-
 #define PU_NOBUTTON             -1
 #define PU_LEFT_BUTTON          0
 #define PU_MIDDLE_BUTTON        1
 #define PU_RIGHT_BUTTON         2
 #define PU_DOWN                 0
 #define PU_UP                   1
-
-#else
-
-#define PU_NOBUTTON         -1
-#define PU_LEFT_BUTTON      GLUT_LEFT_BUTTON
-#define PU_MIDDLE_BUTTON    GLUT_MIDDLE_BUTTON
-#define PU_RIGHT_BUTTON     GLUT_RIGHT_BUTTON
-#define PU_DOWN             GLUT_DOWN
-#define PU_UP               GLUT_UP
-
-#endif
 
 #ifdef _PU_USE_GLUT_FONTS
 typedef void *GlutFont ;
@@ -89,17 +60,7 @@ protected:
 
 public:
 
-  puFont ()
-  {
-#ifdef _PU_USE_GLUT_FONTS
-    glut_font_handle = GLUT_BITMAP_8_BY_13 ;
-    fnt_font_handle  = NULL ;
-#else
-    fnt_font_handle  = &PUFONT_TXF_TYPEWRITER ;
-    pointsize = 13 ;
-    slant = 0 ;
-#endif
-  }
+  puFont () ;
 
 #ifdef _PU_USE_GLUT_FONTS
   puFont ( GlutFont gfh )
@@ -152,7 +113,6 @@ extern puFont PUFONT_HELVETICA_18   ;
 
 #define PU_KEY_GLUT_SPECIAL_OFFSET  256
 
-#ifdef PU_NOT_USING_GLUT
 #define PU_KEY_F1        (1             + PU_KEY_GLUT_SPECIAL_OFFSET)
 #define PU_KEY_F2        (2             + PU_KEY_GLUT_SPECIAL_OFFSET)
 #define PU_KEY_F3        (3             + PU_KEY_GLUT_SPECIAL_OFFSET)
@@ -174,30 +134,6 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PU_KEY_HOME      (106           + PU_KEY_GLUT_SPECIAL_OFFSET)
 #define PU_KEY_END       (107           + PU_KEY_GLUT_SPECIAL_OFFSET)
 #define PU_KEY_INSERT    (108           + PU_KEY_GLUT_SPECIAL_OFFSET)
-
-#else
-#define PU_KEY_F1        (GLUT_KEY_F1        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F2        (GLUT_KEY_F2        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F3        (GLUT_KEY_F3        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F4        (GLUT_KEY_F4        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F5        (GLUT_KEY_F5        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F6        (GLUT_KEY_F6        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F7        (GLUT_KEY_F7        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F8        (GLUT_KEY_F8        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F9        (GLUT_KEY_F9        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F10       (GLUT_KEY_F10       + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F11       (GLUT_KEY_F11       + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F12       (GLUT_KEY_F12       + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_LEFT      (GLUT_KEY_LEFT      + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_UP        (GLUT_KEY_UP        + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_RIGHT     (GLUT_KEY_RIGHT     + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_DOWN      (GLUT_KEY_DOWN      + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_PAGE_UP   (GLUT_KEY_PAGE_UP   + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_PAGE_DOWN (GLUT_KEY_PAGE_DOWN + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_HOME      (GLUT_KEY_HOME      + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_END       (GLUT_KEY_END       + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_INSERT    (GLUT_KEY_INSERT    + PU_KEY_GLUT_SPECIAL_OFFSET)
-#endif
 
 #define PUARROW_UP         0
 #define PUARROW_DOWN       1

@@ -23,3 +23,20 @@
 
 
 #include "pu.h"
+
+/*
+  Include GLUT
+ */
+
+#ifndef PU_NOT_USING_GLUT
+#  ifdef FREEGLUT_IS_PRESENT
+#    include <GL/freeglut.h>
+#  else
+#    ifdef __APPLE__
+#      include <GLUT/glut.h>
+#    else
+#      include <GL/glut.h>
+#    endif
+#  endif
+#endif
+

@@ -55,6 +55,19 @@ puFont PUFONT_HELVETICA_18   ( &PUFONT_TXF_HELVETICA, 18 )  ;
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
 
+puFont::puFont ()
+{
+#ifdef _PU_USE_GLUT_FONTS
+  glut_font_handle = GLUT_BITMAP_8_BY_13 ;
+  fnt_font_handle  = NULL ;
+#else
+  fnt_font_handle  = &PUFONT_TXF_TYPEWRITER ;
+  pointsize = 13 ;
+  slant = 0 ;
+#endif
+}
+
+
 float puFont::getFloatStringWidth ( const char *str ) const
 {
   if ( str == NULL )
