@@ -2,9 +2,11 @@
 //  UL - utility library
 //
 //  Contains:
+//  - necessary system includes
+//  - basic types
 //  - error message routines
 //  - high performance clocks
-//  - more to come (basic types, endian support, version ID)
+//  - more to come (endian support, version ID)
 //
 
 #ifndef _INCLUDED_UL_H_
@@ -12,8 +14,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
+#include <string.h>
+#include <ctype.h>
+#include <assert.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -22,6 +26,38 @@
 #endif
 
 #include <assert.h>
+
+#ifndef TRUE
+#define TRUE  1
+#define FALSE 0
+#endif
+
+/* SUNWspro 4.2 and earlier need bool to be defined */
+
+#if defined(__SUNPRO_CC) && __SUNPRO_CC < 0x500
+typedef int bool ;
+const   int true  = 1 ;
+const   int false = 0 ;
+#endif
+
+
+/*
+  Basic Types
+*/
+
+typedef unsigned char   u8 ;
+typedef unsigned short  u16 ;
+typedef unsigned int    u32 ;
+
+typedef short           s16 ;
+typedef int             s32 ;
+
+typedef float           f32 ;
+typedef double          f64 ;
+
+typedef const char      cchar ;
+typedef const void      cvoid ;
+
 
 /*
   High precision clocks.

@@ -1,10 +1,5 @@
 
 #include "ssgLocal.h"
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-#include <GL/gl.h>
 
 void ssgTexTrans::copy_from ( ssgTexTrans *src, int clone_flags )
 {

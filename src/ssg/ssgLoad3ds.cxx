@@ -8,8 +8,6 @@
  **  PLIB (http://www.woodsoup.org/projs/plib)
  *******************************************************/
 
-#include <stdio.h>
-#include <string.h>
 #include "ssgLocal.h"
 
 #define MAX_MATERIALS 512

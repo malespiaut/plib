@@ -292,9 +292,11 @@ void ssgVtxTable::draw ()
   stats_num_leaves++ ;
   stats_num_vertices += getNumVertices() ;
 
+#ifdef _SSG_USE_DLIST
   if ( dlist )
     glCallList ( dlist ) ;
   else
+#endif
     draw_geometry () ;
 
   if ( postDrawCB != NULL )
@@ -302,6 +304,7 @@ void ssgVtxTable::draw ()
 }
 
 
+#ifdef _SSG_USE_PICK
 void ssgVtxTable::pick ( int baseName )
 {
   int i ;
@@ -331,6 +334,7 @@ void ssgVtxTable::pick ( int baseName )
 
   glPopName () ;
 }
+#endif // #ifdef _SSG_USE_PICK
 
 
 void ssgVtxTable::draw_geometry ()

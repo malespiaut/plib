@@ -89,6 +89,7 @@ void ssgInit ()
 }
 
 
+#ifdef _SSG_USE_PICK
 void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
 {
   if ( _ssgCurrentContext == NULL )
@@ -127,11 +128,15 @@ void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
       _ssgLights [ i ] . setup () ;
 
   _ssgCurrentContext->cull(r) ;
+
+#ifdef _SSG_USE_DLIST
   _ssgDrawDList () ;
+#endif
 
   glMatrixMode ( GL_MODELVIEW ) ;
   glLoadIdentity () ;
 }
+#endif // #ifdef _SSG_USE_PICK
 
 
 void ssgCullAndDraw ( ssgRoot *r )
@@ -164,7 +169,10 @@ void ssgCullAndDraw ( ssgRoot *r )
       _ssgLights [ i ] . setup () ;
 
   _ssgCurrentContext->cull(r) ;
+
+#ifdef _SSG_USE_DLIST
   _ssgDrawDList () ;
+#endif
 
   glMatrixMode ( GL_MODELVIEW ) ;
   glLoadIdentity () ;

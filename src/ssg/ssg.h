@@ -2,33 +2,31 @@
 #ifndef _INCLUDED_SSG_H_
 #define _INCLUDED_SSG_H_
 
+#include "ul.h"
+#include "sg.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/*
+  OpenGL includes
+*/
 
-#ifdef WIN32
-#include <windows.h>
+#include <GL/gl.h>
+
+#ifndef WIN32
+#  ifndef macintosh
+#    include <GL/glx.h>
+#  else
+#    include <agl.h>
+#  endif
 #endif
 
-#include <assert.h>
-#include "sg.h"
-#include <GL/gl.h>
 #include <GL/glu.h>
 
-#ifndef TRUE
-#define TRUE  1
-#define FALSE 0
-#endif
+/*
+  Configuration
+*/
 
-/* SUNWspro 4.2 and earlier need bool to be defined */
-
-#if defined(__SUNPRO_CC) && __SUNPRO_CC < 0x500
-typedef int bool ;
-const   int true  = 1 ;
-const   int false = 0 ;
-#endif
-
+#define _SSG_USE_PICK   1
+#define _SSG_USE_DLIST  1
 
 #ifndef _SSG_PUBLIC
 #define _SSG_PUBLIC  protected
@@ -851,7 +849,10 @@ class ssgLeaf : public ssgEntity
 
 protected:
 
+#ifdef _SSG_USE_DLIST
   GLuint dlist ;
+#endif
+
   virtual void draw_geometry () = 0 ;
 
   int preDraw () ;
@@ -863,11 +864,15 @@ public:
 
   virtual void drawHighlight ( sgVec4 colour ) = 0 ;
   virtual void drawHighlight ( sgVec4 colour, int i ) = 0 ;
+#ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) = 0 ;
+#endif
 
+#ifdef _SSG_USE_DLIST
   void makeDList () ;
   void deleteDList () ;
   GLuint getDListIndex () { return dlist ; }
+#endif
 
   int  getExternalPropertyIndex ()
                  { return state ? state->getExternalPropertyIndex() : 0 ; }
@@ -951,7 +956,9 @@ public:
 
   virtual void drawHighlight ( sgVec4 colour ) ;
   virtual void drawHighlight ( sgVec4 colour, int i ) ;
+#ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
+#endif
   virtual void transform ( sgMat4 m ) ;
 
   int getNumVertices  () { return num_vertices  ; }
@@ -1041,7 +1048,9 @@ public:
 
   virtual void drawHighlight ( sgVec4 colour ) ;
   virtual void drawHighlight ( sgVec4 colour, int i ) ;
+#ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
+#endif
   virtual void transform ( sgMat4 m ) ;
 
   void setPrimitiveType ( GLenum ty ) { gltype = ty ; }
@@ -1112,7 +1121,9 @@ public:
 
   virtual void drawHighlight ( sgVec4 colour ) ;
   virtual void drawHighlight ( sgVec4 colour, int i ) ;
+#ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
+#endif
   virtual void transform ( sgMat4 m ) ;
 
   void setIndices ( ssgIndexArray *il ) ;
@@ -1805,7 +1816,9 @@ inline void ssgForceBasicState ()
 void ssgInit () ;
 
 void ssgCullAndDraw ( ssgRoot *root ) ;
+#ifdef _SSG_USE_PICK
 void ssgCullAndPick ( ssgRoot *root, sgVec2 botleft, sgVec2 topright ) ;
+#endif
 int  ssgIsect       ( ssgRoot *root, sgSphere *s, sgMat4 m, ssgHit **results ) ;
 int  ssgHOT         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;

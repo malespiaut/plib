@@ -4,7 +4,6 @@
 //
 
 
-#include <stdarg.h>
 #include "ssgLocal.h"
 #include "ssgParser.h"
 
