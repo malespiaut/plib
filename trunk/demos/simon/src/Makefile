@@ -1,6 +1,6 @@
 
 SIMON = libsimon.a   simon
-LIBS  = -lplibpsl -lplibssg -lplibsg -lplibul -lglut -lGLU -lGL -lpthread -L/usr/X11/lib -lX11 -lm
+LIBS  = -lplibpsl -lplibssg -lplibsg -lplibjs -lplibul -lglut -lGLU -lGL -lpthread -L/usr/X11/lib -lX11 -lm
 
 all: ${SIMON}
 

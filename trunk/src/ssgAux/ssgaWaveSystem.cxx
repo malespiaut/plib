@@ -80,15 +80,15 @@ void ssgaWaveSystem::updateAnimation ( float tim )
 
       int  idx = i * (nstrips+1) + j ;
 
-      float x0 = orig_vertices [idx][0] + center[0] ;
-      float y0 = orig_vertices [idx][1] + center[1] ; 
-      float z0 = vertices [idx][2] ;
-
-      float depth = (gridGetter==NULL) ? 1000000.0f : gridGetter ( x0, y0 ) ;
-
-      float xx = x0 ;
-      float yy = y0 ;
+      float xx = orig_vertices [idx][0] + center[0] ;
+      float yy = orig_vertices [idx][1] + center[1] ; 
       float zz = center[2] ;
+
+      float x0 = xx + offset[0] ;
+      float y0 = yy + offset[1] ;
+      float z0 = vertices [idx][2] ;
+      
+      float depth = (gridGetter==NULL) ? 1000000.0f : gridGetter ( x0, y0 ) ;
 
       for ( int t = 0 ; t < num_trains ; t++ )
       {
@@ -190,6 +190,8 @@ ssgaWaveSystem::ssgaWaveSystem ( int np ) : ssgaShape ( np )
 
   nstrips = nstacks = 0 ;
 
+  offset [ 0 ] = offset [ 1 ] = 0.0f ;
+
   normals   = NULL ;
   colours   = NULL ;
   texcoords = NULL ;
@@ -256,10 +258,10 @@ void ssgaWaveSystem::regenerate ()
       float x = (float) j / (float) nstacks ;
       float y = (float) i / (float) nstrips ;
 
-      if ( j == 0 ) x = -500.0f ;
-      if ( j == nstacks ) x = 500.0f ;
-      if ( i == 0 ) y = -500.0f ;
-      if ( i == nstacks ) y = 500.0f ;
+      // if ( j == 0 ) x = -500.0f ;
+      // if ( j == nstacks ) x = 500.0f ;
+      // if ( i == 0 ) y = -500.0f ;
+      // if ( i == nstacks ) y = 500.0f ;
 
       sgSetVec3  ( vertices [idx], (x-0.5f) * size[0],
                                    (y-0.5f) * size[1], 0.0f ) ;

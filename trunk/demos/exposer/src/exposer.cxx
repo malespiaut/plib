@@ -68,7 +68,7 @@ void setShowAngle ( float a )
 
 static void update_eye_motion ()
 {
-  float r ; rangeSlider -> getValue ( & r ) ; r *=  30.0f ; r +=   2.0f ;
+  float r ; rangeSlider -> getValue ( & r ) ; r *= 100.0f ; r +=   2.0f ;
   float h ;   panSlider -> getValue ( & h ) ; h *= 360.0f ; h += 180.0f ;
   float p ;  tiltSlider -> getValue ( & p ) ; p *= 360.0f ; p += 180.0f ;
 

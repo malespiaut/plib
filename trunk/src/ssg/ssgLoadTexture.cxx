@@ -97,6 +97,15 @@ bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
 	  int t3 = texels [ l1 ] [ (y1   * w1 + x1_1) * zsize + c ] ;
 	  int t4 = texels [ l1 ] [ (y1_1 * w1 + x1_1) * zsize + c ] ;
 
+if ( c == 3 ) /* Alpha */
+{
+  int a = t1 ;
+  if ( t2 > a ) a = t2 ;
+  if ( t3 > a ) a = t3 ;
+  if ( t4 > a ) a = t4 ;
+  texels [ l2 ] [ (y2 * w2 + x2) * zsize + c ] = a ;
+}
+else
           texels [ l2 ] [ (y2 * w2 + x2) * zsize + c ] =
                                            ( t1 + t2 + t3 + t4 ) / 4 ;
         }
