@@ -58,8 +58,6 @@ void puSetWindowSize ( int width, int height )
   puWindowHeight = height ;
 }
 
-static int fontBase = 0;
-static int fontSize[257];
 #else
 
 
@@ -247,19 +245,15 @@ void puInit ( void )
     firsttime = FALSE ;
 #ifdef PU_NOT_USING_GLUT
 
-    // No GLUT fonts, try some corresponding "fnt" fonts
+    // No GLUT fonts, try some corresponding textured fonts
 
-    static fntTexFont typewriter  ( "typewriter.txf" ) ;
-    static fntTexFont times_roman ( "times_bold.txf" ) ;
-    static fntTexFont helvetica   ( "helvetica_bold.txf" ) ;
-
-    PUFONT_8_BY_13.initialize        ( &typewriter, 13 ) ;
-    PUFONT_9_BY_15.initialize        ( &typewriter, 15 ) ;
-    PUFONT_TIMES_ROMAN_10.initialize ( &times_roman, 10 ) ;
-    PUFONT_TIMES_ROMAN_24.initialize ( &times_roman, 24 ) ;
-    PUFONT_HELVETICA_10.initialize   ( &helvetica, 10 ) ;
-    PUFONT_HELVETICA_12.initialize   ( &helvetica, 12 ) ;
-    PUFONT_HELVETICA_18.initialize   ( &helvetica, 18 ) ;
+    if ( ( PUFONT_TXF_TYPEWRITER.load ( "typewriter.txf"     ) == FALSE ) |
+         ( PUFONT_TXF_TIMES.load      ( "times_bold.txf"     ) == FALSE ) |
+         ( PUFONT_TXF_HELVETICA.load  ( "helvetica_bold.txf" ) == FALSE ) )
+    {
+      // Exit
+      ulSetError ( UL_FATAL, "PUI: Could not load default fonts." ) ;
+    }
 
 #endif
   }
