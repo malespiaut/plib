@@ -2,20 +2,23 @@
 class pslSymbol
 {
 public:
-  char *symbol ;
-  pslAddress address ;
+  char      *symbol   ;
+  pslAddress address  ;
+  int        locality ;
 
   pslSymbol ()
   {
-    symbol = NULL ;
-    address = 0 ;
+    symbol   = NULL ;
+    address  = 0 ;
+    locality = 0 ;
   }
 
-  void set ( const char *s, pslAddress v )
+  void set ( const char *s, pslAddress v, int loc )
   {
-    symbol = new char [ strlen ( s ) + 1 ] ;
+    symbol   = new char [ strlen ( s ) + 1 ] ;
     strcpy ( symbol, s ) ;
-    address = v ;
+    address  = v ;
+    locality = loc ;
   }
 
   ~pslSymbol () { delete symbol ; }

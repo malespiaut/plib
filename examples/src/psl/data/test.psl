@@ -14,12 +14,19 @@ void main ()
 {
   x = 0 ;
 
-  while ( x < 10 )
+  print ( x ) ;
+
   {
-    print ( x, y ) ;
-    wibble () ;
-    pause ;
+    float x = 123 ;
+
+    print ( x ) ;
+
+    {
+      float x = 456 ;
+      print ( x ) ;
+    }
+
+    print ( x ) ;
   }
 }
-
 

@@ -28,7 +28,8 @@
 pslAddress pslParser::setVarSymbol ( const char *s )
 {
   for ( int i = 0 ; i < next_var ; i++ )
-    if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
+    if ( strcmp ( s, symtab [ i ] . symbol ) == 0 &&
+         symtab [ i ] . locality >= locality_sp )
     {
       ulSetError ( UL_WARNING, "PSL: Multiple definition of '%s'.", s ) ;
       return symtab [ i ] . address ;
@@ -40,7 +41,7 @@ pslAddress pslParser::setVarSymbol ( const char *s )
     next_var-- ;
   }
 
-  symtab [ next_var ] . set ( s, next_var ) ;
+  symtab [ next_var ] . set ( s, next_var, locality_sp ) ;
 
   return symtab [ next_var++ ] . address ;
 }
@@ -49,7 +50,9 @@ pslAddress pslParser::setVarSymbol ( const char *s )
 
 pslAddress pslParser::getVarSymbol ( const char *s )
 {
-  for ( int i = 0 ; i < next_var ; i++ )
+  /* Search Backwards so most local variable shows up first */
+
+  for ( int i = next_var-1 ; i >= 0 ; i-- )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
       return symtab [ i ] . address ;
 
@@ -158,7 +161,7 @@ void pslParser::setCodeSymbol ( const char *s, pslAddress v )
     next_code_symbol-- ;
   }
 
-  code_symtab [ next_code_symbol++ ] . set ( s, v ) ;
+  code_symtab [ next_code_symbol++ ] . set ( s, v, locality_sp ) ;
 
   fixup ( s, v ) ;
 }
