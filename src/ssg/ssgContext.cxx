@@ -77,6 +77,10 @@ ssgContext::ssgContext ()
   basicState->shininess   = 0.0f ;
   basicState->alpha_clamp = 0.01f ;
 
+  for ( int i = 0 ; i < 6 ; i++ )
+    sgSetVec4 ( clipPlane[i], 0, 0, 1, 0 ) ;
+
+  enabledClipPlanes = 0 ;
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -260,4 +264,34 @@ void ssgContext::cull ( ssgRoot *r )
 {
   r -> cull ( frustum, cameraMatrix, TRUE ) ;
 }
+
+
+void ssgContext::removeClipPlanes ()
+{
+  for ( int i = 0 ; i < 6 ; i++ )
+    glDisable ( GL_CLIP_PLANE0 + i ) ;
+}
+
+void ssgContext::applyClipPlanes ()
+{
+  if ( enabledClipPlanes == 0 )
+    return ;
+
+  for ( int i = 0 ; i < 6 ; i++ )
+  {
+    if ( enabledClipPlanes & (1<<i) )
+    {
+      double eqn[4] ;
+      eqn[0] = (double) clipPlane[i][0] ;
+      eqn[1] = (double) clipPlane[i][1] ;
+      eqn[2] = (double) clipPlane[i][2] ;
+      eqn[3] = (double) clipPlane[i][3] ;
+      glClipPlane ( GL_CLIP_PLANE0 + i, eqn ) ; 
+      glEnable ( GL_CLIP_PLANE0 + i ) ;
+    }
+    else
+      glDisable ( GL_CLIP_PLANE0 + i ) ;
+  }
+}
+
 

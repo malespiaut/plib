@@ -1810,6 +1810,7 @@ static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
 	 if (ranges[1] > MAX(0, ranges[0])) {
 	    ssgRangeSelector *lod = new ssgRangeSelector;
 	    lod->setRanges(ranges, 2);
+sgZeroVec3 ( attr->center ) ;
 	    if (sgLengthVec3(attr->center) > 0.01f) { /* XXX */
 	       ssgTransform *t1, *t2;
 	       sgMat4 mat;
@@ -2517,11 +2518,13 @@ static int CheckHeader(ubyte *ptr, ubyte *end, fltState *state)
       ulSetError(UL_WARNING, "[flt] Suspicious format revision number (%d).", k);
       return -1;
    }
+/*
    ulSetError(UL_DEBUG, "[flt] Loading %s %sFlight v%d.%d",
 	   state->filename,
 	   state->major > 13 ? "Open" : "",
 	   state->major,
 	   state->minor);
+*/
    return len;
 }
 

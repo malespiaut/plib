@@ -629,25 +629,24 @@ void slDSP::stop ()
 
 void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
 {
-/*
+#if 0
   if ( _bps != 8 )
   {
     perror ( "slDSP: supports only 8bit audio for sgi" ) ;
     error = SL_TRUE;
     return;
   }
-*/
+#endif
 
   init_bytes = 1024 * 16;
-
   config = alNewConfig();
   
   alSetChannels(config, _stereo ? AL_STEREO : AL_MONO);
   alSetWidth(config, _bps == 8 ? AL_SAMPLE_8 : AL_SAMPLE_16);
   alSetQueueSize(config, init_bytes);
+  init_bytes = alGetQueueSize(config);
 
   port = alOpenPort(device, "w", config);
-  alFreeConfig(config);
     
   if ( port == NULL )
   {
@@ -682,6 +681,7 @@ void slDSP::close ()
   if ( port != NULL )
   {
      alClosePort(port);
+     alFreeConfig(config);
      port = NULL;
   }
 }
@@ -689,10 +689,16 @@ void slDSP::close ()
 
 int slDSP::getDriverBufferSize ()
 {
+  int res; 
+
   if ( error )
     return 0 ;
 
-  return  alGetQueueSize(config);
+  res = alGetQueueSize(config);
+  if (  stereo   ) res *= 2 ;
+  if ( bps == 16 ) res *= 2 ;
+
+  return  res;
 }
 
 void slDSP::getBufferInfo ()
@@ -713,6 +719,9 @@ void slDSP::write ( void *buffer, size_t length )
   for ( int i = 0; i < (int)length; i++ )
     buf[i] = buf[i] >> 1;
 
+  if (  stereo   ) length /= 2;
+  if ( bps == 16 ) length /= 2;
+
   alWriteFrames(port, buffer, length / 2);
 }
 
@@ -726,9 +735,6 @@ float slDSP::secondsRemaining ()
 
   samples_remain = alGetFillable(port);
 
-  if (  stereo   ) samples_remain /= 2 ;
-  if ( bps == 16 ) samples_remain /= 2 ;
-
   return   (float) samples_remain / (float) rate ;
 }
 
@@ -741,9 +747,6 @@ float slDSP::secondsUsed ()
     return 0.0f ;
 
   samples_used = alGetFilled(port);
-
-  if (  stereo   ) samples_used /= 2 ;
-  if ( bps == 16 ) samples_used /= 2 ;
 
   return   (float) samples_used / (float) rate ;
 }

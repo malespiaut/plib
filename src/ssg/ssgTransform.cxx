@@ -187,4 +187,3 @@ int ssgTransform::save ( FILE *fd )
 }
 
 
-
