@@ -96,6 +96,7 @@ static const char *font_names [] =
 /*  "old/helvetica_bold.txf", 
     "old/helvetica_medium.txf", */
   "old/junius.txf", 
+  "old/ledfixed.txf", 
   "old/lucida.txf", 
   "old/lucidabright_bold.txf", 
 /*  "old/schoolbook_bold.txf", 

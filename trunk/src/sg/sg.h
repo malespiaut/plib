@@ -854,6 +854,9 @@ inline void sgReflectInPlaneVec3 ( sgVec3 dst, const sgVec4 plane )
   sgReflectInPlaneVec3 ( dst, dst, plane ) ;
 }
 
+extern void sgMakeNormal    ( sgVec2 dst, const sgVec3 a, const sgVec3 b ) ;
+
+
 extern void sgMakeNormal    ( sgVec3 dst, const sgVec3 a, const sgVec3 b, const sgVec3 c ) ;
 
 
@@ -888,21 +891,26 @@ inline void sgMakePlane ( sgVec4 dst, const sgVec3 a, const sgVec3 b, const sgVe
 float sgTriArea( sgVec3 p0, sgVec3 p1, sgVec3 p2 );
 
 
-// Fast code. Result is in the range  0..pi:
+// Fast code. Result is in the range  0..180:
 inline SGfloat sgAngleBetweenNormalizedVec3 ( sgVec3 v1, sgVec3 v2 )
 {
   float f = sgScalarProductVec3 ( v1, v2 ) ;
   
-  return (float)(acos((f>=1.0f)?1.0f:(f<=-1.0f)?-1.0f:f)*SG_RADIANS_TO_DEGREES) ;
+  return (float) acos ( ( f >=  1.0f ) ?  1.0f :
+                        ( f <= -1.0f ) ? -1.0f : f ) * 
+                                 SG_RADIANS_TO_DEGREES ;
 }
 
-// Fast code. Result is in the range  0..pi:
+// Fast code. Result is in the range  0..180:
+
 SGfloat sgAngleBetweenVec3 ( sgVec3 v1, sgVec3 v2 );
 
-// all three have to be normalized. Slow code. Result is in the range  0..2*pi:
+// All three have to be normalized. Slow code. Result is in the range  0..360:
+
 SGfloat sgAngleBetweenNormalizedVec3 (sgVec3 first, sgVec3 second, sgVec3 normal);
 
-// normal has to be normalized. Slow code. Result is in the range  0..2*pi:
+// Normal has to be normalized. Slow code. Result is in the range  0..360:
+
 SGfloat sgAngleBetweenVec3 ( sgVec3 v1, sgVec3 v2, sgVec3 normal );
 
 class sgSphere
