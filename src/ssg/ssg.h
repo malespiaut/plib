@@ -436,7 +436,8 @@ int ssgGetNumTexelsLoaded () ;
 
 class ssgTexture : public ssgBase
 {
-  char *filename ;
+  char *filename ; // path + filename
+	char *filename_from_model; // the filename like it is in the model
   GLuint handle ;
 
 protected:
@@ -459,8 +460,9 @@ public:
 #endif
 
     filename = NULL ;
+		filename_from_model = NULL;
     setFilename ( fname ) ;
-
+		
     ssgLoadTexture( getFilename() ) ;
 
     glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ) ;
@@ -480,6 +482,8 @@ public:
   GLuint getHandle () { return handle ; }
 
   char *getFilename(void) { return filename ; }
+	char *getFilenameFromModel(void) { return filename_from_model ; }
+
   void  setFilename(char *fname)
   {
     delete filename ;
@@ -490,6 +494,20 @@ public:
     {
       filename = new char [ strlen(fname)+1 ] ;
       strcpy ( filename, fname ) ;
+    }
+  }
+
+	
+  void  setFilenameFromModel(char *fname)
+  {
+    delete filename_from_model ;
+
+    if ( fname == NULL )
+      filename_from_model = NULL ;
+    else
+    {
+      filename_from_model = new char [ strlen(fname)+1 ] ;
+      strcpy ( filename_from_model, fname ) ;
     }
   }
 
@@ -2072,6 +2090,8 @@ ssgLight *ssgGetLight ( int i ) ;
 char *ssgShowStats () ;
 void  ssgDelete ( ssgBranch *br ) ;
 char *ssgGetVersion () ;
+char * ssgGetAPOM();
+
 
 #endif
 
