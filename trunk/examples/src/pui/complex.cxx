@@ -20,6 +20,7 @@
 *                                   *
 \***********************************/
 
+int          main_window ;
 puMenuBar   *main_menu_bar ;
 puButton    *hide_menu_button ;
 puDialogBox *dialog_box ;
@@ -30,8 +31,12 @@ puText      *timer_text ;
 int          slider_window ;
 puSlider    *rspeedSlider ;
 puSlider    *directSlider ;
-puFilePicker* file_picker ;
 
+int          save_window ;
+puFilePicker *file_picker ;
+
+fntTexFont *hel ;
+fntTexFont *tim ;
 
 /***********************************\
 *                                   *
@@ -190,7 +195,7 @@ static void sliderdisplayfn (void)
 {
   /*
     Function to display only the slider window
-    We must set the glut window first
+    We must set the glut window first or we get an annoying flicker in the main window.
   */
 
   glutSetWindow ( slider_window ) ;
@@ -203,6 +208,31 @@ static void sliderdisplayfn (void)
   /* Make PUI redraw the slider window */
 
   puDisplay ( slider_window ) ;
+  
+  /* Off we go again... */
+
+  glutSwapBuffers   () ;
+  glutPostRedisplay () ;
+}
+
+
+static void savedisplayfn (void)
+{
+  /*
+    Function to display only the save window
+    We must set the glut window first or we get an annoying flicker in the main window.
+  */
+
+  glutSetWindow ( save_window ) ;
+
+  /* Clear the screen */
+
+  glClearColor ( 0.0, 0.0, 1.0, 1.0 ) ;
+  glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
+
+  /* Make PUI redraw the save window */
+
+  puDisplay ( save_window ) ;
   
   /* Off we go again... */
 
@@ -274,6 +304,8 @@ void pick_cb ( puObject * )
   //otherwise the interface stack will be messed up
   puDeleteObject ( file_picker ) ;
   file_picker = 0 ;
+  glutHideWindow () ;
+  glutSetWindow ( main_window ) ;
 
   if ( filename[0] != 0 )
     mk_dialog ( "Saving File:\n%s", filename ) ;
@@ -281,9 +313,20 @@ void pick_cb ( puObject * )
     mk_dialog ( "Save canceled" ) ;
 }
 
+void savereshapefn ( int w, int h )
+{
+  file_picker->setSize ( w, h ) ;
+}
+
 void save_cb ( puObject * )
 {
-  file_picker = new puFilePicker ( ( 640 - 220 ) / 2, ( 480 - 170 ) / 2, "." ) ;
+  int w = 320, h = 270 ;
+  glutSetWindow ( save_window ) ;
+  glutShowWindow () ;
+  glutReshapeWindow ( w, h ) ;
+  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
+
+  file_picker = new puFilePicker ( 0, 0, w, h, ".", "Pick Place To Save" ) ;
   file_picker -> setCallback ( pick_cb ) ;
 }
 
@@ -337,7 +380,7 @@ int main ( int argc, char **argv )
   glutInitWindowSize    ( 640, 480 ) ;
   glutInit              ( &argc, argv ) ;
   glutInitDisplayMode   ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
-  glutCreateWindow      ( "Complex PUI Application"  ) ;
+  main_window = glutCreateWindow      ( "Complex PUI Application"  ) ;
   glutDisplayFunc       ( displayfn ) ;
   glutKeyboardFunc      ( keyfn     ) ;
   glutSpecialFunc       ( specialfn ) ;
@@ -352,8 +395,8 @@ int main ( int argc, char **argv )
   puShowCursor () ;
 #endif
 
-  fntTexFont *hel = new fntTexFont ;
-  fntTexFont *tim = new fntTexFont ;
+  hel = new fntTexFont ;
+  tim = new fntTexFont ;
   hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
   tim -> load ( "../fnt/data/times_medium.txf" ) ;
   puFont helvetica ( hel, 12 ) ;
@@ -415,6 +458,21 @@ int main ( int argc, char **argv )
   directSlider->setLabelPlace ( PUPLACE_BELOW ) ;
 
   slider_group -> close () ;
+
+  save_window = glutCreateWindow ( "Saving" ) ;
+  glutDisplayFunc       ( savedisplayfn ) ;
+  glutKeyboardFunc      ( keyfn     ) ;
+  glutSpecialFunc       ( specialfn ) ;
+  glutMouseFunc         ( mousefn   ) ;
+  glutMotionFunc        ( motionfn  ) ;
+  glutPassiveMotionFunc ( motionfn  ) ;
+  glutIdleFunc          ( savedisplayfn ) ;
+  glutReshapeFunc       ( savereshapefn ) ;
+  glutHideWindow        () ;
+
+  //load the texture for the save window
+  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
+  tim -> load ( "../fnt/data/times_medium.txf" ) ;
 
   glutMainLoop () ;
   return 0 ;
