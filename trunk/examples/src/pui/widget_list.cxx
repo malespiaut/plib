@@ -130,7 +130,7 @@ static void displayfn (void)
 {
   /* Clear the screen */
 
-  glClearColor ( 0.4, 1.0, 1.0, 1.0 ) ;
+  glClearColor ( 0.55, 0.55, 0.55, 1.0 ) ;
   glClear      ( GL_COLOR_BUFFER_BIT ) ;
 
   /* Make PUI redraw */
