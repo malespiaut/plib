@@ -761,6 +761,10 @@ struct ssgEntityBinding
 } ;
 
 
+typedef int (*ssgCallback)( ssgEntity * ) ;
+#define SSG_CALLBACK_PREDRAW   1
+#define SSG_CALLBACK_POSTDRAW  2
+
 typedef int (*ssgTravCallback)( ssgEntity *entity, int traversal_mask ) ;
 #define SSG_CALLBACK_PRETRAV   1
 #define SSG_CALLBACK_POSTTRAV  2
@@ -798,12 +802,12 @@ public:
   void setTraversalMaskBits ( int t ) { traversal_mask |=  t ; }
   void clrTraversalMaskBits ( int t ) { traversal_mask &= ~t ; }
 
-  ssgTravCallback getCallback ( int cb_type )
+  ssgTravCallback getTravCallback ( int cb_type )
   {
     return ( cb_type == SSG_CALLBACK_PRETRAV ) ? preTravCB : postTravCB ;
   }
 
-  void setCallback ( int cb_type, ssgTravCallback cb )
+  void setTravCallback ( int cb_type, ssgTravCallback cb )
   {
     if ( cb_type == SSG_CALLBACK_PRETRAV )
       preTravCB = cb ;
@@ -813,6 +817,10 @@ public:
 
   int preTravTests ( int *test_needed, int which ) ;
   void postTravTests ( int which ) ;
+
+  /* for backward compatibility */
+  ssgCallback getCallback ( int cb_type ) ;
+  void setCallback ( int cb_type, ssgCallback cb ) ;
 
   virtual ssgEntity* getByName  ( char *nm ) ;
   virtual ssgEntity* getByPath  ( char *path ) ;
@@ -848,10 +856,6 @@ public:
 } ;
 
 
-
-typedef int (*ssgCallback)( ssgEntity * ) ;
-#define SSG_CALLBACK_PREDRAW   1
-#define SSG_CALLBACK_POSTDRAW  2
 
 class ssgLeaf : public ssgEntity
 {
