@@ -136,6 +136,27 @@ char* _ssgParser::getNextToken( const char* name )
 	return(token) ;
 }
 
+char *_ssgParser::peekAtNextToken( const char* name )
+// Like getNextToken, but doesnÄt remove the token from the input stream
+{
+	while(!( curtok < numtok ))
+	{	//int startLevel = level;
+	  //printf("Forcing!\n");
+		if(getLine( -999 ) == NULL) // -999
+		{	if ( name )
+				error("missing %s",name) ;
+			return EOF_string;
+		}
+		assert(curtok==1);
+		curtok=0; // redo the get one token that getLine does
+	}
+  char* token = 0 ;
+  assert ( curtok < numtok );
+  token = tokptr [ curtok ] ;
+	return(token) ;
+}
+
+  
 
 int _ssgParser::getNextFloat( SGfloat &retVal, const char* name )
 // returns TRUE on success

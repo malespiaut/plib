@@ -73,8 +73,9 @@ public :
 
 // ************************** line structure independant API **************************
 
-	// These four functions get the next token - regardless of what line it is on
+	// These six functions get the next token - regardless of what line it is on
 	char *getNextToken( const char* name );
+  char *peekAtNextToken( const char* name );
   // These return TRUE on success:
   int getNextFloat( SGfloat &retVal, const char* name ); 
   int getNextInt( int & retVal, const char* name ); 
