@@ -2630,9 +2630,9 @@ int        ssgSaveOBJ  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveX    ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveM    ( const char *fname, ssgEntity *ent ) ;
 int        ssgSave3ds  ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveFLT  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveOFF  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveQHI  ( const char *fname, ssgEntity *ent ) ;
-int        ssgSave3ds  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveATG  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveVRML1( const char *fname, ssgEntity *ent ) ;
 

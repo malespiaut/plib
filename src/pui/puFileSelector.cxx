@@ -218,6 +218,8 @@ void puFileSelector::handle_select ( puObject* l_box )
       new_dst [ dst_len + src_len - 1 ] = SLASH[0] ;
 
       file_selector -> __getInput() -> setValue ( new_dst ) ;
+      file_selector -> setValue ( new_dst ) ;
+
       delete [] new_dst ;
       file_selector -> find_files () ;
       return ;
@@ -233,6 +235,8 @@ void puFileSelector::handle_select ( puObject* l_box )
     memcpy ( new_dst + dst_len, src, src_len + 1 ) ; /* Copy trailing '\0' */
 
     file_selector -> __getInput() -> setValue ( new_dst ) ;
+    file_selector -> setValue ( new_dst ) ;
+
     delete [] new_dst ;
   }
   else
