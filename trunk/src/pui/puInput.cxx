@@ -56,6 +56,7 @@ void puInput::removeSelectRegion ( void )
   strcpy ( p + select_start_position,
            getStringValue () + select_end_position ) ;
   setValue ( p ) ;
+  delete [] p ;
   
   cursor_position = select_end_position = select_start_position ;
 }
