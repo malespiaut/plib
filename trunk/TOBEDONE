@@ -96,6 +96,9 @@ Bugs:
           #define new DEBUG_NEW
       #endif
   #endif
+- I am aware of one bug in ssgStripify: since it rearranges and merges leaf
+  nodes, ssgSelectors are messed up. Perhaps this is not top priority - few
+  have complained about it.
 - MDL loader stuff: 
 
   It has a problem to correctly determine frontface/backface. 
