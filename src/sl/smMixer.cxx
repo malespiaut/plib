@@ -195,7 +195,7 @@ smMixer::smMixer ()    {}
 smMixer::smMixer ( char * ) {} 
 smMixer::~smMixer ()         {}
   
-int smMixer::notWorking () 
+int smMixer::notWorking () const
 { 
    return error ; 
 }
@@ -242,7 +242,7 @@ smMixer::smMixer ()    {}
 smMixer::smMixer ( const char * ) {} 
 smMixer::~smMixer ()         {}
   
-int smMixer::notWorking () 
+int smMixer::notWorking () const
 { 
    return error ; 
 }
