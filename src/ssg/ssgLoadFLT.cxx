@@ -136,6 +136,9 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
 
+// 525 = negative identation, 539= did not expect positive identation
+//lint -save -e525 -e539
+
 /*
  * byte sex 
  */
@@ -361,6 +364,7 @@ static struct snode *sinsert(struct snode *root, void *key, size_t size, sfunc c
    if (t != NULL && comp(t->key, key) == 0)
       return t;
    x = (struct snode *)malloc(sizeof(struct snode));
+	 assert( x != NULL );
    if (t == NULL) {
       x->left = x->right = NULL;
    }
@@ -597,6 +601,7 @@ static fltTexture *LoadTex(char *fname)
    TexCache = sinsert(TexCache, fname, strlen(fname) + 1, (sfunc)strcmp);
    if (TexCache->data == (void *)-1) {
       fltTexture *tex = (fltTexture *)malloc(sizeof(fltTexture));
+			assert ( tex != NULL );
       tex->file = fname;
 #ifdef NO_LOADER_OPTIONS
       tex->state = 0;
@@ -1054,7 +1059,7 @@ static ssgEntity *Build(fltState *state)
       i = j;
    }
 
-   if (((leaf != 0) + (bboard1 != 0) + (bboard2 != 0)) > 1 && !grp)
+   if (((leaf != 0) + (bboard1 != 0) + (bboard2 != 0)) > 1 && !grp) //lint !e514 Lint warning "unusual use of a boolean"
       grp = new ssgBranch;
 
    if (grp) {
@@ -2277,7 +2282,7 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 	    sgSetVec3(a->center, (float)v[0], (float)v[1], (float)v[2]);
 	    /* break; */
 	 }
-	 default:
+	 default: //lint !e616
             stack[sp] = new ssgBranch;
          }
 	 if (ptr[4])
@@ -2513,6 +2518,7 @@ static int TableChunks(ubyte *ptr0, ubyte *end, fltState *state)
 	       state->texs = sinsert(state->texs, (void *)index, 0, ptrcmp);
 	       if (state->texs->data == (void *)-1) {
 		  fltTexture *tex = (fltTexture *)malloc(sizeof(fltTexture));
+			assert ( tex != NULL );
 		  tex->file = file;
 		  tex->state = (ssgState *)-1;
 		  tex->tex = (ssgTexture *)-1;
@@ -3063,7 +3069,7 @@ static ssgEntity *Flatten(ssgEntity *node, float (*mat)[4])
       }
       g->recalcBSphere();
    }
-   
+int rri =    0xDeadBeef;
    assert(!node->isA(0xDeadBeef));
    return node;
 }
@@ -3172,3 +3178,4 @@ ssgEntity *ssgLoadFLT(const char *filename,
 
    return node;
 }
+//lint -restore
