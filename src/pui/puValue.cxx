@@ -63,8 +63,8 @@ const char *puValue::getTypeString ( void )
   if ( i & PUCLASS_BUTTON      ) return "puButton" ;
   if ( i & PUCLASS_TEXT        ) return "puText" ;
   if ( i & PUCLASS_FRAME       ) return "puFrame" ;
-  if ( i & PUCLASS_GROUP       ) return "puGroup" ;
   if ( i & PUCLASS_INTERFACE   ) return "puInterface" ;
+  if ( i & PUCLASS_GROUP       ) return "puGroup" ;
   if ( i & PUCLASS_OBJECT      ) return "puObject" ;
   if ( i & PUCLASS_VALUE       ) return "puValue" ;
 
