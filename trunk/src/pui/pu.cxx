@@ -394,6 +394,9 @@ int puMouse ( int button, int updown, int x, int y )
   
   puCleanUpJunk () ;
   
+  if ( last_buttons == 0 )
+    puSetActiveWidget ( NULL, 0, 0 ) ;
+
   return return_value ;
 }
 

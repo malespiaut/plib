@@ -606,6 +606,51 @@ public:
 
 #endif /* if defined(WIN32) */
 
+class ulList
+{
+protected:
+  unsigned int total ;  /* The total number of entities in the list */
+  unsigned int limit ;  /* The current limit on number of entities  */
+  unsigned int next  ;  /* The next entity when we are doing getNext ops */
+ 
+  void **entity_list ;  /* The list. */
+ 
+  void sizeChk (void) ;
+ 
+public:
+ 
+  ulList ( int init_max = 1 ) ;
+  virtual ~ulList (void) ;
+ 
+  void *getEntity ( unsigned int n )
+  {
+    next = n ;
+    return ( n >= total ) ? (void *) NULL : entity_list [ n ] ;
+  }
+ 
+  virtual void addEntity ( void *entity ) ;
+  virtual void addEntityBefore ( int n, void *entity ) ;
+  virtual void removeEntity ( unsigned int n ) ;
+ 
+  void removeAllEntities () ;
+ 
+  void removeEntity ( void *entity )
+  {
+    removeEntity ( searchForEntity ( entity ) ) ;
+  }
+ 
+  virtual void replaceEntity ( unsigned int n, void *new_entity ) ;
+ 
+  void replaceEntity ( void *old_entity, void *new_entity )
+  {
+    replaceEntity ( searchForEntity ( old_entity ), new_entity ) ;
+  }
+ 
+  int   getNumEntities  (void) { return total ; }
+  void *getNextEntity   (void) { return getEntity ( next+1 ) ; }
+  int   searchForEntity ( void *entity ) ;
+} ;
+                                                                                
 
 extern int ulStrNEqual ( const char *s1, const char *s2, int len );
 extern int ulStrEqual ( const char *s1, const char *s2 );
