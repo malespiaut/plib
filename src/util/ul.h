@@ -211,6 +211,175 @@ void ulFindFile( char *filenameOutput, const char *path,
 
 
 /*
+  Endian handling
+*/
+
+static const int _ulEndianTest = 1;
+#define ulIsLittleEndian (*((char *) &_ulEndianTest ) != 0)
+#define ulIsBigEndian    (*((char *) &_ulEndianTest ) == 0)
+static inline void _ulEndianSwap(unsigned int *x) {
+  *x = (( *x >> 24 ) & 0x000000FF ) | 
+    (( *x >>  8 ) & 0x0000FF00 ) | 
+    (( *x <<  8 ) & 0x00FF0000 ) | 
+    (( *x << 24 ) & 0xFF000000 ) ;
+}
+  
+static inline void _ulEndianSwap(unsigned short *x) {
+  *x = (( *x >>  8 ) & 0x00FF ) | 
+    (( *x <<  8 ) & 0xFF00 ) ;
+}
+  
+inline unsigned short ulEndianLittle16(unsigned short x) {
+  if (ulIsLittleEndian) {
+    return x;
+  } else {
+    _ulEndianSwap(&x);
+    return x;
+  }
+}
+
+inline unsigned int ulEndianLittle32(unsigned int x) {
+  if (ulIsLittleEndian) {
+    return x;
+  } else {
+    _ulEndianSwap(&x);
+    return x;
+  }
+}
+
+inline float ulEndianLittleFloat(float x) {
+  if (ulIsLittleEndian) {
+    return x;
+  } else {
+    _ulEndianSwap((unsigned int*)&x);
+    return x;
+  }
+}
+
+inline void ulEndianLittleArray16(unsigned short *x, int length) {
+  if (ulIsLittleEndian) {
+    return;
+  } else {
+    for (int i = 0; i < length; i++) {
+      _ulEndianSwap(x++);
+    }
+  }
+}
+
+inline void ulEndianLittleArray32(unsigned int *x, int length) {
+  if (ulIsLittleEndian) {
+    return;
+  } else {
+    for (int i = 0; i < length; i++) {
+      _ulEndianSwap(x++);
+    }
+  }
+}
+
+inline void ulEndianLittleArrayFloat(float *x, int length) {
+  if (ulIsLittleEndian) {
+    return;
+  } else {
+    for (int i = 0; i < length; i++) {
+      _ulEndianSwap((unsigned int*)x++);
+    }
+  }
+}
+
+inline void ulEndianBigArray16(unsigned short *x, int length) {
+  if (ulIsBigEndian) {
+    return;
+  } else {
+    for (int i = 0; i < length; i++) {
+      _ulEndianSwap(x++);
+    }
+  }
+}
+
+inline void ulEndianBigArray32(unsigned int *x, int length) {
+  if (ulIsBigEndian) {
+    return;
+  } else {
+    for (int i = 0; i < length; i++) {
+      _ulEndianSwap(x++);
+    }
+  }
+}
+
+inline void ulEndianBigArrayFloat(float *x, int length) {
+  if (ulIsBigEndian) {
+    return;
+  } else {
+    for (int i = 0; i < length; i++) {
+      _ulEndianSwap((unsigned int*)x++);
+    }
+  }
+}
+
+inline unsigned short ulEndianBig16(unsigned short x) {
+  if (ulIsBigEndian) {
+    return x;
+  } else {
+    _ulEndianSwap(&x);
+    return x;
+  }
+}
+
+inline unsigned int ulEndianBig32(unsigned int x) {
+  if (ulIsBigEndian) {
+    return x;
+  } else {
+    _ulEndianSwap(&x);
+    return x;
+  }
+}
+
+inline float ulEndianBigFloat(float x) {
+  if (ulIsBigEndian) {
+    return x;
+  } else {
+    _ulEndianSwap((unsigned int*)&x);
+    return x;
+  }
+}
+
+inline unsigned short ulEndianReadLittle16(FILE *f) {
+  unsigned short x;
+  fread(&x, 2, 1, f);
+  return ulEndianLittle16(x);
+}
+
+inline unsigned int ulEndianReadLittle32(FILE *f) {
+  unsigned int x;
+  fread(&x, 4, 1, f);
+  return ulEndianLittle32(x);
+}
+
+inline float ulEndianReadLittleFloat(FILE *f) {
+  float x;
+  fread(&x, 4, 1, f);
+  return ulEndianLittleFloat(x);
+}
+
+inline unsigned short ulEndianReadBig16(FILE *f) {
+  unsigned short x;
+  fread(&x, 2, 1, f);
+  return ulEndianBig16(x);
+}
+
+inline unsigned int ulEndianReadBig32(FILE *f) {
+  unsigned int x;
+  fread(&x, 4, 1, f);
+  return ulEndianBig32(x);
+}
+
+inline float ulEndianReadBigFloat(FILE *f) {
+  float x;
+  fread(&x, 4, 1, f);
+  return ulEndianBigFloat(x);
+}
+
+/*
   UDP Networking Class NetWork Libriary
   by Ben Woodhead
 */
