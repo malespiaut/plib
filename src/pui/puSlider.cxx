@@ -24,6 +24,48 @@
 
 #include "puLocal.h"
 
+void puSlider::draw_slider_box ( int dx, int dy, float val, char *box_label )
+{
+  int sd, od ;
+  if ( isVertical() ) { sd = 1 ; od = 0 ; } else { sd = 0 ; od = 1 ; }
+
+  int sz = abox.max [sd] - abox.min [sd] ;  // Size of slider box, in pixels
+
+  if ( val < 0.0f ) val = 0.0f ;
+  if ( val > 1.0f ) val = 1.0f ;
+
+  val *= (float) sz * (1.0f - slider_fraction) ;
+
+  puBox bx ;
+    
+  bx.min [ sd ] = abox.min [ sd ] + (int) val ;
+  bx.max [ sd ] = (int) ( (float) bx.min [ sd ] + (float) sz * slider_fraction ) ;
+  bx.min [ od ] = abox.min [ od ] + 2 ;
+  bx.max [ od ] = abox.max [ od ] - 2 ;
+
+  bx.draw ( dx, dy, PUSTYLE_SMALL_SHADED, colour, FALSE ) ;
+
+  if ( box_label )
+  {
+    glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
+
+    int xx ;
+    int yy ;
+    if ( isVertical () )  // Vertical slider, text goes to the right of it
+    {
+      xx = bx.max[0] + PUSTR_LGAP ;
+      yy = ( bx.max[1] + bx.min[1] - puGetStringHeight ( legendFont ) ) / 2 ;
+    }
+    else  // Horizontal slider, text goes above it
+    {
+      xx = ( bx.max[0] + bx.min[0] - puGetStringWidth ( legendFont, box_label ) ) / 2 ;
+      yy = bx.max[1] + PUSTR_BGAP ;
+    }
+
+    puDrawString ( legendFont, box_label, dx + xx, dy + yy ) ;
+  }
+}
+
 void puSlider::draw ( int dx, int dy )
 {
   if ( !visible || ( window != puGetWindow () ) ) return ;
@@ -33,29 +75,11 @@ void puSlider::draw ( int dx, int dy )
                  style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
                 colour, FALSE ) ;
 
-  int sd, od ;
-
-  if ( isVertical() ) { sd = 1 ; od = 0 ; } else { sd = 0 ; od = 1 ; }
-
-  int sz = abox.max [sd] - abox.min [sd] ;
-
   float val ;
 
   getValue ( & val ) ;
 
-  if ( val < 0.0f ) val = 0.0f ;
-  if ( val > 1.0f ) val = 1.0f ;
-
-  val *= (float) sz * (1.0f - slider_fraction) ;
-
-  puBox bx ;
-    
-  bx . min [ sd ] = abox . min [ sd ] + (int) val ;
-  bx . max [ sd ] = (int) ( (float) bx . min [ sd ] + (float) sz * slider_fraction ) ;
-  bx . min [ od ] = abox . min [ od ] + 2 ;
-  bx . max [ od ] = abox . max [ od ] - 2 ;
-
-  bx . draw ( dx, dy, PUSTYLE_SMALL_SHADED, colour, FALSE ) ;
+  draw_slider_box ( dx, dy, val ) ;
 
   /* If greyed out then halve the opacity when drawing the label and legend */
 
