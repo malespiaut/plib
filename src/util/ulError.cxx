@@ -12,7 +12,7 @@ static const char* _ulSeverityText [ UL_MAX_SEVERITY ] =
 };
  
 
-void ulSetError ( int severity, const char *fmt, ... )
+void ulSetError ( enum ulSeverity severity, const char *fmt, ... )
 {
   va_list argp;
   va_start ( argp, fmt ) ;
