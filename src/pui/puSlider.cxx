@@ -24,6 +24,9 @@
 
 #include "puLocal.h"
 
+UL_RTTI_DEF1(puSlider,puRange)
+
+
 void puSlider::draw_slider_box ( int dx, int dy, const puBox &box, float val, const char *box_label )
 {
   int sd, od ;

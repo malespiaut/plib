@@ -24,6 +24,9 @@
 
 #include "puLocal.h"
 
+UL_RTTI_DEF1(puMenuBar,puInterface)
+
+
 void puMenuBar_drop_down_the_menu ( puObject *b )
 {
   // Inputs:  b = pointer to the button on the menu which has been pushed

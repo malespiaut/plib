@@ -43,6 +43,9 @@
 
 #include "puLocal.h"
 
+UL_RTTI_DEF1(puFileSelector,puDialogBox)
+
+
 #if defined(WIN32) && !defined(__CYGWIN__)
 #define DOTDOTSLASH "..\\"
 #define SLASH       "\\"

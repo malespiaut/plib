@@ -24,6 +24,9 @@
 
 #include "puLocal.h"
 
+UL_RTTI_DEF1(puInput,puObject)
+
+
 void puInput::normalize_cursors ( void )
 {
   int sl = strlen ( getStringValue () ) ;

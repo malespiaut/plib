@@ -24,6 +24,9 @@
 
 #include "puLocal.h"
 
+UL_RTTI_DEF(puValue)
+
+
 inline void skip_whitespace ( const char **str )
 {
   while ( isspace ( **str ) != 0 )

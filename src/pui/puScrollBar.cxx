@@ -24,6 +24,9 @@
 
 #include "puLocal.h"
 
+UL_RTTI_DEF1(puScrollBar,puSlider)
+
+
 void puScrollBar::draw ( int dx, int dy )
 {
   extern void puDrawArrowButtonTriangle ( int pos_x, int pos_y, int size_x, int size_y,

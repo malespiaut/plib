@@ -24,6 +24,9 @@
 
 #include "puLocal.h"
 
+UL_RTTI_DEF1(puDial,puRange)
+
+
 void puDial::draw ( int dx, int dy )
 {
   if ( !visible || ( window != puGetWindow () ) ) return ;
