@@ -118,10 +118,6 @@ SOURCE=.\ssgContext.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgConvex.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\ssgCutout.cxx
 # End Source File
 # Begin Source File
