@@ -170,8 +170,8 @@ void load_database ()
 
   ssgFlatten         ( tux_obj  ) ;
   ssgFlatten         ( ped_obj  ) ;
-  ssgStripify        ( penguin  ) ;
-  ssgStripify        ( pedestal ) ;
+//  ssgStripify        ( penguin  ) ;
+//  ssgStripify        ( pedestal ) ;
 
   pedestal -> addKid ( penguin  ) ;
   scene    -> addKid ( pedestal ) ;
