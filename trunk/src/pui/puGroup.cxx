@@ -383,3 +383,39 @@ void puGroup::setChildColourScheme ( int childs, float r, float g, float b, floa
   }
 }
 
+void puGroup::setChildLegendFont ( int childs, puFont f, int recursive )
+{
+  puObject *curr_obj ;
+
+  for ( curr_obj = getFirstChild () ;
+        curr_obj != NULL ;
+        curr_obj = curr_obj->getNextObject () )
+  {
+    if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
+      ((puGroup*)curr_obj)->setChildLegendFont ( childs, f, TRUE ) ;
+    else
+    {
+      if ( curr_obj->getType () & childs )
+        curr_obj->setLegendFont ( f ) ;
+    }
+  }
+}
+
+void puGroup::setChildLabelFont ( int childs, puFont f, int recursive )
+{
+  puObject *curr_obj ;
+
+  for ( curr_obj = getFirstChild () ;
+        curr_obj != NULL ;
+        curr_obj = curr_obj->getNextObject () )
+  {
+    if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
+      ((puGroup*)curr_obj)->setChildLabelFont ( childs, f, TRUE ) ;
+    else
+    {
+      if ( curr_obj->getType () & childs )
+        curr_obj->setLabelFont ( f ) ;
+    }
+  }
+}
+
