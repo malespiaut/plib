@@ -23,9 +23,9 @@
 
 
 #include "ssgAux.h"
-#define SIN(x) (static_cast<float>(sin(x)))
-#define COS(x) (static_cast<float>(cos(x)))
-#define ATAN2(x, y) (static_cast<float>(atan2(x, y)))
+#define SIN(x) ((float)(sin(x)))
+#define COS(x) ((float)(cos(x)))
+#define ATAN2(x, y) ((float)(atan2(x, y)))
 
 
 void ssgaShape::copy_from ( ssgaShape *src, int clone_flags )
