@@ -4,6 +4,8 @@ PLIB Change Log.
 
 PLIB v1.3.2 (???? 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Added Active Widget Implementation (pui)
+
   * Added puFilePicker  
 
   * Added Ref Counting
