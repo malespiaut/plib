@@ -96,13 +96,5 @@ SOURCE=.\ulClock.cxx
 
 SOURCE=.\ulError.cxx
 # End Source File
-# Begin Source File
-
-SOURCE=.\ulRTTI.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\ulRTTI.h
-# End Source File
 # End Target
 # End Project

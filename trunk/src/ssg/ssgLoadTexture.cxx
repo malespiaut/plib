@@ -182,9 +182,7 @@ void ssgAddTextureFormat ( const char* extension,
 }
 
 
-int ulFileExists ( char *fileName ) ;
-
-bool ssgLoadTexture ( const char * tfname, ssgTextureInfo* info )
+bool ssgLoadTexture ( const char * filename_from_model, ssgTextureInfo* info )
 {
   if ( info != NULL )
   {
@@ -194,45 +192,45 @@ bool ssgLoadTexture ( const char * tfname, ssgTextureInfo* info )
     info -> alpha = 0 ;
   }
 
-  if ( tfname == NULL || *tfname == '\0' )
+  if ( filename_from_model == NULL || *filename_from_model == '\0' )
     return false ;
 
   /*
    * figure out where the file is located
    */
-  char fname [ 1024 ] ;
-  if ( ulFileExists ( (char*)tfname ) )
-    strcpy ( fname, tfname ) ;
+  char filename [ 1024 ] ;
+  if ( ulFileExists ( filename_from_model ) )
+    strcpy ( filename, filename_from_model ) ;
   else
   {
-  	ulFindFile( fname, _ssgTexturePath, tfname, ssgGetAPOM() ) ;
-    if ( !ulFileExists ( fname ) )
+  	ulFindFile( filename, _ssgTexturePath, filename_from_model, ssgGetAPOM() ) ;
+    if ( !ulFileExists ( filename ) )
     {
       //find path seperator
-      const char * sep = &tfname[strlen(tfname)-1] ;
-    	while (sep > tfname)
+      const char * sep = &filename_from_model[strlen(filename_from_model)-1] ;
+    	while (sep > filename_from_model)
       {
         if ( *sep == '/' || *sep == '\\' )
         {
           //we just want the filename without the path
-          //because that is what ulFindFile expects
+          //because that is what ulFindFile expects??
       		sep++;
           break;
         }
     		sep--;
       }
-    	ulFindFile( fname, _ssgTexturePath, sep, ssgGetAPOM() ) ;
+    	ulFindFile( filename, _ssgTexturePath, sep, ssgGetAPOM() ) ;
     }
   }
 
   //find extension
-  const char *extn = & ( fname [ strlen(fname) ] ) ;
-  while ( extn != fname && *extn != '/' && *extn != '.' )
+  const char *extn = & ( filename [ strlen(filename) ] ) ;
+  while ( extn != filename && *extn != '/' && *extn != '.' )
     extn-- ;
 
   if ( *extn != '.' )
   {
-    ulSetError ( UL_WARNING, "ssgLoadTexture: Cannot determine file type for '%s'", fname );
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Cannot determine file type for '%s'", filename );
     ssgLoadDummyTexture ( info ) ;
     return false ;
   }
@@ -243,7 +241,7 @@ bool ssgLoadTexture ( const char * tfname, ssgTextureInfo* info )
     if ( f->loadfunc != NULL &&
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
     {
-      if ( f->loadfunc( fname, info ) )
+      if ( f->loadfunc( filename, info ) )
         return true ;
 
       ssgLoadDummyTexture ( info ) ; /* fail */
