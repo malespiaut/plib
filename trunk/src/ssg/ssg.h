@@ -637,7 +637,7 @@ bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
 
 class ssgTexture : public ssgBase
 {
-  char *filename ;
+  char *filename ; // path + filename
   int own_handle ;
   GLuint handle ;
 	int wrapu, wrapv, mipmap ;
@@ -1378,8 +1378,6 @@ public:
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
-  //virtual int       isConvex();
-  virtual ssgEntity *makeConvex();
 } ;
 
 
@@ -2262,12 +2260,12 @@ public:
     create_transform_cb ( _create_transform_cb )
   {}
 
-  void setAppStateCallback ( ssgAppStateFunc cb )
+  virtual void setAppStateCallback ( ssgAppStateFunc cb )
   {
     app_state_cb = cb ;
   }
 
-  ssgState* createState ( char* tfname ) const
+  virtual ssgState* createState ( char* tfname ) const
   {
     if ( app_state_cb )
       return (*app_state_cb)(tfname) ;
@@ -2275,7 +2273,7 @@ public:
       return NULL ;
   }
 
-  ssgLeaf* createLeaf ( ssgLeaf* leaf, const char* parent_name ) const
+  virtual ssgLeaf* createLeaf ( ssgLeaf* leaf, const char* parent_name ) const
   {
     if ( create_leaf_cb )
       return (*create_leaf_cb)(leaf,parent_name) ;
@@ -2283,7 +2281,7 @@ public:
       return defaultCreateLeaf(leaf,parent_name) ;
   }
 
-  ssgTexture* createTexture ( char* tfname, 
+  virtual ssgTexture* createTexture ( char* tfname, 
 			      int wrapu  = TRUE, int wrapv = TRUE, 
 			      int mipmap = TRUE ) const
   {
@@ -2293,7 +2291,7 @@ public:
       return defaultCreateTexture(tfname, wrapu, wrapv, mipmap) ;
   }
 
-  ssgTransform* createTransform ( ssgTransform* tr,
+  virtual ssgTransform* createTransform ( ssgTransform* tr,
       ssgTransformArray* ta ) const
   {
     if ( create_transform_cb )
@@ -2302,12 +2300,12 @@ public:
       return defaultCreateTransform (tr,ta) ;
   }
 
-  ssgHookFunc getHookFunc () const
+  virtual ssgHookFunc getHookFunc () const
   {
     return hook_cb ;
   }
 
-  ssgBranch* invokeHookFunc ( char* text ) const
+  virtual ssgBranch* invokeHookFunc ( char* text ) const
   {
     if ( hook_cb )
       return (*hook_cb)(text) ;
@@ -2315,12 +2313,12 @@ public:
       return NULL ;
   }
 
-  void begin () const
+  virtual void begin () const
   {
     createLeaf ( 0, 0 ) ;
   }
 
-  void end () const
+  virtual void end () const
   {
     createLeaf ( 0, 0 ) ;
   }
@@ -2390,7 +2388,6 @@ char *ssgShowStats () ;
 void  ssgDelete ( ssgBranch *br ) ;
 char *ssgGetVersion () ;
 char * ssgGetAPOM(); // get actual path of (last loaded) model
-char * ssgGetANOM(); // get name of model
 
 
 void ssgSetLoadOFFTranslucent ( int i );
