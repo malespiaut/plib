@@ -582,6 +582,7 @@ void puFileSelector::find_files ( void )
     perror ("puFileSelector") ;
     ulSetError ( UL_WARNING, "PUI:puFileSelector - can't open directory '%s'", dir ) ;
     num_files = 0 ;
+    return ;
   }
 
   /* Count the number of files - skipping "." */
@@ -602,7 +603,7 @@ void puFileSelector::find_files ( void )
   {
     ulSetError ( UL_WARNING,
 		   "PUI:puFileSelector - no entries in directory '%s'?!", dir ) ;
-    return;
+    return ;
   }
 
   files = new char* [ num_files+1 ] ;
