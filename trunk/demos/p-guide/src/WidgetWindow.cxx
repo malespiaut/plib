@@ -244,7 +244,13 @@ void trislider_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-
+void spinbox_cb ( puObject *ob )
+{
+  selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
+  selected_object_type = PUCLASS_SPINBOX ;
+  strcpy ( selected_type_string, ob->getLegend () ) ;
+  active_button = (puButton *)ob ;
+}
 
 // Function to define the window
 
@@ -254,9 +260,10 @@ int define_widget_window ()
   int ln = 90 ;  // Button length
   int ht = 20 ;  // Button height
   int sp = 20 ;  // Button spacing
+  int total_screen_width = glutGet( GLUT_SCREEN_WIDTH ) ;
 
-  glutPositionWindow    ( 420, 100 ) ;
   glutReshapeWindow     ( 4 * ln + 5 * sp,  5 * ht + 6 * sp ) ;
+  glutPositionWindow    ( total_screen_width - (4 * ln + 5 * sp) - 20, 20 ) ;
   glutDisplayFunc       ( widget_window_displayfn ) ;
   glutKeyboardFunc      ( widget_window_keyfn     ) ;
   glutSpecialFunc       ( widget_window_specialfn ) ;
@@ -351,7 +358,9 @@ int define_widget_window ()
   button->setLegend ( "puTriSlider" ) ;
   button->setCallback ( trislider_cb ) ;
 
-
+  button = new puButton ( 4*sp+3*ln, 0*sp+ht, 4*sp+4*ln, 0*sp+2*ht ) ;
+  button->setLegend ( "puSpinBox" ) ;
+  button->setCallback ( spinbox_cb ) ;
 
   widget_group->close () ;
 

@@ -33,6 +33,7 @@
 #define TAG_COLOR           0x00000040
 #define TAG_LEGEND          0x00000080
 #define TAG_LABEL           0x00000100
+#define TAG_DATA            0x00000120
 
 #define CALLBACK_UP         0x00000001
 #define CALLBACK_ACTIVE     0x00000002
@@ -55,6 +56,9 @@ extern int widget_number ;
 
 extern bool main_window_changed ;
 extern bool currently_loading ; /* Var for the Reshape function to not do its thing */
+extern char pguide_current_directory [ PUSTRING_MAX ] ;
+
+extern bool autolock ;
 
 
 extern float main_window_color_r, main_window_color_g,
@@ -62,9 +66,16 @@ extern float main_window_color_r, main_window_color_g,
 
 // From the Status Window
 
+extern void setStatusWidgets ( WidgetList *wid );
 extern int status_window ;
 extern int main_window ;
 extern puFileSelector *file_selector ;
+
+// Duplication checking
+void chk_dupname ( WidgetList *new_wid ) ;
+puInput *dup_newname = (puInput *)NULL ;
+puDialogBox *dup_dialog = (puDialogBox *)NULL ;
+WidgetList *nextwid ;
 
 // Now our turn
 
@@ -79,6 +90,15 @@ void saveProject ( puObject *ob ) {
         glutSetWindow ( status_window ) ;
         return ;
     }        
+
+    /* Save the new current directory */
+    strcpy(pguide_current_directory, filename) ;
+    int i = strlen(pguide_current_directory);
+    while (pguide_current_directory[i] != '\\') { 
+        if (i>0) i-- ;
+        else break ;
+    }
+    pguide_current_directory[i+1] = '\0' ;
 
     /* If they didn't give an extension, then tack ".xml" onto the end. */
     if(!strstr(filename, "."))
@@ -95,12 +115,21 @@ void saveProject ( puObject *ob ) {
 
     if ( !out ) return ;
 
-  // Start writing code:
+  /* Begin writing the XML */
+
+    char *autolock_text;
+
+    if ( !autolock ) 
+        autolock_text="FALSE";
+    else
+        autolock_text="TRUE";
+
     char projectname [] = "Test Project";
 
     fprintf ( out, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n<!DOCTYPE P-Guide>\n<savefile>\n\n" ) ;
     fprintf ( out, "<version>VERSION</version>\n") ;
     fprintf ( out, "<project>%s</project>\n", projectname) ;
+    fprintf ( out, "<autolock>%s</autolock>\n", autolock_text) ;
     fprintf ( out, "<window>\n\t<name>%s</name>\n", main_window_name) ;
     fprintf ( out, "\t<size>\n\t\t<width>%d</width>\n", main_window_width) ;
     fprintf ( out, "\t\t<height>%d</height>\n\t</size>\n", main_window_height) ;
@@ -127,19 +156,19 @@ void saveProject ( puObject *ob ) {
         puObject *obj = wid->obj ;
         int x, y, w, h ;
         char *hidden ;
+        char *locked ;
+        char *bool_one ;
+        char *bool_two ;
+        char *bool_three ;
         obj->getPosition ( &x, &y ) ;
         obj->getSize ( &w, &h ) ;
 
         fprintf ( out, "\t<widget>\n\t\t<name>%s</name>\n", wid->object_name) ;
         if (wid->legend_text != NULL)
             fprintf ( out, "\t\t<legend>\n\t\t\t<text>%s</text>\n\t\t\t<pos>%s</pos>\n\t\t</legend>\n", wid->legend_text, place_name [ obj->getLegendPlace () ] ) ;
-        else
-            fprintf ( out, "\t\t<legend>\n\t\t\t<text></text>\n\t\t\t<pos></pos>\n\t\t</legend>\n") ;
 
         if (wid->label_text != NULL)
             fprintf ( out, "\t\t<label>\n\t\t\t<text>%s</text>\n\t\t\t<pos>%s</pos>\n\t\t</label>\n", wid->label_text, place_name [ obj->getLabelPlace () ] ) ;
-        else
-            fprintf ( out, "\t\t<label>\n\t\t\t<text></text>\n\t\t\t<pos></pos>\n\t\t</label>\n") ;
 
         fprintf ( out, "\t\t<type>%s</type>\n", wid->object_type_name) ;
 
@@ -147,6 +176,11 @@ void saveProject ( puObject *ob ) {
             hidden="FALSE";
         else
             hidden="TRUE";
+
+        if ( !wid->locked ) 
+            locked="FALSE";
+        else
+            locked="TRUE";
 
         if ( wid->callbacks & CALLBACK_UP )  // Up-callback defined
           fprintf ( out, "\t\t<callbacks>Up</callbacks>\n") ;
@@ -157,15 +191,58 @@ void saveProject ( puObject *ob ) {
         if ( wid->callbacks == 0 )
           fprintf ( out, "\t\t<callbacks></callbacks>\n") ;
 
-        //if ( !wid->layer )
-            //fprintf ( out, "\t\t<layer>0</layer>\n") ;
-        //else
         fprintf ( out, "\t\t<layer>%d</layer>\n", wid->layer) ;
 
         fprintf ( out, "\t\t<visible>%s</visible>\n", hidden) ;
+        fprintf ( out, "\t\t<locked>%s</locked>\n", locked) ;
         fprintf ( out, "\t\t<size>\n\t\t\t<width>%d</width>\n\t\t\t<height>%d</height>\n\t\t</size>\n", w, h) ;
         fprintf ( out, "\t\t<position>\n\t\t\t<x>%d</x>\n\t\t\t<y>%d</y>\n\t\t</position>\n", x, y) ;
-        fprintf ( out, "\t</widget>\n") ;
+
+        fprintf ( out, "\t\t<data>\n\t\t\t<int1>%d</int1>\n\t\t\t<int2>%d</int2>\n", wid->intval1, wid->intval2) ;
+        if ( wid->boolval1 )
+            bool_one = "TRUE";
+        else
+            bool_one = "FALSE";
+
+        if ( wid->boolval2 )
+            bool_two = "TRUE";
+        else
+            bool_two = "FALSE";
+
+        if ( wid->boolval3 )
+            bool_three = "TRUE";
+        else
+            bool_three = "FALSE";
+
+        fprintf ( out, "\t\t\t<bool1>%s</bool1>\n\t\t\t<bool2>%s</bool2>\n\t\t\t<bool3>%s</bool3>\n", bool_one, bool_two, bool_three) ;
+
+        fprintf ( out, "\t\t\t<float1>%f</float1>\n\t\t\t<float2>%f</float2>\n", wid->floatval1, wid->floatval2) ;
+        fprintf ( out, "\t\t\t<float3>%f</float3>\n\t\t\t<float4>%f</float4>\n", wid->floatval3, wid->floatval4) ;
+        fprintf ( out, "\t\t\t<float5>%f</float5>\n\t\t\t<float6>%f</float6>\n", wid->floatval5, wid->floatval6) ;
+
+        if (wid->allowed)
+            fprintf ( out, "\t\t\t<allowed>%s</allowed>\n", wid->allowed) ;
+
+        /* Walk through the list of items, and make a seperate <items> entry for each line in the string */
+        if (wid->items)
+        {
+            char *temp_items = wid->items ;
+            char *cr = strchr(temp_items, '\n');
+            while ( cr != '\0' )
+            {
+                *cr = '\0';
+                fprintf ( out, "\t\t\t<item>%s</item>\n", temp_items);
+                *cr = '\n';
+                temp_items = cr + 1;
+                cr = strchr(temp_items, '\n');
+            }
+            if (wid->object_type == PUCLASS_ARROW)
+            {
+                fprintf ( out, "\t\t\t<item>%s</item>\n", temp_items);
+            }
+        }
+        
+        fprintf ( out, "\t\t</data>\n\t</widget>\n") ;
         wid = wid->next ;
     }
 
@@ -220,6 +297,15 @@ void loadProject ( puObject *ob ) {
         return ;
     }        
 
+    /* Save the new current directory */
+    strcpy(pguide_current_directory, filename) ;
+    int i = strlen(pguide_current_directory);
+    while (pguide_current_directory[i] != '\\') { 
+        if (i>0) i-- ;
+        else break ;
+    }
+    pguide_current_directory[i+1] = '\0' ;
+
     FILE *in = fopen ( filename, "rt" ) ;
     if ( !in )
         printf ( "ERROR opening file <%s> for reading\n", filename ) ;
@@ -260,7 +346,9 @@ void loadProject ( puObject *ob ) {
     WidgetList *new_wid = NULL ;
     /* Dandy little variables */
     int wid_val_y = 0, wid_val_x = 0, val_object_width = 20, val_object_height = 20, val_label_place = 4, val_legend_place = 8;
-    char onscreen_legend_text[PUSTRING_MAX] = "" ; 
+    int intval1 = 0, intval2 = 0 ;
+    bool boolval1 = false, boolval2 = false, boolval3 = false ;
+    float floatval1 = 0.0f, floatval2 = 0.0f, floatval3 = 0.0f, floatval4 = 0.0f, floatval5 = 0.0f, floatval6 = 0.0f;
 
     while(fgets( rawbuffer, sizeof(rawbuffer), in))
     {
@@ -279,7 +367,7 @@ void loadProject ( puObject *ob ) {
 
         while (*buffer !='>') buffer++;
     
-        sscanf(buffer,">%[a-zA-Z_!@#$^&*0123456789. ]</", tagvalue) ; /* Get the tag's value. */
+        sscanf(buffer,">%[a-zA-Z_!@#$^&*0123456789-+/\\{}()=~`,. ]</", tagvalue) ; /* Get the tag's value. */
 
         /* Classify the tag, so we know where the next will fit. */
         if ( strstr(tag,"savefile") )   groupid |= TAG_SAVEFILE ;
@@ -291,6 +379,7 @@ void loadProject ( puObject *ob ) {
         if ( strstr(tag,"widget") )     groupid |= TAG_WIDGET ;
         if ( strstr(tag,"legend") )     groupid |= TAG_LEGEND ;
         if ( strstr(tag,"label") )      groupid |= TAG_LABEL ;
+        if ( strstr(tag,"data") )       groupid |= TAG_DATA ;
 
         /* Note: Order here matters, since the strstrs above WILL match closing tags. This */
         /* doesn't hurt anything, as long as we remove the bitset when we realize they are */ 
@@ -306,6 +395,7 @@ void loadProject ( puObject *ob ) {
         if ( strstr(tag,"/widget") )    groupid ^= TAG_WIDGET ;
         if ( strstr(tag,"/legend") )    groupid ^= TAG_LEGEND ;
         if ( strstr(tag,"/label") )     groupid ^= TAG_LABEL ;
+        if ( strstr(tag,"/data") )      groupid ^= TAG_DATA ;
 
         /* Now that the tag's classifcation has been determined, rip the data */
         /* viciously from its' hold and throw it onto the memory stack.       */
@@ -314,6 +404,13 @@ void loadProject ( puObject *ob ) {
         {
             /* NULLCHECK! */
             if (tagvalue[0] == '\0') { sprintf(tagvalue, " "); }
+            if ( strstr(tag,"autolock") )
+            {
+                if (strstr(tagvalue, "TRUE"))
+                    autolock = true ;
+                else
+                    autolock = false ;
+            }
             if (groupid & TAG_WINDOW) 
             {
                if ( strstr(tag,"name") )
@@ -359,11 +456,27 @@ void loadProject ( puObject *ob ) {
                    new_obj->setPosition ( wid_val_x, wid_val_y ) ;
                    new_obj->setLegend ( new_wid->object_type_name ) ;
                    new_obj->setLegendPlace ( val_legend_place ) ;
-                   if (new_wid->label_text[0] != '\0')
+                   if (new_wid->label_text)
                    {
                         new_obj->setLabel ( new_wid->label_text ) ;
                         new_obj->setLabelPlace ( val_label_place ) ; /**/
                    }
+
+                   new_wid->boolval1 = boolval1;
+                   new_wid->boolval2 = boolval2;
+                   new_wid->boolval3 = boolval3;
+                   new_wid->intval1 = intval1;
+                   new_wid->intval2 = intval2;
+                   new_wid->floatval1 = floatval1;
+                   new_wid->floatval2 = floatval2;
+                   new_wid->floatval3 = floatval3;
+                   new_wid->floatval4 = floatval4;
+                   new_wid->floatval5 = floatval5;
+                   new_wid->floatval6 = floatval6;
+
+                   intval1 = intval2 = 0 ;
+                   boolval1 = boolval2 = boolval3 = false ;
+                   floatval1 = floatval2 = floatval3 = floatval4 = floatval5 = floatval6 = 0.0f;
                    new_wid->obj = new_obj ;
                    new_wid->next = widgets ;
                    widgets = new_wid ;
@@ -377,6 +490,11 @@ void loadProject ( puObject *ob ) {
                    val_object_width = 20; val_object_height = 20;
                    val_label_place = 4; val_legend_place = 8;
                    new_wid->callbacks = 0;
+                   new_wid->allowed = (char *)NULL ;
+                   new_wid->items = (char *)NULL ;
+                   new_wid->locked = false;
+                   new_wid->legend_text = NULL ;
+                   new_wid->label_text = NULL ;
                }
 
 
@@ -390,14 +508,14 @@ void loadProject ( puObject *ob ) {
                         /* widget_number to it.                                    */
                         int tmp_wid_num = 0;
                         sscanf(tagvalue, "widget%d", &tmp_wid_num) ;
-                        if (tmp_wid_num > widget_number) widget_number = tmp_wid_num ;
+                        if (tmp_wid_num > widget_number) widget_number = tmp_wid_num + 1;
                     }
                     if ( strstr(tag,"type") )
                     {
                         new_wid->object_type = 0 ;
                         new_wid->object_type_name = new char [strlen(tagvalue)+1] ;
                         strcpy(new_wid->object_type_name, tagvalue) ;
-                        /*new_wid->object_type*/
+                        /* BEWARE: Popup[menu], and Button[box] want to be each other! Don't let them! */
 
                         if ( strstr(new_wid->object_type_name, "puSelectBox"))       new_wid->object_type |= PUCLASS_SELECTBOX   ;
                         if ( strstr(new_wid->object_type_name, "puComboBox"))        new_wid->object_type |= PUCLASS_COMBOBOX    ;  
@@ -412,12 +530,12 @@ void loadProject ( puObject *ob ) {
                         if ( strstr(new_wid->object_type_name, "puDialogBox"))       new_wid->object_type |= PUCLASS_DIALOGBOX   ; /**/
                         if ( strstr(new_wid->object_type_name, "puSlider"))          new_wid->object_type |= PUCLASS_SLIDER      ;
                         if ( strstr(new_wid->object_type_name, "puButtonBox"))       new_wid->object_type |= PUCLASS_BUTTONBOX   ;
+                        else if ( strstr(new_wid->object_type_name, "puButton"))     new_wid->object_type |= PUCLASS_BUTTON      ; /* See above for why the elses' */
                         if ( strstr(new_wid->object_type_name, "puInput"))           new_wid->object_type |= PUCLASS_INPUT       ;
                         if ( strstr(new_wid->object_type_name, "puMenuBar"))         new_wid->object_type |= PUCLASS_MENUBAR     ;
                         if ( strstr(new_wid->object_type_name, "puPopupMenu"))       new_wid->object_type |= PUCLASS_POPUPMENU   ; /**/
-                        if ( strstr(new_wid->object_type_name, "puPopup"))           new_wid->object_type |= PUCLASS_POPUP       ; /**/
+                        else if ( strstr(new_wid->object_type_name, "puPopup"))      new_wid->object_type |= PUCLASS_POPUP       ; /**/
                         if ( strstr(new_wid->object_type_name, "puOneShot"))         new_wid->object_type |= PUCLASS_ONESHOT     ;
-                        if ( strstr(new_wid->object_type_name, "puButton"))          new_wid->object_type |= PUCLASS_BUTTON      ;
                         if ( strstr(new_wid->object_type_name, "puText"))            new_wid->object_type |= PUCLASS_TEXT        ;
                         if ( strstr(new_wid->object_type_name, "puFrame"))           new_wid->object_type |= PUCLASS_FRAME       ;
                         if ( strstr(new_wid->object_type_name, "puSpinBox"))         new_wid->object_type |= PUCLASS_SPINBOX     ; /**/
@@ -441,10 +559,18 @@ void loadProject ( puObject *ob ) {
                         else
                             new_wid->visible = false ;
                     }
+                    if ( strstr(tag,"locked") )
+                    {
+                        if (strstr(tagvalue, "TRUE"))
+                            new_wid->locked = true ;
+                        else
+                            new_wid->locked = false ;
+                    }
                     if (groupid & TAG_LEGEND)
                     {
                         if ( strstr(tag,"text") )
                         {
+                            delete new_wid->legend_text;
                             new_wid->legend_text = new char [strlen(tagvalue)+1] ;
                             strcpy(new_wid->legend_text, tagvalue) ;
                         }
@@ -465,6 +591,7 @@ void loadProject ( puObject *ob ) {
                     {
                         if ( strstr(tag,"text") )
                         {
+                            delete new_wid->label_text;
                             new_wid->label_text = new char [strlen(tagvalue)+1] ;
                             strcpy(new_wid->label_text, tagvalue) ;
                         }
@@ -502,6 +629,64 @@ void loadProject ( puObject *ob ) {
                         if ( strstr(tag,"y") )
                             wid_val_y = atoi(tagvalue) ;
                     }
+                    if (groupid & TAG_DATA)
+                    {
+                        if ( strstr(tag,"int1") )
+                            intval1 = atoi (tagvalue) ;
+                        if ( strstr(tag,"int2") )
+                            intval2 = atoi (tagvalue) ;
+                        if ( strstr(tag,"bool1") )
+                        {
+                            if (strstr(tagvalue, "TRUE"))
+                                boolval1 = true ;
+                            else
+                                boolval1 = false ;
+                        }
+                        if ( strstr(tag,"bool2") )
+                        {
+                            if (strstr(tagvalue, "TRUE"))
+                                boolval2 = true ;
+                            else
+                                boolval2 = false ;
+                        }
+                        if ( strstr(tag,"bool3") )
+                        {
+                            if (strstr(tagvalue, "TRUE"))
+                                boolval3 = true ;
+                            else
+                                boolval3 = false ;
+                        }
+                        if ( strstr(tag,"float1") )
+                            floatval1 = atof (tagvalue) ;
+                        if ( strstr(tag,"float2") )
+                            floatval2 = atof (tagvalue) ;
+                        if ( strstr(tag,"float3") )
+                            floatval3 = atof (tagvalue) ;
+                        if ( strstr(tag,"float4") )
+                            floatval4 = atof (tagvalue) ;
+                        if ( strstr(tag,"float5") )
+                            floatval5 = atof (tagvalue) ;
+                        if ( strstr(tag,"float6") )
+                            floatval6 = atof (tagvalue) ;
+
+                        if ( strstr(tag,"allowed") )
+                        {
+                            new_wid->allowed = new char [strlen(tagvalue)+1] ;
+                            strcpy(new_wid->allowed, tagvalue) ;
+                        }
+
+                        if ( strstr(tag,"item") )
+                        {
+                            strcat(tagvalue, "\n");
+                            if (!new_wid->items)
+                            {
+                                new_wid->items = new char [1024] ;
+                                strcpy(new_wid->items, tagvalue) ;
+                            }
+                            else
+                                strcat(new_wid->items, tagvalue) ;
+                        }
+                    }
                }
             }
         }
@@ -510,8 +695,10 @@ void loadProject ( puObject *ob ) {
         {
              static int mouse_x ;
              static int mouse_y ;
+            setStatusWidgets( new_wid );
             glutSetWindow ( main_window ) ;
             glutSetWindowTitle ( window_name->getStringValue() ) ;
+            /* Fake out the Reshape parts that determine whether to move widgets around or not. */
             mouse_x = 999 ; 
             mouse_y = 999 ;
             glutReshapeWindow ( window_size_x->getValue(), window_size_y->getValue() ) ;
@@ -521,5 +708,54 @@ void loadProject ( puObject *ob ) {
         buffer[0] = '\0';
     }
     fclose (in);
+    WidgetList *wid = widgets;
+    /* Check name for duplication */
+     nextwid = wid;  /* Note: Yes, this is inelegant, but if we loop here, we end up making many copies of the same dialog box in the same memory space. This is a Bad Thing. */
+     chk_dupname(nextwid);
+    /* Done checking name for duplication */
 }
+
+void chk_dupname_ok_cb ( puObject *ob )
+{
+  /* The user's new name from the dialog has already been set to the object_name*/
+  /* Close dialogbox and update main window ...*/
+  puDeleteObject ( dup_dialog ) ;
+  dup_dialog = (puDialogBox *)NULL ;
+  dup_newname = (puInput *)NULL ;
+  /*but force a recheck afterwards to ensure it's an okay substitution. */
+  nextwid = nextwid->next ;
+  chk_dupname(nextwid);
+}
+
+void chk_dupname ( WidgetList *new_wid )
+{
+    if (!new_wid)
+        return;
+    WidgetList *wid = widgets ;
+    while ( wid )
+    {
+        if ( (strcmp(new_wid->object_name,wid->object_name) == 0) && (new_wid != wid) )
+        {
+            /* Popup a dialog telling user something's bad!  */
+            dup_dialog = new puDialogBox ( 20, 20 ) ;
+            new puFrame ( 0, 0, 460, 120 ) ;
+            puText *text = new puText ( 80, 85 ) ;
+            text->setLabel ( "ERROR: Name already used." ) ;
+            text->setLabelFont(PUFONT_TIMES_ROMAN_24);
+            puText *directions = new puText ( 90, 65 ) ;
+            directions->setLabel ( "Please type in a new, unique name to continue." ) ;
+            directions->setLabelFont(PUFONT_HELVETICA_12);
+            dup_newname = new puInput (20,40,440,60) ;
+            dup_newname->setValuator(new_wid->object_name);
+            dup_newname->setValidData("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_012345679");
+            puOneShot *ok = new puOneShot ( 200, 10, "Accept" ) ;
+            ok->setCallback ( chk_dupname_ok_cb ) ;
+            dup_dialog->close () ;
+            dup_dialog->reveal () ;
+            break ;
+        }
+        wid = wid->next ;
+    }
+}
+
 
