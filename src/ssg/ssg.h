@@ -2636,6 +2636,10 @@ ssgEntity *ssgLoadAC   ( const char *fname, const ssgLoaderOptions *options = NU
 
 void ssgGetValuesFromLastATGFile(double *x, double *y, double *z, double *r);
 
+ bool ssgConvertTexture( char * fname_output, char * fname_input ) ;
+
+
+
 /* scene walkers */
 
 void ssgFlatten  ( ssgEntity *ent ) ;

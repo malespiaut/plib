@@ -204,6 +204,58 @@ void ssgAddTextureFormat ( const char* extension,
   }
 }
 
+bool ssgConvertTexture( char * fname_output, const char * fname_input ) 
+// converts file to .rgb (Silicon Graphics) format
+// returns true if the file has been converted to rgb, or already exists as rgb
+// if it returns false, then it has already output an error message
+{
+	char tmp[1024], *extension ;
+
+	strcpy( fname_output, fname_input); // copy so that a) there is enough room for .rgb and b) we don't change the buffer of fname_input
+	extension = strrchr(fname_output, '.');
+	if ( extension == NULL )
+	{
+		ulSetError(UL_WARNING, "There is no extension in the texture '%s'.", fname_input);
+		return false; // no extension -> give up
+	}
+	extension[1] = 'r';
+	extension[2] = 'g';
+	extension[3] = 'b';
+	extension[4] = 0;
+
+	if ( ulFileExists ( fname_output ) )
+		return true; // found *.rgb-file
+
+	// look for original, non-rgb - file
+	if ( !ulFileExists ( fname_input ) )
+	{
+		ulSetError(UL_WARNING, "Can't find the texture file '%s'.", fname_input);
+		return false; // no input file => we can't convert it
+	}
+
+	// ****** found original file. convert it. ******
+#ifdef WIN32
+  char command [ 1024 ] ;
+	sprintf(command, "imconvert -verbose %s sgi:%s", fname_input, fname_output);
+	unsigned int ui = WinExec(command, SW_HIDE );	
+	printf("WinExec!\n");
+	if ( ui < 32 )
+	{	ulSetError(UL_WARNING, "Couldn't convert texture '%s'. Did you install ImageMagick?"
+		                       " You may also convert it manually to '%s' and reload the model.", 
+													 fname_input, fname_output);
+		return false;
+	}
+#else
+  ulSetError(UL_WARNING, "Converting textures not yet implemented. Please convert %s manually.",
+		    fname_output);
+	//sprintf(command, "-verbose %s sgi:%s", fname_input, fname_output);
+	//execlp ( "convert", "convert",  command, NULL ) ;
+
+#endif
+	return true;
+}
+
+
 
 bool ssgLoadTexture ( const char * filename, ssgTextureInfo* info )
 {
@@ -243,9 +295,20 @@ bool ssgLoadTexture ( const char * filename, ssgTextureInfo* info )
       return false ;
     }
   }
+#ifdef SSG_LOAD_SGI_SUPPORTED
+	char * fname_output = new char [ strlen(filename) + 4 ]; // +4 as reserve for .rgb
+	if ( ssgConvertTexture( fname_output, filename) )
+		if ( ssgLoadSGI ( fname_output, info ) )
+		{ delete [] fname_output;
+			return true;
+		}
+	delete [] fname_output;
 
+#else
   ulSetError ( UL_WARNING, "ssgLoadTexture: Unrecognised file type '%s'", extn ) ;
-  ssgLoadDummyTexture ( info ) ;
+#endif
+
+	ssgLoadDummyTexture ( info ) ;
   return false ;
 }
 
