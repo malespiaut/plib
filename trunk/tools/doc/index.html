@@ -37,7 +37,17 @@ every problem starts to look like a nail.
 
 <H1>Useful Utility Tools for PLIB Applications.</H1>
 This is a suite of tools that will hopefully prove useful for the
-developers of PLIB-based applications.
+developers or users of PLIB-based applications. Currently, there is only one tool:
+<H1>The "af2rgb" texture converter.</H1>
+This portable utility converts textures, that is 2D bitmaps. It converts *.?af files as used with (old) Micro$oft
+Flightsimulator into .rgb files that are understood by all plib versions. New plib versions can handle
+*.?af textures, so this tool is only needed if you want to use the textures with an old (for example 1.2.0) version of plib.
+<BR><BR>
+The usage is very simple:<BR>
+Go into the path of the textures you want to convert and call af2rgb. 
+As a parameter, give it the path where the new textures shall be placed. 
+If you don't give it a path, then they will be written into the current dir.
+
 <hr>
 <ADDRESS>
 <A HREF="http://web2.airmail.net/sjbaker1">
