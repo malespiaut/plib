@@ -166,7 +166,7 @@ void fntTexFont::getBBox ( const char *s,
   {
     if ( *s == '\n' )
     {
-      r = h_pos = 0.0f ;
+      h_pos = 0.0f ;
       v_pos -= 1.333f ;
       s++ ;
       continue ;
