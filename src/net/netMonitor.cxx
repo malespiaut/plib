@@ -1,6 +1,31 @@
 #include "netMonitor.h"
 
 
+class netMonitorChannel : public netChat
+{
+  netMonitorServer* server ;
+  bool authorized ;
+  netBuffer buffer;
+
+  void prompt () ;
+
+  virtual void collectIncomingData	(const char* s, int n) ;
+  virtual void foundTerminator (void) ;
+
+public:
+
+  netMonitorChannel ( netMonitorServer* server ) ;
+
+  virtual void handleClose (void)
+  {
+    printf("%d: Client disconnected.\n",getHandle());
+    shouldDelete () ;
+    netChat::handleClose () ;
+    server -> active = 0 ;
+  }
+} ;
+
+		
 // for now, we ignore any telnet option stuff sent to
 // us, and we process the backspace key ourselves.
 // gee, it would be fun to write a full-blown line-editing
@@ -11,7 +36,7 @@ static void clean_line (char* line)
   char* dst = line ;
   for ( char* src = line ; *src ; src ++ )
   {
-    unsigned char ch = (unsigned char)(*src) ;
+    char ch = *src ;
     if (ch==8 || ch==177)
     {
       // backspace
@@ -32,7 +57,7 @@ netMonitorChannel::netMonitorChannel ( netMonitorServer* _server ) : buffer(512)
   server = _server ;
   setTerminator("\r\n");
   
-  if ( server -> password )
+  if ( server -> password && server -> password [0] != 0 )
   {
     authorized = false ;
     push ("Enter password: ") ;
@@ -49,13 +74,6 @@ netMonitorChannel::netMonitorChannel ( netMonitorServer* _server ) : buffer(512)
 void netMonitorChannel::prompt ()
 {
 	push ( server -> prompt ) ;
-}
-
-
-void netMonitorChannel::handleConnect (void)
-{
-  // send IAC DO LINEMODE
-  push ("\377\375\"");
 }
 
 
@@ -100,7 +118,7 @@ void netMonitorChannel::foundTerminator (void)
   {
     if ( server -> cmdfunc )
     {
-      server -> cmdfunc ( line, this ) ;
+      server -> cmdfunc ( line ) ;
     }
     else
     {
@@ -113,4 +131,27 @@ void netMonitorChannel::foundTerminator (void)
     prompt();
   }
   buffer.remove();
+}
+
+
+void netMonitorServer::handleAccept (void)
+{
+  if ( !active )
+  {
+    netAddress addr ;
+    int s = accept ( &addr ) ;
+
+    printf("%d: Client %s:%d connected\n",s,addr.getHost(),addr.getPort());
+
+    active = new netMonitorChannel ( this ) ;
+    active -> setHandle (s);
+  }
+}
+
+
+bool netMonitorServer::push (const char* s)
+{
+  if ( active )
+    return active -> push ( s ) ;
+  return false ;
 }

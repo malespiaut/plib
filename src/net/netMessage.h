@@ -17,32 +17,7 @@
 #define __NET_MESSAGE__
 
 
-#include "netChat.h"
-
-
-/*
- * These SWAP macros are inserted into the message class
- * methods to deal with host machine endianness.
- *
- * We'll transmit everything over the wire as <little endian>.
- * On <big endian> machines such as the MAC, we'll SWAP bytes
- * around.  If you run on a PC, these macros will compile out.
- */
-
-inline u16 _NET_SWAP16(u16 D)
-   { return((D<<8)|(D>>8)); }
-
-inline u32 _NET_SWAP32(u32 D)
-   { return((D<<24)|((D<<8)&0x00FF0000)|((D>>8)&0x0000FF00)|(D>>24)); }
-
-/* macintosh is big-endian or high to low */
-#ifdef _MACOS
-#  define NET_SWAP16(D) _NET_SWAP16(D)
-#  define NET_SWAP32(D) _NET_SWAP32(D)
-#else
-#  define NET_SWAP16(D) (D)
-#  define NET_SWAP32(D) (D)
-#endif
+#include "netBuffer.h"
 
 
 class netGuid //Globally Unique IDentifier
@@ -82,19 +57,6 @@ public:
   { 
     return memcmp ( data, guid.data, sizeof(data) ) != 0 ;
   }
-
-  void push ( netChat* channel ) const
-  {
-    // eg. {2F5B6220-DB7D-11d4-8748-00D0B796C186}
-    channel -> push ( "{" ) ;
-    for ( int i=0; i<16; i++ )
-    {
-      if ( i==4 || i==6 || i==8 || i==10 )
-        channel -> push ( "-" ) ;
-      channel -> push ( netFormat ( "%02x", data[i] ) ) ;
-    }
-    channel -> push ( "}\r\n" ) ;
-  }
 } ;
 
 
@@ -121,22 +83,23 @@ public:
 
   netMessage ( const char* s, int n ) : netBuffer(n)
   {
-    assert ( n >= 4 && n < 256 ) ;
+    assert ( n >= 5 ) ;
     append(s,n);
-    pos = 4 ;
+    pos = 5 ;
   }
 
-  netMessage ( int type, int to_id, int from_id ) : netBuffer(250)
+  netMessage ( int type, int to_id, int from_id=0, int n=256 ) : netBuffer(n)
   {
-    putch ( 0 ) ;  //msg_len
-    putch ( type ) ;
-    putch ( to_id ) ;
-    putch ( from_id ) ;
+    putw ( 0 ) ;  //msg_len
+    putbyte ( type ) ;
+    putbyte ( to_id ) ;
+    putbyte ( from_id ) ;
   }
 
-  int getType () const { return ( (u8*)data )[ 1 ] ; }
-  int getToID () const { return ( (u8*)data )[ 2 ] ; }
-  int getFromID () const { return ( (u8*)data )[ 3 ] ; }
+  int getType () const { return ( (u8*)data )[ 2 ] ; }
+  int getToID () const { return ( (u8*)data )[ 3 ] ; }
+  int getFromID () const { return ( (u8*)data )[ 4 ] ; }
+  void setFromID ( int from_id ) { ( (u8*)data )[ 4 ] = (u8)from_id; }
 
   void geta ( void* a, int n ) const
   {
@@ -151,19 +114,16 @@ public:
   {
     append((const char*)a,n);
     pos = length;
-
-    //update msg_len
-    assert(length<256);
-    ((u8*)data)[0] = u8(length);
+    *((u16*)data) = u16(length); //update msg_len
   }
 
-  int getch () const
+  int getbyte () const
   {
     u8 temp ;
     geta(&temp,sizeof(temp)) ;
     return temp ;
   }
-  void putch ( int c )
+  void putbyte ( int c )
   {
     u8 temp = c ;
     puta(&temp,sizeof(temp)) ;
@@ -185,11 +145,11 @@ public:
   {
     u16 temp ;
     geta ( &temp, sizeof(temp) ) ;
-    return int ( NET_SWAP16 ( temp ) ) ;
+    return int ( ntohs ( temp ) ) ;
   }
   void putw ( int i )
   {
-    u16 temp = NET_SWAP16 ( u16(i) ) ;
+    u16 temp = htons ( u16(i) ) ;
     puta ( &temp, sizeof(temp) ) ;
   }
 
@@ -197,11 +157,42 @@ public:
   {
     u32 temp ;
     geta ( &temp, sizeof(temp) ) ;
-    return int ( NET_SWAP32 ( temp ) ) ;
+    return int ( ntohl ( temp ) ) ;
   }
   void puti ( int i )
   {
-    u32 temp = NET_SWAP32 ( u32(i) ) ;
+    u32 temp = htonl ( u32(i) ) ;
+    puta ( &temp, sizeof(temp) ) ;
+  }
+
+  void getfv ( f32* fv, int n ) const
+  {
+    u32* v = (u32*)fv;
+    geta ( v, (n<<2) ) ;
+    for ( int i=0; i<n; i++ )
+      v[i] = ntohl ( v[i] ) ;
+  }
+  void putfv ( const f32* fv, int n )
+  {
+    const u32* v = (const u32*)fv;
+    for ( int i=0; i<n; i++ )
+    {
+      u32 temp = htonl ( v[i] ) ;
+      puta ( &temp, sizeof(temp) ) ;
+    }
+  }
+  
+  f32 getf () const
+  {
+    u32 temp ;
+    geta ( &temp, sizeof(temp) ) ;
+    temp = ntohl ( temp ) ;
+    return *((f32*)&temp) ;
+  }
+  void putf ( f32 f )
+  {
+    u32 temp = *((u32*)&f) ;
+    temp = htonl ( temp ) ;
     puta ( &temp, sizeof(temp) ) ;
   }
 
@@ -240,31 +231,16 @@ public:
 
 class netMessageChannel : public netBufferChannel
 {
-  void (*processCB)(const netMessage& msg) ;
-
   virtual void handleBufferRead (netBuffer& buffer) ;
 
 public:
-
-  netMessageChannel ()
-  {
-    processCB = 0 ;
-  }
 
   bool sendMessage ( const netMessage& msg )
   {
     return bufferSend ( msg.getData(), msg.getLength() ) ;
   }
 
-  virtual void processMessage ( const netMessage& msg )
-  {
-    if ( processCB ) processCB ( msg ) ;
-  }
-
-  void setCallback ( void (*callback)(const netMessage& msg) )
-  {
-    processCB = callback ;
-  }
+  virtual void handleMessage ( const netMessage& msg ) {}
 };
 
 

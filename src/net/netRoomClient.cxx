@@ -1,118 +1,91 @@
-#include "netRoomClient.h"
+#include "netRoom.h"
 
 
-int netRoomClient::last_error = 0 ;
-
-
-netRoomClient::netRoomClient ( cchar* host, int port )
+netRoomClient::netRoomClient ( const netGuid& _guid, int _version )
 {
-  last_error = 0 ;
-
-  local_id = 0;
+  memcpy ( &guid, &_guid, sizeof(guid) ) ;
+  version = _version ;
   state = STATE_DISCONNECT;
-
-  num_games = 0 ;
-  num_players = 0 ;
-  next_game = 0 ;
-  next_player = 0 ;
-  max_games = 0 ;
-  max_players = 0 ;
-  games = 0 ;
-  players = 0 ;
-
-  open ();
-	connect (host, port);
+  last_error = 0 ;
 }
 
 
-void netRoomClient::login ( cchar* player_name,
-  const netGuid& game_guid, cchar* server_password )
+netRoomClient::~netRoomClient ()
 {
-  if ( server_password == NULL )
-    server_password = "";
+}
 
-  netMessage msg ( netRoom::LOGIN, 0, local_id ) ;
-  msg.puti ( NET_VERSION ) ;
-  msg.puta ( &game_guid, sizeof(game_guid) ) ;
+
+void netRoomClient::enterRoom ( cchar* player_name, const netRoom& room,
+  cchar* room_password )
+{
+  local_id = 0;
+  state = STATE_DISCONNECT;
+  last_error = 0 ;
+
+  open () ;
+	connect ( room.host, room.port );
+
+  if ( room_password == NULL )
+    room_password = "";
+
+  netMessage msg ( netRoom::SYSMSG_ENTER_ROOM, 0 ) ;
+  msg.puti ( version ) ;
+  msg.puta ( &guid, sizeof(guid) ) ;
   msg.puts ( player_name ) ;
-  msg.puts ( server_password ) ;
+  msg.puts ( room_password ) ;
   sendMessage ( msg ) ;
 
   state = STATE_LOGIN_REPLY;
 }
 
 
-netRoomClient::~netRoomClient ()
-{
-  if ( games ) delete [] games ;
-  if ( players ) delete [] players ;
-  games = 0 ;
-  players = 0 ;
-}
-
-
-void netRoomClient::logout ()
+void netRoomClient::leaveRoom ()
 {
   if ( state != STATE_DISCONNECT )
   {
-    netMessage msg ( netRoom::LOGOUT, 0, local_id ) ;
+    netMessage msg ( netRoom::SYSMSG_LEAVE_ROOM, 0 ) ;
     sendMessage ( msg ) ;
     closeWhenDone() ;
+
+    state = STATE_DISCONNECT;
+    players.removeAll () ;
+    games.removeAll () ;
   }
 }
   
 
 void netRoomClient::processUpdatePlayer ( const netMessage& msg )
 {
-  netRoomPlayerInfo player ;
+  netRoomPlayer player ;
   player.get ( msg ) ;
 
-  if ( player.id < 0 )
+  netRoomPlayer* p = getPlayer ( player.getID () ) ;
+  if ( p == NULL )
+    p = (netRoomPlayer*) players.add ( handleNewPlayer () ) ;
+  if ( p != NULL )
   {
-    //delete player
-    const netRoomPlayerInfo* p = findPlayer ( -player.id ) ;
-    if ( p != NULL )
-    {
-      u32 i = p - players ;
-      num_players -- ;
-      memmove ( &players[i], &players[i+1],
-        sizeof(netRoomPlayerInfo) * (num_players-i) ) ;
-    }
-  }
-  else  //update
-  {
-    netRoomPlayerInfo* p = (netRoomPlayerInfo*)findPlayer ( player.id ) ;
-    if ( p == NULL && num_players < max_players )
-    {
-      //add
-      p = &players[num_players++];
-      memset( p, 0, sizeof(netRoomPlayerInfo) );
-    }
+    int old_game = p -> game_id ;
+    p -> copy ( &player ) ;
+    
+    //get local player
+    netRoomPlayer* localp = getPlayer ( local_id ) ;
 
-    if ( p != NULL )
+    //is game changing?
+    if ( localp && old_game != p -> game_id )
     {
-      int old_game = p -> game_id ;
-      memcpy ( p, &player, sizeof(netRoomPlayerInfo) ) ;
-
-      //is game changing?
-      if ( old_game != p -> game_id )
+      //leave?
+      if ( old_game )
       {
-        //get local player
-        int player_id = getPlayerID();
-        
-        //was this player in our game?
-        if ( old_game && getGameID() == old_game )
-        {
-          netMessage msg ( netRoom::PLAYER_LEFT, player_id, p -> id );
-          processMessage ( msg ) ;
-        }
-        
+        //did player leave our game?
+        if ( localp -> getID () == p -> getID () ||
+          localp -> game_id == old_game )
+          handleLeaveGame ( p -> getID () ) ;
+      }
+      else //join
+      {
         //did player join our game?
-        if ( p -> id != player_id && getGameID() == p -> game_id )
-        {
-          netMessage msg ( netRoom::PLAYER_JOINED, player_id, p -> id );
-          processMessage ( msg ) ;
-        }
+        if ( localp -> game_id == p -> game_id )
+          handleJoinGame ( p -> getID () ) ;
       }
     }
   }
@@ -121,57 +94,38 @@ void netRoomClient::processUpdatePlayer ( const netMessage& msg )
 
 void netRoomClient::processUpdateGame ( const netMessage& msg )
 {
-  netRoomGameInfo game ;
+  netRoomGame game ;
   game.get ( msg ) ;
-
-  if ( game.id < 0 )
+  
+  netRoomGame* g = getGame ( game.getID () ) ;
+  if ( g == NULL )
+    g = (netRoomGame*) games.add ( handleNewGame () ) ;
+  if ( g != NULL )
   {
-    //delete game
-    const netRoomGameInfo* g = findGame ( -game.id ) ;
-    if ( g != NULL )
-    {
-      u32 i = g - games ;
-      num_games -- ;
-      memmove ( &games[i], &games[i+1],
-        sizeof(netRoomGameInfo) * (num_games-i) ) ;
-    }
-  }
-  else  //update
-  {
-    netRoomGameInfo* g = (netRoomGameInfo*)findGame ( game.id ) ;
-    if ( g == NULL && num_games < max_games )
-    {
-      //add
-      g = &games[num_games++];
-      memset( g, 0, sizeof(netRoomGameInfo) );
-    }
+    g -> copy ( &game ) ;
 
-    if ( g != NULL )
+#if 0
+    int old_master = g -> master_id ;
+    //is master changing?
+    if ( old_master != g -> master_id )
     {
-      int old_host = g -> host_id ;
-      memcpy ( g, &game, sizeof(netRoomGameInfo) ) ;
-      
-      //is local game changing?
-      if ( g -> id == getGameID() )
-      {
-        //am i the host now?
-        int player_id = getPlayerID();
-        if ( player_id == g -> host_id && old_host != g -> host_id )
-        {
-          netMessage msg ( netRoom::YOU_ARE_HOST, player_id, 0 );
-          processMessage ( msg ) ;
-        }
-      }
+      //get local player
+      netRoomPlayer* localp = getPlayer ( local_id ) ;
+      if ( localp && g -> getID () == localp -> game_id )
+        handleSetGameMaster () ;
     }
+#endif
   }
 }
 
-
-void netRoomClient::processMessage ( const netMessage& msg )
+void netRoomClient::handleMessage ( const netMessage& msg )
 {
+  if ( state == STATE_DISCONNECT )
+    return;
+
   switch ( msg.getType() )
   {
-    case netRoom::ERROR_REPLY:
+    case netRoom::SYSMSG_ERROR_REPLY:
       {
         last_error = msg.geti () ;
         switch (state)
@@ -192,146 +146,233 @@ void netRoomClient::processMessage ( const netMessage& msg )
         }
         break;
       }
-    case netRoom::INIT_GAME_LIST:
+    case netRoom::SYSMSG_REMOVE_ALL_GAMES:
       {
-        max_games = msg.geti () ;
-        num_games = 0 ;
-
-        if ( games )
-          delete [] games ;
-        games = 0 ;
-
-        if ( max_games )
-        {
-          games = new netRoomGameInfo [ max_games ] ;
-          memset ( games, 0, sizeof(netRoomGameInfo) * max_games ) ;
-        }
+        games.removeAll () ;
         break;
       }
-    case netRoom::UPDATE_GAME_LIST:
+    case netRoom::SYSMSG_REMOVE_GAME:
+      {
+        int id = msg.geti () ;
+        games.remove ( id ) ;
+        break;
+      }
+    case netRoom::SYSMSG_UPDATE_GAME:
       {
         processUpdateGame ( msg ) ;
         break;
       }
-    case netRoom::INIT_PLAYER_LIST:
+    case netRoom::SYSMSG_REMOVE_ALL_PLAYERS:
       {
-        max_players = msg.geti () ;
-        num_players = 0 ;
-
-        if ( players )
-          delete [] players ;
-        players = 0 ;
-
-        if ( max_players )
-        {
-          players = new netRoomPlayerInfo [ max_players ] ;
-          memset ( players, 0, sizeof(netRoomPlayerInfo) * max_players ) ;
-        }
+        players.removeAll () ;
         break;
       }
-    case netRoom::UPDATE_PLAYER_LIST:
+    case netRoom::SYSMSG_REMOVE_PLAYER:
+      {
+        int id = msg.geti () ;
+        players.remove ( id ) ;
+        break;
+      }
+    case netRoom::SYSMSG_UPDATE_PLAYER:
       {
         processUpdatePlayer ( msg ) ;
         break;
       }
     default:
       {
-        netMessageChannel::processMessage ( msg ) ;
+        netMessageChannel::handleMessage ( msg ) ;
         break;
       }
   }
 }
 
 
-bool netRoomClient::createGame ( cchar* _name, cchar* _password, int max_players )
+void netRoomClient::createGame ( cchar* game_name, cchar* _password, 
+    int max_players )
 {
-  char name[ NET_MAX_NAME+1 ];
-  netCopyName ( name, _name ) ;
-
-  char password[ NET_MAX_NAME+1 ];
-  netCopyName ( password, _password ) ;
+  leaveGame () ;
 
   if ( state == STATE_READY )
   {
-    netMessage msg ( netRoom::CREATE_GAME, 0, local_id );
+    printf ( "Creating game %s...\n", game_name ) ;
+
+    char name[ NET_MAX_NAME+1 ];
+    netCopyName ( name, game_name ) ;
+  
+    char password[ NET_MAX_NAME+1 ];
+    netCopyName ( password, _password ) ;
+
+    netMessage msg ( netRoom::SYSMSG_CREATE_GAME, 0 );
     msg.puti( max_players ) ;
     msg.puts( name );
     msg.puts( password );
     sendMessage ( msg ) ;
 
-    state = STATE_JOIN_REPLY;
-    last_error = netRoom::ERROR_NONE; //pending
-    return(true);
+    //wait for reply
+    state = STATE_JOIN_REPLY ;
+    last_error = 0 ;
   }
-  return(false);
 }
 
 
-bool netRoomClient::joinGame ( int game_id, cchar* _password )
+void netRoomClient::joinGame ( cchar* game_name, cchar* _password )
 {
-  char password[ NET_MAX_NAME+1 ];
-  netCopyName ( password, _password ) ;
+  leaveGame () ;
 
-  const netRoomGameInfo* g = findGame( game_id );
-  if ( g && state == STATE_READY )
+  if ( state == STATE_READY )
   {
-    bool watching = false;
+    const netRoomGame* found = NULL ;
+    for ( int id = 1; id <= games . getNum (); id ++ )
+    {
+      const netRoomGame* g = getGame ( id ) ;
+      if ( g && strcmp ( g -> name, game_name ) == 0 )
+      {
+        found = g ;
+        break ;
+      }
+    }
+  
+    if ( found != NULL )
+    {
+      printf ( "Joining game %s...\n", found -> name ) ;
 
-    netMessage msg( netRoom::JOIN_GAME, 0, local_id );
-    msg.puti ( game_id ) ;
-    msg.putb ( watching ) ;
-    msg.puts( password );
-    sendMessage ( msg ) ;
+      char password[ NET_MAX_NAME+1 ];
+      netCopyName ( password, _password ) ;
 
-    state = STATE_JOIN_REPLY;
-    last_error = netRoom::ERROR_NONE; //pending
-    return(true);
+      bool watching = false;
+  
+      netMessage msg( netRoom::SYSMSG_JOIN_GAME, 0 );
+      msg.puti ( found -> getID () ) ;
+      msg.putb ( watching ) ;
+      msg.puts( password );
+      sendMessage ( msg ) ;
+  
+      //wait for reply
+      state = STATE_JOIN_REPLY ;
+      last_error = 0 ;
+    }
   }
-  return(false);
 }
 
 
-bool netRoomClient::watchGame ( int game_id, cchar* _password )
+void netRoomClient::watchGame ( cchar* game_name, cchar* _password )
 {
-  char password[ NET_MAX_NAME+1 ];
-  netCopyName ( password, _password ) ;
+  leaveGame () ;
 
-  const netRoomGameInfo* g = findGame( game_id );
-  if ( g && state == STATE_READY )
+  if ( state == STATE_READY )
   {
-    bool watching = true;
+    const netRoomGame* found = NULL ;
+    for ( int id = 1; id <= games . getNum (); id ++ )
+    {
+      const netRoomGame* g = getGame ( id ) ;
+      if ( g && strcmp ( g -> name, game_name ) == 0 )
+      {
+        found = g ;
+        break ;
+      }
+    }
+  
+    if ( found != NULL )
+    {
+      printf ( "Watching game %s...\n", found -> name ) ;
 
-    netMessage msg( netRoom::JOIN_GAME, 0, local_id );
-    msg.puti ( game_id ) ;
-    msg.putb ( watching ) ;
-    msg.puts ( password ) ;
-    sendMessage ( msg ) ;
-
-    state = STATE_JOIN_REPLY;
-    last_error = netRoom::ERROR_NONE; //pending
-    return(true);
-  }
-  return(false);
-}
-
-
-void netRoomClient::startGame ( int game_id )
-{
-  const netRoomGameInfo	* g = findGame( game_id );
-  if ( g && isGameHost() )
-  {
-    netMessage	msg( netRoom::START_GAME, 0, local_id );
-    msg.puti ( game_id ) ;
-    sendMessage ( msg ) ;
+      char password[ NET_MAX_NAME+1 ];
+      netCopyName ( password, _password ) ;
+  
+      bool watching = true;
+  
+      netMessage msg( netRoom::SYSMSG_JOIN_GAME, 0 );
+      msg.puti ( found -> getID () ) ;
+      msg.putb ( watching ) ;
+      msg.puts ( password ) ;
+      sendMessage ( msg ) ;
+  
+      //wait for reply
+      state = STATE_JOIN_REPLY ;
+      last_error = 0 ;
+    }
   }
 }
 
 
 void netRoomClient::leaveGame ()
 {
-  if ( state == STATE_READY && getGameID() )
+  if ( inGame () && state == STATE_READY )
   {
-    netMessage msg( netRoom::LEAVE_GAME, 0, local_id );
+    printf ( "Leaving game...\n" ) ;
+
+    netMessage msg( netRoom::SYSMSG_LEAVE_GAME, 0 );
     sendMessage ( msg ) ;
+  }
+}
+
+
+void netRoomClient::startGame ()
+{
+  netRoomPlayer* p = getPlayer ( local_id ) ;
+  if ( p )
+  {
+    const netRoomGame* g = getGame ( p -> game_id ) ;
+    if ( g && g -> master_id == local_id )
+    {
+      printf ( "Starting game...\n" ) ;
+
+      netMessage	msg( netRoom::SYSMSG_START_GAME, 0 );
+      sendMessage ( msg ) ;
+    }
+  }
+}
+
+
+bool netRoomClient::inGame () const
+{
+  const netRoomPlayer* p = ((netRoomClient*)this) -> getPlayer ( local_id ) ;
+  return p && p -> game_id != 0 ;
+}
+
+
+bool netRoomClient::isGameMaster () const
+{
+  const netRoomPlayer* p = ((netRoomClient*)this) -> getPlayer ( local_id ) ;
+  if ( p )
+  {
+    const netRoomGame* g = ((netRoomClient*)this) -> getGame ( p -> game_id ) ;
+    return g && g -> master_id == local_id ;
+  }
+  return false ;
+}
+
+
+int netRoomClient::getGameMaster () const
+{
+  const netRoomPlayer* p = ((netRoomClient*)this) -> getPlayer ( local_id ) ;
+  if ( p )
+  {
+    const netRoomGame* g = ((netRoomClient*)this) -> getGame ( p -> game_id ) ;
+    if ( g )
+      return g -> master_id ;
+  }
+  return 0 ;
+}
+
+
+void netRoomClient::setGameMaster ( int player_id )
+{
+  netRoomPlayer* p = getPlayer ( local_id ) ;
+  if ( p )
+  {
+    const netRoomGame* g = getGame ( p -> game_id ) ;
+    if ( g && ( g -> master_id == 0 || g -> master_id == local_id ) )
+    {
+      netRoomPlayer* m = getPlayer ( player_id ) ;
+      if ( m && m -> game_id == p -> game_id && m -> getID () != g -> master_id )
+      {
+        printf ( "Setting game master to %s...\n", m -> name ) ;
+  
+        netMessage	msg( netRoom::SYSMSG_SET_GAME_MASTER, 0 );
+        msg.puti ( player_id ) ;
+        sendMessage ( msg ) ;
+      }
+    }
   }
 }
