@@ -17,19 +17,46 @@ Introduction to Using the Picoscopic User Interface</h1></center>
 John F. Fay</h1></center>
 
 <center>
-<h1>
-October 18, 2000</h1></center>
+<h1>October 18, 2000</h1>
+(Updated by <a href="mailto:ude@handshake.de">Sebastian Ude</a> on October 02, 2001)
+</center>
 
 <h2>
 Contents</h2>
-1.&nbsp; <a href="#Introduction:  Graphical User Interfaces and">Introduction:&nbsp;
-Graphical User Interfaces and Windowed Programs</a>
-<br>2.&nbsp; <a href="#Elementary PUI">Elementary PUI</a>
-<br>2.1&nbsp; <a href="#Creating User Interface Widgets">Creating User
-Interface Widgets</a>
-<br>2.2&nbsp; <a href="#Invoking PUI">Invoking PUI</a>
-<br>2.3&nbsp; <a href="#Widget Callbacks">Widget Callbacks</a>
-<br>3.&nbsp; <a href="#Conclusion">Conclusion</a>
+
+<table>
+
+<tr>
+<td>1.</td>
+<td><a href="#Introduction:  Graphical User Interfaces and">Introduction:&nbsp;
+Graphical User Interfaces and Windowed Programs</a></td>
+</tr>
+
+<tr>
+<td>2.</td>
+<td><a href="#Elementary PUI">Elementary PUI</a></td>
+</tr>
+
+<tr><td></td>
+<td>2.1 <a href="#Creating User Interface Widgets">Creating User Interface
+Widgets</a></td>
+</tr>
+
+<tr><td></td>
+<td>2.2 <a href="#Invoking PUI">Invoking PUI</a></td>
+</tr>
+
+<tr><td></td>
+<td>2.3 <a href="#Widget Callbacks">Widget Callbacks</a></td>
+</tr>
+
+<tr>
+<td>3.</td>
+<td><a href="#Conclusion">Conclusion</a></td>
+</tr>
+
+</table>
+
 <h2>
 <a NAME="Introduction:  Graphical User Interfaces and"></a>1.&nbsp; Introduction:&nbsp;
 Graphical User Interfaces and Windowed Programs</h2>
@@ -55,92 +82,47 @@ self-contained hierarchy of functions which call each other, a windowed
 program is controlled by the windowing system which calls functions as
 it sees fit.&nbsp; The following diagram shows the structure of a typical
 windowed program.
-<br>&nbsp;
-<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +------------------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; Main Program&nbsp;&nbsp;
-|&nbsp; The application developer</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Set up window(s) |&nbsp;
-supplies this.</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; and widget(s)&nbsp;
-|</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +------------------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +----------------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Window Manager
-|&nbsp;&nbsp; The window manager library</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; (like
-GLUT)&nbsp;&nbsp; |&nbsp;&nbsp; supplies this.</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +----------------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +------+--------+---------------+---------------+---->
-etc.</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;
-+----------+&nbsp;&nbsp;&nbsp; +----------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; Window&nbsp; |&nbsp;&nbsp;&nbsp;
-|&nbsp; Window&nbsp; |&nbsp;&nbsp;&nbsp; |&nbsp; Window&nbsp; |&nbsp;&nbsp;&nbsp;
-|&nbsp; Window&nbsp; |&nbsp; The application</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; Mouse&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
-| Keyboard |&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; Idle&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
-| Display&nbsp; |&nbsp; developer</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; | Callback |&nbsp;&nbsp;&nbsp; | Callback
-|&nbsp;&nbsp;&nbsp; | Callback |&nbsp;&nbsp;&nbsp; | Callback |&nbsp; supplies
-these.</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;
-+----------+&nbsp;&nbsp;&nbsp; +----------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;&nbsp;
-May call&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +----------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; PUI&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
-|&nbsp;&nbsp; PUI&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; PUI functions&nbsp;&nbsp;&nbsp;
-|&nbsp;&nbsp; PUI&nbsp;&nbsp;&nbsp; |&nbsp; PUI</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; Mouse&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
-| Keyboard |&nbsp;&nbsp;&nbsp; for default&nbsp;&nbsp;&nbsp;&nbsp; | Display&nbsp;
-|&nbsp; supplies</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; | Function |&nbsp;&nbsp;&nbsp; | Function
-|&nbsp;&nbsp;&nbsp;&nbsp; behaviors&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Function
-|&nbsp; these.</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-+----------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +-------+-------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +-------+-------+---------------+------>
-etc.</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-|</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-V</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;
-+----------+</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; | Widget 1 |&nbsp;&nbsp;&nbsp; | Widget
-2 |&nbsp;&nbsp;&nbsp; | Widget 3 |&nbsp; The application developer</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; | Callback |&nbsp;&nbsp;&nbsp; | Callback
-|&nbsp;&nbsp;&nbsp; | Callback |&nbsp; supplies these.</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;
-+----------+</tt>
+<pre>
+
+        +------------------+
+        |   Main Program   |  The application developer
+        | Set up window(s) |  supplies this.
+        |   and widget(s)  |
+        +------------------+
+                 |
+                 V
+         +----------------+
+         | Window Manager |   The window manager library
+         |  (like GLUT)   |   supplies this.
+         +----------------+
+                 |
+          +------+--------+---------------+---------------+----&gt; etc.
+          |               |               |               |
+          V               V               V               V
+     +----------+    +----------+    +----------+    +----------+
+     |  Window  |    |  Window  |    |  Window  |    |  Window  |  The application
+     |  Mouse   |    | Keyboard |    |   Idle   |    | Display  |  developer
+     | Callback |    | Callback |    | Callback |    | Callback |  supplies these.
+     +----------+    +----------+    +----------+    +----------+
+          |               |               |               |
+          V               V               V               V
+     +----------+    +----------+     May call       +----------+
+     |   PUI    |    |   PUI    |   PUI functions    |   PUI    |  PUI
+     |  Mouse   |    | Keyboard |    for default     | Display  |  supplies
+     | Function |    | Function |     behaviors      | Function |  these.
+     +----------+    +----------+                    +----------+
+          |               |
+          +-------+-------+
+                  |
+          +-------+-------+---------------+------&gt; etc.
+          |               |               |
+          V               V               V
+     +----------+    +----------+    +----------+
+     | Widget 1 |    | Widget 2 |    | Widget 3 |  The application developer
+     | Callback |    | Callback |    | Callback |  supplies these.
+     +----------+    +----------+    +----------+
+
+</pre>
 <p>The functions that the application developer supplies are called "callbacks"
 because the windowing system or user interface system "calls back" into
 the application.
@@ -185,7 +167,7 @@ the window callbacks, and supplying the widget callbacks.
 <p>PUI was written in C++, designed to be invoked from C++ programs.&nbsp;
 The following text and examples will assume a program written in C++.
 <h3>
-<a NAME="Creating User Interface Widgets"></a>2.1&nbsp; Creating User Interface
+<a NAME="Creating User Interface Widgets"></a>2.1 Creating User Interface
 Widgets</h3>
 Most (or all) widgets have certain properties in common.&nbsp; These are:
 <ul>
@@ -214,30 +196,48 @@ application developer to create a simple user interface.
 <p>Each widget in the Picoscopic User Interface is an object in C++.&nbsp;
 The application developer creates a widget by defining a variable to point
 to the object and creating a new object:
-<p><tt>&nbsp; puButton *button = new puButton ( 10, 10, 100, 30 ) ;</tt>
+<pre>
+
+  puButton *button = new puButton ( 10, 10, 100, 30 ) ;
+
+</pre>
 <p>To set the properties of a widget, the application developer calls methods
 in the object:
-<p><tt>&nbsp; button->setPosition ( x, y ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Sets the position of the widget to</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-//&nbsp;&nbsp;&nbsp;&nbsp; (x, y)</tt>
-<br><tt>&nbsp; button->setSize ( w, h ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Sets the size of the widget to (w, h)</tt>
-<br><tt>&nbsp; button->setCallback ( widget_cb ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Sets the callback to</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-//&nbsp;&nbsp;&nbsp;&nbsp; "void widget_cb ( puObject *ob )"</tt>
-<br><tt>&nbsp; button->setLegend ( "Press Me" ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Sets the legend</tt>
-<br><tt>&nbsp; button->setLabel ( "A Button:" ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Sets the label</tt>
-<br><tt>&nbsp; button->setLabelPlace ( PUPLACE_LEFT ) ;&nbsp; // Makes
-the label print on the button's</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-//&nbsp;&nbsp;&nbsp;&nbsp; left</tt>
-<p>Other allowed values for the label position are PUPLACE_RIGHT, PUPLACE_ABOVE,
-PUPLACE_BELOW, PUPLACE_TOP_CENTER, PUPLACE_BOTTOM_CENTER, PUPLACE_LEFT_CENTER,
-and PUPLACE_RIGHT_CENTER.&nbsp; Their meanings should be obvious.
+<pre>
+
+  button->setPosition ( x, y ) ;                  // Sets the position of the widget to
+                                                         (x, y)
+  button->setSize ( w, h ) ;                      // Sets the size of the widget to (w, h)
+  button->setCallback ( widget_cb ) ;             // Sets the callback to
+                                                         "void widget_cb ( puObject *ob )"
+  button->setLegend ( "Press Me" ) ;              // Sets the legend
+  button->setLabel ( "A Button:" ) ;              // Sets the label
+  button->setLabelPlace ( PUPLACE_LOWER_LEFT ) ;  // Makes the label print on the button's
+                                                          left
+
+</pre>
+<p>Other allowed values for the label position are:
+
+<ul>
+<li>PUPLACE_ABOVE_LEFT
+<li>PUPLACE_ABOVE_RIGHT
+<li>PUPLACE_TOP_LEFT
+<li>PUPLACE_TOP_CENTERED
+<li>PUPLACE_TOP_RIGHT
+<li>PUPLACE_UPPER_LEFT
+<li>PUPLACE_UPPER_RIGHT
+<li>PUPLACE_CENTERED_LEFT
+<li>PUPLACE_CENTERED_RIGHT
+<li>PUPLACE_LOWER_LEFT
+<li>PUPLACE_LOWER_RIGHT (default)
+<li>PUPLACE_BOTTOM_LEFT
+<li>PUPLACE_BOTTOM_CENTERED
+<li>PUPLACE_BOTTOM_RIGHT
+<li>PUPLACE_BELOW_LEFT
+<li>PUPLACE_BELOW_RIGHT
+</ul>
+<p>For a detailed description of these have a look at the
+<a href="http://plib.sf.net/pui/">PUI Programmers Guide</a>.
 <p>All of these calls are optional.&nbsp; If the application developer
 does not want to label a widget, he simply does not call "setLabel" or
 "setLabelPlace".&nbsp; Similarly, if he has set the widget's position and
@@ -246,7 +246,7 @@ or "setSize".
 <p>The following subsections describe some of the widget types that PUI
 supports.
 <h4>
-2.1.1&nbsp; Button</h4>
+2.1.1 Button</h4>
 The button ("puButton") is a rectangle, usually containing a legend, which
 is activated when the user clicks the mouse on it.&nbsp; It has two possible
 values, off and on; its actual value changes each time the user clicks
@@ -264,15 +264,17 @@ size of the text.</li>
 </ul>
 
 <h4>
-2.1.2&nbsp; Button Box</h4>
+2.1.2 Button Box</h4>
 The button box ("puButtonBox") is a large rectangle containing a set of
 buttons, each with text next to it, which the user can select.&nbsp; It
 is sometimes called a radio button.&nbsp; It is created by creating a null-terminated
 list of labels and then by calling the constructor function:
-<p><tt>&nbsp; char **labels = { "Label1", "Label2", "This is Label3", "Four",
-NULL } ;</tt>
-<br><tt>&nbsp; puButtonBox my_box = new puButtonBox ( x1, x2, y1, y2, labels,
-&lt;0|1> ) ;</tt>
+<pre>
+
+  char **labels = { "Label1", "Label2", "This is Label3", "Four", NULL } ;
+  puButtonBox my_box = new puButtonBox ( x1, x2, y1, y2, labels, &lt;0|1&gt; ) ;
+
+</pre>
 <p>This creates a button box with lower left-hand coordinates of (x1, y1)
 and upper right-hand coordinates (x2, y2).&nbsp; The number of buttons
 is specified by the number of entries in the "labels" array; each string
@@ -281,7 +283,7 @@ specifies whether the user can select multiple buttons (0) or whether selecting
 a new button will deactivate the previously-selected button (1).
 <p>The button box should not be given a legend.
 <h4>
-2.1.3&nbsp; Frame</h4>
+2.1.3 Frame</h4>
 The frame ("puFrame") is a rectangular area that provides a background
 for other widgets.&nbsp; It should be defined before any other widgets
 that go inside it or else it will cover them up.&nbsp; It is constructed
@@ -294,10 +296,10 @@ of (x1, y1) and with upper right-hand coordinates of (x2, y2)</li>
 The frame should not be given a legend.&nbsp; It does not support a callback
 either.
 <h4>
-2.1.4&nbsp; Input Box</h4>
+2.1.4 Input Box</h4>
 The input box ("puInput") is a rectangular area into which the user can
 type text.&nbsp; The user must first click the mouse inside the area and
-then type the text.&nbsp; He concludes by pressing &lt;Enter> or &lt;Tab>
+then type the text.&nbsp; He concludes by pressing &lt;Enter&gt; or &lt;Tab&gt;
 or by clicking the mouse outside the input box.
 <p>An input box is constructed by the following function call:
 <ul>
@@ -307,13 +309,13 @@ coordinates of (x1, y1) and with upper right-hand coordinates of (x2, y2)</li>
 </ul>
 The input box should not be given a legend.
 <h4>
-2.1.5&nbsp; Menu Bar</h4>
+2.1.5 Menu Bar</h4>
 The menu bar ("puMenuBar") is easily the most complicated widget written
 up here.&nbsp; It consists of a horizontal bar containing buttons which
 the user can click on.&nbsp; The bar is always situated on the left-hand
 edge of the window and is usually in the upper left-hand corner.&nbsp;
 It is constructed by the following function call:
-<br>&nbsp;
+<br>
 <ul>
 <li>
 puMenuBar *menu = puMenuBar ( y ) - creates a menu bar with the lower left-hand
@@ -331,49 +333,50 @@ a separator, "Page Setup", "Print", another separator, and "Exit".&nbsp;
 Each entry in the submenu has its own widget callback function.&nbsp; To
 create a submenu, the application developer must first create two null-terminated
 lists of character strings and callback functions:
-<p><tt>&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *file_submenu&nbsp;&nbsp;
-[] = {&nbsp; "Exit", "-----",&nbsp; "Print",&nbsp; "Page Setup", "-----",</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Save As",&nbsp; "Save",&nbsp; "Open",&nbsp; "New", NULL } ;</tt>
-<br><tt>&nbsp; puCallback file_submenu_cb[] = { exit_cb,&nbsp;&nbsp;&nbsp;
-NULL, print_cb, page_setup_cb,&nbsp;&nbsp;&nbsp; NULL,</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-save_as_cb, save_cb, open_cb, new_cb, NULL } ;</tt>
+<pre>
+
+  char      *file_submenu   [] = { "Exit", "-----",  "Print",  "Page Setup", "-----",
+                            "Save As",  "Save",  "Open",  "New", NULL } ;
+  puCallback file_submenu_cb[] = { exit_cb,    NULL, print_cb, page_setup_cb,    NULL,
+                           save_as_cb, save_cb, open_cb, new_cb, NULL } ;
+
+</pre>
 <p>Notice here that the submenu entries are placed in the list from bottom
 to top.&nbsp; After the last character string is a NULL entry; this tells
 PUI that there aren't any more entries in the submenu.&nbsp; The callbacks
 for the separators are also null, indicating that there is no callback
 for the separator.&nbsp; The submenu is added to the menu bar with a call
 to the "add_submenu" function:
-<p><tt>&nbsp; menu->add_submenu ( "File", file_submenu, file_submenu_cb
-) ;</tt>
+<pre>
+
+  menu->add_submenu ( "File", file_submenu, file_submenu_cb ) ;
+
+</pre>
 <p>Further calls to "add_submenu" add the other submenus:
-<p><tt>&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *edit_submenu&nbsp;&nbsp;
-[] = {&nbsp; "Select All", "-----",&nbsp; "Paste",&nbsp; "Copy",&nbsp;
-"Cut",</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"-----",&nbsp; "Undo", NULL } ;</tt>
-<br><tt>&nbsp; puCallback edit_submenu_cb[] = { select_all_cb,&nbsp;&nbsp;&nbsp;
-NULL, paste_cb, copy_cb, cut_cb,</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-NULL, undo_cb, NULL } ;</tt>
-<br><tt>&nbsp; menu->add_submenu ( "Edit", edit_submenu, edit_submenu_cb
-) ;</tt><tt></tt>
-<p><tt>&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *search_submenu&nbsp;&nbsp;
-[] = {&nbsp; "Find Next",&nbsp; "Find", NULL } ;</tt>
-<br><tt>&nbsp; puCallback search_submenu_cb[] = { find_next_cb, find_cb,
-NULL } ;</tt>
-<br><tt>&nbsp; menu->add_submenu ( "Search", search_submenu, search_submenu_cb
-) ;</tt><tt></tt>
-<p><tt>&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *help_submenu&nbsp;&nbsp;
-[] = {&nbsp; "About",&nbsp; "Help", NULL } ;</tt>
-<br><tt>&nbsp; puCallback help_submenu_cb[] = { about_cb, help_cb, NULL
-} ;</tt>
-<br><tt>&nbsp; menu->add_submenu ( "Help", help_submenu, help_submenu_cb
-) ;</tt>
+<pre>
+
+  char      *edit_submenu   [] = {  "Select All", "-----",  "Paste",  "Copy",  "Cut",
+                            "-----",  "Undo", NULL } ;
+  puCallback edit_submenu_cb[] = { select_all_cb,    NULL, paste_cb, copy_cb, cut_cb,
+                               NULL, undo_cb, NULL } ;
+  menu->add_submenu ( "Edit", edit_submenu, edit_submenu_cb ) ;
+
+  char      *search_submenu   [] = {  "Find Next",  "Find", NULL } ;
+  puCallback search_submenu_cb[] = { find_next_cb, find_cb, NULL } ;
+  menu->add_submenu ( "Search", search_submenu, search_submenu_cb ) ;
+
+  char      *help_submenu   [] = {  "About",  "Help", NULL } ;
+  puCallback help_submenu_cb[] = { about_cb, help_cb, NULL } ;
+  menu->add_submenu ( "Help", help_submenu, help_submenu_cb ) ;
+
+</pre>
 <p>When the last submenu has been added, the application developer must
 close the menu bar:
-<p><tt>&nbsp; menu->close() ;</tt>
+<pre>
+
+  menu->close() ;
+
+</pre>
 <p>This is absolutely necessary or else PUI will think that any widgets
 the application defines later are supposed to go into the menu bar.
 <p>The menu bar does not support a legend.&nbsp; It does not support a
@@ -382,7 +385,7 @@ support callbacks.&nbsp; Repositioning and resizing a menu bar will be
 problematic as well.&nbsp; There may be an occasion when a menu bar can
 take a label, but this would be rare.
 <h4>
-2.1.6&nbsp; One-Shot Button</h4>
+2.1.6 One-Shot Button</h4>
 The one-shot button ("puOneShot") is a button whose value is always reset
 immediately to zero after it has been activated.&nbsp; In all other respects
 it is the same as the regular button.&nbsp; It is created in the same way
@@ -399,7 +402,7 @@ is set by the size of the text.</li>
 </ul>
 
 <h4>
-2.1.7&nbsp; Text Box</h4>
+2.1.7 Text Box</h4>
 The text box ("puText") is an output-only widget which displays a character
 string.&nbsp; It is created by the following constructor:
 <ul>
@@ -410,7 +413,7 @@ The application actually adds the text by assigning a label and a label
 place to the text box.&nbsp; The label place will determine where relative
 to the position of the text box the text itself will appear.
 <h3>
-<a NAME="Invoking PUI"></a>2.2&nbsp; Invoking PUI</h3>
+<a NAME="Invoking PUI"></a>2.2 Invoking PUI</h3>
 The summary of invoking PUI is very simple:
 <ul>
 <li>
@@ -440,102 +443,124 @@ to call when the user interacts with the computer.&nbsp; The following
 are taken from GLUT, but another window manager will have similar callback
 requirements.
 <h4>
-2.2.1&nbsp; Main Program Code</h4>
+2.2.1 Main Program Code</h4>
 In the main program, the application developer usually places the following
 or similar statements:
-<p><tt>&nbsp; // Create the GLUT window and the OpenGL context</tt>
-<p><tt>&nbsp; glutCreateWindow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( "PUI
-Application"&nbsp; ) ;</tt>
-<p><tt>&nbsp; // Set up the GLUT window callbacks</tt>
-<p><tt>&nbsp; glutDisplayFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-( displayfn&nbsp; ) ;&nbsp; // display the window</tt>
-<br><tt>&nbsp; glutMouseFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-( mousefn&nbsp;&nbsp;&nbsp; ) ;&nbsp; // process mouse clicks</tt>
-<br><tt>&nbsp; glutMotionFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-( motionfn&nbsp;&nbsp; ) ;&nbsp; // process mouse moves</tt>
-<br><tt>&nbsp; glutPassiveMotionFunc&nbsp; ( motionfn&nbsp;&nbsp; ) ;</tt>
-<br><tt>&nbsp; glutKeyboardFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( keyboardfn
-) ;&nbsp; // process key presses</tt>
-<br><tt>&nbsp; glutIdleFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-( displayfn&nbsp; ) ;&nbsp; // what to do when nothing's happening</tt>
-<p><tt>&nbsp; // Initialize PUI</tt>
-<p><tt>&nbsp; puInit () ;</tt>
-<p><tt>&nbsp; // Set up the widgets here</tt>
+<pre>
+
+  // Create the GLUT window and the OpenGL context
+
+  glutCreateWindow       ( "PUI Application"  ) ;
+
+  // Set up the GLUT window callbacks
+
+  glutDisplayFunc        ( displayfn  ) ;  // display the window
+  glutMouseFunc          ( mousefn    ) ;  // process mouse clicks
+  glutMotionFunc         ( motionfn   ) ;  // process mouse moves
+  glutPassiveMotionFunc  ( motionfn   ) ;
+  glutKeyboardFunc       ( keyboardfn ) ;  // process key presses
+  glutIdleFunc           ( displayfn  ) ;  // what to do when nothing's happening
+
+  // Initialize PUI
+
+  puInit () ;
+
+  // Set up the widgets here
+</pre>
 <h4>
-2.2.2&nbsp; Window Callbacks</h4>
+2.2.2 Window Callbacks</h4>
 The application's window callbacks should generally look like this.&nbsp;
 Again, these are written assuming GLUT; other window managers should be
 similar.
-<p><tt>&nbsp; void displayfn ( void )</tt>
-<br><tt>&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; // stuff to display any non-PUI drawings</tt>
-<p><tt>&nbsp;&nbsp;&nbsp; // update any PUI widgets that update by themselves
-... like a timer display</tt>
-<p><tt>&nbsp;&nbsp;&nbsp; // redisplay PUI</tt>
-<p><tt>&nbsp;&nbsp;&nbsp; puDisplay () ;</tt>
-<p><tt>&nbsp;&nbsp;&nbsp; // Finish up</tt>
-<p><tt>&nbsp;&nbsp;&nbsp; glutSwapBuffers () ;</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; glutPostRedisplay () ;</tt>
-<br><tt>&nbsp; }</tt>
-<p><tt>&nbsp; void mousefn ( int button, int updown, int x, int y )</tt>
-<br><tt>&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; // Invoke the PUI mouse function</tt>
-<p><tt>&nbsp;&nbsp;&nbsp; puMouse ( button, updown, x, y ) ;</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; glutPostRedisplay () ;</tt>
-<br><tt>&nbsp; }</tt>
-<p><tt>&nbsp; void motionfn ( int x, int y )</tt>
-<br><tt>&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; // Invoke the PUI mouse motion function</tt>
-<p><tt>&nbsp;&nbsp;&nbsp; puMouse ( x, y ) ;</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; glutPostRedisplay () ;</tt>
-<br><tt>&nbsp; }</tt>
-<p><tt>&nbsp; void keyboardfn ( unsigned char key, int, int )</tt>
-<br><tt>&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; // Invoke the PUI keyboard function</tt>
-<p><tt>&nbsp;&nbsp;&nbsp; puKeyboard ( key, PU_DOWN ) ;</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; glutPostRedisplay () ;</tt>
-<br><tt>&nbsp; }</tt>
+<pre>
+
+  void displayfn ( void )
+  {
+    // stuff to display any non-PUI drawings
+
+    // update any PUI widgets that update by themselves ... like a timer display
+
+    // redisplay PUI
+
+    puDisplay () ;
+
+    // Finish up
+
+    glutSwapBuffers () ;
+    glutPostRedisplay () ;
+  }
+
+  void mousefn ( int button, int updown, int x, int y )
+  {
+    // Invoke the PUI mouse function
+
+    puMouse ( button, updown, x, y ) ;
+    glutPostRedisplay () ;
+  }
+
+  void motionfn ( int x, int y )
+  {
+    // Invoke the PUI mouse motion function
+
+    puMouse ( x, y ) ;
+    glutPostRedisplay () ;
+  }
+
+  void keyboardfn ( unsigned char key, int, int )
+  {
+    // Invoke the PUI keyboard function
+
+    puKeyboard ( key, PU_DOWN ) ;
+    glutPostRedisplay () ;
+  }
+
+</pre>
 <h4>
-2.2.3&nbsp; Miscellaneous Other Tidbits</h4>
+2.2.3 Miscellaneous Other Tidbits</h4>
 If the application developer wishes to delete a widget, he should not delete
 the object directly.&nbsp; Instead he should call the PUI function "puDeleteObject
 ( ob )" with his widget pointer as the argument.
 <h3>
-<a NAME="Widget Callbacks"></a>2.3&nbsp; Widget Callbacks</h3>
+<a NAME="Widget Callbacks"></a>2.3 Widget Callbacks</h3>
 The final pieces to the puzzle are the widget callbacks.&nbsp; These are
 of the form
-<p><tt>&nbsp; void widget_cb ( puObject *ob )</tt>
-<br><tt>&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; // code goes here</tt>
-<br><tt>&nbsp; }</tt>
+<pre>
+
+  void widget_cb ( puObject *ob )
+  {
+    // code goes here
+  }
+
+</pre>
 <p>where "puObject" is the C++ type for a generic widget.&nbsp; When PUI
 calls a widget callback, it passes to it the address of the widget whose
 activation caused the callback.&nbsp; This is useful because it allows
 a single callback for multiple widgets:
-<p><tt>&nbsp; void widget_cb ( puObject *ob )</tt>
-<br><tt>&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; if ( ob == button )&nbsp; // the button from
-section 2.1</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; }</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; else if ( ob == my_box )&nbsp; // the button
-box from section 2.1.2</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; }</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; else</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; {</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf ( "Error - unknown widget"
-) ;</tt>
-<br><tt>&nbsp;&nbsp;&nbsp; }</tt>
-<br><tt>&nbsp; }</tt>
-<p>&nbsp;A widget callback needs to be either a regular function (global
+<pre>
+
+  void widget_cb ( puObject *ob )
+  {
+    if ( ob == button )  // the button from section 2.1
+    {
+      ...
+    }
+    else if ( ob == my_box )  // the button box from section 2.1.2
+    {
+      ...
+    }
+    else
+    {
+      printf ( "Error - unknown widget" ) ;
+    }
+  }
+
+</pre>
+<p>A widget callback needs to be either a regular function (global
 or defined in the same file that contains the widget's definition) or a
 static member function of a class.&nbsp; It cannot be a regular member
 function of a class.
 <h4>
-2.3.1&nbsp; Widget Values</h4>
+2.3.1 Widget Values</h4>
 It is frequently very useful in a callback to know the value of a widget.&nbsp;
 A PUI widget has an integer value, a floating-point value, and a character
 string value.&nbsp; These values are kept synchronized as much as possible.&nbsp;
@@ -544,24 +569,25 @@ floating-point value is set equal to the integer and the integer is printed
 into the character string.
 <p>An application program can use the following function to retrieve the
 value of a PUI widget ("ob" is the pointer to the object):
-<p><tt>&nbsp;int ivalue1 = ob->getValue () ;&nbsp; // No argument, return
-the integer value</tt>
-<p><tt>&nbsp;int ivalue2 ;</tt>
-<br><tt>&nbsp;ob->getValue ( &amp;ivalue2 ) ;&nbsp; // Place the integer
-value in the argument</tt>
-<p><tt>&nbsp;float fvalue ;</tt>
-<br><tt>&nbsp;ob->getValue ( &amp;fvalue ) ;&nbsp; // Place the floating-point
-value in the argument</tt>
-<p><tt>&nbsp;char svalue[PUSTRING_MAX] ;&nbsp; // Create a string</tt>
-<br><tt>&nbsp;ob->getValue ( svalue ) ;&nbsp;&nbsp;&nbsp; // Copy the string
-value into the argument</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Note that the argument is of type "char *"</tt>
-<p><tt>&nbsp;char *sptr ;</tt>
-<br><tt>&nbsp;ob->getValue ( &amp;sptr ) ;&nbsp; // Have the pointer point
-to the string value</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Note that the argument is of type "char **"</tt>
+<pre>
+
+  int ivalue1 = ob->getValue () ;  // No argument, return the integer value
+
+  int ivalue2 ;
+  ob->getValue ( &amp;ivalue2 ) ;  // Place the integer value in the argument
+
+  float fvalue ;
+  ob->getValue ( &amp;fvalue ) ;  // Place the floating-point value in the argument
+
+  char svalue[PUSTRING_MAX] ;  // Create a string
+  ob->getValue ( svalue ) ;    // Copy the string value into the argument
+                               // Note that the argument is of type "char *"
+
+  char *sptr ;
+  ob->getValue ( &amp;sptr ) ;  // Have the pointer point to the string value
+                            // Note that the argument is of type "char **"
+
+</pre>
 <p>The values of the various widgets have the following meanings:
 <ul>
 <li>
@@ -602,9 +628,7 @@ here.&nbsp; There are well over a dozen additional types of widgets.&nbsp;
 Additionally, the application developer can do many more things with this
 widgets than have been described here.
 <p>"As to more than these, my son, beware.&nbsp; Of the making of many
-books there is no end, and in much study there is weariness for the flesh."&nbsp;
+books there is no end, and in much study there is weariness for the flesh."
 - Ecclesiastes 12:12
-<br>&nbsp;
-<br>&nbsp;
 </body>
 </html>
