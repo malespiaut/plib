@@ -877,9 +877,8 @@ static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
   */
   if ( ent -> isAKindOf ( ssgTypeCutout () ) ||
        ent -> isAKindOf ( ssgTypeRangeSelector () ) ||
-       ( ent -> isAKindOf ( ssgTypeTransform () ) &&
-	 ( ent -> getUserData () != NULL || 
-	   ! ent -> isA ( ssgTypeTransform () ) )))
+       ( ent -> isA ( ssgTypeTransform () ) &&
+         ent -> getUserData () != NULL ) )
   {
     /* Insert a transform node if needed. */
     if ( mat != NULL ) {
