@@ -27,6 +27,7 @@ static int num_meshvert;
 static sgVec3* meshvert;
 static int meshface[4];
 static int meshflags;
+static int meshsize[2];
 
 static int mode;
 static int num_vert;
@@ -61,6 +62,8 @@ static void dxf_flush ( void )
   else if ( mode == MODE_POLYLINE ) {
     meshflags = cflags;
     num_meshvert = 0;
+    meshsize[0] = meshface[0];
+    meshsize[1] = meshface[1];
   }
   else if ( mode == MODE_VERTEX ) {
 
@@ -213,7 +216,7 @@ initialize lists
       else if ( strncmp( input2, "SEQEND", 6 ) == 0 ) {
 
         if ( (meshflags & 8) != 0 ) {
-   
+
           //This is a 3D Polyline
           int last = 0;
           int i = 1;
@@ -239,25 +242,79 @@ initialize lists
         else if ( (meshflags & 16) != 0 ) {
 
           //This is a 3D polygon MxN mesh. (uniform grid)
-          int num = num_meshvert / 3;
-          for ( int i=0; i<num; i++ ) {
+          if ( num_meshvert >= ( meshsize[0] * meshsize[1] ) ) {
 
-            if ( num_facevert + 3 < MAX_VERT ) {
+            for ( int i=1; i<meshsize[0]; i++ )
+            for ( int j=1; j<meshsize[1]; j++ ) {
 
-              for ( int j=0; j<3; j++ ) {
-
-                sgCopyVec3( facevert[num_facevert + j], meshvert[i*3+j] );
+              if ( num_facevert + 3 < MAX_VERT ) {
+                sgCopyVec3( facevert[num_facevert], meshvert[(i-1)+(j-1)*meshsize[0]] );
+                sgCopyVec3( facevert[num_facevert+1], meshvert[i+(j-1)*meshsize[0]] );
+                sgCopyVec3( facevert[num_facevert+2], meshvert[i+j*meshsize[0]] );
+                num_face ++;
+                num_facevert += 3;
               }
-              num_face ++;
-              num_facevert += 3;
-            }
-          }
 
-          if ( (meshflags & 1) != 0 ) {
-            //The polygon mesh is closed in the M direction
-          }
-          else if ( (meshflags & 32) != 0 ) {
-            //The polygon mesh is closed in the N direction
+              if ( num_facevert + 3 < MAX_VERT ) {
+                sgCopyVec3( facevert[num_facevert], meshvert[(i-1)+(j-1)*meshsize[0]] );
+                sgCopyVec3( facevert[num_facevert+1], meshvert[i+j*meshsize[0]] );
+                sgCopyVec3( facevert[num_facevert+2], meshvert[(i-1)+j*meshsize[0]] );
+                num_face ++;
+                num_facevert += 3;
+              }
+            }
+
+            if ( (meshflags & 1) != 0 ) {
+
+              //The polygon mesh is closed in the M direction
+              for ( int j=1; j<meshsize[1]; j++ ) {
+  
+                int i1 = meshsize[0]-1;
+                int i2 = 0;
+
+                if ( num_facevert + 3 < MAX_VERT ) {
+                  sgCopyVec3( facevert[num_facevert], meshvert[i1+(j-1)*meshsize[0]] );
+                  sgCopyVec3( facevert[num_facevert+1], meshvert[i2+(j-1)*meshsize[0]] );
+                  sgCopyVec3( facevert[num_facevert+2], meshvert[i2+j*meshsize[0]] );
+                  num_face ++;
+                  num_facevert += 3;
+                }
+   
+                if ( num_facevert + 3 < MAX_VERT ) {
+                  sgCopyVec3( facevert[num_facevert], meshvert[i1+(j-1)*meshsize[0]] );
+                  sgCopyVec3( facevert[num_facevert+1], meshvert[i2+j*meshsize[0]] );
+                  sgCopyVec3( facevert[num_facevert+2], meshvert[i1+j*meshsize[0]] );
+                  num_face ++;
+                  num_facevert += 3;
+                }
+              }
+            }
+
+            if ( (meshflags & 32) != 0 ) {
+
+              //The polygon mesh is closed in the N direction
+              for ( int i=1; i<meshsize[0]; i++ ) {
+
+                int j1 = meshsize[1]-1;
+                int j2 = 0;
+
+                if ( num_facevert + 3 < MAX_VERT ) {
+                  sgCopyVec3( facevert[num_facevert], meshvert[(i-1)+j1*meshsize[0]] );
+                  sgCopyVec3( facevert[num_facevert+1], meshvert[i+j1*meshsize[0]] );
+                  sgCopyVec3( facevert[num_facevert+2], meshvert[i+j2*meshsize[0]] );
+                  num_face ++;
+                  num_facevert += 3;
+                }
+
+                if ( num_facevert + 3 < MAX_VERT ) {
+                  sgCopyVec3( facevert[num_facevert], meshvert[(i-1)+j1*meshsize[0]] );
+                  sgCopyVec3( facevert[num_facevert+1], meshvert[i+j2*meshsize[0]] );
+                  sgCopyVec3( facevert[num_facevert+2], meshvert[(i-1)+j2*meshsize[0]] );
+                  num_face ++;
+                  num_facevert += 3;
+                }
+              }
+            }
           }
         }
 
@@ -278,6 +335,8 @@ initialize lists
         float rval;
         count = sscanf ( input2, "%e%n", &rval, &width );
 
+        char ch = input1[cpos+1];
+        if ( ch == '0' || ch == '1' || ch == '2' || ch == '3' )
         switch ( input1[cpos] )
         {
           case '1':
