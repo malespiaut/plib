@@ -256,7 +256,6 @@ ssgSGIHeader::ssgSGIHeader ()
   rle_temp = NULL ;
 }
 
-
 ssgSGIHeader::ssgSGIHeader ( const char *fname, ssgTextureInfo* info )
 {
   ssgSGIHeader *sgihdr = this ;
@@ -362,6 +361,8 @@ ssgSGIHeader::~ssgSGIHeader()
 
   if (leng != NULL)
     delete [] leng;
+  
+  fclose(image_fd);
 }
 
 
@@ -511,7 +512,12 @@ void SGIHeader::getRow   ( unsigned char *buf, int y, int z ) {return;}
 void SGIHeader::getPlane ( unsigned char *buf, int z ) {return;}
 void SGIHeader::getImage ( unsigned char *buf ) {return;}
 void SGIHeader::readHeader () {return;}
-
+void SGIHeader::swab_short ( unsigned short *x ){return;}
+void SGIHeader::swab_int ( unsigned int *x ){return;}
+void SGIHeader::swab_int_array ( int *x, int leng ){return;}
+unsigned char SGIHeader::readByte (){return;}
+unsigned short SGIHeader::readShort (){return;}
+unsigned int SGIHeader::readInt (){return;}
 
 bool ssgLoadSGI ( const char *fname, ssgTextureInfo* info )
 {
