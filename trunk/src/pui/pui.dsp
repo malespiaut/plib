@@ -140,6 +140,10 @@ SOURCE=.\puButtonBox.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puComboBox.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\puDial.cxx
 # End Source File
 # Begin Source File
@@ -205,6 +209,10 @@ SOURCE=.\puPopup.cxx
 # Begin Source File
 
 SOURCE=.\puPopupMenu.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puSelectBox.cxx
 # End Source File
 # Begin Source File
 
