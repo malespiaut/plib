@@ -1,0 +1,156 @@
+<TITLE>The Picoscopic User Interface: FAQ list.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<TABLE>
+  <TR>
+    <TD>
+<IMG SRC="pooh.png" ALT="Imagine Pooh Here">
+    </TD>
+    <TD>
+<H1>PUI: A Picoscopic User Interface</H1>
+<H1>Frequently Asked Questions List.</H1>
+By Steve Baker
+    </TD>
+  </TR>
+</TABLE>
+Here are some questions that have been asked about PUI:
+<ul>
+<li><A HREF="#Q1">Q1: Can I build a Windoze DLL for PUI?</A>
+<li><A HREF="#Q2">Q2: Which versions of OpenGL and GLUT will support PUI?</A>
+<li><A HREF="#Q3">Q3: Which machines/operating systems can run PUI?</A>
+<li><A HREF="#Q4">Q4: Is PUI stable?  Are there known bugs?</A>
+<li><A HREF="#Q5">Q5: What changes do you expect to make in future releases?</A>
+<li><A HREF="#Q6">Q6: Where can I ask questions?</A>
+<li><A HREF="#Q7">Q7: What's the difference between PUI and MUI?</A>
+<li><A HREF="#Q8">Q8: Are there restrictions on using PUI?</A>
+<li><A HREF="#Q9">Q9: Do I have to write in C++ to use PUI?</A>
+</ul>
+<p>
+<hr>
+<p>
+<H2><A NAME="Q1">Q1: Can I build a Windoze DLL for PUI?</A></H2>
+
+    Not from the present sources. Some Windoze compilers
+    require an '_export' directive on functions or classes
+    that are to be exported from the DLL. This is ugly and
+    I refuse to add non-standard syntax to the library just
+    to pander to a disgusting Windoze-ism. PUI is a VERY
+    small library and there is really no need for it to
+    be a DLL anyway.
+
+<H2><A NAME="Q2">Q2: Which versions of OpenGL and GLUT will support PUI?</A></H2>
+
+    In principal, any version of GLUT since 2.0 and any
+    reasonably compliant OpenGL (including Mesa) should
+    be happy to support PUI.
+
+<H2><A NAME="Q3">Q3: Which machines/operating systems can run PUI?</A></H2>
+
+    AFAIK, any machine with C++, OpenGL (or Mesa) and
+    GLUT will run PUI programs without problems.
+
+<H2><A NAME="Q4">Q4: Is PUI stable?  Are there known bugs?</A></H2>
+
+    So far, there have only been a couple of bugs reported
+    in PUI - the most significant is that the menu bar doesn't
+    work properly after the GLUT window has been resized.
+<p>
+    The 'complex' demo program seems to fail when a dialog
+    box is dismissed. This may be because the dialog object
+    is deleted inside a callback within a member function of
+    that object. This problem only appears under Microsoft
+    operating systems and so is hard for me to track down.
+    The simplest thing may be for me to change the demo
+    program so it just doesn't work that way.
+
+<H2><A NAME="Q5">Q5: What changes do you expect to make in future releases?</A></H2>
+
+    I am generally unhappy about the somewhat inconsistant
+    set of constructor functions for the various widgets.
+    Some auto-size their widgets, some take the size directly,
+    others have both. This needs to be made much more consistant
+    across all the widget classes.
+<p>
+    I want to write a cute interactive GUI designer program to
+    write C++ source code for the PUI constructor functions
+    automatically. Something along the lines of the XForms
+   'fdesign' or the FLTK 'fluid' programs.
+<p>
+    If GLUT ever changes to allow applications to run without
+    calling 'glutMainLoop', I will greatly improve the Dialog
+    box API which sucks right now. It would also spur me on
+    to write a File Selector widget. The problem is that
+    you'd really like to be able to write things like:
+<pre>
+
+    if ( ( fd = fopen ( "babble", "w" ) ) == NULL )
+    {
+      if ( puYesNoDialog ( "Can't open babble file",
+                           "Do you want to continue?" ) )
+        return ;
+      else
+        exit ( 1 ) ;
+    }
+
+</pre>
+    However, the 'puYesNoDialog' function can't get it's
+    graphics up on the screen without returning to GLUT's
+    main loop - and it can't do that since the call to
+    puYesNoDialog is in a GLUT callback function.
+    Look at the ugly code in 'complex' to see how to do
+    this kind of thing without this facility.
+<p>
+    Finally, the appearance of PUI's widgets is somehow
+    not as neat as some other GUI's such as MUI and Motif.
+    This should be pretty easy to fix - and it's something
+    on the 'to do' list.
+
+<H2><A NAME="Q6">Q6: Where can I ask questions?</A></H2>
+
+    Since PUI is now a part of <A HREF="../index.html">PLIB</A>,
+    all user level questions, development issues and announcements
+    are handled from the PLIB mailing list.
+
+<H2><A NAME="Q7">Q7: What's the difference between PUI and MUI?</A></H2>
+
+    The main reason I wrote PUI was my disappointment
+    with MUI.
+<p>
+    MUI has now been 'abandoned' by it's author (Tom Davis)
+    who none-the-less retains copyright over it. MUI has
+    several known bugs - and the only known documentation
+    was written by me - and I have never actually written
+    a real application using it!
+<p>
+    The MUI library (distributed with GLUT) takes
+    over all of the GLUT callbacks - this makes it
+    very hard to write general purpose programs with
+    MUI.
+<p>
+    In contrast, it is very easy to add PUI widgets to
+    an existing OpenGL/GLUT application with only a
+    couple of lines of code.
+<p>
+    PUI also works quite well with 3D hardware such
+    as 3Dfx Voodoo that 'take over' the screen. Since
+    MUI and GLUT both create their menu's using the
+    underlying windowing system's GUI, these menu's
+    won't be visible on that kind of hardware. PUI
+    uses only OpenGL to do all kinds of widgets, so
+    portability onto 3Dfx hardware is assured.
+
+<H2><A NAME="Q8">Q8: Are there restrictions on using PUI ?</A></H2>
+
+    PUI is OpenSource under the terms of LGPL.  If for some reason,
+    you find LGPL too restrictive and if you wish to use it in some
+    major project then please talk to me about it - I can be flexible.
+
+<H2><A NAME="#Q9">Q9: Do I have to write in C++ to use PUI?</A></H2>
+
+    Yes - there will never be a {insert favorite non-C++ language here}
+    version of PUI.
+

@@ -1,0 +1,166 @@
+<HTML>
+<TITLE>A Joystick Library.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+
+<TABLE>
+<TR>
+<TD>
+<H1>A Joystick Library.</H1>
+</TD>
+</TR>
+<TR>
+<TD>
+               by Steve Baker
+</TD>
+</TR>
+</TABLE>
+<H2>Introduction</H2>
+JS is now just one component of <A HREF="../index.html">PLIB</A>.
+<p>
+This Joystick Library (JS) is a portable interface that
+has no inherent restrictions over the number and type
+of joysticks it supports - although in actuality, most
+implementations will simply sit on top of an underlying
+driver provided by the Operating System.
+<p>
+Calling JS a 'library' is something of an exaggeration,
+since it is actually just a single header file with all
+the functionality 'inlined'.
+<p>
+JS doesn't really do much for you - it's essentially
+just a wrapper to make the various underlying OS mechanisms
+look the same to application code.
+<pre>
+
+  class jsJoystick
+  {
+     jsJoystick ( int id = 0 ) ;
+    ~jsJoystick () ;
+
+     int  getNumAxes () ;
+     int  notWorking () ;
+     void setError   () ;
+
+     float getDeadBand ( int axis )           ;
+     void  setDeadBand ( int axis, float db ) ;
+
+     float getSaturation ( int axis )           ;
+     void  setSaturation ( int axis, float st ) ;
+
+     void setMinRange ( float *axes ) ;
+     void setMaxRange ( float *axes ) ;
+     void setCenter   ( float *axes ) ;
+
+     void getMinRange ( float *axes ) ;
+     void getMaxRange ( float *axes ) ;
+     void getCenter   ( float *axes ) ;
+
+     void read    ( int *buttons, float *axes ) ;
+     void rawRead ( int *buttons, float *axes ) ;
+  }
+
+</pre>
+You pass the identifier (0..n) of the joystick you wish to
+open into the constructor function. If you leave the number
+off, it'll grab the first joystick available.
+<p>
+If the joystick is unavailable, not working, not installed or
+otherwise bad, the package will return zero for all the axes
+and all the buttons will appear to be up. If you need to
+check for the existance of a particular stick, you can
+call <code>notWorking()</code> which returns JS_TRUE if
+there is some problem with that stick, JS_FALSE otherwise.
+<p>
+<code>getNumAxes()</code> tells you how many axes the stick
+has. Note that it is NOT safe to assume that all sticks have
+the same number of axes - or that they all have a maximum of
+three or something.  When you pass axis data into and out of
+JS, your arrays MUST be sized large enough for that stick.
+<p>
+When you are testing joystick code, you need to be sure your
+program does the right thing when no joystick is installed.
+Since it's inconvenient to do keep uninstalling your stick
+to do that, we provide <code>setError()</code> which causes
+that stick to react exactly as if it were not installed.
+<p>
+To read the joystick, just call <code>read(&buttons,axes)</code>
+where 'buttons' is an integer and 'axes' is an array of
+floating point numbers.  The buttons variable will be populated
+with a number that has one bit per button (0==Not Pressed, 1==Pressed)
+and the elements of the axis array will be scaled from an idealized
+-1.0 to +1.0 range. (In practice, your stick may not reach those
+limits - or it may marginally exceed them).
+<p>
+For a basic two axis stick, axis zero is Left/Right with left being
+negative and right positive. Axis one is North/South with north being
+negative and right positive (this is counter-intuitive - but that's
+what they do).
+<p>
+M$-Windows letters its stick axes X,Y,Z,R,U,V.  These correspond
+to JS axes 0,1,2,3,4,5,6.
+<H2>Buttons</H2>
+One continually annoying thing about PC joysticks is the lack of
+standards for their names. Most sticks have at least two buttons -
+mine has six (maybe some have still more). The problem is to know
+how to name them. My game pad has buttons labelled A,B,C,D,R,L
+corresponding to bits 0,1,2,3,4,5 in the 'buttons' variable.
+<p>
+Anyway, some joysticks have features that operate by setting
+two or more button bits at once. This is quite easy to catch by
+masking multiple bits from the 'buttons' word.
+<H2>Demo Program</H2>
+The demo program that comes with JS is quite useful for finding out
+which buttons set which bits and which axes are which - and in
+which direction they operate.
+<H2>Calibration</H2>
+Since most joysticks are analog devices (and fairly cheap, nasty ones
+at that), you will not generally get numbers that are accurately
+in the range -1..1 with exactly zero being returned when the joystick
+is centered on it's springs.  This means that you may wish to calibrate
+your joystick. The <code>rawRead</code> routine bypasses all the scaling and
+offsetting to return RAW data directly from the OS that you can use during
+calibration.
+<p>
+For each axis of the joystick, you should provide a maximum number
+(that you wish to correspond to 1.0 returned by <code>read()</code>),
+a minimum number (corresponding to -1.0) and a center point number
+(corresponding to 0.0) by calling
+<code>setMaxRange()/setMinRange()/setCenter()</code> as appropriate.
+<p>
+However, even with calibration, you should expect the joystick to
+drift somewhat over time due to the position of the cable, the
+temperature of the potentiometers and probably, the phase of the moon.
+This drift is typically not serious at the max and min limits - but
+in some applications, the user will expect (for example) for his
+character in a game to stop moving completely when he releases the
+stick. Since we cannot guarantee to get the same exact number out
+of the stick when he does this, you'll need to implement a 'dead band'
+in the middle of the stick's travel. This is done with
+<code>setDeadBand(axis,amount)</code> where 'axis' is the number of the
+axis you wish to have a dead band implemented on - and 'amount' is the
+amount of dead band either side of 0.0.
+<p>
+There are corresponding 'get' routines for each 'set'.
+<p>
+The <code>read</code> routine is auto-calibrated when you create
+the joystick class - so if the joystick is not centered at that
+moment, you will get bad data from that point onwards. This is
+quite common in games - so don't feel too badly about it.  Just
+arrange to 'new' all your joysticks early on in the program - when
+your user's hands are likely to still be on the keyboard or mouse -
+and provide a hot-key to pause the game and recalibrate the stick
+on demand.
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;  
+</ADDRESS>
+</BODY>
+</HTML> 
+

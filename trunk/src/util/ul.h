@@ -17,6 +17,8 @@
 
 #ifdef WIN32
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 #include <assert.h>
@@ -55,6 +57,26 @@ public:
   double getDeltaTime () { return delta ; }
   double getFrameRate () { return 1.0 / delta ; }
 } ;
+
+
+void ulSleep ( int seconds )
+{
+#ifdef WIN32
+  Sleep ( 1000 * seconds ) ;
+#else
+  sleep ( seconds ) ;
+#endif
+}
+
+
+void ulMilliSecondSleep ( int milliseconds )
+{
+#ifdef WIN32
+  Sleep ( milliseconds ) ;
+#else
+  usleep ( milliseconds * 1000 ) ;
+#endif
+}
 
 
 void ulInit ( void ) ;

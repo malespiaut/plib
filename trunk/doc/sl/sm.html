@@ -1,0 +1,96 @@
+<TITLE>The SL Mixer Library.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<TABLE>
+<TR>
+<TD><IMG SRC="mixer.png"></TD>
+<TD>
+<H1>The SL Mixer Library.</H1>
+By Steve Baker
+</TD>
+</TR>
+</TABLE>
+<H2>Introduction.</H2>
+This library allows one to drive the mixer controls of
+most PC-style sound cards. It relies
+on <A HREF="http://www.4front-tech.com">the Open Sound
+System</A> drivers (formerly known as 'VoxWare')
+- which are generally a standard part of the Linux Kernel - and
+which is also available on some other UNIX platforms.
+<p>
+A port of SM to the Windows family of operating systems
+is currently underway.
+<p>
+SM does not work under SGI's IRIX.
+<H2>Using the Library.</H2>
+To use this library, you must '#include "sm.h"' and link to
+libsm.a or libsm.so.
+<H2>class smMixer.</H2>
+This library comprises a single class 'smMixer'.
+<p>
+Most programs will only ever create a single smMixer object.
+<p>
+Here are the member functions:
+<pre>
+
+  class smMixer
+  {
+    public:
+
+      smMixer () ;
+      smMixer ( char *device ) ;
+     ~smMixer () ;
+  
+      int not_working () ;
+
+      /* Volume/Treble/Bass controls are in integer percentages */
+
+      void setTreble       ( int treble ) ;
+      void setBass         ( int bass   ) ;
+
+      void setMasterVolume ( int volume ) ;
+      void setSynthVolume  ( int volume ) ;
+      void setPCMVolume    ( int volume ) ;
+      void setSpeakerVolume( int volume ) ;
+      void setLineVolume   ( int volume ) ;
+      void setMicVolume    ( int volume ) ;
+      void setCDVolume     ( int volume ) ;
+
+      void setMasterVolume ( int left, int right ) ;
+      void setSynthVolume  ( int left, int right ) ;
+      void setPCMVolume    ( int left, int right ) ;
+      void setSpeakerVolume( int left, int right ) ;
+      void setLineVolume   ( int left, int right ) ;
+      void setMicVolume    ( int left, int right ) ;
+      void setCDVolume     ( int left, int right ) ;
+  } ;
+
+</pre>
+Basically, each of the mixer devices can be driven with either
+mono or stereo volume controls, each volume is a expressed as an
+integer percentage of maximum.
+<p>
+By default, "/dev/mixer" is the device used by this class, but
+an alternative device may be accessed if it's name is passed
+into the constructor.
+<p>
+The 'not_working()' function returns TRUE if there is any kind of
+problem with the driver. Mostly it returns TRUE if your system isn't
+set up for audio.
+<p>
+The driver will not fail if you call it's member functions when
+'not_working()' returns TRUE - so programs written for audio
+should work OK even on Linux boxes with no audio support.
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+
