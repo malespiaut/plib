@@ -24,6 +24,10 @@ PLIB v1.2.0 (Feb xx 2000)
     ssgLoadASE/ssgSaveASE analogously to all the other
     loaders.
 
+  * Several fixes to the quaternion code in SG were
+    contributed by "Negative0" <negative0@earthlink.net>
+    (Who was that masked man?)
+
 PLIB v1.1.11 (Feb 9th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Fixed a tiny problem with double-sided polygons.

@@ -1040,7 +1040,7 @@ void sgMultQuat ( sgQuat *dst, const sgQuat *a, const sgQuat *b )
 
   t[0] = (a->w + a->x) * (b->w + b->x);
   t[1] = (a->z - a->y) * (b->y - b->z);
-  t[2] = (a->x - a->w) * (b->y - b->z);
+  t[2] = (a->x - a->w) * (b->y + b->z);
   t[3] = (a->y + a->z) * (b->x - b->w);
   t[4] = (a->x + a->z) * (b->x + b->y);
   t[5] = (a->x - a->z) * (b->x - b->y);
@@ -1106,10 +1106,10 @@ void sgSlerpQuat( sgQuat *dst, const sgQuat *from, const sgQuat *to, const SGflo
     scale1 = t;
   }
 
-  dst->x = scale0 * from->x + scale1 * ((sign > SG_ZERO) ? to->w : -to->w);
-  dst->y = scale0 * from->y + scale1 * ((sign > SG_ZERO) ? to->w : -to->x);
-  dst->z = scale0 * from->z + scale1 * ((sign > SG_ZERO) ? to->w : -to->y);
-  dst->w = scale0 * from->w + scale1 * ((sign > SG_ZERO) ? to->w : -to->z);
+  dst->x = scale0 * from->x + scale1 * ((sign > SG_ZERO) ? to->x : -to->x);
+  dst->y = scale0 * from->y + scale1 * ((sign > SG_ZERO) ? to->y : -to->y);
+  dst->z = scale0 * from->z + scale1 * ((sign > SG_ZERO) ? to->z : -to->z);
+  dst->w = scale0 * from->w + scale1 * ((sign > SG_ZERO) ? to->w : -to->w);
 }
 
 
