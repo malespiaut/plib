@@ -17,6 +17,8 @@
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
+#define VERSION = "0.1a"
+
 // Program to allow the user to build a PUI Graphical User Interface
 
 #include <plib/pu.h>
@@ -45,14 +47,17 @@ float main_window_color_r = 1.0, main_window_color_g = 1.0,
       main_window_color_b = 1.0, main_window_color_a = 1.0 ;
 
 bool main_window_changed = false ;
+bool currently_loading = false ;
 
 static int ctrl_key_down = 0 ;
 
 static int mouse_x = 0 ;
 static int mouse_y = 0 ;
 
+char pguide_current_directory [ PUSTRING_MAX ] ;
+
 // Widget count
-static int widget_number = 0 ;
+int widget_number = 0 ;
 
 // From the status window:
 
@@ -233,6 +238,12 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
   mouse_x = x ;
   mouse_y = y ;
 
+  if ( puActiveWidget() && ( active_object != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   ctrl_key_down = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ;
 
   // Downclick:  Place a new widget, activate an existing widget, or deactivate widget
@@ -346,8 +357,9 @@ static void main_window_reshapefn ( int w, int h )
 
   main_window_changed = true ;
 
-  if ( ( mouse_x < main_window_width/2 ) ||  // Grabbed the left edge ...
-       ( mouse_y < main_window_height/2 ) )  // or the bottom edge, move the widgets
+  if ( ( !currently_loading ) && (
+       ( mouse_x < main_window_width/2 ) ||  // Grabbed the left edge ...
+       ( mouse_y < main_window_height/2 ) ) )  // or the bottom edge, move the widgets
   {
     WidgetList *wid = widgets ;
     int deltax = 0 ;
@@ -371,11 +383,14 @@ static void main_window_reshapefn ( int w, int h )
 
   window_size_x->setValue ( w ) ;
   window_size_y->setValue ( h ) ;
+
+  currently_loading = false ;
 }
 
 static void main_window_displayfn ( void )
 {
   /* Clear the screen */
+  glutSetWindow ( main_window ) ;
 
   glClearColor ( main_window_color_r, main_window_color_g, main_window_color_b, main_window_color_a ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
@@ -439,6 +454,7 @@ int main ( int argc, char **argv )
 {
   extern int define_widget_window () ;
   extern int define_status_window () ;
+  int i = 0;
 
   strcpy ( main_window_name, "PUI GUI Builder" ) ;
 
@@ -456,6 +472,14 @@ int main ( int argc, char **argv )
   glutReshapeFunc       ( main_window_reshapefn ) ;
   glutIdleFunc          ( main_window_displayfn ) ;
 
+  strcpy (pguide_current_directory, argv[0]+2);
+  i = strlen(pguide_current_directory);
+  while (pguide_current_directory[i] != '\\') { 
+      if (i>0) i-- ;
+      else break ;
+  }
+  //pguide_current_directory[0] = '\\';
+  pguide_current_directory[i+1] = '\0';
   puInit () ;
 
 #ifdef VOODOO

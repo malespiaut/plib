@@ -55,6 +55,18 @@ void write_code ( puObject *ob )
   // Get the file name and open the file
   char* filename ;
   file_selector -> getValue ( &filename ) ;
+  if (filename[0] == '\0')
+  {
+      puDeleteObject ( file_selector ) ;
+      file_selector = (puFileSelector *)NULL ;
+      glutHideWindow () ;
+      glutSetWindow ( status_window ) ;
+      return ;
+  }        
+
+  /* If they didn't give an extension, then tack ".cxx" onto the end. */
+  if(!strstr(filename, "."))
+      sprintf(filename, "%s.cxx", filename);
 
   FILE *out = fopen ( filename, "wt" ) ;
   if ( !out )
@@ -273,8 +285,8 @@ void write_code ( puObject *ob )
 
         fprintf ( out, "  \n" ) ;
 
-        wid = wid->next ;
       }
+      wid = wid->next ;
     }
   }
 
