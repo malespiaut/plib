@@ -213,14 +213,12 @@ int ssgLeaf::save ( FILE *fd )
     _ssgWriteInt ( fd, 0 ) ;
   }
   else
-#ifndef WRITE_SSG_VERSION_ZERO
   if ( state -> getSpare () > 0 )
   {
     _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
     _ssgWriteInt ( fd, state -> getSpare () ) ;
   }
   else
-#endif
   {
     _ssgWriteInt ( fd, state->getType() ) ;
 
