@@ -25,6 +25,10 @@
 
 #if defined(__CYGWIN__) || !defined (WIN32)
 
+#if defined(__APPLE__)
+#  include <netinet/in.h>
+#endif
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <time.h>
