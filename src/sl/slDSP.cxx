@@ -753,7 +753,7 @@ void slDSP::stop ()
 // track useful information, and used extended error checking.
 //#define SL_MAC_DEBUG
 
-pascal void sndCallbackProc ( SndChannelPtr theChan, SndCommand theCmd );
+pascal void sndCallbackProc ( SndChannelPtr theChan, SndCommand *theCmd );
        void doError         ( OSErr theError );
 
 int   bytesUsed;
@@ -815,7 +815,7 @@ void doError( OSErr theError ) {
   printf( "\n" );
 }
 
-pascal void sndCallbackProc ( SndChannelPtr chan, SndCommand cmd )
+pascal void sndCallbackProc ( SndChannelPtr chan, SndCommand *cmd )
 {
   
   //SndChannelStatus is a BIG waste of cpu time, but I don't know
