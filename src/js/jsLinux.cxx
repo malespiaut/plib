@@ -51,8 +51,15 @@ void jsJoystick::open ()
     Set the correct number of axes for the linux driver
   */
 
-  ioctl ( fd, JSIOCGAXES   , &num_axes    ) ;
-  ioctl ( fd, JSIOCGBUTTONS, &num_buttons ) ;
+  /* Melchior Franz's fixes for big-endian Linuxes since writing 
+   *  to the upper byte of an uninitialized word doesn't work. 
+   *  9 April 2003 
+   */
+  unsigned char u ;
+  ioctl ( fd, JSIOCGAXES   , &u ) ; 
+  num_axes = u ;                   
+  ioctl ( fd, JSIOCGBUTTONS, &u ) ;
+  num_buttons = u ;                
   ioctl ( fd, JSIOCGNAME ( sizeof(name) ), name ) ;
   fcntl ( fd, F_SETFL      , O_NONBLOCK   ) ;
 
