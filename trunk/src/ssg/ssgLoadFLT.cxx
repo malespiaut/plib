@@ -2715,7 +2715,27 @@ static const char *FindFile(const char *file)
 
 static struct snode *FltCache;
 
-#define win32_perror(s) perror(s) /* no idea if this is appropriate.. */
+#ifdef UL_WIN32
+
+static void win32_perror(const char *s)
+{
+   LPVOID lpMsgBuf;
+   FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        GetLastError(),
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPTSTR) &lpMsgBuf,
+        0,
+        NULL
+    );
+    fprintf(stderr, "%s: %s\n", s, lpMsgBuf);
+    LocalFree( lpMsgBuf );
+}
+
+#endif
 
 static ssgEntity *LoadFLT(const char *file)
 {
@@ -2755,7 +2775,7 @@ static ssgEntity *LoadFLT(const char *file)
 
 #ifdef USE_WIN32_MMAP
 	 
-	 fd = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 
+	 fd = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 
 			 FILE_ATTRIBUTE_NORMAL, 0);
 	 if (fd == INVALID_HANDLE_VALUE) {
 	    win32_perror(path);
