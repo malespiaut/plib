@@ -97,5 +97,3 @@ ssgBase *_ssgGetFromList ( int key ) ;
 void     _ssgAddToList   ( int key, ssgBase *b ) ;
 int      _ssgGetNextInstanceKey  () ;
 
-
-

@@ -198,7 +198,8 @@ public:
 
 class ssgBase 
 {
-  int   refc ;
+  int   refc   ;  /* The number of references to this node */
+  int   unique ;  /* A unique number for this node */
 
 protected :
 
@@ -220,6 +221,8 @@ public:
   virtual void incSpare  ()         ;
   virtual void setSpare  ( int ss ) ;
   virtual int  getSpare  ()         ;
+
+  int  getUnique () { return unique ; }
 
   ssgBase (void) ;
   virtual ~ssgBase (void) ;
