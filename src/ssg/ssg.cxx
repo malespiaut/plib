@@ -253,13 +253,17 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
   char *extn = file_extension ( fname ) ;
 
   if ( *extn != '.' )
+  {
+    fprintf ( stderr, "ssgLoad: Cannot determine file type for '%s'\n", fname );
     return NULL ;
+  }
 
   for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
     if ( f->loadfunc != NULL &&
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
       return f->loadfunc( fname, hookfunc ) ;
 
+  fprintf ( stderr, "ssgLoad: Unrecognised file type '%s'\n", extn ) ;
   return NULL ;
 }
 
@@ -272,13 +276,17 @@ int ssgSave ( char *fname, ssgEntity *ent )
   char *extn = file_extension ( fname ) ;
 
   if ( *extn != '.' )
+  {
+    fprintf ( stderr, "ssgSave: Cannot determine file type for '%s'\n", fname );
     return FALSE ;
+  }
 
   for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
     if ( f->savefunc != NULL &&
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
       return f->savefunc( fname, ent ) ;
 
+  fprintf ( stderr, "ssgSave: Unrecognised file type '%s'\n", extn ) ;
   return FALSE ;
 }
 
