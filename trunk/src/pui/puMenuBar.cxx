@@ -31,13 +31,13 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
       int y_min = (cur_box->min[1] < 0) ? par_box->min[1] + cur_box->min[1] : par_box->min[1] ;
       int y_max = (par_box->max[1] > par_box->min[1] + cur_box->max[1]) ?
                                     par_box->max[1] : par_box->min[1] + cur_box->max[1] ;
-      int x_siz = glutGet ( GLUT_WINDOW_WIDTH ) ;
-      int y_siz = glutGet ( GLUT_WINDOW_HEIGHT ) ;
+      int x_siz = glutGet ( (GLenum)GLUT_WINDOW_WIDTH ) ;
+      int y_siz = glutGet ( (GLenum)GLUT_WINDOW_HEIGHT ) ;
       if ( x_siz < (x_max - x_min) ) x_siz = x_max - x_min ;    // Adjust the present size
       if ( y_siz < (y_max - y_min) ) y_siz = y_max - y_min ;
 
-      int x_pos = glutGet ( GLUT_WINDOW_X ) ;
-      int y_pos = glutGet ( GLUT_WINDOW_Y ) ;
+      int x_pos = glutGet ( (GLenum)GLUT_WINDOW_X ) ;
+      int y_pos = glutGet ( (GLenum)GLUT_WINDOW_Y ) ;
 
       glutReshapeWindow ( x_siz, y_siz ) ;
       glutPositionWindow ( x_pos + x_min, y_pos ) ;
