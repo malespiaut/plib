@@ -54,6 +54,15 @@ void ssgTexTrans::setTransform ( sgMat4 xform )
 
 void ssgTexTrans::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {
+  if ( preTravCB != NULL )
+  {
+    int result = (*preTravCB)(this,SSGTRAV_CULL) ;
+    if ( !result )
+      return ;
+    if ( result == 2 )
+      test_needed = 0 ;
+  }
+
   int cull_result = cull_test ( f, m, test_needed ) ;
 
   if ( cull_result == SSG_OUTSIDE )
@@ -71,6 +80,9 @@ void ssgTexTrans::cull ( sgFrustum *f, sgMat4 m, int test_needed )
   glLoadIdentity () ;
   glMatrixMode ( GL_MODELVIEW ) ;
   _ssgUnloadTexMatrix () ;
+
+  if ( postTravCB != NULL )
+    (*postTravCB)(this,SSGTRAV_CULL) ;
 }
 
 

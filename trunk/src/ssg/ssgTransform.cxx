@@ -39,6 +39,15 @@ void ssgTransform::recalcBSphere (void)
 
 void ssgTransform::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {
+  if ( preTravCB != NULL )
+  {
+    int result = (*preTravCB)(this,SSGTRAV_CULL) ;
+    if ( !result )
+      return ;
+    if ( result == 2 )
+      test_needed = 0 ;
+  }
+
   int cull_result = cull_test ( f, m, test_needed ) ;
 
   if ( cull_result == SSG_OUTSIDE )
@@ -58,6 +67,9 @@ void ssgTransform::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 
   glPopMatrix () ;
   _ssgPopMatrix () ;
+
+  if ( postTravCB != NULL )
+    (*postTravCB)(this,SSGTRAV_CULL) ;
 }
 
 void ssgTransform::hot ( sgVec3 s, sgMat4 m, int test_needed )
