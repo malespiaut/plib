@@ -152,6 +152,15 @@ class pslCompiler
 
   int searchDefines ( const char *s ) const ;
 
+  int skipOverride ;
+  int skippingFlag  ;
+  int next_skippingLevel ;
+
+  int skipping ()
+  {
+    return ! skipOverride && skippingFlag != 0 ;
+  }
+
   pslSymbol         symtab [ MAX_SYMBOL ] ;
   pslSymbol    code_symtab [ MAX_SYMBOL ] ;
 
@@ -309,6 +318,8 @@ public:
     next_code_symbol = 0 ;
     next_code     = 0 ;
     next_var      = 0 ;
+    skippingFlag  = 0 ;
+    next_skippingLevel = 1 ;
   }
 
   void dump () const ;

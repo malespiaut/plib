@@ -1,42 +1,66 @@
 
-#include <data/header.psh>
 #define ONE    1 
-#define TWO    2 
-#define THREE  3
-#undef ONE
-#define ONE (THREE-TWO)
 
 void main ()
 {
-  int i ;
 
-  for ( i = 0 ; i < 20 ; i = i + ONE )
-  {
-    if ( i == 10 ) { printf ( "Continuing past TEN\n" ) ; continue ; }
-    if ( i == 17 ) { printf ( "Seventeen is enough!\n" ) ; break ; }
+#ifdef ONE
+   printf ( "Yes! 1\n" ) ;
+#endif
 
-    switch ( i )
-    {
-      case 0 :
-      case 1 :
-      case 2 :
-        printf ( "Small!" ) ;
-        tab () ;
-        break ;
-      case 3 :
-      case 4 :
-      case 5 :
-        printf ( "Medium!" ) ;
-        tab () ;
-        break ;
-      default:
-        printf ( "Huge!" ) ;
-        tab () ;
-        break ;
-    }
+#ifdef ONE
+   printf ( "Yes! 2\n" ) ;
+#else
+   printf ( "No...2\n" ) ;
+#endif
 
-    printf ( " ", i ) ;
-    newline () ;
-  }
+#ifndef ONE
+   printf ( "No...3\n" ) ;
+#else
+   printf ( "Yes! 3\n" ) ;
+#endif
+
+
+#ifdef ONE
+
+#ifdef ONE
+     printf ( "Yes! 4\n" ) ;
+#endif
+
+#ifdef ONE
+     printf ( "Yes! 5\n" ) ;
+#else
+     printf ( "No...5\n" ) ;
+#endif
+
+#ifndef ONE
+     printf ( "No...6\n" ) ;
+#else
+     printf ( "Yes! 6\n" ) ;
+#endif
+
+  printf ( "Yes! 7\n" ) ;
+#else
+
+#ifdef ONE
+     printf ( "No...7\n" ) ;
+#endif
+
+#ifdef ONE
+     printf ( "No...8\n" ) ;
+#else
+     printf ( "No...9\n" ) ;
+#endif
+
+#ifndef ONE
+     printf ( "No...A\n" ) ;
+#else
+     printf ( "No...B\n" ) ;
+#endif
+
+     printf ( "No...C\n" ) ;
+#endif
+
+  printf ( "Yes! 8\n" ) ;
 }
 
