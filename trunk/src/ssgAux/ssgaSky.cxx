@@ -44,7 +44,7 @@ ssgaSky::ssgaSky( void )
   dome = 0;
   planets = 0;
   stars = 0;
-  sun_ref = 0;
+  sol_ref = 0;
   pre_root = 0;
   post_root = 0;
 
@@ -119,7 +119,7 @@ void ssgaSky::build( double h_radius, double v_radius,
 
 
 ssgaCelestialBody*
-ssgaSky::addBody( const char *body_tex_path, const char *halo_tex_path, double size, double dist, bool sun )
+ssgaSky::addBody( const char *body_tex_path, const char *halo_tex_path, double size, double dist, bool sol )
 {
   ssgaCelestialBody* body = new ssgaCelestialBody;
   bodies_transform->addKid( body->build( body_tex_path, halo_tex_path, size ) );
@@ -127,15 +127,15 @@ ssgaSky::addBody( const char *body_tex_path, const char *halo_tex_path, double s
 
   body -> setDist( dist );
 
-  if ( sun )
-    sun_ref = body;
+  if ( sol )
+    sol_ref = body;
 
   return body;
 }
 
 
 ssgaCelestialBody*
-ssgaSky::addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double size, double dist, bool sun )
+ssgaSky::addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double size, double dist, bool sol )
 {
   ssgaCelestialBody* body = new ssgaCelestialBody;
   bodies_transform->addKid( body->build( orb_state, halo_state, size ) );
@@ -143,8 +143,8 @@ ssgaSky::addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double 
 
   body -> setDist( dist );
 
-  if ( sun )
-    sun_ref = body;
+  if ( sol )
+    sol_ref = body;
 
   return body;
 }
@@ -195,8 +195,8 @@ bool ssgaSky::repositionFlat( sgVec3 view_pos, double spin, double dt )
   planets->reposition( view_pos, 0 );
   stars->reposition( view_pos, 0 );
 
-  if ( sun_ref ) {
-    dome->repositionFlat( view_pos, sun_ref->getRotation() );
+  if ( sol_ref ) {
+    dome->repositionFlat( view_pos, sol_ref->getRotation() );
   }
   else {
     dome->repositionFlat( view_pos, spin );
@@ -227,7 +227,7 @@ bool ssgaSky::reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up, dou
 }
 
 
-bool ssgaSky::repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, double sun_angle,
+bool ssgaSky::repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, double sol_angle,
                        int nplanets, sgdVec3 *planet_data,
                        int nstars, sgdVec3 *star_data )
 {
@@ -237,7 +237,7 @@ bool ssgaSky::repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, d
     // turn on sky
     enable();
 
-    dome->repaint( sky_color, fog_color, sun_angle, effective_visibility );
+    dome->repaint( sky_color, fog_color, sol_angle, effective_visibility );
 
     for ( i = 0; i < bodies.getNum (); i++ )
       bodies.get(i)->repaint();
@@ -245,8 +245,8 @@ bool ssgaSky::repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, d
     for ( i = 0; i < clouds.getNum (); i++ )
       clouds.get(i)->repaint( cloud_color );
 
-	planets->repaint( sun_angle, nplanets, planet_data );
-	stars->repaint( sun_angle, nstars, star_data );
+	planets->repaint( sol_angle, nplanets, planet_data );
+	stars->repaint( sol_angle, nstars, star_data );
   }
   else {
     // turn off sky

@@ -229,7 +229,7 @@ ssgBranch * ssgaCelestialBody::build( ssgSimpleState *orb_state, ssgSimpleState 
 }
 
 
-bool ssgaCelestialBody::reposition( sgVec3 p, double angle, double rightAscension, double declination, double sun_dist )
+bool ssgaCelestialBody::reposition( sgVec3 p, double angle, double rightAscension, double declination, double sol_dist )
 {
   sgMat4 T1, T2, GST, RA, DEC;
   sgVec3 axis;
@@ -246,7 +246,7 @@ bool ssgaCelestialBody::reposition( sgVec3 p, double angle, double rightAscensio
   sgSetVec3( axis, 1.0, 0.0, 0.0 );
   sgMakeRotMat4( DEC, (float)(declination * SGD_RADIANS_TO_DEGREES), axis );
 
-  sgSetVec3( v, 0.0, (float)sun_dist, 0.0 );
+  sgSetVec3( v, 0.0, (float)sol_dist, 0.0 );
   sgMakeTransMat4( T2, v );
 
   sgMat4 TRANSFORM;
