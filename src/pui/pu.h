@@ -108,6 +108,11 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PU_DRAG          255
 #define PU_CONTINUAL     PU_DRAG
 
+/*
+  WARNING: These have to be the same as PW_KEY_whatever and also
+  the same as (GLUT_KEY_whatever+256)
+*/
+
 #define PU_KEY_GLUT_SPECIAL_OFFSET  256
 
 #define PU_KEY_F1        (1             + PU_KEY_GLUT_SPECIAL_OFFSET)
@@ -349,6 +354,7 @@ void  puDisplay        ( void ) ;
 void  puDisplay        ( int window_number ) ;  /* Deprecated */
 int   puMouse          ( int button, int updown, int x, int y ) ;
 int   puMouse          ( int x, int y ) ;
+int   puKeyboard       ( int key, int updown, int x, int y ) ; /* For PW */
 int   puKeyboard       ( int key, int updown ) ;
 void  puHideCursor     ( void ) ;
 void  puShowCursor     ( void ) ;

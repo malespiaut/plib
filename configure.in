@@ -50,6 +50,10 @@ AC_ARG_ENABLE(js,
 [  --enable-js             build JS library                        default: yes],,
 enable_js=yes)
 
+AC_ARG_ENABLE(pw,
+[  --enable-pw             build PW library                        default: yes],,
+enable_pw=yes)
+
 AC_ARG_ENABLE(net,
 [  --enable-net            build NET library                       default: yes],,
 enable_net=yes)
@@ -94,6 +98,13 @@ if test "x$enable_fnt" = "xyes"; then
     fi
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build FNT library without UL library enabled])
+        dependancy_problem=yes
+    fi
+fi
+
+if test "x$enable_pw" = "xyes"; then
+    if test "x$enable_ul" = "xno"; then
+        AC_MSG_WARN([cannot build PW library without UL library enabled])
         dependancy_problem=yes
     fi
 fi
@@ -194,6 +205,7 @@ fi
 
 AM_CONDITIONAL(BUILD_FNT, test "x$enable_fnt" = "xyes")
 AM_CONDITIONAL(BUILD_JS, test "x$enable_js" = "xyes")
+AM_CONDITIONAL(BUILD_PW, test "x$enable_pw" = "xyes")
 AM_CONDITIONAL(BUILD_NET, test "x$enable_net" = "xyes")
 AM_CONDITIONAL(BUILD_PUI, test "x$enable_pui" = "xyes")
 AM_CONDITIONAL(BUILD_SG, test "x$enable_sg" = "xyes")
@@ -413,6 +425,7 @@ AC_OUTPUT( \
 	src/ssg/Makefile \
 	src/ssgAux/Makefile \
 	src/fnt/Makefile \
+	src/pw/Makefile \
 	src/net/Makefile )
 
 if test "x$need_glut" = "xyes"; then
@@ -441,6 +454,7 @@ AC_MSG_RESULT(
   Building SL library:      $enable_sl
   Building SSG library:     $enable_ssg
   Building ssgAux library:  $enable_ssgaux
+  Building PW library:      $enable_pw
   Building UTIL library:    $enable_ul
 
   Need GLUT:                $glut_msg

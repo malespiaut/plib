@@ -95,40 +95,47 @@
 #endif
 
 /*
-  Add specialised includes...
+  Add specialised includes/defines...
 */
 
 #ifdef UL_WIN32
 #include <windows.h>
 #include <mmsystem.h>
 #include <regstr.h>
+#define  UL_WGL     1
 #endif
 
 #ifdef UL_CYGWIN
 #include <unistd.h>
+#define  UL_WGL     1
 #endif
 
 #ifdef UL_BEOS
 #include <be/kernel/image.h>
+#define  UL_GLX     1
 #endif
 
 #ifdef UL_MACINTOSH
 #include <CodeFragments.h>
 #include <unistd.h>
+#define  UL_AGL     1
 #endif
 
 #ifdef UL_MAC_OSX
 #include <unistd.h>
+#define  UL_CGL     1
 #endif
 
 #if defined(UL_LINUX) || defined(UL_BSD) || defined(UL_IRIX) || defined(UL_SOLARIS)
 #include <unistd.h>
 #include <dlfcn.h>
 #include <fcntl.h>
+#define  UL_GLX     1
 #endif
 
 #if defined(UL_BSD)
 #include <sys/param.h>
+#define  UL_GLX     1
 #endif
 
 #include <assert.h>

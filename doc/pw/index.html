@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+   <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <META name="keywords" content="PW, PLIB, OpenGL, window, library, portable, interface, games, Baker, Steve, pwInit">
+   <META name="description" content="The PLIB minimal Windowing Library (PW) is a portable interface that makes it as simple as possible to make an OpenGL application that can open a single window and read the mouse and keyboard. It is a wrapper to make the various underlying OS mechanisms look the same to application code.">
+   <TITLE>A PLIB Windowing Library.</TITLE>
+</HEAD>
+<BODY text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
+ bgcolor="#005000" background="../marble.png">
+
+<TABLE>
+<TR>
+<TD>
+<H1>A PLIB Windowing Library.</H1>
+</TD>
+</TR>
+<TR>
+<TD>
+               by Steve Baker
+</TD>
+</TR>
+</TABLE>
+<H2>Introduction</H2>
+PW is now just one component of <A HREF="../index.html">PLIB</A>.
+<p>
+The PLIB minimal Windowing Library (PW) is a portable interface that makes
+it as simple as possible to make an OpenGL application that can open a
+single window and read the mouse and keyboard. It is a wrapper to make the
+various underlying OS mechanisms look the same to application code.
+<p>
+You should include the PW header file '/usr/include/plib/pw.h'
+and link to the PW library '/usr/lib/libplibpw.a'.
+<p>
+Before using any other PW functions, you should initialise the
+library by calling either:
+<pre>
+
+void pwInit ( int multisample, int num_samples,
+              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
+              pwResizeCB *rcb = NULL, pwExitCB *ecb = NULL ) ;
+
+</pre>
+...or:
+<pre>
+
+void pwInit ( int x, int y, int w, int h,
+              int multisample,
+              char *title, int border, int num_samples,
+              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
+              pwResizeCB *rcb = NULL, pwExitCB *ecb = NULL ) ;
+
+</pre>
+The first version creates a full-screen window with no borders,
+titles, etc (or at least as close to that as your OS can manage).
+The second version creates a window with it's origin at (x,y) of
+dimensions w x h, with the specified title string, and optionally
+with or without a border.
+<p>
+The window that's created will have the maximum number of colours
+that your system supports - double-buffered plus a Z buffer.
+<p>
+Both forms allow you to specify whether you'd like multisampling
+to be enabled or not - and if so, with how many samples.  If your
+system cannot produce the number of samples requested, pwInit will
+fall back to the best it can do.
+<p>
+The final five parameters are callback functions for (repectively)
+incoming keyboard keystrokes, incoming mouse button press or
+release events, mouse movements, window resize events and finally,
+a window close callback.  (That's invoked by PW when the user attempts
+to close the window by pressing the exit button on the window border.)
+PW also calls the exit function when it detects a fatal error that
+occurs after the window has been successfully opened.
+<p>
+The specifications of these various callbacks are:
+<pre>
+
+typedef void pwResizeCB ( int w, int h ) ;
+typedef void pwExitCB   () ;
+typedef void pwKeybdFunc    ( int key, int updown, int x, int y ) ;
+typedef void pwMouseFunc    ( int button, int updown, int x, int y ) ;
+typedef void pwMousePosFunc ( int x, int y ) ;
+
+</pre>
+The 'updown' parameter is set to PW_DOWN when a key or mouse button
+is pressed or to PW_UP when it's released.  The 'key' parameter is
+either an ASCII character or one of:
+<pre>
+
+ PW_KEY_F1       PW_KEY_F2       PW_KEY_F3       PW_KEY_F4       
+ PW_KEY_F5       PW_KEY_F6       PW_KEY_F7       PW_KEY_F8       
+ PW_KEY_F9       PW_KEY_F10      PW_KEY_F11      PW_KEY_F12      
+
+ PW_KEY_LEFT     PW_KEY_UP       PW_KEY_RIGHT    PW_KEY_DOWN     
+
+ PW_KEY_PAGE_UP  PW_KEY_PAGE_DOWN
+
+ PW_KEY_HOME     PW_KEY_END      PW_KEY_INSERT   
+
+</pre>
+The 'button' parameter is one of:
+<pre>
+
+ PW_LEFT_BUTTON  PW_MIDDLE_BUTTON  PW_RIGHT_BUTTON
+
+</pre>
+These constants are chosen to be identical to the similarly named
+constants used in the PLIB PUI library so that it's easy to connect
+a PUI GUI to a PW window. 
+<p>
+Once the window is initialised, you may call other PLIB graphics
+initialisations (puInit, ssgInit, etc).
+<p>
+So now you have your window open, you only need to do one thing -
+call this function once per frame:
+<pre>
+
+void pwSwapBuffers () ;
+
+</pre>
+This function swaps the double-buffers, collects keystrokes, mouse events
+and resize events and calls whatever application-defined callbacks are
+needed.
+<p>
+When you wish to close the PW window, you should call:
+<pre>
+
+void pwCleanup () ;
+
+</pre>
+Some applications need to know when the shift/control/alt keys are being
+held down by the user:
+<pre>
+
+int pwGetModifiers () ;
+
+</pre>
+This returns the state of those three keys as the OR of the three constants:
+<pre>
+
+ PW_SHIFT  PW_CTRL  PW_ALT   
+
+</pre>
+Note that the results are only valid inside of a callback called from
+pwSwapBuffers().
+<p>
+Finally, there are a number of functions for setting and getting the window
+position and dimensions - also to set the current cursor shape:
+<pre>
+
+void pwGetSize       ( int *w, int *h ) ;
+void pwSetSizeOrigin ( int x, int y, int w, int h ) ;
+void pwSetSize       ( int x, int y ) ;
+void pwSetOrigin     ( int w, int h ) ;
+void pwSetCursor     ( int c ) ;
+
+</pre>
+The available cursor shapes for pwSetCursor are:
+<pre>
+
+   PW_CURSOR_NONE    0
+   PW_CURSOR_RIGHT   1
+   PW_CURSOR_LEFT    2
+   PW_CURSOR_QUERY   3
+   PW_CURSOR_AIM     4
+   PW_CURSOR_CIRCLE  5
+   PW_CURSOR_WAIT    6
+   PW_CURSOR_CROSS   7
+   PW_CURSOR_CUSTOM  8
+
+</pre>
+<ADDRESS>
+<A HREF="http://www.sjbaker.org">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;  
+</ADDRESS>
+</table>
+</BODY>
+</HTML> 
+
