@@ -15,11 +15,39 @@ ssgRoot      *scene   = NULL ;
 ssgTransform *object  = NULL ;
 ssgEntity    *obj_obj = NULL ;
 
-/*****************************************************\
-*                                                     *
-*  THIS PROGRAM IS BROKEN - IT DOESN'T CALL SSGINIT!! *
-*                                                     *
-\*****************************************************/
+
+void redraw ()
+{
+  return ;
+}
+
+
+void init_graphics ()
+{
+  int   fake_argc = 1 ;
+  char *fake_argv[3] ;
+  fake_argv[0] = "ssgExample" ;
+  fake_argv[1] = "Simple Scene Graph : Example Program." ;
+  fake_argv[2] = NULL ;
+
+  /*
+    Initialise GLUT
+  */
+
+  glutInitWindowPosition ( 0, 0 ) ;
+  glutInitWindowSize     ( 640, 480 ) ;
+  glutInit               ( &fake_argc, fake_argv ) ;
+  glutInitDisplayMode    ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
+  glutCreateWindow       ( fake_argv[1] ) ;
+  glutDisplayFunc        ( redraw   ) ;
+
+  /*
+    Initialise SSG
+  */
+
+  ssgInit () ;
+}
+
 
 void load_database ()
 {
@@ -62,10 +90,9 @@ void save_database ()
 
 int main ( int, char ** )
 {
+  init_graphics () ;
   load_database () ;
   save_database () ;
   return 0 ;
 }
-
-
 
