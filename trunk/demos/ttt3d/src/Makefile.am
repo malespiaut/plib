@@ -10,5 +10,3 @@ ttt3d_SOURCES = \
        p3d.h gfx.h gui.h material.h status.h sound.h \
        cell.h puzzle.h level.h game.h
 
-INCLUDES = -I/usr/local/plib/include
-
