@@ -45,10 +45,6 @@
 
 #ifdef _PU_USE_GLUT_FONTS
 typedef void *GlutFont ;
-#else
-extern fntTexFont PUFONT_TXF_TYPEWRITER ;
-extern fntTexFont PUFONT_TXF_TIMES ;
-extern fntTexFont PUFONT_TXF_HELVETICA ;
 #endif
 
 class puFont 
@@ -329,14 +325,12 @@ struct puBox
 /* With many memory managers, allocating powers of two is more efficient */
 #define PUSTRING_INITIAL 64
 
-extern puColour _puDefaultColourTable[] ;
 
-
-inline void puSetColour ( puColour dst, puColour src )
+inline void puSetColour ( puColour dst, const puColour src )
 {
   dst[0] = src[0] ; dst[1] = src[1] ; dst[2] = src[2] ; dst[3] = src[3] ;
 }
-inline void puSetColor ( puColour dst, puColour src )
+inline void puSetColor  ( puColour dst, const puColour src )
 {
   dst[0] = src[0] ; dst[1] = src[1] ; dst[2] = src[2] ; dst[3] = src[3] ;
 }
