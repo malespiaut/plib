@@ -93,6 +93,7 @@ typedef void *GlutFont ;
 
 class puFont 
 {
+protected:
 #ifdef _PU_USE_GLUT_FONTS
   GlutFont     glut_font_handle ;
 #endif
@@ -1051,11 +1052,11 @@ public:
 
 class puListBox : public puButton
 {
+protected:
   char ** list ;
   int num ;
   int top ;
 
-protected:
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
@@ -1158,6 +1159,7 @@ public:
 
 class puInput : public puObject
 {
+protected:
   int accepting ;
   int cursor_position ;
   int select_start_position ;
@@ -1309,6 +1311,7 @@ public:
 
 class puFilePicker : public puDialogBox
 {
+protected:
   char** files ;
   char*  dflag ;
   int num_files   ;
@@ -1330,7 +1333,6 @@ class puFilePicker : public puDialogBox
   puArrowButton *fastup_arrow   ;
   puArrowButton *fastdown_arrow ;
 
-protected:
   void puFilePickerInit ( int x, int y, int w, int h,
                           int arrows, const char *dir, const char *title ) ;
 
@@ -1364,6 +1366,7 @@ public:
 
 class puFileSelector : public puDialogBox
 {
+protected:
   char** files ;
   char*  dflag ;
   int num_files   ;
@@ -1386,7 +1389,6 @@ class puFileSelector : public puDialogBox
   puArrowButton *fastup_arrow   ;
   puArrowButton *fastdown_arrow ;
 
-protected:
   void puFileSelectorInit ( int x, int y, int w, int h,
                           int arrows, const char *dir, const char *title ) ;
 
@@ -1420,6 +1422,7 @@ public:
 
 class puLargeInput : public puGroup
 {
+protected:
   int num_lines ;              // Number of lines of text in the box
   int lines_in_window ;        // Number of lines showing in the window
   int top_line_in_window ;     // Number of the first line in the window
