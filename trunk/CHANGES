@@ -2,6 +2,65 @@
 PLIB Change Log.
 ================
 
+PLIB v1.5.1 (July 21st 2001)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Added ssgTween and ssgTweenController
+
+  * Added puFileSelector - henceforth puFilePicker is deprecated.
+
+  * Added ulList
+
+  * Added VRML loader (this one works!)
+
+  * Numerous bug fixes in other loaders.
+
+  * Added TopHat support to JS
+
+  * Added support for >3 simultaneous sounds in SL.
+    (You have to explicitly enable that though - it's not
+    the default)
+
+  * Fixed bugs in util's directory handling.
+
+  * puInput and puListBox now cope better with text that
+    is too big for the widget
+
+  * puListBox (and hence puFileSelector and puFilePicker)
+    works with both large and small font sizes.
+
+  * puDial changed to be derived from puSlider - many
+    consequences of that change will be visible in the
+    application.  (eg output range is 0..1 and not 0..360)
+
+  * PUI widgets are now 'sticky' so that if you are
+    dragging a slider along a puSlider and your mouse
+    slips off the edge of it, it'll still have "focus".
+
+  * Added sgLerpAnglesVec3 to linearly interpolate
+    angles allowing for the nasty wrap-around-360
+    problem.
+
+  * Added sgLineSegment3ToLine3, sgDistSquaredToLineVec3
+    sgDistSquaredToLineSegmentVec3, sgDistToLineVec3 and
+    sgDistToLineSegmentVec3.  Also sgLine3 and sgLineSegment3
+    structures.
+
+  * Added a 'Gallery' page to the documentation to show
+    potential developers the range of applications that use
+    PLIB - and also to promote things our developers have done.
+    To save download time and CVS space, the actual images
+    are not in the PLIB tarball.
+
+PLIB v1.4.2 (July 21st 2001)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Changes in NET to allow compilation under RedHat 7.1
+
+  * Fixed a small bug in ssgaSphere
+
+  * Fixes a small bug in puFilePicker
+
 PLIB v1.4.1 (June 25th 2001)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -18,6 +77,11 @@ PLIB v1.4.1 (June 25th 2001)
 
   * Changed colour of text on buttons in documentation to make them
     easier to read by colour-blind users.
+
+PLIB v1.5.0 (June 20th 2001)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Just a 'place holder' - actually identical to 1.4.0.
 
 PLIB v1.4.0 (June 20th 2001)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -826,6 +826,21 @@ void walkTransforms ( ssgBranch *root, sgMat4 mat )
 }
 
 
+void syncTranslators ( sgVec3 trans )
+{
+  XtranslateSlider -> setValue ( trans [ 0 ] / 5.0f + 0.5f ) ;
+  YtranslateSlider -> setValue ( trans [ 1 ] / 5.0f + 0.5f ) ;
+  ZtranslateSlider -> setValue ( trans [ 2 ] / 5.0f + 0.5f ) ;
+
+  if ( ! XtranslateInput -> isAcceptingInput () )
+    XtranslateInput  -> setValue ( trans [ 0 ] ) ;
+  if ( ! YtranslateInput -> isAcceptingInput () )
+    YtranslateInput  -> setValue ( trans [ 1 ] ) ;
+  if ( ! ZtranslateInput -> isAcceptingInput () )
+    ZtranslateInput  -> setValue ( trans [ 2 ] ) ;
+
+}
+
 void transformModel ( ssgRoot *boneRoot, float tim )
 {
   if ( getNumEvents () < 1 )
@@ -869,16 +884,7 @@ void transformModel ( ssgRoot *boneRoot, float tim )
 
   sgLerpVec3 ( curr_translate, ptra, ntra, lerptime ) ;
 
-  XtranslateSlider -> setValue ( curr_translate [ 0 ] / 5.0f + 0.5f ) ;
-  YtranslateSlider -> setValue ( curr_translate [ 1 ] / 5.0f + 0.5f ) ;
-  ZtranslateSlider -> setValue ( curr_translate [ 2 ] / 5.0f + 0.5f ) ;
-
-  if ( ! XtranslateInput -> isAcceptingInput () )
-    XtranslateInput  -> setValue ( curr_translate [ 0 ] ) ;
-  if ( ! YtranslateInput -> isAcceptingInput () )
-    YtranslateInput  -> setValue ( curr_translate [ 1 ] ) ;
-  if ( ! ZtranslateInput -> isAcceptingInput () )
-    ZtranslateInput  -> setValue ( curr_translate [ 2 ] ) ;
+  syncTranslators ( curr_translate ) ;
 
   int i ;
 
@@ -918,6 +924,8 @@ void currTranslateTxtXCB ( puObject *sl )
   curr_event -> getTranslate ( xyz ) ;
   xyz [ 0 ] = v ;
   curr_event -> setTranslate ( xyz ) ;
+
+  syncTranslators ( xyz ) ;
 }
 
 
@@ -933,6 +941,8 @@ void currTranslateTxtYCB ( puObject *sl )
   curr_event -> getTranslate ( xyz ) ;
   xyz [ 1 ] = v ;
   curr_event -> setTranslate ( xyz ) ;
+
+  syncTranslators ( xyz ) ;
 }
 
 
@@ -948,6 +958,8 @@ void currTranslateTxtZCB ( puObject *sl )
   curr_event -> getTranslate ( xyz ) ;
   xyz [ 2 ] = v ;
   curr_event -> setTranslate ( xyz ) ;
+
+  syncTranslators ( xyz ) ;
 }
 
 
@@ -964,6 +976,8 @@ void currTranslateXCB ( puObject *sl )
   curr_event -> getTranslate ( xyz ) ;
   xyz [ 0 ] = v ;
   curr_event -> setTranslate ( xyz ) ;
+
+  syncTranslators ( xyz ) ;
 }
 
 
@@ -979,6 +993,8 @@ void currTranslateYCB ( puObject *sl )
   curr_event -> getTranslate ( xyz ) ;
   xyz [ 1 ] = v ;
   curr_event -> setTranslate ( xyz ) ;
+
+  syncTranslators ( xyz ) ;
 }
 
 
@@ -994,6 +1010,8 @@ void currTranslateZCB ( puObject *sl )
   curr_event -> getTranslate ( xyz ) ;
   xyz [ 2 ] = v ;
   curr_event -> setTranslate ( xyz ) ;
+
+  syncTranslators ( xyz ) ;
 }
 
 
