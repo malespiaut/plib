@@ -8,7 +8,7 @@ include_HEADERS = netBuffer.h netChannel.h netChat.h netMessage.h \
 libplibnet_a_SOURCES = netBuffer.cxx netChannel.cxx netChat.cxx \
 	netMessage.cxx netMonitor.cxx netSocket.cxx
 
-INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/src/util
+INCLUDES = -I$(top_srcdir)/src/util
 
 endif
 

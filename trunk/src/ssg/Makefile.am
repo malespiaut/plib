@@ -26,7 +26,7 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgSaveATG.cxx ssgLoadIV.cxx ssgLoad.cxx ssgLoadVRML.h \
 	ssgLoadMDL_BGLTexture.cxx
 
-INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/util
+INCLUDES = -I$(top_srcdir)/src/util
 
 endif
 
