@@ -24,13 +24,6 @@
 #ifndef _PU_H_
 #define _PU_H_ 1
 
-#ifdef __APPLE__
-#  include <OpenGL/gl.h>
-#else
-#  include <GL/gl.h>
-#endif
-
-#include "sg.h"
 #include "fnt.h"
 
 /*

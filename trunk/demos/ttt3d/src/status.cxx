@@ -23,11 +23,6 @@
 
 
 #include "p3d.h"
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 #include <stdarg.h>
 
 #define MAX_STRING          30
