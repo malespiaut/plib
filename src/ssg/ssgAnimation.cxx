@@ -24,12 +24,15 @@
 
 #include "ssgLocal.h"
 
+ulClock ssgTimedSelector::ck;
+
 void ssgTimedSelector::copy_from ( ssgTimedSelector *src, int clone_flags )
 {
   ssgSelector::copy_from ( src, clone_flags ) ;
 
   running = src -> running ;
   mode    = src -> mode    ;
+  time_mode = src -> time_mode ;
 
   start_time    = src -> start_time ;
   pause_time    = src -> pause_time ;
@@ -68,6 +71,9 @@ ssgTimedSelector::ssgTimedSelector ( int max_kids ) : ssgSelector ( max_kids )
     times [ i ] = 1.0f ;
 
   curr = start = end = 0 ;
+
+  time_mode = SSG_ANIM_FRAME ;
+  ck.reset() ;
 }
 
 
@@ -100,7 +106,7 @@ void ssgTimedSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 
 int ssgTimedSelector::getStep ()
 {
-  float t = (float) ssgGetFrameCounter () ;
+  float t = get_time () ;
 
   if ( running == SSG_ANIM_STOP || running == SSG_ANIM_PAUSE )
     return curr ;
@@ -142,7 +148,7 @@ int ssgTimedSelector::getStep ()
     t -= times [ k ] ;
 
 //DaveM: i removed this line because, in shuttle mode, start plays twice
-//  k-- ;
+  k-- ;
 
   if ( k < start ) k = start ;
   if ( k > end   ) k =   end ;
@@ -174,6 +180,7 @@ int ssgTimedSelector::load ( FILE *fd )
   _ssgReadInt   ( fd, & curr  ) ;
   _ssgReadInt   ( fd, & start ) ;
   _ssgReadInt   ( fd, & end   ) ;
+  _ssgReadInt   ( fd, (int *) & time_mode ) ;
 
   return ssgSelector::load(fd) ;
 }
@@ -190,6 +197,7 @@ int ssgTimedSelector::save ( FILE *fd )
   _ssgWriteInt   ( fd, curr  ) ;
   _ssgWriteInt   ( fd, start ) ;
   _ssgWriteInt   ( fd, end   ) ;
+  _ssgWriteInt   ( fd, (int) time_mode ) ;
 
   return ssgSelector::save(fd) ;
 }
