@@ -49,8 +49,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssgAux.lib ssg.lib sg.lib ul.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /machine:I386 /out:"dynamics.exe" /libpath:"..\..\..\..\..\plib"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssgAux.lib ssg.lib sg.lib ul.lib winmm.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /machine:I386 /out:"dynamics.exe" /libpath:"..\..\..\..\..\plib"
 
 !ELSEIF  "$(CFG)" == "dynamics - Win32 Debug"
 
@@ -73,8 +73,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssgAux_d.lib ssg_d.lib sg_d.lib ul_d.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /debug /machine:I386 /out:"dynamics.exe" /pdbtype:sept /libpath:"..\..\..\..\..\plib"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssgAux_d.lib ssg_d.lib sg_d.lib ul_d.lib winmm.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /debug /machine:I386 /out:"dynamics.exe" /pdbtype:sept /libpath:"..\..\..\..\..\plib"
 
 !ENDIF 
 
