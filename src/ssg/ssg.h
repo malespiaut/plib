@@ -78,6 +78,7 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 #define SSG_TYPE_RANGESELECTOR 0x00001000
 #define SSG_TYPE_INVISIBLE     0x00002000
 #define SSG_TYPE_VTXTABLE      0x00004000
+#define SSG_TYPE_VTXARRAY      0x00008000
 
 /* ssgStates */
 #define SSG_TYPE_STATE         0x00000004
@@ -371,6 +372,36 @@ public:
   ssgColourArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec4), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
+} ;
+
+
+class ssgIndexArray : public ssgSimpleList
+{
+public:
+
+  ssgIndexArray ( int init = 3 ) : ssgSimpleList ( sizeof(int), init ) {} 
+  int   *get ( unsigned int n ) { return (int *) raw_get ( n ) ; }
+  void   add ( int      thing ) { raw_add ( (char *) &thing ) ; } ;
+} ;
+
+
+struct ssgInterleavedArrayElement
+{
+	sgVec2 texCoord ;
+	sgVec4 colour ;
+	sgVec3 normal ;
+	sgVec3 vertex ;
+} ;
+
+
+class ssgInterleavedArray : public ssgSimpleList
+{
+public:
+
+  ssgInterleavedArray ( int init = 3 ) : ssgSimpleList ( sizeof(ssgInterleavedArrayElement), init ) {} 
+  ssgInterleavedArrayElement *get ( unsigned int n ) { return (ssgInterleavedArrayElement *) raw_get ( n ) ; }
+  void add ( ssgInterleavedArrayElement  thing ) { raw_add ( (char *) &thing ) ; } ;
+  void add ( ssgInterleavedArrayElement *thing ) { raw_add ( (char *)  thing ) ; } ;
 } ;
 
 
@@ -885,6 +916,7 @@ extern sgVec3 _ssgVertex000   ;
 extern sgVec4 _ssgColourWhite ;
 extern sgVec3 _ssgNormalUp    ;
 extern sgVec2 _ssgTexCoord00  ;
+extern int    _ssgIndex0      ;
 
 
 class ssgVTable : public ssgLeaf
@@ -1028,7 +1060,7 @@ public:
   int getNumColours   () { return colours   -> getNum () ; }
   int getNumTexCoords () { return texcoords -> getNum () ; }
 
-  int getNumTriangles () ;
+  virtual int getNumTriangles () ;
   void getTriangle ( int n, short *v1, short *v2, short *v3 ) ;
 
   void getVertexList   ( void **list ) { *list = vertices  -> get ( 0 ) ; }
@@ -1063,6 +1095,56 @@ public:
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
+
+
+class ssgVtxArray : public ssgVtxTable
+{
+protected:
+  ssgIndexArray *indices;
+
+  virtual void draw_geometry () ;
+
+public:
+  ssgVtxArray () ;
+
+  ssgVtxArray ( GLenum ty, ssgVertexArray   *vl,
+                           ssgNormalArray   *nl,
+                           ssgTexCoordArray *tl,
+                           ssgColourArray   *cl,
+						   ssgIndexArray    *il ) ;
+
+  virtual void drawHighlight ( sgVec4 colour ) ;
+  virtual void drawHighlight ( sgVec4 colour, int i ) ;
+  virtual void pick ( int baseName ) ;
+  virtual void transform ( sgMat4 m ) ;
+
+  void setIndices ( ssgIndexArray *il ) ;
+
+  int getNumIndices () { return indices -> getNum () ; }
+
+  int getNumTriangles () ;
+
+  void getIndexList ( void **list ) { *list = indices  -> get ( 0 ) ; }
+
+  int *getIndex  (int i){ if(i>=getNumIndices())i=getNumIndices()-1;
+                             return (getNumIndices()<=0) ?
+				      &_ssgIndex0 : indices->get(i);}
+
+  virtual ~ssgVtxArray (void) ;
+
+  virtual char *getTypeName(void) ;
+  virtual void recalcBSphere () ;
+  virtual void draw () ;
+
+  virtual void isect_triangles ( sgSphere  *s, sgMat4 m, int test_needed ) ;
+  virtual void hot_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual int load ( FILE *fd ) ;
+  virtual int save ( FILE *fd ) ;
+} ;
+
+
+// class ssgVtxInterleavedArray
 
 
 class ssgBranch : public ssgEntity
