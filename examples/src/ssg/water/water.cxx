@@ -43,14 +43,14 @@ void update_motion ( int frameno )
 
   /* Move the camera in some kind of interesting way */
 
-  if ( frameno < 600 )
+  if ( frameno > 600 )
     sgSetCoord ( & campos, 0.0f, -20.0f, 8.0f,
                          25.0f * (float) sin(frameno/100.0), -30.0f, 0.0f ) ;
   else
-    sgSetCoord ( & campos, 0.0f, 0.0f, 2.0f,
+    sgSetCoord ( & campos, 0.0f, 0.0f, 3.5f,
                          frameno, -10.0f, 0.0f ) ;
 
-  sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, frameno, 0.0f, 0.0f ) ;
+  sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, -frameno, 0.0f, 0.0f ) ;
 
   ssgSetCamera ( & campos ) ;
   teapot  -> setTransform ( & tptpos ) ;
@@ -184,7 +184,7 @@ static void droplet_create ( SPS *, int, ssgaParticle *p )
   float c = 0.6 + (float)(rand()%1000)/4000.0f ;
 
   sgSetVec4 ( p -> col, c - 0.2f, c, 1, 0.5 ) ;
-  sgSetVec3 ( p -> pos, -2.5, 0, 2 ) ;
+  sgSetVec3 ( p -> pos, -2.4, -0.1, 1.9 ) ;
   sgSetVec3 ( p -> vel, 
              -(float)(rand()%1000)/200.0f,
               (float)(rand()%1000 - 500)/400.0f,
