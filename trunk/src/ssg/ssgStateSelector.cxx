@@ -17,6 +17,11 @@ void ssgStateSelector::copy_from ( ssgStateSelector *src, int clone_flags )
       statelist [ i ] = (ssgSimpleState *)( s -> clone ( clone_flags )) ;
     else
       statelist [ i ] = s ;
+
+	//~~ T.G. needs ref count incremented
+	if (statelist [ i ] != NULL )      
+	   statelist [ i ] -> ref();   
+
   }
 }
 
@@ -48,6 +53,9 @@ ssgStateSelector::ssgStateSelector ( int ns )
 
 ssgStateSelector::~ssgStateSelector (void)
 {
+  //~~ T.G. deref states before deleting list
+  for ( int i = 0 ; i < nstates ; i++ )    
+	  ssgDeRefDelete( statelist [ i ] );  
   delete [] statelist ;
 }
 
@@ -82,8 +90,8 @@ void ssgStateSelector::setStep  (int i, ssgSimpleState *step)
 {
   if ( i < 0 || i >= nstates ) return ;
 
-  if ( statelist [ i ] != NULL )
-    ssgDeRefDelete ( statelist[i] ) ;
+  //~~ T.G. removed null test -- not necessary
+  ssgDeRefDelete ( statelist[i] ) ;
 
   statelist [ i ] = step ;
 
@@ -216,8 +224,15 @@ int ssgStateSelector::load ( FILE *fd )
 
   _ssgReadInt ( fd, & nstates   ) ;
   _ssgReadInt ( fd, & selection ) ;
-  
-  statelist = new ssgSimpleState * [ nstates ] ;
+
+  //~~ T.G. clear state list if already existing
+  //   or create new list
+  if (statelist != NULL)
+  {
+     for ( int i = 0 ; i < nstates ; i++ )    
+	    ssgDeRefDelete( statelist [ i ] );  
+  } else
+     statelist = new ssgSimpleState * [ nstates ] ;
 
   for ( i = 0 ; i < nstates ; i++ )
     statelist [ i ] = NULL ;
@@ -233,12 +248,18 @@ int ssgStateSelector::load ( FILE *fd )
       if ( key == 0 )
         statelist[i] = NULL ;
       else
+      {
         statelist[i] = (ssgSimpleState *) _ssgGetFromList ( key ) ;
+		//~~ T.G. 
+		if (statelist[i]) statelist[i]->ref();
+      } 
     }
     else
     if ( t == ssgTypeSimpleState() )
     {
       statelist[i] = new ssgSimpleState ;
+	  //~~ T.G. 
+	  statelist[i]->ref(); 
 
       if ( ! statelist[i] -> load ( fd ) )
         return FALSE ;
@@ -247,6 +268,8 @@ int ssgStateSelector::load ( FILE *fd )
     if ( t == ssgTypeStateSelector() )
     {
       statelist[i] = new ssgStateSelector ;
+	  //~~ T.G. 
+	  statelist[i]->ref(); 
 
       if ( ! statelist[i] -> load ( fd ) )
         return FALSE ;

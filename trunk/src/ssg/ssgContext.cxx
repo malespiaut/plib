@@ -8,8 +8,10 @@ ssgContext::~ssgContext ()
   if ( isCurrent() )
     _ssgCurrentContext = NULL ;
 
-  delete currentState ;
-  delete basicState ;
+  //~~ T.G. was ordinary delete before - must be derefed
+  ssgDeRefDelete ( currentState );   
+  ssgDeRefDelete (  basicState );    	
+
   delete frustum ;
 }
 
@@ -31,9 +33,12 @@ ssgContext::ssgContext ()
   frustum -> setFOV     ( 60.0, 45.0 ) ;
 
   currentState = new ssgSimpleState ( 1 ) ;
-  basicState   = new ssgSimpleState ( 0 ) ;
+  currentState -> ref(); //~~ T.G. 
 
-  currentState->force () ;
+  basicState   = new ssgSimpleState ( 0 ) ;
+  currentState -> ref(); //~~ T.G. 
+
+  currentState -> force () ;
 
   basicState->dont_care      = 0 ;
   basicState->texture_handle = 0 ;
