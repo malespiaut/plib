@@ -235,6 +235,7 @@ extern int puRefresh ; /* Should not be used directly by applications any
 #define PUCLASS_LISTBOX          0x00010000
 #define PUCLASS_DIAL             0x00020000
 #define PUCLASS_FILEPICKER       0x00040000
+/* Remove the following when their deprecated classes are removed */
 #define PUCLASS_FILESELECTOR     0x00040000 /* Because FilePicker is obsolete */
 #define PUCLASS_BISLIDER         0x00080000
 #define PUCLASS_TRISLIDER        0x00100000
@@ -258,20 +259,20 @@ class puPopup            ;
 class puPopupMenu        ;
 class puMenuBar          ;
 class puInput            ;
-class puSpinBox          ;
+class puSpinBox          ; /* DEPRECATED 1/26/04 */
 class puSlider           ;
 class puListBox          ;
 class puArrowButton      ;
 class puDial             ;
-class puFilePicker       ;
-class puFileSelector     ;
-class puBiSlider         ;
-class puTriSlider        ;
-class puVerticalMenu     ;
-class puLargeInput       ;
-class puComboBox         ;
-class puSelectBox        ;
-class puScrollBar        ;
+class puFilePicker       ; /* DEPRECATED */
+class puFileSelector     ; /* DEPRECATED 1/26/04 */
+class puBiSlider         ; /* DEPRECATED 1/26/04 */
+class puTriSlider        ; /* DEPRECATED 1/26/04 */
+class puVerticalMenu     ; /* DEPRECATED 1/26/04 */
+class puLargeInput       ; /* DEPRECATED 1/26/04 */
+class puComboBox         ; /* DEPRECATED 1/26/04 */
+class puSelectBox        ; /* DEPRECATED 1/26/04 */
+class puScrollBar        ; /* DEPRECATED 1/26/04 */
 
 // Global function to move active object to the end of the "dlist"
 // so it is displayed in front of everything else
@@ -1201,6 +1202,9 @@ public:
 } ;
 
 
+//**********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaBiSlider *
+//**********************************************************************************
 class puBiSlider : public puSlider
 {
   UL_TYPE_DATA
@@ -1265,9 +1269,14 @@ public:
   void setActiveButton ( int i ) { active_button = i ; }
   int getActiveButton ( void ) const { return active_button ; }
 } ;
+//**********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaBiSlider *
+//**********************************************************************************
 
 
-
+//***********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaTriSlider *
+//***********************************************************************************
 class puTriSlider : public puBiSlider
 {
   UL_TYPE_DATA
@@ -1297,8 +1306,14 @@ public:
   int getFreezeEnds ( void ) const { return freeze_ends ; }
   void setFreezeEnds ( int val )   { freeze_ends = val ; puPostRefresh () ; }
 } ;
+//***********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaTriSlider *
+//***********************************************************************************
 
 
+//***********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaScrollBar *
+//***********************************************************************************
 class puScrollBar : public puSlider
 {
   UL_TYPE_DATA
@@ -1344,6 +1359,9 @@ public:
     puPostRefresh () ;
   }
 } ;
+//***********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaScrollBar *
+//***********************************************************************************
 
 
 
@@ -1463,6 +1481,9 @@ public:
 } ;
 
 
+//**************************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaVerticalMenu *
+//**************************************************************************************
 class puVerticalMenu : public puGroup
 {
   UL_TYPE_DATA
@@ -1488,6 +1509,9 @@ public:
                      void *_user_data[] = NULL ) ;
   void close ( void ) ;
 } ;
+//**************************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaVerticalMenu *
+//**************************************************************************************
 
 
 class puInputBase
@@ -1601,6 +1625,9 @@ public:
   }
 } ;
 
+//*********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaSpinBox *
+//*********************************************************************************
 class puSpinBox : public puRange, public puGroup
 {
   UL_TYPE_DATA
@@ -1664,6 +1691,9 @@ public :
   void setValue ( const char *s ) { puValue::setValue ( s ) ;  input_box->setValue ( s ) ; }
   void setValue ( puValue *pv ) { puValue::setValue ( pv ) ;  input_box->setValue ( pv ) ; }
 } ;
+//*********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaSpinBox *
+//*********************************************************************************
 
 class puButtonBox : public puObject
 {
@@ -1776,6 +1806,9 @@ public:
 } ;
 
 
+//**************************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaFileSelector *
+//**************************************************************************************
 class puFileSelector : public puDialogBox
 {
   UL_TYPE_DATA
@@ -1845,9 +1878,15 @@ public:
   void setInitialValue ( const char *fname ) ;
   void setSize ( int w, int h ) ;
 } ;
+//**************************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaFileSelector *
+//**************************************************************************************
 
 
 
+//************************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaLargeInput *
+//************************************************************************************
 class puLargeInput : public puInputBase, public puGroup
 {
   UL_TYPE_DATA
@@ -1916,8 +1955,14 @@ public:
   void  appendText ( const char *l ) ;
   void  removeText ( int start, int end ) ;
 } ;
+//************************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaLargeInput *
+//************************************************************************************
 
 
+//**********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaComboBox *
+//**********************************************************************************
 class puComboBox : public puGroup
 {
   UL_TYPE_DATA
@@ -1973,8 +2018,14 @@ public:
   puComboBox ( int minx, int miny, int maxx, int maxy,
                char **list, int editable = TRUE ) ;
 } ;
+//**********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaComboBox *
+//**********************************************************************************
 
 
+//***********************************************************************************
+//* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaSelectBox *
+//***********************************************************************************
 class puSelectBox : public puGroup
 {
   UL_TYPE_DATA
