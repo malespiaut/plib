@@ -57,11 +57,11 @@ OpenGL Configure
 Configure is not able to find the OpenGL headers and libraries. In this
 case please add
 
-./configure --with-gl=PREFIX
+./configure --with-GL=PREFIX
 
 Examples
 
-./configure --with-gl=/usr/local
+./configure --with-GL=/usr/local
 
 This will look in the /usr/local/include for headers (GL/ is not needed) 
 and /usr/local/lib for the libraries.
