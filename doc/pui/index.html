@@ -578,8 +578,7 @@ counter-shaded.</li>
 PUSTYLE_SMALL_SHADED - Same as for PUSTYLE_SHADED but with a smaller border.</li>
 
 <li>
-PUSTYLE_BOXED - A simple rectangle with a two pixel wide line around the
-outside.</li>
+PUSTYLE_BOXED - A simple rectangle with a line around the outside.</li>
 
 <li>
 PUSTYLE_DROPSHADOW - A simple rectangle - but drawn with a shadow below
@@ -591,6 +590,15 @@ at all - the widget is drawn as a small diamond shape which is filled in
 when the object has a non-zero value. This is only useful for puButton
 widgets.</li>
 </ul>
+In case of PUSTYLE_BOXED, you can alter the thickness of the border around the widgets or retrieve the current border thickness:
+<pre>
+
+  void puObject::setBorderThickness ( int t ) ;
+  int  puObject::getBorderThickness ( void ) ;
+
+</pre>
+By default, a border thickness of two pixels is used in PUSTYLE_BOXED.
+<p>
 In addition, you can use the negation of the style to swap the appearance
 of the selected and deselected versions of an object. Hence, using a style
 of -PUSTYLE_BEVELLED will produce a widget that appears to be pressed in
@@ -1199,6 +1207,14 @@ handy:
   int  puLargeInput::getNumLines () ;  /* Returns the number of lines in the text */
   void puLargeInput::selectEntireLine ( void ) ;  /* Expands the select region to include full lines */
   void puLargeInput::setTopLineInWindow ( int val ) ;  /* Sets the top line to be displayed in the widget window */
+
+</pre>
+Additionally, you can let a puLargeInput widget reject all input, which is useful if you want to display some large amount of text without allowing the user to edit it:
+<pre>
+
+  void puLargeInput::enableInput () ;
+  void puLargeInput::disableInput () ;
+  int  puLargeInput::inputDisabled () ; /* Returns FALSE if the text can be modifed and TRUE if it can not */
 
 </pre>
 <a NAME="puGroup"></a>
