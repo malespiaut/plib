@@ -34,16 +34,16 @@ int pslCompiler::getChar ()
     a '#' preprocessor directive is on this line.
   */
  
-  int c = ::getChar () ;
+  int c = _pslGetChar () ;
 
   if ( c == '\n' )
   {
-    int d = ::getChar () ;
+    int d = _pslGetChar () ;
  
     if ( d == '#' )
       return doPreProcessorCommand () ;
 
-    ::unGetChar ( d ) ;
+    _pslUnGetChar ( d ) ;
   }
  
   /*
@@ -92,7 +92,7 @@ void pslCompiler::doIncludeStatement ()
   int c ;
   do { c = getChar () ; } while ( c != '\n' && c != -1 ) ;
 
-  pushDefaultFile ( p ) ;
+  _pslPushDefaultFile ( p ) ;
 }
 
 
@@ -195,7 +195,7 @@ void pslCompiler::getToken ( char *res )
           /* If you get two stars in a row - unget the second one */
 
           if ( c == '*' )
-            unGetChar ( '*' ) ;
+            _pslUnGetChar ( '*' ) ;
 
         } while ( c != '/' ) ;
 
@@ -275,7 +275,7 @@ void pslCompiler::getToken ( char *res )
 
   if ( tp > 0 )
   {
-    unGetChar ( c ) ;
+    _pslUnGetChar ( c ) ;
     res [ tp ] = '\0' ;
   }
   else

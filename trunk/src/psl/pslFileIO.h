@@ -22,14 +22,14 @@
      $Id$
 */
 
-char *getFname        () ;
-int   getLineNo       () ;
+char *_pslGetFname        () ;
+int   _pslGetLineNo       () ;
 
-void  popDefaultFile  () ;
-void  pushDefaultFile ( FILE *fd, const char *fname ) ;
-void  pushDefaultFile ( const char *fname ) ;
+void  _pslPopDefaultFile  () ;
+void  _pslPushDefaultFile ( FILE *fd, const char *fname ) ;
+void  _pslPushDefaultFile ( const char *fname ) ;
 
-void  unGetChar       ( int c ) ;
-int   getChar         () ;
+void  _pslUnGetChar       ( int c ) ;
+int   _pslGetChar         () ;
 
 
