@@ -628,7 +628,7 @@ static int parse()
 
 ssgEntity *ssgLoadX ( const char *fname, const ssgLoaderOptions* options )
 {
-  current_options = (ssgLoaderOptions*) (options? options: &_ssgDefaultOptions) ;
+  current_options = (ssgLoaderOptions*) (options? options: ssgGetCurrentOptions () ) ;
   current_options -> begin () ;
 
   top_branch = new ssgBranch ;

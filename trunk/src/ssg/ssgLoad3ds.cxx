@@ -1139,20 +1139,11 @@ static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length )
 
 ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   int i;
-  current_options = options? options: &_ssgDefaultOptions ;
+  current_options = options? options: ssgGetCurrentOptions () ;
   current_options -> begin () ;
 
-  char *filepath;
-
-  if (filename[0] != '/' && _ssgModelPath[0] != '\0') {
-    filepath = new char[strlen(filename) + strlen(_ssgModelPath) + 2];
-    strcpy( filepath, _ssgModelPath);
-    strcat( filepath, "/" );
-    strcat( filepath, filename );
-  } else {
-    filepath = new char[strlen(filename) + 1];
-    strcpy(filepath, filename);
-  }
+  char filepath [ 1024 ] ;
+  current_options -> makeModelPath ( filepath, filename ) ;
   
   model = fopen ( filepath, "rb" );
   if ( model == NULL ) {
@@ -1205,7 +1196,6 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
     delete n;
   }
 
-  delete [] filepath;
   delete [] materials;
 
   free_trimesh();

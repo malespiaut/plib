@@ -5,20 +5,12 @@ static const ssgLoaderOptions* current_options;
 
 ssgEntity* ssgLoadM( const char* fname, 
                     const ssgLoaderOptions* options ) {
-  current_options = options? options: &_ssgDefaultOptions ;
+  current_options = options? options: ssgGetCurrentOptions () ;
   current_options -> begin () ;
   
   char filename [ 1024 ] ;
-  if ( fname [ 0 ] != '/' &&
-    _ssgModelPath != NULL &&
-    _ssgModelPath [ 0 ] != '\0' ) {
-    strcpy ( filename, _ssgModelPath ) ;
-    strcat ( filename, "/" ) ;
-    strcat ( filename, fname ) ;
-  }
-  else
-    strcpy ( filename, fname ) ;
-  
+  current_options -> makeModelPath ( filename, fname ) ;
+
   FILE* model_file = fopen(filename, "r");
   if(!model_file) {
     ulSetError(UL_WARNING, "ssgLoadM: Couldn't open file '%s'.",

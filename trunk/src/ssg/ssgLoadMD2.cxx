@@ -164,6 +164,7 @@ typedef struct
 
 static int is_little_endian;
 
+static const ssgLoaderOptions* current_options = NULL ;
 static FILE *loader_fd;
 
 static t_tcoord *uvs;
@@ -341,21 +342,14 @@ ssgEntity * convert_to_ssg()
 
 ssgEntity * ssgLoadMD2( const char *filename, const ssgLoaderOptions* options)
 {
+  current_options = options? options: ssgGetCurrentOptions () ;
+  current_options -> begin () ;
  
   int j = 1 ;
   is_little_endian = *((char *) &j );
 
-  char *filepath;
-  
-  if (filename[0] != '/' && _ssgModelPath[0] != '\0') {
-    filepath = new char[strlen(filename) + strlen(_ssgModelPath) + 2];
-    strcpy( filepath, _ssgModelPath);
-    strcat( filepath, "/" );
-    strcat( filepath, filename );
-  } else {
-    filepath = new char[strlen(filename) + 1];
-    strcpy(filepath, filename);
-  }
+  char filepath [ 1024 ] ;
+  current_options -> makeModelPath ( filepath, filename ) ;
   
   loader_fd = fopen ( filepath, "rb" );
 
@@ -385,6 +379,7 @@ ssgEntity * ssgLoadMD2( const char *filename, const ssgLoaderOptions* options)
 
 	delete[] vertices;
 
-	return model;
+  current_options -> end () ;
 
+	return model;
 }

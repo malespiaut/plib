@@ -34,19 +34,13 @@ ssgEntity *ssgLoadTRI ( const char *fname, const ssgLoaderOptions* options )
 
 */
 {
+  const ssgLoaderOptions* current_options =
+    options? options: ssgGetCurrentOptions () ;
+  current_options -> begin () ;
+ 
   //open the file
   char filename [ 1024 ] ;
-
-  if ( fname [ 0 ] != '/' &&
-       _ssgModelPath != NULL &&
-       _ssgModelPath [ 0 ] != '\0' )
-  {
-    strcpy ( filename, _ssgModelPath ) ;
-    strcat ( filename, "/" ) ;
-    strcat ( filename, fname ) ;
-  }
-  else
-    strcpy ( filename, fname ) ;
+  current_options -> makeModelPath ( filename, fname ) ;
 
   FILE *loader_fd = fopen ( filename, "ra" ) ;
 
@@ -107,6 +101,8 @@ ssgEntity *ssgLoadTRI ( const char *fname, const ssgLoaderOptions* options )
   }
 
   delete[] tri ;
+
+  current_options -> end () ;
 
   return current_branch ;
 }

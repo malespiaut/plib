@@ -2,6 +2,10 @@
 #include "ssgLocal.h" 
 
 
+static ssgLoaderOptions default_options ;
+extern ssgLoaderOptions *_ssgCurrentOptions = &default_options ;
+
+
 static char _ssgAPOM[16*1024]=""; // APOM = actual path of model (!=ModelPath)
 
 char * ssgGetAPOM()
@@ -9,66 +13,108 @@ char * ssgGetAPOM()
 }
 
 
-static ssgSimpleStateArray shared_states ;
-static ssgTextureArray shared_textures ;
-
-
-ssgLeaf* ssgLoaderOptions::defaultCreateLeaf ( ssgLeaf* leaf,
-                                              const char* parent_name ) const
+char* ssgLoaderOptions::make_path ( char* path,
+      const char* dir, const char* fname ) const
 {
-  /* is this just a sharing 'reset' */
-  if ( leaf == NULL )
+  if ( fname != NULL && fname [ 0 ] != '\0' )
   {
-    shared_textures.removeAll () ;
-    shared_states.removeAll () ;
-    return NULL ;
-  }
-  
-  /* do we have a texture filename? */
-  ssgState* st = leaf -> getState () ;
-  if ( st != NULL )
-  {
-    assert ( st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) ) ;
-    ssgSimpleState *ss = (ssgSimpleState*) st ;
-    
-    if ( ss -> getTextureFilename() != NULL ) {
-      st = createState( ss -> getTextureFilename() ) ;
-      if ( st != NULL ) {
-        leaf -> setState( st ) ;
-        ss = NULL;
-      }
-    }
-    
-    if (ss != NULL)
+    /* Remove all leading path information. */
+    const char* seps = "\\/" ;
+    const char* fn = & fname [ strlen ( fname ) - 1 ] ;
+    for ( ; fn != fname && strchr(seps,*fn) == NULL ; fn-- )
+      /* Search back for a seperator */ ;
+    if ( strchr(seps,*fn) != NULL )
+      fn++ ;
+    fname = fn ;
+
+    if ( fname [ 0 ] != '/' &&
+       dir != NULL && dir[0] != '\0' )
     {
-      ssgSimpleState *match = shared_states.findMatch ( ss ) ;
-      if ( match )
-        leaf -> setState ( match ) ;
-      else
-        shared_states.add ( ss ) ;
+      strcpy ( path, dir ) ;
+      strcat ( path, "/" ) ;
+      strcat ( path, fname ) ;
     }
+    else
+      strcpy ( path, fname ) ;
+
+#if 0
+    //convert backward slashes to forward slashes
+    for ( char* ptr = path ; *ptr ; ptr ++ )
+    {
+      if ( *ptr == '\\' )
+        *ptr = '/' ;
+    }
+#endif
   }
-  
-  return leaf ;
+  else
+     path [0] = 0 ;
+  return( path );
 }
 
 
-ssgTexture* ssgLoaderOptions::defaultCreateTexture ( char* tfname,
+void ssgLoaderOptions::makeModelPath ( char *path, const char *fname ) const
+{
+  make_path ( path, model_dir, fname ) ;
+}
+
+
+void ssgLoaderOptions::makeTexturePath ( char *path, const char *fname ) const
+{
+  make_path ( path, texture_dir, fname ) ;
+}
+
+
+ssgLeaf* ssgLoaderOptions::createLeaf ( ssgLeaf* leaf,
+                                        const char* parent_name ) const
+{
+  /* cast away logical const */
+  ssgLoaderOptions* options = (ssgLoaderOptions*)this ;
+
+  /* is this just a sharing 'reset' */
+  if ( leaf == NULL )
+  {
+    options -> shared_textures.removeAll () ;
+    options -> shared_states.removeAll () ;
+    return NULL ;
+  }
+  
+  /* try to do some state sharing */
+  ssgState* st = leaf -> getState () ;
+  if ( st != NULL && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+  {
+    ssgSimpleState *ss = (ssgSimpleState*) st ;
+    ssgSimpleState *match = options -> shared_states.findMatch ( ss ) ;
+    if ( match != NULL )
+      leaf -> setState ( match ) ;
+    else
+      options -> shared_states.add ( ss ) ;
+  }
+
+  return leaf ;
+}
+
+ssgTexture* ssgLoaderOptions::createTexture ( char* tfname,
 						     int wrapu,
 						     int wrapv,
 						     int mipmap ) const
 {
-  ssgTexture *tex = shared_textures.findByFilename ( tfname ) ;
+  /* cast away logical const */
+  ssgLoaderOptions* options = (ssgLoaderOptions*)this ;
+
+  char filename [ 1024 ] ;
+  makeTexturePath ( filename, tfname ) ;
+
+  ssgTexture *tex = options -> shared_textures.findByFilename ( filename ) ;
   if ( tex )
     return tex ;
   
-  tex = new ssgTexture ( tfname, wrapu, wrapv, mipmap ) ;
+  tex = new ssgTexture ( filename, wrapu, wrapv, mipmap ) ;
   if ( tex )
-    shared_textures.add ( tex ) ;
+    options -> shared_textures.add ( tex ) ;
   return tex ;
 }
 
-ssgTransform* ssgLoaderOptions::defaultCreateTransform ( ssgTransform* tr,
+ssgTransform* ssgLoaderOptions::createTransform ( ssgTransform* tr,
       ssgTransformArray* ta ) const
 {
   if ( ta != NULL )
@@ -76,20 +122,19 @@ ssgTransform* ssgLoaderOptions::defaultCreateTransform ( ssgTransform* tr,
   return tr ;
 }
 
-ssgLoaderOptions _ssgDefaultOptions ( NULL, NULL, NULL, NULL, NULL ) ;
 
-void ssgModelPath ( const char *s )
+void ssgLoaderOptions::setModelDir ( const char *s )
 {
-  delete _ssgModelPath ;
-  _ssgModelPath = new char [ strlen ( s ) + 1 ] ;
-  strcpy ( _ssgModelPath, s ) ;
+  delete model_dir ;
+  model_dir = new char [ strlen ( s ) + 1 ] ;
+  strcpy ( model_dir, s ) ;
 }
 
-void ssgTexturePath ( const char *s )
+void ssgLoaderOptions::setTextureDir ( const char *s )
 {
-  delete _ssgTexturePath ;
-  _ssgTexturePath = new char [ strlen ( s ) + 1 ] ;
-  strcpy ( _ssgTexturePath, s ) ;
+  delete texture_dir ;
+  texture_dir = new char [ strlen ( s ) + 1 ] ;
+  strcpy ( texture_dir, s ) ;
 }
 
 
@@ -256,11 +301,4 @@ int ssgSave ( const char *fname, ssgEntity *ent )
 
   ulSetError ( UL_WARNING, "ssgSave: Unrecognised file type '%s'", extn ) ;
   return FALSE ;
-}
-
-
-char* _ssgMakePath( char* path, const char* dir, const char* fname )
-{ // MakePath was originally in ssg, so we dont want to remove this function from ssg
-	// But we need it in ul also
-	return ulMakePath( path, dir, fname );
 }

@@ -209,7 +209,7 @@ static void load_materials ( const char* fname )
   num_mat = 0 ;
 
   char path[256];
-  _ssgMakePath(path,_ssgTexturePath,fname) ;
+  ulMakePath(path,ssgGetCurrentOptions () -> getTextureDir(),fname) ;
 
   FILE* filein = fopen (path,"r") ;
   if ( filein == 0 )
@@ -287,7 +287,7 @@ static void load_materials ( const char* fname )
 
       char tfname[MAX_LINE_LEN];
       count = sscanf ( next, "%s%n", tfname, &width ) ;
-      _ssgMakePath(path,_ssgTexturePath,tfname) ;
+      ulMakePath(path,ssgGetCurrentOptions () -> getTextureDir(),tfname) ;
 
       if ( count == 1 && index >= 0 ) {
         materials[ index ].tfname = new char [ strlen( path )+1 ] ;
@@ -340,7 +340,7 @@ static void add_mesh ( int mat_index )
   if ( mat_index < num_mat ) {
     matData* mat = &materials[ mat_index ];
     if ( mat->tfname[0] != 0 )
-      st = _ssgDefaultOptions.createState ( mat->tfname ) ;
+      st = ssgGetCurrentOptions() -> createState ( mat->tfname ) ;
     if ( st == NULL )
       st = find_state ( mat ) ;
   }
@@ -733,20 +733,14 @@ static int obj_read ( FILE *filein )
 
 ssgEntity *ssgLoadOBJ ( const char *fname, const ssgLoaderOptions* options )
 {
+  const ssgLoaderOptions* current_options =
+    options? options: ssgGetCurrentOptions() ;
+  current_options -> begin () ;
+
   current_branch   = NULL ;
 
   char filename [ 1024 ] ;
-
-  if ( fname [ 0 ] != '/' &&
-       _ssgModelPath != NULL &&
-       _ssgModelPath [ 0 ] != '\0' )
-  {
-    strcpy ( filename, _ssgModelPath ) ;
-    strcat ( filename, "/" ) ;
-    strcat ( filename, fname ) ;
-  }
-  else
-    strcpy ( filename, fname ) ;
+  current_options -> makeModelPath ( filename, fname ) ;
 
   FILE *loader_fd = fopen ( filename, "ra" ) ;
 
@@ -761,6 +755,8 @@ ssgEntity *ssgLoadOBJ ( const char *fname, const ssgLoaderOptions* options )
   obj_read ( loader_fd ) ;
 
   fclose ( loader_fd ) ;
+
+  current_options -> end () ;
 
   return current_branch ;
 }

@@ -675,8 +675,8 @@ static void getMPLimits(int var, float *min, float *max)
 
 ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 {
-  current_options = (options != NULL) ? options : &_ssgDefaultOptions;
-  
+  current_options = (options != NULL) ? options : ssgGetCurrentOptions () ;
+  current_options -> begin () ;
   
   ailerons_grp_ = NULL;
   elevator_grp_ = NULL;
@@ -687,17 +687,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   prop_grp_ = NULL;
   
   char filename [ 1024 ] ;
-  
-  if ( fname [ 0 ] != '/' &&
-    _ssgModelPath != NULL &&
-    _ssgModelPath [ 0 ] != '\0' )
-  {
-    strcpy ( filename, _ssgModelPath ) ;
-    strcat ( filename, "/" ) ;
-    strcat ( filename, fname ) ;
-  }
-  else
-    strcpy ( filename, fname ) ;
+  current_options -> makeModelPath ( filename, fname ) ;
   
   FILE *fp = fopen(filename, "rb");
   if(!fp) 
@@ -1436,6 +1426,8 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
     
     DEBUGPRINT("\n" << vertex_array_->getNum() << " vertices\n");
     
+    current_options -> end () ;
+
     return model_;
 }
 
