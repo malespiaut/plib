@@ -270,9 +270,9 @@ void puInit ( void )
 
     // No GLUT fonts, try some corresponding textured fonts
 
-    if ( ( PUFONT_TXF_TYPEWRITER.load ( "typewriter.txf"     ) == FALSE ) |
-         ( PUFONT_TXF_TIMES.load      ( "times_bold.txf"     ) == FALSE ) |
-         ( PUFONT_TXF_HELVETICA.load  ( "helvetica_bold.txf" ) == FALSE ) )
+    if ( ( PUFONT_TXF_TYPEWRITER.load ( "Courier.txf"     ) == FALSE ) |
+         ( PUFONT_TXF_TIMES.load      ( "Times-Roman.txf" ) == FALSE ) |
+         ( PUFONT_TXF_HELVETICA.load  ( "Helvetica.txf"   ) == FALSE ) )
     {
       // Exit
       ulSetError ( UL_FATAL, "PUI: Could not load default fonts." ) ;
