@@ -749,6 +749,8 @@ public:
     alpha_clamp = clamp ;
   }
  
+  int  getWrapU(void) { return wrapu ; };
+  int  getWrapV(void) { return wrapv ; };
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
