@@ -75,7 +75,9 @@
 #endif
 
 #ifdef UL_BSD
+#ifndef __FreeBSD__
 #  include <sys/audioio.h>
+#endif
 #endif
 
 /* Tom */
