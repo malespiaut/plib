@@ -1,6 +1,6 @@
 /*
      PLIB - A Suite of Portable Game Libraries
-     Copyright (C) 2001  Steve Baker
+     Copyright (C) 2002  Steve Baker
 
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
@@ -17,6 +17,8 @@
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
      For further information visit http://plib.sourceforge.net
+
+     $Id$
 */
 
 
@@ -73,8 +75,7 @@ int ulLinkedList::getNodePosition ( void *data ) const
     curr = curr -> getNext () ;
   }
 
-  ulSetError ( UL_WARNING, "ulLinkedList::getNodePosition: No such node" ) ;
-  return 0 ;
+  return -1 ;
 }
 
 
@@ -128,7 +129,7 @@ int ulLinkedList::insertSorted ( void *data, ulCompareFunc comparefn )
   {
     ulSetError ( UL_WARNING,
                  "ulLinkedList::insertSorted: This is not a sorted list !" ) ;
-    return 0 ;
+    return -1 ;
   }
 
   int pos = 0 ;
