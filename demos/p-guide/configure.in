@@ -49,15 +49,15 @@ dnl =========================================================
         AC_CHECK_LIB(MesaGL, glNewList,,,$x_suffix)
     fi
 
-    dnl if using mesa, check for xmesa.h
-    if test "x$ac_cv_lib_MesaGL_glNewList" = "xyes" ; then
-        AC_CHECK_HEADER(GL/xmesa.h)
-        AM_CONDITIONAL(ENABLE_XMESA_FX, \
-                       test "x$ac_cv_header_GL_xmesa_h" = "xyes")
-    else
-        dnl force a failed check
-        AM_CONDITIONAL(ENABLE_XMESA_FX, test "no" = "yes")
-    fi
+dnl dnl if using mesa, check for xmesa.h
+dnl if test "x$ac_cv_lib_MesaGL_glNewList" = "xyes" ; then
+dnl     AC_CHECK_HEADER(GL/xmesa.h)
+dnl     AM_CONDITIONAL(ENABLE_XMESA_FX, \
+dnl                    test "x$ac_cv_header_GL_xmesa_h" = "xyes")
+dnl else
+dnl     dnl force a failed check
+dnl     AM_CONDITIONAL(ENABLE_XMESA_FX, test "no" = "yes")
+dnl fi
 
     AC_CHECK_LIB(GLU, gluLookAt,,,$x_suffix)
     if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
