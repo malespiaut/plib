@@ -1,0 +1,88 @@
+<TITLE>Steve's 3D TicTacToe Player.</TITLE>
+<H1>Steve's 3D TicTacToe Player.</H1>
+By <A HREF="mailto:sjbaker1@airmail.net">
+Steve Baker &lt;sjbaker1@airmail.net&gt;</A>
+<H2>Introduction.</H2>
+TicTacToe - the worlds most boring game. Well, when played
+in three dimensions with a 4x4 board, this simple game takes
+on an entirely new level of intellectual challenge.
+<H2>Installation:</H2>
+<pre>
+
+    ./configure
+    make 
+    make install
+
+</pre>
+If you are running Windoze or something that can't
+run configure scripts and makefiles, don't sweat it.
+There is just one C++ source file - no special options or libraries.
+<p>
+No, I won't provide a binary version, project
+files and such.
+<H2>License:</H2>
+This program is offered under the terms of the GNU
+Public License (GPL).
+<H2>Instructions:</H2>
+Run this from any shell:
+<pre>
+
+    ttt3d
+
+</pre>
+The computer takes 'O's and lets you go first. The first
+person to make a row of 4 wins.
+<pre>
+
+                         ~~~ 3D TicTacToe ~~~
+                            by Steve Baker
+
+
+   |   |   |         |   |   |         |   |   |         |   |   |      
+   |   |   |         |   |   |         |   |   |         |   |   |      
+_1_|_2_|_3_|_4_   17_|18_|19_|20_   33_|34_|35_|36_   49_|50_|51_|52_   
+   |   |   |         |   |   |         |   |   |         |   |   |      
+   | X |   |         | O |   |         |   |   |         |   |   |      
+_5_|___|_7_|_8_   21_|___|23_|24_   37_|38_|39_|40_   53_|54_|55_|56_   
+   |   |   |         |   |   |         |   |   |         |   |   |      
+   | X |   |         |   |   |         |   |*O*|         |   |   |      
+_9_|___|11_|12_   25_|26_|27_|28_   41_|42_|___|44_   57_|58_|59_|60_   
+   |   |   |         |   |   |         |   |   |         |   |   |      
+   |   |   |         |   |   |         |   |   |         |   |   |      
+13 |14 |15 |16    29 |30 |31 |32    45 |46 |47 |48    61 |62 |63 |64    
+
+
+Where would you like to play your X ? 
+[1..64]: 
+
+</pre>
+(In the example above, the computer just played in square 43 the
+asterisks help you see where he just played).
+<p>
+Imagine the four grids stacked on top of each other. (Either
+from left to right or right to left - it doesn't matter).
+You can form your row of four X's either within one layer -
+or across layers.  Anything that would be a straight line in
+3D.  So in this example:
+<pre>
+
+   |   |   |         |   |   |         |   |   |         |   |   |      
+ X |   |   |         |   |   |         |   | O |      *O*|   |   | X    
+___|_2_|_3_|_4_   17_|18_|19_|20_   33_|34_|___|36_   ___|50_|51_|___   
+   |   |   |         |   |   |         |   |   |         |   |   |      
+   | X |   |         |   |   |         |*O*|   |       X | O |   |      
+_5_|___|_7_|_8_   21_|22_|23_|24_   37_|___|39_|40_   ___|___|55_|56_   
+   |   |   |         |   |   |         |   |   |         |   |   |      
+   |   |   |         |   |*O*|         |   |   |         | O | X | X    
+_9_|10_|11_|12_   25_|26_|___|28_   41_|42_|43_|44_   57_|___|___|___   
+   |   |   |         |   |   |         |   |   |         |   |   |      
+ X |   |   |*O*      |   |   | X       |   |   |       O | X |   | O    
+   |14 |15 |      29 |30 |31 |      45 |46 |47 |48       |   |63 |      
+
+</pre>
+...the computer just won with a diagonal line (when someone wins,
+the winning line is highlighted with asterisks).
+<p>
+You'll find the computer is an extremely hard opponent to beat,
+but it CAN BE DONE!
+

@@ -2,6 +2,18 @@
 PLIB Change Log.
 ================
 
+PLIB v1.4.0 (June 20th 2001)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Fixed example programs so they don't use the obsolete _SSG_TYPE
+    tags.
+
+  * Removed multiplie <HEAD> tags on web pages.
+
+  * Updated 'AUTHORS' file.
+
+  * Added 'demos' to the CVS repository.
+
 PLIB v1.3.3 (June 18th 2001)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

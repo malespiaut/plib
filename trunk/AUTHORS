@@ -2,6 +2,41 @@ PLIB was originally written by Steve Baker as a solo project - but
 has subsequently been greatly enhanced and expanded by a 'cast of
 thousands'.
 
+Most important of all - the 'official' PLIB developers:
+
+  Ben Woodhead
+  Curtis Olson
+  Dave McClurg
+  Gerard Decatrel
+  Gil Carter
+  John Fay
+  Mark Vallevand
+  Marten Stromberg
+  Norman Vine
+  Per Liedman
+  Sam Stickland
+  Steve Baker        <--- Hmmm - must sort this list by SECOND name!
+  Wolfram Kuss
+
+Apologies to anyone I've left out - please let me know
+who you are and I'll add you in.
+
+  Alex Perry
+  Christopher St.John
+  Christian Mayer
+  Jon Anderson
+  Darrell Walisser
+  Dave Heil
+  Kevin Thompson
+  Karl Kremer
+  Negative0         <---- Who?  Some kind of 1's complement arithmetic fanatic?
+  Mark Danks
+  Michael Kurth
+  Sean Palmer
+  Simon Britnell
+  Tony Knienieder
+  Trent Gamblin
+
 Special mention must go to:
 
   Daryll Strauss    (GLIDE port to Linux)
@@ -17,38 +52,4 @@ Special mention must go to:
                      entirely rewritten in the process of merging
                      it with SL.
   Everyone at OPENGL-GAMEDEV-L and 3Dfx.glide.linux
-
-Most important of all - the 'official' PLIB developers:
-
-  Ben Woodhead
-  Dave McClurg
-  Gil Carter
-  John Fay
-  Mark Vallevand
-  Norman Vine
-  Per Liedman
-  Sam Stickland
-  Steve Baker
-  Wolfram Kuss
-  Curtis Olson
-
-Additional contributions came from:
-
-  Christopher St.John
-  Christian Mayer
-  Jon Anderson
-  Darrell Walisser
-  Dave Heil
-  Kevin Thompson
-  Karl Kremer
-  Negative0
-  Mark Danks
-  Michael Kurth
-  Sean Palmer
-  Simon Britnell
-  Tony Knienieder
-  Trent Gamblin
-
-Apologies to anyone I've left out - please let me know
-who you are and I'll add you in.
 
