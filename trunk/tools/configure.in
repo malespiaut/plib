@@ -1,0 +1,133 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(CHANGES)
+AM_INIT_AUTOMAKE(plib_tools, 1.0.0)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_INSTALL
+AC_PROG_RANLIB
+
+dnl Checks for library functions.
+
+AC_CHECK_LIB(plibul, ulInit,,,)
+
+dnl check for OpenGL related libraries
+
+AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
+
+if test "x$ac_cv_header_windows_h" != "xyes" ; then
+
+    dnl Check for X11
+
+    AC_PATH_XTRA
+
+    x_suffix="$X_LIBS $X_PRE_LIBS -lX11 -lXi -lXext -lXmu $X_EXTRA_LIBS -lm"
+
+    dnl Reasonable stuff non-windoze variants ... :-)
+
+    AC_CHECK_LIB(GLcore, glNewList,,,$x_suffix)
+
+    if test "x$ac_cv_lib_GLcore_glNewList" = "xno" ; then
+        dnl if no GLcore, check for GL
+        AC_CHECK_LIB(GL, glNewList,,,$x_suffix)
+        if test "x$ac_cv_lib_GL_glNewList" = "xno" ; then
+            dnl if no GL, check for MesaGL
+            AC_CHECK_LIB(MesaGL, glNewList,,,$x_suffix)
+        fi
+    else
+        dnl if GLcore found, then also check for GL
+        AC_CHECK_LIB(GL, glXCreateContext,,,$x_suffix)
+    fi
+
+    dnl if using mesa, check for xmesa.h
+    if test "x$ac_cv_lib_MesaGL_glNewList" = "xyes" ; then
+        AC_CHECK_HEADER(GL/xmesa.h)
+        AM_CONDITIONAL(ENABLE_XMESA_FX, \
+                       test "x$ac_cv_header_GL_xmesa_h" = "xyes")
+    else
+        dnl force a failed check
+        AM_CONDITIONAL(ENABLE_XMESA_FX, test "no" = "yes")
+    fi
+
+    AC_CHECK_LIB(GLU, gluLookAt,,,$x_suffix)
+    if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
+        dnl if no GLU, check for MesaGLU
+        AC_CHECK_LIB(MesaGLU, gluLookAt,,,$x_suffix)
+    fi
+
+    opengl_LIBS="$LIBS $x_suffix"
+
+    dnl check for glut
+    AC_CHECK_LIB(glut, glutGetModifiers,,,$opengl_LIBS)
+
+    LIBS="$LIBS $x_suffix"
+else
+
+  dnl CygWin under Windoze.
+
+  LIBS="$LIBS -lm -lwinmm -lglut32 -lglu32 -lopengl32 -luser32 -lgdi32"
+fi
+
+dnl Check SGI audio library
+
+AC_CHECK_LIB(audio, ALopenport)
+
+if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
+  dnl this is an SGI machine...
+  LIBS="$LIBS -laudio"
+fi
+
+dnl Check PLIB library
+
+dnl AC_CHECK_LIB(plibssg, ssgGetVersion)
+dnl AC_CHECK_LIB(plibsg,  sgVectorProductVec3)
+dnl AC_CHECK_LIB(plibpu,  puGetWindowHeight)
+
+dnl Checks for header files.
+
+AC_HEADER_STDC
+
+AC_CHECK_HEADERS(GL/gl.h    GL/glut.h \
+                 plib/sg.h  plib/sl.h plib/ssg.h \
+                 plib/fnt.h plib/pu.h plib/js.h)
+
+AC_CHECK_HEADER(windows.h,        AC_DEFINE(WIN32))
+AC_CHECK_HEADER(joystick.h,       AC_DEFINE(JOYSTICK_IS_PRESENT))
+AC_CHECK_HEADER(linux/joystick.h, AC_DEFINE(LINUX_JOYSTICK_IS_PRESENT))
+
+dnl Check for audio support
+
+AM_CONDITIONAL(ENABLE_AUDIO, \
+        test -r /usr/include/soundcard.h \
+                -o -r /usr/include/linux/soundcard.h \
+                -o -r /usr/include/machine/soundcard.h \
+                -o -r /usr/include/audio.h \
+                -o "x$ac_cv_header_windows_h" = "xyes" )
+
+AM_CONDITIONAL(ENABLE_IRIX_AUDIO, test -r /usr/include/audio.h)
+
+AM_CONDITIONAL(ENABLE_WIN32_AUDIO, test "x$ac_cv_header_windows_h" = "xyes")
+
+if test "x$ac_cv_header_windows_h" != "xyes" ; then
+  if test "x$GXX" != "xyes" ; then
+    CFLAGS="$CFLAGS"
+    CXXFLAGS="$CXXFLAGS"
+  else
+    CFLAGS="$CFLAGS -O6 -Wall"
+    CXXFLAGS="$CXXFLAGS -O6 -Wall"
+  fi
+else
+  CFLAGS="$CFLAGS -O6 -Wall $MACH -malign-double"
+  CXXFLAGS="$CXXFLAGS -O6 -Wall $MACH -malign-double"
+fi
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+AC_OUTPUT( \
+	Makefile \
+	)
+
