@@ -747,7 +747,7 @@ public:
   virtual void close ( void )
   {
     if ( puGetCurrGroup () != this )
-      fprintf ( stderr, "PUI: puGroup::close() is mismatched!\n" ) ;
+      ulSetError ( UL_WARNING, "PUI: puGroup::close() is mismatched!" ) ;
     else
       puPopGroup () ;
   }

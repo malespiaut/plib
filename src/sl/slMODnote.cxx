@@ -44,7 +44,7 @@ static void noEffect ( Note *np )
 
 static void unknownEffect ( Note *np )
 {
-  fprintf ( stderr, "Unknown effect: %c%02X \n", np->cmd + '@', np->info ) ;
+  ulSetError ( UL_WARNING, "Unknown effect: %c%02X", np->cmd + '@', np->info ) ;
   commonWork ( np ) ;
 }
 
@@ -254,39 +254,39 @@ static void sCmd(Note *np)
 
     switch ( X )
     {
-      case 1: /* set glissando control */
-	_MOD_instSetPortamentoGlissando(Y);
-	break;
-      case 2: /* set finetune */
-	/* ...but not tested yet. which tune use this? */
-	printf("Got it! Set Finetune\n");
-	{ 
-	  static int freq[16] =
-	  {
-	    8363,8413,8463,8529,8581,8651,8723,8757,
-	    7895,7941,7985,8046,8107,8169,8232,8280
-	  };
-	  _MOD_instTuning(freq[Y]);
-	  /* the tuning effects from next key-on */
-	}
-	break;
-      case 3: /* set vibrato waveform */
-	_MOD_instSetVibratoWave(Y%4, Y/4);
-	break;
-      case 4: /* set tremolo waveform */
-	_MOD_instSetTremoloWave(Y%4, Y/4);
-	break;
-      case 8: /* set pan position */
-	_MOD_instPanPosition(Y*64/15);
-	break;
-      case 0xc: /* notecut */
-	_MOD_instNoteCut(Y);
-	break;
-      case 0xb: /* pattern loop */
-      case 0xe: /* pattern delay */
-	break;
-      default:
-	fprintf(stderr, "Warning: %c%02X not supported.\n", np->cmd+'@', np->info);
+    case 1: /* set glissando control */
+      _MOD_instSetPortamentoGlissando(Y);
+      break;
+    case 2: /* set finetune */
+      /* ...but not tested yet. which tune use this? */
+      ulSetError ( UL_DEBUG, "Got it! Set Finetune");
+      { 
+        static int freq[16] =
+        {
+          8363,8413,8463,8529,8581,8651,8723,8757,
+            7895,7941,7985,8046,8107,8169,8232,8280
+        };
+        _MOD_instTuning(freq[Y]);
+        /* the tuning effects from next key-on */
+      }
+      break;
+    case 3: /* set vibrato waveform */
+      _MOD_instSetVibratoWave(Y%4, Y/4);
+      break;
+    case 4: /* set tremolo waveform */
+      _MOD_instSetTremoloWave(Y%4, Y/4);
+      break;
+    case 8: /* set pan position */
+      _MOD_instPanPosition(Y*64/15);
+      break;
+    case 0xc: /* notecut */
+      _MOD_instNoteCut(Y);
+      break;
+    case 0xb: /* pattern loop */
+    case 0xe: /* pattern delay */
+      break;
+    default:
+      ulSetError ( UL_WARNING, "%c%02X not supported.", np->cmd+'@', np->info);
     }
   }
 }
@@ -374,8 +374,7 @@ void _MOD_playNoteSetOutRate ( int _or )
 {
   if ( _or > MAX_OUTRATE )
   {
-    fprintf ( stderr, "Too high output sample rate.\n" ) ;
-    exit ( 1 ) ;
+    ulSetError ( UL_FATAL, "Too high output sample rate." ) ;
   }
 
   _MOD_instOutRate ( _or ) ;
@@ -388,7 +387,7 @@ void _MOD_playNoteSetTempo ( int n )
 {
   if ( n < MIN_TEMPO )
   {
-    fprintf ( stderr, "Illegal tempo (%d) ignored.\n", n ) ;
+    ulSetError ( UL_WARNING, "Illegal tempo (%d) ignored.", n ) ;
     return ;
   }
 

@@ -144,8 +144,7 @@ static	void	wperror(MMRESULT num)
 
    waveOutGetErrorText( num, buffer, sizeof(buffer)-1);
 
-   fprintf( stderr, "SlDSP: %s (%d)\n", buffer, num );
-   fflush ( stderr );
+   ulSetError ( UL_WARNING, "SlDSP: %s (%d)", buffer, num );
 }
 
 
@@ -205,9 +204,9 @@ void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
    }
 
 #if 0
-   printf("Request: stereo=%d bps=%d rate=%d\n", 
+   ulSetError ( UL_DEBUG, "Request: stereo=%d bps=%d rate=%d", 
       _stereo, _bps, _rate );
-   printf("Result: channels=%d bps=%d rate=%d\n", 
+   ulSetError ( UL_DEBUG, "Result: channels=%d bps=%d rate=%d", 
       Format.nChannels, Format.wBitsPerSample, 
       Format.nSamplesPerSec );
 #endif
@@ -308,7 +307,7 @@ void slDSP::write ( void *buffer, size_t length )
       return ;
 
 #if 0
-   printf("written=%ld counter=%d curr_header=%d\n", 
+   ulSetError ( UL_DEBUG, "written=%ld counter=%d curr_header=%d", 
       written, counter, curr_header );
 #endif
 
@@ -366,7 +365,7 @@ float slDSP::secondsUsed ()
    samp_time  = (float) samples_used / (float) rate ;
 
 #if 0
-   printf("%0.2f written packets=%ld stereo=%d bps=%d rate=%d\n", 
+   ulSetError ( UL_DEBUG, "%0.2f written packets=%ld stereo=%d bps=%d rate=%d", 
       samp_time, counter, stereo, bps, rate );
 #endif
 
@@ -775,45 +774,46 @@ bool  playing;
 
 void doError( OSErr theError ) {
 
-  printf( "OSErr : " );
+  const char* msg = 0 ;
   
   switch( theError ) {
   
   case 0:
-    printf( "No Error." );
+    msg = "No Error." ;
     break;
   case notEnoughHardwareErr:
-    printf( "Insufficient hardware available." );
+    msg = "Insufficient hardware available." ;
     break;
   case badChannel:
-    printf( "Channel is corrupt or unusable." );
+    msg = "Channel is corrupt or unusable." ;
     break;
   case badFormat:
-    printf( "Resource is corrupt or unusable." );
+    msg = "Resource is corrupt or unusable." ;
     break;
   case queueFull:
-    printf( "No room in the queue." );
+    msg = "No room in the queue." ;
     break;
   case channelBusy:
-    printf( "Channel is busy." );
+    msg = "Channel is busy." ;
     break;
   case siInvalidCompression:
-    printf( "Invalid compression type." );
+    msg = "Invalid compression type." ;
     break;
   case notEnoughBufferSpace:
-    printf( "Insufficient memory available." );
+    msg = "Insufficient memory available." ;
     break;
   case buffersTooSmall:
-    printf( "Buffer is too small." );
+    msg = "Buffer is too small." ;
     break;
   case paramErr:
-    printf ("Invalid parameter specified.");
+    msg = ("Invalid parameter specified." ;
     break;
-  default:
-    printf( "Unknown Error : %d.", theError ); 
   }
 
-  printf( "\n" );
+  if ( msg != 0 )
+    ulSetError ( UL_WARNING, "OSErr : %s", msg ) ;
+  else
+    ulSetError ( UL_WARNING, "OSErr : Unknown Error : %d.", theError ); 
 }
 
 pascal void sndCallbackProc ( SndChannelPtr chan, SndCommand *cmd )
@@ -841,7 +841,8 @@ void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
   // Check for valid ranges on inputs
   if ( _rate > 65535 ) 
   {
-    printf ( "slDsp : Sample rate out of bounds! Setting to 44100hz.\n");
+    ulSetError ( UL_WARNING,
+      "slDsp : Sample rate out of bounds! Setting to 44100hz.");
     _rate = 44100;
   }
       
@@ -883,7 +884,8 @@ void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
   if ( osErr != noErr ) 
   {
     SndDisposeChannel( sndChannel, true );
-    printf ( "slDSP::open() Problem creating sound channel\n" );
+    ulSetError ( UL_WARNING,
+      "slDSP::open() Problem creating sound channel" );
     doError (osErr);    
       error = SL_TRUE;
   }
@@ -898,7 +900,8 @@ void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
   buf = new char [VIRTUAL_BUFFER_SIZE];
   if ( !buf ) 
   {
-    printf ( "slDSP::open() Not enough memory to allocate sound buffer.\n" );
+    ulSetError ( UL_WARNING,
+      "slDSP::open() Not enough memory to allocate sound buffer." );
     SndDisposeChannel( sndChannel, true );
     error = SL_TRUE;
   }
@@ -942,7 +945,7 @@ void slDSP::write ( void *buffer, size_t length )
 #ifdef SL_MAC_DEBUG
   if ( osErr != noErr )
   {
-      printf ( "Error slDsp::write - bufferCmd() : " ); 
+      ulSetError ( UL_WARNING, "Error slDsp::write - bufferCmd() : " ); 
       doError( osErr );
       error = SL_TRUE;
   }
@@ -955,7 +958,7 @@ void slDSP::write ( void *buffer, size_t length )
 #ifdef SL_MAC_DEBUG
   if ( osErr != noErr )
   {
-      printf ( "Error slDsp::write - callBackCmd() : " ); 
+      ulSetError ( UL_WARNING, "Error slDsp::write - callBackCmd() : " ); 
       doError( osErr );
       error = SL_TRUE;
   }
@@ -994,7 +997,7 @@ void slDSP::sync ()
 #ifdef SL_MAC_DEBUG
   if ( osErr != noErr )
   {
-    printf ( "Error slDsp::sync() : " ); 
+    ulSetError ( UL_WARNING, "Error slDsp::sync() : " ); 
     doError( osErr );  
     error = SL_TRUE;
   }
@@ -1012,7 +1015,7 @@ void slDSP::stop ()
 #ifdef SL_MAC_DEBUG
   if ( osErr != noErr )
   {
-    printf ( "Error slDsp::stop() : " ); 
+    ulSetError ( UL_WARNING, "Error slDsp::stop() : " ); 
     doError( osErr );
     error = SL_TRUE;  
   }
@@ -1055,7 +1058,7 @@ float slDSP::secondsUsed ()
   if (queued == 0)
     underWrites++;      
   roughTime = bytesUsed / bytesPerSecond;
-  printf ( "%d\t%d\t%f\t%d\t%d\t%f\t%d\t%d\t%d\t%d\n", 
+  ulSetError ( UL_DEBUG, "%d\t%d\t%f\t%d\t%d\t%f\t%d\t%d\t%d\t%d", 
     bytesUsed, queued, secUsed, callBacks, 
     writes, roughTime, underWrites, qLength, qHead, qTail );
 #endif

@@ -324,7 +324,7 @@ void sgdFrustum::update ()
 {
   if ( fabs ( ffar - nnear ) < 0.1 )
   {
-    fprintf ( stderr, "sgdFrustum: Can't support depth of view <0.1 units.\n");
+    ulSetError ( UL_WARNING, "sgdFrustum: Can't support depth of view <0.1 units.");
     return ;
   }
 
@@ -332,7 +332,7 @@ void sgdFrustum::update ()
   {
     if ( fabs ( hfov ) < 0.1 || fabs ( vfov ) < 0.1 )
     {
-      fprintf ( stderr, "sgdFrustum: Can't support fields of view narrower than 0.1 degrees.\n");
+      ulSetError ( UL_WARNING, "sgdFrustum: Can't support fields of view narrower than 0.1 degrees.");
       return ;
     }
 
@@ -608,7 +608,7 @@ void sgdSetCoord ( sgdCoord *dst, const sgdMat4 src )
 
   if ( s <= 0.00001 )
   {
-    fprintf ( stderr, "sgdMat4ToCoord: ERROR - Bad Matrix.\n" ) ;
+    ulSetError ( UL_WARNING, "sgdMat4ToCoord: ERROR - Bad Matrix." ) ;
     sgdSetVec3 ( dst -> hpr, SGD_ZERO, SGD_ZERO, SGD_ZERO ) ;
     return ;
   }
@@ -771,7 +771,7 @@ void sgdInvertMat4 ( sgdMat4 dst, const sgdMat4 src )
     // if ( val == SG_ZERO)
     if ( fabs(val) <= DBL_EPSILON )
     {
-      fprintf ( stderr, "sg: ERROR - Singular matrix, no inverse!\n" ) ;
+      ulSetError ( UL_WARNING, "sg: ERROR - Singular matrix, no inverse!" ) ;
       sgdMakeIdentMat4 ( dst ) ;  /* Do *something* */
       return;
     }

@@ -17,8 +17,8 @@ int fntTexFont::load ( const char *fname, GLenum mag, GLenum min )
   }
   else
   {
-    fprintf ( stderr, "fnt::load: Error - Unrecognised file format for '%s'\n",
-                                        fname ) ;
+    ulSetError ( UL_WARNING,
+      "fnt::load: Error - Unrecognised file format for '%s'", fname ) ;
     return FNT_FALSE ;
   }
 }

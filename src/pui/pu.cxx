@@ -72,7 +72,7 @@ int puGetWindowWidth ()
 void puSetWindowSize ( int width, int height )
 {
   if ( ! openGLSize )
-  fprintf ( stderr, "PUI: puSetWindowSize shouldn't be used with GLUT.\n" ) ;
+    ulSetError ( UL_WARNING, "PUI: puSetWindowSize shouldn't be used with GLUT." ) ;
   else
   {
     puWindowWidth  = width  ;
@@ -209,9 +209,8 @@ void puInit ( void )
   {
     if ( glIsValidContext () == 0 )
     {
-      fprintf ( stderr,
-      "FATAL: puInit called without a valid OpenGL context.\n");
-      exit ( 1 ) ;
+      ulSetError ( UL_FATAL,
+        "puInit called without a valid OpenGL context.");
     }
 
     puInterface *base_interface = new puInterface ( 0, 0 ) ;
@@ -248,7 +247,7 @@ void puInit ( void )
 	              (LPTSTR) &lpMsgBuf,
 	              0, NULL ) ;
 
-      fprintf ( stderr, "PUI: Error: %s\n", (char *)lpMsgBuf ) ;
+      ulSetError ( UL_WARNING, "PUI: Error: %s", (char *)lpMsgBuf ) ;
       LocalFree ( lpMsgBuf ) ;
     }
 

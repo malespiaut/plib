@@ -460,16 +460,18 @@ void MODfile::makeSampleInfo( int smp15 )
     {
       if (p->beg >= fileEnd || p->loopBeg >= fileEnd)
       {
-	fprintf ( stderr,"Error: short file (assigned an empty sample for #%d)\n", i+1 ) ;
-	p->beg = &emptySample   ;
-	p->end = &emptySample+1 ;
-	p->loopBeg = NULL ;
-	p->vol = 0 ;
+        ulSetError ( UL_WARNING,
+          "short file (assigned an empty sample for #%d)", i+1 ) ;
+        p->beg = &emptySample   ;
+        p->end = &emptySample+1 ;
+        p->loopBeg = NULL ;
+        p->vol = 0 ;
       }
       else
       {
-	fprintf ( stderr, "Warning: short file (sample #%d truncated)\n", i+1 ) ;
-	p->end = fileEnd ;
+        ulSetError ( UL_WARNING,
+          "short file (sample #%d truncated)", i+1 ) ;
+        p->end = fileEnd ;
       }
     }
 
@@ -562,7 +564,8 @@ unsigned char *MODfile::read_whole_file ( char *fname, int *len )
   if ( fd < 0 )
   {
     perror ( "open" ) ;
-    fprintf ( stderr, "SL: Couldn't open MOD file '%s' for reading\n", fname ) ;
+    ulSetError ( UL_WARNING,
+      "SL: Couldn't open MOD file '%s' for reading", fname ) ;
     return NULL ;
   }
 
@@ -612,7 +615,7 @@ MODfile::MODfile ( char *fname, int speed, int stereo )
   if ( magic ( buffer, len, &mt, &chNum ) )
   {
     broken = TRUE ;
-    fprintf ( stdout, "Unknown format\n" ) ;
+    ulSetError ( UL_WARNING, "Unknown format" ) ;
     return ;
   }
 
@@ -621,7 +624,7 @@ MODfile::MODfile ( char *fname, int speed, int stereo )
   else
   if ( mt != MAGIC_MODX )
   {
-    fprintf ( stdout, "Unknown format\n" ) ;
+    ulSetError ( UL_WARNING, "Unknown format" ) ;
     broken = TRUE ;
     return ;
   }
