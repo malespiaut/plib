@@ -216,6 +216,8 @@ struct ulDirEnt
 } ;
 
 int ulIsAbsolutePathName ( const char *pathname ) ;
+char *ulGetCWD ( char *result, int maxlength ) ;
+
 ulDir* ulOpenDir ( const char* dirname ) ;
 ulDirEnt* ulReadDir ( ulDir* dir ) ;
 void ulCloseDir ( ulDir* dir ) ;

@@ -327,19 +327,25 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h, int arrows
   dflag = NULL ;
   num_files = 0 ;
 
-  if ( getcwd ( startDir, PUSTRING_MAX ) == NULL ||
-       strlen ( startDir ) + 1 + strlen ( dir ) + 1 > PUSTRING_MAX )
+  if ( ulIsAbsolutePathName ( dir ) )
+    strcpy ( startDir, dir ) ;
+  else
   {
-    ulSetError ( UL_WARNING,
+    if ( ulGetCWD ( startDir, PUSTRING_MAX ) == NULL ||
+       strlen ( startDir ) + 1 + strlen ( dir ) + 1 > PUSTRING_MAX )
+    {
+      ulSetError ( UL_WARNING,
       "PUI:puFileSelector - can't find current directory or name is too long");
-    setValue ( "" ) ;
-    invokeCallback () ;
-    return ;
+      setValue ( "" ) ;
+      invokeCallback () ;
+      return ;
+    }
+
+    strcat ( startDir, SLASH ) ;
+    strcat ( startDir, dir ) ;
   }
 
-  strcat ( startDir, "/" ) ;
-  strcat ( startDir, dir ) ;
-
+  strcat ( startDir, SLASH ) ;
   strcpy ( getStringValue (), startDir ) ;
 
   if ( arrows > 2 ) arrows = 2 ;
