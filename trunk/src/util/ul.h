@@ -44,11 +44,13 @@
 #include <ctype.h>
 #include <assert.h>
 
-#if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
+#if !defined(WIN32) && (defined(_WIN32) || defined(__WIN32__) || \
+    defined(__CYGWIN__) || defined(_MSC_VER))
 #  define WIN32
 #endif
 
 #if defined (WIN32)
+a
 #  include <windows.h>
 #  ifdef __CYGWIN__
 #    include <unistd.h>
