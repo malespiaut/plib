@@ -222,8 +222,8 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
   for ( ; bo != NULL ; bo = bo -> getPrevObject() ) 
   {
     puBox *box = bo->getABox () ;
-    if ( ( x >= box->min[0] ) && ( x <= box->max[0] ) &&
-         ( y >= box->min[1] ) && ( y <= box->max[1] ) )
+    if ( ( x > box->min[0] ) && ( x < box->max[0] ) &&
+         ( y > box->min[1] ) && ( y < box->max[1] ) )
       bo->highlight () ;
     else
       bo->lowlight () ;
