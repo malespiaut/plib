@@ -124,6 +124,11 @@ class ssgBase
   int   getType    (void) ;
   virtual char *getTypeName(void) ;
 
+  char *getUserData () ;
+  void  setUserData ( ssgBase *user_data ) ;
+  void  setName ( char *nm ) ;
+  char *getName () ;
+
   virtual void print ( FILE *fd = stderr ) ;
   virtual void save  ( FILE *fd = stderr ) ;
 
@@ -152,6 +157,24 @@ call.
 <p>
 You can read the current ref count for a node
 using <code>ssgBase::getRef()</code>.
+<H3>Names.</H3>
+It's often useful to attach an ASCII name to a node in the
+scene graph - this is often derived from a name field in
+whatever modelling tool was used to create the object.
+<code>ssgBase::setName(s)</code> sets the name,
+<code>ssgBase::getName()</code> returns it.
+
+<H3>User Data</H3>
+Although one can derive a new C++ class from an SSG class and thereby customise
+it's behavior, it's often more convenient to simply attach application-specific
+data structures to a basic entity. Two functions are provided:
+<code>ssgBase::getUserData()</code> and <code>ssgBase::setUserData(data)</code>.
+<p>
+Notice that user data is of class ssgBase - which means that user data
+can be named, ref-counted - and can in turn have user data of it's own.
+This allows user data to be formed into linked lists when multiple
+user data items need to be attached to a single node.
+
 <H3>Destructor Functions</H3>
 When an SSG entity is NOT connected into the scene graph in any
 way, then the correct way to get rid of it and free up memory
@@ -271,15 +294,10 @@ public:
   void setTraversalMaskBits ( int t ) ;
   void clrTraversalMaskBits ( int t ) ;
 
-  char *getUserData () ;
-  void  setUserData ( char *s ) ;
-
   virtual void recalcBSphere (void) ;
   int  isDirtyBSphere (void) ;
   void dirtyBSphere  () ;
   sgSphere *getBSphere () ;
-
-  void      setName  ( char *nm ) { name = nm ; }
 
   virtual int getNumKids (void) ;
   int getNumParents () ;
@@ -317,13 +335,6 @@ As a convenience for general tree-walking routines, there is a
 return zero on leaf nodes. You cannot actually get kid nodes unless
 the node is some kind of ssgBranch.
 
-<H3>Names.</H3>
-It's often useful to attach an ASCII name to a node in the
-scene graph - this is often derived from a name field in
-whatever modelling tool was used to create the object.
-<code>ssgEntity::setName(s)</code> sets the name,
-<code>ssgEntity::getName()</code> returns it.
-
 <H3>Traversals</H3>
 Much of the work done on an SSG scene graph entails 'traversing'
 the tree structure. This is done most commonly to display the
@@ -348,14 +359,6 @@ You can directly set or get the traversal mask with <code>ssgEntity::setTraversa
 <code>ssgEntity::getTraversalMask()</code>. You can set an individual traversal bit using
 <code>ssgEntity::setTraversalMaskBits(m)</code> or clear one using
 <code>ssgEntity::clrTraversalMaskBits(m)</code>.
-
-<H3>User Data</H3>
-Although one can derive a new C++ class from an SSG class and thereby customise
-it's behavior, it's often more convenient to simply attach application-specific
-data structures to a basic entity. Two functions are provided:
-<code>ssgEntity::getUserData()</code> and <code>ssgEntity::setUserData(data)</code>. Note that
-it is your responsability to track when that data should be deleted since
-SSG's reference counting mechanism does not extend to user data.
 
 <H3>Bounding Sphere</H3>
 Quite a few graphics algorithms can be accellerated using a

@@ -11,6 +11,7 @@ class ssgaShape : public ssgBranch
 protected:
   virtual void copy_from ( ssgaShape *src, int clone_flags ) ;
 
+  sgVec4 colour ;
   sgVec3 center ;
   sgVec3 size   ;
 
@@ -41,6 +42,7 @@ public:
   float *getCenter () { return center ; }
   float *getSize   () { return size   ; }
 
+  void setColour  ( sgVec4 c ) { sgCopyVec4 ( colour, c ) ; regenerate () ; }
   void setCenter  ( sgVec3 c ) { sgCopyVec3 ( center, c ) ; regenerate () ; }
   void setSize    ( sgVec3 s ) { sgCopyVec3 ( size  , s ) ; regenerate () ; }
   void setSize    ( float  s ) { sgSetVec3  ( size,s,s,s) ; regenerate () ; }

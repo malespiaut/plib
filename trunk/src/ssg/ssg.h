@@ -1251,6 +1251,27 @@ public:
     return s ;
   }
 
+  int isSelected ( unsigned int i )
+  {
+    return (i<max_kids) ? selection [ i ] : FALSE ;
+  }
+
+  int getFirstSelection ()
+  {
+    int res ;
+
+    for ( res = 0 ; res < max_kids && ! selection[i] ; res++ )
+      /* Look for first selection */ ;
+
+    return ( res < max_kids ) ? res : -1 ;
+  }
+
+  ssgEntity *getFirstSelectedKid ()
+  {
+    int k = getFirstSelection () ;
+    return (k >= 0) ? getKid ( k ) : NULL ;
+  }
+
   int getMaxKids (void) const { return max_kids ; }
 
   virtual char *getTypeName(void) ;
