@@ -194,6 +194,10 @@ SOURCE=.\ssgLoadVRML.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadX.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLocal.h
 # End Source File
 # Begin Source File
@@ -239,6 +243,10 @@ SOURCE=.\ssgSaveOBJ.cxx
 # Begin Source File
 
 SOURCE=.\ssgSaveTRI.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveX.cxx
 # End Source File
 # Begin Source File
 

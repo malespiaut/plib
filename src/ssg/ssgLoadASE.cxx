@@ -84,11 +84,13 @@ static u32 num_frames ;
 
 static _ssgParserSpec parser_spec =
 {
-   "\r\n\t ",  //delim_chars
-   "{",        //open_brace_chars
-   "}",        //close_brace_chars
-   '"',        //quote_char
-   0           //comment_char
+   "\r\n\t ",  // delim_chars_skipable 
+	 0,          // delim_chars_non_skipable
+   "{",        // open_brace_chars
+   "}",        // close_brace_chars
+   '"',        // quote_char
+   0,          // comment_char
+	 0           // comment_string
 } ;
 
 static _ssgParser parser;
