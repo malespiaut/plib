@@ -330,6 +330,7 @@ static ssgBase *createBranch ()            { return new ssgBranch           ; }
 //static ssgBase *createBaseTransform ()     { return new ssgBaseTransform    ; }
 static ssgBase *createTransform ()         { return new ssgTransform        ; }
 static ssgBase *createTexTrans ()          { return new ssgTexTrans         ; }
+static ssgBase *createAxisTransform()      { return new ssgAxisTransform; }
 static ssgBase *createSelector ()          { return new ssgSelector         ; }
 static ssgBase *createRangeSelector ()     { return new ssgRangeSelector    ; }
 static ssgBase *createTimedSelector ()     { return new ssgTimedSelector    ; }
@@ -373,7 +374,8 @@ static struct {
 //{ ssgTypeBaseTransform ()     , createBaseTransform     },
   { ssgTypeTransform ()         , createTransform         },
   { ssgTypeTexTrans ()          , createTexTrans          },
-  { ssgTypeSelector ()          , createSelector          },
+	{ ssgTypeAxisTransform ()     , createAxisTransform     },
+	{ ssgTypeSelector ()          , createSelector          },
   { ssgTypeRangeSelector ()     , createRangeSelector     },
   { ssgTypeTimedSelector ()     , createTimedSelector     },
   { ssgTypeTweenController ()   , createTweenController   },
