@@ -164,7 +164,7 @@ void puLargeInput::setSize ( int w, int h )
       else  // Right slider
       {
         ob->setPosition ( w-slider_width, slider_width*(1+arrow_count) ) ;
-        ob->setSize ( slider_width, h-slider_width*(1-2*arrow_count) ) ;
+        ob->setSize ( slider_width, h-slider_width*(1+2*arrow_count) ) ;
       }
     }
     else if ( ob->getType() & PUCLASS_ARROW )  /* Position the arrow buttons */
