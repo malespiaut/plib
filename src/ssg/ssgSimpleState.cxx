@@ -10,8 +10,6 @@ void ssgSimpleState::copy_from ( ssgSimpleState *src, int clone_flags )
   dont_care      = src -> dont_care ;
   enables        = src -> enables   ;
   texture_handle = src -> texture_handle ;
-  wrapu          = src -> wrapu ;
-  wrapv          = src -> wrapv ;
 
   colour_material_mode = src -> colour_material_mode ;
 
@@ -378,6 +376,7 @@ void ssgSimpleState::enable  ( GLenum mode )
 int ssgSimpleState::load ( FILE *fd )
 {
   delete filename ;
+	int    wrapu, wrapv ;
 
   _ssgReadInt   ( fd, & dont_care            ) ;
   _ssgReadInt   ( fd, & enables              ) ;
@@ -404,6 +403,8 @@ int ssgSimpleState::load ( FILE *fd )
 
 int ssgSimpleState::save ( FILE *fd )
 {
+  int    wrapu = getWrapU(), wrapv = getWrapV();
+
   _ssgWriteInt   ( fd, dont_care            ) ;
   _ssgWriteInt   ( fd, enables              ) ;
   _ssgWriteString( fd, filename             ) ;
@@ -434,11 +435,29 @@ void ssgSimpleState::setTextureFilename ( const char *fname )
   }
 }
 
+/*
+wk: not implemented yet
+Is ssgSimpleState the right place to do this?
+use gkGetTexParamiv or so.
+
+int ssgSimpleState::getWrapU()
+{
+int    wrapu = TRUE, wrapv = TRUE ;
+
+	if ( filename == NULL )
+		return TRUE;
+	if ( filename[0] == 0 )
+		return TRUE;
+	GLuint texture_handle = getTextureHandle ();
+	
+}
+*/
+
 void ssgSimpleState::setTexture ( char *fname, int _wrapu, int _wrapv,
 				  int _mipmap )
 {
-  wrapu = _wrapu ; wrapv = _wrapv ; mipmap = _mipmap ;
-  ssgTexture *tex = new ssgTexture ( fname, wrapu, wrapv, mipmap ) ;
+  mipmap = _mipmap ;
+  ssgTexture *tex = new ssgTexture ( fname, _wrapu, _wrapv, mipmap ) ;
   setTexture ( tex ) ;
   delete tex ;
 }
@@ -473,9 +492,6 @@ void ssgSimpleState::print ( FILE *fd, char *indent, int how_much )
   fprintf ( fd, "%s  TexHandle    = %d\n", indent, texture_handle ) ;
   fprintf ( fd, "%s  TexFilename  = '%s'\n", indent,
                            (filename==NULL) ? "<none>" : filename ) ;
-  fprintf ( fd, "%s  TexWrap U/V  = %s/%s\n", indent,
-                          wrapu ? "True" : "False",
-                          wrapv ? "True" : "False" ) ;
   fprintf ( fd, "%s  Shade Model  = %d\n", indent, shade_model ) ;
   fprintf ( fd, "%s  Shininess    = %f\n", indent, shininess ) ;
   fprintf ( fd, "%s  AlphaClamp   = %f\n", indent, alpha_clamp ) ;
