@@ -100,5 +100,29 @@ SOURCE=.\js.cxx
 
 SOURCE=.\js.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\jsBSD.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\jsLinux.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\jsMacOS.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\jsMacOSX.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\jsNone.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\jsWindows.cxx
+# End Source File
 # End Target
 # End Project
