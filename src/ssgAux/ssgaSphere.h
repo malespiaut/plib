@@ -30,3 +30,4 @@ ssgBranch *ssgaMakeSphere(
   ssgSimpleState *state, ssgColourArray *cl, 
   float radius, int slices, int stacks,
   ssgCallback predraw, ssgCallback postdraw );
+
