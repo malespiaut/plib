@@ -11,6 +11,8 @@
 
 #include "pw.h"
 
+static int             initialised  = 0 ;
+
 static int             origin [2]   = {   0,   0 } ;
 static int             size   [2]   = { 640, 480 } ;
 
@@ -133,19 +135,36 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 }
 
 
-void pwInit ( int multisample, int num_samples,
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb, pwExitCB *ecb )
+void pwOpenWindow ( pwKeybdFunc *kb, pwMouseFunc *ms,
+                    pwMousePosFunc *mp, pwResizeCB *rcb, pwExitCB *ecb )
+{
+  if ( ! initialised )
+  {
+    fprintf ( stderr, "PW: You must not call pwOpenWindow before pwInit.\n" ) ;
+    exit ( 1 ) ;
+  }
+
+  kbCB = kb ;
+  msCB = ms ;
+  mpCB = mp ;
+  resizeCB = rcb ;
+  exitCB   = ecb ? ecb : defaultExitFunc ;
+
+  glClear ( GL_COLOR_BUFFER_BIT ) ;
+  pwSwapBuffers () ;
+  glClear ( GL_COLOR_BUFFER_BIT ) ;
+  pwSwapBuffers () ;
+}
+
+
+void pwInit ( int multisample, int num_samples )
 {
   pwInit ( 0, 0, -1, -1, multisample, "NoName", FALSE, num_samples,
-                        kb, ms, mp, rcb, ecb ) ;
 }
 
 
 void pwInit ( int x, int y, int w, int h, int multisample,
-              char *title, int border, int num_samples, 
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb, pwExitCB *ecb )
+              char *title, int border, int num_samples )
 {
   currInstance = GetModuleHandleA( NULL ) ;
 
@@ -266,16 +285,12 @@ void pwInit ( int x, int y, int w, int h, int multisample,
     exit ( 1 ) ;
   }
   
-  kbCB = kb ;
-  msCB = ms ;
-  mpCB = mp ;
-  resizeCB = rcb ;
-  exitCB   = ecb ? ecb : defaultExitFunc ;
-
-  glClear ( GL_COLOR_BUFFER_BIT ) ;
-  pwSwapBuffers () ;
-  glClear ( GL_COLOR_BUFFER_BIT ) ;
-  pwSwapBuffers () ;
+  kbCB = NULL ;
+  msCB = NULL ;
+  mpCB = NULL ;
+  resizeCB = NULL ;
+  exitCB   = defaultExitFunc ;
+  initialised  = 1 ;
 }
 
 

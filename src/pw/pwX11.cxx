@@ -74,13 +74,13 @@ typedef struct
 
 #endif
 
-
-static int          modifiers    = 0 ;
-static int          origin [2]   = {   0,   0 } ;
-static int          size   [2]   = { 640, 480 } ;
-static int          currScreen   = 0 ;
-static int          currConnect  = 0 ;
-static int          currCursor   = PW_CURSOR_LEFT ;
+static int initialised = 0 ;
+static int modifiers   = 0 ;
+static int origin [2]  = {   0,   0 } ;
+static int size   [2]  = { 640, 480 } ;
+static int currScreen  = 0 ;
+static int currConnect = 0 ;
+static int currCursor  = PW_CURSOR_LEFT ;
 
 static pwResizeCB     *resizeCB = NULL ;
 static pwExitCB       *exitCB   = NULL ;
@@ -88,8 +88,8 @@ static pwKeybdFunc    *kbCB     = NULL ;
 static pwMouseFunc    *msCB     = NULL ;
 static pwMousePosFunc *mpCB     = NULL ;
 
-static Display     *currDisplay  = NULL ;
-static XVisualInfo *visualInfo   = NULL ;
+static Display     *currDisplay = NULL ;
+static XVisualInfo *visualInfo  = NULL ;
 static Window       currHandle  ;
 static GLXContext   currContext ;
 static Window       rootWindow  ;
@@ -173,19 +173,37 @@ static void chooseVisual ( PixelFormat *pf )
 }
 
 
-void pwInit ( int multisample, int num_samples, 
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb, pwExitCB *ecb )
+void pwInit ( int multisample, int num_samples )
 {
-  pwInit ( 0, 0, -1, -1, multisample, "NoName", FALSE, num_samples,
-                        kb, ms, mp, rcb, ecb ) ;
+  pwInit ( 0, 0, -1, -1, multisample, "NoName", FALSE, num_samples ) ;
+}
+
+
+void pwOpenWindow ( pwKeybdFunc *kb, pwMouseFunc *ms,
+                    pwMousePosFunc *mp, pwResizeCB *rcb,
+                    pwExitCB *ecb )
+{
+  if ( ! initialised )
+  {
+    fprintf ( stderr, "PW: You must not call pwOpenWindow before pwInit.\n" ) ;
+    exit ( 1 ) ;
+  }
+
+  kbCB = kb ;
+  msCB = ms ;
+  mpCB = mp ;
+  resizeCB = rcb ;
+  exitCB   = ecb ? ecb : defaultExitFunc ;
+
+  glClear ( GL_COLOR_BUFFER_BIT ) ;
+  pwSwapBuffers () ;
+  glClear ( GL_COLOR_BUFFER_BIT ) ;
+  pwSwapBuffers () ;
 }
 
 
 void pwInit ( int x, int y, int w, int h, int multisample,
-              char *title, int border, int num_samples, 
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb, pwExitCB *ecb )
+              char *title, int border, int num_samples )
 {
   char *displayName = getenv ( "DISPLAY" ) ;
 
@@ -336,16 +354,13 @@ void pwInit ( int x, int y, int w, int h, int multisample,
   glHint ( GL_MULTISAMPLE_FILTER_HINT_NV, multisample ) ;
 #endif
 
-  kbCB = kb ;
-  msCB = ms ;
-  mpCB = mp ;
-  resizeCB = rcb ;
-  exitCB   = ecb ? ecb : defaultExitFunc ;
+  kbCB     = NULL ;
+  msCB     = NULL ;
+  mpCB     = NULL ;
+  resizeCB = NULL ;
+  exitCB   = defaultExitFunc ;
 
-  glClear ( GL_COLOR_BUFFER_BIT ) ;
-  pwSwapBuffers () ;
-  glClear ( GL_COLOR_BUFFER_BIT ) ;
-  pwSwapBuffers () ;
+  initialised = 1 ;
 }
 
 

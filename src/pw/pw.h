@@ -9,16 +9,15 @@ typedef void pwKeybdFunc    ( int key, int updown, int x, int y ) ;
 typedef void pwMouseFunc    ( int key, int updown, int x, int y ) ;
 typedef void pwMousePosFunc ( int x, int y ) ;
 
-void pwInit ( int multisample, int num_samples,
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb = NULL, pwExitCB *ecb = NULL ) ;
+void pwInit ( int multisample, int num_samples ) ;
 
 void pwInit ( int x, int y, int w, int h,
               int multisample,
-              char *title, int border, int num_samples,
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb = NULL, pwExitCB *ecb = NULL ) ;
+              char *title, int border, int num_samples ) ;
 
+void pwOpenWindow ( pwKeybdFunc    *kb = NULL, pwMouseFunc *ms = NULL,
+                    pwMousePosFunc *mp = NULL, pwResizeCB *rcb = NULL,
+                    pwExitCB      *ecb = NULL ) ;
 
 int  pwGetModifiers  () ;
 void pwSwapBuffers   () ;

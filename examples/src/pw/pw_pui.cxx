@@ -52,8 +52,7 @@ void button_cb ( puObject * )
 
 int main ( int, char ** )
 {
-  pwInit ( 100, 100, 640, 480, false, "PLIB Window Demo", true, 0,
-              kbFunc, msFunc, mpFunc, rsFunc, exFunc ) ;
+  pwInit ( 100, 100, 640, 480, false, "PLIB Window Demo", true, 0 ) ;
   puInit () ;
 
   puOneShot *b = new puOneShot ( 50, 50, 200, 80 ) ;
@@ -61,6 +60,7 @@ int main ( int, char ** )
   b -> setLegend   ( "Say Hello" ) ;
   b -> setCallback ( button_cb ) ;
 
+  pwOpenWindow ( kbFunc, msFunc, mpFunc, rsFunc, exFunc ) ;
   while ( 1 )
   {
     glClearColor ( 0.5, 0.1, 0.1, 1.0 ) ;
