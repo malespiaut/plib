@@ -78,6 +78,12 @@ puDialogBox *dialog_box ;
 int large_input_window ;
 puLargeInput *large_input ;
 
+int combo_box_window ;
+puComboBox *combo_box ;
+
+int select_box_window ;
+puSelectBox *select_box ;
+
 fntTexFont *tim ;
 
 
@@ -174,6 +180,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   puInit () ;
 
@@ -188,6 +197,7 @@ int main ( int argc, char **argv )
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
   puSetDefaultColourScheme ( 0.8, 0.8, 0.8, 1.0) ;
 
+
   /* Set up the secondary windows and their widgets */
 
   button_box_window = glutCreateWindow      ( "Button Box Window"  ) ;
@@ -198,12 +208,16 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   char *button_box_entries [] = { "First Entry", "Second Entry", "Third Entry", NULL } ;
   button_box = new puButtonBox ( 10, 10, 130, 80, button_box_entries, TRUE ) ;
   button_box->setLabel ( "Label" ) ;
+
 
   frame_window = glutCreateWindow      ( "Frame Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -213,12 +227,16 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   frame = new puFrame ( 10, 10, 130, 80 ) ;
   frame->setLabel ( "Label" ) ;
   frame->setLegend ( "Legend" ) ;
+
 
   text_window = glutCreateWindow      ( "Text Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -228,11 +246,15 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   text = new puText ( 10, 10 ) ;
   text->setLabel ( "Label" ) ;
+
 
   button_window = glutCreateWindow      ( "Button Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -242,6 +264,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -252,6 +277,7 @@ int main ( int argc, char **argv )
   puText *button_text = new puText ( 10, 40 ) ;
   button_text->setLabel ( "(Button pressed in)" ) ;
 
+
   one_shot_window = glutCreateWindow      ( "One Shot Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
   glutReshapeWindow     ( 180,  100 ) ;
@@ -260,12 +286,16 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   one_shot = new puOneShot ( 10, 10, 90, 30 ) ;
   one_shot->setLabel ( "Label" ) ;
   one_shot->setLegend ( "Legend" ) ;
+
 
   popup_menu_window = glutCreateWindow      ( "Popup Menu Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -275,6 +305,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -286,6 +319,7 @@ int main ( int argc, char **argv )
   popup_menu->close () ;
   popup_menu->reveal () ;
 
+
   menu_bar_window = glutCreateWindow      ( "Menu Bar Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
   glutReshapeWindow     ( 180,  200 ) ;
@@ -294,6 +328,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -305,6 +342,7 @@ int main ( int argc, char **argv )
   }
   menu_bar -> close () ; 
 
+
   input_window = glutCreateWindow      ( "Input Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
   glutReshapeWindow     ( 180,  100 ) ;
@@ -313,11 +351,15 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   input = new puInput ( 10, 10, 90, 30 ) ;
   input->setLabel ( "Label" ) ;
+
 
   slider_window = glutCreateWindow      ( "Slider Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -327,12 +369,16 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   slider = new puSlider ( 10, 10, 120, 0 ) ;
   slider->setLabel ( "Label" ) ;
   slider->setLegend ( "Legend" ) ;
+
 
   arrow_button_window = glutCreateWindow      ( "Arrow Button Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -342,11 +388,15 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   arrow_button = new puArrowButton ( 10, 10, 50, 50, PUARROW_RIGHT ) ;
   arrow_button->setLabel ( "Label" ) ;
+
 
   dial_window = glutCreateWindow      ( "Dial Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -356,12 +406,16 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   dial = new puDial ( 10, 10, 60 ) ;
   dial->setLabel ( "Label" ) ;
   dial->setLegend ( "Legend" ) ;
+
 
   list_box_window = glutCreateWindow      ( "List Box" ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -371,12 +425,16 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
-  char *list_box_entries [] = { "First Entry", "Second Entry", "Third Entry", "Very long Entry that will get truncated", NULL };
+  char *list_box_entries [] = { "First Entry", "Second Entry", "Third Entry", "Very long Entry that will get truncated", NULL } ;
   list_box = new puListBox ( 10, 10, 130, 80, list_box_entries ) ;
   list_box->setLabel ( "Label" ) ;
+
 
   file_selector_window = glutCreateWindow      ( "File Selector Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -386,10 +444,14 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
   file_selector = new puFileSelector ( 10, 10, 280, 200, "." ) ;
+
 
   bislider_window = glutCreateWindow      ( "BiSlider Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
@@ -399,6 +461,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -409,6 +474,7 @@ int main ( int argc, char **argv )
   bislider->setCurrentMin ( 4 ) ;
   bislider->setCurrentMax ( 15 ) ;
 
+
   trislider_window = glutCreateWindow      ( "TriSlider Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
   glutReshapeWindow     ( 100,  200 ) ;
@@ -417,6 +483,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -428,6 +497,7 @@ int main ( int argc, char **argv )
   trislider->setCurrentMax ( 15 ) ;
   trislider->setValue ( 12 ) ;
 
+
   vertical_menu_window = glutCreateWindow      ( "Vertical Menu Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
   glutReshapeWindow     ( 180,  200 ) ;
@@ -436,6 +506,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -447,6 +520,7 @@ int main ( int argc, char **argv )
   }
   vertical_menu -> close () ; 
 
+
   dialog_box_window = glutCreateWindow      ( "Dialog Box Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
   glutReshapeWindow     ( 180,  100 ) ;
@@ -455,6 +529,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -466,6 +543,7 @@ int main ( int argc, char **argv )
   dialog_box->close () ;
   dialog_box->reveal () ;
 
+
   large_input_window = glutCreateWindow      ( "Large Input Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
   glutReshapeWindow     ( 300,  200 ) ;
@@ -474,6 +552,9 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -481,6 +562,51 @@ int main ( int argc, char **argv )
   large_input->setLabel ( "Label" ) ;
   large_input->setText ( "This is text in the Large Input widget.\n"
                          "This is a second line of text" ) ;
+
+
+  combo_box_window = glutCreateWindow      ( "Combo Box window"  ) ;
+  glutPositionWindow    ( 200, 100 ) ;
+  glutReshapeWindow     ( 300,  200 ) ;
+  glutDisplayFunc       ( displayfn ) ;
+  glutKeyboardFunc      ( keyfn     ) ;
+  glutSpecialFunc       ( specialfn ) ;
+  glutMouseFunc         ( mousefn   ) ;
+  glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
+
+  tim -> load ( "../fnt/data/times_bold.txf" ) ;
+
+  char *combo_box_entries [] = { "First Entry", "Second Entry", "Third Entry", "Fourth Entry", "Sixth Entry", "Seventh Entry", NULL } ;
+  combo_box = new puComboBox ( 10, 158, 250, 190,
+                               combo_box_entries ) ;
+  /* Don't do that in your own application ! */
+  combo_box -> __getPopupMenu() -> reveal() ;
+  combo_box->setLabel ( "Label" ) ;
+
+
+  select_box_window = glutCreateWindow      ( "Select Box window"  ) ;
+  glutPositionWindow    ( 200, 100 ) ;
+  glutReshapeWindow     ( 300, 60   ) ;
+  glutDisplayFunc       ( displayfn ) ;
+  glutKeyboardFunc      ( keyfn     ) ;
+  glutSpecialFunc       ( specialfn ) ;
+  glutMouseFunc         ( mousefn   ) ;
+  glutMotionFunc        ( motionfn  ) ;
+#ifdef VOODOO
+  glutPassiveMotionFunc ( motionfn  ) ;
+#endif
+
+  tim -> load ( "../fnt/data/times_bold.txf" ) ;
+
+  glEnable ( GL_BLEND ) ;
+  glAlphaFunc ( GL_GEQUAL, 0.1f ) ;
+  glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
+
+  select_box = new puSelectBox ( 10, 14, 250, 46,
+                                 combo_box_entries ) ;
+  select_box->setLabel ( "Label" ) ;
 
   glutMainLoop () ;
   return 0 ;
