@@ -216,9 +216,9 @@ void puFileSelector::handle_select ( puObject* l_box )
       /* Replace trailing ']' with slash */
       new_dst [ dst_len + src_len - 1 ] = SLASH[0] ;
 
-      file_selector -> find_files () ;
       file_selector -> __getInput() -> setValue ( new_dst ) ;
       delete [] new_dst ;
+      file_selector -> find_files () ;
       return ;
     }
 
