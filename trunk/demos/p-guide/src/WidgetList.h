@@ -27,6 +27,17 @@
 
 #include <plib/pu.h>
 
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
+
 // PUI Widget List for Main Window
 
 struct WidgetList
