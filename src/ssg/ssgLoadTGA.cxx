@@ -53,14 +53,14 @@ bool ssgLoadTGA ( const char *fname, ssgTextureInfo* info )
   }
   
   maxLen = fileinfo.st_size;
-  pData  = (char *) malloc(maxLen);
+  pData  = new char [maxLen];
   fread (pData, maxLen, 1, tfile);
   fclose (tfile);
   pData[0] = 0x00;
   
   if( memcmp( pData, DEF_targaHeaderContent, DEF_targaHeaderLength ) != 0 ) {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'. Not a targa (apparently).", fname);
-    free (pData);
+    delete[] pData;
     return false ;
   }
   
@@ -79,7 +79,7 @@ bool ssgLoadTGA ( const char *fname, ssgTextureInfo* info )
   if( ( width <= 0 ) || ( height <= 0 ) )
   {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'. Width and height < 0.", fname);
-    free (pData);
+    delete[] pData;
     return false ;
   }
   
@@ -90,7 +90,7 @@ bool ssgLoadTGA ( const char *fname, ssgTextureInfo* info )
   if( !( is24Bit || is32Bit ) )
   {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'. Not 24 or 32 bit.", fname);
-    free (pData);
+    delete[] pData;
     return false ;
   }
   
@@ -122,7 +122,7 @@ bool ssgLoadTGA ( const char *fname, ssgTextureInfo* info )
     texels[ loop + 2 ] = tempC;
   }
   
-  free(pData);
+  delete[] pData;
   
   if ( info != NULL )
   {
