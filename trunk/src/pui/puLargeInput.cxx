@@ -105,6 +105,8 @@ void puLargeInput::removeSelectRegion ( void )
   strcpy ( text, p ) ;
   delete p ;
 
+  wrapText () ;
+
   cursor_position = select_start_position ;
   select_end_position = select_start_position ;
 }
@@ -122,7 +124,7 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
   type |= PUCLASS_LARGEINPUT ;
   num_lines = 1 ;
   slider_width = sl_width ;
-  lines_in_window = ( h - slider_width ) /
+  lines_in_window = ( h - (bottom_slider?slider_width:0) ) /
                     ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
   top_line_in_window = 0 ;
   max_width = 0 ;
@@ -152,8 +154,8 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
     bottom_slider->setCBMode( PUSLIDER_DELTA );
   }
 
-  right_slider = new puSlider ( w - slider_width, slider_width*(1+arrows),
-                                h - slider_width * ( 1 + 2 * arrows ), 1, slider_width ) ,
+  right_slider = new puSlider ( w - slider_width, slider_width*((bottom_slider?1:0)+arrows),
+                                h - slider_width * ( (bottom_slider?1:0) + 2 * arrows ), 1, slider_width ) ,
   right_slider->setValue ( 1.0f ) ;    // All the way to the top
   right_slider->setDelta(0.1f);
   right_slider->setSliderFraction (1.0f) ;
@@ -166,7 +168,7 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
 
   if ( arrows > 0 )
   {
-    down_arrow = new puArrowButton ( w-slider_width, slider_width*arrows, w, slider_width*(1+arrows), PUARROW_DOWN ) ;
+    down_arrow = new puArrowButton ( w-slider_width, slider_width*(arrows-1+(bottom_slider?1:0)), w, slider_width*(arrows+(bottom_slider?1:0)), PUARROW_DOWN ) ;
     down_arrow->setUserData ( right_slider ) ;
     down_arrow->setCallback ( puLargeInputHandleArrow ) ;
 
@@ -177,7 +179,7 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
 
   if ( arrows == 2 )
   {
-    fastdown_arrow = new puArrowButton ( w-slider_width, slider_width, w, slider_width*2, PUARROW_FASTDOWN ) ;
+    fastdown_arrow = new puArrowButton ( w-slider_width, (bottom_slider?slider_width:0), w, slider_width*(1+(bottom_slider?1:0)), PUARROW_FASTDOWN ) ;
     fastdown_arrow->setUserData ( right_slider ) ;
     fastdown_arrow->setCallback ( puLargeInputHandleArrow ) ;
 
@@ -222,12 +224,12 @@ void puLargeInput::setSize ( int w, int h )
   right_slider->setSize ( slider_width, h-slider_width*(1+2*arrow_count) ) ;
 
   // Reposition the arrow buttons
-  if ( down_arrow ) down_arrow->setPosition ( w-slider_width, slider_width*arrow_count ) ;
-  if ( fastdown_arrow ) fastdown_arrow->setPosition ( w-slider_width, slider_width ) ;
+  if ( down_arrow ) down_arrow->setPosition ( w-slider_width, slider_width*(arrow_count-1+(bottom_slider?1:0)) ) ;
+  if ( fastdown_arrow ) fastdown_arrow->setPosition ( w-slider_width, (bottom_slider?slider_width:0) ) ;
   if ( up_arrow ) up_arrow->setPosition ( w-slider_width, h-slider_width*arrow_count ) ;
   if ( fastup_arrow ) fastup_arrow->setPosition ( w-slider_width, h-slider_width ) ;
 
-  lines_in_window = ( h - slider_width ) /
+  lines_in_window = ( h - (bottom_slider?slider_width:0) ) /
                     ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
 }
 
@@ -235,9 +237,10 @@ void puLargeInput::setSelectRegion ( int s, int e )
 {
   select_start_position = s ;
   select_end_position   = e ;
-  char *lin_ptr = text ;
+  char *lin_ptr = ( bottom_slider ? getText () : getWrappedText () ) ;
+  char *text_start = lin_ptr ;
   int line_count = 0 ;
-  while ( lin_ptr && ( lin_ptr <= text + select_start_position ) )  // Count the lines
+  while ( lin_ptr && ( lin_ptr <= text_start + select_start_position ) )  // Count the lines
   {
     line_count ++ ;
     lin_ptr = strchr ( lin_ptr+1, '\n' ) ;
@@ -260,15 +263,16 @@ void puLargeInput::setSelectRegion ( int s, int e )
 
 void  puLargeInput::selectEntireLine ( void )
 {
-  while ( ( select_start_position > 0 ) && ( *(text + select_start_position) != '\n' ) )
+  char *temp_text = ( bottom_slider ? getText () : getWrappedText () ) ;
+  while ( ( select_start_position > 0 ) && ( *(temp_text + select_start_position) != '\n' ) )
     select_start_position -- ;
 
 
   if ( select_start_position > 0 )
     select_start_position ++ ;
 
-  select_end_position = int ( strchr ( text + select_end_position, '\n' ) + 1 - text ) ;
-  if ( select_end_position == 1 ) select_end_position = strlen ( text ) ;
+  select_end_position = int ( strchr ( temp_text + select_end_position, '\n' ) + 1 - temp_text ) ;
+  if ( select_end_position == 1 ) select_end_position = strlen ( temp_text ) ;
 }
 
 void  puLargeInput::addNewLine ( char *l )
@@ -382,7 +386,9 @@ void  puLargeInput::setText ( char *l )
   max_width = 0 ;
 
   int line_width = 0 ;       // Width of current line
-  char *this_char = text ;   // Pointer to character in text
+  if ( !bottom_slider ) wrapText () ;
+  char *this_char = ( bottom_slider ? getText () : getWrappedText () ) ;   // Pointer to character in text
+
   num_lines = 0 ;
 
   while ( *this_char != '\0' )
@@ -419,8 +425,6 @@ void  puLargeInput::setText ( char *l )
 
   if ( bottom_slider )
     bottom_slider->setSliderFraction ( (float)box_width / (float)max_width ) ;
-  else
-    wrapText () ;
 
   right_slider->setSliderFraction ( (float)box_height / (float)num_lines ) ;
 }
@@ -478,7 +482,7 @@ void puLargeInput::draw ( int dx, int dy )
 
     if ( accepting )
     {
-      char *val = getText () ;
+      char *val = ( bottom_slider ? getText () : getWrappedText () ) ;
 
       // Highlight the select area
 
@@ -660,7 +664,7 @@ void puLargeInput::draw ( int dx, int dy )
     if ( accepting )
     { 
       char *val ;                   // Pointer to the actual text in the box
-      val = getText () ;
+      val = ( bottom_slider ? getText () : getWrappedText () ) ;
 
       // Draw the 'I' bar cursor.
 
@@ -817,7 +821,7 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
 
     // Get the line number and position on the line of the mouse
 
-    char *strval = getText () ;
+    char *strval = ( bottom_slider ? getText () : getWrappedText () ) ;
     char *tmpval = new char [ strlen(strval) + 1 ] ;
     strcpy ( tmpval, strval ) ;
 
