@@ -49,6 +49,28 @@ void  puPopGroup ( void )
     ulSetError ( UL_WARNING, "PUI: puGroup stack is empty!" ) ;
 }
 
+void puRemoveGroup ( puGroup *gr )
+{
+  int index = currGroup ;
+  while ( index >= 0 )
+  {
+    if ( groupStack [ index ] == gr )
+    {
+      int jndx ;
+      for ( jndx = index; jndx < currGroup - 1; jndx ++ )
+        groupStack [ jndx ] = groupStack [ jndx + 1 ] ;
+
+      currGroup -- ;
+      return ;
+    }
+
+    index -- ;
+  }
+
+  ulSetError ( UL_WARNING, "PUI:  Trying to remove invalid puGroup from puGroup stack!" ) ;
+}
+
+
 int  puNoGroup ( void )
 {
   return currGroup < 0 ;
@@ -351,6 +373,8 @@ void puGroup::doHit ( int, int, int, int )
 puGroup::~puGroup ()
 {
   void puCleanUpJunk ( void ) ;
+
+  puRemoveGroup ( this ) ;
 
   puObject *bo = getLastChild () ;
 
