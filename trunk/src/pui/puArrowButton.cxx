@@ -2,7 +2,7 @@
 
 void puArrowButton::draw ( int dx, int dy )
 {
-  if ( !visible ) return ;
+  if ( !visible || ( window != puGetWindow () ) ) return ;
 
   /*
     If arrow button is pushed or highlighted -

@@ -89,7 +89,7 @@ int puPopupMenu::checkKey ( int key, int updown )
 
 int puPopupMenu::checkHit ( int button, int updown, int x, int y )
 {
-  if ( dlist == NULL || ! isVisible () || ! isActive () )
+  if ( dlist == NULL || ! isVisible () || ! isActive () || ( window != puGetWindow () ) )
     return FALSE ;
 
   /* Must test 'isHit' before making the menu invisible! */

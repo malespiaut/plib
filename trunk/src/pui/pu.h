@@ -258,11 +258,13 @@ extern int puRefresh ;
 #define PUCLASS_DIALOGBOX        0x00004000
 #define PUCLASS_ARROW            0x00008000
 #define PUCLASS_LISTBOX          0x00010000
+#define PUCLASS_DIAL             0x00010000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
 void puSetResizeMode ( bool mode ) ;
 
+int  puGetWindow       () ;
 int  puGetWindowHeight () ;
 int  puGetWindowWidth  () ;
 
@@ -282,6 +284,7 @@ class puInput            ;
 class puSlider           ;
 class puListBox          ;
 class puArrowButton      ;
+class puDial             ;
 
 typedef float puColour [ 4 ] ;  /* RGBA */
 
@@ -317,6 +320,7 @@ inline void puSetColour ( puColour c, float r, float g, float b, float a = 1.0f 
 
 void  puInit           ( void ) ;
 void  puDisplay        ( void ) ;
+void  puDisplay        ( int window_number ) ;
 int   puMouse          ( int button, int updown, int x, int y ) ;
 int   puMouse          ( int x, int y ) ;
 int   puKeyboard       ( int key, int updown ) ;
@@ -399,9 +403,9 @@ public:
     puRefresh = TRUE ;
   }
 
-  void setValuator ( int   *i ) { res_integer = i ; re_eval () ; }
-  void setValuator ( float *f ) { res_floater = f ; re_eval () ; }
-  void setValuator ( char  *s ) { res_string  = s ; re_eval () ; }
+  void setValuator ( int   *i ) { res_integer = i    ; res_floater = NULL ; res_string = NULL ; re_eval () ; }
+  void setValuator ( float *f ) { res_integer = NULL ; res_floater = f    ; res_string = NULL ; re_eval () ; }
+  void setValuator ( char  *s ) { res_integer = NULL ; res_floater = NULL ; res_string = s    ; re_eval () ; }
 
   void setValue ( int   i ) { integer = i ; floater = (float) i ; sprintf ( string, "%d", i ) ; update_res() ; puRefresh = TRUE ; }
   void setValue ( float f ) { integer = (int) f ; floater = f ; sprintf ( string, "%g", f ) ; update_res() ; puRefresh = TRUE ; }
@@ -461,6 +465,7 @@ protected:
   int active      ;
   int highlighted ;
   int am_default  ;
+  int window ;        /* Which window does the object appear in? */
 
   const char *label  ; puFont  labelFont ; int labelPlace ;
   const char *legend ; puFont legendFont ;
@@ -475,7 +480,8 @@ protected:
                                                x >= abox.min[0] &&
                                                x <= abox.max[0] &&
                                                y >= abox.min[1] &&
-                                               y <= abox.max[1] ; }
+                                               y <= abox.max[1] &&
+                                               window == puGetWindow () ; }
   virtual void doHit ( int button, int updown, int x, int y ) ;
 
 public:
@@ -561,6 +567,9 @@ public:
 
   void  makeReturnDefault ( int def ) { am_default = def ; }
   int   isReturnDefault   ( void )          { return am_default ; }
+
+  int   getWindow () { return window ; }
+  void  setWindow ( int w ) { window = w ; }
 
   void  setActiveDirn ( int e ) { active_mouse_edge = e ; }
   int   getActiveDirn ( void ) { return active_mouse_edge ; }
@@ -857,6 +866,32 @@ public:
   void setTopItem( int item_index ) ;
 
 } ;
+
+
+class puDial : public puObject
+{
+protected:
+  float min_value ;
+  float max_value ;
+public:
+  void doHit ( int button, int updown, int x, int y ) ;
+  void draw  ( int dx, int dy ) ;
+  puDial ( int minx, int miny, int sz ) :
+     puObject ( minx, miny, minx+sz, miny+sz )
+  {
+    type |= PUCLASS_DIAL ;
+    setValue ( 0.0f ) ;
+    min_value = -180.0f ;
+    max_value = +180.0f ;
+  }
+
+  void setMinimum ( float f ) { min_value = f ; }
+  float getMinimum ( void ) { return min_value ; }
+
+  void setMaximum ( float f ) { max_value = f ; }
+  float getMaximum ( void ) { return max_value ; }
+} ;
+
 
 
 class puOneShot : public puButton

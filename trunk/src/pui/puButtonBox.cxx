@@ -19,7 +19,7 @@ int puButtonBox::checkKey ( int key, int updown )
 {
   if ( updown == PU_UP ||
        ! isReturnDefault() ||
-       ( key != '\r' && key != '\n' ) )
+       ( key != '\r' && key != '\n' ) || ( window != puGetWindow () ) )
     return FALSE ;
 
   int v = getValue () ;
@@ -61,7 +61,7 @@ int puButtonBox::checkHit ( int /*button*/, int updown, int x, int y )
 
 void puButtonBox::draw ( int dx, int dy )
 {
-  if ( !visible ) return ;
+  if ( !visible || ( window != puGetWindow () ) ) return ;
 
   abox . draw ( dx, dy, style, colour, isReturnDefault() ) ;
 

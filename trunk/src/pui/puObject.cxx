@@ -81,6 +81,7 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   visible = active  = TRUE  ;
   highlighted       = FALSE ;
   am_default        = FALSE ;
+  window            = puGetWindow () ;
 
   cb          = NULL ;
   r_cb        = NULL ;
@@ -168,7 +169,7 @@ int puObject::checkKey ( int key, int updown )
   if ( updown == PU_UP )
     return FALSE ;
 
-  if ( isReturnDefault() && ( key == '\r' || key == '\n' ) )
+  if ( isReturnDefault() && ( key == '\r' || key == '\n' ) && ( window == puGetWindow () ) )
   {
     checkHit ( PU_LEFT_BUTTON, PU_DOWN, (abox.min[0]+abox.max[0])/2,
                                         (abox.min[1]+abox.max[1])/2 ) ;

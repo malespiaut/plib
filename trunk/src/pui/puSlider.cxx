@@ -3,7 +3,7 @@
 
 void puSlider::draw ( int dx, int dy )
 {
-  if ( !visible ) return ;
+  if ( !visible || ( window != puGetWindow () ) ) return ;
 
   abox . draw ( dx, dy,
                 (style==PUSTYLE_BEVELLED||
