@@ -2,11 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
+#  ifndef macintosh
+#    include <GL/glx.h>
+#  endif
 #endif
+
 #include <limits.h>
 #include <math.h>
 

@@ -4,10 +4,15 @@
 #include <string.h>
 
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
+#  include <GL/gl.h>
+#else
+#  include <GL/gl.h>
+#  ifndef macintosh
+#    include <GL/glx.h>
+#  endif
 #endif
 
-#include <GL/gl.h>
 
 #define _SSG_PUBLIC  public
 
