@@ -247,20 +247,19 @@ void ssgSetAppStateCallback ( ssgState *(*cb)(char *) )
   _ssgGetAppState = cb ;
 }
 
-
 enum { MAX_SHARED_TEXTURES = 100, MAX_SHARED_STATES = 1000 };
 static ssgTexture* shared_textures [ MAX_SHARED_TEXTURES ] ;
 static ssgSimpleState* shared_states [ MAX_SHARED_STATES ] ;
 static int num_shared_textures = 0 ;
 static int num_shared_states = 0 ;
 
-void _ssgShareReset ()
+static void _ssgShareReset ()
 {
    num_shared_textures = 0 ;
    num_shared_states = 0 ;
 }
 
-GLuint _ssgShareTexture ( char* tfname )
+static GLuint _ssgShareTexture ( char* tfname )
 {
   if ( tfname == NULL || tfname[0] == 0 )
      return 0 ;
@@ -280,7 +279,7 @@ GLuint _ssgShareTexture ( char* tfname )
   return 0 ;
 }
 
-ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
+static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
 {
   if ( st == NULL )
      return NULL ;
@@ -360,7 +359,7 @@ ssgCreateData::~ssgCreateData ()
   delete tfname ;
 }
 
-ssgLeaf* _ssgCreateFunc ( ssgCreateData* data )
+static ssgLeaf* default_createfunc ( ssgCreateData* data )
 {
   ssgState *st = NULL ;
   ssgVtxTable *vtab = 0 ;
@@ -430,6 +429,13 @@ Dunno what's wrong with it.
 }
 
 
+ssgLeaf *(*_ssgCreateFunc)(ssgCreateData *) = default_createfunc ;
+
+void ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgCreateData *) )
+{
+   _ssgCreateFunc = cb ;
+}
+
 void ssgModelPath ( char *s )
 {
   delete _ssgModelPath ;
@@ -456,7 +462,7 @@ static char *file_extension ( char *fname )
 }
 
 
-typedef ssgEntity *_ssgLoader ( char *, ssgHookFunc, ssgCreateFunc ) ;
+typedef ssgEntity *_ssgLoader ( char *, ssgHookFunc ) ;
 typedef int         _ssgSaver ( char *, ssgEntity * ) ;
 
 struct _ssgFileFormat
@@ -481,7 +487,7 @@ static _ssgFileFormat formats[] =
 } ;
 
   
-ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
+ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
 {
   if ( fname == NULL || *fname == '\0' )
     return NULL ;
@@ -497,7 +503,7 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc
   for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
     if ( f->loadfunc != NULL &&
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
-      return f->loadfunc( fname, hookfunc, createfunc ) ;
+      return f->loadfunc( fname, hookfunc ) ;
 
   ulSetError ( UL_WARNING, "ssgLoad: Unrecognised file type '%s'", extn ) ;
   return NULL ;

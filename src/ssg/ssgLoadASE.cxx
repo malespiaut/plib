@@ -67,7 +67,6 @@ static u32 num_frames ;
 
 static _ssgParser parser;
 static ssgBranch* top_branch;
-static ssgCreateFunc current_createFunc = NULL ;
 
 aseMesh::aseMesh()
 {
@@ -577,7 +576,7 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
   data->tfname = mat -> tfname ;
   data->cull_face = TRUE ;
 
-  ssgLeaf* leaf = (*current_createFunc) ( data ) ;
+  ssgLeaf* leaf = (*_ssgCreateFunc) ( data ) ;
   return leaf ;
 }
 
@@ -837,10 +836,9 @@ static void parse_free()
 }
 
 
-ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
+ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc )
 {
-  current_createFunc = ( createfunc != NULL )? createfunc: _ssgCreateFunc ;
-  (*current_createFunc) ( 0 ) ;  //reset
+  (*_ssgCreateFunc) ( 0 ) ;  //reset
 
   top_branch = new ssgBranch ;
   parser.openFile( fname );
@@ -852,6 +850,6 @@ ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createf
   parse_free();
   parser.closeFile();
 
-  (*current_createFunc) ( 0 ) ;  //reset
+  (*_ssgCreateFunc) ( 0 ) ;  //reset
   return top_branch ;
 }

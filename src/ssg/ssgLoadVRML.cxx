@@ -1,6 +1,7 @@
 
 #include "ssgLocal.h"
 
+#if 0
 #ifdef WIN32
 #define strncasecmp strnicmp
 #endif
@@ -1151,7 +1152,7 @@ int VRMLdo_description  ( char *s )
 
 
 
-ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
+ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc )
 // int &leafCount, vTableList &vTableList; )
 {
   current_hookFunc = hookfunc ;
@@ -1422,3 +1423,11 @@ ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc create
   return Zup ;
 }
 
+#else
+
+ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc )
+{
+   return NULL ;
+}
+
+#endif
