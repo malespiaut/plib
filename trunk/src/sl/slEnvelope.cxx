@@ -83,7 +83,7 @@ void slEnvelope::applyToPitch  ( Uchar *dst, slPlayer *src,
   unsigned char tmp [ 512 ] ;
   float  pos = 0 ;
   float npos = 0 ;
-  unsigned char last = 0x80 ;
+  unsigned char last = prev_pitchenv;
 
   while ( nframes-- )
   {
@@ -104,6 +104,7 @@ void slEnvelope::applyToPitch  ( Uchar *dst, slPlayer *src,
       src -> read ( offset, tmp, next_env ) ;
 
       *(dst++) = last = tmp [ offset-1 ] ; 
+      prev_pitchenv = last;
     }
   }
 }
@@ -166,6 +167,31 @@ void slEnvelope::applyToVolume ( Uchar *dst, Uchar *src,
     *(dst++) = ( res > 255 ) ? 255 : ( res < 0 ) ? 0 : res ;
   }
 }
+
+void slEnvelope::applyToLPFilter ( Uchar *dst, Uchar *src,
+                                 int nframes, int start )
+{
+  float  delta ;
+  float  _time = slScheduler::getCurrent() -> getElapsedTime ( start ) ;
+  int     step = getStepDelta ( &_time, &delta ) ;
+  float _value = delta * (_time - time[step]) + value[step] ;
+  register float p_v = previous_value;
+  delta /= (float) slScheduler::getCurrent() -> getRate () ;
+
+  while ( nframes-- )
+  {
+
+    register float c_v = (float) ((int)*(src++) - 0x80);
+    register float f=_value;
+    p_v = p_v*(1.0-f)+ f*c_v;
+    register int res = (int)(p_v) + 0x80 ;
+    _value += delta ;
+
+    *(dst++) = ( res > 255 ) ? 255 : ( res < 0 ) ? 0 : res ;
+  }
+  previous_value = p_v;
+}
+
 
 void slEnvelope::applyToInvVolume ( Uchar *dst, Uchar *src,
                                     int nframes, int start )

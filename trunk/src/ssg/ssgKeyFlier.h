@@ -227,8 +227,8 @@ public:
       case  '6' : velocity.hpr[0] -= rscale ; break ;
       case  '4' : velocity.hpr[0] += rscale ; break ;
 /* Kludge to try to prevent *exact* +/-90 degree pitch terms */
-      case  '8' : velocity.hpr[1] -= rscale+0.00001 ; break ;
-      case  '2' : velocity.hpr[1] += rscale+0.00001 ; break ;
+      case  '8' : velocity.hpr[1] -= rscale+0.00001f ; break ;
+      case  '2' : velocity.hpr[1] += rscale+0.00001f ; break ;
 
       case  '7' : velocity.hpr[2] -= rscale ; break ;
       case  '9' : velocity.hpr[2] += rscale ; break ;

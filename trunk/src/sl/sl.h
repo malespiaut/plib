@@ -363,12 +363,13 @@ class slEnvelope
 {
 protected:
 
-  float *time  ;
-  float *value ;
-  int   nsteps ;
-  int   ref_count ;
-
-  slReplayMode replay_mode ;
+  float        *time           ;
+  float        *value          ;
+  int           nsteps         ;
+  int           ref_count      ;
+  float         previous_value ;
+  unsigned char prev_pitchenv  ;
+  slReplayMode  replay_mode    ;
 
   int getStepDelta ( float *_time, float *delta ) const ;
 
@@ -382,7 +383,8 @@ public:
     value = new float [ nsteps ] ;
     memcpy ( time , _times , sizeof(float) * nsteps ) ;
     memcpy ( value, _values, sizeof(float) * nsteps ) ;
-
+    prev_pitchenv = 0x80 ;
+    previous_value = 0.0f ;
     replay_mode = _rm ;
   }
 
@@ -393,6 +395,8 @@ public:
     nsteps = _nsteps ;
     time  = new float [ nsteps ] ;
     value = new float [ nsteps ] ;
+    prev_pitchenv = 0x80 ;
+    previous_value = 0.0f ;
 
     for ( int i = 0 ; i < nsteps ; i++ )
       time [ i ] = value [ i ] = 0.0 ;
@@ -414,6 +418,10 @@ public:
   void unRef () { ref_count-- ; }
 
   int getPlayCount () const { return ref_count ; }
+
+  void applyToLPFilter ( unsigned char *dst,
+                         unsigned char *src,
+                         int nframes, int start ) ;
 
   void setStep ( int n, float _time, float _value )
   {
@@ -438,10 +446,10 @@ public:
 } ;
 
 #define SL_MAX_PRIORITY  16
-#define SL_MAX_SAMPLES   16
+#define SL_MAX_SAMPLES   32
 #define SL_MAX_CALLBACKS (SL_MAX_SAMPLES * 2)
-#define SL_MAX_ENVELOPES 4
-#define SL_MAX_MIXERINPUTS 10
+#define SL_MAX_ENVELOPES 32
+#define SL_MAX_MIXERINPUTS 16
 
 enum slEnvelopeType
 {

@@ -118,6 +118,8 @@ void slPlayer::read ( int nframes, Uchar *dst, int next_env )
     case SL_INVERSE_FILTER_ENVELOPE:
     case SL_FILTER_ENVELOPE :
       read ( nframes, dst, next_env+1 ) ;
+      env [ next_env ] -> applyToLPFilter ( dst, dst, nframes,
+                                            env_start_time [ next_env ] ) ;
       break ;
 
     case SL_INVERSE_PAN_ENVELOPE   :
