@@ -20,6 +20,7 @@
 
 #include "ul.h"
 #include <errno.h>
+#include <netinet/in.h>
 
 
 #if defined (WIN32)
