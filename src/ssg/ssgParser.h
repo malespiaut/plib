@@ -29,12 +29,16 @@
 // Be sure to read the ssg-documentation, especially the chapter
 // on loaders/writers
 
+
+typedef void PreProcessorFunctionType(char *line);
+
 // The _ssgParserSpec contains the rules how to extract the tokens:
 
 struct _ssgParserSpec
 { // delimiters; Thats is, chars that delimit tokens:
   const char* delim_chars_skipable ;     // these are "swallowed" by the parser
   const char* delim_chars_non_skipable ; // These are handed to the app.
+  PreProcessorFunctionType *pre_processor; // After reading a line, it is first given to the preprocessor to tweak it in place.
   const char* open_brace_chars ;
   const char* close_brace_chars ;
   char quote_char ;

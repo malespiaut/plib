@@ -86,6 +86,7 @@ static _ssgParserSpec parser_spec =
 {
    "\r\n\t ",  // delim_chars_skipable
    NULL,       // delim_chars_non_skipable
+   NULL,      // pre_processor
    NULL,          // open_brace_chars
    NULL,          // close_brace_chars
    '"',        // quote_char. not used for scenery
