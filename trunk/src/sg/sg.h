@@ -1380,7 +1380,7 @@ bool sgPointInTriangle      ( sgVec3 point, sgVec3 tri[3] );
 #define SGD_ONE   1.0
 #define SGD_TWO   2.0
 #define SGD_THREE 3.0
-#define SGD_FOUR  3.0
+#define SGD_FOUR  4.0
 #define SGD_45    45.0
 #define SGD_60    60.0
 #define SGD_90    90.0
