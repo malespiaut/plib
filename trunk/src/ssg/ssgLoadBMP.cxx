@@ -264,9 +264,11 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
 
   if ( bpp == 8 )
   {
+    int i ;
+
     // check for diffrent alpha values in the bitmap
     // assume blending if that's the case
-    for ( int i = 1 ; i < w * h ; i++ ) {
+    for ( i = 1 ; i < w * h ; i++ ) {
       if  (pal[data[i]].a != pal[data[i-1]].a) {
         isOpaque = FALSE ;
         break;
@@ -280,7 +282,7 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
 
     image = new GLubyte [ w * h * z ] ;
 
-    for ( int i = 0 ; i < w * h ; i++ )
+    for ( i = 0 ; i < w * h ; i++ )
       switch ( z )
       {
         case 1 : image [ i       ] = pal[data[i]].r ; break ;
