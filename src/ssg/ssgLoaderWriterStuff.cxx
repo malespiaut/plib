@@ -18,6 +18,74 @@ sgVec4 currentDiffuse;
 // ********************  small utility functions  ************************
 // ***********************************************************************
 
+void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray* vertices,
+																ssgIndexArray*  indices, SGfloat epsilon) 
+// Accumulates all vertices and Faces (indexes of vertices making up faces)
+// from node and any nodfe below.
+// Calls itself recursively.
+// If indices is NULL, no face info is accumulated
+// if epsilon is < 0.0, it is ignored. Else vertices are only accumulated if 
+// there is no vertex inside epsilon yet
+{
+
+	assert( vertices != NULL );
+	assert( (epsilon < 0.0) || (indices == NULL) ); // sorry: using epsilon AND using indices not implemented
+  if ( node->isAKindOf( ssgTypeTransform() ) ) {
+    sgMat4 local_transform;
+    ssgTransform *t_node = (ssgTransform*)node;
+    
+    t_node->getTransform(local_transform);
+    sgPostMultMat4( local_transform, transform );
+
+    for (ssgEntity* kid = t_node->getKid(0); kid != NULL; 
+	 kid = t_node->getNextKid()) {
+      ssgAccumVerticesAndFaces( kid, local_transform, vertices, indices, epsilon );
+    }
+  } else if ( node->isAKindOf( ssgTypeBranch() ) ) {
+    ssgBranch *b_node = (ssgBranch*)node;
+    for (ssgEntity* kid = b_node->getKid(0); kid != NULL; 
+	 kid = b_node->getNextKid()) {
+      ssgAccumVerticesAndFaces( kid, transform, vertices, indices, epsilon );
+    }    
+  } else if ( node->isAKindOf( ssgTypeLeaf() ) ) {
+    ssgLeaf* l_node = (ssgLeaf*)node;
+    int i, vert_low = vertices->getNum();
+    for (i = 0; i < l_node->getNumVertices(); i++) {
+      sgVec3 new_vertex;
+      sgXformVec3(new_vertex, l_node->getVertex(i), transform);
+			if ( epsilon < 0.0 )
+        vertices->add(new_vertex);
+			else
+			{ int j, bFound = FALSE, nv1 = vertices -> getNum ();
+				for ( j = 0; j < nv1; j++)
+				{	float *oldvertex = vertices -> get(j);
+					if (( new_vertex[0] - oldvertex[0] > -epsilon) &&
+							( new_vertex[0] - oldvertex[0] < epsilon) &&
+							( new_vertex[1] - oldvertex[1] > -epsilon) &&
+							( new_vertex[1] - oldvertex[1] < epsilon) &&
+							( new_vertex[2] - oldvertex[2] > -epsilon) &&
+							( new_vertex[2] - oldvertex[2] < epsilon))
+					{
+						bFound = TRUE;
+						break;
+					}
+				}
+				if ( ! bFound )
+					vertices -> add ( new_vertex );
+			}
+    }
+
+		if ( indices != NULL )
+			for (i = 0; i < l_node->getNumTriangles(); i++) {
+				short v1, v2, v3;
+				l_node->getTriangle(i, &v1, &v2, &v3);
+				indices->add( vert_low + v1 );
+				indices->add( vert_low + v2 );
+				indices->add( vert_low + v3 );
+			}
+  }
+}
+
 void ssgFindOptConvertTexture( char * filepath, char * tfname ) 
 // Find and optionally (= if necessary) convert texture
 {
@@ -271,20 +339,11 @@ void ssgLoaderWriterMesh::AddOneNode2SSG(class ssgVertexArray *theVertices,
 		PfuschGettCPV(), // super Pfusch kludge
 		cl, il ) ;
 	leaf -> setCullFace ( TRUE ) ;
-
-
-// debug
-/*  float *af=currentState->getMaterial ( GL_DIFFUSE  );
-	parser.message("vor leaf-SetState: af[0] = %f, %f, %f, %f\n",
-					af[0], af[1], af[2], af[3]);*/
-// debug stop
-
 	leaf -> setState ( currentState ) ;
-	//return 
-	assert(	
-		current_options -> createLeaf ( leaf, NULL)  
-		!= NULL );
-	curr_branch_->addKid(leaf);
+
+	ssgEntity *model=	current_options -> createLeaf ( leaf, NULL)  ;
+	assert( model != NULL );
+	curr_branch_->addKid(model);
 }
 
 void ssgLoaderWriterMesh::add2SSG(
