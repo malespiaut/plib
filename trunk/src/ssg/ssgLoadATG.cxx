@@ -429,12 +429,10 @@ static int parse()
 			break;
 	} // ******* end of reading faces *****
 	if ( token != NULL )
-		// Fixme
-		printf("f expected, got %s\n", token);
+		ulSetError ( UL_WARNING, "f expected, got %s\n", token);
 	
 	if (! parser.eof )
-		// Fixme
-		printf("Warning: no eof\n");
+		ulSetError ( UL_WARNING, "Warning: no eof\n");
 	
 	
 	// kludge. We need a state for add2SSG:
