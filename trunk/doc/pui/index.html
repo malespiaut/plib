@@ -569,6 +569,23 @@ variable to store the widget's state.
 Each widget can also retain a pointer to user-supplied data:
 <pre>  void  puObject::setUserData ( void *data ) ;
   void *puObject::getUserData () ;</pre>
+A puObject contains pointers to the previous and next puObject which you
+can retrieve:
+<pre>  puObject * puObject::getPrevObject ( void ) ;
+  puObject * puObject::getNextObject ( void ) ;
+
+</pre>
+These routines will always return NULL unless the widget is a member
+of a <a href="#puGroup">puGroup</a>. If the widget is a child of a <a href="#puGroup">puGroup</a>,
+the functions will return a pointer to the previous or the next object
+in the puGroup according to the order of the child widgets' creation.
+If the object is the first child inside a puGroup, getPrevObject returns
+NULL, if it is the last one, puNextObject will return a NULL pointer
+as well.
+<p>
+Normally, these functions are only used by PUI, although a programmer
+may find it useful to iterate over the childs of a <a href="#puGroup">puGroup</a> himself.
+<p>
 When the widget is drawn, the application has control of the drawing style
 and the colours in which the widget is drawn. Reasonable defaults are provided
 by PUI if you don't set them:
@@ -1377,9 +1394,43 @@ puGroup widgets can be placed inside other puGroup widgets to an arbitary
 depth. When a puGroup is delete'ed, it will automatically delete everything
 that it contains.
 <p>
+Widgets can even be added later, and you can remove a child from a
+puGroup:
+<pre>
+
+  void puGroup::add ( puObject *object ) ;
+  void puGroup::remove ( puObject *object ) ;
+
+</pre>
+Where 'object' is either a pointer to a new widget which should be added
+to the group, or a pointer to an existing widget inside the group that
+should be removed.
+<p>
+It is also possible to retrieve the number of childs, and there is a
+function which returns the first child inside a puGroup (or NULL
+if the group is empty):
+<pre>
+
+  int puGroup::getNumChildren ( void ) ;
+  puObject * puGroup::getFirstChild ( void ) ;
+
+</pre>
 Doing a puObject::hide() on a puGroup will hide all the objects inside
 the puGroup. Doing a puObject::greyout() on a puGroup prevents anything
 inside that group from being clicked.
+<p>
+A puGroup can be put into "floating" state, meaning that the user can
+drag it around with the right mouse button pressed:
+<pre>
+
+  void puGroup::setFloating ( int value ) ;
+  int  puGroup::getFloating () ;
+
+  where:
+    'value' is either TRUE or FALSE.
+
+</pre>
+By default, floating is not enabled.
 <p>
 Colours, styles, etc are NOT propagated from puGroup to its children,
 although there are six functions which allow you to change the
