@@ -36,6 +36,7 @@
 *
 * MODIFICATION HISTORY
 *   John Fay - many improvements
+*   Steve Baker - Added functionality to allow directory tree traversal
 ****/
 
 
@@ -499,8 +500,6 @@ void puFilePicker::find_files ()
 
   int ifile = 0 ;
 
-fprintf(stderr,"Searching '%s'\n", dir ) ;
-
   ulDir    *dirp = ulOpenDir ( dir ) ;
   ulDirEnt *dp ;
 
@@ -540,13 +539,9 @@ fprintf(stderr,"Searching '%s'\n", dir ) ;
     return ;
   }
 
-fprintf(stderr,"Num_files=%d\n", num_files ) ;
-
   for ( ifile = 0 ; (dp = ulReadDir(dirp)) != NULL && ifile < num_files ; ifile++ )
   {
     dflag[ ifile ] = dp->d_isdir ;
-
-fprintf(stderr,"Found '%s'\n", dp->d_name ) ;
 
     if ( dflag[ ifile ] )
     {

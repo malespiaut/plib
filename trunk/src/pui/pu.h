@@ -1294,12 +1294,14 @@ class puFilePicker : public puDialogBox
 
   void find_files () ;
   static void handle_select ( puObject* ) ;
+  static void input_entered ( puObject* ) ;
 
   puFrame   *frame         ;
   puListBox *list_box      ;
   puSlider  *slider        ;
   puOneShot *cancel_button ;
   puOneShot *ok_button     ;
+/* puInput   *input         ; */
 
 protected:
   void puFilePickerInit ( int x, int y, int w, int h,
@@ -1317,6 +1319,9 @@ public:
                  const char* dir, const char *title = "Pick a file" ) ;
 
   ~puFilePicker () ;
+
+  /* Not for application use!! */
+/* puInput *__getInput () { return input ; } */
 
   void setSize ( int w, int h ) ;
 } ;
