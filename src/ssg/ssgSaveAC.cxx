@@ -243,7 +243,7 @@ int ssgSaveAC ( const char *filename, ssgEntity *ent )
   }
 
   fprintf ( save_fd, "OBJECT world\n" ) ;
-  fprintf ( save_fd, "kids %d\n", ent->getNumKids () ) ;
+  fprintf ( save_fd, "kids 1\n" ) ;
 
   int bReturn = ssgSaveACInner ( ent ) ;
   
