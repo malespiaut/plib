@@ -19,6 +19,10 @@
 
 #endif
 
+#if !defined(STDC_HEADERS) && !defined(socklen_t)
+#define socklen_t int
+#endif
+
 netAddress::netAddress ( cchar* host, int port )
 {
 	memset(this, 0, sizeof(netAddress));
@@ -130,7 +134,7 @@ netSocket::listen ( int backlog )
 int
 netSocket::accept ( netAddress* addr )
 {
-  int addr_len = sizeof(netAddress) ;
+  socklen_t addr_len = sizeof(netAddress) ;
   return ::accept((SOCKET_TYPE)handle,(sockaddr*)addr,&addr_len);
 }
 
@@ -162,7 +166,7 @@ netSocket::recv (void * buffer, int size, int flags)
 int
 netSocket::recvfrom ( void * buffer, int size, int flags, netAddress* from )
 {
-  int fromlen = sizeof(netAddress) ;
+  socklen_t fromlen = sizeof(netAddress) ;
   return ::recvfrom((SOCKET_TYPE)handle,(char*)buffer,size,flags,(sockaddr*)from,&fromlen);
 }
 
