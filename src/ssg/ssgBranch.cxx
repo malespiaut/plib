@@ -302,6 +302,7 @@ int ssgBranch::load ( FILE *fd )
     else
     if ( t == ssgTypeVTable       () ) kid = new ssgVTable       () ; else
     if ( t == ssgTypeVtxTable     () ) kid = new ssgVtxTable     () ; else
+    if ( t == ssgTypeVtxArray     () ) kid = new ssgVtxArray     () ; else
     if ( t == ssgTypeBranch       () ) kid = new ssgBranch       () ; else
     if ( t == ssgTypeTransform    () ) kid = new ssgTransform    () ; else
     if ( t == ssgTypeTexTrans     () ) kid = new ssgTexTrans     () ; else
