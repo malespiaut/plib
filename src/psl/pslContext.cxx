@@ -189,6 +189,16 @@ pslResult pslContext::step ()
         if ( v1->getType() == PSL_FLOAT || v2->getType() == PSL_FLOAT )
           v2 -> set ( v2 -> getFloat() + v1 -> getFloat() ) ;
         else
+        if ( v1->getType() == PSL_STRING && v2->getType() == PSL_STRING )
+        {
+          char *s = new char [ strlen ( v1 -> getString () ) +
+                               strlen ( v2 -> getString () ) + 1 ] ;
+          strcpy ( s, v2 -> getString () ) ;
+          strcat ( s, v1 -> getString () ) ;
+          v2 -> set ( s ) ;
+          delete s ;
+        }
+        else
           v2 -> set ( v2 -> getInt  () + v1 -> getInt  () ) ;
 
         popVoid () ;
@@ -491,7 +501,6 @@ pslResult pslContext::step ()
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
-
     case OPCODE_POP_ADD_VARIABLE :
       {
         pslVariable *v = & ( variable [ code[++pc] ] ) ;
@@ -499,11 +508,20 @@ pslResult pslContext::step ()
         if ( v -> getType () == PSL_INT )
           v -> set ( v -> getInt() + stack[--sp].getInt()) ;
         else
+        if ( v -> getType () == PSL_STRING )
+        {
+          char *s = new char [ strlen (     v      -> getString () ) +
+                               strlen ( stack[sp-1] . getString () ) + 1 ] ;
+          strcpy ( s,     v     ->  getString () ) ;
+          strcat ( s, stack[--sp] . getString () ) ;
+          v -> set ( s ) ;
+          delete s ;
+        }
+        else
           v -> set ( v -> getFloat() + stack[--sp].getFloat()) ;
         pc++ ;
       }
       return PSL_PROGRAM_CONTINUE ;
-
 
     case OPCODE_POP_SUB_VARIABLE :
       {

@@ -438,7 +438,7 @@ void pslCompiler::getToken ( char *res, int define_sub )
           case 'f' : res [ tp++ ] = '\f' ; break ;
           case 'b' : res [ tp++ ] = '\b' ; break ;
           case 'a' : res [ tp++ ] = '\a' ; break ;
-          default: res [ tp++ ] =   c  ; break ;
+          default  : res [ tp++ ] =   c  ; break ;
         }
 
         isBkSlash = FALSE ;
@@ -460,6 +460,41 @@ void pslCompiler::getToken ( char *res, int define_sub )
       error ( "Missing \\\" character" ) ;
    
     /* The trailing quotes character is not included into the string */
+    res [ tp ] = '\0' ;
+    return ;
+  }
+
+  if ( c == '\'' )
+  {
+    res [ tp++ ] = '\'' ;
+
+    c = getChar () ;
+
+    if ( c == '\\' )
+    {
+      c = getChar () ;
+
+      switch ( c )
+      {
+	case '0' : res [ tp++ ] = '\0' ; break ;
+	case 'r' : res [ tp++ ] = '\r' ; break ;
+	case 't' : res [ tp++ ] = '\t' ; break ;
+	case 'n' : res [ tp++ ] = '\n' ; break ;
+	case 'f' : res [ tp++ ] = '\f' ; break ;
+	case 'b' : res [ tp++ ] = '\b' ; break ;
+	case 'a' : res [ tp++ ] = '\a' ; break ;
+	default  : res [ tp++ ] =   c  ; break ;
+      }
+    }
+    else
+      res [ tp++ ] = c ;
+
+    c = getChar () ;
+
+    if ( c != '\'' )
+      error ( "Missing \\' character" ) ;
+   
+    /* The trailing quote character is not included into the string */
     res [ tp ] = '\0' ;
     return ;
   }

@@ -34,7 +34,7 @@ pslValue my_print ( int argc, pslValue *argv, pslProgram *p )
     {
       case PSL_INT    : printf ( "%d ", argv[i].getInt    () ) ; break ;
       case PSL_FLOAT  : printf ( "%f ", argv[i].getFloat  () ) ; break ;
-      case PSL_STRING : printf ( "%s ", argv[i].getString () ) ; break ;
+      case PSL_STRING : printf ( "%s", argv[i].getString () ) ; break ;
       case PSL_VOID   : printf ( "(void) " ) ; break ;
     }
   }
