@@ -2,6 +2,26 @@
 PLIB Change Log.
 ================
 
+PLIB v1.3.1 (??)
+~~~~~~~~~~~~~~~~
+
+  * Added 'UL' library.  Applications MUST link to
+    -lplibul  (/usr/lib/libplibul.a) - and should
+    include <plib/ul.h> and call ulInit() before
+    making UL calls.
+
+PLIB v1.3.0 (July 1st 2000)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Unstable version of 1.2.0, no significant code
+    changes.
+
+PLIB v1.2.0 (July 1st 2000)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Stable version of 1.1.12, no significant code
+    changes.
+
 PLIB v1.1.12 (June 24th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Fixed some compilation problems for Macintosh/Codewarrior
