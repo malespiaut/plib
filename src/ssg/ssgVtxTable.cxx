@@ -188,13 +188,80 @@ int ssgVtxTable::getNumTriangles ()
 
     case GL_QUAD_STRIP :
       return ( ( getNumVertices() - 2 ) / 2 ) * 2 ;
-
     default : break ;
   }
 
-  return 0 ;   /* Should never get here...but you never know! */
+  return 0 ;   /* Should never get here...but you never know! 
+	                wk: Yes it does, for GL_POINTS      
+										GL_LINES       
+										GL_LINE_LOOP   
+										GL_LINE_STRIP  
+										*/
 }
 
+int ssgVtxTable::getNumLines ()
+{
+  switch ( getGLtype () )
+  {
+    case GL_POLYGON :
+    case GL_TRIANGLE_FAN :
+    case GL_TRIANGLES :
+    case GL_TRIANGLE_STRIP :
+    case GL_QUADS :
+    case GL_QUAD_STRIP :
+    case GL_POINTS :
+      return 0;
+		case GL_LINES :   
+			// wk: FIXME: check the 3 following formulas. I don't have an OpenGL bokk at hand currently :-(
+			return getNumVertices()/2;
+    case GL_LINE_LOOP :
+    	return getNumVertices();
+    case GL_LINE_STRIP :
+    	return getNumVertices()-1;
+    default : break ;
+  }
+  assert(false); /* Should never get here  */
+  return 0 ;   
+}
+
+void ssgVtxTable::getLine ( int n, short *v1, short *v2 )
+{ 
+	assert( n>=0 );
+  switch ( getGLtype () )
+  {
+    case GL_POLYGON :
+    case GL_TRIANGLE_FAN :
+    case GL_TRIANGLES :
+    case GL_TRIANGLE_STRIP :
+    case GL_QUADS :
+    case GL_QUAD_STRIP :
+    case GL_POINTS :
+      assert(false);
+		case GL_LINES :   
+			// wk: FIXME: check the 3 following formulas. I don't have an OpenGL bokk at hand currently :-(
+			assert ( 2*n+1 < getNumVertices() );
+			*v1 = 2*n;
+			*v2 = 2*n+1 ;
+			return ;
+    case GL_LINE_LOOP :
+			assert ( n < getNumVertices() );
+			*v1 = n;
+			if ( n == getNumVertices()-1 )
+			  *v2 = 0;
+			else
+				*v2 = n+1;
+			return ;
+    case GL_LINE_STRIP :
+    	assert ( n < getNumVertices()-1 );
+			*v1 = n;
+			*v2 = n+1;
+			return;
+    default :
+			break ;
+  }
+  assert(false); /* Should never get here  */
+  return ;   
+}
 
 void ssgVtxTable::transform ( const sgMat4 m )
 {
