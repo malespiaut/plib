@@ -2551,6 +2551,9 @@ inline void ssgTexturePath ( const char *path )
 
 ssgEntity *ssgLoadAC   ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 
+
+void ssgGetValuesFromLastATGFile(double *x, double *y, double *z, double *r);
+
 /* scene walkers */
 
 void ssgFlatten  ( ssgEntity *ent ) ;
