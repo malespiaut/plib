@@ -254,11 +254,15 @@ ssgSGIHeader::ssgSGIHeader ()
   start = NULL ;
   leng  = NULL ;
   rle_temp = NULL ;
+  image_fd = NULL ;
 }
 
 ssgSGIHeader::ssgSGIHeader ( const char *fname, ssgTextureInfo* info )
 {
   ssgSGIHeader *sgihdr = this ;
+
+  start = NULL ;
+  leng = NULL ;
 
   bool success=openFile(fname);
   
@@ -331,6 +335,7 @@ ssgSGIHeader::ssgSGIHeader ( const char *fname, ssgTextureInfo* info )
   }
 
   fclose ( image_fd ) ;
+  image_fd = NULL ;
 
   delete rbuf   ;
   delete gbuf   ;
@@ -362,7 +367,8 @@ ssgSGIHeader::~ssgSGIHeader()
   if (leng != NULL)
     delete [] leng;
   
-  fclose(image_fd);
+  if (image_fd != NULL)
+    fclose(image_fd);
 }
 
 
