@@ -6,5 +6,5 @@ libplibfnt_a_SOURCES = fnt.cxx fntTXF.cxx fntLocal.h
 
 INCLUDES += -I$(top_srcdir)/src/sg
 
-EXTRA_DIST = fnt.dsp
+EXTRA_DIST = fnt.dsp libfnt.bpr
 

@@ -10,6 +10,6 @@ libplibpu_a_SOURCES = pu.cxx puBox.cxx puButton.cxx puButtonBox.cxx \
 
 INCLUDES += -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/fnt
 
-EXTRA_DIST = pui.dsp
+EXTRA_DIST = pui.dsp libpu.bpr
 
 
