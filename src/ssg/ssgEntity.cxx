@@ -29,6 +29,8 @@ ssgEntity::~ssgEntity (void)
 
 void ssgEntity::dirtyBSphere ()
 {
+  if ( bsphere_is_invalid ) return ;
+
   bsphere_is_invalid = TRUE ;
 
   int np = getNumParents () ; 

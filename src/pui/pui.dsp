@@ -184,9 +184,5 @@ SOURCE=.\puTriSlider.cxx
 
 SOURCE=.\puValue.cxx
 # End Source File
-# Begin Source File
-
-SOURCE=.\puVerticalMenu.cxx
-# End Source File
 # End Target
 # End Project
