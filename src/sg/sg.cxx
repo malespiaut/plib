@@ -1530,28 +1530,26 @@ void sgSlerpQuat2( sgQuat dst, const sgQuat from, const sgQuat to, const SGfloat
 
 void sgSlerpQuat( sgQuat dst, const sgQuat from, const sgQuat to, const SGfloat t )
 {
-  SGfloat sign, co, scale0, scale1;
+  SGfloat co, scale0, scale1;
+  bool flip = false ;
 
   /* SWC - Interpolate between to quaternions */
 
-  co = from[SG_X] * to[SG_X] + from[SG_Y] * to[SG_Y] + from[SG_X] * to[SG_Z] + 
-	  from[SG_W] * to[SG_W];
+  co = sgScalarProductVec4 ( from, to ) ;
 
-  if( co < SG_ZERO )
+  if ( co < SG_ZERO )
   {
     co = -co;
-    sign = -SG_ONE;
+    flip = true ;
   }
-  else
-    sign = SG_ONE;
 
-  if( co < SG_ONE )
+  if ( co < SG_ONE - (SGfloat) 1e-6 )
   {
-    SGfloat o = (SGfloat)acos( co );
-    SGfloat so = (SGfloat)sin( o );
+    SGfloat o = (SGfloat) acos ( co );
+    SGfloat so = SG_ONE / (SGfloat) sin ( o );
 
-    scale0 = (SGfloat)sin( (SG_ONE - t) * o ) / so;
-    scale1 = (SGfloat)sin( t * o ) / so;
+    scale0 = (SGfloat) sin ( (SG_ONE - t) * o ) * so;
+    scale1 = (SGfloat) sin ( t * o ) * so;
   }
   else
   {
@@ -1559,10 +1557,15 @@ void sgSlerpQuat( sgQuat dst, const sgQuat from, const sgQuat to, const SGfloat 
     scale1 = t;
   }
 
-  dst[SG_X] = scale0 * from[SG_X] + scale1 * ((sign > SG_ZERO) ? to[SG_X] : -to[SG_X]);
-  dst[SG_Y] = scale0 * from[SG_Y] + scale1 * ((sign > SG_ZERO) ? to[SG_Y] : -to[SG_Y]);
-  dst[SG_Z] = scale0 * from[SG_Z] + scale1 * ((sign > SG_ZERO) ? to[SG_Z] : -to[SG_Z]);
-  dst[SG_W] = scale0 * from[SG_W] + scale1 * ((sign > SG_ZERO) ? to[SG_W] : -to[SG_W]);
+  if ( flip )
+  {
+    scale1 = -scale1 ;
+  }
+
+  dst[SG_X] = scale0 * from[SG_X] + scale1 * to[SG_X] ;
+  dst[SG_Y] = scale0 * from[SG_Y] + scale1 * to[SG_Y] ;
+  dst[SG_Z] = scale0 * from[SG_Z] + scale1 * to[SG_Z] ;
+  dst[SG_W] = scale0 * from[SG_W] + scale1 * to[SG_W] ;
 }
 
 
