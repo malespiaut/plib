@@ -48,26 +48,7 @@
 #  endif
 #endif
 
-/*
-  Webster's Dictionary (for American English) permits
-  Color or Colour as acceptable spellings - but
-  The Oxford English Dictionary (for English English) only
-  permits Colour.
-
-  Hence, the logical thing to do is to use 'colour',
-  which *ought* to be acceptable on both sides of
-  the atlantic.
-
-  However, as a concession to the illogical:
-*/
-
-#define setColorScheme          setColourScheme
-#define setColor                setColour
-#define getColor                getColour
 #define puColor                 puColour
-#define puSetColor              puSetColour
-#define puSetDefaultColorScheme puSetDefaultColourScheme
-#define puGetDefaultColorScheme puGetDefaultColourScheme
 
 #ifdef PU_NOT_USING_GLUT
 
@@ -390,8 +371,16 @@ inline void puSetColour ( puColour dst, puColour src )
 {
   dst[0] = src[0] ; dst[1] = src[1] ; dst[2] = src[2] ; dst[3] = src[3] ;
 }
+inline void puSetColor ( puColour dst, puColour src )
+{
+  dst[0] = src[0] ; dst[1] = src[1] ; dst[2] = src[2] ; dst[3] = src[3] ;
+}
 
 inline void puSetColour ( puColour c, float r, float g, float b, float a = 1.0f )
+{
+  c [ 0 ] = r ; c [ 1 ] = g ; c [ 2 ] = b ; c [ 3 ] = a ;
+}
+inline void puSetColor ( puColour c, float r, float g, float b, float a = 1.0f )
 {
   c [ 0 ] = r ; c [ 1 ] = g ; c [ 2 ] = b ; c [ 3 ] = a ;
 }
@@ -504,7 +493,16 @@ puFont puGetDefaultLabelFont  () ;
 puFont puGetDefaultLegendFont () ;
 
 void puSetDefaultColourScheme ( float r, float g, float b, float a = 1.0f ) ;
+inline void puSetDefaultColorScheme ( float r, float g, float b, float a = 1.0f )
+{
+  puSetDefaultColourScheme ( r, g, b, a ) ;
+}
+
 void puGetDefaultColourScheme ( float *r, float *g, float *b, float *a = NULL );
+inline void puGetDefaultColorScheme ( float *r, float *g, float *b, float *a = NULL )
+{
+  puGetDefaultColourScheme ( r, g, b, a ) ;
+}
 
 class puObject : public puValue
 {
@@ -692,11 +690,19 @@ public:
   int  getStyle ( void ) { return style ; }
 
   void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
+  void setColorScheme ( float r, float g, float b, float a = 1.0f )
+  {
+    setColourScheme ( r, g, b, a ) ;
+  }
 
   virtual void setColour ( int which, float r, float g, float b, float a = 1.0f )
   {
     puSetColour ( colour [ which ], r, g, b, a ) ;
     puRefresh = TRUE ;
+  }
+  virtual void setColor ( int which, float r, float g, float b, float a = 1.0f )
+  {
+    setColour ( which, r, g, b, a ) ;
   }
 
   void getColour ( int which, float *r, float *g, float *b, float *a = NULL )
@@ -705,6 +711,10 @@ public:
     if ( g ) *g = colour[which][1] ;
     if ( b ) *b = colour[which][2] ;
     if ( a ) *a = colour[which][3] ;
+  }
+  void getColor ( int which, float *r, float *g, float *b, float *a = NULL )
+  {
+    getColour ( which, r, g, b, a );
   }
 
   void  setUserData ( void *data ) { user_data = data ; }
@@ -801,9 +811,22 @@ public:
   void setChildColour ( int childs, int which,
                         float r, float g, float b, float a = 1.0f,
                         int recursive = FALSE ) ;
+  void setChildColor ( int childs, int which,
+                       float r, float g, float b, float a = 1.0f,
+                       int recursive = FALSE )
+  {
+    setChildColour ( childs, which, r, g, b, a, recursive ) ;
+  }
+
   void setChildColourScheme ( int childs,
                               float r, float g, float b, float a = 1.0f,
                               int recursive = FALSE ) ;
+  void setChildColorScheme ( int childs,
+                             float r, float g, float b, float a = 1.0f,
+                             int recursive = FALSE )
+  {
+    setChildColourScheme ( childs, r, g, b, a, recursive ) ;
+  }
 } ;
 
 
