@@ -19,7 +19,7 @@ int ssgSaveQHI( const char* fname, ssgEntity *ent ) {
   
   sgMat4 ident;
   sgMakeIdentMat4( ident );
-  ssgAccumVerticesAndFaces( ent, ident, vertices, NULL, 0.0001 );
+  ssgAccumVerticesAndFaces( ent, ident, vertices, NULL, 0.0001f );
 
 	fprintf(fd, "3\n");  // Dimension
 	fprintf(fd, "%d\n", vertices->getNum()); // No of points

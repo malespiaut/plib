@@ -581,6 +581,7 @@ class ssgTexture : public ssgBase
   int own_handle ;
   GLuint handle ;
 	int wrapu, wrapv, mipmap ;
+  bool has_alpha ;
 
   void alloc_handle () ;
   void free_handle () ;
@@ -605,6 +606,8 @@ public:
 		     int wrapu = TRUE, int wrapv = TRUE);
 
   virtual ~ssgTexture (void) ;
+
+  bool hasAlpha () const { return has_alpha ; }
 
   GLuint getHandle () { return handle ; }
 
@@ -1184,6 +1187,7 @@ extern sgVec4 _ssgColourWhite ;
 extern sgVec3 _ssgNormalUp    ;
 extern sgVec2 _ssgTexCoord00  ;
 extern short  _ssgIndex0      ;
+extern bool   _ssgAlphaFlag   ;
 
 
 class ssgVTable : public ssgLeaf

@@ -180,6 +180,20 @@ void count_anim_frames( ssgEntity *e )
       }
     }
   }
+  else if ( e -> isAKindOf ( SSG_TYPE_LEAF ) )
+  {
+    ssgLeaf* leaf = (ssgLeaf *) e ;
+    ssgState* st = leaf -> getState () ;
+
+    if ( st && st -> isAKindOf ( SSG_TYPE_STATESELECTOR ) )
+    {
+      ssgStateSelector* ss = (ssgStateSelector*) st ;
+
+      int num = ss -> getNumSteps () ;
+      if ( num > num_anim_frames )
+        num_anim_frames = num ;
+    }
+  }
 }
 
 
@@ -196,10 +210,13 @@ void set_anim_frame( ssgEntity *e )
     {
       ssgSelector* p = (ssgSelector*) e ;
       int num = p -> getMaxKids () ;
-      int frame = anim_frame ;
-      if ( frame >= num )
-        frame = 0 ;
-      p -> selectStep ( frame ) ;
+      if ( num > 0 )
+      {
+        int frame = anim_frame ;
+        if ( frame >= num )
+          frame = num-1 ;
+        p -> selectStep ( frame ) ;
+      }
     }
     else if ( e -> isAKindOf ( SSG_TYPE_TRANSFORM ) )
     {
@@ -209,11 +226,32 @@ void set_anim_frame( ssgEntity *e )
         ssgTransform* p = (ssgTransform*) e ;
         ssgTransformArray* ta = (ssgTransformArray*) data ;
         int num = ta -> getNum () ;
+        if ( num > 0 )
+        {
+          int frame = anim_frame ;
+          if ( frame >= num )
+            frame = num-1 ;
+          ta -> selection = frame ;
+          p -> setTransform ( *( ta -> get ( ta -> selection ) ) ) ;
+        }
+      }
+    }
+  }
+  else if ( e -> isAKindOf ( SSG_TYPE_LEAF ) )
+  {
+    ssgLeaf* leaf = (ssgLeaf *) e ;
+    ssgState* st = leaf -> getState () ;
+
+    if ( st && st -> isAKindOf ( SSG_TYPE_STATESELECTOR ) )
+    {
+      ssgStateSelector* ss = (ssgStateSelector*) st ;
+      int num = ss -> getNumSteps () ;
+      if ( num > 0 )
+      {
         int frame = anim_frame ;
         if ( frame >= num )
-          frame = 0 ;
-        ta -> selection = frame ;
-        p -> setTransform ( *( ta -> get ( ta -> selection ) ) ) ;
+          frame = num-1 ;
+        ss -> selectStep ( frame ) ;
       }
     }
   }
