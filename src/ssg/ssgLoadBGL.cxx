@@ -94,6 +94,7 @@
 //#define JMDEBUG
 #include "ssgLoadBGL.h"
 #include "ssgLoadMDL.h"
+#include "ssgLoadMDL.h"
 
 
 static ssgLoaderOptions         *current_options;
@@ -1314,7 +1315,7 @@ ssgEntity *ssgLoadBGLBatch(const char *fname, const ssgLoaderOptions *options)
   }
   // check for path in batch file name
   strcpy(filename, fname);
-  char *p = strrchr(filename,'/');
+  char *p = strrchr(filename, SLASH);
   if ( p != 0) {
     p++;
   }
@@ -1325,8 +1326,8 @@ ssgEntity *ssgLoadBGLBatch(const char *fname, const ssgLoaderOptions *options)
   models_ = new ssgBranch();
   char* model_name = new char[128];
   char *ptr = (char*)&fname[strlen(fname) - 1];
-  while(ptr != &fname[0] && *ptr != '/') ptr--;
-  if(*ptr == '/') ptr++;
+  while(ptr != &fname[0] && *ptr != SLASH) ptr--;
+  if(*ptr == SLASH) ptr++;
   strcpy(model_name, ptr);
   ptr = &model_name[strlen(model_name)];
   while(*ptr != '.' && ptr != &model_name[0]) ptr--;
@@ -1382,8 +1383,8 @@ static ssgBranch *ssgLoadBGLFile(const char *fname )
   model_ = new ssgBranch();
   char* model_name = new char[128];
   char *ptr = (char*)&fname[strlen(fname) - 1];
-  while(ptr != &fname[0] && *ptr != '/') ptr--;
-  if(*ptr == '/') ptr++;
+  while(ptr != &fname[0] && *ptr != SLASH) ptr--;
+  if(*ptr == SLASH) ptr++;
   strcpy(model_name, ptr);
   ptr = &model_name[strlen(model_name)];
   while(*ptr != '.' && ptr != &model_name[0]) ptr--;
