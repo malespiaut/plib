@@ -1,6 +1,6 @@
 lib_LIBRARIES = libplibssg.a
 
-include_HEADERS = ssg.h ssgconf.h ssgKeyFlier.h
+include_HEADERS = ssg.h ssgconf.h ssgMSFSPalette.h ssgKeyFlier.h
 
 libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgBaseTransform.cxx ssgBranch.cxx ssgContext.cxx ssgCutout.cxx \
