@@ -313,7 +313,6 @@ void ssgVTable::drawHighlight ( sgVec4 /* colour */ )
 {
 }
 
-#ifdef _SSG_USE_PICK
 void ssgVTable::pick ( int baseName )
 {
   int i ;
@@ -364,7 +363,6 @@ void ssgVTable::pick ( int baseName )
 
   glPopName () ;
 }
-#endif // #ifdef _SSG_USE_PICK
 
 void ssgVTable::draw_geometry ()
 {

@@ -26,7 +26,6 @@
 
 /* ssgconf.h - machine configurable file for libssg */
 
-#define _SSG_USE_PICK   1
 #define _SSG_USE_DLIST  1
 
 /* The following defines give you the ability to remove code from the

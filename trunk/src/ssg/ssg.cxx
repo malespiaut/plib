@@ -189,7 +189,7 @@ void ssgInit ()
 }
 
 
-#ifdef _SSG_USE_PICK
+
 void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
 {
   if ( _ssgCurrentContext == NULL )
@@ -199,17 +199,26 @@ void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
 
   ssgForceBasicState () ;
 
-  int w = (int)(topright[0] - botleft[0]) ;
-  int h = (int)(topright[1] - botleft[1]) ;
+  int vp [ 4 ] ;
+  sgVec4 viewport ;
+  sgMat4 mat ;
 
-  int x = (int)(botleft[0] + topright[0]) / 2 ;
-  int y = (int)(botleft[1] + topright[1]) / 2 ;
+  float w = (topright[0] - botleft[0]) ;
+  float h = (topright[1] - botleft[1]) ;
 
-  GLint viewport [ 4 ] ;
-  glGetIntegerv ( GL_VIEWPORT, viewport ) ;
+  float x = (botleft[0] + topright[0]) / 2.0f ;
+  float y = (botleft[1] + topright[1]) / 2.0f ;
+
+  glGetIntegerv ( GL_VIEWPORT, vp ) ;
+
+  sgSetVec4 ( viewport, (float)vp[0], (float)vp[1],
+                        (float)vp[2], (float)vp[3] ) ;
+  sgMakePickMatrix ( mat, x, y, w, h, viewport ) ;
+
   glMatrixMode ( GL_PROJECTION ) ;
   glLoadIdentity () ;
-  gluPickMatrix ( x, y, w, h, viewport ) ;
+  glMultMatrixf ( (float *) mat ) ;
+
   _ssgCurrentContext->pushProjectionMatrix () ;
 
   glMatrixMode ( GL_MODELVIEW ) ;
@@ -233,7 +242,6 @@ void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
   glMatrixMode ( GL_MODELVIEW ) ;
   glLoadIdentity () ;
 }
-#endif // #ifdef _SSG_USE_PICK
 
 
 void ssgCullAndDraw ( ssgRoot *r )

@@ -141,7 +141,6 @@ void ssgVtxArray::drawHighlight ( sgVec4 colour, int i )
 
 
 
-#ifdef _SSG_USE_PICK
 void ssgVtxArray::pick ( int baseName )
 {
   int i ;
@@ -172,7 +171,6 @@ void ssgVtxArray::pick ( int baseName )
 
   glPopClientAttrib ( ) ;
 }
-#endif // #ifdef _SSG_USE_PICK
 
 
 void ssgVtxArray::draw_geometry ()

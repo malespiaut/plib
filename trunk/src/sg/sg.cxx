@@ -82,7 +82,43 @@ void sgMakeRotMat4( sgMat4 mat, const SGfloat angle, const sgVec3 axis )
   mat[3][3] = SG_ONE ;
 }
 
-void sgMakeLookAtMat4 ( sgMat4 dst, const sgVec3 eye, const sgVec3 center, const sgVec3 up )
+
+
+ 
+void sgMakePickMatrix( sgMat4 mat, sgFloat x, sgFloat y,
+                       sgFloat width, sgFloat height, sgVec4 viewport )
+{
+   sgFloat sx =   viewport[2] / width  ;
+   sgFloat sy =   viewport[3] / height ;
+   sgFloat tx = ( viewport[2] + SG_TWO * (viewport[0] - x) ) / width  ;
+   sgFloat ty = ( viewport[3] + SG_TWO * (viewport[1] - y) ) / height ;
+ 
+   mat[0][0] =    sx   ;
+   mat[0][1] = SG_ZERO ;
+   mat[0][2] = SG_ZERO ;
+   mat[0][3] = SG_ZERO ;
+
+   mat[1][0] = SG_ZERO ;
+   mat[1][1] =    sy   ;
+   mat[1][2] = SG_ZERO ;
+   mat[1][3] = SG_ZERO ;
+
+   mat[2][0] = SG_ZERO ;
+   mat[2][1] = SG_ZERO ;
+   mat[2][2] = SG_ONE  ;
+   mat[2][3] = SG_ZERO ;
+
+   mat[3][0] =    tx   ;
+   mat[3][1] =    ty   ;
+   mat[3][2] = SG_ZERO ;
+   mat[3][3] = SG_ONE  ;
+}                                                                               
+
+
+
+void sgMakeLookAtMat4 ( sgMat4 dst, const sgVec3 eye,
+                                    const sgVec3 center,
+                                    const sgVec3 up )
 {
   // Caveats:
   // 1) In order to compute the line of sight, the eye point must not be equal
@@ -111,12 +147,10 @@ void sgMakeLookAtMat4 ( sgMat4 dst, const sgVec3 eye, const sgVec3 center, const
   sgNormaliseVec3 ( z ) ;
 
   /* Build the matrix */
-#define M(row,col)  dst[row][col]
-  M(0,0) = x[0];    M(0,1) = x[1];    M(0,2) = x[2];    M(0,3) = 0.0;
-  M(1,0) = y[0];    M(1,1) = y[1];    M(1,2) = y[2];    M(1,3) = 0.0;
-  M(2,0) = z[0];    M(2,1) = z[1];    M(2,2) = z[2];    M(2,3) = 0.0;
-  M(3,0) = eye[0];  M(3,1) = eye[1];  M(3,2) = eye[2];  M(3,3) = 1.0;
-#undef M
+  sgSetVec4 ( dst[0], x[0], x[1], x[2], SG_ZERO ) ;
+  sgSetVec4 ( dst[1], y[0], y[1], y[2], SG_ZERO ) ;
+  sgSetVec4 ( dst[2], z[0], z[1], z[2], SG_ZERO ) ;
+  sgSetVec4 ( dst[3], eye[0], eye[1], eye[2], SG_ONE ) ;
 }
 
 // -dw- inconsistent linkage!

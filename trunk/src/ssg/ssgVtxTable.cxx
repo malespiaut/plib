@@ -394,7 +394,6 @@ void ssgVtxTable::draw ()
 }
 
 
-#ifdef _SSG_USE_PICK
 void ssgVtxTable::pick ( int baseName )
 {
   int i ;
@@ -424,7 +423,6 @@ void ssgVtxTable::pick ( int baseName )
 
   glPopName () ;
 }
-#endif // #ifdef _SSG_USE_PICK
 
 
 void ssgVtxTable::draw_geometry ()
