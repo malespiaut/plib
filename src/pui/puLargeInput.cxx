@@ -112,7 +112,7 @@ void puLargeInput::removeSelectRegion ( void )
 
 // Public functions from the widget itself
 
-puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width ) :
+puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text ) :
                            puGroup ( x, y )
 {
   setLegendFont ( PUFONT_8_BY_13 ) ;  // Constant pitch font
@@ -141,11 +141,16 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
 
   frame = new puFrame ( 0, 0, w, h );
 
-  bottom_slider = new puSlider ( 0, 0, w - slider_width, 0, slider_width ) ,
-  bottom_slider->setValue ( 0.0f ) ;   // All the way to the left
-  bottom_slider->setDelta(0.1f);
-  bottom_slider->setSliderFraction (1.0f) ;
-  bottom_slider->setCBMode( PUSLIDER_DELTA );
+  if ( wrap_text )
+    bottom_slider = (puSlider *)NULL ;
+  else
+  {
+    bottom_slider = new puSlider ( 0, 0, w - slider_width, 0, slider_width ) ,
+    bottom_slider->setValue ( 0.0f ) ;   // All the way to the left
+    bottom_slider->setDelta(0.1f);
+    bottom_slider->setSliderFraction (1.0f) ;
+    bottom_slider->setCBMode( PUSLIDER_DELTA );
+  }
 
   right_slider = new puSlider ( w - slider_width, slider_width*(1+arrows),
                                 h - slider_width * ( 1 + 2 * arrows ), 1, slider_width ) ,
@@ -184,6 +189,7 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
   input_disabled = FALSE ;
 
   text = NULL ;
+  wrapped_text = NULL ;
   setText ( "\n" ) ;
 
   close  () ;
@@ -193,7 +199,9 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
 puLargeInput::~puLargeInput ()
 {
   delete text ;
-  if ( valid_data ) delete valid_data ;
+  if ( wrapped_text ) delete wrapped_text ;
+
+  if ( valid_data )   delete valid_data ;
 
   if ( puActiveWidget() == this )
     puDeactivateWidget () ;
@@ -205,7 +213,10 @@ void puLargeInput::setSize ( int w, int h )
   frame->setSize ( w, h ) ;
 
   // Resize and reposition the sliders
-  if ( bottom_slider ) bottom_slider->setSize ( w - slider_width, slider_width ) ;
+  if ( bottom_slider )
+    bottom_slider->setSize ( w - slider_width, slider_width ) ;
+  else  // No bottom slider, rewrap the text
+    wrapText () ;
 
   right_slider->setPosition ( w-slider_width, slider_width*(1+arrow_count) ) ;
   right_slider->setSize ( slider_width, h-slider_width*(1+2*arrow_count) ) ;
@@ -346,7 +357,7 @@ void  puLargeInput::setText ( char *l )
   cursor_position = 0 ;
   select_start_position = select_end_position = 0 ;
 
-  bottom_slider->setSliderFraction ( 0.0 ) ;
+  if ( bottom_slider ) bottom_slider->setSliderFraction ( 0.0 ) ;
   right_slider->setSliderFraction ( 0.0 ) ;
 
   puRefresh = TRUE ;
@@ -406,7 +417,11 @@ void  puLargeInput::setText ( char *l )
   int box_height = ( abox.max[1] - abox.min[1] - slider_width ) / line_size ;
                                                 // Input box height, in lines
 
-  bottom_slider->setSliderFraction ( (float)box_width / (float)max_width ) ;
+  if ( bottom_slider )
+    bottom_slider->setSliderFraction ( (float)box_width / (float)max_width ) ;
+  else
+    wrapText () ;
+
   right_slider->setSliderFraction ( (float)box_height / (float)num_lines ) ;
 }
 
@@ -442,7 +457,11 @@ void puLargeInput::draw ( int dx, int dy )
                                                   // Input box height, in lines
 
     float bottom_value ;
-    bottom_slider->getValue ( &bottom_value ) ;
+    if ( bottom_slider )
+      bottom_slider->getValue ( &bottom_value ) ;
+    else
+      bottom_value = 0.0 ;
+
     float right_value ;
     right_slider->getValue ( &right_value ) ;
 
@@ -569,7 +588,7 @@ void puLargeInput::draw ( int dx, int dy )
                     colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
 
       char *val ;                   // Pointer to the actual text in the box
-      val = getText () ;
+      val = ( bottom_slider ? getText () : getWrappedText () );
 
       if ( val )
       {
@@ -776,7 +795,11 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
                                                // Input box height, in lines
 
     float bottom_value ;
-    bottom_slider->getValue ( &bottom_value ) ;
+    if ( bottom_slider )
+      bottom_slider->getValue ( &bottom_value ) ;
+    else
+      bottom_value = 0.0 ;
+
     float right_value ;
     right_slider->getValue ( &right_value ) ;
 
@@ -1083,4 +1106,75 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   normalize_cursors () ;
   return TRUE ;
 }
+
+void puLargeInput::wrapText()
+{
+  // Wrap the text in "text" and put it in "wrapped_text"
+
+  int l_len = strlen (text) ;
+  if ( wrapped_text ) delete wrapped_text ;
+  wrapped_text = new char[l_len + 1] ;
+  memcpy(wrapped_text, text, l_len + 1) ;
+
+  char *wrapped_text_wp = wrapped_text,
+       *space_ptr,
+       *old_space_ptr ;
+
+  /* Somewhat inspired by tuxracer */
+  while ( *wrapped_text_wp != '\0' )
+  {
+    old_space_ptr = NULL ;
+    space_ptr = strchr ( wrapped_text_wp, ' ' ) ;
+
+    while (1)
+    {
+      if ( space_ptr != NULL )
+        *space_ptr = '\0' ;
+
+      if ( legendFont.getStringWidth ( wrapped_text_wp ) >
+           (   ( abox.max[0] - abox.min[0] )
+             - slider_width
+             - PUSTR_LGAP
+             - ( getStyle () == PUSTYLE_BOXED ? getBorderThickness () : 0 )
+             - PUSTR_RGAP
+           )
+         )
+        break ;
+
+      old_space_ptr = space_ptr ;
+
+      if ( space_ptr == NULL )
+        /* Entire string fits in widget */
+        break ;
+
+      // Check for carriage return in the original string
+      if ( strrchr ( wrapped_text_wp, '\n' ) > wrapped_text_wp )
+        wrapped_text_wp = strrchr ( wrapped_text_wp, '\n' ) + 1 ;
+
+      *space_ptr = ' ' ;
+
+      space_ptr = strchr ( space_ptr+1, ' ' ) ;
+    }
+
+    if ( old_space_ptr == NULL )
+    /* Either string is too wide for area, or the entire remaining portion
+       of string fits in area (space_ptr == NULL). */
+    {
+      wrapped_text_wp += strlen (wrapped_text_wp) ;
+
+      if ( space_ptr != NULL )
+      /* Advance past the NULL since there's more string left */
+        wrapped_text_wp += 1 ;
+    }
+    else
+    {
+      if ( space_ptr != NULL )
+        *space_ptr = ' ' ;
+      *old_space_ptr = '\n' ;
+
+      wrapped_text_wp = old_space_ptr + 1 ;
+    }
+  }
+}
+
 
