@@ -21,7 +21,7 @@
 */
 
 //
-// ASC (ascii files, use for example by 3DS R4 (the DOS version)) export for SSG/PLIB
+// ASC (ascii files, used for example by 3DS R4 (the DOS version)) export for SSG/PLIB
 // Written by Wolfram Kuss in Mar-2003
 //
 
@@ -89,7 +89,8 @@ static void save_vtx_table ( ssgVtxTable *vt )
 		fprintf ( save_fd, "Face list:\n"); 
 	for ( j = 0; j < num_face; j++ )
   {
-    WKSHORT i1,i2,i3;
+    //WKSHORT
+		short i1,i2,i3;
     vt -> getTriangle ( j, &i1, &i2, &i3 ) ;
 
     fprintf ( save_fd, "Face %d: A:%d B:%d C:%d AB:1 BC:1 CA:1\n", j, i1, i2, i3 ); 
