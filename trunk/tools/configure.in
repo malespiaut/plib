@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/af2rgb/af2rgb.cxx)
-AM_INIT_AUTOMAKE(plib_tools, 1.5.2)
+AM_INIT_AUTOMAKE(plib_tools, 1.6.0)
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -12,10 +12,13 @@ AC_PROG_INSTALL
 
 AC_LANG_CPLUSPLUS
 
+
 dnl Command line arguments.
 
+dnl Don't use AC_HELP_STRING here as old versions of autoconf do not
+dnl understand it.
 AC_ARG_WITH(GL,
-AC_HELP_STRING([--with-GL=DIR], [set the prefix directory where GL resides]),
+[  --with-GL=DIR           set the prefix directory where GL resides],
 GL_PREFIX=$withval, GL_PREFIX=auto)
 
 if test "x$GL_PREFIX" != "xauto"; then
@@ -23,44 +26,25 @@ if test "x$GL_PREFIX" != "xauto"; then
     CPPFLAGS="$CPPFLAGS -I$GL_PREFIX/include"
 fi
 
-dnl Checks for header files.
 
-AC_HEADER_STDC
-
-AC_CHECK_HEADERS(GL/gl.h GL/glu.h,, AC_MSG_ERROR([OpenGL header files not found]))
-AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
-AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT))
-AC_CHECK_HEADER(GL/freeglut.h, AC_DEFINE(FREEGLUT_IS_PRESENT))
-
-if test "x$ac_cv_header_GL_glut_h" = "xno" && test "x$ac_cv_header_GL_freeglut_h" = "xno"; then
-   AC_MSG_ERROR([found neither GLUT nor freeglut header file])
-fi
-
-AC_CHECK_HEADER(plib/ul.h,, AC_MSG_ERROR([PLIB header files not found]))
+CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+LDFLAGS="$LDFLAGS -L/usr/local/lib"
 
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
-
-if test "$HOSTTYPE" = "macintosh"; then
-
-   dnl Mac OS X
-
-   dnl OpenGL libraries
-   LIBS="$LIBS -framework OpenGL -framework GLUT"
-
-   dnl Sound libraries
-   LIBS="$LIBS -framework Carbon"
-
-else
 
 AC_CANONICAL_HOST
 
 case "${host}" in
 *-*-cygwin* | *-*-mingw32*)
-  dnl CygWin under Windoze.
+    dnl CygWin under Windoze.
 
-  dnl OpenGL libraries
-  LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32"
+    LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32"
+	;;
+*-apple-darwin*)
+    dnl Mac OS X
+
+    LIBS="$LIBS -framework GLUT -lobjc -framework OpenGL -framework Carbon"
 	;;
 *)
     dnl Check for X11
@@ -69,68 +53,103 @@ case "${host}" in
 
     LDFLAGS="$LDFLAGS $X_LIBS"
 
-    x_suffix="$X_PRE_LIBS -lX11 -lXi -lXext -lXmu $X_EXTRA_LIBS -lm"
+    LIBS="$LIBS $X_PRE_LIBS -lXi -lXmu -lXext -lX11 $X_EXTRA_LIBS -lm"
 
     dnl Reasonable stuff non-windoze variants ... :-)
 
-    AC_CHECK_LIB(dl, dlclose)
-
-    AC_CHECK_LIB(GL, glNewList,,,$x_suffix)
+    AC_CHECK_LIB(GL, glNewList)
     if test "x$ac_cv_lib_GL_glNewList" = "xno" ; then
         dnl if no GL, check for MesaGL
-        AC_CHECK_LIB(MesaGL, glNewList,,,$x_suffix)
+        AC_CHECK_LIB(MesaGL, glNewList,,
+        AC_MSG_ERROR([could not find working GL library]))
     fi
 
-    AC_CHECK_LIB(GLU, gluLookAt,,,$x_suffix)
+    AC_CHECK_LIB(GLU, gluLookAt)
     if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
         dnl if no GLU, check for MesaGLU
-        AC_CHECK_LIB(MesaGLU, gluLookAt,,,$x_suffix)
+        AC_CHECK_LIB(MesaGLU, gluLookAt,,
+        AC_MSG_ERROR([could not find working GLU library]))
     fi
-
-    opengl_LIBS="$LIBS $x_suffix"
 
     dnl check for glut...or freeglut
-    AC_CHECK_LIB(freeglut, glutGetModifiers,,,$opengl_LIBS)
+    AC_CHECK_LIB(freeglut, glutGetModifiers)
     if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xno" ; then
         dnl if no freeglut, check for Real GLUT
-        AC_CHECK_LIB(glut, glutGetModifiers,,,$opengl_LIBS)
-
-        if test "x$ac_cv_lib_glut_glutGetModifiers" = "xno" ; then
-                AC_MSG_ERROR([could not find working GLUT library])
-        fi
+        AC_CHECK_LIB(glut, glutGetModifiers,,
+        AC_MSG_ERROR([could not find working GLUT library]))
     fi
 
-    CPPFLAGS="$CPPFLAGS -I/usr/local/include"
-    LDFLAGS="$LDFLAGS -L/usr/local/lib"
+    AC_CHECK_LIB(dl, dlclose)
 
-    WFLAG="-Wall"
-    case "$host" in
-    mips-sgi-irix*)
-        if test "x$CXX" = "xCC"; then
-            WFLAG="-fullwarn";
-        fi
-	;;
-    esac
-
-    CFLAGS="$CFLAGS $WFLAG"
-    CXXFLAGS="$CXXFLAGS $WFLAG"
-
-    LIBS="$LIBS $x_suffix"
+    dnl Check SGI audio library
+    AC_CHECK_LIB(audio, ALopenport, SND_LIBS="-laudio")
 	;;
 esac
-fi
 
 dnl Check PLIB library
 AC_CHECK_LIB(plibul, ulInit, true,
 AC_MSG_ERROR([there seems to be a problem with the PLIB libraries]))
 
-dnl Check SGI audio library
-AC_CHECK_LIB(audio, ALopenport)
 
-if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
-  dnl this is an SGI machine...
-  LIBS="$LIBS -laudio"
-fi
+dnl Checks for header files.
+
+AC_HEADER_STDC
+AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
+
+case "${host}" in
+*-*-cygwin* | *-*-mingw32*)
+    dnl CygWin under Windoze.
+
+    AC_CHECK_HEADERS(GL/gl.h GL/glu.h,,
+    AC_MSG_ERROR([OpenGL header files not found]))
+
+    AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
+    AC_MSG_ERROR([GLUT header file not found]))
+	;;
+*-apple-darwin*)
+    dnl Mac OS X
+
+    AC_CHECK_HEADERS(OpenGL/gl.h OpenGL/glu.h,,
+    AC_MSG_ERROR([OpenGL header files not found]))
+
+    AC_CHECK_HEADER(GLUT/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
+    AC_MSG_ERROR([GLUT header file not found]))
+	;;
+*)
+    AC_CHECK_HEADERS(GL/gl.h GL/glu.h,,
+    AC_MSG_ERROR([OpenGL header files not found]))
+
+    if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xyes"; then
+        AC_CHECK_HEADER(GL/freeglut.h, AC_DEFINE(FREEGLUT_IS_PRESENT),
+        AC_MSG_ERROR([freeglut header file not found]))
+    else
+        AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
+        AC_MSG_ERROR([GLUT header file not found]))
+    fi
+	;;
+esac
+
+AC_CHECK_HEADER(plib/ul.h,, AC_MSG_ERROR([PLIB header files not found]))
+
+
+dnl Warning flags
+WFLAG="-Wall"
+case "$host" in
+mips-sgi-irix*)
+    if test "x$CXX" = "xCC"; then
+        WFLAG="-fullwarn";
+    fi
+        ;;
+*)
+    if test "x$CXX" = "xicpc" || test "x$CXX" = "xicc"; then
+        WFLAG="-w1"
+    fi
+        ;;
+esac
+
+CFLAGS="$CFLAGS $WFLAG"
+CXXFLAGS="$CXXFLAGS $WFLAG"
+
 
 AC_OUTPUT( \
 	Makefile \
