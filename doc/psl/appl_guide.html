@@ -24,6 +24,383 @@ This document is to help people writing C++ applications to include
 scripting abilities using the PSL interpreter.
 <p>
 
+To include PSL scripts into your application requires that you:
+<pre>
+
+   #include &lt;plib/psl.h&gt;
+
+</pre>
+...and link with '<code>-lplibpsl</code>'
+<p>
+Then, sometime before you call any other PSL functions, you must call:
+<pre>
+
+   pslInit () ;
+
+</pre>
+Each PSL script is represented by an object of class <code>pslProgram</code>
+<H1>Example Application</H1>
+This is the simplest possible PSL application, it
+loads a script called "test.psl", compiles and runs it.
+<pre>
+
+  #include <plib/psl.h>
+
+  void main ()
+  {
+    pslInit () ;
+    pslExtension extensions [] = { { NULL, 0, NULL } } ;
+    pslProgram *prog = new pslProgram ( extensions, "Program1" ) ;
+    prog -&gt; compile ( "test.psl" ) ;
+    while ( prog -&gt; step () != PSL_PROGRAM_END ) /* Nothing */ ;
+  }
+
+</pre>
+Here is a line-by-line explanation:
+<p>
+<center>
+<TABLE border="1">
+<tr><td><code> pslInit () ;</code></td><td>
+Initialise PSL - this must be the first thing you do.</td></tr>
+<tr><td><code> pslExtension extensions [] ...</code></td><td>
+Make a list of PSL extension functions.<br>
+This program doesn't have any.  </td></tr>
+<tr><td><code> pslProgram *prog = new pslProgram...</code> </td><td>
+Declare a program (called "MyProgram").</td></tr>
+<tr><td><code> prog -&gt; compile ( "test.psl" ) ;</code></td><td>
+Compile the program to bytecode.</td></tr>
+<tr><td><code> while ( prog -&gt; step () != PSL_PROGRAM_END )...</code>
+</td><td>
+Tell the PSL program to execute one 'step'
+<br>Keep doing that until we reach the end of the program.
+</td></tr>
+</TABLE>
+</center>
+<p>
+Easy!
+<p>
+Now let's look at <code>class pslProgram</code> in more detail.
+<H1><code>class pslProgram</code></H1>
+Each PSL script is represented by an object of class <code>pslProgram</code>.
+<pre>
+
+  class pslProgram
+  {
+    pslProgram ( pslExtension *extns, char *name ) ;
+
+    pslProgram ( pslProgram    *prog, char *name ) ;
+
+
+    void  setUserData ( void *data ) ;
+    void *getUserData () ;
+
+    void  setProgName ( char *name ) ;
+    char *getProgName () ;
+
+    void      dump  () ;
+    void      reset () ;
+    pslResult step  () ;
+    pslResult trace () ;
+
+    int compile ( char *fname ) ;
+    int compile ( FILE *fd ) ;
+  } ;
+
+</pre>
+<H1><code>pslProgram::pslProgram</code></H1>
+There are two constructor functions to choose from. The first
+takes an array of 'extension functions' and the name by which
+this program will be known (for error messages and such).  The
+second constructor takes an existing, compiled PSL program and
+makes a copy of it - it too needs a program name.
+<p>
+The second version of the constructor is especially efficient
+because this enables the script to be compiled just once - and
+run multiple times in parallel.  The second and subsequent
+copies of the program consume much less RAM than the first
+copy because they share the 'code' part of the script.
+<p>
+For example, you can run two copies of a script in parallel
+like this:
+<pre>
+
+  pslInit () ;
+ 
+  pslProgram *prog_1 = new pslProgram ( extensions, "code1" ) ;
+  prog_1 -&gt; compile ( "data/test.psl" ) ;
+ 
+  pslProgram *prog_2 = new pslProgram ( prog_1, "code2" ) ;
+ 
+  while ( prog_1 -&gt; step () != PSL_PROGRAM_END &&
+          prog_2 -&gt; step () != PSL_PROGRAM_END )
+    /* NOTHING */ ;
+
+</pre>
+<H1><code>pslProgram::compile</code></H1>
+When you compile a PSL program, any errors or warnings are reported
+to stderr (by default) and the number of fatal compilation errors
+is returned as the result of the 'compile' function.  Programs may
+choose to ignore any compilation errors - but executing the resulting
+program will immediately produce a PSL_PROGRAM_END.
+<p>
+You can pass either a filename or a 'FILE *' descriptor to the compiler,
+if you do the former, then error messages will refer to the name of the
+file - if you do the latter then the program name that you passed to the
+constructor function will be reported.
+<p>
+Applications that would like to report scripting errors in a more elegant
+way, may register a callback function that will be called whenever there
+is a problem within PSL:
+<pre>
+
+  void pslSetErrorCallback ( void (*CB) ( pslProgram *, int, char *,
+                                                        int, char * ) ) ;         
+</pre>
+Your function will be called with five parameters:
+<pre>
+
+  void myErrorCB ( pslProgram *prog, int severity,
+                   char *progname, int lineno, char *message ) ) ;         
+</pre>
+<ul>
+<li> The 'prog' parameter is a pointer to the pslProgram that had the
+     problem.
+<li> The 'severity' parameter is the error type and severity:
+  <ul>
+    <li> PSL_COMPILETIME_WARNING - A problem was found while
+         compiling the PSL program - but it may not be serious enough
+         to prevent it from running.
+    <li> PSL_COMPILETIME_ERROR   - A serious problem was found while
+         compiling the PSL program - it won't run correctly.
+    <li> PSL_RUNTIME_WARNING     - A problem was found while running
+         the PSL program - but it wasn't serious enough to prevent
+         the program from continuing to execute.
+    <li> PSL_RUNTIME_ERROR       - The PSL program 'crashed' while being
+         executed.
+  </ul>
+<li> The 'progname' parameter is the name of the program.
+<li> The 'lineno' parameter is the line number at which the problem
+     occurred (if compiling) or the byte-code address at which it
+     failed (if at runtime).  The latter isn't much use unless you
+     are a developer of the PSL interpreter.
+<li> The 'message' parameter is the actual text of the error message.
+</ul>
+Notice that at compiletime, the 'progname' parameter is the name of the
+file being compiled (if that's known to the compiler).   Since it's
+possible for one PSL source file to '#include' another, you should
+always use the 'progName' parameter in your error messages in preference
+to <code>prog-&gt;getProgName()</code> member function.
+<H1><code>pslExtension</code></H1>
+We have not yet talked about this mysterious 'extensions' array that's passed
+into the pslProgram constructor function.
+<p>
+It's important that your PSL scripts are able to interact with your C++
+program - and this is done by creating a number of C++ functions that
+can be called by the PSL program as it executes.  These are called
+'extensions' because they extend the functionality of PSL.
+<p>
+The extension parameter to the pslProgram constructor is an array of
+pslExtension structures:
+<pre>
+
+  class pslExtension
+  {
+    const char *symbol ;
+    int   argc ;
+    pslValue (*func) ( int, pslValue *, pslProgram *p ) ;
+  } ;
+                                                                               
+</pre>
+<ul>
+<li>The 'symbol' field is the name of the extension function AS IT APPEARS INSIDE
+PSL PROGRAMS.  This doesn't have to be the same as the actual name of
+your C++ function.
+<li>The 'argc' field is the number of parameters the function expects.  You can
+set 'argc' to -1 to allow any number of parameters to be passed - so that you
+can create functions that work like 'printf' does.
+<li>The 'func' field is a pointer to your C++ function.
+</ul>
+The list of pslExtensions is terminated by a <code>{ NULL, 0, NULL}</code>
+entry.
+<p>
+The C++ function has to look like this:
+<pre>
+
+  pslValue my_func ( int argc, pslValue *argv, pslProgram *p )
+
+</pre>
+<ul>
+<li>The 'argc' parameter to the C++ function is the number of
+PSL parameters that were passed to it.  It's useful to know this
+number when your pslExtension had 'argc' set to -1.
+<p>
+<li>The 'argv' parameter is an array containing the parameters
+that PSL is passing to this function.  Each element is a 'pslValue'
+class which could contain any of the PSL variable types.
+<p>
+<li>The 'p' parameter is a pointer to the pslProgram that was
+running at the time this function was called.  Notice that pslProgram's
+can have user data associated with them - so this gives you quite a
+bit of scope for accessing script-specific data structures.
+<p>
+<li>When your script has finished doing it's job, it has to return
+some kind of result.  This is another one of those 'pslValue'
+class objects.
+</ul>
+<H3>Example Extension Function</H3>
+This C++ function prints it's arguments to stdout and returns the
+value 123.456.
+<pre>
+ 
+  pslValue print ( int argc, pslValue *argv, pslProgram *p )
+  {
+    for ( int i = 0 ; i &lt; argc ; i++ )
+    {
+      switch ( argv[i].getType () )
+      {
+	case PSL_INT    : printf ( "%d ", argv[i].getInt    () ) ; break ;
+	case PSL_FLOAT  : printf ( "%f ", argv[i].getFloat  () ) ; break ;
+	case PSL_STRING : printf ( "%s ", argv[i].getString () ) ; break ;
+	case PSL_VOID   : printf ( "(void) " ) ; break ;
+	default : printf ( "Illegal parameter passed to 'print'." ) ; break ;
+      }
+    }
+   
+    pslValue ret ;
+    ret.set ( 123.456 ) ;
+    return ret ;
+  }
+
+</pre>
+Adding this to the example program above, requires only that you
+change the declaration of 'extensions' as follows:
+<pre>
+
+  pslExtension extensions [] =
+  {
+    { "print", -1, print },
+    { NULL, 0, NULL }
+  } ;
+
+</pre>
+Now, now you can write "Hello World" in PSL script:
+<pre>
+
+  int main ()
+  {
+    print ( "Hello World.\n" ) ;
+  }
+
+</pre>
+...and your C++ function 'print' will be called with one parameter
+that'll contain the string value "Hello World.\n".
+<H3><code>pslValue</code></H3>
+The 'pslValue' class is used to pass numbers into and out of extension
+functions.  It contains the type and value of a number or string in PSL
+and it looks like this:
+<pre>
+
+  class pslValue
+  {
+    pslType getType   () ;
+
+    int     getInt    () ;
+    float   getFloat  () ;
+    char   *getString () ;
+
+    void set ()               ;
+    void set ( int        v ) ;
+    void set ( float      v ) ;
+    void set ( char      *v ) ;
+    void set ( pslNumber *v ) ;
+  } ;                                                                            
+
+</pre>
+Setting <b>nothing</b> into your pslValue ("my_value-&gt;set()") is used to
+return a 'void' result from your extension function - that is the default
+type for a pslValue.
+<p>
+The 'getType' call returns the type of this value - currently,
+it can be: PSL_INT, PSL_FLOAT, PSL_STRING or PSL_VOID.  If you 'set' the
+pslValue, it automatically changes it's 'getType' result to match.
+<p>
+Doing a 'get' for a type that DOESN'T match the 'getType' of the pslValue
+causes it to try to convert to that type.  However, a 'getString' on a
+non-string pslValue will return NULL.  Doing a 'getInt' or 'getFloat'
+on a PSL_STRING will perform an atoi() or atof() (respectively) in an
+attempt to get a number from the string.
+<H1>Running, Tracing, Debugging.</H1>
+You run the PSL program one byte-code instruction at a time by calling the
+<code>pslProgram::step()</code> function.  A byte-code
+instruction is rather like the 'machine code' of a physical computer and
+it typically takes several byte-code instructions to implement each line
+of PSL source code.
+<p>
+The 'step' function returns one of three possible results:
+<ul>
+<li> PSL_PROGRAM_CONTINUE -- The PSL program is running normally.
+<li> PSL_PROGRAM_END -- The PSL program has finished running.  This
+     could be because it simply ended normally - but it could also
+     be because it 'crashed' with a fatal runtime problem of some kind.
+<li> PSL_PROGRAM_PAUSE -- There is a special 'pause' statement in PSL
+     and when that statement is executed, it causes 'step' to return
+     this value.
+</ul> 
+The PSL_PROGRAM_PAUSE return is intended to cope with the specific
+case when PSL is being used in an interactive graphical application.
+Typically, such applications will not want to run PSL scripts to
+completion every frame - but instead run them up to the next 'pause'
+statement.
+<p>
+A typical game might have dozens of PSL scripts running in parallel
+and wish to run each of them until the script 'pause's.
+<p>
+So, your application's main loop might look something like this:
+<pre>
+
+  read_the_joystick () ;
+
+  for ( int i = 0 ; i &lt; num_scripts ; i++ )
+    while ( program [ i ] -&gt; step () == PSL_PROGRAM_CONTINUE )
+      /* Do Nothing */ ;
+
+  render_the_graphics () ;
+  swap_the_doublebuffer () ;
+
+</pre>
+Then, one of those scripts (to move a monster for example)
+might look like this:
+<pre>
+
+   int main ()
+   {
+     int i = getMyMonster () ;
+
+     while ( 1 )
+     {
+       moveMonster ( i ) ;
+       pause ;
+     }
+   }
+
+</pre>
+The 'pause' command indicates that this script has completed it's
+work for this frame.
+<p>
+Alternatively, some applications may wish to run the scripts for
+fixed amounts of time, fixed numbers of byte-codes - or until
+some other criterion is satisfied.
+<H3> Resetting a Script </H3>
+There is a <code>pslProgram::reset()</code> function that
+restarts the PSL program from the beginning having first
+reset all of its internal variables.
+<H3> Debugging PSL scripts </H3>
+For debugging PSL scripts, you may replace the 'step' call with
+'trace' - which causes the byte-code for each instruction to be
+printed to stderr as it's executed.
+<p>
+You can also call <code>pslProgram::dump()</code> to print out
+all of the byte-code and the PSL symbol table for the program.
 <hr>
 <address>
 <a href="http://www.sjbaker.org">Steve J. Baker.</a> &lt;<a href="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</a>&gt;</address>

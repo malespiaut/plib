@@ -28,11 +28,12 @@
 static char _pslErrorBuffer [ 1024 ] = { '\0' } ;                     
 
 
-void (*_pslErrorCB) ( int severity, const char *progname, int line_no,
-                                    const char *message ) = NULL ;
+void (*_pslErrorCB) ( pslProgram *p, int severity, const char *progname,
+                                 int line_no , const char *message ) = NULL ;
 
 
-void pslSetErrorCallback ( void (*CB) ( int, const char *, int, const char * ) )
+void pslSetErrorCallback ( void (*CB) ( pslProgram *, int, const char *,
+                                                      int, const char * ) )
 {
   _pslErrorCB = CB ;
 }
@@ -47,7 +48,7 @@ int pslCompiler::warning ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( PSL_COMPILETIME_WARNING, _pslGetFname(), _pslGetLineNo(), 
+    (*_pslErrorCB)( this, PSL_COMPILETIME_WARNING, _pslGetFname(), _pslGetLineNo(), 
                                                             _pslErrorBuffer ) ;
   else
     fprintf ( stderr, "PSL: \"%s\" line %3d: WARNING - %s\n",
@@ -68,7 +69,7 @@ int pslCompiler::error ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( PSL_COMPILETIME_ERROR, _pslGetFname(), _pslGetLineNo(), 
+    (*_pslErrorCB)( this, PSL_COMPILETIME_ERROR, _pslGetFname(), _pslGetLineNo(), 
                                                            _pslErrorBuffer ) ;
   else
     fprintf ( stderr, "PSL: \"%s\" line %3d: *ERROR* - %s\n",
@@ -89,7 +90,7 @@ void pslContext::warning ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( PSL_RUNTIME_WARNING, getProgName(), pc, _pslErrorBuffer ) ;
+    (*_pslErrorCB)( program, PSL_RUNTIME_WARNING, getProgName(), pc, _pslErrorBuffer ) ;
   else
     fprintf ( stderr, "PSL: \"%s\" PC=%d: WARNING - %s\n",
                                          getProgName(), pc, _pslErrorBuffer ) ;
@@ -107,7 +108,7 @@ void pslContext::error ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( PSL_RUNTIME_ERROR, getProgName(), pc, _pslErrorBuffer ) ;
+    (*_pslErrorCB)( program, PPSL_RUNTIME_ERROR, getProgName(), pc, _pslErrorBuffer ) ;
   else
     fprintf ( stderr, "PSL: \"%s\" PC=%d: *ERROR* - %s\n",
                                        getProgName(), pc, _pslErrorBuffer ) ;

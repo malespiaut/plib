@@ -67,9 +67,8 @@ void pslCompiler::pushStringConstant ( const char *c )
 }
 
 
-void pslCompiler::pushIntConstant ( const char *c )
+void pslCompiler::pushIntConstant ( int i )
 {
-  int i = atoi ( c ) ; 
   char *ii = (char *) & i ;
 
   pushCodeByte ( OPCODE_PUSH_INT_CONSTANT ) ;
@@ -77,6 +76,12 @@ void pslCompiler::pushIntConstant ( const char *c )
   pushCodeByte ( ii [ 1 ] ) ;
   pushCodeByte ( ii [ 2 ] ) ;
   pushCodeByte ( ii [ 3 ] ) ;
+}
+
+void pslCompiler::pushIntConstant ( const char *c )
+{
+  int i = atoi ( c ) ; 
+  pushIntConstant ( i ) ;
 }
 
 void pslCompiler::pushFloatConstant ( const char *c )
@@ -138,6 +143,7 @@ void pslCompiler::pushCall ( const char *c, int argc )
 
   if ( ext < 0 )
   {
+    pushIntConstant ( argc ) ;
     pushCodeByte ( OPCODE_CALL ) ;
 
     int a = getCodeSymbol ( c, next_code ) ;
