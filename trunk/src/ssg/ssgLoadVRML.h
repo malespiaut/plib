@@ -111,7 +111,6 @@ struct _parseTag
 // the vrml1 common subset that is shared with inventor
 bool vrml1_parseCoordinate3( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 bool vrml1_parseTextureCoordinate2( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
-bool vrml1_parseTexture2(  ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 bool vrml1_parseShapeHints( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 bool vrml1_parseMatrixTransform( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 bool vrml1_parseScale( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
