@@ -128,7 +128,8 @@ fi
 dnl Checks for typedefs, structures, and compiler characteristics.
 
 AC_OUTPUT( \
-	Makefile                        \
+	Makefile                   \
+	data/Makefile              \
 	src/Makefile               \
 	src/js/Makefile            \
 	src/pui/Makefile           \
