@@ -12,6 +12,7 @@ void ssgTimedSelector::copy_from ( ssgTimedSelector *src, int clone_flags )
   pause_time    = src -> pause_time ;
   loop_time     = src ->  loop_time ;
 
+  delete [] times ;
   times = new float [ max_kids ] ;
   for ( int i = 0 ; i < max_kids ; i++ )
     times [ i ]  = src -> times [ i ] ;
@@ -139,6 +140,8 @@ int ssgTimedSelector::load ( FILE *fd )
   _ssgReadFloat ( fd, & pause_time ) ;
   _ssgReadFloat ( fd, & loop_time  ) ;
   _ssgReadInt   ( fd, & max_kids  ) ;
+  delete [] times ;
+  times = new float [ max_kids ] ;
   _ssgReadFloat ( fd, max_kids, times    ) ;
   _ssgReadInt   ( fd, & curr  ) ;
   _ssgReadInt   ( fd, & start ) ;
