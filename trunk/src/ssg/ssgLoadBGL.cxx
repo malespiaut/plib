@@ -441,7 +441,7 @@ static int triangulateConcave(ssgVertexArray *coords, ssgIndexArray *w, int n, i
 
 //===========================================================================
 
-int _ssgTriangulate( ssgVertexArray *coords, ssgIndexArray *w, int n, ssgIndexArray *tris )
+static int _ssgTriangulate( ssgVertexArray *coords, ssgIndexArray *w, int n, ssgIndexArray *tris )
 {
    float *a, *b;
    int i, x, y;
