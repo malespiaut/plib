@@ -246,6 +246,9 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
     return model ;
   }
 
+  if ( _ssgStrNEqual ( extn, ".ase", 4 ) )
+    return ssgLoadASE ( fname, hookfunc ) ;
+
   if ( _ssgStrNEqual ( extn, ".wrl", 4 ) )
     return ssgLoadVRML ( fname, hookfunc ) ;
 
@@ -271,6 +274,9 @@ int ssgSave ( char *fname, ssgEntity *ent )
 
   if ( _ssgStrNEqual ( extn, ".ac", 3 ) )
     return ssgSaveAC ( fname, ent ) ;
+
+  if ( _ssgStrNEqual ( extn, ".ase", 4 ) )
+    return ssgSaveASE ( fname, ent ) ;
 
   if ( _ssgStrNEqual ( extn, ".ssg", 4 ) )
     return ssgSaveSSG ( fname, ent ) ;

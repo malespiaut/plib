@@ -14,6 +14,16 @@ PLIB v1.2.0 (Feb xx 2000)
   * Fixed a ref() problem with ssgVtxTable::clone - thanks
     to Will Weisser for catching that one!
 
+  * Added checks to ensure that a valid OpenGL rendering
+    context exists before ssgInit/puiInit/fnt-loaders are
+    called.
+
+  * Added Dave McClurg's ASE loader and matching writer.
+    If you use the new 'ssgLoad()/ssgSave()' functions,
+    it'll "just work" - if you prefer you can call
+    ssgLoadASE/ssgSaveASE analogously to all the other
+    loaders.
+
 PLIB v1.1.11 (Feb 9th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Fixed a tiny problem with double-sided polygons.
