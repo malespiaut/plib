@@ -437,9 +437,9 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
       sgNormalizeVec3 ( v2 ) ;
       sgNormalizeVec3 ( v3 ) ;
 
-      sgSetVec3 ( v, center[0]+size[0]*v0[0],
-                     center[1]+size[1]*v0[1],
-                     center[2]+size[2]*v0[2] ) ;
+      sgSetVec3 ( v, center[0]+size[0]*v0[0]/2.0f,
+                     center[1]+size[1]*v0[1]/2.0f,
+                     center[2]+size[2]*v0[2]/2.0f ) ;
       sgSetVec3 ( n, size[0]*v0[0],
                      size[1]*v0[1],
                      size[2]*v0[2] ) ;
@@ -447,9 +447,9 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
       sgSetVec2 ( t, ATAN2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v0[2]/2.0f ) ;
       vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
     
-      sgSetVec3 ( v, center[0]+size[0]*v1[0],
-                     center[1]+size[1]*v1[1],
-                     center[2]+size[2]*v1[2] ) ;
+      sgSetVec3 ( v, center[0]+size[0]*v1[0]/2.0f,
+                     center[1]+size[1]*v1[1]/2.0f,
+                     center[2]+size[2]*v1[2]/2.0f ) ;
       sgSetVec3 ( n, size[0]*v1[0],
                      size[1]*v1[1],
                      size[2]*v1[2] ) ;
@@ -464,9 +464,9 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
         sgNormalizeVec3 ( va ) ;
         sgNormalizeVec3 ( vb ) ;
  
-	sgSetVec3 ( v, center[0]+size[0]*va[0],
-		       center[1]+size[1]*va[1],
-		       center[2]+size[2]*va[2] ) ;
+	sgSetVec3 ( v, center[0]+size[0]*va[0]/2.0f,
+		       center[1]+size[1]*va[1]/2.0f,
+		       center[2]+size[2]*va[2]/2.0f ) ;
 	sgSetVec3 ( n, size[0]*va[0],
 		       size[1]*va[1],
 		       size[2]*va[2] ) ;
@@ -474,9 +474,9 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
         sgSetVec2 ( t, ATAN2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+va[2]/2.0f ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
 
-	sgSetVec3 ( v, center[0]+size[0]*vb[0],
-		       center[1]+size[1]*vb[1],
-		       center[2]+size[2]*vb[2] ) ;
+	sgSetVec3 ( v, center[0]+size[0]*vb[0]/2.0f,
+		       center[1]+size[1]*vb[1]/2.0f,
+		       center[2]+size[2]*vb[2]/2.0f ) ;
 	sgSetVec3 ( n, size[0]*vb[0],
 		       size[1]*vb[1],
 		       size[2]*vb[2] ) ;
@@ -485,9 +485,9 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
 	vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
       }
  
-      sgSetVec3 ( v, center[0]+size[0]*v2[0],
-                     center[1]+size[1]*v2[1],
-                     center[2]+size[2]*v2[2] ) ;
+      sgSetVec3 ( v, center[0]+size[0]*v2[0]/2.0f,
+                     center[1]+size[1]*v2[1]/2.0f,
+                     center[2]+size[2]*v2[2]/2.0f ) ;
       sgSetVec3 ( n, size[0]*v2[0],
                      size[1]*v2[1],
                      size[2]*v2[2] ) ;
@@ -557,7 +557,6 @@ void ssgaSphere::regenerateLatLong ()
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices, (float) i /(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
-        
       }
     }
     else
