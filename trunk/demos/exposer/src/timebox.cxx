@@ -48,6 +48,7 @@ void vcr_groundSpeed ( puObject *ob )
   timebox -> setGroundSpeed ( ob -> getFloatValue () ) ;
 }                                                              
 
+
 void timescrollerCB ( puObject *ob )
 {
   TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
@@ -64,127 +65,9 @@ float TimeBox::second ()
 }
 
 
-void TimeBox::reverseRegion ()
-{
-  int nevents = 0 ;
-  int i ;
-
-  /* Count the events... */
-
-  for ( i = 0 ; i < getNumEvents() ; i++ )
-  {
-    Event *ev = getEvent ( i ) ;
-
-    float t = ev -> getTime () ;
-
-    if ( ( lcursor < rcursor && t >= lcursor && t <= rcursor ) ||
-         ( rcursor < lcursor && t >= rcursor && t <= lcursor ) )
-    {
-      nevents++ ;
-    }
-  }
-
-  if ( nevents == 0 )
-    return ;
-
-  /* Make a list of them */
-
-  Event **elist = new Event* [ nevents ] ;
-
-  nevents = 0 ;
-
-  for ( i = 0 ; i < getNumEvents() ; i++ )
-  {
-    Event *ev = getEvent ( i ) ;
-
-    float t = ev -> getTime () ;
-
-    if ( ( lcursor < rcursor && t >= lcursor && t <= rcursor ) ||
-         ( rcursor < lcursor && t >= rcursor && t <= lcursor ) )
-    {
-      elist [ nevents ] = ev ;
-      nevents++ ;
-    }
-  }
-
-  for ( i = 0 ; i < nevents ; i++ )
-  {
-    Event *ev = elist [ i ] ;
-
-    removeEvent ( ev ) ;
-
-    float t = ev -> getTime () ;
-
-    if ( lcursor > rcursor )
-      t = lcursor - ( t - rcursor ) ;
-    else
-      t = rcursor - ( t - lcursor ) ;
-
-    ev -> setTime ( t ) ;
-    addEvent ( ev ) ;
-  }
-
-  delete [] elist ;
-}
-
-
-void TimeBox::deleteAll ()
-{
-  while ( getNumEvents() > 0 )
-  {
-    Event *ev = getEvent ( 0 ) ;
-    removeEvent ( ev ) ;
-    delete ev ;
-  }
-
-  lcursor = rcursor = 0.0f ;
-  setCurrentEvent ( NULL ) ;
-}
-
-
-
-void TimeBox::deleteRegion ()
-{
-  int found_one = FALSE ;
-
-  do
-  {
-    found_one = FALSE ;
-
-    for ( int i = 0 ; i < getNumEvents() && ! found_one ; i++ )
-    {
-      Event *ev = getEvent ( i ) ;
-
-      float t = ev -> getTime () ;
-
-      if ( ( lcursor < rcursor && t >= lcursor && t <= rcursor ) ||
-           ( rcursor < lcursor && t >= rcursor && t <= lcursor ) )
-      {
-        removeEvent ( ev ) ;
-        delete ev ;
-        found_one = TRUE ;
-      }
-    }
-
-  } while ( found_one ) ;
-
-  setCurrentEvent ( NULL ) ;
-}
-
-
 void TimeBox::deleteRegionAndCompress ()
 {
-  deleteRegion () ;
-
-  for ( int i = 0 ; i < getNumEvents() ; i++ )
-  {
-    Event *ev = getEvent ( i ) ;
-
-    float t = ev -> getTime () ;
-
-    if ( t > lcursor || t > rcursor )
-      ev -> setTime ( t - fabs(lcursor-rcursor) ) ;
-  }
+  eventList -> compressEventsBetween ( lcursor, rcursor ) ;
 
   maxtime -= fabs(lcursor-rcursor) ;
 
@@ -192,24 +75,7 @@ void TimeBox::deleteRegionAndCompress ()
     lcursor = rcursor ;
   else
     rcursor = lcursor ;
-
-  setCurrentEvent ( NULL ) ;
 }
-
-
-
-void TimeBox::deleteEvent ()
-{
-  if ( getCurrentEvent() == NULL )
-    return ;
-
-  removeEvent ( getCurrentEvent() ) ;
-
-  Event *ev = getCurrentEvent() ;
-  setCurrentEvent ( NULL ) ;
-  delete ev ;
-}
-
 
 
 void TimeBox::addNewEvent ()
@@ -217,7 +83,7 @@ void TimeBox::addNewEvent ()
   if ( getNumBones() <= 0 )
     return ;
 
-  setCurrentEvent ( NULL ) ;
+  eventList->setCurrentEvent ( NULL ) ;
   event_mode = MODE_ADD ;
 }
 
@@ -243,6 +109,7 @@ void TimeBox::updateVCR ()
 
   ground_position = lcursor * ground_speed ;
 }
+
 
 void TimeBox::draw ()
 {
@@ -346,9 +213,9 @@ void TimeBox::draw ()
 
   glBegin ( GL_LINES ) ;
 
-  for ( i = 0 ; i < getNumEvents() ; i++ )
+  for ( i = 0 ; i < eventList->getNumEvents() ; i++ )
   {
-    t = getEvent(i) -> getTime () ;
+    t = eventList->getEvent(i) -> getTime () ;
 
     t = ( t - start ) * second ()  ;
 
@@ -360,9 +227,9 @@ void TimeBox::draw ()
   }
   glEnd () ;
 
-  if ( getCurrentEvent() != NULL )
+  if ( eventList->getCurrentEvent() != NULL )
   {
-    t = getCurrentEvent() -> getTime () ;
+    t = eventList->getCurrentEvent() -> getTime () ;
 
     t = ( t - start ) * second ()  ;
 
@@ -421,24 +288,17 @@ void TimeBox::updateEventQueue ( int button, int x, int y, int new_click )
 
       if ( new_click )
       {
-        Event *ev = findNearestEvent ( lcursor, 10.0f / second () ) ;
-   
-        if ( event_mode == MODE_ADD && getNumBones() > 0 )
-        {
-          setCurrentEvent ( new Event ( getNumBones(), lcursor ) ) ;
-	  addEvent ( getCurrentEvent() ) ;
-	  event_mode = MODE_SELECT ;
-	}
+        if ( event_mode == MODE_ADD )
+          eventList -> newEvent ( lcursor ) ;
 	else
-          setCurrentEvent ( ev ) ;
+          eventList -> setCurrentEvent (
+               eventList -> findNearestEvent ( lcursor, 10.0f/second () ) ) ;
+
+        event_mode = MODE_SELECT ;
       }
       else
-      if ( getCurrentEvent() != NULL )
-      {
-	removeEvent ( getCurrentEvent() ) ;
-	getCurrentEvent() -> setTime ( lcursor ) ;
-	addEvent ( getCurrentEvent() ) ;
-      }
+      if ( eventList->getCurrentEvent() != NULL )
+	eventList->moveEvent ( eventList->getCurrentEvent(), lcursor ) ;
     }
   }
 }

@@ -10,8 +10,9 @@ class TimeBox
   float lcursor ;
   float rcursor ;
  
-  puSlider *timescroller ;
-  puInput  *ground_speed_input ;
+  EventList *eventList ;
+  puSlider  *timescroller ;
+  puInput   *ground_speed_input ;
  
   float replay_speed    ;
   float ground_speed    ;
@@ -24,7 +25,7 @@ public:
   void setReplaySpeed ( float spd )
   {
     replay_speed = spd ;
-    setCurrentEvent ( NULL ) ;
+    eventList->setCurrentEvent ( NULL ) ;
   }
 
   void  draw () ;
@@ -32,7 +33,7 @@ public:
   void  updateEventQueue ( int button, int x, int y, int new_click ) ;
   void  updateVCR () ;
 
-  TimeBox () { init () ; }
+  TimeBox ( EventList *el ) { eventList = el ; init () ; }
 
   float second () ;
  
@@ -66,12 +67,29 @@ public:
   }
   float getZoom () { return scale ; }
 
-  void reverseRegion () ;
-  void deleteAll     () ;
-  void deleteRegion  () ;
-  void deleteRegionAndCompress () ;
-  void deleteEvent   () ;
-  void addNewEvent   () ;
+  void reverseRegion ()
+  {
+    eventList -> reverseEventsBetween ( lcursor, rcursor ) ;
+  }
 
+  void deleteAll ()
+  {
+    eventList -> deleteAll () ;
+    lcursor = rcursor = 0.0f ;
+  }
+
+  void deleteRegion ()
+  {
+    eventList -> deleteEventsBetween ( lcursor, rcursor ) ;
+  }
+
+  void deleteEvent ()
+  {
+    eventList -> deleteCurrentEvent () ;
+  }
+
+  void deleteRegionAndCompress () ;
+  void addNewEvent () ;
 } ;
+
 

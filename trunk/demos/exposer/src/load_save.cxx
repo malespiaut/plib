@@ -106,14 +106,13 @@ void bnsavepickfn ( puObject * )
   }
 
   fprintf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
-                        getNumBones(), getNumEvents(), timebox->getMaxTime (),
-                        -ground->getZcoord(), timebox->getGroundSpeed() ) ;
+           getNumBones(), eventList->getNumEvents(), timebox->getMaxTime (),
+           -ground->getZcoord(), timebox->getGroundSpeed() ) ;
 
   for ( i = 0 ; i < getNumBones () ; i++ )
     getBone ( i ) -> write ( fd ) ;
 
-  for ( i = 0 ; i < getNumEvents () ; i++ )
-    getEvent ( i ) -> write ( fd ) ;
+  eventList -> write ( fd ) ;
 
   fclose ( fd ) ;
   dialog ( "BONES WERE SAVED OK.", 1, 1, 0 ) ;
@@ -202,12 +201,7 @@ void bnpickfn ( puObject * )
   for ( i = 0 ; i < getNumBones () ; i++ )
     getBone ( i ) -> read ( fd ) ;
 
-  for ( i = 0 ; i < numevents ; i++ )
-  {
-    Event *e = new Event ( numbones, (float) i ) ;
-    e -> read ( fd ) ;
-    addEvent ( e ) ;
-  }
+  eventList -> read ( numevents, fd ) ;
 
   fclose ( fd ) ;
   puDeleteObject ( file_selector ) ;
@@ -319,9 +313,7 @@ void pickfn ( puObject * )
   extractVertices ( skinScene ) ;
   timebox->deleteAll () ;
 
-  Event *e = new Event ( getNumBones(), 0.0f ) ;
-  addEvent ( e ) ;
-  setCurrentEvent ( e ) ;
+  eventList -> newEvent ( 0.0f ) ;
 
   ground -> setZcoord ( getLowestVertexZ () ) ;
 }

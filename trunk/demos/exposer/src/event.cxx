@@ -1,39 +1,197 @@
-
 #include "exposer.h"
 
-Event *curr_event = NULL ;                                                      
 
-ulList *eventList ;
-
-
-int    getNumEvents () { return eventList->getNumEntities () ; }
-Event *getEvent ( int i ) { return (Event*)(eventList->getEntity(i)) ; }
-
-
-void addEvent ( Event *e )
+void EventList::read ( int nevents, FILE *fd )
 {
+  for ( int i = 0 ; i < nevents ; i++ )
+  {
+    Event *e = new Event ( getNumBones(), (float) i ) ;
+    e -> read ( fd ) ;
+    addEvent ( e ) ;
+  }
+}
+
+
+void EventList::write ( FILE *fd )
+{
+  for ( int i = 0 ; i < getNumEvents () ; i++ )
+    getEvent ( i ) -> write ( fd ) ;
+}
+
+
+void EventList::moveEvent ( Event *e, float new_time )
+{
+  removeEvent ( e ) ;
+  e -> setTime ( new_time ) ;
+  addEvent ( e ) ;
+}
+
+
+void EventList::newEvent ( float t )
+{
+  if ( getNumBones () <= 0 )
+    return ;
+
+  setCurrentEvent ( new Event ( getNumBones (), t ) ) ;
+  addEvent ( getCurrentEvent () ) ;
+}
+
+
+void EventList::deleteEvent ( Event *e )
+{
+  if ( e == NULL )
+    return ;
+
+  if ( e == curr_event )
+    curr_event = NULL ;
+
+  removeEvent ( e ) ;
+  delete e ;
+}
+
+
+void EventList::compressEventsBetween ( float t1, float t2 )
+{
+  deleteEventsBetween ( t1, t2 ) ;
+ 
+  for ( int i = 0 ; i < getNumEvents() ; i++ )
+  {
+    Event *ev = getEvent ( i ) ;
+ 
+    float t = ev -> getTime () ;
+ 
+    if ( t > t1 || t > t2 )
+      ev -> setTime ( t - fabs(t1-t2) ) ;
+  }
+}
+
+
+int EventList::getNumEventsBetween ( float t1, float t2 )
+{
+  int nevents = 0 ;
+
+  for ( int i = 0 ; i < getNumEvents() ; i++ )
+  {
+    float t = getEvent ( i ) -> getTime () ;
+ 
+    if ( ( t1 < t2 && t >= t1 && t <= t2 ) ||
+         ( t2 < t1 && t >= t2 && t <= t1 ) )
+      nevents++ ;
+  }
+
+  return nevents ;
+}
+
+
+int EventList::getEventsBetween ( float t1, float t2, Event ***elist )
+{
+  int nevents = getNumEventsBetween ( t1, t2 ) ;
+ 
+  if ( nevents == 0 )
+  {
+    elist = NULL ;
+    return 0 ;
+  }
+ 
+  /* Make a list of the events */
+ 
+  *elist = new Event* [ nevents ] ;
+ 
+  nevents = 0 ;
+ 
+  for ( int i = 0 ; i < getNumEvents() ; i++ )
+  {
+    Event *ev = getEvent ( i ) ;
+    float t = ev -> getTime () ;
+ 
+    if ( ( t1 < t2 && t >= t1 && t <= t2 ) ||
+         ( t2 < t1 && t >= t2 && t <= t1 ) )
+      (*elist) [ nevents++ ] = ev ;
+  }
+
+  return nevents ;
+}
+
+
+void EventList::deleteEventsBetween ( float t1, float t2 )
+{
+  int found_one = FALSE ;
+ 
+  do
+  {
+    found_one = FALSE ;
+ 
+    for ( int i = 0 ; i < getNumEvents() && ! found_one ; i++ )
+    {
+      Event *ev = getEvent ( i ) ;
+ 
+      float t = ev -> getTime () ;
+ 
+      if ( ( t1 < t2 && t >= t1 && t <= t2 ) ||
+           ( t2 < t1 && t >= t2 && t <= t1 ) )
+      {
+        deleteEvent ( ev ) ;
+        found_one = TRUE ;
+      }
+    }
+ 
+  } while ( found_one ) ;
+}
+
+
+void EventList::reverseEventsBetween ( float t1, float t2 )
+{
+  /* Make a list of the events */
+ 
+  Event **elist ;
+  int nevents = getEventsBetween ( t1, t2, &elist ) ;
+ 
+  if ( nevents == 0 )
+    return ;
+ 
+  /* Reverse their order */
+
+  for ( int i = 0 ; i < nevents ; i++ )
+  {
+    Event *ev = elist [ i ] ;
+ 
+    removeEvent ( ev ) ;
+ 
+    float t = ev -> getTime () ;
+ 
+    if ( t1 > t2 )
+      t = t1 - ( t - t2 ) ;
+    else
+      t = t2 - ( t - t1 ) ;
+ 
+    ev -> setTime ( t ) ;
+
+    addEvent ( ev ) ;
+  }
+ 
+  delete [] elist ;
+}
+
+
+void EventList::addEvent ( Event *e )
+{
+  /*
+    Keep list in time-increasing order.
+  */
+
   for ( int i = 0 ; i < getNumEvents() ; i++ )
     if ( e -> getTime() < getEvent(i)->getTime() )
     {
-      eventList->addEntityBefore ( i, e ) ;
+      addEntityBefore ( i, e ) ;
       return ;
     }
 
-  eventList -> addEntity ( e ) ;
+  addEntity ( e ) ;
 }
 
 
 
-
-void removeEvent ( Event *e )
-{
-  eventList -> removeEntity ( e ) ;
-}
-
-
-
-
-Event *findNearestEvent ( float t, float tolerance )
+Event *EventList::findNearestEvent ( float t, float tolerance )
 {
   int nearest = -1 ;
   float min = FLT_MAX ;
@@ -54,10 +212,16 @@ Event *findNearestEvent ( float t, float tolerance )
 }
 
 
-
-void init_events ()
+void EventList::deleteAll ()
 {
-  eventList = new ulList () ;
+  while ( getNumEvents() > 0 )
+    deleteEvent ( getEvent ( 0 ) ) ;
+}
+
+
+EventList::EventList ()
+{
+  curr_event = NULL ;
 }
 
 
@@ -80,15 +244,16 @@ Event::Event ( int n, float t )
 
 void Event::read ( FILE *fd )
 {
-  int ssh, ssp, ssr ;
- 
   fscanf ( fd, "EVENT %f %d (%f,%f,%f)\n", &time, &nbones,
                  &translate[0], &translate[1], &translate[2] ) ;
 
   for ( int i = 0 ; i < nbones ; i++ )
   {
+    int ssh, ssp, ssr ;
+ 
     fscanf ( fd, "  (%d,%d,%d)\n", & ssh, & ssp, & ssr ) ;
-    sgSetVec3 ( bone_angles [ i ] . hpr, ssh, ssp, ssr ) ;
+
+    sgSetVec3  ( bone_angles [ i ] . hpr, ssh, ssp, ssr ) ;
     sgCopyVec3 ( bone_angles [ i ] . xyz, getBone(i)->getXYZ() ) ;
   }
 }
@@ -101,24 +266,11 @@ void Event::write ( FILE *fd )
 
   for ( int i = 0 ; i < nbones ; i++ )
   {
-    int ssh = (int) bone_angles [ i ] . hpr[0] ;
-    int ssp = (int) bone_angles [ i ] . hpr[1] ;
-    int ssr = (int) bone_angles [ i ] . hpr[2] ;
-    fprintf ( fd, "  (%d,%d,%d)\n", ssh, ssp, ssr ) ;
+    fprintf ( fd, "  (%d,%d,%d)\n",
+               (int) bone_angles [ i ] . hpr[0],
+               (int) bone_angles [ i ] . hpr[1],
+               (int) bone_angles [ i ] . hpr[2] ) ;
   }
 }
 
- 
-void setCurrentEvent ( Event *ev )
-{
-  curr_event = ev ;
-}
- 
-
- 
-Event *getCurrentEvent ()
-{
-  return curr_event ;
-}
- 
 

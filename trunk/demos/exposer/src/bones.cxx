@@ -236,9 +236,9 @@ sgCoord *Bone::getXForm ( Event *prev, Event *next, float lerptime )
 
 sgCoord *Bone::getXForm ()
 {
-  if ( getCurrentEvent() != NULL )
+  if ( eventList->getCurrentEvent() != NULL )
   {
-    sgCoord *coord = getCurrentEvent()->getBoneCoord ( id ) ;
+    sgCoord *coord = eventList->getCurrentEvent()->getBoneCoord ( id ) ;
     sgCopyVec3 ( coord->xyz, xlate ) ;
     return coord ;
   }
@@ -445,13 +445,13 @@ void currTranslateTxtXCB ( puObject *sl )
 {
   float v = sl -> getFloatValue () ;
 
-  if ( getCurrentEvent() == NULL ) return ;
+  if ( eventList->getCurrentEvent() == NULL ) return ;
 
   sgVec3 xyz ;
 
-  getCurrentEvent() -> getTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> getTranslate ( xyz ) ;
   xyz [ 0 ] = v ;
-  getCurrentEvent() -> setTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> setTranslate ( xyz ) ;
 
   syncTranslators ( xyz ) ;
 }
@@ -462,13 +462,13 @@ void currTranslateTxtYCB ( puObject *sl )
 {
   float v = sl -> getFloatValue () ;
 
-  if ( getCurrentEvent() == NULL ) return ;
+  if ( eventList->getCurrentEvent() == NULL ) return ;
 
   sgVec3 xyz ;
 
-  getCurrentEvent() -> getTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> getTranslate ( xyz ) ;
   xyz [ 1 ] = v ;
-  getCurrentEvent() -> setTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> setTranslate ( xyz ) ;
 
   syncTranslators ( xyz ) ;
 }
@@ -479,13 +479,13 @@ void currTranslateTxtZCB ( puObject *sl )
 {
   float v = sl -> getFloatValue () ;
 
-  if ( getCurrentEvent() == NULL ) return ;
+  if ( eventList->getCurrentEvent() == NULL ) return ;
 
   sgVec3 xyz ;
 
-  getCurrentEvent() -> getTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> getTranslate ( xyz ) ;
   xyz [ 2 ] = v ;
-  getCurrentEvent() -> setTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> setTranslate ( xyz ) ;
 
   syncTranslators ( xyz ) ;
 }
@@ -497,13 +497,13 @@ void currTranslateXCB ( puObject *sl )
 {
   float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
 
-  if ( getCurrentEvent() == NULL ) return ;
+  if ( eventList->getCurrentEvent() == NULL ) return ;
 
   sgVec3 xyz ;
 
-  getCurrentEvent() -> getTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> getTranslate ( xyz ) ;
   xyz [ 0 ] = v ;
-  getCurrentEvent() -> setTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> setTranslate ( xyz ) ;
 
   syncTranslators ( xyz ) ;
 }
@@ -514,13 +514,13 @@ void currTranslateYCB ( puObject *sl )
 {
   float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
 
-  if ( getCurrentEvent() == NULL ) return ;
+  if ( eventList->getCurrentEvent() == NULL ) return ;
 
   sgVec3 xyz ;
 
-  getCurrentEvent() -> getTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> getTranslate ( xyz ) ;
   xyz [ 1 ] = v ;
-  getCurrentEvent() -> setTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> setTranslate ( xyz ) ;
 
   syncTranslators ( xyz ) ;
 }
@@ -531,13 +531,13 @@ void currTranslateZCB ( puObject *sl )
 {
   float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
 
-  if ( getCurrentEvent() == NULL ) return ;
+  if ( eventList->getCurrentEvent() == NULL ) return ;
 
   sgVec3 xyz ;
 
-  getCurrentEvent() -> getTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> getTranslate ( xyz ) ;
   xyz [ 2 ] = v ;
-  getCurrentEvent() -> setTranslate ( xyz ) ;
+  eventList->getCurrentEvent() -> setTranslate ( xyz ) ;
 
   syncTranslators ( xyz ) ;
 }
