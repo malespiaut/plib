@@ -38,9 +38,9 @@
 
 /* Define DEBUG if you want debug output
    (this might be a nice way of looking at the
-   structure of a 3DS file).
-   #define DEBUG 1
-*/
+   structure of a 3DS file). */
+#define DEBUG 1
+
 
 #ifdef DEBUG
 #define DEBUGPRINT(f, x, y, z) fprintf(stderr, f, debug_indent, x, y, z)
@@ -59,6 +59,7 @@ float _ssg_smooth_threshold = 0.8f;
 
 // 3ds chunk identifiers
 enum {
+  CHUNK_VERSION         = 0x0002,
   CHUNK_RGB1            = 0x0010,  // 3 floats of RGB
   CHUNK_RGB2            = 0x0011,  // 3 bytes of RGB
   CHUNK_RGB3            = 0x0012,  // 3 bytes of RGB (gamma corrected)
@@ -127,6 +128,8 @@ static int parse_vscale( unsigned int length);
 static int parse_uoffst( unsigned int length);
 static int parse_voffst( unsigned int length);
 static int parse_oneunit( unsigned int length);
+static int parse_version( unsigned int length);
+static int identify_face_materials( unsigned int length );
 
 struct _ssg3dsChunk {
   unsigned short id;
@@ -136,6 +139,7 @@ struct _ssg3dsChunk {
 
 static _ssg3dsChunk FaceListDataChunks[] =
 { { CHUNK_SMOOLIST, NULL, parse_smooth_list             },
+  { CHUNK_FACEMAT, NULL,  identify_face_materials       },
   { 0, NULL, NULL }
 };
 
@@ -200,6 +204,7 @@ static _ssg3dsChunk ObjMeshChunks[] =
 
 static _ssg3dsChunk MainChunks[] =
 { { CHUNK_OBJMESH, ObjMeshChunks, NULL                  },
+  { CHUNK_VERSION, NULL,    parse_version               },
   { 0, NULL, NULL }
 };
 
@@ -225,6 +230,8 @@ struct _3dsMat {
 #define _3DSMAT_SPE 3
 
 static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length);
+static void add_leaf( _3dsMat *material, int listed_faces, 
+		      unsigned short *face_indices );
 
 FILE *model;
 
@@ -244,7 +251,7 @@ static ssgTransform *current_transform;
 static sgVec3 *vertex_list;
 static sgVec3 *face_normals, *vertex_normals;
 static sgVec2 *texcrd_list;
-static int smooth_found;
+static int smooth_found, facemat_found;
 
 static int colour_mode;
 
@@ -560,10 +567,21 @@ static int parse_trimesh( unsigned int length ) {
      chunks, just extracting this information.
      This is kind of a kludge, but it was the easiest way to solve this problem
   */
-  DEBUGPRINT("%sPrescanning trimesh childs...%s%s%s\n", "","","");
+  DEBUGPRINT("%sPrescanning sub-chunks for vertices and texture coords." \
+	     "%s%s%s\n", "","","");
+#ifdef DEBUG
+  strcat(debug_indent, "    ");
+#endif
+
   unsigned long p = ftell(model);
   int parse_ok = parse_chunks( TriMeshDataChunks, length );
   fseek(model, p, SEEK_SET);
+
+#ifdef DEBUG
+  debug_indent[strlen(debug_indent)-4] = 0;
+#endif
+  DEBUGPRINT("%sDone prescanning.%s%s%s\n", "","","");
+
   return parse_ok;
 }
 
@@ -638,6 +656,14 @@ static void smooth_normals( int use_smooth_list )
   }
 }
 
+static int identify_face_materials( unsigned int length ) {
+  facemat_found = TRUE;
+  DEBUGPRINT("%sFace materials found.%s%s%s\n", "","","");
+
+  fseek( model, length, SEEK_CUR );
+
+  return PARSE_OK;
+}
 
 static int parse_face_list( unsigned int length ) {
   int i;
@@ -674,14 +700,34 @@ static int parse_face_list( unsigned int length ) {
      be done first...*ugh*/
 
   smooth_found = FALSE;
-  DEBUGPRINT("%sPrescanning face childs...%s%s%s\n", "","","");
+  facemat_found = FALSE;
+  DEBUGPRINT("%sPrescanning sub-chunks for smooth list...%s%s%s\n", "","","");
+#ifdef DEBUG
+  strcat(debug_indent, "    ");
+#endif
+
   unsigned long p = ftell(model);
   parse_chunks( FaceListDataChunks, length - (2 + 8*num_faces) );
   fseek(model, p, SEEK_SET);
 
+#ifdef DEBUG
+  debug_indent[strlen(debug_indent)-4] = 0;
+#endif
+  DEBUGPRINT("%sDone prescanning.%s%s%s\n", "","","");
+
   /* now apply correct smoothing. If smooth list has been found,
      use it, otherwise use threshold value. */
   smooth_normals( smooth_found );
+
+  if (!facemat_found) {
+    DEBUGPRINT("%sNo CHUNK_FACEMAT found. Adding default faces of material " \
+	       "\"%s\"%s%s.\n", materials[0]->name, "", "");
+    unsigned short *face_indices = new unsigned short[num_faces];
+    for (i = 0; i < num_faces; i++) {
+      face_indices[i] = i;
+    }
+    add_leaf(materials[0], num_faces, face_indices);
+  }
 
   return PARSE_OK;
 }
@@ -723,61 +769,39 @@ static int parse_tra_matrix( unsigned int length ) {
   m[3][3] = 1.0f;
   sgTransposeNegateMat4( m );
   
-  /*  for (int a = 0; a < 4; a++) {
-      for (int b = 0; b < 4; b++) {
-      printf("%6.2f  ", m[a][b]);
-      }
-      printf("\n");
-      }
-      
-      printf("\n");*/
-  
+#ifdef DEBUG
+  for (int a = 0; a < 4; a++) {
+    DEBUGPRINT("%s%s%s%s", "","","");
+    for (int b = 0; b < 4; b++) {
+      fprintf(stderr, "%.2f\t", m[b][a]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif  
+
   current_transform -> setTransform( m );
   
   return PARSE_OK;
 }
 
-static int parse_face_materials( unsigned int length ) {
-  int mat_num;
-  char *mat_name = get_string();
-  _3dsMat *material = NULL;
-
-  // find the material
-  for (mat_num = 0; mat_num < num_materials; mat_num++) {
-    if ( strcmp( mat_name, materials[mat_num]->name ) == 0 ) {
-      material = materials[mat_num];
-      break;
-    }
-  }
-
-  if (material == NULL) {
-    ulSetError(UL_WARNING, "ssgLoad3ds: Undefined reference to material " \
-	    "\"%s\" found.\n", mat_name);
-    return PARSE_ERROR;
-  }
-
-  unsigned short listed_faces = get_word();
-
-  DEBUGPRINT("%sFaces of \"%s\" list with %d faces.%s\n", 
-	     mat_name, listed_faces, "");
-
+static void add_leaf( _3dsMat *material, int listed_faces, 
+		      unsigned short *face_indices ) {
   int is_ds       = material->flags & IS_DOUBLESIDED;
   int has_texture = material->tex_name != NULL;
-  
   ssgVertexArray   *vertices = new ssgVertexArray();
   ssgNormalArray   *normals  = new ssgNormalArray();
   ssgTexCoordArray *texcrds  = NULL;
   
   if (has_texture) {
     if (texcrd_list == NULL) {
-      ulSetError(UL_WARNING, "ssgLoad3ds: Texture coords missing.\n");
+      ulSetError(UL_WARNING, "ssgLoad3ds: Texture coords missing.");
     } else {
       texcrds = new ssgTexCoordArray();
     }
   }
 
   for (int i = 0; i < listed_faces; i++) {
-    unsigned short faceindex = get_word();
+    unsigned short faceindex = face_indices[i];
     int v1 = faceindex * 3,
       v2 = faceindex * 3 + 1,
       v3 = faceindex * 3 + 2;
@@ -844,6 +868,42 @@ static int parse_face_materials( unsigned int length ) {
 
   ssgLeaf* leaf = (*_ssgCreateFunc) ( data ) ;
   current_transform -> addKid( leaf );
+}
+
+static int parse_face_materials( unsigned int length ) {
+  int mat_num;
+  char *mat_name = get_string();
+  _3dsMat *material = NULL;
+
+  // find the material
+  for (mat_num = 0; mat_num < num_materials; mat_num++) {
+    if ( strcmp( mat_name, materials[mat_num]->name ) == 0 ) {
+      material = materials[mat_num];
+      break;
+    }
+  }
+
+  if (material == NULL) {
+    ulSetError(UL_WARNING, "ssgLoad3ds: Undefined reference to material " \
+	    "\"%s\" found.", mat_name);
+    return PARSE_ERROR;
+  }
+
+  unsigned short listed_faces = get_word();
+
+  DEBUGPRINT("%sFaces of \"%s\" list with %d faces.%s\n", 
+	     mat_name, listed_faces, "");
+
+  delete mat_name;  // no longer needed
+  
+  unsigned short *face_indices = new unsigned short[listed_faces];
+  for (int i = 0; i < listed_faces; i++) {
+    face_indices[i] = get_word();
+  }
+
+  add_leaf(material, listed_faces, face_indices);
+
+  delete face_indices;
 
   return PARSE_OK;
 }
@@ -870,6 +930,17 @@ static int parse_oneunit( unsigned int length ) {
   return PARSE_OK;
 }
 
+static int parse_version( unsigned int length ) {
+#ifdef DEBUG
+  unsigned int version = get_dword();
+  DEBUGPRINT("%s3DS Version: %d%s%s\n", version, "", "");
+#else
+  get_dword() ;
+#endif
+
+  return PARSE_OK;
+}
+
 //==========================================================
 // GENERAL CHUNK PARSER
 
@@ -887,7 +958,7 @@ static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length )
 
     if (p + sub_length > length) {
       ulSetError(UL_WARNING, "ssgLoad3ds: Illegal chunk %X of length %i. " \
-		 "Chunk is longer than parent chunk.\n", (int)id, sub_length);
+		 "Chunk is longer than parent chunk.", (int)id, sub_length);
       return PARSE_ERROR;
     }
 
@@ -955,8 +1026,8 @@ ssgEntity *ssgLoad3ds( const char *filename, ssgHookFunc hookfunc ) {
   rewind(model);
 
   if ( model == NULL ) {
-    ulSetError(UL_WARNING, "ssgLoad3ds: Failed to open '%s' for reading\n", filepath ) ;
-
+    ulSetError(UL_WARNING, "ssgLoad3ds: Failed to open '%s' for reading", 
+	       filepath ) ;
     return NULL ;
   }
 
@@ -974,6 +1045,18 @@ ssgEntity *ssgLoad3ds( const char *filename, ssgHookFunc hookfunc ) {
   parse_chunks( TopChunk, size );
 
   fclose(model);
+
+  // clean up the materials array
+  for (i = 0; i < num_materials; i++) {
+    if (materials[i] -> name != NULL) {
+      delete materials[i] -> name;
+    }
+    if (materials[i] -> tex_name != NULL) {
+      delete materials[i] -> tex_name;
+    }
+
+    delete materials[i];
+  }
 
   delete [] filepath;
   delete [] materials;
