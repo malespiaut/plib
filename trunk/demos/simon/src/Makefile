@@ -1,21 +1,28 @@
 
-SIMON = libsimon.a
+SIMON = libsimon.a   simon
+LIBS  = -lplibpsl -lplibssg -lplibsg -lplibul -lglut -lGLU -lGL -lpthread -L/usr/X11/lib -lX11 -lm
 
 all: ${SIMON}
 
-simon.o : simon.cxx simon.h
-	g++ -o simon.o -c simon.cxx
+simon : libsimon.a simon.o /usr/lib/libplibpsl.a
+	g++ -o simon simon.o libsimon.a ${LIBS}
 
-libsimon.a : simon.o
-	ar cru libsimon.a simon.o
+simon.o : simon.cxx simon.h
+	g++ -I. -o simon.o -c simon.cxx
+
+simon_api.o : simon_api.cxx simon.h
+	g++ -o simon_api.o -c simon_api.cxx
+
+libsimon.a : simon_api.o
+	ar cru libsimon.a simon_api.o
  
-install: libsimon.a simon.h
+install: libsimon.a simon.h simon
 	mkdir -p /usr/local/simon
-	cp libsimon.a simon.h /usr/local/simon
+	cp simon libsimon.a simon.h /usr/local/simon
 
 uninstall:
 	rm -r /usr/local/simon
 
 clean:
-	rm -f libsimon.a *.o
+	rm -f simon libsimon.a *.o
 
