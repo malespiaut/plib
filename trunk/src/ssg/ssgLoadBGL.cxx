@@ -62,6 +62,11 @@
 //                        + use <iostream> / stl only when JMDEBUG is defined
 //                        + M_PI replaced by SGD_PI
 //                        + Major clean up for MSVC
+//           - Fixed a bug in line drawing
+//           - handle PointTo, DrawTo, start/end surface combinations correctly
+//           - support for light maps added
+//           - support for concave polygons added
+//           - Fixed a bug for object positioning with negative longitude
 //
 //===========================================================================
 // Copyright (c) 2000 Thomas E. Sevaldrud <tse@math.sintef.no>
@@ -101,11 +106,22 @@
 #endif
 
 #define EARTH_RADIUS 6367311.808
+#define MAX_PATH_LENGTH 1024
+
+#undef ABS
+#undef MIN
+#undef MAX
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define MIN(a,b) ((a) <= (b) ? (a) : (b))
+#define MAX(a,b) ((a) >= (b) ? (a) : (b))
+#define MIN3(a,b,c) ((a) <= (b) ? MIN(a,c) : MIN(b,c))
+#define MAX3(a,b,c) ((a) >= (b) ? MAX(a,c) : MAX(b,c))
 
 static ssgLoaderOptions         *current_options;
 
 // Temporary vertex arrays
 static ssgIndexArray            *curr_index_;
+static ssgIndexArray            *draw_point_index_;
 
 // Vertex arrays
 static ssgVertexArray           *vertex_array_;
@@ -125,6 +141,7 @@ static ssgBranch                *prop_grp_;
 static sgMat4                   curr_matrix_;
 static sgVec3                   curr_rot_pt_;
 static sgVec4                   curr_col_;
+static sgVec4                   curr_emission_;
 static char                     *curr_tex_name_;
 static int                      curr_tex_type_;
 static ssgAxisTransform         *curr_xfm_;
@@ -140,9 +157,7 @@ static int                      stack_depth_;
 
 
 static bool                     has_normals_;
-//static bool                   join_children_, override_normals_;
 
-//static char                   *tex_fmt_;
 // john ....
 static bool                     poly_from_line;
 static unsigned short           poly_from_line_numverts;
@@ -161,6 +176,7 @@ static long                     scenery_center_lat;
 static long                     scenery_center_lon;
 static bool                     has_color;
 static bool                     has_texture;
+static bool                     has_emission;
 
 static double                   ref_scale;
 static short                    haze_;
@@ -180,9 +196,9 @@ static struct {
   int var;
   int val;
   }                             vardef[100] = { {0x346,4},      // complexity: 0 lowest; 4 most
-                                                {0x6f8,2},      // season: 0=winter; 1=spring; 
+                                                {0x6f8,2},      // season: 0=winter; 1=spring;
                                                                 //         2=summer; 3=autumn;
-                                                {0x28c,0x05},   // Day time: 0=Day, 1=Dusk,
+                                                {0x28c,0x06},   // Day time: 0=Day, 1=Dusk,
                                                                 //           2=Night, bit2=light on/off
                                                 {0x000,0}       // END of table
                                               };
@@ -218,8 +234,6 @@ for (int i=0; vardef[i].var != 0; i++){
 
 static void newPart()
 {
-//  curr_tex_name_ = NULL;
-//  sgSetVec4( curr_col_, 1.0f, 1.0f, 1.0f, 1.0f );
   has_color = false;
   has_texture = false;
 
@@ -300,12 +314,12 @@ static void readVector(FILE* fp, sgVec3 v)
 static void readRefPointTranslation(FILE* fp, sgVec3 v)
 {
   double ref_lat, ref_lng, ref_alt, lat_radius;
-  ref_lat  = (double)ulEndianReadLittle16(fp)/65536.0;
-  ref_lat += (double)ulEndianReadLittle32(fp); // Latitude
-  ref_lng  = (double)ulEndianReadLittle16(fp)/65536.0;
-  ref_lng += (double)ulEndianReadLittle32(fp); // Longitude
-  ref_alt  = (double)ulEndianReadLittle16(fp)/65536.0;
-  ref_alt += (double)ulEndianReadLittle32(fp); // Alitude
+  ref_lat  = (double)(int)ulEndianReadLittle16(fp)/65536.0;
+  ref_lat += (double)(int)ulEndianReadLittle32(fp); // Latitude
+  ref_lng  = (double)(int)ulEndianReadLittle16(fp)/65536.0;
+  ref_lng += (double)(int)ulEndianReadLittle32(fp); // Longitude
+  ref_alt  = (double)(int)ulEndianReadLittle16(fp)/65536.0;
+  ref_alt += (double)(int)ulEndianReadLittle32(fp); // Alitude
   lat_radius = cos(scenery_center_lat*SGD_PI/(2*10001750.0)) * EARTH_RADIUS;
   v[0] = (SGfloat)((double)scenery_center_lat - ref_lat);
   v[1] = (SGfloat)(ref_lng - (double)scenery_center_lon) * 1.46292e-09 * lat_radius;
@@ -313,15 +327,221 @@ static void readRefPointTranslation(FILE* fp, sgVec3 v)
 }
 
 //===========================================================================
+/*
+  ssgTriangulate - triangulate a simple polygon.
+*/
 
-static void createTriangIndices(ssgIndexArray *ixarr,
+static int triangulateConcave(ssgVertexArray *coords, ssgIndexArray *w, int n, int x, int y, ssgIndexArray *tris) // was: triangulate_concave
+{
+   struct Vtx {
+      unsigned short index;
+      float x, y;
+      Vtx *next;
+   };
+
+   Vtx *p0, *p1, *p2, *m0, *m1, *m2, *t;
+   int i, chk, num_tris;
+   float a0, a1, a2, b0, b1, b2, c0, c1, c2;
+
+   /* construct a circular linked list of the vertices */
+   p0 = (Vtx *) alloca(sizeof(Vtx));
+   p0->index = w ? *w->get(0) : 0;
+   p0->x = coords->get(p0->index)[x];
+   p0->y = coords->get(p0->index)[y];
+   p1 = p0;
+   p2 = 0;
+   for (i = 1; i < n; i++) {
+      p2 = (Vtx *) alloca(sizeof(Vtx));
+      p2->index = w ? *w->get(i) : i;
+      p2->x = coords->get(p2->index)[x];
+      p2->y = coords->get(p2->index)[y];
+      p1->next = p2;
+      p1 = p2;
+   }
+   p2->next = p0;
+
+   m0 = p0;
+   m1 = p1 = p0->next;
+   m2 = p2 = p1->next;
+   chk = 0;
+   num_tris = 0;
+
+   while (p0 != p2->next) {
+      if (chk && m0 == p0 && m1 == p1 && m2 == p2) {
+         /* no suitable vertex found.. */
+         ulSetError(UL_WARNING, "ssgTriangulate: Self-intersecting polygon.");
+         return 0;
+      }
+      chk = 1;
+
+      a0 = p1->y - p2->y;
+      a1 = p2->y - p0->y;
+      a2 = p0->y - p1->y;
+      b0 = p2->x - p1->x;
+      b1 = p0->x - p2->x;
+      b2 = p1->x - p0->x;
+
+      if (b0 * a2 - b2 * a0 < 0) {
+         /* current angle is concave */
+         p0 = p1;
+         p1 = p2;
+         p2 = p2->next;
+      }
+      else {
+         /* current angle is convex */
+         float xmin = MIN3(p0->x, p1->x, p2->x);
+         float xmax = MAX3(p0->x, p1->x, p2->x);
+         float ymin = MIN3(p0->y, p1->y, p2->y);
+         float ymax = MAX3(p0->y, p1->y, p2->y);
+
+         c0 = p1->x * p2->y - p2->x * p1->y;
+         c1 = p2->x * p0->y - p0->x * p2->y;
+         c2 = p0->x * p1->y - p1->x * p0->y;
+
+         for (t = p2->next; t != p0; t = t->next) {
+            /* see if the triangle contains this vertex */
+            if (xmin <= t->x && t->x <= xmax &&
+                ymin <= t->y && t->y <= ymax &&
+                a0 * t->x + b0 * t->y + c0 > 0 &&
+                a1 * t->x + b1 * t->y + c1 > 0 &&
+                a2 * t->x + b2 * t->y + c2 > 0)
+               break;
+         }
+
+         if (t != p0) {
+            p0 = p1;
+            p1 = p2;
+            p2 = p2->next;
+         }
+         else {
+            /* extract this triangle */
+            tris->add(p0->index);
+            tris->add(p1->index);
+            tris->add(p2->index);
+            num_tris++;
+
+            p0->next = p1 = p2;
+            p2 = p2->next;
+
+            m0 = p0;
+            m1 = p1;
+            m2 = p2;
+            chk = 0;
+         }
+      }
+   }
+
+   tris->add(p0->index);
+   tris->add(p1->index);
+   tris->add(p2->index);
+   num_tris++;
+
+   return num_tris;
+}
+
+//===========================================================================
+
+int _ssgTriangulate( ssgVertexArray *coords, ssgIndexArray *w, int n, ssgIndexArray *tris )
+{
+   float *a, *b;
+   int i, x, y;
+
+   /* trivial case */
+   if (n <= 3) {
+      if (n == 3) {
+         tris->add( w ? *w->get(0) : 0 );
+         tris->add( w ? *w->get(1) : 1 );
+         tris->add( w ? *w->get(2) : 2 );
+         return 1;
+      }
+      ulSetError(UL_WARNING, "ssgTriangulate: Invalid number of vertices (%d).", n);
+      return 0;
+   }
+
+   /* compute areas */
+   {
+      float s[3], t[3];
+      int swap;
+
+      s[0] = s[1] = s[2] = 0;
+      b = coords->get(w ? *w->get(n - 1) : n - 1);
+
+      for (i = 0; i < n; i++) {
+         a = b;
+         b = coords->get(w ? *w->get(i) : i);
+         s[0] += a[1] * b[2] - a[2] * b[1];
+         s[1] += a[2] * b[0] - a[0] * b[2];
+         s[2] += a[0] * b[1] - a[1] * b[0];
+      }
+
+      /* select largest area */
+      t[0] = ABS(s[0]);
+      t[1] = ABS(s[1]);
+      t[2] = ABS(s[2]);
+      i = t[0] > t[1] ? t[0] > t[2] ? 0 : 2 : t[1] > t[2] ? 1 : 2;
+      swap = (s[i] < 0); /* swap coordinates if clockwise */
+      x = (i + 1 + swap) % 3;
+      y = (i + 2 - swap) % 3;
+   }
+
+   /* concave check */
+   {
+      float x0, y0, x1, y1;
+
+      a = coords->get(w ? *w->get(n - 2) : n - 2);
+      b = coords->get(w ? *w->get(n - 1) : n - 1);
+      x1 = b[x] - a[x];
+      y1 = b[y] - a[y];
+
+      for (i = 0; i < n; i++) {
+         a = b;
+         b = coords->get(w ? *w->get(i) : i);
+         x0 = x1;
+         y0 = y1;
+         x1 = b[x] - a[x];
+         y1 = b[y] - a[y];
+         if (x0 * y1 - x1 * y0 < 0)
+            return triangulateConcave(coords, w, n, x, y, tris);
+      }
+   }
+
+   /* convert to triangles */
+   {
+      int v0 = 0, v1 = 1, v = n - 1;
+      int even = 1;
+      for (i = 0; i < n - 2; i++) {
+         if (even) {
+            tris->add( w ? *w->get(v0) : v0);
+            tris->add( w ? *w->get(v1) : v1);
+            tris->add( w ? *w->get(v) : v);
+            v0 = v1;
+            v1 = v;
+            v = v0 + 1;
+         }
+         else {
+            tris->add( w ? *w->get(v1) : v1);
+            tris->add( w ? *w->get(v0) : v0);
+            tris->add( w ? *w->get(v) : v);
+            v0 = v1;
+            v1 = v;
+            v = v0 - 1;
+         }
+         even = !even;
+      }
+   }
+   return n - 2;
+}
+
+//===========================================================================
+
+static int createTriangIndices(ssgIndexArray *ixarr,
                                 int numverts, const sgVec3 s_norm)
 {
   sgVec3 v1, v2, cross;
 
   if ( numverts > ixarr->getNum() ) {
     ulSetError( UL_WARNING, "[ssgLoadBGL] Index array with too few entries." );
-    return;
+    return(GL_TRIANGLE_FAN);
   }
 
   // triangulate polygons
@@ -331,7 +551,7 @@ static void createTriangIndices(ssgIndexArray *ixarr,
     if ( ix0 >= vertex_array_->getNum() ) {
       ulSetError(UL_WARNING, "[ssgLoadBGL] Index out of bounds (%d/%d).",
         ix0, vertex_array_->getNum() );
-      return;
+      return(GL_TRIANGLE_FAN);
     }
 
     curr_index_->add(ix0);
@@ -347,7 +567,7 @@ static void createTriangIndices(ssgIndexArray *ixarr,
       ix1 >= vertex_array_->getNum() ) {
       ulSetError(UL_WARNING, "[ssgLoadBGL] Index out of bounds. (%d,%d / %d",
         ix0, ix1, vertex_array_->getNum() );
-      return;
+      return(GL_TRIANGLE_FAN);
     }
 
     curr_index_->add(ix0);
@@ -365,7 +585,7 @@ static void createTriangIndices(ssgIndexArray *ixarr,
       ix2 >= vertex_array_->getNum() ) {
       ulSetError(UL_WARNING, "[ssgLoadBGL] Index out of bounds. " \
         "(%d,%d,%d / %d)", ix0, ix1, ix2, vertex_array_->getNum());
-      return;
+      return(GL_TRIANGLE_FAN);
     }
 
     sgSubVec3(v1,
@@ -401,7 +621,7 @@ static void createTriangIndices(ssgIndexArray *ixarr,
       ix2 >= vertex_array_->getNum() ) {
       ulSetError(UL_WARNING, "[ssgLoadBGL] Index out of bounds. " \
         "(%d,%d,%d / %d)", ix0, ix1, ix2, vertex_array_->getNum());
-      return;
+      return(GL_TRIANGLE_FAN);
     }
 
     // check for concave polygon
@@ -446,29 +666,43 @@ static void createTriangIndices(ssgIndexArray *ixarr,
       }
     }
 #endif
-    // Ensure counter-clockwise ordering
-    bool flip = (sgScalarProductVec3(poly_dir, s_norm) < 0.0);
-    
-    curr_index_->add(ix0);
-    for(i = 1; i < numverts; i++)
-    {
-      ix1 = *ixarr->get( flip ? numverts-i : i);
-
-      if ( ix1 >= vertex_array_->getNum() ) {
-        ulSetError(UL_WARNING, "[ssgLoadBGL] Index out of bounds. (%d/%d)",
-          ix1, vertex_array_->getNum());
-        continue;
-      }
-
-      curr_index_->add(ix1);
+    ssgIndexArray *strips = new ssgIndexArray(3* (numverts-2));
+    ssgIndexArray *idx_array;
+    int ret;
+    if ( (up != 0 ) && (down != 0)) {
+      numverts = _ssgTriangulate(vertex_array_, ixarr, numverts, strips);
+      numverts *= 3;
+      idx_array = strips;
+      ret = GL_TRIANGLES;
+    }
+    else {
+      idx_array = ixarr;
+      ret = GL_TRIANGLE_FAN;
     }
 
+    // Ensure counter-clockwise ordering
+    // and write to curr_index_
+    bool flip = (sgScalarProductVec3(poly_dir, s_norm) < 0.0);
+
+    for(i = 0; i < numverts; i++)
+    {
+      unsigned short ix = *idx_array->get( flip ? numverts-i-1 : i);
+
+      if ( ix >= vertex_array_->getNum() ) {
+        ulSetError(UL_WARNING, "[ssgLoadBGL] Index out of bounds. (%d/%d)",
+          ix, vertex_array_->getNum());
+        continue;
+      }
+      curr_index_->add(ix);
+    }
+    return(ret);
   }
+  return (GL_TRIANGLE_FAN);    // Ensure counter-clockwise ordering
 }
 
 //===========================================================================
 
-static bool readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool flip_y)
+static int readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool flip_y)
 {
   if(numverts <= 0)
     return false;
@@ -554,14 +788,12 @@ static bool readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool fli
 
   }
 
-  createTriangIndices(curr_index_, numverts, s_norm);
-
-  return true;
+  return (createTriangIndices(curr_index_, numverts, s_norm));
 }
 
 //===========================================================================
 
-static bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
+static int readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
 {
   if(numverts <= 0)
     return false;
@@ -646,28 +878,32 @@ static bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
       }
 
     }
-/*
-    else {
-      sgVec2 curr_tc;
-      if ( tex_idx >= 0 && tex_idx < tex_coords_->getNum() ) {
-        sgCopyVec2(curr_tc, tex_coords_->get(tex_idx));
-        if((curr_tc[0] < FLT_MAX  || curr_tc[1] < FLT_MAX )) {
-        // we have an existing vertex with a texture
-        // so we have to copy this vertex and create a new index for it
-          tex_idx = vertex_array_->getNum();
-          vertex_array_->add(tmp_vtx[ix].point);
-          normal_array_->add(tmp_vtx[ix].norm);
-        }
-      }
-    }
-*/
     curr_index_->add(tex_idx);
     JMPRINT( ios::dec, "ix:" << ix << "idx:" << tmp_vtx[ix].index);
   }
 
-  createTriangIndices(curr_index_, numverts, s_norm);
+  return(createTriangIndices(curr_index_, numverts, s_norm));
+}
 
-  return true;
+//===========================================================================
+
+static void setEmission(int color, int pal_id)
+{
+  if(pal_id == 0x68)
+  {
+    curr_emission_[0] = fsAltPalette[color].r / 255.0f;
+    curr_emission_[1] = fsAltPalette[color].g / 255.0f;
+    curr_emission_[2] = fsAltPalette[color].b / 255.0f;
+    curr_emission_[3] = 0.0f;
+  }
+  else
+  {
+
+    curr_emission_[0] = fsAcPalette[color].r / 255.0f;
+    curr_emission_[1] = fsAcPalette[color].g / 255.0f;
+    curr_emission_[2] = fsAcPalette[color].b / 255.0f;
+    curr_emission_[3] = 0.0f;
+  }
 }
 
 //===========================================================================
@@ -761,15 +997,42 @@ static ssgSimpleState *createState(bool use_texture)
   state->enable   (GL_LIGHTING);
   state->enable   (GL_CULL_FACE);
   state->disable  (GL_COLOR_MATERIAL);
-
+  
   if(curr_tex_name_ != NULL && use_texture)
   {
-    char tname[128];
+    // Handle light maps.
+    // For the moment light maps are applied only when the light flag is selected in
+    // variable (0x28c). If so we check whether there an equivalent light map  exists
+    // <texture name>+"_lm"+<extension>
+    int day_time;
+    bool enable_emission = false;
+    char tex_name[MAX_PATH_LENGTH];
+    strcpy(tex_name, curr_tex_name_);
+    if(getVariableValue(0x28c, &day_time) == 0 ){  // get daytime
+      if ((day_time&0x04) == 0x04) {               // light enabled
+        char *p =strrchr(tex_name,'.');
+        if ( p != NULL ) {
+          char tname[MAX_PATH_LENGTH];
+          *p = '\0';
+          strcat(tex_name, "_lm");
+          strcat(tex_name, strrchr(curr_tex_name_,'.'));
+          current_options->makeTexturePath(tname, tex_name);
+          if ( ulFileExists ( tname ) == true) {    // look if light map exists
+            enable_emission = true;
+          }
+          else {
+            strcpy(tex_name, curr_tex_name_);
+          }
+        }
+      }
+    }
+
+    char tname[MAX_PATH_LENGTH];
     if (haze_ > 0) {
-      sprintf(tname,"%s_%d",curr_tex_name_, haze_);
+      sprintf(tname,"%s_%d",tex_name, haze_);
     }
     else {
-      sprintf(tname,"%s",curr_tex_name_);
+      sprintf(tname,"%s",tex_name);
     }
     ssgTexture* tex = current_options ->createTexture(tname, TRUE, TRUE) ;
     state->setTexture( tex ) ;
@@ -787,6 +1050,17 @@ static ssgSimpleState *createState(bool use_texture)
     }
     state->setMaterial( GL_AMBIENT, 1.0f, 1.0f, 1.0f, curr_col_[3]);
     state->setMaterial( GL_DIFFUSE, 1.0f, 1.0f, 1.0f, curr_col_[3]);
+    if (enable_emission == true) {
+      state->setMaterial( GL_EMISSION, 1.0f, 1.0f, 1.0f, 0.0f );
+    }
+    else {
+      if (has_emission == true) {
+        state->setMaterial( GL_EMISSION, curr_emission_ );
+      }
+      else {
+        state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
+      }
+    }
     state->enable(GL_TEXTURE_2D);
   }
   else
@@ -803,14 +1077,30 @@ static ssgSimpleState *createState(bool use_texture)
       state->disable(GL_BLEND);
       state->disable(GL_ALPHA_TEST);
     }
-    state->setMaterial( GL_AMBIENT, curr_col_ );
-    state->setMaterial( GL_DIFFUSE, curr_col_ );
+    if (has_emission == true) {
+      int day_time;
+      if(getVariableValue(0x28c, &day_time) == 0 ){  // get daytime
+        if ((day_time&0x04) == 0x04) {               // light enabled
+          state->setMaterial( GL_EMISSION, curr_emission_ );
+        }
+        else {
+          state->setMaterial( GL_AMBIENT, curr_emission_ );
+          state->setMaterial( GL_DIFFUSE, curr_emission_ );
+          state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f  );
+        }
+      }
+    }
+    else {
+      state->setMaterial( GL_AMBIENT, curr_col_ );
+      state->setMaterial( GL_DIFFUSE, curr_col_ );
+      state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
+    }
     state->disable(GL_TEXTURE_2D);
   }
 
   state->setMaterial( GL_SPECULAR, 1.0f, 1.0f, 1.0f, curr_col_[3] );
-  state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
-
+  state->enable   (GL_CULL_FACE);
+  has_emission = false;
   return state;
 }
 
@@ -965,6 +1255,8 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
   //// 
   ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
   current_options = ssgGetCurrentOptions () ;
+
+  sgSetVec4(curr_emission_, 1.0f, 1.0f, 1.0f, 0.0f);      // set Emission value to default
 
   ailerons_grp_ = NULL;
   elevator_grp_ = NULL;
@@ -1318,7 +1610,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         offset = ulEndianReadLittle16(fp);
         var    = ulEndianReadLittle16(fp);
         
-	float p = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
+        float p = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
         float r = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
         float h = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
         sgMat4 rot_mat;
@@ -1381,11 +1673,6 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         int start_idx            = ulEndianReadLittle16(fp);
         unsigned short numpoints = ulEndianReadLittle16(fp);
 
-        //john ...
-        if ( poly_from_line ) {
-          poly_from_line_numverts = numpoints;
-        }
-
         JMPRINT( ios::dec, "RESLIST: First:" << start_idx << " Nr:" << numpoints);
         for(int i = 0; i < numpoints; i++)
         {
@@ -1422,28 +1709,23 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
     case 0x06:  // STRRES: Start line definition
       {
         readPoint(fp, tmp_vtx[0].point);
-        sgZeroVec3(tmp_vtx[0].norm);
         tmp_vtx[0].index=-1; // mark as dirty
        }
+       break;
     case 0x07:  // STRRES: Ends line definition
       {
         readPoint(fp, tmp_vtx[1].point);
-        sgZeroVec3(tmp_vtx[1].norm);
         tmp_vtx[1].index=-1; // mark as dirty
         if (tmp_vtx[0].index == -1) { // add vertex
           int ix = vertex_array_->getNum();
           curr_index_ = new ssgIndexArray();
           vertex_array_->add(tmp_vtx[0].point);
-          normal_array_->add(tmp_vtx[0].norm);
           vertex_array_->add(tmp_vtx[1].point);
-          normal_array_->add(tmp_vtx[1].norm);
           curr_index_->add(ix);
           curr_index_->add(ix+1);
-          sgVec3 v;
-          createTriangIndices(curr_index_, 2, v);
           curr_part_ = new ssgVtxArray( GL_LINES,
             vertex_array_,
-            normal_array_,
+            NULL,
             NULL,
             NULL,
             curr_index_ );
@@ -1452,19 +1734,23 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
         }
       }
+      break;
     case 0x0f:  // STRRES: Start poly line definition
       {
         unsigned short idx = ulEndianReadLittle16(fp);
 
         curr_index_ = new ssgIndexArray();
-        
-	if (tmp_vtx[idx].index == -1) { // add vertex
+        draw_point_index_ = new ssgIndexArray();
+
+        if (tmp_vtx[idx].index == -1) { // add vertex
           int ix = vertex_array_->getNum();
           vertex_array_->add(tmp_vtx[idx].point);
           normal_array_->add(tmp_vtx[idx].norm);
           tmp_vtx[idx].index = ix;
         }
-        curr_index_->add(tmp_vtx[idx].index);
+        draw_point_index_->add(tmp_vtx[idx].index);
+        
+        poly_from_line_numverts = 1;
 
         // john .....
         if ( !poly_from_line ) {  // don't add this kid right now
@@ -1474,13 +1760,13 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
             normal_array_,
             NULL,
             NULL,
-            curr_index_ );
-          
-          if ( poly_from_line ) {
-            curr_part_->setState( createState(false) );
+            draw_point_index_ );
+
+          if ( has_texture ) {
+            curr_part_->setState( createState(true) );
           }
           else {
-            curr_part_->setState( createState(true) );
+            curr_part_->setState( createState(false) );
           }
 #ifdef EXPERIMENTAL_CULL_FACE_CODE
           curr_part_->setCullFace ( curr_cull_face_ ) ;
@@ -1502,12 +1788,14 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           normal_array_->add(tmp_vtx[idx].norm);
           tmp_vtx[idx].index = ix;
         }
-        curr_index_->add(tmp_vtx[idx].index);
+        draw_point_index_->add(tmp_vtx[idx].index);
+        poly_from_line_numverts++;
       }
       break;
 
-    case 0x20:
-    case 0x7a:  // Goraud shaded Texture-mapped ABCD Facet
+    case 0x7a:  // Goraud shaded Texture-mapped ABCD Facet with night emission
+                has_emission=true;
+    case 0x20:  // Goraud shaded Texture-mapped ABCD Facet
       {
         curr_index_ = new ssgIndexArray();
         
@@ -1532,7 +1820,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           flip_y = ulStrEqual( texture_extension, "BMP" ) != 0 ;
         }
 
-        readTexIndices(fp, numverts, v, flip_y);
+        int type = readTexIndices(fp, numverts, v, flip_y);
 
         if(!has_normals_)
         {
@@ -1541,7 +1829,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           recalcNormals();
         }
 
-        curr_part_ = new ssgVtxArray( GL_TRIANGLE_FAN, 
+        curr_part_ = new ssgVtxArray( type, 
           vertex_array_,
           normal_array_,
           tex_coords_,
@@ -1580,7 +1868,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         flip_y = ulStrEqual( texture_extension, "BMP" ) != 0 ;
         }
 
-        readTexIndices(fp, numverts, v, flip_y);
+        int type = readTexIndices(fp, numverts, v, flip_y);
 
         if(!has_normals_)
         {
@@ -1589,7 +1877,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           recalcNormals();
         }
 
-        curr_part_  = new ssgVtxArray( GL_TRIANGLE_FAN,
+        curr_part_  = new ssgVtxArray( type,
           vertex_array_,
           normal_array_,
           tex_coords_,
@@ -1619,7 +1907,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         readVector(fp, v);
 
         // Read vertex indices
-        readIndices(fp, numverts, v);
+        int type = readIndices(fp, numverts, v);
 
         if(!has_normals_)
         {
@@ -1628,7 +1916,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           recalcNormals();
         }
 
-        curr_part_ = new ssgVtxArray(GL_TRIANGLE_FAN,
+        curr_part_ = new ssgVtxArray(type,
           vertex_array_,
           normal_array_,
           NULL,
@@ -1644,8 +1932,9 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
       }
       break;
 
-    case 0x3e:  // FACETN (no texture)
     case 0x2a:  // Goraud shaded ABCD Facet
+                has_emission=true;
+    case 0x3e:  // FACETN (no texture)
       {
         curr_index_ = new ssgIndexArray();
         unsigned short numverts = ulEndianReadLittle16(fp);
@@ -1661,7 +1950,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         ulEndianReadLittle32(fp);
 #endif
         // Read vertex indices
-        readIndices(fp, numverts, v);
+        int type = readIndices(fp, numverts, v);
 
         if(!has_normals_)
         {
@@ -1670,7 +1959,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           recalcNormals();
         }
 
-        curr_part_ = new ssgVtxArray(GL_TRIANGLE_FAN,
+        curr_part_ = new ssgVtxArray(type,
           vertex_array_,
           normal_array_,
           has_texture==true?tex_coords_:NULL,
@@ -1748,6 +2037,14 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
       }
 
     case 0x50:  // GCOLOR (Goraud shaded color)
+      {
+        unsigned char color, param;
+        fread(&color, 1, 1, fp);
+        fread(&param, 1, 1, fp);
+        JMPRINT( ios::hex, "Set color = " << (int)color << " Para = " << (int)param );
+        setEmission((int)color, (int)param);
+      }
+      break;
     case 0x51:  // LCOLOR (Line color)
     case 0x52:  // SCOLOR (Light source shaded surface color)
       {
@@ -1786,26 +2083,34 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
 
     case 0x08:    // CLOSE
       {
-        sgVec3 v;
-        createTriangIndices(curr_index_, poly_from_line_numverts, v);
-        if(!has_normals_)
-        {
-          while (normal_array_->getNum() < vertex_array_->getNum())
-            normal_array_->add(v);
-          recalcNormals();
-        }
-        curr_part_ = new ssgVtxArray( GL_LINES,
-          vertex_array_,
-          normal_array_,
-          NULL,
-          NULL,
-          curr_index_ );
-        
-        if ( poly_from_line ) {
+
+        if ( poly_from_line ) {  // closed surface
+          sgVec3 v;
+          if(!has_normals_)
+          {
+            while (normal_array_->getNum() < vertex_array_->getNum())
+              normal_array_->add(v);
+            recalcNormals();
+          }
+          curr_part_ = new ssgVtxArray(
+            createTriangIndices(draw_point_index_, poly_from_line_numverts, v),
+            vertex_array_,
+            normal_array_,
+            NULL,
+            NULL,
+            curr_index_ );
+          delete draw_point_index_;
           curr_part_->setState( createState(true) );
         }
-        else {
-          curr_part_->setState( createState(true) );
+        else {                   // open surface draw a ployline
+          curr_part_ = new ssgVtxArray(
+            GL_LINES,
+            vertex_array_,
+            NULL,
+            NULL,
+            NULL,
+            draw_point_index_ );
+          curr_part_->setState( createState(false) );
         }
 #ifdef EXPERIMENTAL_CULL_FACE_CODE
         curr_part_->setCullFace ( curr_cull_face_ ) ;
@@ -1840,7 +2145,6 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         break;
       case 0x76:  // BGL_BGL JM: do nothing
         {
-//          curr_xfm_    = NULL;
           sgMakeIdentMat4( curr_matrix_ );
           sgZeroVec3( curr_rot_pt_ );
         }
@@ -1850,7 +2154,6 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         {
           short offset;
           offset = ulEndianReadLittle16(fp);
-          // do nothing jm
         }
         break;
 
