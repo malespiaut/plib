@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssg.h ..\..\ssg.h  	copy ssg3ds.h ..\..\ssg3ds.h  	copy ssgconf.h ..\..\ssgconf.h  	copy ssgKeyFlier.h ..\..\ssgKeyFlier.h  	copy ssgLoaderWriterStuff.h ..\..\ssgLoaderWriterStuff.h  	copy ssgLoadMDL.h ..\..\ssgLoadMDL.h  	copy ssgMSFSPalette.h ..\..\ssgMSFSPalette.h  	copy ssgParser.h ..\..\ssgParser.h
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssg.h ..\..\ssg.h	copy ssgconf.h ..\..\ssgconf.h	copy ssgMSFSPalette.h ..\..\ssgMSFSPalette.h	copy ssgKeyFlier.h ..\..\ssgKeyFlier.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ssg - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssg.h ..\..\ssg.h  	copy ssg3ds.h ..\..\ssg3ds.h  	copy ssgconf.h ..\..\ssgconf.h  	copy ssgKeyFlier.h ..\..\ssgKeyFlier.h  	copy ssgLoaderWriterStuff.h ..\..\ssgLoaderWriterStuff.h  	copy ssgLoadMDL.h ..\..\ssgLoadMDL.h  	copy ssgMSFSPalette.h ..\..\ssgMSFSPalette.h  	copy ssgParser.h ..\..\ssgParser.h
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssg.h ..\..\ssg.h	copy ssgconf.h ..\..\ssgconf.h	copy ssgMSFSPalette.h ..\..\ssgMSFSPalette.h	copy ssgKeyFlier.h ..\..\ssgKeyFlier.h
 # End Special Build Tool
 
 !ENDIF 
@@ -99,6 +99,10 @@ SOURCE=.\ssg.cxx
 # Begin Source File
 
 SOURCE=.\ssg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssg3ds.h
 # End Source File
 # Begin Source File
 
@@ -183,10 +187,6 @@ SOURCE=.\ssgLoadASE.cxx
 # Begin Source File
 
 SOURCE=.\ssgLoadATG.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\ssgLoadBGL.cxx
 # End Source File
 # Begin Source File
 
