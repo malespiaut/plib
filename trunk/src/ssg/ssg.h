@@ -87,7 +87,7 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 #define SSG_TYPE_SIMPLESTATE   0x00000008
 #define SSG_TYPE_STATESELECTOR 0x00000010
 
-#define SSG_FILE_VERSION       0x00
+#define SSG_FILE_VERSION       0x01
 #define SSG_FILE_MAGIC_NUMBER  (('S'<<24)+('S'<<16)+('G'<<8)+SSG_FILE_VERSION)
 
 inline int ssgTypeBase         () { return SSG_TYPE_BASE ; }
