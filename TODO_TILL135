@@ -1,6 +1,0 @@
-- Search for todo, fix, fixme, kludge.
-  I would suggest we mark things we have looked at and want to 
-  do later with "NIV14" or "NIV135".
-- Document ssgStats
-- Document the new path handling and ssgLoaderOptions
-- Finalize and test the path handling.
