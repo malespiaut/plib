@@ -30,9 +30,6 @@ goto: http://sourceforge.net/projects/plib/
   * Some of the MSVC-project files for plib_examples seem to be 
     broken, for example some miss a "winmm.lib".
 
-  * wk: Could someone, preferably a native english speaker, look
-    over the new ssg-documentation?
-
   * Check whether the new ssgStripify works with TuxKart
     See Steves post from 11.12.2000 15:12 for a problem description
 
@@ -60,7 +57,7 @@ Bugs:
 	kids 0
 	----------- snip ------------
 	This seems to happen after ssgFlatten.
-- Create a sphere in ppe. Save it as .ASE. See that values like
+- WK: Create a sphere in ppe. Save it as .ASE. See that values like
   diffuse colour are cr*p. Try to load it. It crashes. This could be 
   one or - probably - two bugs. I don't think this is a ppe problem. 
   The loader complains that number of faces is -2.
@@ -76,15 +73,17 @@ Bugs:
 - David Megginson bug list. Marten said 1, 2, 3, 4, 7 and 8 are now
   fixed. What's the status of the others?
 
-- I have a crash in ssgFlatten if I load .ac files with 
+- WK: I have a crash in ssgFlatten if I load .ac files with 
   unused materials (not reproducable?)
 - Loading and saving lines in .OBJ doesn't work. Maybe NIV14.
-- There is still at least one path bug, maybe in ppe. It works 
+- WK: There is still at least one path bug, maybe in ppe. It works 
   something like this (Grrr.. I should have written this down):
   Load an object into ppe, specifying the directory with an absolute 
   or relative path. Load another object from the same path. It has 
   happened to me that plib now doesn't find the textures. I will look 
   into this.
+- Review and apply Curts patch from his last post under the subject 
+  "plib/sl audio bug"
 - Sam wrote:
   Has anyone here debugged with plib under Windoze 2000 and MSVC++?
   I get a whole bunch of
@@ -99,6 +98,33 @@ Bugs:
           #define new DEBUG_NEW
       #endif
   #endif
+- MDL loader stuff: 
+
+  It has a problem to correctly determine frontface/backface. 
+  Thomas Sevaldrud has the problem as well and wants to look into it
+  if/when he has time.
+
+  The MDL loader doesn't/wrongly tesselates non-convex polys.
+
+  The rudder-etc-is-in-false-position is still there, see 
+  for example spimk2mp.zip. Obviously, the rotation axis of the 
+  rudder goes through the origin (CoG).
+
+  We don't quite know how to get the alpha. For example, many
+  planes get opaque propeller discs
+
+  It would be great to have the old gear-etc code back *optionally*.
+  Themie Gouthas might do this.
+
+  For the well known B17 model, three of the engines are
+  missing, there is only one pilot etc. Is there a OpCode in BGL that
+  says "place a copy of that part over here"? 
+
+  Culling seems to be disabled
+- Only one loader uses ssgLoaderOptions::begin. Don't all have to?
+  See also the Thread:
+   "num_shared_textures, was Crash in new .MDL loader fixed."
+
 
 
 Working with ssg, especially the file loaders and writers leads
@@ -129,6 +155,8 @@ Misc:
   where things *could be* wrong as opposed to the compiler that tells 
   you where they are wrong.
 
+- It would be great if we had one or even two new native .ssg 
+  file formats for 1.4.0
 - We should write the GetWrapU/GetWrapV function, since 
   loading /writing .ssg files can't work 100% without it.
 - When saving, there is often a warning that "ref count doesn't 
@@ -139,7 +167,7 @@ Misc:
   into this and will shout for help if I need some.
   Locally, I have put it into the .FLT loader also.
 - Someone, preferably a native english speaker with ssg-knowledge,
-  should go through my ssg-doc and fix any mistakes. It should be 
+  should go through the new ssg-doc and fix any mistakes. It should be 
   fairly complete by now.
 - Add Per's new Formats to the doc.
 - For the other parts of plib, people should bring the doc up to 
@@ -149,12 +177,17 @@ Misc:
   mark the things already done as closed. For example, once we have 
   done the docs, we can close task number 18398 (for now).
   Has task number 18384 been done (Mac patches)?
+- Wk: There is some temporary code that compiles and works better 
+  than anything we had before, but isn't final. If you want to look
+  for it, search for "14.feb"
+- AFAIK the define PROXY_TEXTURES_ARE_NOT_BROKEN is not yet added 
+  to the makefiles.
 
 Testing:
 ========
 
 - More loader / writer testing. See
-  my article on plib user, "does anyone use .ssg files?" from
+  article of Wolfram Kuss on plib user, "does anyone use .ssg files?" from
   17.1.2001
 - Automatically check PPE, all examples and probably tuxkart, tux_aqfh
   and toobular for memory leaks. MSVC has such a feature.
