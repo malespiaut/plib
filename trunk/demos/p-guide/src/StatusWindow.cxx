@@ -588,14 +588,14 @@ static void window_name_cb ( puObject *ob )
 
 static void label_cb ( puObject *ob )
 {
-  //if ( active_widget )
-  //{
+  if ( active_widget )
+  {
     if (active_widget->label_text)
         delete active_widget->label_text ;
     active_widget->label_text = new char [ strlen ( ob->getStringValue () ) + 1 ] ;
     strcpy ( active_widget->label_text, ob->getStringValue () ) ;
     active_widget->obj->setLabel ( active_widget->label_text ) ;
-  //}
+  }
 }
 
 static void label_place_cb ( puObject *ob )
