@@ -24,7 +24,7 @@
 
 #include "pslLocal.h"
 
-pslProgram::pslProgram ( pslExtension *ext, const char *_prgnm )
+pslProgram::pslProgram ( const pslExtension *ext, const char *_prgnm )
 {
   if ( ! _pslInitialised )
     ulSetError ( UL_FATAL,

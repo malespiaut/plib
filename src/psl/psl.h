@@ -219,10 +219,10 @@ public:
 
 class pslProgram
 {
-  pslOpcode     *code       ;
-  pslContext    *context    ;
-  pslCompiler   *compiler   ;
-  pslExtension  *extensions ;
+  pslOpcode          *code       ;
+  pslContext         *context    ;
+  pslCompiler        *compiler   ;
+  const pslExtension *extensions ;
 
   void *userData ;
 
@@ -230,15 +230,15 @@ class pslProgram
 
 public:
 
-   pslProgram ( pslExtension *ext, const char *_progName = NULL ) ;
+   pslProgram ( const pslExtension *ext, const char *_progName = NULL ) ;
    pslProgram ( pslProgram   *src, const char *_progName = NULL ) ;
 
   ~pslProgram () ;
 
-  pslContext   *getContext     () const { return context    ; }
-  pslOpcode    *getCode        () const { return code       ; }
-  pslCompiler  *getCompiler    () const { return compiler   ; }
-  pslExtension *getExtensions  () const { return extensions ; }
+  pslContext         *getContext    () const { return context    ; }
+  pslOpcode          *getCode       () const { return code       ; }
+  pslCompiler        *getCompiler   () const { return compiler   ; }
+  const pslExtension *getExtensions () const { return extensions ; }
 
   char *getProgName () const { return progName ; }
 
