@@ -1,5 +1,5 @@
 /*
-     PLIB - A Suite of Portable Game Libraries
+     S.I.M.O.N - Simple Interface for Making Oliver's programs Nice
      Copyright (C) 2002  Steve Baker
 
      This program is free software; you can redistribute it and/or modify
