@@ -196,7 +196,7 @@ void spinLeft ()
 
 void zoomIn ()
 {
-  zoom *= 1.1 ;
+  zoom *= 1.1f ;
 
   if ( zoom > 160 ) zoom = 160 ;
 
@@ -207,7 +207,7 @@ void zoomOut ()
 {
   if ( zoom < 6 ) zoom = 6 ;
 
-  zoom /= 1.1 ;
+  zoom /= 1.1f ;
 
   ssgSetFOV ( zoom, zoom * 3.0f/4.0f ) ;
 }

@@ -29,11 +29,11 @@ ssgSimpleState *default_gst, *O_gst, *X_gst, *ground_gst, *ctrls_gst ;
 static Material gs_setup [] =
 {
   /*    gst          texture_map       clamp, trans,aref,light,frctn,0 */
-  { &default_gst, "",                  FALSE, TRUE , 0.0, FALSE, 1.0, 0 },
-  { & ground_gst, "images/ground.rgb", FALSE, FALSE, 0.2, FALSE, 1.0, 0 },
-  { & ctrls_gst, "images/controls.rgb",FALSE, TRUE , 0.2, FALSE, 1.0, 0 },
-  { &      X_gst, "images/X.rgb"     , FALSE, FALSE, 0.2, TRUE , 1.0, 0 },
-  { &      O_gst, "images/O.rgb"     , FALSE, FALSE, 0.2, TRUE , 1.0, 0 },
+  { &default_gst, "",                  FALSE, TRUE , 0.0f, FALSE, 1.0, 0 },
+  { & ground_gst, "images/ground.rgb", FALSE, FALSE, 0.2f, FALSE, 1.0, 0 },
+  { & ctrls_gst, "images/controls.rgb",FALSE, TRUE , 0.2f, FALSE, 1.0, 0 },
+  { &      X_gst, "images/X.rgb"     , FALSE, FALSE, 0.2f, TRUE , 1.0, 0 },
+  { &      O_gst, "images/O.rgb"     , FALSE, FALSE, 0.2f, TRUE , 1.0, 0 },
   { NULL, "", FALSE, FALSE, 0.0, FALSE, 1.0, 0 }
 } ;
 
@@ -62,7 +62,7 @@ void Material::install ( int index )
   (*gst) -> disable ( GL_COLOR_MATERIAL ) ;
   (*gst) -> enable ( GL_CULL_FACE      ) ;
   (*gst) -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
-  (*gst) -> setMaterial ( GL_AMBIENT, 0.3, 0.3, 0.3, 1 ) ;
+  (*gst) -> setMaterial ( GL_AMBIENT, 0.3f, 0.3f, 0.3f, 1 ) ;
   (*gst) -> setMaterial ( GL_DIFFUSE, 1, 1, 1, 1 ) ;
   (*gst) -> setMaterial ( GL_EMISSION, 0, 0, 0, 1 ) ;
   (*gst) -> setMaterial ( GL_SPECULAR, 0, 0, 0, 1 ) ;

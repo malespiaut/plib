@@ -102,9 +102,9 @@ void GFX::update ()
   sgVec4 skycol ;
   sgVec4 white = { 1.0, 1.0, 1.0, 1.0 } ;
 
-  sgSetVec3 ( sunposn, -0.2, -0.5, 0.2 ) ;
+  sgSetVec3 ( sunposn, -0.2f, -0.5f, 0.2f ) ;
 
-  sgSetVec4 ( skycol, 0.4, 0.4, 0.8, 1.0 ) ;
+  sgSetVec4 ( skycol, 0.4f, 0.4f, 0.8f, 1.0f ) ;
 
   ssgGetLight ( 0 ) -> setPosition ( sunposn ) ;
   ssgGetLight ( 0 ) -> setColour ( GL_AMBIENT , white ) ;
@@ -118,7 +118,7 @@ void GFX::update ()
 
   glEnable ( GL_DEPTH_TEST ) ;
 
-  glFogf ( GL_FOG_DENSITY, 3.0 / 100.0f ) ;
+  glFogf ( GL_FOG_DENSITY, 3.0f / 100.0f ) ;
   glFogfv( GL_FOG_COLOR  , skycol ) ;
   glFogf ( GL_FOG_START  , 0.0       ) ;
   glFogi ( GL_FOG_MODE   , GL_EXP    ) ;

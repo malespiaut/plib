@@ -128,7 +128,7 @@ GUI::GUI ()
   puFont ff ( font, 15 ) ;
   puSetDefaultFonts        ( ff, ff ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
-  puSetDefaultColourScheme ( 0.8, 0.8, 0.8, 0.6 ) ;
+  puSetDefaultColourScheme ( 0.8f, 0.8f, 0.8f, 0.6f ) ;
 
   /* Make the menu bar */
 
