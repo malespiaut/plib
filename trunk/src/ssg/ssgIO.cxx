@@ -457,7 +457,7 @@ struct _ssgFileFormat
 
 static _ssgFileFormat formats[] =
 {
-  { ".3ds",   ssgLoad3ds  , NULL       },
+  { ".3ds",   ssgLoad3ds  , ssgSave3ds },
   { ".ac" ,   ssgLoadAC3D , ssgSaveAC  },
   { ".ase",   ssgLoadASE  , ssgSaveASE },
   { ".dxf",   ssgLoadDXF  , ssgSaveDXF },
