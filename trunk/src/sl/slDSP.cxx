@@ -832,7 +832,7 @@ void doError( OSErr theError ) {
     msg = "Buffer is too small." ;
     break;
   case paramErr:
-    msg = ("Invalid parameter specified." ;
+    msg = "Invalid parameter specified." ;
     break;
   }
 
