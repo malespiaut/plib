@@ -174,14 +174,14 @@ int puObject::checkKey ( int key, int updown )
   if ( updown == PU_UP )
     return FALSE ;
 
-  if ( puActiveWidget() && ( this != puActiveWidget() ) )
-  {
-    puActiveWidget() -> invokeDownCallback () ;
-    puDeactivateWidget () ;
-  }
-
   if ( isReturnDefault() && ( key == '\r' || key == '\n' ) && ( window == puGetWindow () ) )
   {
+    if ( puActiveWidget() && ( this != puActiveWidget() ) )
+    {
+      puActiveWidget() -> invokeDownCallback () ;
+      puDeactivateWidget () ;
+    }
+
     checkHit ( PU_LEFT_BUTTON, PU_DOWN, (abox.min[0]+abox.max[0])/2,
                                         (abox.min[1]+abox.max[1])/2 ) ;
     checkHit ( PU_LEFT_BUTTON, PU_UP  , (abox.min[0]+abox.max[0])/2,
