@@ -21,10 +21,17 @@
      $Id$
 */
 
-// $Id$
-
 
 #include "ssgaBillboards.h"
+
+
+#ifdef UL_MAC_OSX
+#define fabsf(x)      ((x) < 0 ? -(x) : (x))
+#define hypotf(x, y)  sqrtf((x)*(x) + (y)*(y))
+#endif
+
+
+int ssgaBillboards::total_drawn = 0;
 
 
 inline float max3f(const float v[3])
@@ -32,9 +39,6 @@ inline float max3f(const float v[3])
     float tmp = v[0] >= v[1] ? v[0] : v[1];
     return tmp >= v[2] ? tmp : v[2];
 }
-
-
-int ssgaBillboards::total_drawn = 0;
 
 
 inline double random_value()
@@ -93,7 +97,7 @@ void ssgaBillboards::recalcBSphere()
 	sgSphere sph;
 	sgCopyVec3(sph.center, get(i));
 	float s = get(i)[3];
-	sph.radius = s * width;
+	sph.radius = 0.5f * s * width;
 	bsphere.extend(&sph);
 	sgAddScaledVec3(sph.center, up, s * height);
 	bsphere.extend(&sph);
