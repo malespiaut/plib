@@ -132,7 +132,7 @@ int PSL_Parser::pushIfStatement ()
 }
 
 
-int PSL_Parser::pushFunctionCall ( char *var )
+int PSL_Parser::pushFunctionCall ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
@@ -179,7 +179,7 @@ int PSL_Parser::pushFunctionCall ( char *var )
 }
 
 
-int PSL_Parser::pushAssignmentStatement ( char *var )
+int PSL_Parser::pushAssignmentStatement ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
@@ -317,7 +317,7 @@ int PSL_Parser::pushStaticVariableDeclaration ()
 
 
 
-int PSL_Parser::pushGlobalVariableDeclaration ( char *s )
+int PSL_Parser::pushGlobalVariableDeclaration ( const char *s )
 {
   char c  [ MAX_TOKEN ] ;
 
@@ -388,7 +388,7 @@ int PSL_Parser::pushGlobalDeclaration ()
 }
 
 
-int PSL_Parser::pushFunctionDeclaration ( char *fn )
+int PSL_Parser::pushFunctionDeclaration ( const char *fn )
 {
   char c  [ MAX_TOKEN ] ;
 

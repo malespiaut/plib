@@ -184,9 +184,9 @@ class PSL_Parser
   int  pushJump         ( int l ) ;
 
   void pushConstant   ( const char *c ) ;
-  void pushVariable   ( char *c ) ;
-  void pushAssignment ( char *c ) ;
-  void pushCall       ( char *c, int argc ) ;
+  void pushVariable   ( const char *c ) ;
+  void pushAssignment ( const char *c ) ;
+  void pushCall       ( const char *c, int argc ) ;
   void pushReturn     () ;
 
   /* Higher level parsers.  */
@@ -203,27 +203,27 @@ class PSL_Parser
   int  pushPauseStatement      () ;
   int  pushWhileStatement      () ;
   int  pushIfStatement         () ;
-  int  pushFunctionCall        ( char *c ) ;
-  int  pushAssignmentStatement ( char *c ) ;
+  int  pushFunctionCall        ( const char *c ) ;
+  int  pushAssignmentStatement ( const char *c ) ;
   int  pushCompoundStatement   () ;
   int  pushStatement           () ;
 
-  int  pushFunctionDeclaration       ( char *fn ) ;
+  int  pushFunctionDeclaration       ( const char *fn ) ;
   int  pushLocalVariableDeclaration  () ;
-  int  pushGlobalVariableDeclaration ( char *fn ) ;
+  int  pushGlobalVariableDeclaration ( const char *fn ) ;
   int  pushStaticVariableDeclaration () ;
 
   int  pushGlobalDeclaration         () ;
   void pushProgram                   () ;
 
-  void print_opcode ( FILE *fd, unsigned char op ) ;
+  void print_opcode ( FILE *fd, unsigned char op ) const ;
 
-  PSL_Address    getVarSymbol       ( char *s ) ;
-  PSL_Address    setVarSymbol       ( char *s ) ;
+  PSL_Address    getVarSymbol       ( const char *s ) ;
+  PSL_Address    setVarSymbol       ( const char *s ) ;
 
   PSL_Address    getCodeSymbol      ( const char *s ) ;
   void           setCodeSymbol      ( const char *s, PSL_Address v ) ;
-  int            getExtensionSymbol ( char *s ) ;
+  int            getExtensionSymbol ( const char *s ) ;
 
 private:
 
@@ -264,7 +264,7 @@ public:
     }
   }
 
-  PSL_Extension *getExtensions () { return extensions ; }
+  PSL_Extension *getExtensions () const { return extensions ; }
 
   void init () 
   {
@@ -282,8 +282,8 @@ public:
     next_var   = 0 ;
   }
 
-  void dump () ;
-  int  parse ( char *fname ) ;
+  void dump () const ;
+  int  parse ( const char *fname ) ;
   int  parse ( FILE *fd ) ;
 } ;
 
