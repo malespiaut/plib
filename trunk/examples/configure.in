@@ -86,11 +86,23 @@ dnl check for OpenGL related libraries
 AC_CANONICAL_HOST
 
 case "${host}" in
-*-*-cygwin* | *-*-mingw32*)
+*-*-cygwin*)
+
     dnl CygWin under Windoze.
 
     dnl Sound / joystick stuff, mmtimer (ulClock !)
     LIBS="$LIBS -lwinmm"
+
+    dnl OpenGL libraries
+    OGL_LIBS="-lglu32 -lopengl32"
+    GLUT_LIBS="-lglut32"
+	;;
+*-*-mingw32*)
+    dnl Mingw under Windoze.
+
+    dnl Sound / joystick stuff, mmtimer (ulClock !)
+    LIBS="$LIBS -lwinmm -lwsock32"
+
 
     dnl OpenGL libraries
     OGL_LIBS="-lglu32 -lopengl32"

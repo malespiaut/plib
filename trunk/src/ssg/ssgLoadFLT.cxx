@@ -136,6 +136,13 @@
 # endif
 #endif
 
+#if defined(__MINGW32__)
+# ifdef USE_ALLOCA
+#  include <libiberty.h>
+# endif
+#endif
+
+
 #ifndef O_BINARY
 # define O_BINARY 0
 #endif
@@ -176,7 +183,7 @@ typedef unsigned int uint;
 /* XXX what about PDP_ENDIAN? */
 
 /* Help! Is this correct? */
-#if !defined(BYTE_ORDER) && defined(_MSC_VER) && !defined(NOT_INTEL_BYTE_ORDER)
+#if (!defined(BYTE_ORDER) && defined(WIN32) && !defined(NOT_INTEL_BYTE_ORDER))
 # define LITTLE_ENDIAN  1234
 # define BIG_ENDIAN     4321
 # define BYTE_ORDER     LITTLE_ENDIAN
