@@ -32,8 +32,18 @@
 #  include <unistd.h>
 #endif
 #include <math.h>
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
 #include <plib/ssg.h>
-#include <GL/glut.h>
 
 #define SI_MAX_MODELS 500
 
@@ -70,5 +80,4 @@ bool  siJoystickC () ;
 bool  siJoystickD () ;
 bool  siJoystickL () ;
 bool  siJoystickR () ;
-
 
