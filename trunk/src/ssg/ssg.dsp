@@ -117,10 +117,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"Debug\ssg_d.lib"
 # Begin Custom Build - 'ssg' gets installed
 ProjDir=.
-InputPath=.\Debug\ssg.lib
+InputPath=.\Debug\ssg_d.lib
 SOURCE="$(InputPath)"
 
 BuildCmds= \

@@ -73,11 +73,11 @@ DIRECTORY STRUCTURE:
 
 PLIB expects to be installed in one standard place:
 
-   /usr/lib   or   C:\USR\LIB
+  /usr/lib
 
 ...with header files at:
 
-  /usr/include/plib   or   C:\USR\INCLUDE\PLIB
+  /usr/include/plib
 
 
 PORTABILITY and DEPENDANCIES:
