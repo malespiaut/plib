@@ -86,7 +86,7 @@ void puListBox::draw ( int dx, int dy )
 
   abox.draw ( dx, dy, style, colour, isReturnDefault(), border_thickness ) ;
 
-  /* If greyed out then halve the opacity when drawing the label and legend */
+  /* If greyed out then halve the opacity when drawing the text */
 
   if ( active )
     glColor4fv ( colour [ PUCOL_LEGEND ] ) ;

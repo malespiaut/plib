@@ -136,7 +136,7 @@ void puInput::draw ( int dx, int dy )
 
     /* Draw the text */
 
-    /* If greyed out then halve the opacity when drawing the label and legend */
+    /* If greyed out then halve the opacity when drawing the text */
 
     if ( active )
       glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
