@@ -66,18 +66,18 @@
 #    include <machine/joystick.h>
 #    define JS_DATA_TYPE joystick
 #    define JS_RETURN (sizeof(struct JS_DATA_TYPE))
-#  elif defined(__linux__)
+/*#  elif defined(__linux__)
 #    include <sys/ioctl.h>
 #    include <linux/joystick.h>
 #    include <errno.h>
-
+*/
      /* check the joystick driver version */
-
+/*
 #    ifdef JS_VERSION
 #      if JS_VERSION >= 0x010000
 #        define JS_NEW
 #      endif
-#    endif
+#    endif*/
 
 #  else
 #    ifndef JS_DATA_TYPE
