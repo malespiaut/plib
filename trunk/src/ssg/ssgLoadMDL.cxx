@@ -1,26 +1,25 @@
 //===========================================================================
-// ssgLoadMDL.cxx
-// This is a loader for Microsoft Flight Simulator / Flight Shop models
-// (MDL-files) to SSG. 
-//
-// Original code by Thomas Engh Sevaldrud, extended and adapted to SSG by
-// Per Liedman.
+//                                                                           
+// File: GngMsfsIO.cpp                                                       
+//                                                                           
+// Created: Tue Feb 29 22:20:31 2000                                         
+//                                                                           
+// Author: Thomas Engh Sevaldrud <tse@math.sintef.no>
+//                                                                           
+// Revision: $Id$
+//                                                                           
+// Description:
+//                                                                           
+//===========================================================================
+// Copyright (c) 2000 Thomas E. Sevaldrud <tse@math.sintef.no>
 //===========================================================================
 
-/* 
-   This loader is intended for loading MDL models constructed with 
-   Flight Shop (a model editor for MSFS). Models not created with 
-   Flight Shop or hand tweaked afterwards might not work without problems.
-*/
-
-#include <iostream.h>
 #include "ssgLocal.h"
 #include "ssgLoadMDL.h"
 
 #define DEF_SHININESS 50
 
-// Define DEBUG if you want some debug info
-/*#define DEBUG 1*/
+#define DEBUG
 
 #ifdef DEBUG
 #include <iostream>
@@ -29,280 +28,120 @@
 #define DEBUGPRINT(x)
 #endif
 
-struct _MDLPart {
-  GLenum type;
-  ssgVertexArray   *vtx;
-  ssgNormalArray   *nrm;
-  ssgIndexArray    *idx;
-  ssgTexCoordArray *crd;
-
-  void removeUnnecessaryVertices(void);
-};
-
-static const int PART_GEAR     = 0;
-static const int PART_FLAPS    = 1;
-static const int PART_LIGHTS   = 2;
-static const int PART_STROBE   = 3;
-static const int PART_SPOILERS = 4;
-static const int PART_PROP     = 5;
-static const int NUM_MOVING_PARTS = 6;
-
-static char *PART_NAME[] = {"GEAR",     "FLAPS", "LIGHTS", "STROBE",
-			    "SPOILERS", "PROP"};
+static const ssgLoaderOptions                *current_options;
 
 // Temporary vertex arrays
 static ssgVertexArray 		*curr_vtx_;
 static ssgNormalArray 		*curr_norm_;
+static ssgIndexArray            *curr_index_;
    
-// Arrays for geometry information
+// Vertex arrays
 static ssgVertexArray 		*vertex_array_;
 static ssgNormalArray 		*normal_array_;
 static ssgTexCoordArray 	*tex_coords_;
 
 // Current part (index array)
-static _MDLPart 		*curr_part_;
-   
+static ssgLeaf  		*curr_part_;
 static ssgBranch		*model_;
-static ssgBranch                *curr_branch_;
-static ssgSelector              *moving_parts_[NUM_MOVING_PARTS];
-static char                     curr_tex_name_[15];
-static int			num_tex_states_, start_idx_, last_idx_;
-static int                      curr_color_, curr_pal_id_;
-static float                    curr_alpha_;
-static bool                     curr_cull_face_;
 
-static bool			has_normals_, vtx_dirty_, join_children_;
-static FILE*                    model_file_;
+// Moving parts
+static ssgBranch		*ailerons_grp_, *elevator_grp_, *rudder_grp_;
+static ssgBranch		*gear_grp_, *spoilers_grp_, *flaps_grp_;
+static ssgBranch                *prop_grp_;
+   
+static sgMat4   		curr_matrix_;
+static sgVec3			curr_rot_pt_;
+static sgVec4			curr_col_;
+static char		        *curr_tex_name_;
+static ssgAxisTransform	        *curr_xfm_;
 
-static const ssgLoaderOptions* current_options = NULL ;
+// File Address Stack
+static const int                MAX_STACK_DEPTH = 32;
+static long       	        stack_        [MAX_STACK_DEPTH];
+static int                      stack_depth_;
 
-static unsigned char get_byte() {
-  unsigned char b;
-  fread( &b, 1, 1, model_file_ );
-  return b;
-}
+//  static sgMat4	        matrix_stack_ [MAX_STACK_DEPTH];
+//  static char	                *textures_    [MAX_STACK_DEPTH];
+//  static ssgBranch		*groups_      [MAX_STACK_DEPTH];
 
-//===========================================================================
+static int			start_idx_, last_idx_;
+static int                      curr_var_;
 
-void _MDLPart::removeUnnecessaryVertices(void) {
-  int i;
-  short j;
-  ssgVertexArray *vtxnew;
-  ssgNormalArray *nrmnew;
-  ssgTexCoordArray *crdnew = NULL;
-  ssgIndexArray *idxnew;
-  
-  if ( type == GL_LINES ) 
-    return;
-  
-  assert(vtx!=NULL);
-  assert(nrm!=NULL);
-  assert(idx!=NULL);  
-  assert(vtx->getNum()==nrm->getNum());
-  
-  if(crd!=NULL) {
-       assert(vtx->getNum()==crd->getNum());
-  }
+static bool			has_normals_, vtx_dirty_, tex_vtx_dirty_;
+static bool                     join_children_, override_normals_;
 
-  vtxnew = new ssgVertexArray();
-  nrmnew = new ssgNormalArray();
-
-  if(crd != NULL) {
-    crdnew = new ssgTexCoordArray();
-  }
-
-  idxnew = new ssgIndexArray();
-  
-  // This may generate "double vertices" and can therefore be 
-  // optimized even more.
-  for ( i=0; i<idx->getNum(); i++) {
-    j=*idx->get(i);
-    vtxnew->add(vtx->get(j));
-    nrmnew->add(nrm->get(j));
-    if ( crd != NULL )
-      crdnew->add(crd->get(j));
-    
-    idxnew->add(i);
-  }
-  assert(idx->getNum()==idxnew->getNum());
-  assert(idx->getNum()==vtxnew->getNum());
-  vtx = vtxnew;
-  nrm = nrmnew;
-  idx = idxnew;
-  if ( crd != NULL ) {
-       crd = crdnew;
-  }
-}
+static char                     *tex_fmt_;
 
 //===========================================================================
-static void readIfIn1() {
-  int i;
-  unsigned short var;
-  short offset, high, low, next_op;
-  offset  = ulEndianReadLittle16(model_file_);
-  var     = ulEndianReadLittle16(model_file_);
-  low     = ulEndianReadLittle16(model_file_);
-  high    = ulEndianReadLittle16(model_file_);
-  next_op = ulEndianReadLittle16(model_file_);
 
-  int part_idx, kid_idx;
-
-  // for moving parts except propeller, this seems
-  // to work
-  kid_idx = ( next_op == 0x000d ) ? 0 : 1;
-
-  switch (var) {
-  case 0x0052:
-  case 0x006c:
-    part_idx = PART_FLAPS; break;
-  case 0x0054:
-  case 0x006e:
-    part_idx = PART_GEAR; break;
-  case 0x005a:
-  case 0x0074:
-    part_idx = PART_PROP; break;
-  case 0x005c:
-  case 0x0076:
-    part_idx = PART_LIGHTS; break;
-  case 0x005e:
-  case 0x0078:
-    part_idx = PART_STROBE; break;
-  case 0x0062:
-  case 0x007c:
-    part_idx = PART_SPOILERS; break;
-  default:
-    part_idx = -1; break;
-  }
-
-  /*
-    DEBUGPRINT( "IfVarRange(" << std::hex << offset << " " << var
-    << " " << low << " " << high << ")"
-    << "   (next op " << next_op << ", kid_idx "
-    << kid_idx << ")" << 
-    std::dec << std::endl );
-  */
-
-  char nodename[64];
-
-  if (part_idx == -1) {
-    curr_branch_ = model_;
-  } else {
-    if (moving_parts_[part_idx] == NULL) {
-      moving_parts_[part_idx] = new ssgSelector;
-      model_->addKid(moving_parts_[part_idx]);	      	   
-      moving_parts_[part_idx]->setName( PART_NAME[part_idx] );
-      //moving_parts_[part_idx]->select(1);
-    }
-
-    // nasty special case for prop
-    if (part_idx == PART_PROP) {
-      sprintf(nodename, "PROP_%d_%d", low, high);
-      i = 0;
-      for (ssgEntity* propkid=moving_parts_[PART_PROP]->getKid(0);
-	   propkid != NULL; 
-	   propkid = moving_parts_[PART_PROP]->getNextKid(), i++) {
-	if ( propkid->getName() != NULL ) {
-	  if ( strcmp(nodename, propkid->getName()) == 0 ) {
-	    break;
-	  }
-	}
-      }
-
-      kid_idx = i;
-    } else {
-      sprintf(nodename, "%s_%s", 
-	      moving_parts_[part_idx]->getName(),
-	      (kid_idx == 0)?"TRUE":"FALSE");		      
-    }
-
-    //DEBUGPRINT( nodename << " " << kid_idx << std::endl );
-
-    while (moving_parts_[part_idx]->getKid(kid_idx) == NULL)
-      moving_parts_[part_idx]->addKid( new ssgBranch() );
-
-    curr_branch_ = (ssgBranch*)moving_parts_[part_idx]->
-      getKid(kid_idx);
-    curr_branch_->setName(nodename);
-  }
-
-  // now move back the file pointer 16 bits (we have peeked at the next op)
-  fseek( model_file_, -2, SEEK_CUR );
-}
-
-static bool findPart(FILE* fp)
+static void initLoader()
 {
-  int i;
-
-  curr_branch_ = model_;
-
-  unsigned char pattern1[4] = { 0x1a, 0x00, 0x01, 0x00 };
-  unsigned char pattern2[4] = { 0x29, 0x00, 0x01, 0x00 };
- 
-  unsigned char pattern[4];
-  fread(pattern, 1, 4, fp);
-
-  while(!feof(fp))
-    {
-      int match1 = 0;
-      int match2 = 0;
-      int matchpos = -1;
-
-      for(i = 0; i < 4; i++)
-	{
-	  if(pattern[i] == pattern1[i]) match1++;
-	  if(pattern[i] == pattern2[i]) match2++;
-	  if((pattern[i] == 0x24 || pattern[i] == 0x1c) && matchpos < 0) 
-	    matchpos = i;
-	}
-
-      if(match1 == 4)
-	{
-	  fseek(fp, -4, SEEK_CUR);
-	  //DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) 
-	  //	      << std::dec << std::endl);
-	  return true;
-	}
-
-      else if(match2 == 4)
-	{
-	  fseek(fp, -4, SEEK_CUR);
-	  //DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) 
-	  //      << std::dec << std::endl);
-	  return true;
-	}
-      else if(matchpos >= 0) 
-	{
-	  /* this section of the code takes care of moving parts. 
-	     (all moving parts are currently handled by the BGL_IFIN1
-	     op-code) */
-
-	  long pos = ftell(fp);
-
-	  fseek(fp, -2+matchpos, SEEK_CUR);
-	  readIfIn1();
-	  fseek(fp, pos, SEEK_SET);
-	}
-      
-      pattern[0] = pattern[1];
-      pattern[1] = pattern[2];
-      pattern[2] = pattern[3];
-      fread(&pattern[3], 1, 1, fp);
-    }
-
-  return false;
+ start_idx_        = 0;
+ join_children_    = true;
+ override_normals_ = true;
+ tex_fmt_          = "tif";
+ stack_depth_      = 0;
 }
 
+//===========================================================================
 
+static void newPart()
+{
+ vtx_dirty_     = true;
+ tex_vtx_dirty_ = true;
+ curr_tex_name_ = NULL;
+ sgSetVec4( curr_col_, 1.0f, 1.0f, 1.0f, 1.0f );
 
+ delete curr_vtx_;
+ delete curr_norm_;
+ curr_vtx_  = new ssgVertexArray ;
+ curr_norm_ = new ssgNormalArray ;
+} 
+
+//===========================================================================
+
+static void push_stack( long entry ) {
+  assert( stack_depth_ < MAX_STACK_DEPTH - 1 );
+
+  stack_[stack_depth_++] = entry;
+}
+
+static long pop_stack() {
+  assert( stack_depth_ > 0 );
+
+  return stack_[--stack_depth_];
+}
+
+//===========================================================================
+
+static void recalcNormals() {
+  DEBUGPRINT( "Calculating normals." << std::endl);
+  sgVec3 n;
+
+  for (int i = 0; i < curr_index_->getNum() - 2; i++) {
+    short ix0 = *curr_index_->get(i    );
+    short ix1 = *curr_index_->get(i + 1);
+    short ix2 = *curr_index_->get(i + 2);
+
+    sgMakeNormal( n, 
+		  vertex_array_->get(ix0),
+		  vertex_array_->get(ix1),
+		  vertex_array_->get(ix2) );
+    
+    sgCopyVec3( normal_array_->get(ix0), n );
+    sgCopyVec3( normal_array_->get(ix1), n );
+    sgCopyVec3( normal_array_->get(ix2), n );
+  }
+}
 
 //===========================================================================
 
 static void readPoint(FILE* fp, sgVec3 p)
 {
   short x_int, y_int, z_int;
-  y_int = ulEndianReadLittle16(model_file_);
-  z_int = ulEndianReadLittle16(model_file_);
-  x_int = ulEndianReadLittle16(model_file_);
+  y_int = ulEndianReadLittle16(fp);
+  z_int = ulEndianReadLittle16(fp);
+  x_int = ulEndianReadLittle16(fp);
  
   // Convert from .MDL units (ca 2mm) to meters
   p[0] =  -(float)x_int/512.0;
@@ -310,43 +149,59 @@ static void readPoint(FILE* fp, sgVec3 p)
   p[2] =  (float)z_int/512.0;
 }
 
+//===========================================================================
+
+//  MtkPoint3D readPoint(FILE* fp)
+//  {
+//   short x_int, y_int, z_int;
+//   fread(&x_int, 2, 1, fp);
+//   fread(&y_int, 2, 1, fp);
+//   fread(&z_int, 2, 1, fp);
+
+//   // Convert from .MDL units (ca 2mm) to meters
+//   MtkPoint3D p;
+//   p.x() = (double)x_int/512.0;
+//   p.y() = (double)y_int/512.0;
+//   p.z() = (double)z_int/512.0;
+
+//   /*
+//   for(list<MtkTransMatrix3D>::iterator i = matrix_stack_.begin();
+//       i != matrix_stack_.end(); i++)
+//      {
+//      p = p*(*i);
+//      p += (*i).getCol(3);
+//      }
+//   */
+ 
+//   if(matrix_stack_.size() > 0)
+//      {
+//      MtkTransMatrix3D m = matrix_stack_.front();
+//      p -= m.getCol(3);
+//      p = p*m;
+//      }
+
+//   MtkPoint3D r;
+//   r.y() =  p.x();
+//   r.z() = -p.y();
+//   r.x() =  p.z();
+
+//   return r;
+//  }
 
 //===========================================================================
 
 static void readVector(FILE* fp, sgVec3 v)
 {
   short x_int, y_int, z_int;
-  y_int = ulEndianReadLittle16(model_file_);
-  z_int = ulEndianReadLittle16(model_file_);
-  x_int = ulEndianReadLittle16(model_file_);
+  y_int = ulEndianReadLittle16(fp);
+  z_int = ulEndianReadLittle16(fp);
+  x_int = ulEndianReadLittle16(fp);
 
   v[0] = -(float)x_int;
   v[1] = (float)y_int;
   v[2] = (float)z_int;
 
   sgNormaliseVec3( v );
-}
-
-//===========================================================================
-
-static void recalcNormals( _MDLPart *part ) {
-  //DEBUGPRINT( "Calculating normals." << std::endl);
-  sgVec3 n;
-
-  for (int i = 0; i < part->idx->getNum() / 3; i++) {
-    short ix0 = *part->idx->get(i*3    );
-    short ix1 = *part->idx->get(i*3 + 1);
-    short ix2 = *part->idx->get(i*3 + 2);
-
-    sgMakeNormal( n, 
-		  curr_part_->vtx->get(ix0),
-		  curr_part_->vtx->get(ix1),
-		  curr_part_->vtx->get(ix2) );
-    
-    sgCopyVec3( part->nrm->get(ix0), n );
-    sgCopyVec3( part->nrm->get(ix1), n );
-    sgCopyVec3( part->nrm->get(ix2), n );
-  }
 }
 
 //===========================================================================
@@ -365,29 +220,31 @@ static void createTriangIndices(ssgIndexArray *ixarr,
   if(numverts == 1)
     {
       unsigned short ix0 = *ixarr->get(0);
-      if ( ix0 >= curr_part_->vtx->getNum() ) {
-	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+      if ( ix0 >= vertex_array_->getNum() ) {
+	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds (%d/%d).",
+		   ix0, vertex_array_->getNum() );
 	return;
       }
 
-      curr_part_->idx->add(ix0);
-      curr_part_->idx->add(ix0);
-      curr_part_->idx->add(ix0);
+      curr_index_->add(ix0);
+      curr_index_->add(ix0);
+      curr_index_->add(ix0);
     }
 
   else if(numverts == 2)
     {
       unsigned short ix0 = *ixarr->get(0);
       unsigned short ix1 = *ixarr->get(1);
-      if ( ix0 >= curr_part_->vtx->getNum() ||
-	   ix1 >= curr_part_->vtx->getNum() ) {
-	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+      if ( ix0 >= vertex_array_->getNum() ||
+	   ix1 >= vertex_array_->getNum() ) {
+	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds. (%d,%d / %d",
+		   ix0, ix1, vertex_array_->getNum() );
 	return;
       }
 
-      curr_part_->idx->add(ix0);
-      curr_part_->idx->add(ix1);
-      curr_part_->idx->add(ix0);
+      curr_index_->add(ix0);
+      curr_index_->add(ix1);
+      curr_index_->add(ix0);
     }
 
   else if(numverts == 3)
@@ -395,33 +252,34 @@ static void createTriangIndices(ssgIndexArray *ixarr,
       unsigned short ix0 = *ixarr->get(0);
       unsigned short ix1 = *ixarr->get(1);
       unsigned short ix2 = *ixarr->get(2);
-      if ( ix0 >= curr_part_->vtx->getNum() ||
-	   ix1 >= curr_part_->vtx->getNum() ||
-	   ix2 >= curr_part_->vtx->getNum() ) {
-	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+      if ( ix0 >= vertex_array_->getNum() ||
+	   ix1 >= vertex_array_->getNum() ||
+	   ix2 >= vertex_array_->getNum() ) {
+	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds. " \
+		   "(%d,%d,%d / %d)", ix0, ix1, ix2, vertex_array_->getNum());
 	return;
       }
 
       sgSubVec3(v1, 
-		curr_part_->vtx->get(ix1), 
-		curr_part_->vtx->get(ix0));
+		vertex_array_->get(ix1), 
+		vertex_array_->get(ix0));
       sgSubVec3(v2, 
-		curr_part_->vtx->get(ix2),
-		curr_part_->vtx->get(ix0));
+		vertex_array_->get(ix2),
+		vertex_array_->get(ix0));
     
       sgVectorProductVec3(cross, v1, v2);
 
       if(sgScalarProductVec3(cross, s_norm) > 0.0f)
 	{
-	  curr_part_->idx->add(ix0);
-	  curr_part_->idx->add(ix1);
-	  curr_part_->idx->add(ix2);
+	  curr_index_->add(ix0);
+	  curr_index_->add(ix1);
+	  curr_index_->add(ix2);
 	}
       else
 	{
-	  curr_part_->idx->add(ix0);
-	  curr_part_->idx->add(ix2);
-	  curr_part_->idx->add(ix1);
+	  curr_index_->add(ix0);
+	  curr_index_->add(ix2);
+	  curr_index_->add(ix1);
 	}
     }
 
@@ -430,31 +288,33 @@ static void createTriangIndices(ssgIndexArray *ixarr,
       unsigned short ix0 = *ixarr->get(0);
       unsigned short ix1 = *ixarr->get(1);
       unsigned short ix2 = *ixarr->get(2);
-      if ( ix0 >= curr_part_->vtx->getNum() ||
-	   ix1 >= curr_part_->vtx->getNum() ||
-	   ix2 >= curr_part_->vtx->getNum() ) {
-	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+      if ( ix0 >= vertex_array_->getNum() ||
+	   ix1 >= vertex_array_->getNum() ||
+	   ix2 >= vertex_array_->getNum() ) {
+	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds. " \
+		   "(%d,%d,%d / %d)", ix0, ix1, ix2, vertex_array_->getNum());
 	return;
       }
 
       // Ensure counter-clockwise ordering
       sgMakeNormal(cross, 
-		   curr_part_->vtx->get(ix0), 
-		   curr_part_->vtx->get(ix1), 
-		   curr_part_->vtx->get(ix2));
+		   vertex_array_->get(ix0), 
+		   vertex_array_->get(ix1), 
+		   vertex_array_->get(ix2));
       bool flip = (sgScalarProductVec3(cross, s_norm) < 0.0);
 
-      curr_part_->idx->add(ix0);
+      curr_index_->add(ix0);
       for(int i = 1; i < numverts; i++)
 	{
 	  ix1 = *ixarr->get( flip ? numverts-i : i);
 
-	  if ( ix1 >= curr_part_->vtx->getNum() ) {
-	    ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+	  if ( ix1 >= vertex_array_->getNum() ) {
+	    ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds. (%d/%d)",
+		       ix1, vertex_array_->getNum());
 	    continue;
 	  }
 
-	  curr_part_->idx->add(ix1);
+	  curr_index_->add(ix1);
 	}
        
     }
@@ -462,7 +322,7 @@ static void createTriangIndices(ssgIndexArray *ixarr,
 
 //===========================================================================
 
-static bool readTexIndices(int numverts, const sgVec3 s_norm, bool flip_y)
+static bool readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool flip_y)
 {
   if(numverts <= 0)
     return false;
@@ -478,15 +338,14 @@ static bool readTexIndices(int numverts, const sgVec3 s_norm, bool flip_y)
     }
 
   // Read index values and texture coordinates
-  ssgIndexArray ixarr(numverts);
   for(int v = 0; v < numverts; v++) 
     {
       unsigned short ix;
       short tx_int, ty_int;
 
-      ix     = ulEndianReadLittle16(model_file_);
-      tx_int = ulEndianReadLittle16(model_file_);
-      ty_int = ulEndianReadLittle16(model_file_);
+      ix     = ulEndianReadLittle16(fp);
+      tx_int = ulEndianReadLittle16(fp);
+      ty_int = ulEndianReadLittle16(fp);
 
       if (flip_y) {
 	ty_int = 255 - ty_int;
@@ -524,10 +383,10 @@ static bool readTexIndices(int numverts, const sgVec3 s_norm, bool flip_y)
 	  //DEBUGPRINT( "duplicating texture coordinate!\n");
        
 	  int idx = ix - start_idx_ + last_idx_;
-	  tex_idx = curr_part_->vtx->getNum();
+	  tex_idx = vertex_array_->getNum();
 
-	  ssgVertexArray* vtx_arr  = curr_part_->vtx;
-	  ssgNormalArray* norm_arr = curr_part_->nrm;
+	  ssgVertexArray* vtx_arr  = vertex_array_; //curr_vtx_;
+	  ssgNormalArray* norm_arr = normal_array_; //curr_norm_;
 
 	  sgVec3 vtx, nrm;
 	  sgCopyVec3( vtx, vtx_arr ->get(idx) );
@@ -538,17 +397,19 @@ static bool readTexIndices(int numverts, const sgVec3 s_norm, bool flip_y)
 	  tex_coords_->add(tc);
 	}
 
-      /* ssgIndexArray doesn't let us assign arbitrary elements, so
-	 this hack is needed */
-      short *ixp = ixarr.get(v);
-      if (ixp != NULL) {
-	*ixp = tex_idx;
-      } else {
-	ixarr.add(tex_idx);
-      }
+      curr_index_->add(tex_idx);
+
+#ifdef DEBUG
+      int check_index = *curr_index_->get(v);
+      float *check_tc = tex_coords_->get(check_index);
+      DEBUGPRINT( "ix[" << v << "] = " << check_index <<
+		  " (u=" << check_tc[0] << ", v=" << 
+		  check_tc[1] << ")" << std::endl);
+#endif
+
     }
 
-  createTriangIndices(&ixarr, numverts, s_norm);
+  createTriangIndices(curr_index_, numverts, s_norm);
  
   return true;
 }
@@ -561,127 +422,253 @@ static bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
     return false;
 	  
   // Read index values
-  ssgIndexArray ixarr(numverts);
   for(int v = 0; v < numverts; v++)
     {
       unsigned short ix;
-      ix = ulEndianReadLittle16(model_file_);
-      ixarr.add(ix - start_idx_ + last_idx_);
-      //DEBUGPRINT( "ix[" << v << "] = " << *ixarr.get(v) << std::endl);
+      ix = ulEndianReadLittle16(fp);
+      curr_index_->add(ix - start_idx_ + last_idx_);
+      DEBUGPRINT( "ix[" << v << "] = " << *curr_index_->get(v) << std::endl);
     }
 
-  createTriangIndices(&ixarr, numverts, s_norm);
+  createTriangIndices(curr_index_, numverts, s_norm);
  
   return true;
 }
 
 //===========================================================================
 
-static ssgSimpleState* createMaterialState(int color, int pal_id)
-{ 
-  ssgSimpleState* state = new ssgSimpleState();
-    
-  float r, g, b;
-  if (curr_alpha_ < 1.0f) 
+static void setColor(int color, int pal_id)
+{
+ if(pal_id == 0x68) 
     {
-      state->setTranslucent();
-
-      state->enable    (GL_BLEND);
-      state->enable    (GL_ALPHA_TEST);
-
-      r = (float)(fsAltPalette[color].r)/255.0;
-      g = (float)(fsAltPalette[color].g)/255.0;
-      b = (float)(fsAltPalette[color].b)/255.0;
+    curr_col_[0] = fsAltPalette[color].r / 255.0f;
+    curr_col_[1] = fsAltPalette[color].g / 255.0f;
+    curr_col_[2] = fsAltPalette[color].b / 255.0f;
+    curr_col_[3] = 0.2f;
     }
-  else 
+ else 
     {
-      state->setOpaque();
-
-      state->disable   (GL_BLEND);
-      state->disable   (GL_ALPHA_TEST);
-
-      r = (float)(fsAcPalette[color].r)/255.0;
-      g = (float)(fsAcPalette[color].g)/255.0;
-      b = (float)(fsAcPalette[color].b)/255.0;
+    curr_col_[0] = fsAcPalette[color].r / 255.0f;
+    curr_col_[1] = fsAcPalette[color].g / 255.0f;
+    curr_col_[2] = fsAcPalette[color].b / 255.0f;
+    curr_col_[3] = 1.0f;
     }
-     
-  state->setShadeModel (GL_SMOOTH);
-
-  state->enable        (GL_LIGHTING);
-
-  state->disable       (GL_TEXTURE_2D);
-  state->disable       (GL_COLOR_MATERIAL);
-
-  state->setShininess  (DEF_SHININESS);
-  state->setMaterial   (GL_AMBIENT , r   , g   , b   , curr_alpha_ );
-  state->setMaterial   (GL_DIFFUSE , r   , g   , b   , curr_alpha_ );
-  state->setMaterial   (GL_SPECULAR, 1.0f, 1.0f, 1.0f, curr_alpha_ );
-  state->setMaterial   (GL_EMISSION, 0.0f, 0.0f, 0.0f, curr_alpha_ );
-
-  //DEBUGPRINT( "  Creating non-textured state: color = (" << r << ", " << g <<
-  //      ", " << b << ")" << std::endl);
-
-  return state;
 }
-
 
 //===========================================================================
 
-static ssgSimpleState* createTextureState(char *name)
+static void setColor(int r, int g, int b, int attr)
 {
-  ssgSimpleState* state = new ssgSimpleState();
+ curr_col_[0] = r / 255.0f;
+ curr_col_[1] = g / 255.0f;
+ curr_col_[2] = b / 255.0f;
+ if(attr < 239)
+   curr_col_[3] = 0.2f;
+} 
 
-  strcpy(curr_tex_name_, name);
+//===========================================================================
+
+static bool setTexture(char* name)
+{
+  curr_tex_name_ = name;
+
+  return true;
+}
+
+//===========================================================================
+
+static ssgSimpleState *createState(bool use_texture)
+{
+ DEBUGPRINT("new State: col = " << curr_col_[0] << ", " << curr_col_[1] <<
+	    ", " << curr_col_[2] << ", " << curr_col_[3] << ", tex = " <<
+	    curr_tex_name_ << std::endl);
  
-  state->setShadeModel (GL_SMOOTH);
+ ssgSimpleState *state = new ssgSimpleState();
 
-  if (curr_alpha_ < 1.0f) 
+ state->setShininess(DEF_SHININESS);
+ state->setShadeModel(GL_SMOOTH);
+
+ state->enable   (GL_LIGHTING);
+ state->enable   (GL_CULL_FACE);
+ state->disable  (GL_COLOR_MATERIAL);
+
+ if(curr_col_[3] < 0.99f)
     {
-      state->setTranslucent();
-
-      state->enable    (GL_BLEND);
-      state->enable    (GL_ALPHA_TEST);
+    state->setTranslucent();
+    state->enable(GL_BLEND);
+    state->enable(GL_ALPHA_TEST);
     }
-  else 
+ else
+   {
+   state->setOpaque();
+   state->disable(GL_BLEND);
+   state->disable(GL_ALPHA_TEST);
+   }
+
+ if(curr_tex_name_ != NULL && use_texture)
     {
-      state->setOpaque();
-
-      state->disable   (GL_BLEND);
-      state->disable   (GL_ALPHA_TEST);
+    state->setMaterial( GL_AMBIENT, 1.0f, 1.0f, 1.0f, curr_col_[3]);
+    state->setMaterial( GL_DIFFUSE, 1.0f, 1.0f, 1.0f, curr_col_[3]);
+    state->enable(GL_TEXTURE_2D);
+    state->setTexture( current_options -> 
+		       createTexture(curr_tex_name_, FALSE, FALSE) ) ;
+    }
+ else
+    {
+    state->setMaterial( GL_AMBIENT, curr_col_);
+    state->setMaterial( GL_DIFFUSE, curr_col_);
+    state->disable(GL_TEXTURE_2D);
     }
 
-  state->enable        (GL_LIGHTING);
-  state->enable        (GL_TEXTURE_2D);
+ state->setMaterial( GL_SPECULAR, 1.0f, 1.0f, 1.0f, curr_col_[3] );
+ state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
 
-  state->disable       (GL_COLOR_MATERIAL);
-
-  state->setShininess  (DEF_SHININESS);
-  state->setMaterial   (GL_AMBIENT , 1.0f, 1.0f, 1.0f, curr_alpha_);
-  state->setMaterial   (GL_DIFFUSE , 1.0f, 1.0f, 1.0f, curr_alpha_);
-  state->setMaterial   (GL_SPECULAR, 1.0f, 1.0f, 1.0f, curr_alpha_);
-  state->setMaterial   (GL_EMISSION, 0.0f, 0.0f, 0.0f, curr_alpha_);
-
-  state->setTexture( current_options -> createTexture(name, FALSE, FALSE) ) ;
-
-  //DEBUGPRINT( "  Creating texture state: name = " << name << std::endl);
-
-  return state;
+ return state;
 }
+
+static ssgBranch *getCurrGroup() {
+  //Find the correct parent for the new group
+ if(curr_xfm_)
+    return curr_xfm_;
+ else
+    {
+      return model_;
+    }
+}
+
 //===========================================================================
 
-ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
+static ssgBranch *getMPGroup(int var)
 {
-  current_options = options? options: &_ssgDefaultOptions ;
-  current_options -> begin () ;
+  
+ switch(var)
+    {
+    case 0x4c: 		// Rudder
+       if(!rudder_grp_)
+          {
+          rudder_grp_ = new ssgBranch();
+          rudder_grp_->setName("rudder");
+          model_->addKid(rudder_grp_);
+          }
+       return rudder_grp_;
+       break;
 
-  num_tex_states_ = 0;
-  start_idx_      = 0;
-  join_children_  = true;
-  {
-    for (int i = 0; i < NUM_MOVING_PARTS; i++) {
-      moving_parts_[i] = NULL;
+    case 0x4e: 		// Elevator
+       if(!elevator_grp_)
+          {
+          elevator_grp_ = new ssgBranch();
+          elevator_grp_->setName("elevator");
+          model_->addKid(elevator_grp_);
+          }
+       return elevator_grp_;
+       break;
+
+    case 0x6a: 		// Ailerons
+       if(!ailerons_grp_)
+          {
+          ailerons_grp_ = new ssgBranch();
+          ailerons_grp_->setName("ailerons");
+          model_->addKid(ailerons_grp_);
+          }
+       return ailerons_grp_;
+       break;
+
+    case 0x6c: 		// Flaps
+       if(!flaps_grp_)
+          {
+          flaps_grp_ = new ssgBranch();
+          flaps_grp_->setName("flaps");
+          model_->addKid(flaps_grp_);
+          }
+       return flaps_grp_;
+       break;
+
+    case 0x6e: 		// Gear
+       if(!gear_grp_)
+          {
+          gear_grp_ = new ssgBranch();
+          gear_grp_->setName("gear");
+          model_->addKid(gear_grp_);
+          }
+       return gear_grp_;
+       break;
+
+    case 0x7c: 		// Spoilers
+       if(!spoilers_grp_)
+          {
+          spoilers_grp_ = new ssgBranch();
+          spoilers_grp_->setName("spoilers");
+          model_->addKid(spoilers_grp_);
+          }
+       return spoilers_grp_;
+       break;
+
+    case 0x58:
+    case 0x7a: 		// Propeller
+       if(!prop_grp_)
+          {
+          prop_grp_ = new ssgBranch();
+          prop_grp_->setName("propeller");
+          model_->addKid(prop_grp_);
+          }
+       return prop_grp_;
+       break;
+
+    default:
+       return model_;
     }
-  }
+ return NULL;
+} 
+
+//===========================================================================
+
+void getMPLimits(int var, float *min, float *max)
+{
+ switch(var)
+    {
+    case 0x4c: 		// Rudder
+       *min = -30.0;
+       *max =  30.0;
+       break;
+
+    case 0x4e: 		// Elevator
+       *min = -30.0;
+       *max =  30.0;
+       break;
+
+    case 0x6a: 		// Ailerons
+       *min = -30.0;
+       *max =  30.0;
+       break;
+
+    case 0x6c: 		// Flaps
+       *min = 0.0;
+       *max = 70.0;
+       break;
+
+    case 0x6e: 		// Gear
+       *min = 0.0;
+       *max = -90.0;
+       break;
+
+    case 0x7c: 		// Spoilers
+       *min = 0.0;
+       *max = 90.0;
+       break;
+
+    case 0x58:
+    case 0x7a: 		// Propeller
+       *min = 0.0;
+       *max = 360.0;
+       break;
+    }
+} 
+
+//===========================================================================
+
+ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
+{
+  current_options = (options != NULL) ? options : &_ssgDefaultOptions;
 
   char filename [ 1024 ] ;
 
@@ -696,508 +683,725 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
   else
     strcpy ( filename, fname ) ;
 
-
-  model_file_ = fopen(filename, "rb");
-  if(!model_file_) 
+ FILE *fp = fopen(filename, "r");
+ if(!fp) 
     {
-      ulSetError(UL_WARNING, "ssgLoadMDL: Couldn't open MDL file '%s'.",
-		 filename);
-      return NULL;
+    ulSetError( UL_WARNING, "ssgLoadMDL: Couldn't open MDL file '%s'!", 
+		filename );
+    return NULL;
     }
 
-  // Initialize object graph
-  model_ = new ssgBranch();
-  curr_branch_ = model_;
-  char* model_name = new char[128];
-  char *ptr = (char*)&fname[strlen(fname) - 1];
-  while(ptr != &fname[0] && *ptr != '/') ptr--;
-  if(*ptr == '/') ptr++;
-  strcpy(model_name, ptr);
-  ptr = &model_name[strlen(model_name)];
-  while(*ptr != '.' && ptr != &model_name[0]) ptr--; 
-  *ptr = '\0';
-  model_->setName(model_name);
-
-  curr_vtx_  = new ssgVertexArray();
-  curr_norm_ = new ssgNormalArray();
- 
-  vertex_array_ = new ssgVertexArray();
-  normal_array_ = new ssgNormalArray();
-  vertex_array_ -> ref();
-  normal_array_ -> ref();
-
-  curr_alpha_    = 1.0f;
- 
-  tex_coords_ = new ssgTexCoordArray();
- 
-  /* I have not found any good references on where actual BGL
-     data starts in a MDL file, but this seems like a good guess
-     from looking at a few MDL files in a hex editor :-O  /PL */
-  fseek(model_file_, 0x10a4, SEEK_SET); // 0x11fc in Thomas' original code
-  unsigned int code_len;
-  code_len = ulEndianReadLittle32(model_file_);
-  DEBUGPRINT( "Code length: " << code_len << " bytes\n");
-  
-  start_idx_ = 0;
-  last_idx_  = 0;
- 
-  findPart(model_file_);
-  
-  // Parse opcodes
-  bool done = false;
-  while(!feof(model_file_) && !done) 
+ // Find beginning of BGL Code segment
+ unsigned short op1, op2;
+ fread(&op1, 2, 1, fp);
+ while(!feof(fp))
     {
-      unsigned short opcode;
-      unsigned int   skip_offset = 0;
+    fread(&op2, 2, 1, fp);
+    if(op1 == 0x76 && op2 == 0x3a)
+       {
+       fseek(fp, -4, SEEK_CUR);
+       break;
+       }
+    op1 = op2;
+    }
 
-      opcode = ulEndianReadLittle16(model_file_);
+ if(feof(fp))
+    {
+    ulSetError( UL_WARNING, "ssgLoadMDL: No BGL Code found in file '%s'!",
+		filename );
+    return NULL;
+    }
 
-      switch(opcode)
-	{
-	case 0x0:	// EOF
-	case 0x22: 	// BGL return
+ // Initialize object graph
+ model_ = new ssgBranch();
+ char* model_name = new char[128];
+ char *ptr = (char*)&fname[strlen(fname) - 1];
+ while(ptr != &fname[0] && *ptr != '/') ptr--;
+ if(*ptr == '/') ptr++;
+ strcpy(model_name, ptr);
+ ptr = &model_name[strlen(model_name)];
+ while(*ptr != '.' && ptr != &model_name[0]) ptr--; 
+ *ptr = '\0';
+ model_->setName(model_name);
+
+ // Create group nodes for textured and non-textured objects
+ curr_vtx_  = new ssgVertexArray();
+ curr_norm_ = new ssgNormalArray();
+ 
+ vertex_array_ = new ssgVertexArray();
+ normal_array_ = new ssgNormalArray();
+ 
+ tex_coords_ = new ssgTexCoordArray();
+
+ start_idx_ = 0;
+ last_idx_  = 0;
+ curr_var_ = 0;
+ stack_depth_ = 0;
+ sgMakeIdentMat4(curr_matrix_);
+ 
+ // Parse opcodes
+ bool done = false;
+ while(!feof(fp) && !done) 
+    {
+    unsigned int   skip_offset = 0;
+    unsigned short opcode;
+    fread(&opcode, 2, 1, fp);
+
+    DEBUGPRINT( "opcode = " << hex << opcode << dec << std::endl );
+    
+    switch(opcode)
+       {
+       case 0x23:	// BGL_CALL
+          {
+          short offset;
+          offset = ulEndianReadLittle16(fp);
+          long addr = ftell(fp);
+          DEBUGPRINT( "BGL_CALL(" << offset << ")\n" );
+          push_stack(addr);
+          long dst = addr + offset - 4;
+          fseek(fp, dst, SEEK_SET);
+          }
+          break;
+
+       case 0x8a:	// BGL_CALL32
+          {
+          int offset;
+          offset = ulEndianReadLittle32(fp);
+          long addr = ftell(fp);
+          DEBUGPRINT( "BGL_CALL32(" << offset << ")\n" );
+          push_stack(addr);
+          long dst = addr + offset - 6;
+          fseek(fp, dst, SEEK_SET);
+          }
+          break;
+          
+       case 0x0d:	// BGL_JUMP
+          {
+          short offset;
+          offset = ulEndianReadLittle16(fp);
+          long addr = ftell(fp);
+          long dst = addr + offset - 4;
+          fseek(fp, dst, SEEK_SET);
+          DEBUGPRINT( "BGL_JUMP(" << offset << ")\n" );
+          }
+          break;
+          
+       case 0x88:	// BGL_JUMP32
+          {
+          int offset;
+          offset = ulEndianReadLittle32(fp);
+          long addr = ftell(fp);
+          DEBUGPRINT( "BGL_JUMP32(" << offset << ")\n" );
+          long dst = addr + offset - 6;
+          fseek(fp, dst, SEEK_SET);
+          }
+          break;
+          
+       case 0x8e:	// BGL_VFILE_MARKER
+          {
+          short offset;
+          offset = ulEndianReadLittle16(fp);
+          DEBUGPRINT( "vars: " << offset << std::endl);
+          break;
+          }
+
+       case 0x39: 	// BGL_IFMSK
+          {
+          short offset, var, mask;
+          offset = ulEndianReadLittle16(fp);
+          var    = ulEndianReadLittle16(fp);
+          mask   = ulEndianReadLittle16(fp);
+          long addr = ftell(fp);
+          long dst = addr + offset - 8;
+          DEBUGPRINT( "BGL_IFMSK(" << offset << ", 0x" << hex << var << 
+		      ", 0x" << mask << dec << ")\n" );
+//          if(var & mask == 0)
+          switch(var)
+             {
+             case 0x7e:
+                fseek(fp, dst, SEEK_SET);
+                break;
+                
+             default:
+                break;
+             }
+          }
+          break;
+          
+       case 0x24: 	// BGL_IFIN1
+          {
+          short offset, lo, hi;
+          unsigned short var;
+          offset = ulEndianReadLittle16(fp);
+          var    = ulEndianReadLittle16(fp);
+          lo     = ulEndianReadLittle16(fp);
+          hi     = ulEndianReadLittle16(fp);
+          DEBUGPRINT( "BGL_IFIN1(" << offset << ", 0x" << hex << var << 
+		      ", " << dec << lo << ", " << hi << ")\n" );
+          curr_var_ = var;
+          }
+          break;
+
+       case 0x46:	// BGL_POINT_VICALL
+          {
+          short offset, var_rot_x, var_rot_y, var_rot_z;
+          unsigned short int_rot_x, int_rot_y, int_rot_z;
+          offset = ulEndianReadLittle16(fp);
+          sgVec3 ctr;
+	  readPoint(fp, ctr);
+
+          int_rot_y = ulEndianReadLittle16(fp);
+          var_rot_y = ulEndianReadLittle16(fp);
+
+          int_rot_x = ulEndianReadLittle16(fp);
+          var_rot_x = ulEndianReadLittle16(fp);
+          
+          int_rot_z = ulEndianReadLittle16(fp);
+          var_rot_z = ulEndianReadLittle16(fp);
+
+          float rx =  360.0f*(float)int_rot_x/0xffff;
+          float ry =  360.0f*(float)int_rot_y/0xffff;
+          float rz =  360.0f*(float)int_rot_z/0xffff;
+
+          // We build a rotation matrix by adding all constant 
+	  // rotations (int_rot_*) to current_matrix_. As soon as we reach 
+	  // the actual variable rotation, we multiply
+          // the axis of the variable rotation with our current matrix. 
+	  // This will be the axis of rotation in the original coordinate 
+	  // system. This can now be inserted into a GngLinearControl 
+	  // transform.
+          if(var_rot_x > 0 || var_rot_y > 0 || var_rot_z > 0)
+             {
+             ssgAxisTransform* tmp = NULL;
+             if(curr_xfm_)
+                tmp = curr_xfm_;
+             curr_xfm_ = new ssgAxisTransform();
+             curr_xfm_->setCenter(curr_rot_pt_);
+
+             int var = 0;
+             if(var_rot_x > 0)
+                var = var_rot_x;
+             else if(var_rot_y > 0)
+                var = var_rot_y;
+             else if(var_rot_z > 0)
+                var = var_rot_z;
+
+             float min_limit, max_limit;
+             getMPLimits(var, & min_limit, & max_limit);
+             
+             sgVec3 axis = { (float)var_rot_y, (float)var_rot_z, 
+			     (float)var_rot_x };
+             sgNormaliseVec3( axis ) ;
+             sgXformVec3( axis, curr_matrix_ ) ;
+	     sgNegateVec3(axis);
+             curr_xfm_->setAxis(axis);
+             curr_xfm_->setRotationLimits(min_limit, max_limit);
+             
+             char name[256];
+             sprintf(name, "ssgAxisRotation(%x)", var);
+             curr_xfm_->setName(name);
+             if(tmp)
+                tmp->addKid(curr_xfm_);
+             else
+                {
+                ssgBranch* grp = getMPGroup(var);
+                grp->addKid(curr_xfm_);
+                }
+             }
+
+          // Build up the constant rotations
+          sgMat4 rot_mat;
+	  sgMakeRotMat4( rot_mat, ry, rz, rx );
+	  sgPostMultMat4( curr_matrix_, rot_mat );
+	  sgAddVec3( curr_rot_pt_, ctr );
+          
+          long addr = ftell(fp);
+          long dst = addr + offset - 22;
+          fseek(fp, dst, SEEK_SET);
+          push_stack(addr);
+
+          break;
+          }
+
+       case 0x5f:	// BGL_IFSIZEV
+          {
+          short offset;
+          unsigned short real_size, pixels_ref;
+          offset     = ulEndianReadLittle16(fp);
+          real_size  = ulEndianReadLittle16(fp);
+          pixels_ref = ulEndianReadLittle16(fp);
+          DEBUGPRINT("BGL_IFSIZEV: jmp = " << offset << ", sz = " << 
+		     real_size << ", px = " << pixels_ref << std::endl);
+          
+          long addr = ftell(fp);
+          long dst = addr + offset - 8;
+          fseek(fp, dst, SEEK_SET);
+          push_stack(addr);
+          break;
+          }
+          
+       case 0x3b:	// BGL_VINSTANCE
+          {
+          short offset, var;
+          offset = ulEndianReadLittle16(fp);
+          var    = ulEndianReadLittle16(fp);
+          long addr = ftell(fp);
+	  long var_abs = addr + var - 6;
+	  fseek(fp, var_abs, SEEK_SET);
+	  float p = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
+	  float r = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
+	  float h = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
+	  sgMat4 rot_mat;
+	  sgMakeRotMat4(rot_mat, h, p, r);
+	  sgPostMultMat4(curr_matrix_, rot_mat);
+          DEBUGPRINT( "BGL_VINSTANCE(" << offset << ", h=" << h << ", p=" <<
+		      p << ", r=" << r << ")\n");
+          long dst = addr + offset - 6;
+          fseek(fp, dst, SEEK_SET);
+          }
+          break;
+
+       case 0x0:	// EOF
+       case 0x22: 	// BGL return
 	  {
-	    //DEBUGPRINT( "BGL return\n");
-
-	    curr_branch_ = model_;
-	    findPart(model_file_);
-	  }
+          curr_xfm_    = NULL;
+          sgMakeIdentMat4( curr_matrix_ );
+          sgZeroVec3( curr_rot_pt_ );
+          curr_var_    = 0;
+	  DEBUGPRINT( "BGL return\n\n");
+          if(stack_depth_ == 0)
+             done = true;
+          else
+             {
+	       long addr = pop_stack();
+	       fseek(fp, addr, SEEK_SET);
+             }
+          }
 	  break;
 
-	case 0x02:      // NOOP
-	  break;
-
-	case 0x08: 	// CLOSURE
+       case 0x1a: 	// RESLIST (point list with no normals)
 	  {
-	    //DEBUGPRINT( "CLOSURE\n\n");
+          newPart();
+	  has_normals_ = false;
+          
+	  start_idx_               = ulEndianReadLittle16(fp);
+	  unsigned short numpoints = ulEndianReadLittle16(fp);
 
-	    curr_branch_ = model_;
-	    findPart(model_file_);
-	    continue;
-	  }
-	  break;
+	  DEBUGPRINT( "New group (unlit): start_idx = " << start_idx_ 
+	       << ", num vertices = " << numpoints << std::endl);
 
-	case 0x0f:	// STRRES: Start line definition
-	  {
-	    unsigned short idx;
-	    idx = ulEndianReadLittle16(model_file_);
-	    //DEBUGPRINT( "Start line: idx = " << idx << std::endl);
-	    if(vtx_dirty_)
-	      {
-		last_idx_ = vertex_array_->getNum();
-		for(int i = 0; i < curr_vtx_->getNum(); i++)
-		  {
-		    vertex_array_->add(curr_vtx_ ->get(i));
-		    normal_array_->add(curr_norm_->get(i));
-		  }
-		vtx_dirty_ = false;
-	      }
-	  
-	    curr_part_ = new _MDLPart;
-	    curr_part_->type = GL_LINES;
-	    curr_part_->vtx  = vertex_array_;
-	    curr_part_->nrm  = normal_array_;
-	    curr_part_->crd  = NULL;
-	    curr_part_->idx  = new ssgIndexArray();
+	  sgVec3 null_normal;
+	  sgZeroVec3( null_normal );
 
-	    curr_part_->idx->add(idx - start_idx_ + last_idx_);
-
-	    curr_part_->removeUnnecessaryVertices();
-	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
-						  curr_part_->vtx,
-						  curr_part_->nrm,
-						  NULL,
-						  NULL,
-						  curr_part_->idx ) ;
-	    
-	    ssgSimpleState* st = createMaterialState(curr_color_, 
-						     curr_pal_id_) ;
-	    
-	    vtab -> setCullFace ( curr_cull_face_ ) ;
-	    vtab -> setState ( st ) ;
-	    
-	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
-	    char lname[5];
-	    sprintf(lname, "%X%X", curr_color_, curr_pal_id_);
-	    leaf -> setName(lname);
-	    curr_branch_->addKid(leaf);
-	  }
-	  break;
-	
-	case 0x10:	// CNTRES: Continue line definition
-	  {
-	      unsigned short idx;
-	      idx = ulEndianReadLittle16(model_file_);
-	      if (curr_part_ != NULL) {
-		curr_part_->idx->add(idx - start_idx_ + last_idx_);
-	      } else {
-		ulSetError( UL_WARNING, "BGL_CNTRES encountered without " \
-			    "preceeding BGL_STRRES." );
-	      }
-	  }
-	  break;
-
-	case 0x18: 	// Set texture
-	  {
-	    unsigned short id, dx, scale, dy;
-	    id    = ulEndianReadLittle16(model_file_);
-	    dx    = ulEndianReadLittle16(model_file_);
-	    scale = ulEndianReadLittle16(model_file_);
-	    dy    = ulEndianReadLittle16(model_file_);
-	    char tex_name[14];
-	    fread(tex_name, 1, 14, model_file_);
-	    int j = 0;
-	    for(int i = 0; i < 14; i++) 
-	      {
-		if(!isspace(tex_name[i]))
-		  curr_tex_name_[j++] = tolower(tex_name[i]);
-	      }
-	    // for some reason, MSFS likes to store an '_' instead
-	    // of the '.' before the file extension (!)
-	    //curr_tex_name_[j-4] = '.';
-	    curr_tex_name_[j] = '\0';
-	    //DEBUGPRINT( "Set texture: name = " << curr_tex_name_ << 
-	    //	", id = " << id << ", dx = " << dx << ", dy = " << 
-	    //	dy << ", scale = " << scale << std::endl);
-	  }
-	  break;
-	  
-	case 0x1a: 	// RESLIST (point list with no normals)
-	  {
-	    start_idx_ = ulEndianReadLittle16(model_file_);
-
-	    has_normals_ = false;
-	    vtx_dirty_   = true;
-
-	    unsigned short numpoints;
-	    numpoints = ulEndianReadLittle16(model_file_);
-
-	    //DEBUGPRINT( "New group (unlit): start_idx = " << start_idx_ 
-	    // << ", num vertices = " << numpoints << std::endl);
-
-	    sgVec3 null_normal;
-	    sgSetVec3(null_normal, 0.0f, 0.0f, 0.0f);
-
-	    delete curr_vtx_ ;
-	    delete curr_norm_;
-	    curr_vtx_  = new ssgVertexArray();
-	    curr_norm_ = new ssgNormalArray();
-
-	    for(int i = 0; i < numpoints; i++) 
-	      {
-		sgVec3 p;
-		readPoint(model_file_, p);
-		curr_vtx_ ->add(p);
-		curr_norm_->add(null_normal);
-	      }
-	  }
-	  break;
-
-	case 0x20:
-	case 0x7a: 	// Goraud shaded Texture-mapped ABCD Facet
-	  {
-	    if(vtx_dirty_)
-	      {
-		last_idx_ = vertex_array_->getNum();
-		for(int i = 0; i < curr_vtx_->getNum(); i++)
-		  {
-		    vertex_array_->add(curr_vtx_ ->get(i));
-		    normal_array_->add(curr_norm_->get(i));
-		  }
-		vtx_dirty_ = false;
-	      }
-	  
-	    curr_part_ = new _MDLPart;
-	    curr_part_->type = GL_TRIANGLE_FAN;
-	    curr_part_->vtx = vertex_array_;
-	    curr_part_->nrm = normal_array_;
-	    curr_part_->crd = tex_coords_;
-	    curr_part_->idx  = new ssgIndexArray;
-
-	    unsigned short numverts;
-	    numverts = ulEndianReadLittle16(model_file_);
-	    //DEBUGPRINT( "New part: (goraud/texture), num indices = " << 
-	    //	numverts << std::endl);
-
-	    // Unused data
-	    sgVec3 v;
-	    readVector(model_file_, v);
-	    //	  v *= -1.0;
-	    curr_cull_face_ = ulEndianReadLittle32(model_file_) >= 0;
-
-	    // Read vertex inidices and texture coordinates
-	    char *texture_extension = 
-	      curr_tex_name_ + strlen(curr_tex_name_) - 3;
-	    bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
-	    readTexIndices(numverts, v, flip_y);
-
-	    if(!has_normals_)
-	      {
-		for(int i = 0; i < curr_part_->idx->getNum(); i++)
-		  sgCopyVec3(normal_array_->get(*curr_part_->idx->get(i)),
-			     v);
-		recalcNormals(curr_part_);
-	      }
-	    
-	    curr_part_->removeUnnecessaryVertices();
-	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
-						  curr_part_->vtx,
-						  curr_part_->nrm,
-						  curr_part_->crd,
-						  NULL,
-						  curr_part_->idx ) ;
-	    
-	    ssgSimpleState* st = createTextureState(curr_tex_name_) ;
-	    
-	    vtab -> setCullFace ( curr_cull_face_ ) ;
-	    vtab -> setState ( st ) ;
-	    
-	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
-	    leaf -> setName( curr_tex_name_ );
-	    curr_branch_->addKid(leaf);
-	  }
-	  break;
-
-	case 0x24:      // BGL_IFIN1
-	  readIfIn1();
-	  break;
-	
-	case 0x29: 	// GORAUD RESLIST (point list with normals)
-	  {
-	    start_idx_ = ulEndianReadLittle16(model_file_);
-
-	    has_normals_ = true;
-	    vtx_dirty_   = true;
-
-	    unsigned short numpoints;
-	    numpoints = ulEndianReadLittle16(model_file_);
-
-	    //DEBUGPRINT( "New group (goraud): start_idx = " << start_idx_
-	    // << ", num vertices = " << numpoints << std::endl);
-
-	    delete curr_vtx_ ;
-	    delete curr_norm_;
-	    curr_vtx_  = new ssgVertexArray();
-	    curr_norm_ = new ssgNormalArray();
-
-	    for(int i = 0; i < numpoints; i++) 
-	      {
-		sgVec3 p, v;
-		readPoint(model_file_, p);
-		readVector(model_file_, v);
-		curr_vtx_ ->add(p);
-		curr_norm_->add(v);
-	      }
-	  }
-	  break;
-
-	case 0x2a:	// Goraud shaded ABCD Facet
-	case 0x3e:	// FACETN (no texture)
-	  {
-	    if(vtx_dirty_)
-	      {
-		last_idx_ = vertex_array_->getNum();
-		for(int i = 0; i < curr_vtx_->getNum(); i++)
-		  {
-		    vertex_array_->add(curr_vtx_->get(i));
-		    normal_array_->add(curr_norm_->get(i));
-		  }
-		vtx_dirty_ = false;
-	      }
-	  
-	    curr_part_ = new _MDLPart;
-	    curr_part_->type = GL_TRIANGLE_FAN ;
-	    curr_part_->vtx  = vertex_array_;
-	    curr_part_->nrm  = normal_array_;
-	    curr_part_->crd  = NULL;
-	    curr_part_->idx  = new ssgIndexArray;
-
-	    unsigned short numverts;
-	    numverts = ulEndianReadLittle16(model_file_);
-	    //DEBUGPRINT( "New part: (no tex), num indices = " << numverts 
-	    //<< std::endl);
-
-	    // Surface normal
-	    sgVec3 v;
-	    readVector(model_file_, v);
-
-	    curr_cull_face_ = ulEndianReadLittle32(model_file_) >= 0;
-
-	    // Read vertex indices
-	    readIndices(model_file_, numverts, v);
-
-	    if(!has_normals_)
-	      {
-		for(int i = 0; i < curr_part_->idx->getNum(); i++)
-		  sgCopyVec3(normal_array_->get(*curr_part_->idx->get(i)), v);
-		recalcNormals(curr_part_);
-	      }
-
-	    curr_part_->removeUnnecessaryVertices();
-	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
-						  curr_part_->vtx,
-						  curr_part_->nrm,
-						  NULL,
-						  NULL,
-						  curr_part_->idx ) ;
-	    
-	    ssgSimpleState* st = createMaterialState(curr_color_, 
-						     curr_pal_id_) ;
-	    
-	    vtab -> setCullFace ( curr_cull_face_ ) ;
-	    vtab -> setState ( st ) ;
-	    
-	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
-	    char lname[5];
-	    sprintf(lname, "%X%X", curr_color_, curr_pal_id_);
-	    leaf -> setName(lname);
-	    curr_branch_->addKid(leaf);
-	  }
-	  break;
-		
-	case 0x43:      // TEXTURE2
-	  {
-	    ulEndianReadLittle16(model_file_);  // record length
-	    ulEndianReadLittle16(model_file_);  // must be zero
-	    get_byte();  // flags, ignored
-	    get_byte();  // checksum, must be zero
-	    curr_color_  = get_byte();
-	    curr_pal_id_ = get_byte();
-	    ulEndianReadLittle16(model_file_);  // ??
-
-	    int i;
-	    for (i = 0; (curr_tex_name_[i] = get_byte()) != '\0'; i++);
-	    
-	    if (i % 2 == 0) get_byte();  // padd to even length
-	  
-	    //DEBUGPRINT( "Set texture: name = " << curr_tex_name_ <<
-	    //	"color: " << (int)curr_color_ << " (" << std::hex <<
-	    //	curr_pal_id_ << std::dec << ")\n");
+	  for(int i = 0; i < numpoints; i++) 
+	     {
+	     sgVec3 p;
+	     readPoint(fp, p);
+	     curr_vtx_->add(p);
+	     curr_norm_->add(null_normal);
+	     }
 	  }
 	  break;
 	
-#ifdef DEBUG
-	case 0x46:      // POINT_VICALL (rotate-translate)
+       case 0x29: 	// GORAUD RESLIST (point list with normals)
 	  {
-	    DEBUGPRINT( "BGL_POINT_VICALL\t" );
-	    DEBUGPRINT( ulEndianReadLittle16( model_file_ ) << "\n" );
-	    sgCoord rot;
-	    unsigned short hpr_vars[3];
-	    readPoint( model_file_, rot.xyz );
+          newPart();
+	  has_normals_ = true;
+          
+	  start_idx_               = ulEndianReadLittle16(fp);
+	  unsigned short numpoints = ulEndianReadLittle16(fp);
 
-	    DEBUGPRINT( rot.xyz[0] << "\t" << rot.xyz[1] << "\t" <<
-			rot.xyz[2] << "\n\t" );
+	  DEBUGPRINT( "New group (goraud): start_idx = " << start_idx_
+	       << ", num vertices = " << numpoints << std::endl);
+          
+	  for(int i = 0; i < numpoints; i++) 
+	     {
+	     sgVec3 p;
+	     readPoint(fp, p);
+	     sgVec3 v;
+	     readVector(fp, v);
+	     curr_vtx_->add(p);
+	     curr_norm_->add(v);
+	     }
+	  }
+	  break;
+	
+       case 0x0f:	// STRRES: Start line definition
+	  {
+	  unsigned short idx = ulEndianReadLittle16(fp);
+	  DEBUGPRINT( "Start line: idx = " << idx << std::endl);
+	  if(vtx_dirty_)
+	     {
+	     last_idx_ = vertex_array_->getNum();
+	     for(int i = 0; i < curr_vtx_->getNum(); i++)
+		{
+		vertex_array_->add(curr_vtx_ ->get(i));
+		normal_array_->add(curr_norm_->get(i));
+		}
+	     vtx_dirty_ = false;
+	     }
+
+	  curr_index_ = new ssgIndexArray();
+	  curr_part_ = new ssgVtxArray( GL_LINES,
+					vertex_array_,
+					normal_array_,
+					NULL,
+					NULL,
+					curr_index_ );
+	  curr_part_->setState( createState(false) );
+	  curr_index_->add(idx - start_idx_ + last_idx_);
+          ssgBranch *grp = getCurrGroup();
+	  grp->addKid(curr_part_);
+
+          //assert(curr_part_->getState()->getTexture() == NULL);
+          }
+	  break;
+	
+       case 0x10:	// CNTRES: Continue line definition
+	  {
+	  unsigned short idx = ulEndianReadLittle16(fp);
+	  DEBUGPRINT( "Cont. line: idx = " << idx << std::endl);
+	  curr_index_->add(idx - start_idx_ + last_idx_);
+	  }
+	  break;
+
+       case 0x20:
+       case 0x7a: 	// Goraud shaded Texture-mapped ABCD Facet
+	  {
+	  if(tex_vtx_dirty_)
+	     {
+	     last_idx_ = vertex_array_->getNum();
+	     for(int i = 0; i < curr_vtx_->getNum(); i++)
+		{
+		vertex_array_->add(curr_vtx_ ->get(i));
+		normal_array_->add(curr_norm_->get(i));
+		}
+	     tex_vtx_dirty_ = false;
+	     }
+
+	  curr_index_ = new ssgIndexArray();
+	  curr_part_ = new ssgVtxArray( GL_TRIANGLE_FAN, vertex_array_,
+					normal_array_,
+					tex_coords_,
+					NULL,
+					curr_index_ );
+	  curr_part_->setState( createState(true) );
+
+          //assert(curr_part_->getState()->getTexture() != NULL);
+          
+	  unsigned short numverts = ulEndianReadLittle16(fp);
+	  DEBUGPRINT( "New part: (goraud/texture), num indices = " << 
+		      numverts << std::endl);
+
+	  // Normal vector
+	  sgVec3 v;
+	  readVector(fp, v);
+
+          // Dot product reference
+          ulEndianReadLittle32(fp);
+
+	  // Read vertex inidices and texture coordinates
+	  char *texture_extension = 
+	    curr_tex_name_ + strlen(curr_tex_name_) - 3;
+	  bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
+	  readTexIndices(fp, numverts, v, flip_y);
+
+	  if(!has_normals_)
+	     {
+	     while (normal_array_->getNum() < vertex_array_->getNum())
+	       normal_array_->add(v);
+	     recalcNormals();
+	     }
+
+          ssgBranch* grp = getCurrGroup();
+	  grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          }
+	  break;
+
+       case 0x60: 	// BGL_FACE_TMAP
+	  {
+	  if(tex_vtx_dirty_)
+	     {
+	     last_idx_ = vertex_array_->getNum();
+	     for(int i = 0; i < curr_vtx_->getNum(); i++)
+		{
+		vertex_array_->add(curr_vtx_ ->get(i));
+		normal_array_->add(curr_norm_->get(i));
+		}
+	     tex_vtx_dirty_ = false;
+	     }
 	  
-	    for (int i = 0; i < 3; i++) {
-	      rot.hpr [i] = (float)ulEndianReadLittle16( model_file_ ) / 65536;
-	      hpr_vars[i] = ulEndianReadLittle16       ( model_file_ );
-	      DEBUGPRINT( rot.hpr[i] << "(" << hpr_vars[i] << ")\t" );
-	    }
+	  curr_index_ = new ssgIndexArray();
+	  curr_part_  = new ssgVtxArray( GL_TRIANGLE_FAN,
+					 vertex_array_,
+					 normal_array_,
+					 tex_coords_,
+					 NULL,
+					 curr_index_ );
+	  curr_part_->setState( createState(true) );
 
-	    DEBUGPRINT( "\n" );
-	  }
+          //assert(curr_part_->getState()->getTexture() != NULL);
+          
+	  unsigned short numverts = ulEndianReadLittle16(fp);
+	  DEBUGPRINT( "New part: (goraud/texture), num indices = " << 
+		      numverts << std::endl);
 
-	  break;
-#endif	
-	case 0x50: 	// GCOLOR (Goraud shaded color)
-	case 0x51:	// LCOLOR (Line color)
-	case 0x52:     	// SCOLOR (Light source shaded surface color)
-	  {
-	    curr_color_  = get_byte();
-	    curr_pal_id_ = get_byte();
+	  // Point in polygon
+	  sgVec3 p;
+	  readPoint(fp, p);
 
-	    if(curr_pal_id_ == 0x68) {
-	      curr_alpha_ = 0.3f;
-	    } else {
-	      curr_alpha_ = 1.0f;
-	    }
-	      
-	    //DEBUGPRINT( "Set color = " << (int)curr_color_ << " (" << 
-	    //     std::hex << curr_pal_id_ << std::dec << ")\n");
-	  }
-	  break;
+	  // Normal vector
+	  sgVec3 v;
+	  readVector(fp, v);
 
-	case 0x8F:
-	  {
-	    int value  = ulEndianReadLittle32( model_file_ );
-	    if ( value == 0 ) {
-	      curr_alpha_ = 1.0f;
-	    } else {
-	      /* Scenery SDK is a bit fuzzy here, but this works fairly well */
-	      curr_alpha_ = 0.3f;
-	    }
-	  }
+	  // Read vertex inidices and texture coordinates
+	  char *texture_extension = 
+	    curr_tex_name_ + strlen(curr_tex_name_) - 3;
+	  bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
+	  readTexIndices(fp, numverts, v, flip_y);
 
+	  if(!has_normals_)
+	     {
+	     while (normal_array_->getNum() < vertex_array_->getNum())
+	       normal_array_->add(v);
+	     recalcNormals();
+	     }
+
+          ssgBranch* grp = getCurrGroup();
+	  grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          }
 	  break;
        
-	  //-------------------------------------------
-	  // The rest of the codes are either ignored
-	  // or for experimental use..
-	  //-------------------------------------------
-	case 0x03:
+       case 0x1d:	// BGL_FACE
 	  {
-	    //DEBUGPRINT( "BGL_CASE\n" );
-	    unsigned short number_cases = ulEndianReadLittle16(model_file_);
-	    skip_offset = 6 + 2 * number_cases;
+	  if(vtx_dirty_)
+	     {
+	     last_idx_ = vertex_array_->getNum();
+	     for(int i = 0; i < curr_vtx_->getNum(); i++)
+		{
+		vertex_array_->add(curr_vtx_->get(i));
+		normal_array_->add(curr_norm_->get(i));
+		}
+	     vtx_dirty_ = false;
+	     }
+	  
+	  curr_index_ = new ssgIndexArray();
+	  curr_part_ = new ssgVtxArray(GL_TRIANGLE_FAN,
+				       vertex_array_,
+				       normal_array_,
+				       NULL,
+				       NULL,
+				       curr_index_);
+	  curr_part_->setState( createState(false) );
+
+          //assert(curr_part_->getState()->getTexture() == NULL);
+          
+	  unsigned short numverts = ulEndianReadLittle16(fp);
+	  DEBUGPRINT( "BGL_FACE: num indices = " << numverts << std::endl);
+
+          sgVec3 p;
+	  readPoint(fp, p);
+	  // Surface normal
+	  sgVec3 v;
+	  readVector(fp, v);
+
+	  // Read vertex indices
+	  readIndices(fp, numverts, v);
+
+	  if(!has_normals_)
+	     {
+	     while (normal_array_->getNum() < vertex_array_->getNum())
+	       normal_array_->add(v);
+	     recalcNormals();
+	     }
+
+          ssgBranch* grp = getCurrGroup();
+	  grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          }
+	  break;
+
+       case 0x3e:	// FACETN (no texture)
+       case 0x2a:	// Goraud shaded ABCD Facet
+	  {
+	  if(vtx_dirty_)
+	     {
+	     last_idx_ = vertex_array_->getNum();
+	     for(int i = 0; i < curr_vtx_->getNum(); i++)
+		{
+		vertex_array_->add(curr_vtx_->get(i));
+		normal_array_->add(curr_norm_->get(i));
+		}
+	     vtx_dirty_ = false;
+	     }
+	  
+	  curr_index_ = new ssgIndexArray();
+	  curr_part_ = new ssgVtxArray(GL_TRIANGLE_FAN,
+				       vertex_array_,
+				       normal_array_,
+				       NULL,
+				       NULL,
+				       curr_index_);
+	  curr_part_->setState( createState(false) );
+
+          //assert(curr_part_->getState()->getTexture() == NULL);
+
+	  unsigned short numverts = ulEndianReadLittle16(fp);
+	  DEBUGPRINT( "BGL_FACETN: num indices = " << numverts << std::endl);
+
+	  // Surface normal
+	  sgVec3 v;
+	  readVector(fp, v);
+
+	  ulEndianReadLittle32(fp);  // dot-ref
+
+	  // Read vertex indices
+	  readIndices(fp, numverts, v);
+
+	  if(!has_normals_)
+	     {
+	     while (normal_array_->getNum() < vertex_array_->getNum())
+	       normal_array_->add(v);
+	     recalcNormals();
+	     }
+
+          ssgBranch* grp = getCurrGroup();
+	  grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          }
+	  break;
+	
+       case 0x18: 	// Set texture
+	  {
+	  unsigned short id, dx, scale, dy;
+	  id    = ulEndianReadLittle16(fp);
+	  dx    = ulEndianReadLittle16(fp);
+	  scale = ulEndianReadLittle16(fp);
+	  dy    = ulEndianReadLittle16(fp);
+	  char tex_name[14];
+	  fread(tex_name, 1, 14, fp);
+	  char tex_filename[14];
+	  int j = 0;
+	  for(int i = 0; i < 14; i++) 
+	     {
+	     if(!isspace(tex_name[i]))
+		tex_filename[j++] = tolower(tex_name[i]);
+	     }
+	  tex_filename[j] = '\0';
+	  DEBUGPRINT( "Set texture: name = " << tex_filename << ", id = " << id
+		      << ", dx = " << dx << ", dy = " << dy << ", scale = " <<
+		      scale << std::endl);
+	  setTexture(tex_filename);
 	  }
 	  break;
 
-	case 0x1d:       // BGL_FACE
+       case 0x43:	// TEXTURE2
+          {
+          unsigned short length, idx;
+          unsigned char  flags, chksum;
+          unsigned int   color;
+          char tex_filename[128];
+          length = ulEndianReadLittle16(fp);
+          idx    = ulEndianReadLittle16(fp);
+          fread(&flags, 1, 1, fp);
+          fread(&chksum, 1, 1, fp);
+          color = ulEndianReadLittle32(fp);
+          if(chksum != 0)
+             DEBUGPRINT( "warning: TEXTURE2 Checksum != 0\n");
+
+          char c;
+          int i = 0;
+          while((c = fgetc(fp)) != 0)
+             {
+	     if(!isspace(c))
+                tex_filename[i++] = tolower(c);
+             }
+          tex_filename[i] = '\0';
+          
+          // Padding byte
+          if((strlen(tex_filename) + 1) % 2)
+             c = fgetc(fp);
+
+	  DEBUGPRINT( "TEXTURE2: Set texture: name = " << tex_filename << 
+		      std::endl);
+	  setTexture(tex_filename);
+          break;
+          }
+          
+       case 0x50: 	// GCOLOR (Goraud shaded color)
+       case 0x51:	// LCOLOR (Line color)
+       case 0x52:     	// SCOLOR (Light source shaded surface color)
 	  {
-	    DEBUGPRINT( "BGL_FACE ignored\n" );
-	    unsigned short number_points = ulEndianReadLittle16(model_file_);
-	    skip_offset = 14 + 2 * number_points;	    
+	  unsigned char color, param;
+	  fread(&color, 1, 1, fp);
+	  fread(&param, 1, 1, fp);
+	  DEBUGPRINT( "Set color = " << (int)color << " (" << hex << 
+		      (int)param << dec << ")\n");
+	  setColor((int)color, (int)param);
 	  }
 	  break;
 
-	case 0x38:       // BGL_CONCAVE
-	  skip_offset = 0;
-	  break;
+       case 0x2D: 	// BGL_SCOLOR24
+          {
+          unsigned char col[4];
+	  fread(col, 1, 4, fp);
+          DEBUGPRINT( "color = " << (int)col[0] << ", " << (int)col[2] << 
+		      ", " << (int)col[3] << ", " << (int)col[1] << std::endl);
+          setColor(col[0], col[2], col[3], col[1]);
+          break;
+          }
+          
+	  
+          //-------------------------------------------
+          // The rest of the codes are either ignored
+          // or for experimental use..
+          //-------------------------------------------
+          
+       case 0x03:
+          {
+          //DEBUGPRINT( "BGL_CASE\n" );
+          unsigned short number_cases;
+          fread(&number_cases, 2, 1, fp);
+          skip_offset = 6 + 2 * number_cases;
+          }
+          break;
+          
+       default: // Unknown opcode
+          {
+          if (opcode < 256)
+             {
+             if ( opcodes[opcode].size != -1)
+                {
+                DEBUGPRINT( "** " << opcodes[opcode].name << " (size " <<
+                            opcodes[opcode].size << ")" << std::endl );
+                skip_offset = opcodes[opcode].size - 2; // opcode already read
+                }
+             else
+                {
+                DEBUGPRINT( "Unhandled opcode " << opcodes[opcode].name
+                            << " (" << std::hex << opcode << std::dec << ")" <<
+                            std::endl );
+                }
+             }
+          else
+             {
+             DEBUGPRINT( "Op-code out of range: " << std::hex << opcode <<
+                         std::dec << std::endl );
+             }
+          }
+          break;
+       }
 
-	case 0x39:       // BGL_IFMSK
-	  skip_offset = 6;
-	  break;
+    if (skip_offset > 0) 
+       fseek( fp, skip_offset, SEEK_CUR );
 
-	case 0x7D:       // BGL_PERSPECTIVE
-	  skip_offset = 0;
-	  break;
-
-	default: // Unknown opcode
-	  {
-	    if (opcode < 256) {
-	      if ( opcodes[opcode].size != -1) {
-		skip_offset = opcodes[opcode].size - 2; // opcode already read
-		ulSetError( UL_WARNING, "ssgLoadMDL: Unhandled op-code %s " \
-			    "(%X), skipping %d bytes.", 
-			    opcodes[opcode].name, opcode, skip_offset );
-	      } else {
-		ulSetError( UL_WARNING, "ssgLoadMDL: Unhandled op-code %s " \
-			    "(%X), trying to skip to next part.", 
-			    opcodes[opcode].name, opcode, skip_offset );
-		findPart(model_file_);
-	      }
-	    } else {
-	      ulSetError( UL_WARNING, "ssgLoadMDL: Op-code out of range " \
-			  "(%X), trying to skip to next part.", opcode );
-	      findPart(model_file_);
-	    }
-	  }
-	  break;
-	}
-      if (skip_offset > 0) {
-	fseek( model_file_, skip_offset, SEEK_CUR );
-      }
     }
-   
-  fclose(model_file_);
   
-  delete curr_vtx_;
-  delete curr_norm_;
+ fclose(fp);
+  
+ delete curr_vtx_;
+ delete curr_norm_;
 
-  vertex_array_ -> deRef();
-  normal_array_ -> deRef();
+ DEBUGPRINT("\n" << vertex_array_->getNum() << " vertices\n");
 
-  current_options -> end () ;
-
-  return model_;
+ return model_;
 }
+
