@@ -427,7 +427,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;3</td>
     <td>&nbsp;3,4(4)</td>
     <td>&nbsp;3</td>
-    <td>&nbsp;</td>
+    <td>&nbsp;n</td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
@@ -537,7 +537,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
-    <td>&nbsp;?</td>
+    <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;?</td>
@@ -625,7 +625,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
-    <td>&nbsp;A(?)</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;?</td>
@@ -853,6 +853,16 @@ compatible, but the changes from zero to one would bloat the code so much and it
 If you need to read or write version zero, either get plib from cvs with the date 14.1.2001, or, if you are a Windo$ person, get
 <a href="prettypoly.sourceforge.net/download/ppewinbin_ssg_version_zero.zip">prettypoly.sourceforge.net/download/ppewinbin_ssg_version_zero.zip</a>
 This allows you to save and load .ssg version zero.
+<BR>
+One of the new features in format "1" might be worth mentioning.
+It is now possible to load and save *any* class derived from ssgBase (notably
+the ssgAux node types). 
+All that is needed for saving to work is an implementation of the virtual save() method.
+Loading requires the corresponing load() method, and also means for creating
+an instance of the class, which is accomplished
+by a call to ssgRegisterClass(). 
+See the ssgAux implementation for example usage;
+the convenience function ssgaInit() registers the ssgAux classes.
 <BR><BR>
 .X file writer:
 <BR>
