@@ -318,8 +318,10 @@ puFileSelector::~puFileSelector ()
     puDeactivateWidget () ;
 }
 
-void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h, int arrows,
-                                      const char *dir, const char *title )
+void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h, 
+                                          int arrows,
+                                          const char *dir,
+                                          const char *title )
 {
   type |= PUCLASS_FILESELECTOR ;
 
@@ -341,11 +343,15 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h, int arrows
       return ;
     }
 
-    strcat ( startDir, SLASH ) ;
+    if ( startDir[strlen(startDir)-1] != SLASH[0] )
+      strcat ( startDir, SLASH ) ;
+
     strcat ( startDir, dir ) ;
   }
 
-  strcat ( startDir, SLASH ) ;
+  if ( startDir[strlen(startDir)-1] != SLASH[0] )
+    strcat ( startDir, SLASH ) ;
+
   strcpy ( getStringValue (), startDir ) ;
 
   if ( arrows > 2 ) arrows = 2 ;

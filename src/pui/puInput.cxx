@@ -74,7 +74,7 @@ static char *chop_to_width ( puFont fnt, const char *s, int width, int *ncut )
   {
     strcpy ( res, & s[n] ) ;
     n++ ;
-    w = puGetStringWidth ( fnt, res ) ;
+    w = puGetStringWidth ( fnt, res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
   } while ( w >= width ) ;
 
   if ( ncut != NULL ) *ncut = n-1 ;
