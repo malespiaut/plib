@@ -174,6 +174,10 @@ SOURCE=.\ssgLoaderWriterStuff.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadFLT.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadmd2.cxx
 # End Source File
 # Begin Source File
