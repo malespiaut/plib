@@ -660,7 +660,7 @@ public:
   void      *getRenderCallbackData ( void ) { return render_data ; }
   void       invokeRenderCallback ( int dx, int dy ) { if ( r_cb ) (*r_cb)(this, dx, dy, render_data) ; }
 
-  virtual void setBorderThickness ( int t )  {  border_thickness = t ; puPostRefresh() ;  }
+  void setBorderThickness ( int t )  {  border_thickness = t ; puPostRefresh() ;  }
   int getBorderThickness ( void )  {  return border_thickness ;  }
 
   void  makeReturnDefault ( int def ) { am_default = def ; puPostRefresh() ; }
@@ -702,7 +702,7 @@ public:
   void hide       ( void ) { if (   visible ) { visible = FALSE ; puPostRefresh() ; } }
   int  isVisible  ( void ) { return visible ; }
 
-  virtual void setStyle ( int which )
+  void setStyle ( int which )
   {
     style = which ;
 
@@ -729,12 +729,12 @@ public:
     setColourScheme ( r, g, b, a ) ;
   }
 
-  virtual void setColour ( int which, float r, float g, float b, float a = 1.0f )
+  void setColour ( int which, float r, float g, float b, float a = 1.0f )
   {
     puSetColour ( colour [ which ], r, g, b, a ) ;
     puPostRefresh() ;
   }
-  virtual void setColor ( int which, float r, float g, float b, float a = 1.0f )
+  void setColor ( int which, float r, float g, float b, float a = 1.0f )
   {
     setColour ( which, r, g, b, a ) ;
   }
