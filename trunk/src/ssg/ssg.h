@@ -1877,7 +1877,7 @@ public:
 
   virtual void setTransform ( sgVec3 xyz ) = 0 ;
   virtual void setTransform ( sgCoord *xform ) = 0 ;
-  virtual void setTransform ( sgCoord *xform, float sx, float sy, float sz ) = 0 ;
+  virtual void setTransform ( sgCoord *xform, float sx, float sy, float sz )=0;
   virtual void setTransform ( sgMat4 xform ) = 0 ;
 
   virtual int load ( FILE *fd ) ;
