@@ -130,6 +130,14 @@ SOURCE=.\pslExpression.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\pslFileIO.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\pslFileIO.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\psl.h
 # End Source File
 # Begin Source File
