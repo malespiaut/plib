@@ -48,21 +48,21 @@ static void save_vtx_table ( ssgVtxTable *vt )
       sgCopyVec3 ( vert1, vt->getVertex ( iv1 ) ) ;
       sgCopyVec3 ( vert2, vt->getVertex ( iv2 ) ) ;
 
-      fprintf ( fileout, "  0\n" );
+      fprintf ( fileout, "0\n" );
       fprintf ( fileout, "LINE\n" );
-      fprintf ( fileout, "  8\n" );
-      fprintf ( fileout, "  0\n" );
-      fprintf ( fileout, " 10\n" );
+      fprintf ( fileout, "8\n" );
+      fprintf ( fileout, "0\n" );
+      fprintf ( fileout, "10\n" );
       fprintf ( fileout, "%f\n", vert1[0] );
-      fprintf ( fileout, " 20\n" );
+      fprintf ( fileout, "20\n" );
       fprintf ( fileout, "%f\n", vert1[1] );
-      fprintf ( fileout, " 30\n" );
+      fprintf ( fileout, "30\n" );
       fprintf ( fileout, "%f\n", vert1[2] );
-      fprintf ( fileout, " 11\n" );
+      fprintf ( fileout, "11\n" );
       fprintf ( fileout, "%f\n", vert2[0] );
-      fprintf ( fileout, " 21\n" );
+      fprintf ( fileout, "21\n" );
       fprintf ( fileout, "%f\n", vert2[1] );
-      fprintf ( fileout, " 31\n" );
+      fprintf ( fileout, "31\n" );
       fprintf ( fileout, "%f\n", vert2[2] );
     }
   }
@@ -76,10 +76,10 @@ static void save_vtx_table ( ssgVtxTable *vt )
       short face[3];
       vt -> getTriangle ( j, &face[0], &face[1], &face[2] ) ;
 
-      fprintf ( fileout, "  0\n" );
+      fprintf ( fileout, "0\n" );
       fprintf ( fileout, "3DFACE\n" );
-      fprintf ( fileout, "  8\n" );
-      fprintf ( fileout, "  Cube\n" );
+      fprintf ( fileout, "8\n" );
+      fprintf ( fileout, "Cube\n" );
     
       for ( int ivert = 0; ivert < 3; ivert++ ) {
 
@@ -118,96 +118,7 @@ static void save_entities ( ssgEntity *e )
 }
 
 
-/******************************************************************************/
-
 int ssgSaveDXF ( const char *filename, ssgEntity *ent )
-
-/******************************************************************************/
-
-/*
-  Purpose:
-   
-    DXF_WRITE writes graphics information to an AutoCAD DXF file.
-
-  Examples:
-
-      0
-    SECTION
-      2
-    HEADER
-    999
-    diamond.dxf created by IVREAD.
-    999
-    Original data in diamond.obj.
-      0
-    ENDSEC
-      0
-    SECTION
-      2
-    TABLES
-      0
-    ENDSEC
-      0
-    SECTION
-      2
-    BLOCKS
-      0
-    ENDSEC
-      0
-    SECTION
-      2
-    ENTITIES
-      0
-    LINE
-      8
-    0
-     10
-      0.00  (X coordinate of beginning of line.)
-     20
-      0.00  (Y coordinate of beginning of line.)
-     30
-      0.00  (Z coordinate of beginning of line.)
-     11
-      1.32  (X coordinate of end of line.)
-     21
-      1.73  (Y coordinate of end of line.)
-     31
-      2.25  (Z coordinate of end of line.)
-      0
-    3DFACE
-      8
-     Cube
-    10
-    -0.50  (X coordinate of vertex 1)
-    20
-     0.50  (Y coordinate of vertex 1)   
-    30
-      1.0  (Z coordinate of vertex 1)  
-    11
-     0.50  (X coordinate of vertex 2)  
-    21
-     0.50  (Y coordinate of vertex 2)
-    31
-      1.0  (Z coordinate of vertex 2)
-    12
-     0.50  (X coordinate of vertex 3) 
-    22
-     0.50  (Y coordinate of vertex 3)
-    32
-     0.00  (Z coordinate of vertex 3)
-      0
-    ENDSEC
-      0
-    EOF
-
-  Modified:
-
-    16 May 1999
-
-  Author:
- 
-    John Burkardt
-*/
 {
   fileout = fopen ( filename, "wa" ) ;
 
@@ -220,41 +131,39 @@ int ssgSaveDXF ( const char *filename, ssgEntity *ent )
 /* 
   Initialize. 
 */
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "SECTION\n" );
-  fprintf ( fileout, "  2\n" );
+  fprintf ( fileout, "2\n" );
   fprintf ( fileout, "HEADER\n" );
   fprintf ( fileout, "999\n" );
   fprintf ( fileout, "%s created by SSG.\n", filename );
-  fprintf ( fileout, "999\n" );
-  fprintf ( fileout, "Original data in null.\n" );
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "ENDSEC\n" );
 
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "SECTION\n" );
-  fprintf ( fileout, "  2\n" );
+  fprintf ( fileout, "2\n" );
   fprintf ( fileout, "TABLES\n" );
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "ENDSEC\n" );
 
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "SECTION\n" );
-  fprintf ( fileout, "  2\n" );
+  fprintf ( fileout, "2\n" );
   fprintf ( fileout, "BLOCKS\n" );
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "ENDSEC\n" );
 
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "SECTION\n" );
-  fprintf ( fileout, "  2\n" );
+  fprintf ( fileout, "2\n" );
   fprintf ( fileout, "ENTITIES\n" );
 
   save_entities ( ent ) ;
 
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "ENDSEC\n" );
-  fprintf ( fileout, "  0\n" );
+  fprintf ( fileout, "0\n" );
   fprintf ( fileout, "EOF\n" );
 /*
   Close.
