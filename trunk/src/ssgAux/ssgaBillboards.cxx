@@ -22,6 +22,7 @@
 */
 
 
+#include <math.h>
 #include "ssgaBillboards.h"
 
 
@@ -244,7 +245,7 @@ void ssgaBillboards::draw(const sgMat4 m)
 
 	// fast path when Z is up
 	
-	float wx, wy, hz, len;
+	float wx, wy, heightz, len;
 
 	wx =  z_axis[1];
 	wy = -z_axis[0];
@@ -254,7 +255,7 @@ void ssgaBillboards::draw(const sgMat4 m)
 	    
 	    wx *= 0.5f * width / len;
 	    wy *= 0.5f * width / len;
-	    hz = height;
+	    heightz = height;
 
 	    for (int i = 0; i < n; i++) {
 		float x, y, z, s, dx, dy;
@@ -273,7 +274,7 @@ void ssgaBillboards::draw(const sgMat4 m)
 		glTexCoord2f(1, 0);
 		glVertex3f(x + dx, y + dy, z);
 
-		z += s * hz;
+		z += s * heightz;
 
 		glTexCoord2f(1, 1);
 		glVertex3f(x + dx, y + dy, z);
@@ -292,15 +293,15 @@ void ssgaBillboards::draw(const sgMat4 m)
 	float len = sgLengthVec3(xy);
 
 	if (len > 1e-6f) {
-	    float wx, wy, wz, hx, hy, hz;
+	    float wx, wy, wz, heightx, heighty, heightz;
 
 	    wx = 0.5f * width * xy[0] / len;
 	    wy = 0.5f * width * xy[1] / len;
 	    wz = 0.5f * width * xy[2] / len;
 
-	    hx = height * up[0];
-	    hy = height * up[1];
-	    hz = height * up[2];
+	    heightx = height * up[0];
+	    heighty = height * up[1];
+	    heightz = height * up[2];
 	    
 	    for (int i = 0; i < n; i++) {
 		float x, y, z, s, dx, dy, dz;
@@ -320,9 +321,9 @@ void ssgaBillboards::draw(const sgMat4 m)
 		glTexCoord2f(1, 0);
 		glVertex3f(x + dx, y + dy, z + dz);
 
-		x += s * hx;
-		y += s * hy;
-		z += s * hz;
+		x += s * heightx;
+		y += s * heighty;
+		z += s * heightz;
 
 		glTexCoord2f(1, 1);
 		glVertex3f(x + dx, y + dy, z + dz);

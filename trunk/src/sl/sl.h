@@ -35,6 +35,8 @@
 #define SLDSP_DEFAULT_DEVICE "/dev/audio"
 #elif defined(UL_IRIX)
 #define SLDSP_DEFAULT_DEVICE "dsp"		// dummy ...
+#elif defined(UL_AIX)
+#define SLDSP_DEFAULT_DEVICE "dsp"		// dummy ...
 #elif defined(UL_SOLARIS)
 #define SLDSP_DEFAULT_DEVICE "/dev/audio"
 #elif defined(UL_HPUX)
