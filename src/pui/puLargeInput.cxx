@@ -117,6 +117,8 @@ void puLargeInput::removeSelectRegion ( void )
 puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text ) :
                            puGroup ( x, y )
 {
+  setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; // Colour of the 'I' bar cursor
+
   // Set the variables
 
   type |= PUCLASS_LARGEINPUT ;
@@ -702,7 +704,7 @@ void puLargeInput::draw ( int dx, int dy )
 
           if ( ( cpos > abox.min[0] ) && ( cpos < abox.max[0] ) )
           {
-            glColor3f ( 0.1f, 0.1f, 1.0f ) ;
+            glColor4fv ( colour [ PUCOL_MISC ] ) ;
             glBegin   ( GL_LINES ) ;
             glVertex2i ( dx + cpos    , dy + bot ) ;
             glVertex2i ( dx + cpos    , dy + top ) ;
