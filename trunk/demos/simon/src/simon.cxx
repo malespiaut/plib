@@ -193,6 +193,7 @@ int main ( int argc, char **argv )
   ck.update () ;
   fprintf(stderr, "Compile Time: %fs.\n", ck.getDeltaTime () ) ;
 
+  fprintf(stderr, "-------------------------------\n" ) ;
   siRun () ;
   return 0 ;
 }

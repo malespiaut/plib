@@ -125,8 +125,6 @@ hopefully arrive soon:
 <ul>
   <li> Multiple assignments (eg  x = y = 0 ; )
   <li> Arrays & Structs.
-  <li> Operations on "string" variables.
-  <li> String concatenation.
   <li> '\' to escape the end-of-line character in strings and macro's.
   <li> Array bounds checking.
   <li> Parameter passing by name.
@@ -193,6 +191,17 @@ When the execution trace is enabled, extra instructions will be
 inserted into the byte code to enable the PSL interpreter to
 produce debug indicating which lines of the source code are
 being traced.
+<H3> Byte-Code Stack Display </H3>
+If you have PSL_TRACE turned on (either via the config variable or
+by the application program), then the shell variable 'PSL_STACK'
+can be set to display the contents of the top eight stack locations
+as the program is traced.  If PSL_TRACE is disabled then PSL_STACK
+has no effect.
+<ul>
+<li> <b>never</b> (the default) -- Never produce stack dumps
+          within a trace.
+<li> <b>always</b> -- Always produce a stack dump within trace.
+</ul>
 <hr>
 <address>
 <a href="http://www.sjbaker.org">Steve J. Baker.</a> &lt;<a href="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</a>&gt;</address>

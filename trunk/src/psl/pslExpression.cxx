@@ -25,14 +25,94 @@
 #include "pslLocal.h"
 
 
-int pslCompiler::pushPrimitive ()
+
+int pslCompiler::genLValue ()
 {
+  /*
+    Expect:
+
+          variable                   ...or...
+          arrayname [ expression ]   ...or...
+          structure .  lvalue        ...or...
+          structure -> lvalue
+  */
+
+  char c [ MAX_TOKEN ] ;
+  char n [ MAX_TOKEN ] ;
+  getToken ( c ) ;
+  getToken ( n ) ;
+
+  int isArray  = ( n[0] == '[' ) ;
+  int isStruct = ( strcmp ( n, "."  ) == 0 ||
+                   strcmp ( n, "->" ) == 0 ) ;
+
+  if ( ! isArray && ! isStruct )
+  {
+    ungetToken   ( n ) ;
+    genVariable ( c ) ;
+    return TRUE ;
+  }
+
+  if ( isStruct )
+    return error ( "Structures are not supported yet." ) ;
+
+  /* An array + index */
+
+  if ( ! genExpression () )
+    return error ( "Missing expression for array index." ) ;
+
+  getToken ( n ) ;
+
+  if ( n[0] == ']' )
+    return error ( "Missing ']' after array index." ) ;
+
+  genVariable ( c ) ;
+  return TRUE ;
+}
+
+
+
+
+int pslCompiler::genPrimitive ()
+{
+  /* Expect:
+
+         'x'                       ...or...
+         "xxxxxx"                  ...or...
+         number                    ...or...
+         ( expression )            ...or...
+         + primitive               ...or...
+         - primitive               ...or...
+         ! primitive               ...or...
+         ~ primitive               ...or...
+         ++ lvalue                 ...or...
+         -- lvalue                 ...or...
+         function ( expression )   ...or...
+         lvalue                    ...or...
+         lvalue ++                 ...or...
+         lvalue --                 ...or...
+         lvalue = expression       ...or...
+         lvalue += expression      ...or...
+         lvalue -= expression
+         (etc)
+  */
+
   char c [ MAX_TOKEN ] ;
   getToken ( c ) ;
 
+  /* Constant ? */
+
+  if ( c [ 0 ] == '\''  ) { genCharConstant   (   c [ 1 ] ) ; return TRUE ; } 
+  if ( c [ 0 ] == '"'   ) { genStringConstant ( & c [ 1 ] ) ; return TRUE ; }
+  if ((c [ 0 ] == '.' && c [ 1 ] != '\0' ) ||
+       isdigit ( c[0] ) ) { genConstant       (   c       ) ; return TRUE ; }
+
+
+  /* Bracketed expression */
+
   if ( strcmp ( c, "(" ) == 0 )
   {
-    if ( ! pushExpression () )
+    if ( ! genExpression () )
     {
       ungetToken ( c ) ;
       return error ( "Missing expression after '('" ) ;
@@ -49,131 +129,152 @@ int pslCompiler::pushPrimitive ()
     return TRUE ;
   }
 
-  if ( strcmp ( c, "+" ) == 0 )    /* Skip over any unary '+' symbols */
+  /* Various unary operators */
+
+  if ( strcmp ( c, "+" ) == 0 )    /* Skip over redundant unary '+' symbol */
   {
-    if ( pushPrimitive () )
-      return TRUE ;
-    else
-    {
-      ungetToken ( c ) ;
-      return FALSE ;
-    }
+    if ( genPrimitive () ) {   /* Nothing */    return TRUE  ; }
+                       else { ungetToken ( c ) ; return FALSE ; }
   }
 
-  if ( strcmp ( c, "!" ) == 0 )    /* Skip over any unary '!' symbols */
+  if ( strcmp ( c, "-" ) == 0 )    /* Unary '-' symbol */
   {
-    if ( pushPrimitive () )
-    {
-      pushNot () ;
-      return TRUE ;
-    }
-    else
-    {
-      ungetToken ( c ) ;
-      return FALSE ;
-    }
+    if ( genPrimitive () ) { genNegate ()    ; return TRUE  ; }
+                       else { ungetToken ( c ) ; return FALSE ; }
   }
 
-  if ( strcmp ( c, "~" ) == 0 )    /* Skip over any unary '~' symbols */
+  if ( strcmp ( c, "!" ) == 0 )    /* Unary '!' symbol */
   {
-    if ( pushPrimitive () )
-    {
-      pushTwiddle () ;
-      return TRUE ;
-    }
-    else
-    {
-      ungetToken ( c ) ;
-      return FALSE ;
-    }
+    if ( genPrimitive () ) { genNot ()       ; return TRUE  ; }
+                       else { ungetToken ( c ) ; return FALSE ; }
   }
 
-  if ( strcmp ( c, "-" ) == 0 )    /* Unary '-' */
+  if ( strcmp ( c, "~" ) == 0 )    /* Unary '~' symbol */
   {
-    if ( pushPrimitive () )
-    {
-      pushNegate () ;
-      return TRUE ;
-    }
-    else
-    {
-      ungetToken ( c ) ;
-      return FALSE ;
-    }
+    if ( genPrimitive () ) { genTwiddle ()   ; return TRUE  ; }
+                       else { ungetToken ( c ) ; return FALSE ; }
   }
 
-  if ( c [ 0 ] == '\'' )
-  {
-    pushCharConstant ( c [ 1 ] ) ;
-    return TRUE ;
-  }
-
-  if ( c [ 0 ] == '"' )
-  {
-    pushStringConstant ( & c [ 1 ] ) ;
-    return TRUE ;
-  }
-
-  if ( isdigit ( c [ 0 ] ) || c [ 0 ] == '.' )
-  {
-    pushConstant ( c ) ;
-    return TRUE ;
-  }
-
-  int preInc = FALSE ;
-  int preDec = FALSE ;
+  /* Pre-increment and pre-decrement */
 
   if ( strcmp ( c, "++" ) == 0 )
   {
-    preInc = TRUE ;
-    getToken ( c ) ;
-  }
-  else
-  if ( strcmp ( c, "--" ) == 0 )
-  {
-    preDec = TRUE ;
-    getToken ( c ) ;
-  }
-
-  if ( isalpha ( c [ 0 ] ) || c [ 0 ] == '_' )
-  {
-    char n [ MAX_TOKEN ] ;
-    getToken ( n ) ;
-    ungetToken ( n ) ;
-
-    if ( n[0] == '(' )
-    {
-      if ( preInc || preDec )
-        error ( "You can't apply '++' or '--' to a function call!" ) ;
-
-      pushFunctionCall ( c ) ;
-    }
-    else
-    {
-      if ( preInc ) pushIncrement ( c ) ;
-      if ( preDec ) pushDecrement ( c ) ;
-
-      pushVariable ( c ) ;
-
-      getToken ( n ) ;
-
-      if ( strcmp ( n, "++" ) == 0 ) pushIncrement ( c ) ; else
-      if ( strcmp ( n, "--" ) == 0 ) pushDecrement ( c ) ; else
-        ungetToken ( n ) ;
-    }
-
+    genLValue () ;
+    genIncrementLValue () ;
+    genFetch () ;
     return TRUE ;
   }
 
+  if ( strcmp ( c, "--" ) == 0 )
+  {
+    genLValue () ;
+    genDecrementLValue () ;
+    genFetch () ;
+    return TRUE ;
+  }
+
+  /* Something illegal ?!? */
+
+  if ( ! isalpha ( c [ 0 ] ) && c [ 0 ] != '_' )
+  {
+    ungetToken ( c ) ;
+    return FALSE ;
+  }
+
+  /*
+    An LValue or a function call...
+  */
+
+  char n [ MAX_TOKEN ] ;
+  getToken ( n ) ;
+
+  if ( n[0] == '(' )
+  {
+    ungetToken ( n ) ;
+    genFunctionCall ( c ) ;
+    return TRUE ;
+  }
+
+  /*
+    An LValue.
+  */
+
+  ungetToken ( n ) ;
   ungetToken ( c ) ;
-  return FALSE ;
+
+  if ( ! genLValue () )
+    return error ( "Illegal expression." ) ;
+
+  getToken ( n ) ;
+
+  if ( strcmp ( n, "++" ) == 0 )
+     { genIncrementFetch () ; return TRUE ; }
+
+  if ( strcmp ( n, "--" ) == 0 )
+     { genDecrementFetch () ; return TRUE ; }
+
+  if ( strcmp ( n, "="   ) == 0 )
+     { if ( genExpression () ) { genAssignment    () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "+="  ) == 0 )
+     { if ( genExpression () ) { genAddAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "-="  ) == 0 )
+     { if ( genExpression () ) { genSubAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "*="  ) == 0 )
+     { if ( genExpression () ) { genMulAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "%="  ) == 0 )
+     { if ( genExpression () ) { genModAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "/="  ) == 0 )
+     { if ( genExpression () ) { genDivAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "&="  ) == 0 )
+     { if ( genExpression () ) { genAndAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "|="  ) == 0 )
+     { if ( genExpression () ) { genOrAssignment  () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "^="  ) == 0 )
+     { if ( genExpression () ) { genXorAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, "<<=" ) == 0 )
+     { if ( genExpression () ) { genSHLAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  if ( strcmp ( n, ">>=" ) == 0 )
+     { if ( genExpression () ) { genSHRAssignment () ; return TRUE ; }
+       else return FALSE ; }
+
+  ungetToken ( n ) ;
+  genFetch  () ;
+  return TRUE ;
 }
 
 
 
-int pslCompiler::pushMultExpression ()
+int pslCompiler::genMultExpression ()
 {
-  if ( ! pushPrimitive () )
+  /* Expect:
+
+          primitive              ...or...
+          primitive * primitive
+          primitive / primitive
+          primitive % primitive
+  */
+
+  if ( ! genPrimitive () )
     return FALSE ;
 
   while ( TRUE )
@@ -190,25 +291,32 @@ int pslCompiler::pushMultExpression ()
       return TRUE ;
     }
 
-    if ( ! pushPrimitive () )
+    if ( ! genPrimitive () )
       return FALSE ;
 
     if ( strcmp ( c, "*" ) == 0 )
-      pushMultiply () ;
+      genMultiply () ;
     else
     if ( strcmp ( c, "/" ) == 0 )
-      pushDivide () ;
+      genDivide () ;
     else
-      pushModulo () ;
+      genModulo () ;
   }
 }
 
 
 
 
-int pslCompiler::pushAddExpression ()
+int pslCompiler::genAddExpression ()
 {
-  if ( ! pushMultExpression () )
+  /* Expect:
+
+          multExp              ...or...
+          multExp + multExp
+          multExp - multExp
+  */
+
+  if ( ! genMultExpression () )
     return FALSE ;
 
   while ( TRUE )
@@ -224,22 +332,29 @@ int pslCompiler::pushAddExpression ()
       return TRUE ;
     }
 
-    if ( ! pushMultExpression () )
+    if ( ! genMultExpression () )
       return FALSE ;
 
     if ( strcmp ( c, "+" ) == 0 )
-      pushAdd () ;
+      genAdd () ;
     else
-      pushSubtract () ;
+      genSubtract () ;
   }
 }
 
 
 
 
-int pslCompiler::pushShiftExpression ()
+int pslCompiler::genShiftExpression ()
 {
-  if ( ! pushAddExpression () )
+  /* Expect:
+
+          addExp              ...or...
+          addExp << addExp
+          addExp >> addExp
+  */
+
+  if ( ! genAddExpression () )
     return FALSE ;
 
   while ( TRUE )
@@ -255,21 +370,29 @@ int pslCompiler::pushShiftExpression ()
       return TRUE ;
     }
 
-    if ( ! pushAddExpression () )
+    if ( ! genAddExpression () )
       return FALSE ;
 
     if ( strcmp ( c, "<<" ) == 0 )
-      pushShiftLeft () ;
+      genShiftLeft () ;
     else
-      pushShiftRight () ;
+      genShiftRight () ;
   }
 }
 
 
 
-int pslCompiler::pushBitwiseExpression ()
+int pslCompiler::genBitwiseExpression ()
 {
-  if ( ! pushShiftExpression () )
+  /* Expect:
+
+          shiftExp              ...or...
+          shiftExp & shiftExp
+          shiftExp | shiftExp
+          shiftExp ^ shiftExp
+  */
+
+  if ( ! genShiftExpression () )
     return FALSE ;
 
   while ( TRUE )
@@ -286,25 +409,36 @@ int pslCompiler::pushBitwiseExpression ()
       return TRUE ;
     }
 
-    if ( ! pushShiftExpression () )
+    if ( ! genShiftExpression () )
       return FALSE ;
 
     if ( strcmp ( c, "|" ) == 0 )
-      pushOr () ;
+      genOr () ;
     else
     if ( strcmp ( c, "&" ) == 0 )
-      pushAnd () ;
+      genAnd () ;
     else
-      pushXor () ;
+      genXor () ;
   }
 }
 
 
 
 
-int pslCompiler::pushRelExpression ()
+int pslCompiler::genRelExpression ()
 {
-  if ( ! pushBitwiseExpression () )
+  /* Expect:
+
+          bitwiseExp              ...or...
+          bitwiseExp <  bitwiseExp
+          bitwiseExp >  bitwiseExp
+          bitwiseExp == bitwiseExp
+          bitwiseExp <= bitwiseExp
+          bitwiseExp >= bitwiseExp
+          bitwiseExp != bitwiseExp
+  */
+
+  if ( ! genBitwiseExpression () )
     return FALSE ;
 
   while ( TRUE )
@@ -324,23 +458,30 @@ int pslCompiler::pushRelExpression ()
       return TRUE ;
     }
 
-    if ( ! pushBitwiseExpression () )
+    if ( ! genBitwiseExpression () )
       return FALSE ;
 
-    if ( strcmp ( c, "<"  ) == 0 ) pushLess         () ; else
-    if ( strcmp ( c, ">"  ) == 0 ) pushGreater      () ; else
-    if ( strcmp ( c, "<=" ) == 0 ) pushLessEqual    () ; else
-    if ( strcmp ( c, ">=" ) == 0 ) pushGreaterEqual () ; else
-    if ( strcmp ( c, "!=" ) == 0 ) pushNotEqual     () ; else
-    if ( strcmp ( c, "==" ) == 0 ) pushEqual        () ;
+    if ( strcmp ( c, "<"  ) == 0 ) genLess         () ; else
+    if ( strcmp ( c, ">"  ) == 0 ) genGreater      () ; else
+    if ( strcmp ( c, "<=" ) == 0 ) genLessEqual    () ; else
+    if ( strcmp ( c, ">=" ) == 0 ) genGreaterEqual () ; else
+    if ( strcmp ( c, "!=" ) == 0 ) genNotEqual     () ; else
+    if ( strcmp ( c, "==" ) == 0 ) genEqual        () ;
   }
 }
 
 
 
-int pslCompiler::pushBoolExpression ()
+int pslCompiler::genBoolExpression ()
 {
-  if ( ! pushRelExpression () )
+  /* Expect:
+
+          relExp              ...or...
+          relExp && boolExp   ...or...
+          relExp || boolExp
+  */
+
+  if ( ! genRelExpression () )
     return FALSE ;
 
   char c [ MAX_TOKEN ] ;
@@ -349,17 +490,17 @@ int pslCompiler::pushBoolExpression ()
   getToken ( c ) ;
 
   if ( strcmp ( c, "&&"  ) == 0 )
-    shortcut = pushPeekJumpIfFalse ( 0 ) ;
+    shortcut = genPeekJumpIfFalse ( 0 ) ;
   else
   if ( strcmp ( c, "||"  ) == 0 )
-    shortcut = pushPeekJumpIfTrue ( 0 ) ;
+    shortcut = genPeekJumpIfTrue ( 0 ) ;
   else
   {
     ungetToken ( c ) ;
     return TRUE ;
   }
 
-  if ( ! pushBoolExpression () )
+  if ( ! genBoolExpression () )
     return error ( "Missing expression following '&&' or '||'" ) ;
 
   code [ shortcut   ] =   next_code        & 0xFF ;
@@ -369,9 +510,10 @@ int pslCompiler::pushBoolExpression ()
 }
 
 
-int pslCompiler::pushExpression ()
+int pslCompiler::genExpression ()
 {
-  return pushBoolExpression () ;
+  /* All expressions can be bool expressions */
+  return genBoolExpression () ;
 }
 
 

@@ -148,13 +148,12 @@ int main()
 	 ballSZ = -fabs ( hitZ / 2.0 ) ;
 
        ballSY = -ballSY ;
-  //     printf("Blue hit the planet!\n");
      }
      else
      { 
        scoreR++ ;
 
-  //     printf("The score is Red:%d Blue:%d\n", scoreR, scoreB ) ; 
+       print ("The score is Red:", scoreR, " Blue:", scoreB, "\n" ) ; 
 
        ballSX = 0.1 ;
        ballSY = 0.1 ;
@@ -163,7 +162,7 @@ int main()
        ballX = 0.0 ;
        ballY = 0.0 ;
        ballZ = 0.0;
-  //     sleep(1);
+       for ( int i = 0 ; i < 60 ; i++ ) pause ;
      }
     }
 
@@ -189,20 +188,19 @@ int main()
 	 ballSZ = -fabs ( hitZ / 2.0 ) ;
 
        ballSY = -ballSY ;
-   //    printf("Red hit the planet!\n") ;
      }
      else
      { 
        scoreB++ ;
-  //     printf("The score is Red:%d Blue:%d\n", scoreR, scoreB ) ; 
+       print ("The score is Red:", scoreR, " Blue:", scoreB, "\n" ) ; 
        ballSX = .1 ;
        ballSY = .1 ;
        ballSZ = .1;
        ballSY = -ballSY ;
-  //     sleep(1);
        ballX = 0.0 ;
        ballY = 0.0 ;
        ballZ = 0.0;
+       for ( int i = 0 ; i < 60 ; i++ ) pause ;
      }
     }
 

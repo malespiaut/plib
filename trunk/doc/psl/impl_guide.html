@@ -1,0 +1,276 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+   <title>The PLIB Scripting Language: Implementation Guide.</title>
+</head>
+<body text="#B5A642" bgcolor="#005000" link="#8FFF8F" vlink="#18A515" alink="#20336B" background="../marble.png">
+&nbsp;
+<table>
+<tr>
+<td>
+<center>
+<h1>The PSL Implementation Guide.</h1></center>
+<center>By Steve Baker</center>
+</td>
+</tr>
+</table>
+<H1>Introduction</H1>
+This document describes the virtual machine that the PSL byte code
+interpreter implements.
+<p>
+The machine has 65536 bytes of instruction memory (and hence, 16 bit
+code addresses) and 256 variables (and hence 8 bit data addresses).
+Each variable can be a 32 bit integer, an IEEE single precision float
+or a character string of arbitary length.
+<p>
+In addition, there is a 256 element stack - each entry of which can
+contain any PSL data type.
+<p>
+The machine has just two registers - the Program Counter (PC) and
+the Stack Pointer (SP) - neither of which are accessible to running
+programs directly.
+<H1>The Instruction Set</H1>
+Each instruction consists of a one byte opcode and some number of
+bytes of data.
+<p>
+The hex numbers for these opcodes are listed in plib/src/psl/pslOpcodes.h
+<p>
+<H3> OPCODE_BAD <\H3>
+INTRUCTION BYTES: 1<br>
+EFFECT: Produces a 'Suspicious Opcode' error message and halts the program.
+        Generally, programs
+        that run amok for some reason (eg an error in the compiler) will
+        hit a zero byte fairly soon afterwards.  Hence instruction 0x00
+        is reserved to be the BAD instruction.  Other unrecognised
+        instructions are also flagged as errors - but it's useful to
+        explicitly reserve opcode 0x00 for this function due to the
+        high probability of it being executed by broken programs.
+
+<H3> OPCODE_LINE_NUMBER <\H3>
+INTRUCTION BYTES: 3<br>
+EFFECT: Updates the 'current line number' from the two bytes
+        embedded in the instruction.
+
+<H3> OPCODE_PUSH_INT_CONSTANT <\H3>
+INTRUCTION BYTES: 5<br>
+EFFECT: Takes four bytes from the instruction and pushes them
+        onto the stack as an integer.
+
+<H3> OPCODE_PUSH_FLOAT_CONSTANT <\H3>
+INTRUCTION BYTES: 5<br>
+EFFECT: Takes four bytes from the instruction and pushes them
+        onto the stack as a float.
+
+<H3> OPCODE_PUSH_STRING_CONSTANT <\H3>
+INTRUCTION BYTES: 1 + strlen string + 1<br>
+EFFECT: Takes a null-terminated string from the instruction
+        stream and pushes it onto the stack.
+
+<H3> OPCODE_GET_PARAMETER <\H3>
+INTRUCTION BYTES: 3<br>
+EFFECT: Fetches the value of a function's parameter from the
+        depths of the stack and puts it into a local variable.
+
+        The second byte of the instruction is the
+        index of the variable. The third byte is a small
+        integer offset - which is the number of the parameter 
+        you want.
+
+        Look at the number two down from the top of the stack
+        (which should be
+        the number of parameters of a recently called
+        function).  
+
+        Now copy the stack element at
+        <code> sp - ( nargs + 2 ) + offset </code>
+        into the variable.
+
+<H3> OPCODE_POP <\H3>
+INTRUCTION BYTES: 1<br>
+EFFECT: Throws away the top element of the stack.
+
+<H3> OPCODE_CALLEXT <\H3>
+INTRUCTION BYTES: 3<br>
+EFFECT: The second byte of the instruction is the index of
+        a PSL 'extension function', the third
+        is the number of arguments being passed to it.
+
+        Pop that number of values off the stack and pass them
+        to the extension function.
+
+        Call the extension function.
+        Push the result onto the stack.
+
+<H3> OPCODE_CALL <\H3>
+INTRUCTION BYTES: 6 <br>
+EFFECT: [The number of aguments will already have been pushed
+      onto the stack.]
+
+      The four bytes after the instruction is the function address.
+      The fifth byte is the number of arguments.
+
+      Push return address.
+      PC = address of function.
+
+      popNumber ( &result ) ;
+         pc = popInt () ;
+         nargs = popInt () ;
+         popVoid ( nargs ) ;
+      pushNumber ( &result ) ;
+
+<H3> OPCODE_STACK_DUPLICATE <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: Duplicate the top element of the stack.
+<H3> OPCODE_EXCHANGE <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: Exchange the top two elements of the stack.
+
+
+<H3> OPCODE_LESS <\H3>
+<H3> OPCODE_LESSEQUAL <\H3>
+<H3> OPCODE_GREATER <\H3>
+<H3> OPCODE_GREATEREQUAL <\H3>
+<H3> OPCODE_NOTEQUAL <\H3>
+<H3> OPCODE_EQUAL <\H3>
+<H3> OPCODE_ADD <\H3>
+<H3> OPCODE_SUB <\H3>
+<H3> OPCODE_SHIFTLEFT <\H3>
+<H3> OPCODE_SHIFTRIGHT <\H3>
+<H3> OPCODE_OROR <\H3>
+<H3> OPCODE_ANDAND <\H3>
+<H3> OPCODE_OR <\H3>
+<H3> OPCODE_AND <\H3>
+<H3> OPCODE_XOR <\H3>
+<H3> OPCODE_DIV <\H3>
+<H3> OPCODE_MOD <\H3>
+<H3> OPCODE_MULT <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: Pop the top element from the stack and operate on it
+        and the next element down - leaving the result on
+        the stack in it's place.  So (for example) if the
+        operation was 'SUB' (Subtract), and A is on top of
+        the stack and B is beneath it - then the result of
+        this operation would be to leave (B-A) on the stack
+        with no sign of either A or B.
+
+        The 'ADD' operator also works with strings by concatenating
+        them.
+
+<H3> OPCODE_NOT <\H3>
+<H3> OPCODE_TWIDDLE <\H3>
+<H3> OPCODE_NEG <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: Perform the C unary '!', '~' or '-' operator on the top
+        element of the stack.
+<H3> OPCODE_PAUSE <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: Informs application program that the script wishes
+        to be paused until next frame.
+<H3> OPCODE_HALT <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: Informs the application that the script wishes to halt.
+        Even if the application ignores this request, the script
+        will continue looping at this location for ever.
+
+<H3> OPCODE_PEEK_JUMP_TRUE <\H3>
+<H3> OPCODE_PEEK_JUMP_FALSE <\H3>
+INTRUCTION BYTES: 3 <br>
+EFFECT: The two bytes at the end of the instruction contain
+        an address.  Inspect the number off the top of the stack
+        (without popping it) - and branch to the specified
+        instruction if the value is TRUE (or FALSE as applicable).
+
+<H3> OPCODE_JUMP_TRUE <\H3>
+<H3> OPCODE_JUMP_FALSE <\H3>
+INTRUCTION BYTES: 3 <br>
+EFFECT: The two bytes at the end of the instruction contain
+        an address.  POP the number off the top of the stack
+        (without popping it) - and branch to the specified
+        instruction if the value is TRUE (or FALSE as applicable).
+
+<H3> OPCODE_JUMP <\H3>
+INTRUCTION BYTES: 3 <br>
+EFFECT: The two bytes at the end of the instruction contain
+        an address.  Jump to that address.
+
+<H3> OPCODE_PUSH_VARIABLE <\H3>
+INTRUCTION BYTES: 2 <br>
+EFFECT: The second byte of the instruction is the index of
+        a variable.  The value of that variable is pushed onto
+        the stack.
+
+<H3> OPCODE_POP_ADD_VARIABLE <\H3>
+<H3> OPCODE_POP_SUB_VARIABLE <\H3>
+<H3> OPCODE_POP_MUL_VARIABLE <\H3>
+<H3> OPCODE_POP_MOD_VARIABLE <\H3>
+<H3> OPCODE_POP_DIV_VARIABLE <\H3>
+<H3> OPCODE_POP_AND_VARIABLE <\H3>
+<H3> OPCODE_POP_OR_VARIABLE  <\H3>
+<H3> OPCODE_POP_XOR_VARIABLE <\H3>
+<H3> OPCODE_POP_SHL_VARIABLE <\H3>
+<H3> OPCODE_POP_SHR_VARIABLE <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: Two things are on the stack when this function is called.
+        The thing on top is the result of an expression evaluation.
+        The thing beneath that is the index of a variable.
+        The value is added to/subtracted from/multiplied by/etc
+        the variable - and stored back into the variable.
+        The new value of the variable is left on the stack.
+
+<H3> OPCODE_POP_VARIABLE <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: Two things are on the stack when this function is called.
+        The thing on top is the result of an expression evaluation.
+        The thing beneath that is the index of a variable.
+        The value is stored into the variable.
+        The new value of the variable is left on the stack.
+
+<H3> OPCODE_DECREMENT <\H3>
+INTRUCTION BYTES: 1 <br>
+**FIX ME**
+
+<H3> OPCODE_INCREMENT <\H3>
+INTRUCTION BYTES: 1 <br>
+**FIX ME**
+
+<H3> OPCODE_SET_INT_ARRAY <\H3>
+<H3> OPCODE_SET_FLOAT_ARRAY <\H3>
+<H3> OPCODE_SET_STRING_ARRAY <\H3>
+INTRUCTION BYTES: 2 <br>
+EFFECT: The second byte of the instruction is the index of an array variable.
+        On the top of the stack is an integer.
+        This instruction allocates that number of elements of storage to
+        the array.
+
+<H3> OPCODE_SET_INT_VARIABLE <\H3>
+<H3> OPCODE_SET_FLOAT_VARIABLE <\H3>
+<H3> OPCODE_SET_STRING_VARIABLE <\H3>
+INTRUCTION BYTES: 2 <br>
+EFFECT: The second byte of the instruction is the index of a variable.
+        That variable is created, set to the appropriate type and
+        initialised appropriately.
+
+<H3> OPCODE_FETCH <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: The index of a variable is on top of the stack, replace it
+        with the value of that variable.
+ 
+<H3> OPCODE_INCREMENT_FETCH <\H3>
+<H3> OPCODE_DECREMENT_FETCH <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: The index of a variable is on top of the stack, replace it
+        with the value of that variable. Post-increment/decrement the
+        variable.
+ 
+<H3> OPCODE_INCREMENT_LVALUE <\H3>
+<H3> OPCODE_DECREMENT_LVALUE <\H3>
+INTRUCTION BYTES: 1 <br>
+EFFECT: The index of a variable is on top of the stack.
+        Increment/decrement the variable leaving the stack
+        contents undisturbed.
+ 
+<hr>
+<address>
+<a href="http://www.sjbaker.org">Steve J. Baker.</a> &lt;<a href="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</a>&gt;</address>
+</body>
+</html>

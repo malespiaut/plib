@@ -47,9 +47,12 @@ pslProgram::pslProgram ( const pslExtension *ext, const char *_prgnm )
   context -> reset () ;
 
   const char *force_trace_env = getenv ( "PSL_TRACE" ) ;
+  const char *force_stack_env = getenv ( "PSL_STACK" ) ;
 
   force_trace = ( force_trace_env != NULL &&
                   ulStrEqual ( force_trace_env, "always" ) ) ;
+  force_stacktrace = ( force_stack_env != NULL &&
+                  ulStrEqual ( force_stack_env, "always" ) ) ;
 
   if ( force_trace )
     compiler -> generateLineNumbers () ;
