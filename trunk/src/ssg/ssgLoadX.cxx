@@ -82,9 +82,8 @@ static int Ascii2Float(SGfloat &retVal, const char *token, const char* name )
 	}
 }
 
-int HandleHeader(const char *sName, const char *firstToken)
+int HandleHeader(const char * /* sName */, const char *firstToken)
 {
-	sName; // keep the compiler quiet
 	//parser.expectNextToken("{");
 	int Dummy;
   if (! Ascii2Int(Dummy, firstToken, "Header.major"))
@@ -349,11 +348,10 @@ int HandleMaterial(const char *sName, const char *firstToken)
 	return TRUE; //lint !e527
 }
 
-int HandleTextureCoords(const char *sName, const char *firstToken)
+int HandleTextureCoords(const char * /* sName */, const char *firstToken)
 {
 	u32 nNoOfVertices, i;
 
-	sName; // keep the compiler quiet
 	  
 	if (! Ascii2UInt(nNoOfVertices, firstToken, "nNoOfVertices"))
 		return FALSE;
@@ -390,11 +388,9 @@ int HandleTextureCoords(const char *sName, const char *firstToken)
 	return TRUE;
 }
 
-int HandleMeshMaterialList(const char *sName, const char *firstToken)
+int HandleMeshMaterialList(const char * /* sName */, const char *firstToken)
 {
 	u32 i, nFaceIndexes, nMaterialsRead = 0, nMaterials;
-
-	sName; // keep the compiler quiet
 	  
 	if (! Ascii2UInt(nMaterials, firstToken, "nMaterials"))
 		return FALSE;
@@ -462,13 +458,11 @@ int HandleMeshMaterialList(const char *sName, const char *firstToken)
 }
 
 
-int HandleMesh(const char *sName, const char *firstToken)
+int HandleMesh(const char * /* sName */, const char *firstToken)
 { u32 i, j, nNoOfVertices, nNoOfVerticesForThisFace, nNoOfFaces;
 	int iVertex, aiVertices[MAX_NO_VERTICES_PER_FACE];
 	
 	
-	sName; // keep the compiler quiet
-	  
 	//char *sMeshName = parser.getNextToken("Mesh name");
 	//parser.expectNextToken("{");
 	if (! Ascii2UInt(nNoOfVertices, firstToken, "nNoOfVertices"))
