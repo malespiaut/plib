@@ -607,22 +607,25 @@ void slDSP::stop ()
 
 void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
 {
+/*
   if ( _bps != 8 )
   {
     perror ( "slDSP: supports only 8bit audio for sgi" ) ;
     error = SL_TRUE;
     return;
   }
+*/
 
   init_bytes = 1024 * 8;
 
-  config  = ALnewconfig();
+  config = alNewConfig();
   
-  ALsetchannels (  config, _stereo ? AL_STEREO : AL_MONO );
-  ALsetwidth    (  config, _bps == 8 ? AL_SAMPLE_8 : AL_SAMPLE_16 );
-  ALsetqueuesize(  config, init_bytes );
+  alSetChannels(config, _stereo ? AL_STEREO : AL_MONO);
+  alSetWidth(config, _bps == 8 ? AL_SAMPLE_8 : AL_SAMPLE_16);
+  alSetQueueSize(config, init_bytes);
 
-  port = ALopenport( device, "w", config );
+  port = alOpenPort(device, "w", config);
+  alFreeConfig(config);
     
   if ( port == NULL )
   {
@@ -631,13 +634,13 @@ void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
   }
   else
   {    
-    long params[2] = {AL_OUTPUT_RATE, 0 };
+    ALpv params[1];
 
-    params[1] = _rate;
-
-    if ( ALsetparams(AL_DEFAULT_DEVICE, params, 2) != 0 )
+    params[0].param = AL_OUTPUT_RATE;
+    params[0].value.i = _rate;
+    if ( alSetParams(AL_DEFAULT_OUTPUT, params, 1) != 0 )
 	{
-       perror ( "slDSP: open - ALsetparams" ) ;
+       perror ( "slDSP: open - alSetParams" ) ;
        error = SL_TRUE ;
        return;
 	}
@@ -656,8 +659,7 @@ void slDSP::close ()
 {
   if ( port != NULL )
   {
-     ALcloseport ( port   );
-     ALfreeconfig( config );
+     alClosePort(port);
      port = NULL;
   }
 }
@@ -668,7 +670,7 @@ int slDSP::getDriverBufferSize ()
   if ( error )
     return 0 ;
 
-  return  ALgetqueuesize( config );
+  return  alGetQueueSize(config);
 }
 
 void slDSP::getBufferInfo ()
@@ -686,11 +688,10 @@ void slDSP::write ( void *buffer, size_t length )
     return ;
 
   // Steve: is this a problem ??
-
   for ( int i = 0; i < (int)length; i++ )
     buf[i] = buf[i] >> 1;
 
-  ALwritesamps(port, (void *)buf, length );
+  alWriteFrames(port, buffer, length);
 }
 
 
@@ -701,7 +702,7 @@ float slDSP::secondsRemaining ()
   if ( error )
     return 0.0f ;
 
-  samples_remain = ALgetfillable(port);
+  samples_remain = alGetFillable(port);
 
   if (  stereo   ) samples_remain /= 2 ;
   if ( bps == 16 ) samples_remain /= 2 ;
@@ -717,7 +718,7 @@ float slDSP::secondsUsed ()
   if ( error )
     return 0.0f ;
 
-  samples_used = ALgetfilled(port);
+  samples_used = alGetFilled(port);
 
   if (  stereo   ) samples_used /= 2 ;
   if ( bps == 16 ) samples_used /= 2 ;
@@ -1063,4 +1064,5 @@ float slDSP::secondsUsed ()
 }
 
 #endif
+
 
