@@ -26,7 +26,7 @@ static sgVec3* facevert;
 static int num_meshvert;
 static sgVec3* meshvert;
 static int meshface[4];
-static int meshflag;
+static int meshflags;
 
 static int mode;
 static int num_vert;
@@ -59,50 +59,77 @@ static void dxf_flush ( void )
     }
   }
   else if ( mode == MODE_POLYLINE ) {
-    if ( (cflags & 64) != 0 )
-       meshflag = 1;
-    else
-       meshflag = 0;
+    meshflags = cflags;
     num_meshvert = 0;
   }
   else if ( mode == MODE_VERTEX ) {
-    //does this vertex belong to a polyface mesh?
-    if ( meshflag && (cflags & 128) != 0 ) {
-      //is this a vertex?
-      if ( (cflags & 64) != 0 ) {
+
+    if ( (meshflags & 8) != 0 ) {
+
+      //This is a 3D Polyline
+      if ( (cflags & 32) != 0 ) {
+
+        //This is a 3D Polyline vertex
         if ( num_meshvert < MAX_VERT ) {
           sgCopyVec3( meshvert[num_meshvert], cvec );
           num_meshvert ++ ;
         }
       }
-      else if ( num_vert >= 3 && num_facevert + num_vert < MAX_VERT ) {
+    }
+    else if ( (meshflags & 16) != 0 ) {
 
-        //copy each vertex where the first is numbered 1
-        int error = 0;
-        for ( int i=0; i<num_vert; i++ )
-        {
-          int ival = meshface[i];
-          if ( ival < 0 )
-            ival = -ival;  //invisible vertex whatever that means :)
-          if ( ival > 0 && ival <= num_meshvert )
-            sgCopyVec3( facevert[num_facevert + i], meshvert[ival-1] );
-          else
-            error = 1;
+      //This is a 3D polygon MxN mesh. (uniform grid)
+      if ( (cflags & 64) != 0 ) {
+
+        //This is a 3D polygon mesh vertex
+        if ( num_meshvert < MAX_VERT ) {
+          sgCopyVec3( meshvert[num_meshvert], cvec );
+          num_meshvert ++ ;
         }
+      }
+    }
+    else if ( (meshflags & 64) != 0 ) {
 
-        if ( error == 0 ) {
-          //quad?
-          if ( num_vert >= 4 && num_facevert + 6 < MAX_VERT ) {
-            sgCopyVec3( facevert[num_facevert + 4], facevert[num_facevert + 1] );
-            sgCopyVec3( facevert[num_facevert + 5], facevert[num_facevert + 2] );
-            sgCopyVec3( facevert[num_facevert + 2], facevert[num_facevert + 3] );
-            num_face += 2;
-            num_facevert += 6;
+      //This Polyline is a polyface mesh.
+      if ( (cflags & 128) != 0 ) {
+
+        if ( (cflags & 64) != 0 ) {
+
+          //This is a 3D polygon mesh vertex
+          if ( num_meshvert < MAX_VERT ) {
+            sgCopyVec3( meshvert[num_meshvert], cvec );
+            num_meshvert ++ ;
           }
-          else {
-            //triangle
-            num_face += 1;
-            num_facevert += 3;
+        }
+        else if ( num_vert >= 3 && num_facevert + num_vert < MAX_VERT ) {
+
+          //copy each vertex where the first is numbered 1
+          int error = 0;
+          for ( int i=0; i<num_vert; i++ )
+          {
+            int ival = meshface[i];
+            if ( ival < 0 )
+              ival = -ival;  //invisible vertex whatever that means :)
+            if ( ival > 0 && ival <= num_meshvert )
+              sgCopyVec3( facevert[num_facevert + i], meshvert[ival-1] );
+            else
+              error = 1;
+          }
+
+          if ( error == 0 ) {
+            //quad?
+            if ( num_vert >= 4 && num_facevert + 6 < MAX_VERT ) {
+              sgCopyVec3( facevert[num_facevert + 4], facevert[num_facevert + 1] );
+              sgCopyVec3( facevert[num_facevert + 5], facevert[num_facevert + 2] );
+              sgCopyVec3( facevert[num_facevert + 2], facevert[num_facevert + 3] );
+              num_face += 2;
+              num_facevert += 6;
+            }
+            else {
+              //triangle
+              num_face += 1;
+              num_facevert += 3;
+            }
           }
         }
       }
@@ -183,6 +210,60 @@ initialize lists
         mode = MODE_POLYLINE ;
       else if ( strncmp( input2, "VERTEX", 6 ) == 0 )
         mode = MODE_VERTEX;
+      else if ( strncmp( input2, "SEQEND", 6 ) == 0 ) {
+
+        if ( (meshflags & 8) != 0 ) {
+   
+          //This is a 3D Polyline
+          int last = 0;
+          int i = 1;
+
+          if ( (meshflags & 33) != 0 ) {
+
+            //Polyline is closed
+            last = num_meshvert - 1;
+            i = 0;
+          }
+
+          for ( ; i<num_meshvert; i++ ) {
+
+            if ( num_linevert + 2 < MAX_VERT ) {
+
+              sgCopyVec3( linevert[num_linevert], meshvert[last] );
+              sgCopyVec3( linevert[num_linevert+1], meshvert[i] );
+              num_line ++;
+              num_linevert += 2;
+            }
+          }
+        }
+        else if ( (meshflags & 16) != 0 ) {
+
+          //This is a 3D polygon MxN mesh. (uniform grid)
+          int num = num_meshvert / 3;
+          for ( int i=0; i<num; i++ ) {
+
+            if ( num_facevert + 3 < MAX_VERT ) {
+
+              for ( int j=0; j<3; j++ ) {
+
+                sgCopyVec3( facevert[num_facevert + j], meshvert[i*3+j] );
+              }
+              num_face ++;
+              num_facevert += 3;
+            }
+          }
+
+          if ( (meshflags & 1) != 0 ) {
+            //The polygon mesh is closed in the M direction
+          }
+          else if ( (meshflags & 32) != 0 ) {
+            //The polygon mesh is closed in the N direction
+          }
+        }
+
+        meshflags = 0;
+        mode = MODE_NONE;
+      }
       else
         mode = MODE_NONE;
     }
