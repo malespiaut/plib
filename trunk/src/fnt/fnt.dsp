@@ -108,5 +108,9 @@ SOURCE=.\fntLocal.h
 
 SOURCE=.\fntTXF.cxx
 # End Source File
+# Begin Source File
+
+SOURCE=.\fntBitmap.cxx
+# End Source File
 # End Target
 # End Project
