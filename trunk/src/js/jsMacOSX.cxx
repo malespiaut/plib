@@ -87,15 +87,18 @@ void jsJoystick::findDevices(mach_port_t masterPort)
 		CFTypeRef refUsage = CFDictionaryGetValue (properties, CFSTR(kIOHIDPrimaryUsageKey));
 		CFNumberGetValue((CFNumberRef) refUsage, kCFNumberLongType, &usage);
 		CFNumberGetValue((CFNumberRef) refPage, kCFNumberLongType, &page);
-		
-		// exclude keyboard / mouse devices
-		if ((page == kHIDPage_GenericDesktop) && 
-			((usage == kHIDUsage_GD_Keyboard) || (usage == kHIDUsage_GD_Mouse))
-			)
-			continue;
-	
-		// add it to the array
-		ioDevices[numDevices++] = ioDev;
+			
+		if  ( (page == kHIDPage_GenericDesktop) &&
+                      ((usage == kHIDUsage_GD_Joystick) ||
+                       (usage == kHIDUsage_GD_GamePad ) ||
+                       (usage == kHIDUsage_GD_MultiAxisController) ||
+                       (usage == kHIDUsage_GD_Hatswitch) // last two necessary ?
+                      )
+                    )
+                {
+                  // add it to the array
+		  ioDevices[numDevices++] = ioDev;
+                }
 	}
 	
 	IOObjectRelease(hidIterator);
