@@ -2,6 +2,17 @@
 PLIB Change Log.
 ================
 
+PLIB v1.8.2 (March 26th 2004)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * PW now runs on Mac and MacOSX.
+
+  * Uppercase keystrokes now work in PW for Windows.
+
+  * Version number in ul.h now set correctly.
+
+  * Package now builds correctly under MSVC. 
+
 PLIB v1.8.1 (March 21th 2004)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
