@@ -44,10 +44,10 @@ static int openGLSize = 0 ;
 
 #ifdef PU_NOT_USING_GLUT
 
-int puGetWindow       () { return 0              ; }
+int puGetWindow       ( void ) { return 0              ; }
 void puSetWindow ( int w ) {}
-int puGetWindowHeight () { return puWindowHeight ; }
-int puGetWindowWidth  () { return puWindowWidth  ; }
+int puGetWindowHeight ( void ) { return puWindowHeight ; }
+int puGetWindowWidth  ( void ) { return puWindowWidth  ; }
 
 void puSetWindowSize ( int width, int height )
 {
@@ -63,7 +63,7 @@ void puSetResizeMode ( int mode ) {
 }
 
 
-int puGetWindow ()
+int puGetWindow ( void )
 {
   return glutGetWindow () ;
 }
@@ -71,7 +71,7 @@ int puGetWindow ()
 
 void puSetWindow ( int w ) {  glutSetWindow ( w ) ;  }
 
-int puGetWindowHeight ()
+int puGetWindowHeight ( void )
 {
   if ( ! openGLSize )
         return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ;
@@ -80,7 +80,7 @@ int puGetWindowHeight ()
 }
 
 
-int puGetWindowWidth ()
+int puGetWindowWidth ( void )
 {
   if ( ! openGLSize )
         return glutGet ( (GLenum) GLUT_WINDOW_WIDTH ) ;
@@ -447,7 +447,7 @@ void puMoveToLast (puObject *ob)
   puMoveToLast ( parent );
 }
 
-void puDeactivateWidget ()  {  active_widget = NULL ; }
+void puDeactivateWidget ( void )  {  active_widget = NULL ; }
 void puSetActiveWidget ( puObject *w, int x, int y )
 {
   active_widget = w ;
@@ -455,7 +455,7 @@ void puSetActiveWidget ( puObject *w, int x, int y )
   pu_mouse_offset_y = pu_mouse_y - y ;
 }
 
-puObject *puActiveWidget () {   return active_widget ; }
+puObject *puActiveWidget ( void ) {   return active_widget ; }
 
 void puSetPasteBuffer ( char *ch )
 {

@@ -55,7 +55,7 @@ puFont PUFONT_HELVETICA_18   ( &PUFONT_TXF_HELVETICA, 18 )  ;
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
 
-int puFont::getStringWidth ( const char *str )
+int puFont::getStringWidth ( const char *str ) const
 {
   if ( str == NULL )
     return 0 ;
@@ -100,7 +100,7 @@ static int getGLUTStringHeight ( GlutFont glut_font_handle )
 }
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
-int puFont::getStringHeight ( const char *s )
+int puFont::getStringHeight ( const char *s ) const
 {
   /* Height *excluding* descender */
    
@@ -129,13 +129,13 @@ int puFont::getStringHeight ( const char *s )
 }
 
 
-int puFont::getStringHeight ()
+int puFont::getStringHeight ( void ) const
 {
   return getStringHeight ( "K" ) ;
 }
 
 
-int puFont::getStringDescender ()
+int puFont::getStringDescender ( void ) const
 {
 #ifdef _PU_USE_GLUT_FONTS
   if ( glut_font_handle != (GlutFont) 0 )

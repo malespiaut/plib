@@ -82,8 +82,8 @@ void puSetDefaultFonts ( puFont legendFont, puFont labelFont )
   defaultLabelFont  = labelFont  ;
 }
 
-puFont puGetDefaultLabelFont  () { return defaultLabelFont  ; }
-puFont puGetDefaultLegendFont () { return defaultLegendFont ; }
+puFont puGetDefaultLabelFont  ( void ) { return defaultLabelFont  ; }
+puFont puGetDefaultLegendFont ( void ) { return defaultLegendFont ; }
 
 void puGetDefaultFonts ( puFont *legendFont, puFont *labelFont )
 {
@@ -221,7 +221,7 @@ void puObject::recalc_bbox ( void )
     parent -> recalc_bbox () ;
 }
 
-void puObject::getAbsolutePosition ( int *x, int *y )
+void puObject::getAbsolutePosition ( int *x, int *y ) const
 {
   puGroup *par ;
   *x = abox.min[0] ;

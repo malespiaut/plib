@@ -24,21 +24,21 @@
 
 #include "puLocal.h"
 
-void puValue::re_eval ()
+void puValue::re_eval ( void )
 {
   if ( res_floater ) setValue ( *res_floater ) ; else
   if ( res_integer ) setValue ( *res_integer ) ; else
   if ( res_string  ) setValue ( res_string ) ;
 }
 
-void puValue::update_res ()
+void puValue::update_res ( void ) const
 {
   if ( res_integer ) *res_integer = integer ;
   if ( res_floater ) *res_floater = floater ;
   if ( res_string  ) strcpy ( res_string, string ) ;
 }
 
-const char *puValue::getTypeString ( void )
+const char *puValue::getTypeString ( void ) const
 {
   int i = getType () ;
 

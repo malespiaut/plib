@@ -119,10 +119,10 @@ public:
     slant = sl ;
   }
 
-  int getStringDescender () ;
-  int getStringHeight    () ;
-  int getStringHeight( const char *str ) ;
-  int getStringWidth ( const char *str ) ;
+  int getStringDescender ( void ) const ;
+  int getStringHeight    ( void ) const ;
+  int getStringHeight ( const char *str ) const ;
+  int getStringWidth  ( const char *str ) const ;
 
   void drawString ( const char *str, int x, int y ) ;
 } ;
@@ -320,10 +320,10 @@ extern int puRefresh ; /* Should not be used directly by applications any
 void puSetWindowSize ( int width, int height ) ;
 void puSetResizeMode ( int mode ) ;
 
-int  puGetWindow       () ;
+int  puGetWindow       ( void ) ;
 void puSetWindow       ( int w ) ;
-int  puGetWindowHeight () ;
-int  puGetWindowWidth  () ;
+int  puGetWindowHeight ( void ) ;
+int  puGetWindowWidth  ( void ) ;
 
 class puValue            ;
 class puObject           ;
@@ -368,7 +368,7 @@ struct puBox
   void extend ( puBox *bx ) ;
 
   void empty   ( void ) { min[0]=min[1]=1000000 ; max[0]=max[1]=-1000000 ; }
-  int  isEmpty ( void ) { return min[0]>max[0] || min[1]>max[1] ; }
+  int  isEmpty ( void ) const { return min[0]>max[0] || min[1]>max[1] ; }
 } ;
 
 #define PUSTRING_MAX 80
@@ -412,9 +412,9 @@ void puPostRefresh     ( void ) ;
 
 // Active widget functions
 
-void puDeactivateWidget () ;
+void puDeactivateWidget ( void ) ;
 void puSetActiveWidget ( puObject *w, int x, int y ) ;
-puObject *puActiveWidget () ;
+puObject *puActiveWidget ( void ) ;
 
 
 class puValue
@@ -429,8 +429,8 @@ protected:
   float *res_floater ;
   char  *res_string  ;
 
-  void re_eval    () ;
-  void update_res () ;
+  void re_eval    ( void ) ;
+  void update_res ( void ) const ;
 
 public:
   puValue ()
@@ -445,8 +445,8 @@ public:
 
   virtual ~puValue () {  delete string ;  }
 
-  int  getType ( void ) { return type ; }
-  const char *getTypeString ( void ) ;
+  int  getType ( void ) const { return type ; }
+  const char *getTypeString ( void ) const ;
   void clrValue ( void ) { setValue ( "" ) ; }
 
   void setValue ( puValue *pv )
@@ -501,10 +501,10 @@ public:
 
   int  getValue ( void ) { re_eval () ; return integer ; } /* Obsolete ! */
 
-  int  getIntegerValue () { re_eval () ; return ( integer ) ; }
-  float getFloatValue () { re_eval () ; return ( floater ) ; }
-  char getCharValue () { re_eval () ; return ( string[0] ) ; }
-  char *getStringValue () { return res_string ? res_string : string ; }
+  int  getIntegerValue ( void ) { re_eval () ; return ( integer ) ; }
+  float getFloatValue ( void )  { re_eval () ; return ( floater ) ; }
+  char getCharValue ( void )    { re_eval () ; return ( string[0] ) ; }
+  char *getStringValue ( void ) { return res_string ? res_string : string ; }
 } ;
 
 typedef void (*puCallback)(class puObject *) ;
@@ -517,8 +517,8 @@ int  puGetDefaultBorderThickness ( void ) ;
 void puSetDefaultFonts ( puFont  legendFont, puFont  labelFont ) ;
 void puGetDefaultFonts ( puFont *legendFont, puFont *labelFont ) ;
 
-puFont puGetDefaultLabelFont  () ;
-puFont puGetDefaultLegendFont () ;
+puFont puGetDefaultLabelFont  ( void ) ;
+puFont puGetDefaultLegendFont ( void ) ;
 
 void puSetDefaultColourScheme ( float r, float g, float b, float a = 1.0f ) ;
 inline void puSetDefaultColorScheme ( float r, float g, float b, float a = 1.0f )
@@ -565,7 +565,7 @@ protected:
   virtual void draw_label  ( int dx, int dy ) ;
 
 public:
-  virtual int  isHit ( int x, int y ) { return isVisible() && isActive() &&
+  virtual int  isHit ( int x, int y ) const { return isVisible() && isActive() &&
                                                x >= abox.min[0] &&
                                                x <= abox.max[0] &&
                                                y >= abox.min[1] &&
@@ -581,10 +581,10 @@ public:
   puObject *prev ; /* Instead, use the setNextObject and setPrevObject
                       methods. */
  
-  puBox *getBBox ( void ) { return & bbox ; }
-  puBox *getABox ( void ) { return & abox ; }
+  puBox *getBBox ( void ) const { return (puBox *) (& bbox) ; }
+  puBox *getABox ( void ) const { return (puBox *) (& abox) ; }
 
-  void getAbsolutePosition ( int *x, int *y ) ;
+  void getAbsolutePosition ( int *x, int *y ) const ;
 
   virtual void setPosition ( int x, int y )
   {
@@ -610,7 +610,7 @@ public:
     recalc_bbox() ; puPostRefresh () ;
   }
 
-  void getPosition ( int *x, int *y )
+  void getPosition ( int *x, int *y ) const
   {
     if ( abox.isEmpty () )
     {
@@ -624,7 +624,7 @@ public:
     }
   }
 
-  void getSize ( int *w, int *h )
+  void getSize ( int *w, int *h ) const
   {
     if ( abox.isEmpty () )
     {
@@ -643,72 +643,72 @@ public:
   virtual int  checkKey ( int key   , int updown ) ;
   virtual void draw ( int dx, int dy ) = 0 ;
 
-  puGroup     *getParent     ( void ) { return parent ; }
+  puGroup     *getParent     ( void ) const { return parent ; }
   void        setParent      ( puGroup* p ) { parent = p ; }
 
-  void        setNextObject  ( puObject *obj ) { next = obj ; }
-  puObject    *getNextObject ( void ) { return next   ; }
-  void        setPrevObject  ( puObject *obj ) { prev = obj ; }
-  puObject    *getPrevObject ( void ) { return prev   ; }
+  void        setNextObject  ( puObject *obj ) { next = obj  ; }
+  puObject    *getNextObject ( void ) const    { return next ; }
+  void        setPrevObject  ( puObject *obj ) { prev = obj  ; }
+  puObject    *getPrevObject ( void ) const    { return prev ; }
 
   void       setCallback ( puCallback c ) { cb = c ;    }
-  puCallback getCallback ( void )               { return cb ; }
+  puCallback getCallback ( void ) const   { return cb ; }
   void       invokeCallback ( void ) { if ( cb ) (*cb)(this) ; }
 
   void       setActiveCallback ( puCallback c ) { active_cb = c ;    }
-  puCallback getActiveCallback ( void )               { return active_cb ; }
+  puCallback getActiveCallback ( void ) const   { return active_cb ; }
   void       invokeActiveCallback ( void ) { if ( active_cb ) (*active_cb)(this) ; }
 
   void       setDownCallback ( puCallback c ) { down_cb = c ;    }
-  puCallback getDownCallback ( void )               { return down_cb ; }
+  puCallback getDownCallback ( void ) const   { return down_cb ; }
   virtual void invokeDownCallback ( void ) { if ( down_cb ) (*down_cb)(this) ; }
 
   void       setRenderCallback ( puRenderCallback c, void *d = NULL ) { r_cb = c ; render_data = d ; }
-  puRenderCallback getRenderCallback ( void ) { return r_cb ; }
-  void      *getRenderCallbackData ( void ) { return render_data ; }
+  puRenderCallback getRenderCallback ( void ) const { return r_cb ; }
+  void      *getRenderCallbackData ( void ) const { return render_data ; }
   void       invokeRenderCallback ( int dx, int dy ) { if ( r_cb ) (*r_cb)(this, dx, dy, render_data) ; }
 
-  void setBorderThickness ( int t )  {  border_thickness = t ; puPostRefresh () ;  }
-  int getBorderThickness ( void )  {  return border_thickness ;  }
+  void  setBorderThickness ( int t ) { border_thickness = t ; puPostRefresh () ; }
+  int   getBorderThickness ( void ) const { return border_thickness ; }
 
   void  makeReturnDefault ( int def ) { am_default = def ; puPostRefresh () ; }
-  int   isReturnDefault   ( void )          { return am_default ; }
+  int   isReturnDefault   ( void ) const { return am_default ; }
 
-  int   getWindow () { return window ; }
+  int   getWindow ( void ) const { return window ; }
   void  setWindow ( int w ) { window = w ; puPostRefresh () ; }
 
   void  setActiveDirn ( int e ) { active_mouse_edge = e ; }
-  int   getActiveDirn ( void ) { return active_mouse_edge ; }
+  int   getActiveDirn ( void ) const { return active_mouse_edge ; }
 
   void  setLegend ( const char *l ) { legend = l ; recalc_bbox() ; puPostRefresh () ; }
   const char *getLegend ( void ) const { return legend ; }
 
   void  setLegendFont ( puFont f ) { legendFont = f ; recalc_bbox() ; puPostRefresh () ; }
-  puFont getLegendFont ( void ) { return legendFont ; }
+  puFont getLegendFont ( void ) const { return legendFont ; }
 
   void  setLegendPlace ( int lp ) { legendPlace = lp ; recalc_bbox() ; puPostRefresh () ; }
-  int   getLegendPlace ( void ) { return legendPlace ; }
+  int   getLegendPlace ( void ) const { return legendPlace ; }
 
   void  setLabel ( const char *l ) { label = l ; recalc_bbox() ; puPostRefresh () ; }
   const char *getLabel ( void ) const { return label ; }
 
   void  setLabelFont ( puFont f ) { labelFont = f ; recalc_bbox() ; puPostRefresh () ; }
-  puFont getLabelFont ( void ) { return labelFont ; }
+  puFont getLabelFont ( void ) const { return labelFont ; }
 
   void  setLabelPlace ( int lp ) { labelPlace = lp ; recalc_bbox() ; puPostRefresh () ; }
-  int   getLabelPlace ( void ) { return labelPlace ; }
+  int   getLabelPlace ( void ) const { return labelPlace ; }
 
   void activate   ( void ) { if ( ! active  ) { active  = TRUE  ; puPostRefresh () ; } }
   void greyOut    ( void ) { if (   active  ) { active  = FALSE ; puPostRefresh () ; } }
-  int  isActive   ( void ) { return active ; }
+  int  isActive   ( void ) const { return active ; }
 
   void highlight  ( void ) { if ( ! highlighted ) { highlighted = TRUE  ; puPostRefresh () ; } }
   void lowlight   ( void ) { if (   highlighted ) { highlighted = FALSE ; puPostRefresh () ; } }
-  int isHighlighted( void ){ return highlighted ; }
+  int isHighlighted( void ) const { return highlighted ; }
 
   void reveal     ( void ) { if ( ! visible ) { visible = TRUE  ; puPostRefresh () ; } }
   void hide       ( void ) { if (   visible ) { visible = FALSE ; puPostRefresh () ; } }
-  int  isVisible  ( void ) { return visible ; }
+  int  isVisible  ( void ) const { return visible ; }
 
   void setStyle ( int which )
   {
@@ -729,7 +729,7 @@ public:
     puPostRefresh () ;
   }
 
-  int  getStyle ( void ) { return style ; }
+  int  getStyle ( void ) const { return style ; }
 
   void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
   void setColorScheme ( float r, float g, float b, float a = 1.0f )
@@ -747,20 +747,20 @@ public:
     setColour ( which, r, g, b, a ) ;
   }
 
-  void getColour ( int which, float *r, float *g, float *b, float *a = NULL )
+  void getColour ( int which, float *r, float *g, float *b, float *a = NULL ) const
   {
     if ( r ) *r = colour[which][0] ;
     if ( g ) *g = colour[which][1] ;
     if ( b ) *b = colour[which][2] ;
     if ( a ) *a = colour[which][3] ;
   }
-  void getColor ( int which, float *r, float *g, float *b, float *a = NULL )
+  void getColor ( int which, float *r, float *g, float *b, float *a = NULL ) const
   {
     getColour ( which, r, g, b, a );
   }
 
   void  setUserData ( void *data ) { user_data = data ; }
-  void *getUserData ( void )             { return user_data ; }
+  void *getUserData ( void ) const { return user_data ; }
 
   void defaultValue ( void ) { setValue ( & default_value ) ; }
 
@@ -775,9 +775,9 @@ public:
 
   int  getDefaultValue ( void )     { return default_value.getValue () ; } /* Obsolete ! */
 
-  int  getDefaultIntegerValue () { return default_value.getIntegerValue () ; }
-  float getDefaultFloatValue  () { return default_value.getFloatValue   () ; }
-  char *getDefaultStringValue () { return default_value.getStringValue  () ; }
+  int  getDefaultIntegerValue ( void ) { return default_value.getIntegerValue () ; }
+  float getDefaultFloatValue  ( void ) { return default_value.getFloatValue   () ; }
+  char *getDefaultStringValue ( void ) { return default_value.getStringValue  () ; }
 } ;
 
 /*
@@ -839,8 +839,8 @@ public:
   int  checkHit    ( int button, int updown, int x, int y ) ;
   int  checkKey    ( int key   , int updown ) ;
 
-  puObject *getFirstChild ( void ) { return dlist ; }
-  puObject *getLastChild  ( void )
+  puObject *getFirstChild ( void ) const { return dlist ; }
+  puObject *getLastChild  ( void ) const
   {
     puObject *bo = dlist ;
 
@@ -852,7 +852,7 @@ public:
 
     return bo ;
   }
-  int getNumChildren ( void ) { return num_children ; }
+  int getNumChildren ( void ) const { return num_children ; }
 
   virtual void close ( void )
   {
@@ -862,8 +862,8 @@ public:
       puPopGroup () ;
   }
 
-  void setFloating ( int value ) { floating = value; }
-  int getFloating () { return floating; }
+  void setFloating ( int value ) { floating = value ; }
+  int getFloating ( void ) const { return floating ;  }
 
   void setChildStyle ( int childs, int which, int recursive = FALSE ) ;
   void setChildBorderThickness ( int childs, int t, int recursive = FALSE ) ;
@@ -937,7 +937,7 @@ public:
 class puText : public puObject
 {
 public:
-  virtual int  isHit ( int /* x */, int /* y */ ) { return FALSE ; }
+  virtual int  isHit ( int /* x */, int /* y */ ) const { return FALSE ; }
   void draw ( int dx, int dy ) ;
   puText ( int x, int y ) : puObject ( x, y, x, y )
   {
@@ -955,8 +955,8 @@ public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
 
-  int  getButtonType ( void  )     { return button_type ; }
-  void setButtonType ( int btype ) { button_type = btype ; puPostRefresh () ; }
+  int  getButtonType ( void ) const { return button_type ; }
+  void setButtonType ( int btype )  { button_type = btype ; puPostRefresh () ; }
 
   puButton   ( int minx, int miny, const char *l ) :
                  puObject ( minx, miny,
@@ -1000,13 +1000,12 @@ public:
 class puArrowButton : public puOneShot
 {
 protected:
-
   int arrow_type ;
 
 public:
   void draw  ( int dx, int dy ) ;
 
-  int  getArrowType ( void  ) { return arrow_type ; }
+  int  getArrowType ( void  ) const { return arrow_type ; }
   void setArrowType ( int i ) { arrow_type = i ; puPostRefresh () ; }
 
   puArrowButton ( int minx, int miny, int maxx, int maxy, int ptype ) :
@@ -1069,15 +1068,15 @@ public:
   }
 
   void setCBMode ( int m ) { cb_mode = m ; }
-  float getCBMode ( void ) { return (float)cb_mode ; }
+  float getCBMode ( void ) const { return (float)cb_mode ; }
 
-  int  isVertical ( void ) { return vert ; }
+  int  isVertical ( void ) const { return vert ; }
 
   void setDelta ( float f ) { cb_delta = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; }
-  float getDelta ( void ) { return cb_delta ; }
+  float getDelta ( void ) const { return cb_delta ; }
 
   void setSliderFraction ( float f ) { slider_fraction = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; puPostRefresh () ; }
-  float getSliderFraction ( void ) { return slider_fraction ; }
+  float getSliderFraction ( void ) const { return slider_fraction ; }
 } ;
 
 
@@ -1125,7 +1124,7 @@ public:
     puPostRefresh () ;
   }
 
-  int getMaxValue ( void ) { return max_value ; }
+  int getMaxValue ( void ) const { return max_value ; }
 
   void setMinValue ( int i )
   {
@@ -1134,16 +1133,16 @@ public:
     puPostRefresh () ;
   }
 
-  int getMinValue ( void ) { return min_value ; }
+  int getMinValue ( void ) const { return min_value ; }
 
   void setCurrentMax ( int i ) { current_max = i ; puPostRefresh () ; }
-  int getCurrentMax ( void ) { return current_max ; }
+  int getCurrentMax ( void ) const { return current_max ; }
 
   void setCurrentMin ( int i ) { current_min = i ; puPostRefresh () ; }
-  int getCurrentMin ( void ) { return current_min ; }
+  int getCurrentMin ( void ) const { return current_min ; }
 
   void setActiveButton ( int i ) { active_button = i ; }
-  int getActiveButton ( void ) { return active_button ; }
+  int getActiveButton ( void ) const { return active_button ; }
 } ;
 
 
@@ -1172,8 +1171,8 @@ public:
     freeze_ends = TRUE ;
   }
 
-  int getFreezeEnds () {  return freeze_ends ;  }
-  void setFreezeEnds ( int val ) {  freeze_ends = val ; puPostRefresh () ;  }
+  int getFreezeEnds ( void ) const {  return freeze_ends ;  }
+  void setFreezeEnds ( int val )   {  freeze_ends = val ; puPostRefresh () ;  }
 } ;
 
 
@@ -1191,8 +1190,8 @@ public:
   puListBox  ( int minx, int miny, int maxx, int maxy, char** list = NULL ) ;
 
   void newList     ( char ** _list ) ;
-  int  getNumItems () const { return num ; }
-  int  getTopItem  () const { return top ; }
+  int  getNumItems ( void ) const { return num ; }
+  int  getTopItem  ( void ) const { return top ; }
   void setTopItem  ( int item_index ) ;
 } ;
 
@@ -1213,8 +1212,8 @@ public:
     setSize ( sz, sz ) ; /* Override the funky math that the base slider did! */
   }
 
-  void setWrap ( int in )  {  wrap = in ;  }
-  int getWrap ( void )  {  return wrap ;  }
+  void setWrap ( int in )    {  wrap = in ;  }
+  int getWrap ( void ) const {  return wrap ;  }
 } ;
 
 
@@ -1306,7 +1305,7 @@ public:
   void doHit    ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key, int updown ) ;
 
-  int  isAcceptingInput ( void ) { return accepting ; }
+  int  isAcceptingInput ( void ) const { return accepting ; }
   void rejectInput      ( void ) { accepting = FALSE ; puPostRefresh () ; }
 
   void acceptInput ( void )
@@ -1317,7 +1316,7 @@ public:
     puPostRefresh () ;
   }
 
-  int  getCursor ( void )  { return cursor_position ; }
+  int  getCursor ( void ) const { return cursor_position ; }
   void setCursor ( int c ) { cursor_position = c ; }
 
   void setSelectRegion ( int s, int e )
@@ -1327,13 +1326,13 @@ public:
     puPostRefresh () ;
   }
 
-  void getSelectRegion ( int *s, int *e )
+  void getSelectRegion ( int *s, int *e ) const
   {
     if ( s ) *s = select_start_position ;
     if ( e ) *e = select_end_position   ;
   }
 
-  char *getValidData () { return valid_data ; }
+  char *getValidData ( void ) const { return valid_data ; }
   void setValidData ( const char *data )
   {
     if ( valid_data )
@@ -1362,7 +1361,7 @@ public:
     valid_data = new_data ;
   }
 
-  int isValidCharacter ( char c )
+  int isValidCharacter ( char c ) const
   {
     return ( ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ) ;
   }
@@ -1397,9 +1396,9 @@ public:
     if ( down_cb ) (*down_cb)(this) ;
   }
 
-  void enableInput ()  {  input_disabled = FALSE ;  }
-  void disableInput () {  input_disabled = TRUE ;  }
-  int  inputDisabled ()  {  return input_disabled ;  }
+  void enableInput ( void )  {  input_disabled = FALSE ;  }
+  void disableInput ( void ) {  input_disabled = TRUE ;   }
+  int  inputDisabled ( void ) const {  return input_disabled ;  }
 } ;
 
 
@@ -1415,10 +1414,10 @@ public:
   puButtonBox ( int minx, int miny, int maxx, int maxy, 
                 char **labels, int one_button ) ;
 
-  int isOneButton ( void ) { return one_only ; }
+  int isOneButton ( void ) const { return one_only ; }
 
   void newList     ( char ** _list ) ;
-  int  getNumItems () const { return num_kids ; }
+  int  getNumItems ( void ) const { return num_kids ; }
 
   int checkKey ( int key   , int updown ) ;
   int checkHit ( int button, int updown, int x, int y ) ;
@@ -1499,7 +1498,7 @@ protected:
 
   char startDir [ PUSTRING_MAX ] ;
 
-  void find_files () ;
+  void find_files ( void ) ;
   static void handle_select ( puObject* ) ;
   static void input_entered ( puObject* ) ;
 
@@ -1531,8 +1530,8 @@ public:
   ~puFileSelector () ;
 
   /* Not for application use!! */
-  puInput *__getInput () { return input ; }
-  char *__getStartDir () { return startDir ; }
+  puInput *__getInput ( void ) const { return input ; }
+  char *__getStartDir ( void ) const { return (char *) startDir ; }
 
   void setInitialValue ( const char *fname ) ;
   void setSize ( int w, int h ) ;
@@ -1582,7 +1581,7 @@ public:
 
   void setSize ( int w, int h ) ;
 
-  int getNumLines () {  return num_lines ;  }
+  int getNumLines ( void ) const {  return num_lines ;  }
   void setTopLineInWindow ( int val ) {  top_line_in_window = val ;  }
 
   void draw     ( int dx, int dy ) ;
@@ -1593,7 +1592,7 @@ public:
   void setSelectRegion ( int s, int e ) ;
   void selectEntireLine ( void ) ;
 
-  int  isAcceptingInput ( void ) { return accepting ; }
+  int  isAcceptingInput ( void ) const { return accepting ; }
   void rejectInput      ( void ) { accepting = FALSE ; puPostRefresh () ; }
 
   void acceptInput ( void )
@@ -1604,16 +1603,16 @@ public:
     puPostRefresh () ;
   }
 
-  int  getCursor ( void )  { return cursor_position ; }
+  int  getCursor ( void ) const { return cursor_position ; }
   void setCursor ( int c ) { cursor_position = c ; puPostRefresh () ; }
 
-  void getSelectRegion ( int *s, int *e )
+  void getSelectRegion ( int *s, int *e ) const
   {
     if ( s ) *s = select_start_position ;
     if ( e ) *e = select_end_position   ;
   }
 
-  char *getValidData () { return valid_data ; }
+  char *getValidData ( void ) const { return valid_data ; }
   void setValidData ( const char *data )
   {
     if ( valid_data )
@@ -1642,7 +1641,7 @@ public:
     valid_data = new_data ;
   }
 
-  int isValidCharacter ( char c )
+  int isValidCharacter ( char c ) const
   {
     return ( ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ) ;
   }
@@ -1654,13 +1653,13 @@ public:
     if ( down_cb ) (*down_cb)(this) ;
   }
 
-  void enableInput ()  {  input_disabled = FALSE ;  }
-  void disableInput () {  input_disabled = TRUE ;  }
-  int  inputDisabled ()  {  return input_disabled ;  }
+  void enableInput ( void )  {  input_disabled = FALSE ;  }
+  void disableInput ( void ) {  input_disabled = TRUE  ;  }
+  int  inputDisabled ( void ) const {  return input_disabled ;  }
 
   void  setText ( const char *l ) ;
-  char *getText ( void ) { return text ; }
-  char *getWrappedText ( void )
+  char *getText ( void ) const { return text ; }
+  char *getWrappedText ( void ) const
   {
     return ( wrapped_text == NULL ? text : wrapped_text ) ;
   }
@@ -1691,10 +1690,10 @@ protected:
 
 public:
   /* Not for application use ! */
-  puPopupMenu * __getPopupMenu ( void )  { return popup_menu ; }
+  puPopupMenu * __getPopupMenu ( void ) const { return popup_menu ; }
 
   void newList ( char ** _list ) ;
-  int  getNumItems ( void )  { return num_items ; }
+  int  getNumItems ( void ) const { return num_items ; }
 
   int  getCurrentItem ( void ) ;
   void setCurrentItem ( int item )
@@ -1744,9 +1743,9 @@ protected:
 
 public:
   void newList ( char ** _list ) ;
-  int  getNumItems ( void )     { return num_items ; }
+  int  getNumItems ( void ) const { return num_items ; }
 
-  int  getCurrentItem ( void )  { return curr_item ; }
+  int  getCurrentItem ( void ) const { return curr_item ; }
   void setCurrentItem ( int item )
   {
     if ( ( item >= 0 ) && ( item < num_items ) )
