@@ -23,6 +23,13 @@
 
 #include "puLocal.h"
 
+void puComboBox::input_down_cb ( puObject *inp )
+{
+  puComboBox *cbox = (puComboBox *) inp -> getUserData () ;
+
+  cbox -> invokeCallback () ;
+}
+
 void puComboBox::handle_arrow ( puObject *arrow )
 {
   puComboBox *cbox = (puComboBox *) arrow -> getUserData () ;
@@ -224,6 +231,9 @@ puComboBox::puComboBox ( int minx, int miny, int maxx, int maxy,
   int arrow_width = (int) ( (maxy-miny) / 1.5 ) ;
 
   input = new puInput ( 0, 0, maxx-minx - arrow_width, maxy-miny ) ;
+  input -> setUserData ( this ) ;
+  input -> setDownCallback ( input_down_cb ) ;
+
   input -> setStyle ( PUSTYLE_SMALL_SHADED ) ;
 
   if ( ! editable )
