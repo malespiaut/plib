@@ -8,6 +8,7 @@ dist-hook:
              src/ssg/water/data \
              src/ssg/sky/data \
              src/ssg/majik/data \
+             src/ssg/shrubs/data \
              src/psl/data \
              src/fnt/data     \
              data     \
