@@ -1464,9 +1464,9 @@ void ParseBGL(FILE *fp) // "traversing" through the file
  
 				for (int i = 0; i < count; i++) 
 				{
-					TheVertexList[i].p[0] = ulEndianReadLittleFloat(fp) / 1E6;
-					TheVertexList[i].p[1] = ulEndianReadLittleFloat(fp) / 1E6;
-					TheVertexList[i].p[2] = ulEndianReadLittleFloat(fp) / 1E6;
+					TheVertexList[i].p[0] = ulEndianReadLittleFloat(fp); // / 1E6;
+					TheVertexList[i].p[1] = ulEndianReadLittleFloat(fp); // / 1E6;
+					TheVertexList[i].p[2] = ulEndianReadLittleFloat(fp); // / 1E6;
 					TheVertexList[i].n[0] = ulEndianReadLittleFloat(fp);
 					TheVertexList[i].n[1] = ulEndianReadLittleFloat(fp);
 					TheVertexList[i].n[2] = ulEndianReadLittleFloat(fp);
@@ -1498,7 +1498,7 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 				ulEndianReadLittle32(fp); // dummy
 #ifdef UL_WIN32
 				if(TheTextureList)
-					::MessageBox(0, "More than one vertexlist", "Warning:", 0);
+					::MessageBox(0, "More than one texturelist", "Warning:", 0);
 #endif
 				TheTextureList = new oneTexture[count]; // kludge: TheVertexList is unused??
 				for(int i=0;i<count;i++)
@@ -1523,7 +1523,17 @@ void ParseBGL(FILE *fp) // "traversing" through the file
           }
           tex_vtx_dirty_ = false;
         }
+
+
+
+				ssgVertexArray 	  *vertex_array_bu = (ssgVertexArray 	  *)vertex_array_->clone();
+
+				for(int i=0;i<vertex_array_->getNum();i++)
+					sgXformPnt3(vertex_array_->get(i), curr_matrix_); 
+
         CreateAndAddLeaf1(GL_TRIANGLES, tex_coords_, true);
+				//delete vertex_array_; kludge!!
+				vertex_array_ = vertex_array_bu; // to undo the transformation
 
         //assert(curr_part_->getState()->getTexture() != NULL);
         
@@ -1534,14 +1544,22 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 				assert(wkcount>0);
 				
         DEBUGPRINT( "New part: (DrawTriList), num tris = " << wkcount << std::endl);
-				assert(tex_coords_->getNum() == vertex_array_->getNum());
+				if(tex_coords_->getNum() != vertex_array_->getNum())
+				{
+					printf("tex_coords_->getNum() = %d,  vertex_array_->getNum() = %d\n", tex_coords_->getNum(), vertex_array_->getNum());
+					assert(FALSE);
+				}
 				assert(tex_coords_->getNum() == normal_array_->getNum());
 				for(int j=0;j<wkcount;j++)
 				{
 					int i1 = ulEndianReadLittle16(fp);
 					int i2 = ulEndianReadLittle16(fp);
 					int i3 = ulEndianReadLittle16(fp);
-					assert(i1+base<tex_coords_->getNum());
+					if(i1+base>=tex_coords_->getNum())
+					{
+						printf("i1+base = %d, i1 = %d, base = %d, tex_coords_->getNum() = %d\n", i1+base, i1, base, tex_coords_->getNum());
+						assert(FALSE);
+					}
 					assert(i2+base<tex_coords_->getNum());
 					assert(i3+base<tex_coords_->getNum());
 
@@ -1609,6 +1627,38 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 			break;
     case 0xBD: // BGL_END / EndVersion
 			break;
+    case 0xAE: // BGL_TRANSFORM_END
+			sgMakeIdentMat4( curr_matrix_ );
+
+			break;
+    case 0xAF: // BGL_TRANSFORM_MATRIX
+			{
+        sgMat4 this_mat;
+				this_mat[3][0] = ulEndianReadLittleFloat(fp);
+				this_mat[3][1] = ulEndianReadLittleFloat(fp);
+				this_mat[3][2] = ulEndianReadLittleFloat(fp);
+				this_mat[0][0] = ulEndianReadLittleFloat(fp);
+				this_mat[0][1] = ulEndianReadLittleFloat(fp);
+				this_mat[0][2] = ulEndianReadLittleFloat(fp);
+				this_mat[1][0] = ulEndianReadLittleFloat(fp);
+				this_mat[1][1] = ulEndianReadLittleFloat(fp);
+				this_mat[1][2] = ulEndianReadLittleFloat(fp);
+				this_mat[2][0] = ulEndianReadLittleFloat(fp);
+				this_mat[2][1] = ulEndianReadLittleFloat(fp);
+				this_mat[2][2] = ulEndianReadLittleFloat(fp);
+				DEBUGPRINT( "***** Matrix: " << std::endl << "x, y, z = " << 
+					this_mat[3][0] << ", " << this_mat[3][1] << ", " << this_mat[3][2] <<  std::endl << "3 x 3 matrix:" <<  std::endl << 
+					this_mat[0][0] << ", " << this_mat[0][1] << ", " << this_mat[0][2]  <<  std::endl << 
+					this_mat[1][0] << ", " << this_mat[1][1] << ", " << this_mat[1][2] <<  std::endl << 
+					this_mat[2][0] << ", " << this_mat[2][1] << ", " << this_mat[2][2] <<  std::endl);
+				this_mat[0][3] = SG_ZERO ;
+				this_mat[1][3] = SG_ZERO ;
+				this_mat[2][3] = SG_ZERO ;
+				this_mat[3][3] = SG_ONE ;
+        sgPostMultMat4( curr_matrix_, this_mat);
+        
+			}
+			break;
 
     default: // Unknown opcode
       {
@@ -1647,7 +1697,8 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 		((unsigned long)(a) | ((unsigned long)(b) << 8) |  \
 		((unsigned long)(c) << 16) | ((unsigned long)(d) << 24 ))
 
-static unsigned long l1 = MYMAKEFOURCC('R', 'I', 'F', 'F');
+static unsigned long lRIFF = MYMAKEFOURCC('R', 'I', 'F', 'F');
+static unsigned long lMDL8 = MYMAKEFOURCC('M', 'D', 'L', '8');
 
 void FindBGLBeginRIFF(FILE *fp)
 // place file cursor on the first BGL command.
@@ -1655,9 +1706,9 @@ void FindBGLBeginRIFF(FILE *fp)
 // This function is for RIFF format used in MSFS2k2 and 2k4 and CFS2 (and other MS sims?)
 {
 	unsigned int l;
-	while ((l1 != (l = ulEndianReadLittle32(fp))) && (!feof(fp)))
+	while ((lRIFF != (l = ulEndianReadLittle32(fp))) && (!feof(fp)))
 		;
-	if (l1 != l) // RIFF not found
+	if (lRIFF != l) // RIFF not found
 	{
 		assert(feof(fp));
 		return;
@@ -1676,7 +1727,7 @@ void FindBGLBeginRIFF(FILE *fp)
 		unsigned long offset = ulEndianReadLittle32(fp);
 		if (offset & 1L)
 			offset++; // if offset is odd, add one pad byte
-		printf("RIFF Chunk '%s' found, data length = %l\n", buffer, offset);
+		printf("RIFF Chunk '%s' found, data length = %ld\n", buffer, offset);
 		if (0==strcmp(buffer, "BGL "))
 		{
 			// Great!!
@@ -1735,10 +1786,41 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   // Find beginning of BGL Code segment
 	unsigned long l = ulEndianReadLittle32(fp);
 	fseek(fp, 0, SEEK_SET);
-	if (l == l1) // This si somewhat of a kludge, since ther "RIFF" is mostly at the beginning of the file, but not always.
+	if (l == lRIFF) // This is somewhat of a kludge, since ther "RIFF" is mostly at the beginning of the file, but not always.
 		FindBGLBeginRIFF(fp);
 	else
-		FindBGLBeginOldVersion(fp);
+	{	FindBGLBeginOldVersion(fp);
+		if(feof(fp))
+		{ // Ok - so it is not "RIFF" at the beginning of the file and it is not an old file format - 
+			// so search for RIFF anywhere
+			// I know of at least one file (the Wellesly V1.4, where the V1.4 is important) 
+			// that had two "RIFF"s and ionyl the second one is the one we want.
+			// So we have to search for a place with "RIFF"
+			fseek(fp, 0, SEEK_SET);
+			l = ulEndianReadLittle32(fp);
+			while(!feof(fp))
+			{
+				unsigned char c = fgetc(fp);
+				l = (l >> 8) | (c << 24);
+				if ( l == lRIFF )
+				{ // check whether it is a red herring...
+					ulEndianReadLittle32(fp); // ignore length
+					unsigned long ll = ulEndianReadLittle32(fp);
+					if (ll == lMDL8)
+					{ // found it !!
+						fseek(fp, -12, SEEK_CUR);
+						unsigned long addr = ftell(fp);
+						if(addr&1L)
+							printf("strange... found RIFF, but on an odd adress %lx\n", addr);
+						else
+							printf("found a good RIFF header at address %lx\n", addr);
+						FindBGLBeginRIFF(fp);
+						break; // breaks the while(!feof(fp))
+					}
+				}
+			}
+		}
+	}
   
   if(feof(fp))
   {
@@ -1795,7 +1877,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 #ifdef DEBUG  
 	fclose(wkfp);
 #endif
-  delete curr_vtx_;
+// :-(((  delete curr_vtx_;
   delete curr_norm_;
   
   DEBUGPRINT("\n" << vertex_array_->getNum() << " vertices\n");
