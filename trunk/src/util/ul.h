@@ -92,7 +92,7 @@
 /* PLIB version macros */
 
 #define PLIB_MAJOR_VERSION 1
-#define PLIB_MINOR_VERSION 6
+#define PLIB_MINOR_VERSION 7
 #define PLIB_TINY_VERSION 0
 
 #define PLIB_VERSION (PLIB_MAJOR_VERSION*100 \
