@@ -417,9 +417,15 @@ char *ulStrDup ( const char *s )
 // string comparisons that are *not* case sensitive:
 
 /*
+
+ 
   I'm sick of half the machines on the planet supporting
   strncasecmp and the other half strnicmp - so here is my own
-  offering:
+  offering.
+
+  **** ATTENTION ****
+  WK: If you used strnicmp, make sure you realise the completely 
+  changed meaning of the return value - 0 means not equal!
 */
 
 int ulStrNEqual ( const char *s1, const char *s2, int len )
@@ -457,7 +463,11 @@ int ulStrNEqual ( const char *s1, const char *s2, int len )
 /*
   I'm sick of half the machines on the planet supporting
   strcasecmp and the other half stricmp - so here is my own
-  offering:
+  offering.
+
+  **** ATTENTION ****
+  WK: If you used strnicmp, make sure you realise the completely 
+  changed meaning of the return value - 0 means not equal!
 */
 
 int ulStrEqual ( const char *s1, const char *s2 )
