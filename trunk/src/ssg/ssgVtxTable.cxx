@@ -411,10 +411,11 @@ void ssgVtxTable::transform ( const sgMat4 m )
     sgXformPnt3 ( vertices->get(i), vertices->get(i), m ) ;
 
 
-  sgMat4 w ;
+  
 
   if ( ( flags & ( SG_SCALE | SG_MIRROR | SG_NONORTHO ) ) )
   {
+		sgMat4 w ;
     if ( ( flags & SG_NONORTHO ) )
     {
       // use the transposed adjoint matrix (only the upper 3x3 is needed)
@@ -443,12 +444,12 @@ void ssgVtxTable::transform ( const sgMat4 m )
       sgScaleVec3 ( w[2], m[2], scale ) ;
     }
 
-    m = w ;
+		for ( i = 0 ; i < getNumNormals() ; i++ )
+			sgXformVec3 ( normals->get(i), normals->get(i), w ) ;
   }
-
-
-  for ( i = 0 ; i < getNumNormals() ; i++ )
-    sgXformVec3 ( normals->get(i), normals->get(i), m ) ;
+	else
+	  for ( i = 0 ; i < getNumNormals() ; i++ )
+		  sgXformVec3 ( normals->get(i), normals->get(i), m ) ;
 
 
   if ( ( flags & SG_NONORTHO ) )
