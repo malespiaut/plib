@@ -334,7 +334,7 @@ static int parse()
 		sca->ref();
 		for(j=0;j<nNoOfVerticesForThisFace;j++)
 		{
-			if ( ! aiTCs[j] )
+			if ( ! linearListTCPFAV->get(aiTCs[j]) )
 			{	parser.error("Internal error while reading *.atg-file: aiTCs[j] == NULL \n");
 				return FALSE;
 			}
