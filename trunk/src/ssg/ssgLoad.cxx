@@ -214,6 +214,9 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
     return NULL ;
   }
 
+extern int g_noLoDs;
+	g_noLoDs = 1;
+
   _ssgModelFormat *f = formats ;
   for ( int i=0; i<num_formats; i++, f++ )
   {
