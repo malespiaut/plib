@@ -43,7 +43,7 @@ static int ssgaCelestialBodyOrbPreDraw( ssgEntity *e )
 
   glPushAttrib( GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT );
 
-  glDisable( GL_DEPTH_TEST );
+  //glDisable( GL_DEPTH_TEST );
   glDisable( GL_FOG );
   glBlendFunc ( GL_SRC_ALPHA, GL_ONE ) ;
 

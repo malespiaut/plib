@@ -249,7 +249,7 @@ static void update_motion ()
 
   /* update sky */
 
-  sky -> repositionFlat ( campos.xyz );
+  sky -> repositionFlat ( campos.xyz, 0, dt );
   sky -> modifyVisibility ( campos.xyz[SG_Z], dt );
 
   double sun_angle = bodies[0]->getAngle();
@@ -545,15 +545,15 @@ static void load_database ()
                   NULL,                 // body texture
 				  "data/halo.rgba",     // halo texture
 				  5000,                 // size
-				  100000,               // distance
+				  80000,                // distance
 				  true );               // is sun - dome painted based on this
   bodies[0] -> setDeclination  ( 20*SGD_DEGREES_TO_RADIANS );
   /* moon */
   bodies[1] =  sky -> addBody (
                   "data/moon.rgba",     // body texture
 				  NULL,                 // halo texture
-				  200,                  // size
-				  1000 );               // distance
+				  5000,                 // size
+				  80000 );              // distance
   bodies[1] -> setDeclination  ( 65*SGD_DEGREES_TO_RADIANS );
   /* clouds */
   clouds[0] =  sky -> addCloud (
@@ -562,18 +562,24 @@ static void load_database ()
 				 2000,                  // elevation,
 				 100,                   // thickness
 				 100 );                 // transition
+  clouds[0] -> setSpeed ( 50 ) ;
+  clouds[0] -> setDirection ( 45 ) ;
   clouds[1] =  sky -> addCloud (
 				 "data/scattered.rgba", // texture
                  80000,                 // span
 				 3000,                  // elevation,
 				 100,                   // thickness
 				 100 );                 // transition
+  clouds[1] -> setSpeed ( 20 ) ;
+  clouds[1] -> setDirection ( 30 ) ;
   clouds[2] =  sky -> addCloud (
 				 "data/scattered.rgba", // texture
                  80000,                 // span
 				 1000,                  // elevation,
 				 100,                   // thickness
 				 100 );                 // transition
+  clouds[2] -> setSpeed ( 5 ) ;
+  clouds[2] -> setDirection ( 20 ) ;
 
   teapot    =  new ssgTransform ;
   teapot    -> addKid ( tpt_obj ) ;

@@ -137,12 +137,14 @@ private:
   ssgVertexArray *vl[4];
   ssgTexCoordArray *tl[4];
 
+  bool enabled;
   float layer_span;
   float layer_asl;
   float layer_thickness;
   float layer_transition;
   float scale;
-  bool enabled;
+  float speed;
+  float direction;
 
   double last_lon, last_lat;
   double last_x, last_y;
@@ -155,8 +157,8 @@ public:
   void build( const char *cloud_tex_path, float span, float elevation, float thickness, float transition );
   void build( ssgSimpleState *cloud_state, float span, float elevation, float thickness, float transition );
 
-  bool repositionFlat( sgVec3 p );
-  bool reposition( sgVec3 p, sgVec3 up, double lon, double lat, double alt );
+  bool repositionFlat( sgVec3 p, double dt );
+  bool reposition( sgVec3 p, sgVec3 up, double lon, double lat, double alt, double dt );
 
   bool repaint( sgVec3 fog_color );
 
@@ -174,6 +176,12 @@ public:
 
   float getTransition () { return layer_transition; }
   void  setTransition ( float transition ) { layer_transition = transition; }
+
+  float getSpeed () { return speed; }
+  void  setSpeed ( float val ) { speed = val; }
+
+  float getDirection () { return direction; }
+  void  setDirection ( float val ) { direction = val; }
 };
 
 
@@ -279,6 +287,7 @@ private:
 
   ssgSelector *pre_selector, *post_selector;
   ssgTransform *pre_transform, *post_transform;
+  ssgTransform *bodies_transform, *stars_transform;
 
   // visibility
   float visibility;
@@ -310,8 +319,8 @@ public:
   ssgaCloudLayer* getCloud(int i) { return clouds.get(i); }
   int getCloudCount() { return clouds.getNum(); }
 
-  bool repositionFlat( sgVec3 view_pos, double spin = 0 );
-  bool reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up, double lon, double lat, double alt, double spin, double gst );
+  bool repositionFlat( sgVec3 view_pos, double spin, double dt );
+  bool reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up, double lon, double lat, double alt, double spin, double gst, double dt );
 
   bool repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, double sun_angle,
 	  int nplanets, sgdVec3 *planet_data,
