@@ -1125,7 +1125,7 @@ public:
 
     if ( getStepSize() > 0.0 )
     {
-      step = val_to_check - fmod ( val_to_check, getStepSize() ) ;
+      step = val_to_check - (float) fmod ( val_to_check, getStepSize() ) ;
       if ( ( val_to_check - step ) > ( step + getStepSize() - val_to_check ) ) step += getStepSize() ;
     }
       
@@ -1232,7 +1232,7 @@ public:
   void setMaxValue ( float i )
   {
     maximum_value = i ;
-    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0 ) ;
+    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0f ) ;
     puPostRefresh () ;
   }
 
@@ -1240,15 +1240,15 @@ public:
   void setMinValue ( float i )
   {
     minimum_value = i ;
-    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0 ) ;
+    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0f ) ;
     puPostRefresh () ;
   }
 
-  void setCurrentMax ( int i ) { current_max = i ; puPostRefresh () ; } /* DEPRECATED */
+  void setCurrentMax ( int i ) { current_max = (float) i ; puPostRefresh () ; } /* DEPRECATED */
   void setCurrentMax ( float f ) { current_max = f ; puPostRefresh () ; }
   float getCurrentMax ( void ) const { return current_max ; }
 
-  void setCurrentMin ( int i ) { current_min = i ; puPostRefresh () ; } /* DEPRECATED */
+  void setCurrentMin ( int i ) { current_min = (float) i ; puPostRefresh () ; } /* DEPRECATED */
   void setCurrentMin ( float f ) { current_min = f ; puPostRefresh () ; }
   float getCurrentMin ( void ) const { return current_min ; }
 
@@ -1322,7 +1322,7 @@ public:
   void setMaxValue ( float f )
   {
     maximum_value = f ;
-    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0 ) ;
+    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0f ) ;
     puPostRefresh () ;
   }
 
@@ -1330,7 +1330,7 @@ public:
   void setMinValue ( float i )
   {
     minimum_value = i ;
-    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0 ) ;
+    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0f ) ;
     puPostRefresh () ;
   }
 } ;
