@@ -1,11 +1,7 @@
 
 #include "ssgLocal.h"
 
-#define MAX_TEXTURES 1000    /* This *ought* to be enough! */
-
 static FILE *loader_fd ;
-
-static char *texture_fnames [ MAX_TEXTURES ] ;
 
 struct _ssgMaterial
 {
@@ -16,22 +12,19 @@ struct _ssgMaterial
 } ;
 
 static int num_materials = 0 ;
-static int num_states    = 0 ;
-static int num_textures  = 0 ;
 static sgVec3 *vtab = NULL ;
 
 static ssgHookFunc      current_hookFunc = NULL ;
+static ssgCreateFunc    current_createFunc = NULL ;
 static _ssgMaterial    *current_material = NULL ;
 static sgVec4          *current_colour   = NULL ;
-static ssgTexture      *current_texture  = NULL ;
 static ssgBranch       *current_branch   = NULL ;
 static char            *current_tfname   = NULL ;
 static char            *current_data     = NULL ;
 
-static _ssgMaterial   *mlist    [ MAX_TEXTURES ] ;
-static ssgSimpleState *slist    [ MAX_TEXTURES ] ;
-static sgVec4         *clist    [ MAX_TEXTURES ] ;
-static ssgTexture     *tex_list [ MAX_TEXTURES ] ;
+#define MAX_MATERIALS 1000    /* This *ought* to be enough! */
+static _ssgMaterial   *mlist    [ MAX_MATERIALS ] ;
+static sgVec4         *clist    [ MAX_MATERIALS ] ;
 
 static sgMat4 current_matrix ;
 static sgVec2 texrep ;
@@ -178,42 +171,9 @@ int do_obj_light ( char * ) { return OBJ_LIGHT ; }
 int last_num_kids    = -1 ;
 int current_flags    = -1 ;
 
-static ssgSimpleState *find_state ( _ssgMaterial *mat,
-                                     ssgTexture *tex, char * /*tfname*/ )
+static ssgSimpleState *get_state ( _ssgMaterial *mat )
 {
-  for ( int i = 0 ; i < num_states ; i++ )
-  {
-    ssgSimpleState *st2 = slist [ i ] ;
-
-    if ( tex == NULL && st2->isEnabled ( GL_TEXTURE_2D ) )
-      continue ;
-
-    if ( tex != NULL && ! st2->isEnabled ( GL_TEXTURE_2D ) )
-      continue ;
-
-    if ( tex != NULL && tex -> getHandle() != st2 -> getTextureHandle () )
-      continue ;
-
-    if ( ! sgEqualVec4 ( mat->emis, st2->getMaterial ( GL_EMISSION ) ) ||
-         ! sgEqualVec4 ( mat->spec, st2->getMaterial ( GL_SPECULAR ) ) ||
-         (int)( mat->rgb[3] < 0.99 ) != st2 -> isTranslucent () ||
-         mat -> shi != st2->getShininess () )
-      continue ;
-
-    return st2 ;
-  }
-
   ssgSimpleState *st = new ssgSimpleState () ;
-
-  slist [ num_states++ ] = st ;
-
-  if ( tex != NULL )
-  {
-    st -> setTexture ( tex ) ;
-    st -> enable     ( GL_TEXTURE_2D ) ;
-  }
-  else
-    st -> disable    ( GL_TEXTURE_2D ) ;
 
   st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
   st -> setMaterial ( GL_EMISSION, mat -> emis ) ;
@@ -222,7 +182,7 @@ static ssgSimpleState *find_state ( _ssgMaterial *mat,
   st -> enable ( GL_COLOR_MATERIAL ) ;
   st -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
 
-  st -> enable  ( GL_LIGHTING       ) ;
+  st -> enable  ( GL_LIGHTING ) ;
   st -> setShadeModel ( GL_SMOOTH ) ;
 
   if ( mat -> rgb[3] < 0.99 )
@@ -369,47 +329,12 @@ int do_data     ( char *s )
 }
 
 
-int get_texture ( char *s )
-{
-  char filename [ 1024 ] ;
-
-  if ( s [ 0 ] != '/' && _ssgTexturePath != NULL &&
-                         _ssgTexturePath[0] != '\0' )
-  {
-    strcpy ( filename, _ssgTexturePath ) ;
-    strcat ( filename, "/" ) ;
-    strcat ( filename, s ) ;
-  }
-  else
-    strcpy ( filename, s ) ;
-
-  for ( int i = 0 ; i < num_textures ; i++ )
-    if ( strcmp ( filename, texture_fnames [ i ] ) == 0 )
-    {
-      current_tfname = texture_fnames [ i ] ;
-      return i ;
-    }
-
-  texture_fnames [ num_textures ] = new char [ strlen ( filename ) + 1 ] ;
-  strcpy ( texture_fnames [ num_textures ], filename ) ;
-  current_tfname = texture_fnames [ num_textures ] ;
-
-/*
-  if ( _ssgGetAppState == NULL )
-    tex_list [ num_textures ] = NULL ;
-  else
-*/
-    tex_list [ num_textures ] = new ssgTexture ( filename ) ;
-
-  return num_textures++ ;
-}
-
-
 int do_texture  ( char *s )
 {
   skip_quotes ( &s ) ;
 
-  current_texture = tex_list [ get_texture ( s ) ] ;
+  delete current_tfname ;
+  current_tfname = strdup ( s ) ;
 
   return PARSE_CONT ;
 }
@@ -590,36 +515,34 @@ int do_refs     ( char *s )
 
   nrm -> add ( nm ) ;
 
-  ssgVtxTable *vl ;
-
+  GLenum gltype = 0 ; 
   switch ( current_flags & 0x0F )
   {
-    case 0 : vl = new ssgVtxTable ( GL_TRIANGLE_FAN,
-                   vlist, nrm, tlist, col ) ; 
+    case 0 : gltype = GL_TRIANGLE_FAN ;
              break ;
-    case 1 : vl = new ssgVtxTable ( GL_LINE_LOOP,
-                   vlist, nrm, tlist, col ) ; 
+    case 1 : gltype = GL_LINE_LOOP ;
              break ;
-    case 2 : vl = new ssgVtxTable ( GL_LINE_STRIP,
-                   vlist, nrm, tlist, col ) ; 
+    case 2 : gltype = GL_LINE_STRIP ;
              break ;
-    default : vl = NULL ; break ;
   }
 
-  vl -> setCullFace ( ! ( (current_flags>>4) & 0x02 ) ) ;
+  if ( gltype != 0 )
+  {
+    ssgCreateData *data = new ssgCreateData ;
+    data->gltype = gltype ;
+    data->vl = vlist ;
+    data->nl = nrm ;
+    data->tl = tlist ;
+    data->cl = col ;
+    data->st = get_state ( current_material ) ;
+    data->tfname = strdup ( current_tfname ) ;
+    data->cull_face = ! ( (current_flags>>4) & 0x02 ) ;
+   
+    ssgLeaf* vtab = (*current_createFunc) ( data ) ;
 
-  ssgState *st = NULL ;
+    current_branch -> addKid ( vtab ) ;
+  }
 
-  if ( _ssgGetAppState != NULL && current_tfname != NULL )
-    st =_ssgGetAppState ( current_tfname ) ;
-
-  if ( st != NULL )
-    vl -> setState ( st ) ;
-  else
-    vl -> setState ( find_state ( current_material,
-                 current_texture, current_tfname ) ) ;
-
-  current_branch -> addKid ( vl ) ;
   return PARSE_POP ;
 }
 
@@ -631,9 +554,9 @@ int do_kids ( char *s )
 }
 
 
-ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
 {
-  ssgEntity *obj = ssgLoadAC ( fname, hookfunc ) ;
+  ssgEntity *obj = ssgLoadAC ( fname, hookfunc, createfunc ) ;
 
   if ( obj == NULL )
     return NULL ;
@@ -651,9 +574,11 @@ ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc )
   Original function for backwards compatibility...
 */
 
-ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
 {
   current_hookFunc = hookfunc ;
+  current_createFunc = ( createfunc != NULL )? createfunc: _ssgCreateFunc ;
+  (*current_createFunc) ( 0 ) ;  //reset
 
   char filename [ 1024 ] ;
 
@@ -668,14 +593,11 @@ ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc )
   else
     strcpy ( filename, fname ) ;
 
-  num_textures  = 0 ;
   num_materials = 0 ;
-  num_states    = 0 ;
   vtab = NULL ;
 
   current_material = NULL ;
   current_colour   = NULL ;
-  current_texture  = NULL ;
   current_tfname   = NULL ;
   current_branch   = NULL ;
 
@@ -723,12 +645,10 @@ ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc )
       search ( top_tags, s ) ;
   }
 
-  for ( int i = 0 ; i < num_textures ; i++ )
-    delete texture_fnames [ i ] ;
-
+  (*current_createFunc) ( 0 ) ;  //reset
+  delete current_tfname ;
   delete [] vtab ;
   fclose ( loader_fd ) ;
 
   return current_branch ;
 }
-

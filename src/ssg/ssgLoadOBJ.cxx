@@ -211,7 +211,7 @@ static void load_materials ( const char* fname )
   num_mat = 0 ;
 
   char path[256];
-  _ssgMakePath(path,_ssgTexturePath,fname,0) ;
+  _ssgMakePath(path,_ssgTexturePath,fname) ;
 
   FILE* filein = fopen (path,"r") ;
   if ( filein == 0 )
@@ -288,7 +288,7 @@ static void load_materials ( const char* fname )
 
       char tfname[MAX_LINE_LEN];
       count = sscanf ( next, "%s%n", tfname, &width ) ;
-      _ssgMakePath(path,_ssgTexturePath,tfname,0) ;
+      _ssgMakePath(path,_ssgTexturePath,tfname) ;
 
       if ( count == 1 && index >= 0 ) {
         materials[ index ].tfname = strdup( path ) ;
@@ -729,7 +729,7 @@ static int obj_read ( FILE *filein )
   return TRUE;
 }
 
-ssgEntity *ssgLoadOBJ ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadOBJ ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
 {
   current_hookFunc = hookfunc ;
   current_branch   = NULL ;

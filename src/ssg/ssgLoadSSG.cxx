@@ -44,7 +44,7 @@ void _ssgAddToList ( int key, ssgBase *b )
 }
 
 
-ssgEntity *ssgLoadSSG ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadSSG ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
 {
   delete[] _ssgInstanceList ;
   _ssgInstanceList = NULL ;

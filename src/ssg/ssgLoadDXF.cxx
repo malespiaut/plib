@@ -428,7 +428,7 @@ initialize lists
   return TRUE;
 }
 
-ssgEntity *ssgLoadDXF ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadDXF ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
 {
   current_hookFunc = hookfunc ;
   current_branch   = NULL ;

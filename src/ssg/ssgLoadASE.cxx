@@ -210,7 +210,7 @@ static void parse_map( aseMaterial* mat )
       else
       {
          char* fname = parser.parseString("bitmap filename") ;
-         _ssgMakePath(mat->tfname,_ssgTexturePath,fname,0) ;
+         _ssgMakePath(mat->tfname,_ssgTexturePath,fname) ;
    
          //re-use textures when possible
          for ( u32 i = 0 ; i < (num_materials-1) ; i++ )
@@ -795,7 +795,7 @@ static void parse_free()
 }
 
 
-ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
 {
   current_branch = new ssgBranch ;
   parser.openFile( fname );
