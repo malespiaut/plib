@@ -364,12 +364,8 @@ int puMouse ( int button, int updown, int x, int y )
   
   puCleanUpJunk () ;
   
-  if ( ( last_buttons == 0 ) && puActiveWidget () )
-  {
-    if ( ! ( ( puActiveWidget ()->getType () | PUCLASS_INPUT ) &&
-             ( puActiveWidget ()->getType () | PUCLASS_LARGEINPUT ) ) )
-      puDeactivateWidget () ;
-  }
+  if ( last_buttons == 0 )
+    puDeactivateWidget () ;
 
   return return_value ;
 }
