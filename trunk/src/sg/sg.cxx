@@ -1278,6 +1278,9 @@ void sgMatrixToQuat( sgQuat quat, const sgMat4 m )
     quat[SG_Z] = q[2];
     quat[SG_W] = q[3];
   }
+
+  // seems to yield the inverse rotation, so:
+  quat[SG_W] = - quat[SG_W];
 }
 
 
