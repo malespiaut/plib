@@ -155,9 +155,6 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
   return kid ;
 }
 
-#ifdef WRITE_SSG_VERSION_ZERO
-extern int WriteVersionZero(ssgEntity *kid, FILE *fd );
-#endif
 
 int ssgSaveSSG ( const char *fname, ssgEntity *ent )
 {
@@ -195,10 +192,6 @@ int ssgSaveSSG ( const char *fname, ssgEntity *ent )
   
 	
 	
-#ifdef WRITE_SSG_VERSION_ZERO
-	if ( !WriteVersionZero( ent, fd ) )
-		return FALSE;
-#else
 	_ssgWriteInt ( fd, ent->getType() ) ;
 
 	if ( ! ent -> save ( fd ) )
@@ -207,7 +200,6 @@ int ssgSaveSSG ( const char *fname, ssgEntity *ent )
 			"ssgSaveSSG: Failed to write child object.\n" ) ;
 		return FALSE ;
 	}
-#endif
   fclose ( fd ) ;
   return TRUE ;
 }
