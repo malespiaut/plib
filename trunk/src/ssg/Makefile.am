@@ -7,7 +7,8 @@ include_HEADERS = ssg.h ssgconf.h ssgMSFSPalette.h ssgKeyFlier.h
 libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgBaseTransform.cxx ssgBranch.cxx ssgContext.cxx ssgCutout.cxx \
 	ssgDList.cxx ssgEntity.cxx ssgIsect.cxx ssgLeaf.cxx ssgList.cxx \
-	ssgLoadAC.cxx ssgLocal.h ssgOptimiser.cxx ssgRoot.cxx ssgSaveAC.cxx \
+	ssgLoadDOF.cxx ssgLoadAC.cxx \
+        ssgLocal.h ssgOptimiser.cxx ssgRoot.cxx ssgSaveAC.cxx \
 	ssgSelector.cxx ssgSimpleState.cxx ssgState.cxx ssgStateTables.cxx \
 	ssgStats.cxx  ssgTween.cxx ssgTweenController.cxx \
 	ssgTexTrans.cxx ssgTexture.cxx ssgTransform.cxx \
