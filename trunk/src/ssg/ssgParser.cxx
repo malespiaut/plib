@@ -208,7 +208,11 @@ char* _ssgParser::getLine( int startLevel )
 		if ( spec.delim_chars_skipable != NULL )
 			while ( *ptr && strchr(spec.delim_chars_skipable,*ptr) )
 				ptr++ ;
+
+		if ( *ptr == 0 )
+			break; // only skipable stuff left, dont create another token.
   
+		// now unnessary?:
 		if ( *ptr == spec.comment_char )
     {
       *ptr = 0 ;
@@ -231,20 +235,24 @@ char* _ssgParser::getLine( int startLevel )
       level++ ;
     else if ( spec.close_brace_chars && *ptr && mystrchr(spec.close_brace_chars,*ptr) )
       level-- ;
-
-    //find end of token
-    while ( *ptr && !strchr(anyDelimiter,*ptr) )
-      ptr++ ;
+		else
+			//find end of token
+			while ( *ptr && !strchr(anyDelimiter,*ptr) )
+				ptr++ ;
 		
-		if ( ptr == tokptr [ numtok-1 ] )
-		{ // we dont want tokens of length zero
-			assert(NULL==mystrchr(spec.delim_chars_skipable,*ptr));
-			// ptr is non-skipable, return it as token of length one
-			numtok--;                  // remove zero-length token
-			addOneCharToken ( ptr ) ;  // and add new token instead
-			*ptr++ = 0;
-			continue;
-		}
+		if ( *ptr != 0 )
+			if ( ptr == tokptr [ numtok-1 ] )
+			{ // we dont want tokens of length zero
+				char *a=mystrchr(spec.delim_chars_skipable,*ptr);
+				if (NULL!=a)
+					MessageBox(0, "mist","mist",0);
+				assert(NULL==mystrchr(spec.delim_chars_skipable,*ptr));
+				// ptr is non-skipable, return it as token of length one
+				numtok--;                  // remove zero-length token
+				addOneCharToken ( ptr ) ;  // and add new token instead
+				*ptr++ = 0;
+				continue;
+			}
 
     //mark end of token
 		if( *ptr && ( mystrchr(spec.delim_chars_non_skipable,*ptr) 
