@@ -1,17 +1,44 @@
 
+/*
+     PLIB - A Suite of Portable Game Libraries
+     Copyright (C) 1998,2002  Steve Baker
+
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Library General Public
+     License as published by the Free Software Foundation; either
+     version 2 of the License, or (at your option) any later version.
+
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Library General Public License for more details.
+
+     You should have received a copy of the GNU Library General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+     For further information visit http://plib.sourceforge.net
+
+     $Id$
+*/
 
 /*
  *  - with Mac OS 8.6 to 9.2:
- *		- must be linked with the following libraries:
- *			InterfaceLib, accessors.o, AppearanceLib and OpenGL (it contains agl)
+ *	- must be linked with the following libraries:
+ *	InterfaceLib, accessors.o, AppearanceLib and OpenGL (it contains agl)
  *
- *		- ACTIVE_SLEEPTIME	must be defined to 0 for the fastest execution; 
+ *	- ACTIVE_SLEEPTIME	must be defined to 0 for the fastest execution; 
  *			but it will not let other app to get events.
  *
  *  - with Mac OS X: must be linked with the following frameworks:
- *			Carbon, AGL
+ *	Carbon, AGL
  *
  */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include "ul.h"
+#include "pw.h"
 
 #if defined(UL_MACINTOSH) || defined(UL_MAC_OSX)
 
@@ -32,12 +59,6 @@
 #  include <Devices.h>
 #  include <agl.h>
 #endif
-
-#include <stdlib.h>
-#include <stdio.h>
-#include "ul.h"
-#include "pw.h"
-
 
 /* Apple menu: */
 #define mApple	    128
