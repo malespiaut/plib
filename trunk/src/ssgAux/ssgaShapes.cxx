@@ -131,6 +131,9 @@ void ssgaCube    ::regenerate ()
 {
   removeAllKids () ;
 
+  if ( ntriangles == 0 )
+    return ;
+
   ssgVtxTable     *vt0 = new ssgVtxTable () ;         ssgVtxTable     *vt1 = new ssgVtxTable () ;
 
   ssgVertexArray   *v0 = new ssgVertexArray   ( 8 ) ; ssgVertexArray   *v1 = new ssgVertexArray   ( 8 ) ;
@@ -299,8 +302,6 @@ static Triangle icosahedron [ 20 ] =
 
 void ssgaSphere::regenerateTessellatedIcosahedron ()
 {
-  removeAllKids () ;
-
   int tris_per_strip = 1 ;
   int nstrips = 1 ;
   int nt = 20 ;
@@ -455,8 +456,6 @@ void ssgaSphere::regenerateLatLong ()
   if ( stacks < 2 ) stacks = 2 ;
   if ( slices < 3 ) slices = 3 ;
 
-  removeAllKids () ;
-
   for ( int i = 0 ; i < stacks ; i++ )
   {
     ssgVtxTable      *vt = new ssgVtxTable ;
@@ -575,6 +574,11 @@ void ssgaSphere::regenerateLatLong ()
 
 void ssgaSphere::regenerate ()
 {
+  removeAllKids () ;
+
+  if ( ntriangles == 0 )
+    return ;
+
   if ( latlong_style )
     regenerateLatLong () ;
   else
@@ -585,11 +589,14 @@ void ssgaSphere::regenerate ()
 
 void ssgaCylinder::regenerate ()
 {
+  removeAllKids () ;
+
+  if ( ntriangles == 0 )
+    return ;
+
   int slices = 1 + ntriangles / 4 ;
 
   if ( slices < 3 ) slices = 3 ;
-
-  removeAllKids () ;
 
   ssgVtxTable      *vt = new ssgVtxTable ;
   ssgVertexArray   *vv = new ssgVertexArray   ( (slices+1)*2 ) ;
