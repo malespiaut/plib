@@ -1,19 +1,44 @@
+/*
+     PLIB - A Suite of Portable Game Libraries
+     Copyright (C) 2001  Steve Baker
+
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; either version 2 of the License, or
+     (at your option) any later version.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License
+     along with this program; if not, write to the Free Software
+     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+     For further information visit http://plib.sourceforge.net
+
+     $Id$
+*/
+
 // Point Picker Program by John Fay, October 2000.
-// This is a demonstration program for PUI.  It displays a set of points in a window
-// and allows the user to pick them with the right mouse button.  It demonstrates
-// the following PUI capabilities:
+// This is a demonstration program for PUI.  It displays a set of points in
+// a window and allows the user to pick them with the right mouse button.
+// It demonstrates the following PUI capabilities:
 //    - puInput widget
 //    - puOneShot widget
 //    - active widget functionality, with up, active, and down callbacks
 //    - valuators
-
+//
 // To use it, the user does the following:
-//   First Method:  Click in the input widget and type the number of the point
-//   Second Method: Click in the input widget and right-click on a point to select it.
-
-//   For both methods, clicking the left (one-shot) button moves the point to the
-//   right.  When it gets far enough to the right, it wraps around to the left and
-//   moves slightly upwards.
+//   First Method:  Click in the input widget and type the number of the
+//                  point
+//   Second Method: Click in the input widget and right-click on a point to
+//                  select it.
+//
+//   For both methods, clicking the left (one-shot) button moves the point
+//   to the right.  When it gets far enough to the right, it wraps around to
+//   the left and moves slightly upwards.
 
 #include <stdio.h>
 #include <stdarg.h>
