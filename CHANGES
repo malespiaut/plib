@@ -4,6 +4,10 @@ PLIB Change Log.
 
 PLIB v1.1.10 (Jan 30th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * PLIB now managed under CVS at SourceForge.
+
+      http://sourceforge.net/project/?group_id=382
+
   * Added a collection of line/plane, plane/plane
     and line/line intersection routines to SG.
     Thanks to Norman Vine for most of them.
