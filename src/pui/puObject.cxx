@@ -193,15 +193,23 @@ void puObject::recalc_bbox ( void )
 
 void puObject::draw_legend ( int dx, int dy )
 {
+  int lgap = PUSTR_LGAP ;
+  int rgap = PUSTR_RGAP ;
+  if ( getStyle () == PUSTYLE_BOXED )
+  {
+    lgap += getBorderThickness () ;
+    rgap += getBorderThickness () ;
+  }
+
   int xx, yy ;
   switch ( getLegendPlace() )
   {
   case PUPLACE_LEFT :
-    xx = PUSTR_LGAP ;
+    xx = lgap ;
     break ;
 
   case PUPLACE_RIGHT :
-    xx = abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) - PUSTR_LGAP ;
+    xx = abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) - rgap ;
     break ;
 
   case PUPLACE_CENTERED :

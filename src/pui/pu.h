@@ -378,7 +378,7 @@ protected:
   int   type    ;
   int   integer ;
   float floater ;
-  char  string  [ PUSTRING_MAX ] ;
+  char  *string ;
 
   int   *res_integer ;
   float *res_floater ;
@@ -390,6 +390,7 @@ protected:
 public:
   puValue ()
   {
+    string = new char [ PUSTRING_MAX ] ;
     type = PUCLASS_VALUE ;
     res_integer = NULL ;
     res_floater = NULL ;
@@ -397,7 +398,7 @@ public:
     clrValue () ;
   }
 
-  virtual ~puValue () ;
+  virtual ~puValue () {  delete string ;  }
 
   int  getType ( void ) { return type ; }
   char *getTypeString ( void ) ;
@@ -494,6 +495,8 @@ protected:
 
   virtual void draw_legend ( int dx, int dy ) ;
   virtual void draw_label  ( int dx, int dy ) ;
+
+public:
   virtual int  isHit ( int x, int y ) { return isVisible() && isActive() &&
                                                x >= abox.min[0] &&
                                                x <= abox.max[0] &&
@@ -501,8 +504,6 @@ protected:
                                                y <= abox.max[1] &&
                                                window == puGetWindow () ; }
 
-
-public:
   virtual void doHit ( int button, int updown, int x, int y ) ;
 
    puObject ( int minx, int miny, int maxx, int maxy ) ;
@@ -593,7 +594,7 @@ public:
   void      *getRenderCallbackData ( void ) { return render_data ; }
   void       invokeRenderCallback ( int dx, int dy ) { if ( r_cb ) (*r_cb)(this, dx, dy, render_data) ; }
 
-  void setBorderThickness ( int t )  {  border_thickness = t ;  }
+  virtual void setBorderThickness ( int t )  {  border_thickness = t ;  }
   int getBorderThickness ( void )  {  return border_thickness ;  }
 
   void  makeReturnDefault ( int def ) { am_default = def ; }
@@ -638,7 +639,7 @@ public:
   void hide       ( void ) { if (   visible ) { visible = FALSE ; puRefresh = TRUE ; } }
   int  isVisible  ( void ) { return visible ; }
 
-  void setStyle ( int which )
+  virtual void setStyle ( int which )
   {
     style = which ;
     recalc_bbox () ;
@@ -649,7 +650,7 @@ public:
 
   void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
 
-  void setColour ( int which, float r, float g, float b, float a = 1.0f )
+  virtual void setColour ( int which, float r, float g, float b, float a = 1.0f )
   {
     puSetColour ( colour [ which ], r, g, b, a ) ;
     puRefresh = TRUE ;
@@ -769,13 +770,6 @@ public:
 
 class puFrame : public puObject
 {
-protected:
-  int  isHit ( int x, int y ) { return isVisible() && isActive() &&
-                                               x >= abox.min[0] &&
-                                               x <= abox.max[0] &&
-                                               y >= abox.min[1] &&
-                                               y <= abox.max[1] &&
-                                               window == puGetWindow () ; }
 public:
   void draw ( int dx, int dy ) ;
   puFrame ( int minx, int miny, int maxx, int maxy ) :
@@ -803,9 +797,8 @@ public:
 
 class puText : public puObject
 {
-protected:
-  virtual int  isHit ( int /* x */, int /* y */ ) { return FALSE ; }
 public:
+  virtual int  isHit ( int /* x */, int /* y */ ) { return FALSE ; }
   void draw ( int dx, int dy ) ;
   puText ( int x, int y ) : puObject ( x, y, x, y )
   {
@@ -1319,6 +1312,10 @@ public:
   ~puFilePicker () ;
 
   void setSize ( int w, int h ) ;
+
+  void setStyle ( int style ) ;
+  void setColour ( int which, float  r, float g, float  b, float  a = 1.0f ) ;
+  void setBorderThickness ( int t ) ;
 } ;
 
 
@@ -1369,6 +1366,10 @@ public:
 
   void setInitialValue ( char *fname ) ;
   void setSize ( int w, int h ) ;
+
+  void setStyle ( int style ) ;
+  void setColour ( int which, float  r, float g, float  b, float  a = 1.0f ) ;
+  void setBorderThickness ( int t ) ;
 } ;
 
 
@@ -1488,6 +1489,7 @@ public:
 
   void setStyle ( int style ) ;
   void setColour ( int which, float  r, float g, float  b, float  a = 1.0f ) ;
+  void setBorderThickness ( int t ) ;
 } ;
 
 #endif
