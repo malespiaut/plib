@@ -447,7 +447,7 @@ protected:
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgTexture ( char *fname, int wrapu = TRUE, int wrapv = TRUE,
+  ssgTexture ( const char *fname, int wrapu = TRUE, int wrapv = TRUE,
 	       int mipmap = TRUE )
   {
 #ifdef GL_VERSION_1_1
@@ -484,7 +484,7 @@ public:
   char *getFilename(void) { return filename ; }
 	char *getFilenameFromModel(void) { return filename_from_model ; }
 
-  void  setFilename(char *fname)
+  void  setFilename(const char *fname)
   {
     delete filename ;
 
@@ -498,7 +498,7 @@ public:
   }
 
 	
-  void  setFilenameFromModel(char *fname)
+  void  setFilenameFromModel(const char *fname)
   {
     delete filename_from_model ;
 
