@@ -225,7 +225,7 @@ static bool findPart(FILE* fp)
 	      moving_parts_[part_idx] = new ssgSelector;
 	      model_->addKid(moving_parts_[part_idx]);	      	   
 	      moving_parts_[part_idx]->setName( PART_NAME[part_idx] );
-	      
+	      moving_parts_[part_idx]->select(1);
 	    }
 
 	    while (moving_parts_[part_idx]->getKid(kid_idx) == NULL)
@@ -662,12 +662,16 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
  
   tex_coords_ = new ssgTexCoordArray();
  
-  unsigned int code_len;
-  fseek(model_file_, 0x11fc, SEEK_SET);
-  code_len = get_dword();
-  code_len -= 0x12;
-  
-  DEBUGPRINT( "code length = " << code_len << " bytes\n");
+  fseek(model_file_, 0x0040, SEEK_SET); // 0x11fc
+  unsigned short offset = get_word();
+  DEBUGPRINT( "BGL section start: " << std::hex << offset << 
+	      std::dec << std::endl );
+  fseek(model_file_, offset, SEEK_SET);
+
+  //unsigned int code_len;
+  //code_len = get_dword();
+  //code_len -= 0x12;  
+  //DEBUGPRINT( "code length = " << code_len << " bytes\n");
   
   start_idx_ = 0;
   last_idx_  = 0;
@@ -948,6 +952,29 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 			dy << ", scale = " << scale << std::endl);
 	  }
 	  break;
+
+	case 0x43:      // TEXTURE2
+	  {
+	    get_word();  // record length
+	    get_word();  // must be zero
+	    get_byte();  // flags, ignored
+	    get_byte();  // checksum, must be zero
+	    curr_color_  = get_byte();
+	    curr_pal_id_ = get_byte();
+	    get_word();  // ??
+
+	    int i;
+	    for (i = 0; (curr_tex_name_[i] = get_byte()) != '\0'; i++);
+	    
+	    if (i % 2 == 0) get_byte();  // padd to even length
+	  
+	    DEBUGPRINT( "Set texture: name = " << curr_tex_name_ <<
+			"color: " << (int)curr_color_ << " (" << std::hex <<
+			curr_pal_id_ << std::dec << ")\n");
+	  }
+	  break;
+	
+	
 	
 	case 0x50: 	// GCOLOR (Goraud shaded color)
 	case 0x51:	// LCOLOR (Line color)
@@ -991,19 +1018,32 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    fread(&rel_addr, 2, 1, model_file_);
 	  }
 	  break;
-       
+
+	case 0x24:      // BGL_IFIN1 -- currently ignored
+	  {
+	    get_word();   // jump offset
+	    get_word();   // variable
+	    get_word();   // lower bound
+	    get_word();   // upper bound
+	  }
+	  break;
+	  
 	case 0x39:      	// Relative Jump 
 	  {
-	    unsigned short rel_addr, var, var_offset, mask;
+	    unsigned short rel_addr, var_offset, mask;
 	    fread(&rel_addr, 2, 1, model_file_);
 	    fread(&var_offset, 2, 1, model_file_);
 	    fread(&mask, 2, 1, model_file_);
-	    long pos = ftell(model_file_);
-	    fseek(model_file_, var_offset-5, SEEK_CUR);
-	    fread(&var, 2, 1, model_file_);
-	    DEBUGPRINT( "JumpOnVar = " << std::hex << var_offset << std::dec << std::endl);
-	    fseek(model_file_, pos, SEEK_SET);
 	    /*
+	      long pos = ftell(model_file_);
+	      fseek(model_file_, var_offset-5, SEEK_CUR);
+	      fread(&var, 2, 1, model_file_);
+	    */
+	    DEBUGPRINT( "JumpOnVar = " << std::hex << var_offset << 
+			std::dec << std::endl);
+	    /*
+	      fseek(model_file_, pos, SEEK_SET);
+	    
 	      if((var & mask) == 0)
 	      {
 	      DEBUGPRINT( "JUMP " << rel_addr << " bytes\n");
@@ -1038,8 +1078,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    fread(param, 1, 4, model_file_);
 	  }
 	  break;
-	
-	
+
 	case 0x68: 	// TMAP LIGHT SOURCE SHADE - ignored
 	  {
 	    sgVec3 v;
@@ -1126,6 +1165,12 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	  }
 	  break;
 	
+	case 0x88:      // JUMP32 -- ignored
+	  {
+	    get_dword();
+	  }
+	  break;
+
 	case 0x8A:	// BGL Call subroutine
 	  {
 	    unsigned short rel_addr;
