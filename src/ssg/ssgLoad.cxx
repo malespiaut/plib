@@ -227,15 +227,6 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
 	s_ptr = &(buffer[strlen(buffer)-1]);
 	while ((s_ptr > buffer) && (*s_ptr != '/') && (*s_ptr != '\\')) 
 		s_ptr--;
-// wk: Hint for wk :-): missing in Windows code:
-
-	if ((*s_ptr != '/') && (*s_ptr != '\\'))
-	  strcpy(_ssgANOM, s_ptr);
-	else
-		strcpy(_ssgANOM, &(s_ptr[1]));
-	if ( strchr(_ssgANOM, '.') != NULL )
-		strchr(_ssgANOM, '.')[0] = 0;
-//
 	if ( s_ptr >= buffer ) *s_ptr = 0;
 	appendPath(_ssgAPOM, buffer);
 #endif
