@@ -228,7 +228,10 @@ void puObject::draw_legend ( int dx, int dy )
   int rgap = PUSTR_RGAP ;
   int tgap = PUSTR_TGAP ;
   int bgap = PUSTR_BGAP ;
-  if ( getStyle () == PUSTYLE_BOXED )
+  if ( ( abs(style) != PUSTYLE_NONE ) &&
+       ( abs(style) != PUSTYLE_PLAIN ) &&
+       ( abs(style) != PUSTYLE_DROPSHADOW ) &&
+       ( abs(style) != PUSTYLE_SPECIAL_UNDERLINED ) )
   {
     lgap += getBorderThickness () ;
     rgap += getBorderThickness () ;
