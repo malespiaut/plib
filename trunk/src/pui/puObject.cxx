@@ -286,7 +286,7 @@ void puObject::draw_legend ( int dx, int dy )
   case PUPLACE_BOTTOM_RIGHT    :
   case PUPLACE_BELOW_RIGHT    :
   case PUPLACE_LOWER_RIGHT    :
-    yy = bgap ;
+    yy = bgap + legendFont.getStringDescender () ;
     break ;
   }
 
