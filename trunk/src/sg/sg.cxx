@@ -24,38 +24,6 @@
 
 #include "sg.h"
 
-/* Type-casted sqrt and sin/cos/tan/asin/acos/atan2 ARGUMENTS IN DEGREES */
-
-inline SGDfloat sgdASin ( SGDfloat s )
-                { return (SGDfloat) asin ( s ) * SGD_RADIANS_TO_DEGREES ; }
-inline SGDfloat sgdACos ( SGDfloat s )
-                { return (SGDfloat) acos ( s ) * SGD_RADIANS_TO_DEGREES ; }
-inline SGDfloat sgdATan ( SGDfloat s )
-                { return (SGDfloat) atan ( s ) * SGD_RADIANS_TO_DEGREES ; }
-inline SGDfloat sgdATan2 ( SGDfloat y, SGDfloat x )
-                { return (SGDfloat) atan2 ( y,x ) * SGD_RADIANS_TO_DEGREES ; }
-inline SGDfloat sgdSin ( SGDfloat s )
-                { return (SGDfloat) sin ( s * SGD_DEGREES_TO_RADIANS ) ; }
-inline SGDfloat sgdCos ( SGDfloat s )
-                { return (SGDfloat) cos ( s * SGD_DEGREES_TO_RADIANS ) ; }
-inline SGDfloat sgdTan ( SGDfloat s )
-                { return (SGDfloat) tan ( s * SGD_DEGREES_TO_RADIANS ) ; }
-
-inline SGfloat sgASin ( SGfloat s )
-                { return (SGfloat) asin ( s ) * SG_RADIANS_TO_DEGREES ; }
-inline SGfloat sgACos ( SGfloat s )
-                { return (SGfloat) acos ( s ) * SG_RADIANS_TO_DEGREES ; }
-inline SGfloat sgATan ( SGfloat s )
-                { return (SGfloat) atan ( s ) * SG_RADIANS_TO_DEGREES ; }
-inline SGfloat sgATan2 ( SGfloat y, SGfloat x )
-                { return (SGfloat) atan2 ( y,x ) * SG_RADIANS_TO_DEGREES ; }
-inline SGfloat sgSin ( SGfloat s )
-                { return (SGfloat) sin ( s * SG_DEGREES_TO_RADIANS ) ; }
-inline SGfloat sgCos ( SGfloat s )
-                { return (SGfloat) cos ( s * SG_DEGREES_TO_RADIANS ) ; }
-inline SGfloat sgTan ( SGfloat s )
-                { return (SGfloat) tan ( s * SG_DEGREES_TO_RADIANS ) ; }
-
 void sgVectorProductVec3 ( sgVec3 dst, const sgVec3 a, const sgVec3 b )
 {
   dst[0] = a[1] * b[2] - a[2] * b[1] ;
