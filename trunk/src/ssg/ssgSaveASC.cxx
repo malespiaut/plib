@@ -67,6 +67,43 @@ static void save_vtx_table ( ssgVtxTable *vt )
   Vertex list:
 */
   fprintf ( save_fd, "Vertex list:\n"); 
+	const char *material = "PALGREY27";
+	ssgState *s = vt->getState();
+	if (s)
+		if(s->isAKindOf(ssgTypeSimpleState()))
+		{
+	
+			ssgTexture * t = ((ssgSimpleState *)s)->getTexture();
+			if(t)
+			{
+				char *fn = t->getFilename();
+				if (fn)
+				{
+				
+					char *tsA = new char [strlen(fn)+1];
+					strcpy(tsA, fn);
+					char *t = strrchr(tsA, '.');
+					if (t)
+					{
+						// special handling for *.0af .. *.9af to be able to differntiate between them:
+						if((t[2]=='a') && (t[3]=='f'))
+							*t='_';
+						else
+							*t=0;
+					}
+
+					t = strrchr(tsA, '\\');
+					if (!t)
+						t = tsA;
+					else
+						t++;
+					
+
+						
+					material = t;
+				}
+			}
+		}
 	for ( j = 0; j < num_vert; j++ )
   {
     sgVec3 v;
@@ -76,7 +113,11 @@ static void save_vtx_table ( ssgVtxTable *vt )
 	  {
 			sgVec2 tv ;
       sgCopyVec2 ( tv, vt->getTexCoord ( j ) ) ;
-      fprintf ( save_fd, " %f %f\n", tv[0], tv[1]); // 1.0f - tv[1]);
+			// ***************************************************
+			// WK: Originally I did not have the "U:" and "V:" !!!
+			// Strange !! Maybe there are two formats??
+			// ***************************************************
+      fprintf ( save_fd, " U:%f V:%f\n", tv[0], tv[1]); // 1.0f - tv[1]);
 		}
  		else
 		  fprintf ( save_fd, "\n"); 
@@ -89,12 +130,11 @@ static void save_vtx_table ( ssgVtxTable *vt )
 		fprintf ( save_fd, "Face list:\n"); 
 	for ( j = 0; j < num_face; j++ )
   {
-    //WKSHORT
-		short i1,i2,i3;
+    short i1,i2,i3;
     vt -> getTriangle ( j, &i1, &i2, &i3 ) ;
 
     fprintf ( save_fd, "Face %d: A:%d B:%d C:%d AB:1 BC:1 CA:1\n", j, i1, i2, i3 ); 
-		fprintf ( save_fd, "Material:\"DUMMY\"\n"); 
+		fprintf ( save_fd, "Material:\"%s\"\n", material ); 
   }
   fprintf ( save_fd, "\n");  // empty line after the named object
   
@@ -112,6 +152,9 @@ static void save_vtx_table ( ssgVtxTable *vt )
 
 }
 
+// wk: Kludge !!!
+// if the "calling app" like PPE sets this, then only nodes with spare ==1 are saved !!
+int bUseSpare=FALSE; 
 
 static void save_geom ( ssgEntity *e )
 {
@@ -131,10 +174,17 @@ static void save_geom ( ssgEntity *e )
   }
   else
   if ( e -> isAKindOf ( ssgTypeVtxTable() ) )
-  {
-    ssgVtxTable *vt = (ssgVtxTable *) e ;
-    save_vtx_table ( vt ) ;
-  }
+	{ int bSaveIt = TRUE;
+	  if(bUseSpare)
+			if( 1 != e->getSpare() )
+				bSaveIt = FALSE;
+
+		if ( bSaveIt )
+		{
+			ssgVtxTable *vt = (ssgVtxTable *) e ;
+			save_vtx_table ( vt ) ;
+		}
+	}
 }
 
 
