@@ -41,7 +41,7 @@ ssgBase *ssgCutout::clone ( int clone_flags )
 ssgCutout::ssgCutout (int pntrot)
 {
   point_rotate = pntrot ;
-  type |= SSG_TYPE_CUTOUT ;
+  type = ssgTypeCutout () ;
 }
 
 ssgCutout::~ssgCutout ()

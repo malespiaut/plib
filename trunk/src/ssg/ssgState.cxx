@@ -39,7 +39,7 @@ void ssgState::copy_from ( ssgState *src, int clone_flags )
 
 ssgState::ssgState (void)
 {
-  type |= SSG_TYPE_STATE ;
+  type = ssgTypeState () ;
   setOpaque () ;
   setExternalPropertyIndex ( 0 ) ;
 }

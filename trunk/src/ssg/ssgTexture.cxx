@@ -70,7 +70,7 @@ void ssgTexture::setDefaultGlParams(int wrapu, int wrapv, int mipmap)
 
 ssgTexture::ssgTexture ()
 {
-  type |= SSG_TYPE_TEXTURE ;
+  type = ssgTypeTexture () ;
 
   filename = NULL ;
 
@@ -89,7 +89,7 @@ ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize
 // fname is used when saving the ssgSimpleState to disc.
 // If there is no associated file, you can use a dummy name.
 {
-  type |= SSG_TYPE_TEXTURE ;
+  type = ssgTypeTexture () ;
 
   filename = NULL ;
 
@@ -117,7 +117,7 @@ ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize
 
 ssgTexture::ssgTexture ( const char *fname, int _wrapu, int _wrapv, int _mipmap )
 {
-  type |= SSG_TYPE_TEXTURE ;
+  type = ssgTypeTexture () ;
 
   filename = NULL ;
 

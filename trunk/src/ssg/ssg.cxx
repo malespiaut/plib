@@ -430,10 +430,10 @@ ssgBase *ssgCreateOfType ( int type )
   ssgBase *obj = (*table[i].func) () ;
 
   if ( obj == NULL )
-    ulSetError ( UL_WARNING, "ssgCreateOfType: Got NULL object for type %#x.", type ) ;
+    ulSetError ( UL_WARNING, "ssgCreateOfType: Got null object for type %#x.", type ) ;
   else if ( obj -> getType () != type )
     ulSetError ( UL_WARNING,
-		 "ssgCreateOfType: Object has wrong type #%x (%s), expected %#x.",
+		 "ssgCreateOfType: Created object has wrong type %#x (%s), expected %#x.",
 		 obj -> getType (), obj -> getTypeName (), type ) ;
 
   return obj ;

@@ -39,7 +39,7 @@ ssgBase *ssgRoot::clone ( int clone_flags )
 
 ssgRoot::ssgRoot (void)
 {
-  type |= SSG_TYPE_ROOT ;
+  type = ssgTypeRoot () ;
 }
 
 ssgRoot::~ssgRoot (void)

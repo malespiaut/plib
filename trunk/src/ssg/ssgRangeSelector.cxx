@@ -45,7 +45,7 @@ ssgBase *ssgRangeSelector::clone ( int clone_flags )
 
 ssgRangeSelector::ssgRangeSelector (void)
 {
-  type |= SSG_TYPE_RANGESELECTOR ;
+  type = ssgTypeRangeSelector () ;
   additive = FALSE ;
   rng_list[0] = 0.0f ;
 

@@ -59,7 +59,7 @@ ssgBase *ssgStateSelector::clone ( int clone_flags )
 
 ssgStateSelector::ssgStateSelector () 
 { 
-  type |= SSG_TYPE_STATESELECTOR ;
+  type = ssgTypeStateSelector () ;
   nstates = 0 ;
   selection = -1 ; 
   statelist = NULL ;
@@ -67,7 +67,7 @@ ssgStateSelector::ssgStateSelector ()
 
 ssgStateSelector::ssgStateSelector ( int ns ) 
 { 
-  type |= SSG_TYPE_STATESELECTOR ;
+  type = ssgTypeStateSelector () ;
   nstates   = ns ;
   selection = -1 ; 
   statelist = new ssgSimpleState * [ nstates ] ;

@@ -1287,7 +1287,7 @@ static int parse_object()
       ssgEntity* found = top_branch -> getByName ( obj->parent ) ;
       if ( found != NULL )
       {
-        assert ( found -> isAKindOf ( SSG_TYPE_BRANCH ) ) ;
+        assert ( found -> isAKindOf ( ssgTypeBranch() ) ) ;
         parent_branch = (ssgBranch *) found ;
       }
       else

@@ -266,11 +266,11 @@ static void save_vtx_table ( ssgVtxTable *vt )
 
 static void save_geom ( ssgEntity *e )
 {
-  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
+  if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
     ssgBranch *br = (ssgBranch *) e ;
 
-    if ( br -> isAKindOf ( SSG_TYPE_SELECTOR ) )
+    if ( br -> isAKindOf ( ssgTypeSelector() ) )
     {
       save_geom ( br -> getKid ( 0 ) ) ;
     }
@@ -281,7 +281,7 @@ static void save_geom ( ssgEntity *e )
     }
   }
   else
-  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
+  if ( e -> isAKindOf ( ssgTypeVtxTable() ) )
   {
     ssgVtxTable *vt = (ssgVtxTable *) e ;
     save_vtx_table ( vt ) ;

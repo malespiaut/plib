@@ -62,7 +62,7 @@ ssgBase *ssgVTable::clone ( int clone_flags )
 
 ssgVTable::ssgVTable ()
 {
-  type |= SSG_TYPE_VTABLE ;
+  type = ssgTypeVTable () ;
   gltype = GL_POINTS ;
   indexed = FALSE ;
   num_vertices  = 0 ; v_index = NULL ; vertices  = NULL ;
@@ -78,7 +78,7 @@ ssgVTable::ssgVTable ( GLenum ty,
             int nt, unsigned short *ti, sgVec2 *tl,
             int nc, unsigned short *ci, sgVec4 *cl )
 {
-  type |= SSG_TYPE_VTABLE ;
+  type = ssgTypeVTable () ;
   gltype = ty ;
 
   indexed = TRUE ;
@@ -99,7 +99,7 @@ ssgVTable::ssgVTable ( GLenum ty,
             int nc, sgVec4 *cl )
 {
   gltype = ty ;
-  type |= SSG_TYPE_VTABLE ;
+  type = ssgTypeVTable () ;
 
   indexed = FALSE ;
   num_vertices  = nv ; vertices  = vl ;

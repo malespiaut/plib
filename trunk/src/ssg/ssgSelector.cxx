@@ -44,7 +44,7 @@ ssgBase *ssgSelector::clone ( int clone_flags )
 
 ssgSelector::ssgSelector ( int _max_kids )
 {
-  type |= SSG_TYPE_SELECTOR ;
+  type = ssgTypeSelector () ;
 
   max_kids = _max_kids ;
   selection = new unsigned char [ max_kids ] ;

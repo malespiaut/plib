@@ -37,7 +37,7 @@ void ssgEntity::copy_from ( ssgEntity *src, int clone_flags )
 ssgEntity::ssgEntity (void)
 {
   traversal_mask = 0xFFFFFFFF ;
-  type |= SSG_TYPE_ENTITY ;
+  type = ssgTypeEntity () ;
   bsphere_is_invalid = TRUE ;
 
   preTravCB = NULL ;
@@ -145,7 +145,7 @@ ssgEntity* ssgEntity::getByPath ( char *path )
 
 ssgCallback ssgEntity::getCallback ( int cb_type )
 {
-  if ( isAKindOf ( SSG_TYPE_LEAF ) )
+  if ( isAKindOf ( ssgTypeLeaf() ) )
     return ((ssgLeaf*)this) -> getCallback ( cb_type ) ;
 
   /*
@@ -161,7 +161,7 @@ ssgCallback ssgEntity::getCallback ( int cb_type )
 
 void ssgEntity::setCallback ( int cb_type, ssgCallback cb )
 {
-  if ( isAKindOf ( SSG_TYPE_LEAF ) )
+  if ( isAKindOf ( ssgTypeLeaf() ) )
   {
     ((ssgLeaf*)this) -> setCallback ( cb_type, cb ) ;
   }

@@ -51,7 +51,7 @@ ssgBase *ssgVtxArray::clone ( int clone_flags )
 
 ssgVtxArray::ssgVtxArray () : ssgVtxTable()
 {
-  type |= SSG_TYPE_VTXARRAY ;
+  type = ssgTypeVtxArray () ;
   indices = NULL ;
 }
 
@@ -63,7 +63,7 @@ ssgVtxArray::ssgVtxArray ( GLenum ty,
                 ssgColourArray   *cl,
                 ssgIndexArray    *il ) : ssgVtxTable( ty, vl, nl, tl, cl )
 {
-  type |= SSG_TYPE_VTXARRAY ;
+  type = ssgTypeVtxArray () ;
 
   indices = (il!=NULL) ? il : new ssgIndexArray () ;
 

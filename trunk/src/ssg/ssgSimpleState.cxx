@@ -77,7 +77,7 @@ void _ssgForceLineState ()
 
 ssgSimpleState::ssgSimpleState ( int /* I_am_currstate */ )
 {
-  type |= SSG_TYPE_SIMPLESTATE ;
+  type = ssgTypeSimpleState () ;
   texture  = NULL ;
   dont_care = 0xFFFFFFFF ;
   disable ( GL_TEXTURE_2D  ) ;
@@ -91,7 +91,7 @@ ssgSimpleState::ssgSimpleState ( int /* I_am_currstate */ )
 
 ssgSimpleState::ssgSimpleState (void)
 {
-  type |= SSG_TYPE_SIMPLESTATE ;
+  type = ssgTypeSimpleState () ;
 
   texture  = NULL ;
   dont_care = 0xFFFFFFFF ;
@@ -541,7 +541,7 @@ void ssgSimpleStateArray::collect ( ssgEntity *e )
 
 void ssgSimpleStateArray::collect_recursive ( ssgEntity *e )
 {
-  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
+  if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
     ssgBranch *br = (ssgBranch *) e ;
 
@@ -549,11 +549,11 @@ void ssgSimpleStateArray::collect_recursive ( ssgEntity *e )
       collect_recursive ( br -> getKid ( i ) ) ;
   }
   else
-  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
+  if ( e -> isAKindOf ( ssgTypeVtxTable() ) )
   {
     ssgVtxTable* vt = (ssgVtxTable *) e ;
     ssgState* st = vt -> getState () ;
-    if ( st && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+    if ( st && st -> isAKindOf ( ssgTypeSimpleState() ) )
     {
       ssgSimpleState* ss = (ssgSimpleState*) vt -> getState () ;
       if ( findIndex ( ss ) == -1 )

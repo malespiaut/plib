@@ -63,7 +63,7 @@ ssgLeaf::ssgLeaf (void)
 {
   cull_face = TRUE ;
   state = NULL ;
-  type |= SSG_TYPE_LEAF ;
+  type = ssgTypeLeaf () ;
 
 #ifdef _SSG_USE_DLIST
   dlist = 0 ;

@@ -56,7 +56,7 @@ ssgBase *ssgTimedSelector::clone ( int clone_flags )
 
 ssgTimedSelector::ssgTimedSelector ( int max_kids ) : ssgSelector ( max_kids )
 {
-  type |= SSG_TYPE_TIMEDSELECTOR ;
+  type = ssgTypeTimedSelector () ;
   select ( 1 ) ;
   running = SSG_ANIM_STOP ;
   mode = SSG_ANIM_SHUTTLE ;

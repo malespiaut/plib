@@ -43,14 +43,14 @@ ssgBase *ssgAxisTransform::clone ( int clone_flags )
 
 ssgAxisTransform::ssgAxisTransform (void)
 {
-  type |= SSG_TYPE_AXISTRANSFORM ;
+  type = ssgTypeAxisTransform () ;
   sgZeroVec3 ( rotation_axis ) ;
   limit_low = limit_high = 0.f;  
 }
 
 ssgAxisTransform::ssgAxisTransform ( sgVec3 axis, sgVec3 center )
 {
-  type |= SSG_TYPE_AXISTRANSFORM ;
+  type = ssgTypeAxisTransform () ;
   setAxis   ( axis   );
   setCenter ( center );
   limit_low = limit_high = 0.f;

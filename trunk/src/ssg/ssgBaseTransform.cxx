@@ -38,7 +38,7 @@ void ssgBaseTransform::copy_from ( ssgBaseTransform *src, int clone_flags )
 
 ssgBaseTransform::ssgBaseTransform (void)
 {
-  type |= SSG_TYPE_BASETRANSFORM ;
+  type = ssgTypeBaseTransform () ;
   last_updated = -9999999 ;
   first_time = TRUE ;
   sgMakeIdentMat4 ( transform ) ;
