@@ -168,6 +168,9 @@ AC_OUTPUT( \
 	src/ssg/viewer/data/Makefile \
 	src/fnt/Makefile \
 	src/net/Makefile \
+	src/net/client_server/Makefile \
+        src/net/http_get/Makefile \
+        src/net/net_echo/Makefile \
 	src/util/Makefile )
 
 
