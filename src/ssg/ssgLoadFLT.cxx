@@ -99,17 +99,12 @@
 # endif
 #endif
 
-#define USE_ALLOCA
-
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
 #ifdef __sgi
 # include <sys/endian.h>
-# ifdef USE_ALLOCA
-#  include <alloca.h>
-# endif
 #endif
 #ifdef USE_POSIX_MMAP
 # include <time.h>
@@ -119,27 +114,6 @@
 #endif
 #ifdef _MSC_VER
 # include <io.h>
-# ifdef USE_ALLOCA
-#  include <malloc.h>
-# endif
-#endif
-
-#ifdef __MWERKS__
-#  ifdef USE_ALLOCA
-#    include <alloca.h>
-#  endif
-#endif
-
-#ifdef __BORLANDC__
-# ifdef USE_ALLOCA
-#  include <malloc.h>
-# endif
-#endif
-
-#if defined(__MINGW32__)
-# ifdef USE_ALLOCA
-#  include <libiberty.h>
-# endif
 #endif
 
 
@@ -612,8 +586,13 @@ struct fltState {
 struct fltNodeAttr {   
 
    /* allocated using new/delete for convenience */
-   fltNodeAttr() { memset(this, 0, sizeof(*this)); }
-   ~fltNodeAttr() { if (name) /*free(name);*/ delete name; }
+   fltNodeAttr() {
+      memset(this, 0, sizeof(*this)); 
+   }
+   ~fltNodeAttr() { 
+      if (name) delete name; 
+      if (mask_words) delete mask_words; 
+   }
 
    /* properies that are not applied immediately */
 
@@ -626,6 +605,12 @@ struct fltNodeAttr {
    sgMat4 mat;
    sgVec2 range;
    sgVec3 center;
+
+   /* switch record info */
+   int num_masks;
+   int num_words;
+   uint *mask_words;
+   int current_mask;
 
 };
 
@@ -859,13 +844,8 @@ static ssgEntity *Build(fltState *state)
     */
    qsort(arr, num, sizeof(fltTriangle), tricmp);
 
-#ifdef USE_ALLOCA
-   int *index = (int *)alloca(sizeof(index[0]) * state->vnum);
-   int *vertex = (int *)alloca(sizeof(vertex[0]) * 32768);
-#else
-   int index[state->vnum];
-   int vertex[32768];
-#endif
+   int *index = new int [ state->vnum ];
+   int *vertex = new int [ 32768 ];
    
    for (i = 0; i < num; ) {
 
@@ -1085,6 +1065,9 @@ static ssgEntity *Build(fltState *state)
       i = j;
    }
 
+   delete [] vertex;
+   delete [] index;
+
    if (((leaf != 0) + (bboard1 != 0) + (bboard2 != 0)) > 1 && !grp) //lint !e514 Lint warning "unusual use of a boolean"
       grp = new ssgBranch;
 
@@ -1128,14 +1111,13 @@ static void AddTri(fltState *state, int v0, int v1, int v2)
 
 static void Triangulate(int *w, int n, fltState *state)
 {
-#ifdef USE_ALLOCA
-   int *tris = (int *) alloca(sizeof(int) * 3 * (n - 2));
-#else
-   int tris[3 * (n - 2)];
-#endif
+   int buf[3 * (16 - 2)];
+   int *tris = (n > 16) ? new int [ 3 * (n - 2) ] : buf;
    int num_tris = _ssgTriangulate(state->coord, w, n, tris);
    for (int i = 0; i < num_tris; i++)
       AddTri(state, tris[3*i + 0], tris[3*i + 1], tris[3*i + 2]);
+   if (tris != buf)
+     delete [] tris;
 }
 
 static int ObsoleteFlag;
@@ -1774,7 +1756,7 @@ static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
 
    /* set limits on animated nodes */
    if (node && node->isA(ssgTypeTimedSelector())) {
-      ssgTimedSelector *sw = (ssgTimedSelector *)node;
+      ssgTimedSelector *sw = (ssgTimedSelector *) node;
       if (sw->getNumKids() > 1) {
 	 sw->setDuration(30.0f);
 	 sw->setLimits(0, sw->getNumKids() - 1);			  
@@ -1846,7 +1828,31 @@ static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
 	       lod->addKid(node);
 	       node = lod;
 	    }
-	 }	 
+	 }
+      }
+
+      /* setup switch records */
+      if (attr->num_masks > 0) {
+	ssgTimedSelector *sw = new ssgTimedSelector;
+	int n = ((ssgBranch *) node) -> getNumKids();
+	if (n > 32 * attr->num_words) n = 32 * attr->num_words;
+	for (int i = 0; i < attr->num_masks; i++) {
+	  ssgBranch *br = new ssgBranch;
+	  for (int j = 0; j < n; j++) {
+	    if (attr->mask_words[j / 32] & (1u << (j % 32)))
+	      br -> addKid(((ssgBranch *) node) -> getKid(j));
+	  }
+	  sw -> addKid(br);
+	}
+	if (node->getRef() == 0) {
+	  ((ssgBranch *) node) -> removeAllKids();
+	  delete node;
+	}
+	sw->setMode(SSG_ANIM_SHUTTLE);
+	sw->setDuration(30.0f);
+	sw->setLimits(0, attr->num_masks - 1);	
+	sw->control(SSG_ANIM_START);
+	node = sw;
       }
    }
 
@@ -2127,17 +2133,29 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
          PostLink(stack + sp - 1, attr + sp - 1);
 
 	 switch (op) {
-	 case 14: 
-	    stack[sp] = new ssgTransform; 
-	    break;
-#if 1
-	 case 96: {
-	    ssgTimedSelector *sw = new ssgTimedSelector; 
-	    stack[sp] = sw;
+
+	 case 2: { /* Group */
+#if 0 /* group animation - seems wrong... */
+	    int flags = (len >= 20) ? get32i(ptr + 16) : 0;
+	    if ((flags & 3) != 0) {
+	       ssgTimedSelector *sw = new ssgTimedSelector;
+	       sw->setMode((flags & 2) ? SSG_ANIM_SWING : SSG_ANIM_SHUTTLE);
+	       stack[sp] = sw;
+	    }
+	    else 
+#endif
+            {
+	       stack[sp] = new ssgBranch;
+	    }
 	    break;
 	 }
-#endif
-	 case 73: {
+
+	 case 14: { /* Degree of Freedom */
+	    stack[sp] = new ssgTransform; 
+	    break;
+	 }
+
+	 case 73: { /* Level of Detail */
 	    fltNodeAttr *a;
 	    double v[3];
 	    attr[sp] = a = new fltNodeAttr;
@@ -2149,14 +2167,39 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
             stack[sp] = new ssgBranch;
 	    break;
 	 }
-	 default: //lint !e616
-            stack[sp] = new ssgBranch;
+
+	 case 96: { /* Switch */
+	    int num_words = (len > 28) ? get32i(ptr + 20) : -1;
+	    int num_masks = (len > 28) ? get32i(ptr + 24) : -1;
+	    if (num_words <= 0 || num_masks <= 0 || len < 28 + 4 * num_words * num_masks) {
+ 	       ulSetError(UL_DEBUG, "[flt] Incomplete switch record.");
+	    }
+	    else {
+ 	       fltNodeAttr *a = new fltNodeAttr;
+	       a->current_mask = get32i(ptr + 16);
+	       a->num_masks = num_masks;
+	       a->num_words = num_words;
+	       a->mask_words = new uint [ num_masks * num_words ];
+	       get32v(ptr + 28, a->mask_words, num_masks * num_words);
+	       attr[sp] = a;
+	    }
+	    stack[sp] = new ssgBranch;
 	    break;
+	 }
+
+	 default: { /* Others (i.e. 98 Clip Region) */
+	    stack[sp] = new ssgBranch;
+	    break;
+	 }
+
          }
+
 	 if (ptr[4])
 	    stack[sp]->setName((char *)ptr + 4);
+
          ptr += len;
          ptr += AttrChunks(ptr, end, &attr[sp]);
+
          break;
 
       case 61: /* Instance Reference */
@@ -2835,11 +2878,7 @@ static ssgEntity *Flatten(ssgEntity *node, float (*mat)[4])
 	    ssgBranch *grp = (ssgBranch *)node;
 	    int i, n = grp->getNumKids();
 	    if (n > 0) {
-#ifdef USE_ALLOCA
-	       ssgEntity **kids = (ssgEntity **)alloca(sizeof(ssgEntity *) * n);
-#else
-	       ssgEntity *kids[n];
-#endif
+	       ssgEntity *kids[32];
 	       for (i = n; i--;) {
 		  kids[i] = grp->getKid(i);
 		  kids[i]->ref(); grp->removeKid(i); kids[i]->deRef();
@@ -2914,11 +2953,7 @@ static ssgEntity *Flatten(ssgEntity *node, float (*mat)[4])
 	 return Flatten(kid, mat);
       }
       else {
-#ifdef USE_ALLOCA
-	 ssgEntity **kids = (ssgEntity **)alloca(sizeof(ssgEntity *) * n);
-#else
-	 ssgEntity *kids[n];
-#endif
+	 ssgEntity *kids[32];
 	 for (i = n; i--;) {
 	    kids[i] = grp->getKid(i);
 	    kids[i]->ref(); grp->removeKid(i); kids[i]->deRef();
