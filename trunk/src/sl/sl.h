@@ -693,6 +693,9 @@ public:
   int   getTimeNow     () { return now ; }
   float getElapsedTime ( int then ) { return (float)(now-then)/(float)getRate() ; }
 
+  void setMaxConcurrent ( int mc ) { /* Stubbed out until PLIB 1.5.0 */ }
+  int  getMaxConcurrent () { return 3 ; /* Stubbed out until PLIB 1.5.0 */ }
+
   void flushCallBacks () ;
   void addCallBack    ( slCallBack c, slSample *s, slEvent e, int m ) ;
 
