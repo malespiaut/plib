@@ -25,6 +25,9 @@
 
 #ifdef UL_WIN32
 
+// Since we use  joyGetPosEx to request the joystick values, 
+// we have never more than 8 axes to worry about:
+#undef _JS_MAX_AXES
 #define _JS_MAX_AXES 8  /* X,Y,Z,R,U,V,POV_X,POV_Y */
 
 
