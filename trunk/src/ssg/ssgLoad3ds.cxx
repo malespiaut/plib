@@ -423,9 +423,9 @@ static int parse_rgb1( unsigned int length ) {
 static int parse_rgb2( unsigned int length ) {
   float r, g, b;
 
-  r = (float)get_byte() / 255.0;
-  g = (float)get_byte() / 255.0;
-  b = (float)get_byte() / 255.0;
+  r = (float)get_byte() / 255.0f;
+  g = (float)get_byte() / 255.0f;
+  b = (float)get_byte() / 255.0f;
   DEBUGPRINT("%sColour: R:%.2f, G:%.2f, B:%.2f\n", r, g, b);
 
   sgSetVec3(current_material->colour[colour_mode], r, g, b);
@@ -454,7 +454,7 @@ static int parse_shininess( unsigned int length ) {
   // this chunk contains a percentage chunk,
   // so just read that chunks header
   get_word(); get_dword();
-  current_material -> shi = (float)get_word() * 128.0 / 100.0;
+  current_material -> shi = (float)get_word() * 128.0f / 100.0f;
   DEBUGPRINT("%sShininess:%.1f%s%s\n", current_material->shi, "", "");
   return PARSE_OK;
 }

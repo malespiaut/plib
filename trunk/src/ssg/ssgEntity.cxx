@@ -65,13 +65,16 @@ void ssgEntity::visualiseBSphere ()
     return ;
 
   glDisable ( GL_LIGHTING ) ;
-  glTranslatef(bsphere.getCenter()[0],bsphere.getCenter()[1],bsphere.getCenter()[2]);
 
+  glTranslatef ( bsphere.getCenter()[0],
+                 bsphere.getCenter()[1],
+                 bsphere.getCenter()[2] ) ;
+
+#ifdef USE_GLUT_SPHERES
   int spherebotch = (int)(this) % 9 ;
 
   switch ( spherebotch++ )
   {
-#ifdef USE_GLUT_SPHERES
     case 0 : glutWireSphere(bsphere.getRadius(),10,10); break ;
     case 1 : glutWireSphere(bsphere.getRadius(),11,10); break ;
     case 2 : glutWireSphere(bsphere.getRadius(),12,10); break ;
@@ -80,11 +83,14 @@ void ssgEntity::visualiseBSphere ()
     case 5 : glutWireSphere(bsphere.getRadius(),12,11); break ;
     case 6 : glutWireSphere(bsphere.getRadius(),10,12); break ;
     case 7 : glutWireSphere(bsphere.getRadius(),11,12); break ;
-    case 8 : glutWireSphere(bsphere.getRadius(),12,12); spherebotch = 0 ; break ;
-#else
-#endif
+    case 8 : glutWireSphere(bsphere.getRadius(),12,12); spherebotch=0 ; break ;
   }
-  glTranslatef(-bsphere.getCenter()[0],-bsphere.getCenter()[1],-bsphere.getCenter()[2]);
+#endif
+
+  glTranslatef ( -bsphere.getCenter()[0],
+                 -bsphere.getCenter()[1],
+                 -bsphere.getCenter()[2] ) ;
+
   glEnable ( GL_LIGHTING ) ;
 }
 
