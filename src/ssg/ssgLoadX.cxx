@@ -551,7 +551,7 @@ int HandleMesh(const char * /* sName */, const char *firstToken)
 		currentState = new ssgSimpleState();
 
 	currentMesh.add2SSG(
-		currentState // Pfusch
+		currentState // Pfusch, kludge. NIV135
 		,
 		current_options,
 		curr_branch_);

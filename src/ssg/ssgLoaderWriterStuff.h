@@ -73,7 +73,7 @@ class ssgLoaderWriterMesh
 	
 	void AddOneNode2SSG(class ssgVertexArray *theVertices, 
 		class ssgListOfLists *theFaces,
-		class ssgSimpleState *currentState,// Pfusch 
+		class ssgSimpleState *currentState,// Pfusch, kludge. NIV135
 		class ssgLoaderOptions* current_options,
 		class ssgBranch *curr_branch_);
 

@@ -155,7 +155,7 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname )
 	//execlp ( "convert", "convert",  command, NULL ) ;
 
 #endif
-	// Pfusch: Kludge; warning?
+	// Kludge; warning? NIV135
 	strcpy( filepath, tmp );
 }
 
@@ -514,12 +514,12 @@ void ssgLoaderWriterMesh::AddFaceFromCArray(int nNoOfVerticesForThisFace,
 
 void ssgLoaderWriterMesh::AddOneNode2SSG(class ssgVertexArray *theVertices, 
 	class ssgListOfLists *theFaces,
-	class ssgSimpleState *currentState,// Pfusch 
+	class ssgSimpleState *currentState,// kludge NIV135 
 	class ssgLoaderOptions* current_options,
 	class ssgBranch *curr_branch_)
 
 { int i, j;
-		//start Normalen, (z.T.?) Pfusch
+		//start Normalen, (z.T.?) Pfusch, kludge NIV135
 
 	ssgNormalArray *nl = new ssgNormalArray(theVertices->getNum());
 	sgVec3 Pfusch;
@@ -560,7 +560,7 @@ void ssgLoaderWriterMesh::AddOneNode2SSG(class ssgVertexArray *theVertices,
 
 	ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES,
 		theVertices, nl , 
-		PfuschGettCPV(), // super Pfusch kludge
+		PfuschGettCPV(), // super Pfusch kludge. NIV135
 		cl, il ) ;
 	leaf -> setCullFace ( TRUE ) ;
 	leaf -> setState ( currentState ) ;
@@ -571,7 +571,7 @@ void ssgLoaderWriterMesh::AddOneNode2SSG(class ssgVertexArray *theVertices,
 }
 
 void ssgLoaderWriterMesh::add2SSG(
-		class ssgSimpleState *currentState,// Pfusch 
+		class ssgSimpleState *currentState,// Pfusch, kludge. NIV135
 		class ssgLoaderOptions* current_options,
 		class ssgBranch *curr_branch_)
 { int i, j, k;
@@ -617,7 +617,7 @@ void ssgLoaderWriterMesh::add2SSG(
 
 			// Go through all the old Faces, look for the correct material and copy those
 			// faces and indexes into the new
-			// Pfusch, kludge, 2do: if the Materials just differ through the colour, one would not need
+			// Pfusch, kludge, 2do, NIV135: if the Materials just differ through the colour, one would not need
 			// several meshes, but could use the colour array. However, this is not possible,
 			// if they differ by for example the texture
 			assert(materialIndexes!=NULL);
@@ -674,7 +674,7 @@ int ssgLoaderWriterMesh::checkMe()
 // and a bit of debug info as UL_DEBUG
 // May stop on first error.
 
-// Pfusch; todo: tCPV and tCPFAV
+// Pfusch; todo: tCPV and tCPFAV. NIV135
 { int i, oneIndex;
   class ssgIndexArray * vertexIndsForOneFace;
 	class ssgTexCoordArray * textureCoordsForOneFace;
@@ -694,7 +694,7 @@ int ssgLoaderWriterMesh::checkMe()
 
 	}
 	// **** check materialIndexes and theMaterials *****
-	/* Pfusch; kludge 2do
+	/* Pfusch; kludge: 2do. NIV135
 	// one index per face:
 	class ssgIndexArray *materialIndexes; 
 
