@@ -40,7 +40,7 @@ PSL_Result PSL_Context::step ()
         for ( int i = argc-1 ; i >= 0 ; i-- )
           argv [ i ] = stack [ --sp ] ;
 
-        stack [ sp++ ] = (*(extensions [ ext ] . func)) ( argc, argv ) ; 
+        stack [ sp++ ] = (*(extensions [ ext ] . func)) (argc,argv,program) ; 
         pc++ ;
       }
       return PSL_PROGRAM_CONTINUE ;

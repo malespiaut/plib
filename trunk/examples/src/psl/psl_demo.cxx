@@ -4,13 +4,13 @@
 #include <unistd.h>
 #include <plib/psl.h>
 
-/* EMPTY FOR NOW */
 
-float hello ( int argc, float *argv )
+float hello ( int argc, float *argv, PSL_Program *p )
 {
-  printf ( "Hello World\n" ) ;
+  printf ( "I am %s.\n", (char *)( p->getUserData ()) ) ;
   return 0.0f ;
 }
+
 
 PSL_Extension extensions [] =
 {
@@ -21,15 +21,31 @@ PSL_Extension extensions [] =
 
 int main ()
 {
-  PSL_Program *prog = new PSL_Program ( extensions ) ;
+  /* Create program 1 and compile it. */
 
-  prog -> parse ( "data/test.psl" ) ;
+  PSL_Program *prog_1 = new PSL_Program ( extensions ) ;
 
-  prog -> dump () ;
+  prog_1 -> parse ( "data/test.psl" ) ;
+  prog_1 -> dump () ;
 
-  while ( prog -> step () != PSL_PROGRAM_END )
-    /* Do nothing */ ;
+  /* Clone program 2 from program 1 */
+
+  PSL_Program *prog_2 = new PSL_Program ( prog_1 ) ;
+
+  /* Make them unique by assigning user data to them */
+
+  prog_1 -> setUserData ( (void *) "Program 1" ) ;
+  prog_2 -> setUserData ( (void *) "Program 2" ) ;
+
+  /* Run both programs together until one of them ends */
+
+  while ( 1 )
+  {
+    if ( prog_1 -> step () == PSL_PROGRAM_END ) break ;
+    if ( prog_2 -> step () == PSL_PROGRAM_END ) break ;
+  }
 
   exit ( 0 ) ;
 }
+
 
