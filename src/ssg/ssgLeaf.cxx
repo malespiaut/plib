@@ -1,6 +1,18 @@
 
 #include "ssgLocal.h"
 
+//~~ T.G. moved hee from header amd ref counting accounted for
+ 
+void ssgLeaf::setState ( ssgState *st )
+{
+    ssgDeRefDelete ( state ) ;
+
+    state = st ;
+
+    if ( state != NULL )
+      state->ref() ;
+}
+
 void ssgLeaf::copy_from ( ssgLeaf *src, int clone_flags )
 {
   ssgEntity::copy_from ( src, clone_flags ) ;
@@ -9,10 +21,17 @@ void ssgLeaf::copy_from ( ssgLeaf *src, int clone_flags )
 
   ssgState *s = src -> getState () ;
 
+  //~~ T.G. Deref
+  ssgDeRefDelete(state); 
+
   if ( s != NULL && ( clone_flags & SSG_CLONE_STATE ) )
     state = (ssgState *)( s -> clone ( clone_flags ) ) ;
   else
     state = s ;
+
+   //~~ T.G. increment ref counter 
+   if (state != NULL)  
+       state->ref(); 
 }
 
 
@@ -33,10 +52,9 @@ ssgLeaf::ssgLeaf (void)
 
 ssgLeaf::~ssgLeaf (void)
 {
-/*
-  if ( state != NULL )
-    ssgDeRefDelete ( state ) ;
-*/
+  //~~ T.G. ssgDeRefDelete checks for null case
+  ssgDeRefDelete ( state ) ;
+
 #ifdef _SSG_USE_DLIST
   deleteDList () ;
 #endif
@@ -139,19 +157,23 @@ int ssgLeaf::load ( FILE *fd )
   _ssgReadInt ( fd, &cull_face ) ;
   _ssgReadInt ( fd, & t ) ;
 
+  
   if ( t == SSG_BACKWARDS_REFERENCE )
   {
     _ssgReadInt ( fd, & key ) ;
 
     if ( key == 0 )
-      state = NULL ;
+      //~~ T.G. set state includes ref()
+      setState  ( NULL );  
     else
-      state = (ssgState *) _ssgGetFromList ( key ) ;
+      //~~ T.G. set state includes ref()
+      setState  ( (ssgState *) _ssgGetFromList ( key ) );
   }
   else
   if ( t == ssgTypeSimpleState() )
   {
-    state = new ssgSimpleState ;
+    //~~ T.G. set state includes ref()
+    setState  ( new ssgSimpleState ); 
 
     if ( ! state -> load ( fd ) )
       return FALSE ;
@@ -159,7 +181,8 @@ int ssgLeaf::load ( FILE *fd )
   else
   if ( t == ssgTypeStateSelector() )
   {
-    state = new ssgStateSelector ;
+    //~~ T.G. set state includes ref()
+	setState  ( new ssgSimpleState ); 
 
     if ( ! state -> load ( fd ) )
       return FALSE ;
@@ -169,6 +192,7 @@ int ssgLeaf::load ( FILE *fd )
     ulSetError ( UL_WARNING, "ssgLeaf::load - Unrecognised ssgState type 0x%08x", t ) ;
     state = NULL ;
   }
+
 
   return ssgEntity::load(fd) ;
 }

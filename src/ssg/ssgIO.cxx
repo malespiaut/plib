@@ -254,7 +254,13 @@ static int num_shared_states = 0 ;
 
 static void _ssgShareReset ()
 {
+   int i;
    num_shared_textures = 0 ;
+
+   //~~ T.G. we ref() all new states (see below) so we need to deref here
+   for ( i = 0; i < num_shared_states; i++)
+	   ssgDeRefDelete( shared_states[i] );
+
    num_shared_states = 0 ;
 }
 
@@ -320,12 +326,15 @@ static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
          st -> getShininess () != st2 -> getShininess () )
       continue ;
 
-    delete st ;
-    return st2 ;
+    delete st ; //~~T.G. Note: No ssgDeRefDelete here as st assumed to be newly created
+    return st2 ;//    as this function acts as a factory for states
   }
 
   if ( num_shared_states < MAX_SHARED_STATES )
+  {
+     st->ref(); //~~T.G. we dont want state to be deleted if it has no clients down the track
      shared_states [ num_shared_states++ ] = st ;
+  }
   return st ;
 }
 
@@ -413,7 +422,7 @@ static ssgLeaf* default_createfunc ( ssgCreateData* data )
       st = data -> st ;
 #endif
     }
-
+    //~~T.G. No need to ref() state in this func, done via ssgLeaf inherited setState func
     vtab -> setState ( st ) ;
   }
   else

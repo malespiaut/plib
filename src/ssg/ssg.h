@@ -889,19 +889,8 @@ public:
   int       hasState () { return state != NULL ; }
 
   ssgState *getState () { return state ; }
-  void      setState ( ssgState *st )
-  {
-/*
-    if ( state != NULL )
-      ssgDeRefDelete ( state ) ;
-*/
-    state = st ;
-/*
-    if ( state != NULL )
-      state->ref() ;
-*/
-  }
-
+  void      setState ( ssgState *st ); //~~ T.G. Body extended & moved into CXX file
+ 
   virtual int getNumVertices  () { return 0 ; }
   virtual int getNumNormals   () { return 0 ; }
   virtual int getNumColours   () { return 0 ; }
