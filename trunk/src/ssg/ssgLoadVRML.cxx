@@ -94,7 +94,6 @@ static int num_states    = 0 ;
 static int num_textures  = 0 ;
 static sgVec3 *vtab = NULL ;
 
-static ssgHookFunc      current_hookFunc = NULL ;
 static _ssgMaterial    *current_material = NULL ;
 static sgVec4          *current_colour   = NULL ;
 static ssgTexture      *current_texture  = NULL ;
@@ -406,7 +405,8 @@ int VRMLdo_data     ( char *s )
   current_data [ len ] = '\0' ;
   
   fgetc ( loader_fd ) ;  /* Final RETURN */
-  
+
+#if 0
   if ( current_hookFunc != NULL )
   {
     ssgBranch *br = (*current_hookFunc) ( current_data ) ;
@@ -419,6 +419,7 @@ int VRMLdo_data     ( char *s )
     
     current_data = NULL ;
   }
+#endif
   
   return PARSE_CONT ;
 }
@@ -1152,10 +1153,9 @@ int VRMLdo_description  ( char *s )
 
 
 
-ssgEntity *ssgLoadVRML ( const char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadVRML ( const char *fname, const ssgLoaderOptions* options )
 // int &leafCount, vTableList &vTableList; )
 {
-  current_hookFunc = hookfunc ;
   char filename [ 1024 ] ;
   if ( fname [ 0 ] != '/' && _ssgModelPath != NULL && 
                              _ssgModelPath [ 0 ] != '\0' )
@@ -1425,7 +1425,7 @@ ssgEntity *ssgLoadVRML ( const char *fname, ssgHookFunc hookfunc )
 
 #else
 
-ssgEntity *ssgLoadVRML ( const char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadVRML ( const char *fname, const ssgLoaderOptions* options )
 {
    return NULL ;
 }

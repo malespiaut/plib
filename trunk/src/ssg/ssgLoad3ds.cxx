@@ -241,6 +241,8 @@ static int double_sided;     // is there some double sided material?
 
 static ssgBranch *top_object;
 
+static const ssgLoaderOptions* current_options = NULL ;
+
 static _3dsMat **materials, *current_material;
 
 static unsigned short *vertex_index, *normal_index, num_vertices, num_faces;
@@ -859,7 +861,7 @@ static void add_leaf( _3dsMat *material, int listed_faces,
   vtab -> setState ( get_state( material ) ) ;
   vtab -> setCullFace ( TRUE ) ;
 
-  ssgLeaf* leaf = (*_ssgCreateFunc) ( vtab, material -> tex_name, 0 ) ;
+  ssgLeaf* leaf = current_options -> createLeaf ( vtab, material -> tex_name, 0 ) ;
 
   if ( leaf )
     current_transform -> addKid( leaf );
@@ -999,10 +1001,12 @@ static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length )
 
 
 
-ssgEntity *ssgLoad3ds( const char *filename, ssgHookFunc hookfunc ) {
+ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   int i = 1 ;
   is_little_endian = *((char *) &i );
-  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
+
+  current_options = options? options: &_ssgDefaultOptions ;
+  current_options -> begin () ;
 
   char *filepath;
 
@@ -1059,7 +1063,7 @@ ssgEntity *ssgLoad3ds( const char *filename, ssgHookFunc hookfunc ) {
 
   free_trimesh();
 
-  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
+  current_options -> end () ;
   return top_object; 
 }
 

@@ -12,7 +12,7 @@
 
 enum Modes { MODE_NONE, MODE_LINE, MODE_FACE, MODE_POLYLINE, MODE_VERTEX };
 
-static ssgHookFunc      current_hookFunc = NULL ;
+static const ssgLoaderOptions* current_options = NULL ;
 static ssgBranch       *current_branch   = NULL ;
 
 static int num_line;
@@ -428,9 +428,8 @@ initialize lists
   return TRUE;
 }
 
-ssgEntity *ssgLoadDXF ( const char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadDXF ( const char *fname, const ssgLoaderOptions* options )
 {
-  current_hookFunc = hookfunc ;
   current_branch   = NULL ;
 
   char filename [ 1024 ] ;
@@ -454,11 +453,16 @@ ssgEntity *ssgLoadDXF ( const char *fname, ssgHookFunc hookfunc )
     return NULL ;
   }
 
+  current_options = options? options: &_ssgDefaultOptions ;
+  current_options -> begin () ;
+
   current_branch = new ssgTransform () ;
 
   dxf_read ( loader_fd ) ;
 
   fclose ( loader_fd ) ;
+
+  current_options -> end () ;
 
   return current_branch ;
 }
