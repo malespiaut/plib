@@ -1524,25 +1524,9 @@ public:
   void setValidData ( const char *data )
   {
     delete [] valid_data ;
-
-    if ( data != NULL )
-      valid_data = ulStrDup ( data ) ;
-    else
-      valid_data = NULL ;
+    valid_data = data != NULL ? ulStrDup ( data ) : NULL ;
   }
-
-  void addValidData ( const char *data )
-  {
-    int new_data_len = 1 ;
-    if ( valid_data ) new_data_len += strlen ( valid_data ) ;
-    if ( data )       new_data_len += strlen ( data ) ;
-    char *new_data = new char [ new_data_len ] ;
-    strcpy ( new_data, "\0" ) ;
-    if ( valid_data ) strcat ( new_data, valid_data ) ;
-    if ( data )       strcat ( new_data, data ) ;
-    delete [] valid_data ;
-    valid_data = new_data ;
-  }
+  void addValidData ( const char *data ) ;
 
   int isValidCharacter ( char c ) const
   {
@@ -1552,34 +1536,14 @@ public:
       return 1 ;
   }
 
-  puInput ( int minx, int miny, int maxx, int maxy ) :
-             puObject ( minx, miny, maxx, maxy )
-  {
-    type |= PUCLASS_INPUT ;
-
-    accepting = FALSE ;
-
-    cursor_position       =  0 ;
-    select_start_position = -1 ;
-    select_end_position   = -1 ;
-
-    valid_data = NULL ;
-    input_disabled = FALSE ;
-
-    setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
-    setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; /* Colour of 'I' bar cursor */
-  }
-
-  ~puInput ()
-  {
-    delete [] valid_data ;
-  }
+  puInput ( int minx, int miny, int maxx, int maxy ) ;
+  ~puInput () { delete [] valid_data ; }
 
   void invokeDownCallback ( void )
   {
     rejectInput () ;
     normalize_cursors () ;
-    if ( down_cb ) (*down_cb)(this) ;
+    if ( down_cb != NULL ) (*down_cb)(this) ;
   }
 
   void enableInput ( void )  { input_disabled = FALSE ; }
@@ -1888,25 +1852,9 @@ public:
   void setValidData ( const char *data )
   {
     delete [] valid_data ;
-
-    if ( data != NULL )
-      valid_data = ulStrDup ( data ) ;
-    else
-      valid_data = NULL ;
+    valid_data = data != NULL ? ulStrDup ( data ) : NULL ;
   }
-
-  void addValidData ( const char *data )
-  {
-    int new_data_len = 1 ;
-    if ( valid_data ) new_data_len += strlen ( valid_data ) ;
-    if ( data )       new_data_len += strlen ( data ) ;
-    char *new_data = new char [ new_data_len ] ;
-    strcpy ( new_data, "\0" ) ;
-    if ( valid_data ) strcat ( new_data, valid_data ) ;
-    if ( data )       strcat ( new_data, data ) ;
-    delete [] valid_data ;
-    valid_data = new_data ;
-  }
+  void addValidData ( const char *data ) ;
 
   int isValidCharacter ( char c ) const
   {
@@ -1920,7 +1868,7 @@ public:
   {
     rejectInput () ;
     normalize_cursors () ;
-    if ( down_cb ) (*down_cb)(this) ;
+    if ( down_cb != NULL ) (*down_cb)(this) ;
   }
 
   void enableInput ( void )  { input_disabled = FALSE ; }

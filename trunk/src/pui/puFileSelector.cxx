@@ -53,6 +53,7 @@ UL_RTTI_DEF1(puFileSelector,puDialogBox)
 #define DOTDOTSLASH "../"
 #define SLASH       "/"
 #endif
+#define SLASH_LEN     1
 
 static void puFileSelectorHandleSlider ( puObject * slider )
 {
@@ -317,44 +318,59 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
   dflag = NULL ;
   num_files = 0 ;
 
+  /* Character string lengths for efficiency in string processing */
+  int start_dir_len ;
+  int dir_len       = strlen ( dir ) ;
+
   if ( ulIsAbsolutePathName ( dir ) )
   {
     /* Include space for trailing slash in case it is necessary */
-    startDir = new char [ strlen ( dir ) + strlen ( SLASH ) + 1 ] ;
+    startDir = new char [ dir_len + SLASH_LEN + 1 ] ;
 
-    strcpy ( startDir, dir ) ;
+    memcpy ( startDir, dir, dir_len ) ;
+    start_dir_len = dir_len ;
   }
   else
   {
-    startDir = new char [ UL_NAME_MAX + 1 ] ;
-    if ( ulGetCWD ( startDir, UL_NAME_MAX + 1 ) == NULL )
+    char *cwd = new char [ UL_NAME_MAX + 1 ] ;
+    if ( ulGetCWD ( cwd, UL_NAME_MAX + 1 ) == NULL )
     {
       ulSetError ( UL_WARNING,
                    "PUI: puFileSelector - can't find current directory" ) ;
       setValue ( "" ) ;
       invokeCallback () ;
+      delete [] cwd ;
       return ;
     }
 
     /* Include space for slashes in case they are necessary */
-    char *s = new char [   strlen ( startDir )
-                         + 2 * strlen ( SLASH )
-                         + strlen ( dir ) + 1 ] ;
+    int cwd_len = strlen ( cwd ) ;
+    startDir = new char [   cwd_len
+                          + 2 * SLASH_LEN
+                          + dir_len + 1 ] ;
 
-    strcpy ( s, startDir ) ;
+    memcpy ( startDir, cwd, cwd_len ) ;
+    start_dir_len = cwd_len ;
 
-    if ( ! is_slash ( startDir[strlen(startDir)-1] ) )
-      strcat ( s, SLASH ) ;
+    if ( ! is_slash ( cwd[cwd_len-1] ) )
+    {
+      memcpy ( startDir + cwd_len, SLASH, SLASH_LEN ) ;
+      start_dir_len += SLASH_LEN ;
+    }
 
-    strcat ( s, dir ) ;
+    memcpy ( startDir + start_dir_len, dir, dir_len ) ;
+    start_dir_len += dir_len ;
 
-    delete [] startDir ;
-    startDir = s ;
+    delete [] cwd ;
   }
 
-  if ( ! is_slash ( startDir[strlen(startDir)-1] ) )
-    strcat ( startDir, SLASH ) ;
+  if ( ! is_slash ( startDir[start_dir_len-1] ) )
+  {
+    memcpy ( startDir + start_dir_len, SLASH, SLASH_LEN ) ;
+    start_dir_len += SLASH_LEN ;
+  }
 
+  startDir [ start_dir_len ] = '\0' ;
   setValue ( startDir ) ;
 
   if ( arrows > 2 ) arrows = 2 ;
@@ -492,7 +508,15 @@ void puFileSelector::setInitialValue ( const char *s )
   }
   else
   {
-    strcat ( input -> getStringValue (), s ) ;
+    int str_val_len = strlen ( input->getStringValue () ) ;
+    int s_len = strlen ( s ) ;
+    char *s_new = new char [ str_val_len + s_len + 1 ] ;
+
+    memcpy ( s_new, input->getStringValue (), str_val_len ) ;
+    memcpy ( s_new + str_val_len, s, s_len + 1 ) ;  /* Plus one to get the final '\0' */
+
+    input->setValue ( s_new ) ;
+    delete [] s_new ;
     input -> invokeCallback () ;
   }
 }
@@ -562,15 +586,22 @@ void puFileSelector::find_files ( void )
 
   num_files = 0 ;
 
-  char dir [ PUSTRING_MAX * 2 ] ;
+  int str_val_len = strlen ( getStringValue () ) ;
 
-  strcpy ( dir, getStringValue() ) ;
+  if ( ! is_slash ( getStringValue () [ str_val_len - 1 ] ) )
+  /* Someone forgot a trailing '/' */
+  {
+    char *new_dir = new char [ str_val_len + SLASH_LEN + 1 ] ;
 
-  if ( ! is_slash ( dir [ strlen ( dir ) - 1 ] ) )  /* Someone forgot a trailing '/' */
-    strcat ( dir, SLASH ) ;
+    memcpy ( new_dir, getStringValue (), str_val_len ) ;
+    memcpy ( new_dir + str_val_len, SLASH, SLASH_LEN + 1 ) ;  /* Plus one to include the trailing '\0' */
+    setValue ( new_dir ) ;
+    delete [] new_dir ;
+  }
 
   int ifile = 0 ;
 
+  char     *dir  = getStringValue () ;
   ulDir    *dirp = ulOpenDir ( dir ) ;
   ulDirEnt *dp ;
 
@@ -627,17 +658,19 @@ void puFileSelector::find_files ( void )
     {
       dflag[ ifile ] = dp->d_isdir ;
 
+      int name_len = strlen ( dp->d_name ) ;
       if ( dflag[ ifile ] )
       {
-        files[ ifile ] = new char[ strlen(dp->d_name)+4 ] ;
-        strcpy ( files [ ifile ], "[" ) ;
-        strcat ( files [ ifile ], dp->d_name ) ;
-        strcat ( files [ ifile ], "]" ) ;
+        files[ ifile ] = new char[ name_len + 3 ] ;
+
+        files [ ifile ] [ 0 ] = '[' ;
+        memcpy ( files [ ifile ] + 1, dp->d_name, name_len ) ;
+        strcpy ( files [ ifile ] + 1 + name_len, "]" ) ;
       }
       else
       {
-        files[ ifile ] = new char[ strlen(dp->d_name)+1 ] ;
-        strcpy ( files [ ifile ], dp->d_name ) ;
+        files[ ifile ] = new char[ name_len + 1 ] ;
+        memcpy ( files [ ifile ], dp->d_name, name_len + 1 ) ;  /* Plus one to include the final '\0' */
       }
 
       ifile++ ;
