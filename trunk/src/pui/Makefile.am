@@ -16,7 +16,7 @@ libplibpu_a_SOURCES = \
         puSpinBox.cxx     puScrollBar.cxx puInputBase.cxx
 
 AM_CPPFLAGS = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/fnt
-AM_CPPFLAGS += -I$(top_srcdir)/src/util -DPU_USE_NONE
+AM_CPPFLAGS += -I$(top_srcdir)/src/util
 
 endif
 

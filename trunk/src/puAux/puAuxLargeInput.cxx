@@ -22,7 +22,7 @@
 */
 
 
-#include "puAux.h"
+#include "puAuxLocal.h"
 
 UL_RTTI_DEF2(puaLargeInput,puInputBase,puGroup)
 
