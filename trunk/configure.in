@@ -31,11 +31,6 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 
 
-dnl Cygwin et cetera
-CPPFLAGS="$CPPFLAGS -I/usr/local/include"
-LDFLAGS="$LDFLAGS -L/usr/local/lib"
-
-
 dnl Command line arguments
 
 dnl Don't use AC_HELP_STRING here as old versions of autoconf do not
