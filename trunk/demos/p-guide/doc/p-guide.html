@@ -1,0 +1,146 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="John F. Fay">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>PUI-Based GUI Designer (P-GUIDE) Documentation</title>
+</head>
+<body>
+
+<h1>
+P-GUIDE Documentation</h1>
+
+<h1>
+PUI-Based Graphical User Interface Designer</h1>
+P-GUIDE comes up in three OpenGL windows.&nbsp; The first window is the
+Main window in which the user arranges the widgets of his graphical user
+interface.&nbsp; The second window is the Widget window which contains
+one button for each PUI widget class.&nbsp; The third window is the Status
+window which allows the user to see and control various widget and window
+parameters in the main window.
+<br>The basic concept of P-GUIDE is that the user will click on a button
+in the Widget window and then click in the Main window to create a widget
+for his GUI.&nbsp; He will then use the Status window to modify the settings
+of that widget.&nbsp; The Main window reflects the changes he makes in
+real time.&nbsp; When the user has created as many widgets as he likes,
+he clicks on the "Write Window Code" button in the Status window and P-GUIDE
+will write a file of C++ code which implements the GUI using OpenGL, GLUT,
+and PUI.
+<br>P-GUIDE is offered to the PLIB community under a GNU Public License
+(GPL).&nbsp; Users are free to modify the source code as they see fit but
+must offer their changes back to the community.
+<h2>
+GUI Window Control</h2>
+The user may size, position, color, and name his window by using the input
+box widgets at the top of the Status window.&nbsp; All the changes except
+the window position are reflected immediately in the Main window.
+<br>The user may also change the size of his window by clicking on an edge
+of the window and dragging on it.&nbsp; Any widgets which the user has
+already defined and placed in the window will remain stationary while the
+window is being resized; this means that if the user drags the left-hand
+edge of the window to change its width, the x-coordinates of the widgets
+will change.&nbsp; (The user is cautioned against moving his mouse off
+one side of the window, dragging it around the outside of the window, and
+clicking on the opposite side of the window from the outside.&nbsp; Due
+to a limitation in the windowing system this will reposition the widgets
+in the window incorrectly.)
+<h2>
+Placing Widgets</h2>
+To place a widget in the GUI, the user clicks on that widget's button in
+the Widget window and then clicks in the Main window.&nbsp; The new widget
+will be placed in the Main window with its lower left-hand corner at the
+mouse position.&nbsp; The widget will have an initial size of 90 pixels
+wide by 20 pixels high.
+<br>If the user wants to place more than one widget of the same type in
+his GUI, he can press the Control key when he clicks on that widget's button
+in the Widget window.&nbsp; He will then click in the Main window once
+for each widget of the given type that he wants to create.&nbsp; Pressing
+the Escape key or clicking on another widget's button in the Widget window
+will deactivate the button.
+<br>A widget which has just been placed or has just been clicked on by
+the mouse is called the Active widget.&nbsp; It is surrounded by a black
+line.
+<h2>
+Widget Settings</h2>
+The user can control the following settings of his widget from controls
+in the Status window:
+<li>
+Name (the name of the variable which is the pointer to the widget in the
+program)</li>
+
+<li>
+Position</li>
+
+<li>
+Size</li>
+
+<li>
+Legend text and position</li>
+
+<li>
+Label text and position</li>
+
+<li>
+Callbacks</li>
+
+<br>The user may also modify the size and position of his widgets directly
+in the Main window.&nbsp; To change the size, he clicks inside the widget
+within five pixels of the edge and then drags the mouse to extend the widget.&nbsp;
+To change the position he clicks inside the widget away from the edges
+and drags the mouse.
+<br>The user may also move the Active widget one pixel at a time by pressing
+the four arrow keys.&nbsp; Holding the Control key while pressing the arrow
+keys will move the Active widget ten pixels at a time.
+<h2>
+Widget Visibility</h2>
+There are obviously times when the user will want to draw more than one
+widget in the same place in the GUI and only show them one at a time.&nbsp;
+To allow this capability the Status window has a button box which controls
+whether the widget in the Main window is visible or not.&nbsp; To hide
+a widget the user simply clicks on the "Visible" button box.&nbsp; If he
+then clicks on the "Visible" button box again the Active widget will reappear.&nbsp;
+If the user selects another Active widget, there is no simple and direct
+way to make the single hidden widget reappear in the main window.
+<br>To allow the user to make widgets reappear, the Status window has a
+one-shot button labelled "Reveal All Widgets".&nbsp; This makes all the
+widgets in the Main window visible again.&nbsp; The user can then select
+the widgets he wishes to hide again and make them invisible.
+<br>When the program writes the C++ code to create the GUI, the widgets
+which are not visible in the Main window are hidden by default.
+<h2>
+Widget Layers</h2>
+Many times the order in which widgets are drawn is of vital importance.&nbsp;
+For example, the user may want to fill a window with a frame widget to
+provide a pleasing background for the actual widgets of the GUI.&nbsp;
+In order to allow this the program assigns each widget in the Main window
+a layer number.&nbsp; These layer numbers start at zero and increase.&nbsp;
+When the Main window is being drawn, the widgets in lower-numbered layers
+are drawn first and the widgets with larger layer numbers are drawn after
+(and therefore on top of) them.&nbsp; When the C++ code to create the GUI
+is being written, the widgets in the lower-numbered layers are created
+first.
+<h2>
+Program Controls</h2>
+Basic program control is provided by the three buttons at the bottom of
+the Status window.&nbsp; Clicking on the "Write Window Code" button will
+cause a file selector widget to pop up for the user to enter a file name
+into which the code is to be written.&nbsp; An entire file is written which
+contains the necessary include, window data, a default font definition,
+widget variable definitions, GLUT window callbacks, widget callbacks for
+each widget, and a complete main program that creates and manages the GLUT
+window, initializes PUI, creates the widgets, and calls the GLUT main loop.&nbsp;
+(At the moment the widget definition calls are somewhat lacking and the
+user will need to modify them before he can compile the code.)
+<br>If the user clicks on the "Clear" button, all the widgets in the Main
+window will be erased.&nbsp; If the user has changed the window at all
+since the last time he wrote code or cleared the Main window, the program
+will pop up a box asking if he is sure.
+<br>If the user clicks on the "Quit" button, the program will stop.&nbsp;
+Again, if there have been changes since the last code writing or clearing,
+the program will ask if he is sure.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>
+
