@@ -1,14 +1,14 @@
 #include "exposer.h"
 
-puSlider *XtranslateSlider ;
-puSlider *YtranslateSlider ;
-puSlider *ZtranslateSlider ;
-puInput  *XtranslateInput  ;
-puInput  *YtranslateInput  ;
-puInput  *ZtranslateInput  ;
+static puSlider *XtranslateSlider ;
+static puSlider *YtranslateSlider ;
+static puSlider *ZtranslateSlider ;
+static puInput  *XtranslateInput  ;
+static puInput  *YtranslateInput  ;
+static puInput  *ZtranslateInput  ;
 
 
-void jointHeadingCB ( puObject *ob )
+static void jointHeadingCB ( puObject *ob )
 {
   Bone *bone = (Bone *) (ob->getUserData()) ;
   float a ; ob -> getValue ( & a ) ;
@@ -18,7 +18,7 @@ void jointHeadingCB ( puObject *ob )
 }
  
  
-void jointPitchCB ( puObject *ob )
+static void jointPitchCB ( puObject *ob )
 {
   Bone *bone = (Bone *) (ob->getUserData()) ;
   float a ; ob -> getValue ( & a ) ;
@@ -28,7 +28,7 @@ void jointPitchCB ( puObject *ob )
 }
  
  
-void jointRollCB ( puObject *ob )
+static void jointRollCB ( puObject *ob )
 {
   Bone *bone = (Bone *) (ob->getUserData()) ;
   float a ; ob -> getValue ( & a ) ;
@@ -70,7 +70,7 @@ void hide_rollCB ( puObject *ob )
 }
  
  
-void resetCB ( puObject *ob )
+static void resetCB ( puObject *ob )
 {
   Bone *bone = (Bone *) (ob->getUserData()) ;
  
@@ -94,7 +94,7 @@ void syncTranslators ( sgVec3 trans )
 }
 
 
-void currTranslateTxtXCB ( puObject *sl )
+static void currTranslateTxtXCB ( puObject *sl )
 {
   float v = sl -> getFloatValue () ;
 
@@ -111,7 +111,7 @@ void currTranslateTxtXCB ( puObject *sl )
 
 
 
-void currTranslateTxtYCB ( puObject *sl )
+static void currTranslateTxtYCB ( puObject *sl )
 {
   float v = sl -> getFloatValue () ;
 
@@ -128,7 +128,7 @@ void currTranslateTxtYCB ( puObject *sl )
 
 
 
-void currTranslateTxtZCB ( puObject *sl )
+static void currTranslateTxtZCB ( puObject *sl )
 {
   float v = sl -> getFloatValue () ;
 
@@ -146,7 +146,7 @@ void currTranslateTxtZCB ( puObject *sl )
 
 
 
-void currTranslateXCB ( puObject *sl )
+static void currTranslateXCB ( puObject *sl )
 {
   float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
 
@@ -163,7 +163,7 @@ void currTranslateXCB ( puObject *sl )
 
 
 
-void currTranslateYCB ( puObject *sl )
+static void currTranslateYCB ( puObject *sl )
 {
   float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
 
@@ -180,7 +180,7 @@ void currTranslateYCB ( puObject *sl )
 
 
 
-void currTranslateZCB ( puObject *sl )
+static void currTranslateZCB ( puObject *sl )
 {
   float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
 

@@ -3,24 +3,24 @@
 #define FILE_SELECTOR_ARGS  (640-320)/2,(480-270)/2,320,270,1
 
 
-float tweeninterval = 1.0f/8.0f ;
+static float tweeninterval = 1.0f/8.0f ;
 
 void  setTweenInterval ( float t ) { tweeninterval = t ;    }
 float getTweenInterval ()          { return tweeninterval ; }
 
 
-puFileSelector *file_selector = NULL ;
+static puFileSelector *file_selector = NULL ;
 
 
-char lastModelFilePath [ PUSTRING_MAX ] ;
-char lastModelFileName [ PUSTRING_MAX ] ;
+static char lastModelFilePath [ PUSTRING_MAX ] ;
+static char lastModelFileName [ PUSTRING_MAX ] ;
 
-void dismissDialogCB ( puObject * ) ;
+static void dismissDialogCB ( puObject * ) ;
 
-puButton *dialog_button  = NULL ;
+static puButton *dialog_button  = NULL ;
 
 
-void initDialog ()
+static void initDialog ()
 {
   if ( dialog_button != NULL )
     return ;
@@ -34,14 +34,14 @@ void initDialog ()
 }
 
 
-void dismissDialogCB ( puObject * )
+static void dismissDialogCB ( puObject * )
 {
   initDialog () ;
   dialog_button  -> hide () ;
 }
 
 
-void dialog ( const char *msg, float r, float g, float b )
+static void dialog ( const char *msg, float r, float g, float b )
 {
   initDialog () ;
   dialog_button -> setLegend ( msg ) ;
@@ -50,7 +50,7 @@ void dialog ( const char *msg, float r, float g, float b )
 }
 
 
-void twsavepickfn ( puObject * )
+static void twsavepickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
 
@@ -153,7 +153,7 @@ void saveTweenFile ( char *path, int interactive )
 }
 
 
-void bnsavepickfn ( puObject * )
+static void bnsavepickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
   char fname [ PUSTRING_MAX ] ;
@@ -228,7 +228,7 @@ void bnsavepickfn ( puObject * )
 }
 
 
-void bnpickfn ( puObject * )
+static void bnpickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
 
@@ -348,7 +348,7 @@ void loadBoneFile ( char *path, int interactive )
 
 
 
-void scpickfn ( puObject * )
+static void scpickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
   char fname [ PUSTRING_MAX ] ;
@@ -398,7 +398,7 @@ void scpickfn ( puObject * )
 }
 
 
-void pickfn ( puObject * )
+static void pickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
 

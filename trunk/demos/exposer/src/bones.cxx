@@ -1,9 +1,9 @@
 #include "exposer.h"
 
-sgVec3          curr_translate = { 0.0f, 0.0f, 0.0f } ;
+static sgVec3          curr_translate = { 0.0f, 0.0f, 0.0f } ;
 
-ssgSimpleState *boneState      = NULL ;
-Bone           *bone           = NULL ;
+static ssgSimpleState *boneState      = NULL ;
+static Bone           *bone           = NULL ;
 
 ssgSimpleState *getBoneState ()     { return boneState ;        }
 float          *getCurrTranslate () { return curr_translate ;   }
@@ -181,7 +181,7 @@ void Bone::print ( FILE *fd, int which )
 
 #define NUM_COLOURS 13
 
-sgVec4 colourTable [] =
+static sgVec4 colourTable [] =
 {
   { 1, 0, 0, 0.3f }, { 0, 1, 0, 0.3f }, { 0, 0, 1, 0.3f },
   { 1, 1, 0, 0.3f }, { 1, 0, 1, 0.3f }, { 0, 1, 1, 0.3f },
