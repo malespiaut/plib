@@ -1255,6 +1255,7 @@ static void readFacet(FILE *fp, sgVec4 &color)
     curr_part_->setState( createState(has_texture, color) );
   }
   ssgBranch* grp = getCurrGroup();
+  ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
   grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
 }
 
@@ -1292,6 +1293,7 @@ static void readTMapFacet(FILE *fp, sgVec4 &color)
   curr_part_->setState( createState(true, color) );
 
   ssgBranch* grp = getCurrGroup();
+	((ssgVtxArray *)curr_part_)->removeUnusedVertices();
   grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
 }
 
@@ -1894,7 +1896,8 @@ static void parse_proc_scenery(FILE* fp)
             curr_index_ );
           curr_part_->setState( createState(false, LColor) );
           ssgBranch* grp = getCurrGroup();
-          grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
+					grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
           poly_from_line_numverts = 0;
         }
         break;
@@ -2003,7 +2006,8 @@ static void parse_proc_scenery(FILE* fp)
 
           curr_part_->setState( createState(true, GColor) );
           ssgBranch* grp = getCurrGroup();
-          grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
+					grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
         }
         break;
 
@@ -2032,7 +2036,8 @@ static void parse_proc_scenery(FILE* fp)
           curr_tex_wrap_ = TRUE;
           curr_part_->setState( createState(false, SColor) );
           ssgBranch* grp = getCurrGroup();
-          grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
+					grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
         }
         break;
 
@@ -2228,7 +2233,8 @@ static void parse_proc_scenery(FILE* fp)
             curr_part_->setState( createState(false, LColor) );
           }
           ssgBranch* grp = getCurrGroup();
-          grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
+					grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
 
           poly_from_line = false;
         }
@@ -2743,7 +2749,8 @@ static void parse_proc_scenery(FILE* fp)
                                           strips );
             curr_part_->setState( createState(true, SColor) );
             ssgBranch* grp = getCurrGroup();
-            grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+            ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
+						grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
           }
         }
       }
