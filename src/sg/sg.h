@@ -813,7 +813,7 @@ inline SGfloat sgDistToPlaneVec3 ( const sgVec4 plane, const sgVec3 pnt )
 
 inline SGfloat sgHeightAbovePlaneVec3 ( const sgVec4 plane, const sgVec3 pnt )
 {
-  return pnt[3] - sgHeightOfPlaneVec2 ( plane, pnt ) ;
+  return pnt[2] - sgHeightOfPlaneVec2 ( plane, pnt ) ;
 }
 
 extern void sgReflectInPlaneVec3 ( sgVec3 dst, const sgVec3 src, const sgVec4 plane ) ;
@@ -2028,7 +2028,7 @@ inline SGDfloat sgdDistToPlaneVec3 ( const sgdVec4 plane, const sgdVec3 pnt )
  
 inline SGDfloat sgdHeightAbovePlaneVec3 ( const sgdVec4 plane, const sgdVec3 pnt )
 {
-  return pnt[3] - sgdHeightOfPlaneVec2 ( plane, pnt ) ;
+  return pnt[2] - sgdHeightOfPlaneVec2 ( plane, pnt ) ;
 }
 
 extern void sgdReflectInPlaneVec3 ( sgdVec3 dst, const sgdVec3 src, const sgdVec4 plane ) ;
