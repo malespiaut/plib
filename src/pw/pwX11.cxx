@@ -179,13 +179,13 @@ void pwInit ( int multisample, int num_samples )
 }
 
 
-void pwOpenWindow ( pwKeybdFunc *kb, pwMouseFunc *ms,
-                    pwMousePosFunc *mp, pwResizeCB *rcb,
-                    pwExitCB *ecb )
+void pwSetCallbacks ( pwKeybdFunc *kb, pwMouseFunc *ms,
+                      pwMousePosFunc *mp, pwResizeCB *rcb,
+                      pwExitCB *ecb )
 {
   if ( ! initialised )
   {
-    fprintf ( stderr, "PW: You must not call pwOpenWindow before pwInit.\n" ) ;
+    fprintf ( stderr, "PW: You must not call pwSetCallbacks before pwInit.\n");
     exit ( 1 ) ;
   }
 
