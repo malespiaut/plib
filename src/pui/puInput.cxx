@@ -97,17 +97,19 @@ void puInput::draw ( int dx, int dy )
       val [ cursor_position ] = '\0' ;
 
       int cpos = puGetStringWidth ( legendFont, val ) + xx + dx + abox.min[0] ;
+      int top = yy + puGetStringHeight ( legendFont ) ;
+      int bot = yy - puGetStringDescender ( legendFont ) ;
 
       glColor3f ( 0.1f, 0.1f, 1.0f ) ;
       glBegin   ( GL_LINES ) ;
-      glVertex2i ( cpos    , dy + abox.min[1] + 7 ) ;
-      glVertex2i ( cpos    , dy + abox.max[1] - 7 ) ;
-      glVertex2i ( cpos - 1, dy + abox.min[1] + 7 ) ;
-      glVertex2i ( cpos - 1, dy + abox.max[1] - 7 ) ;
-      glVertex2i ( cpos - 4, dy + abox.min[1] + 7 ) ;
-      glVertex2i ( cpos + 3, dy + abox.min[1] + 7 ) ;
-      glVertex2i ( cpos - 4, dy + abox.max[1] - 7 ) ;
-      glVertex2i ( cpos + 3, dy + abox.max[1] - 7 ) ;
+      glVertex2i ( cpos    , dy + abox.min[1] + bot ) ;
+      glVertex2i ( cpos    , dy + abox.min[1] + top ) ;
+      glVertex2i ( cpos - 1, dy + abox.min[1] + bot ) ;
+      glVertex2i ( cpos - 1, dy + abox.min[1] + top ) ;
+      glVertex2i ( cpos - 4, dy + abox.min[1] + bot ) ;
+      glVertex2i ( cpos + 3, dy + abox.min[1] + bot ) ;
+      glVertex2i ( cpos - 4, dy + abox.min[1] + top ) ;
+      glVertex2i ( cpos + 3, dy + abox.min[1] + top ) ;
       glEnd      () ;
     }
   }
@@ -118,6 +120,8 @@ void puInput::doHit ( int button, int updown, int x, int /* y */ )
 {
   if ( puActiveWidget() && ( this != puActiveWidget() ) )
   {
+    /* Active widget exists and is not this one; call its down callback if it exists */
+
     puActiveWidget() -> invokeDownCallback () ;
     puDeactivateWidget () ;
   }
@@ -129,26 +133,67 @@ void puInput::doHit ( int button, int updown, int x, int /* y */ )
   {
     /* Most GUI's activate a button on button-UP not button-DOWN. */
 
+    /* Find the position of the mouse on the line of text */
+
+    char *strval = getStringValue () ;
+    char *tmpval = new char [ strlen(strval) + 1 ] ;
+    strcpy ( tmpval, strval ) ;
+
+    int i = strlen ( tmpval ) ;
+
+    int length, prev_length ;
+    length = puGetStringWidth ( legendFont, tmpval ) + abox.min[0] ;
+    prev_length = length ;
+    while ( ( x <= prev_length ) && ( i >= 0 ) )
+    {
+      prev_length = length ;
+      tmpval[--i] = '\0' ;
+      length = puGetStringWidth ( legendFont, tmpval ) + abox.min[0] ;
+    }
+
+    if ( ( x - length ) > ( prev_length - x ) )
+      i++ ;   /* Mouse is closer to next character than previous character */
+
+    /* Process the mouse click. */
+
     if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )
     {
       lowlight () ;
 
-      char *strval ;
-      getValue ( & strval ) ;
-      char *tmpval = new char [ strlen(strval) + 1 ] ;
-      strcpy ( tmpval, strval ) ;
-
-      int i = strlen ( tmpval ) ;
-
-      while ( x <= puGetStringWidth ( legendFont, tmpval ) + abox.min[0] &&
-              i >= 0 )
-        tmpval[--i] = '\0' ;
-    
       accepting = TRUE ;
       cursor_position = i ;
       normalize_cursors () ;
       puSetActiveWidget ( this ) ;
       invokeCallback () ;
+    }
+    else if ( updown == PU_DOWN )
+    {
+      /*
+       * We get here if the active edge is not down but the mouse button has
+       * been pressed.  Start a selection if this isn't the initial activation
+       * of the widget.
+       */
+
+      if ( this == puActiveWidget() )
+      {
+        select_start_position = i ;
+        select_end_position = i ;
+      }
+    }
+    else if ( updown == PU_DRAG )
+    {
+
+      if ( (select_end_position - i) > (i - select_start_position) )
+        select_start_position = i ;   /* Cursor closer to start than to end */
+      else
+        select_end_position = i ;     /* Cursor closer to end than to start */
+
+      if (select_start_position > select_end_position)
+      {
+        i = select_end_position ;
+        select_end_position = select_start_position ;
+        select_start_position = i ;
+      }
     }
     else
       highlight () ;
@@ -164,6 +209,8 @@ int puInput::checkKey ( int key, int /* updown */ )
 
   if ( puActiveWidget() && ( this != puActiveWidget() ) )
   {
+    /* Active widget exists and is not this one; call its down callback if it exists */
+
     puActiveWidget() -> invokeDownCallback () ;
     puDeactivateWidget () ;
   }
@@ -186,12 +233,24 @@ int puInput::checkKey ( int key, int /* updown */ )
     case '\n' : /* Carriage return/Line Feed/TAB  -- End of input */
       rejectInput () ;
       normalize_cursors () ;
-      puDeactivateWidget () ;
       invokeCallback () ;
+      puDeactivateWidget () ;
       break ;
 
     case '\b' : /* Backspace */
-      if ( cursor_position > 0 ) 
+      if ( select_start_position != select_end_position )
+      {
+        char *p1 = & (getStringValue() [ select_start_position ]) ;
+        char *p2 = & (getStringValue() [ select_end_position   ]) ;
+
+        while ( *p1 != '\0' )
+          *p1++ = *p2++ ;
+
+        *p2 = '\0' ;
+        cursor_position = select_start_position ;
+        select_end_position = select_start_position ;
+      }
+      else if ( cursor_position > 0 ) 
         for ( p = & (getStringValue() [ --cursor_position ]) ; *p != '\0' ; p++ )
           *p = *(p+1) ;
       break ;
@@ -205,11 +264,13 @@ int puInput::checkKey ( int key, int /* updown */ )
         while ( *p1 != '\0' )
           *p1++ = *p2++ ;
 
+        *p2 = '\0' ;
+        cursor_position = select_start_position ;
         select_end_position = select_start_position ;
       }
-      else
-	for ( p = & (getStringValue() [ cursor_position ]) ; *p != '\0' ; p++ )
-	  *p = *(p+1) ;
+      else if ( cursor_position != (int)strlen ( getStringValue() ) )
+        for ( p = & (getStringValue() [ cursor_position ]) ; *p != '\0' ; p++ )
+	        *p = *(p+1) ;
       break ;
 
     case 0x15 /* ^U */ : (getStringValue() [ 0 ]) = '\0' ; break ;
@@ -220,35 +281,32 @@ int puInput::checkKey ( int key, int /* updown */ )
 
     default:
       if ( key < ' ' || key > 127 ) return FALSE ;
+      if ( valid_data )
+      {
+        if ( !strchr ( valid_data, key ) ) return TRUE ;
+      }
+
+      if ( select_start_position != select_end_position ) // remove selected text
+      {
+        char *p1 = & (getStringValue() [ select_start_position ]) ;
+        char *p2 = & (getStringValue() [ select_end_position   ]) ;
+
+        while ( *p1 != '\0' )
+          *p1++ = *p2++ ;
+
+        *p2 = '\0' ;
+        cursor_position = select_start_position ;
+        select_end_position = select_start_position ;
+      }
 
       if ( strlen ( getStringValue() ) >= PUSTRING_MAX - 1 )
         return FALSE ;
 
-/*
-  This code was:
-
       for ( p = & (getStringValue() [ strlen(getStringValue()) ]) ;
-               p != &(getStringValue()[cursor_position]) ; p-- )
+               p != &(getStringValue()[cursor_position-1]) ; p-- )
         *(p+1) = *p ;
 
-  ...until Eero Pajarre <epajarre@koti.tpo.fi> said:
-
-        EERO: The next loop is not too pretty,
-        but I think the original code did not work properly.
-        Especially it did not always move the trailing 0 
-        of  the string (if insertion was to the end of string)
-        losing the terminating 0 had nasty effects elsewhere
-
-  ...thanks Eero!
-*/
-      p = & string [ strlen(string) ] ;
-      do{
-        *(p+1)=*p;
-        p--;
-      }while(p >= &string[cursor_position]);
-      p++;
-/* END */
-      *p = key ;
+      *(p+1) = key ;
       cursor_position++ ;
       break ;
   }
