@@ -102,14 +102,14 @@ float fntTexFont::low_putch ( sgVec3 curpos, float pointsize,
                    curpos[2] ) ;
   glEnd () ;
 
-  float ww = ( gap + ( fixed_pitch ? width : v_right[cc] ) ) * pointsize ;
+  float ww = ( gap + ( fixed_pitch ? width : widths[cc] ) ) * pointsize ;
   curpos[0] += ww ;
   return ww ;
 }
 
 
 
-void fntTexFont::setGlyph ( char c,
+void fntTexFont::setGlyph ( char c, float wid,
         float tex_left, float tex_right,
         float tex_bot , float tex_top  ,
         float vtx_left, float vtx_right,
@@ -119,6 +119,8 @@ void fntTexFont::setGlyph ( char c,
 
   exists[cc] = FNT_TRUE ;
 
+  widths[cc] = wid;
+
   t_left[cc] = tex_left ; t_right[cc] = tex_right ;
   t_bot [cc] = tex_bot  ; t_top  [cc] = tex_top   ;
 
@@ -127,7 +129,7 @@ void fntTexFont::setGlyph ( char c,
 }
 
 
-int fntTexFont::getGlyph ( char c,
+int fntTexFont::getGlyph ( char c, float* wid,
         float *tex_left, float *tex_right,
         float *tex_bot , float *tex_top  ,
         float *vtx_left, float *vtx_right,
@@ -136,6 +138,8 @@ int fntTexFont::getGlyph ( char c,
   unsigned int cc = (unsigned char) c ;
 
   if ( ! exists[cc] ) return FNT_FALSE ;
+
+  if ( wid       != NULL ) *wid       = widths [cc] ;
 
   if ( tex_left  != NULL ) *tex_left  = t_left [cc] ;
   if ( tex_right != NULL ) *tex_right = t_right[cc] ;
@@ -209,7 +213,7 @@ void fntTexFont::getBBox ( const char *s,
     if ( b > v_pos + v_bot [cc] ) b = v_pos + v_bot [cc] ;
     if ( t < v_pos + v_top [cc] ) t = v_pos + v_top [cc] ;
 
-    h_pos += gap + ( fixed_pitch ? width : v_right[cc] ) ;
+    h_pos += gap + ( fixed_pitch ? width : widths[cc] ) ;
   }
 
   if ( left  != NULL ) *left  = l * pointsize ;
@@ -239,5 +243,4 @@ void fntTexFont::puts ( sgVec3 curpos, float pointsize, float italic, const char
     s++ ;
   }
 }
-
 
