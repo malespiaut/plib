@@ -329,7 +329,7 @@ struct puBox
   int min [ 2 ] ;
   int max [ 2 ] ;
 
-  void draw   ( int dx, int dy, int style, puColour colour[], int am_default ) ;
+  void draw   ( int dx, int dy, int style, puColour colour[], int am_default, int border ) ;
   void extend ( puBox *bx ) ;
 
   void empty   ( void ) { min[0]=min[1]=1000000 ; max[0]=max[1]=-1000000 ; }
@@ -490,6 +490,7 @@ protected:
   puCallback down_cb ;
   puRenderCallback r_cb ;
   void *render_data ;
+  int border_thickness ;
 
   virtual void draw_label  ( int dx, int dy ) ;
   virtual int  isHit ( int x, int y ) { return isVisible() && isActive() &&
@@ -538,7 +539,7 @@ public:
 
   void getPosition ( int *x, int *y )
   {
-    if ( abox . isEmpty () )
+    if ( abox.isEmpty () )
     {
       if ( x ) *x = 0 ;
       if ( y ) *y = 0 ;
@@ -552,7 +553,7 @@ public:
 
   void getSize ( int *w, int *h )
   {
-    if ( abox . isEmpty () )
+    if ( abox.isEmpty () )
     {
       if ( w ) *w = 0 ;
       if ( h ) *h = 0 ;
@@ -590,6 +591,9 @@ public:
   puRenderCallback getRenderCallback ( void ) { return r_cb ; }
   void      *getRenderCallbackData ( void ) { return render_data ; }
   void       invokeRenderCallback ( int dx, int dy ) { if ( r_cb ) (*r_cb)(this, dx, dy, render_data) ; }
+
+  void setBorderThickness ( int t )  {  border_thickness = t ;  }
+  int getBorderThickness ( void )  {  return border_thickness ;  }
 
   void  makeReturnDefault ( int def ) { am_default = def ; }
   int   isReturnDefault   ( void )          { return am_default ; }
@@ -663,14 +667,14 @@ public:
 
   void defaultValue ( void ) { setValue ( & default_value ) ; }
 
-  void setDefaultValue ( int    i ) { default_value . setValue ( i ) ; }
-  void setDefaultValue ( float  f ) { default_value . setValue ( f ) ; }
-  void setDefaultValue ( char  *s ) { default_value . setValue ( s ) ; }
+  void setDefaultValue ( int    i ) { default_value.setValue ( i ) ; }
+  void setDefaultValue ( float  f ) { default_value.setValue ( f ) ; }
+  void setDefaultValue ( char  *s ) { default_value.setValue ( s ) ; }
 
-  void getDefaultValue ( int   *i ) { default_value . getValue ( i ) ; }
-  void getDefaultValue ( float *f ) { default_value . getValue ( f ) ; }
-  void getDefaultValue ( char **s ) { default_value . getValue ( s ) ; }
-  int  getDefaultValue ( void )    { return default_value . getValue () ; }
+  void getDefaultValue ( int   *i ) { default_value.getValue ( i ) ; }
+  void getDefaultValue ( float *f ) { default_value.getValue ( f ) ; }
+  void getDefaultValue ( char **s ) { default_value.getValue ( s ) ; }
+  int  getDefaultValue ( void )    { return default_value.getValue () ; }
 } ;
 
 /*

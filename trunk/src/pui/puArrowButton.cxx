@@ -40,7 +40,7 @@ void puArrowButton::draw ( int dx, int dy )
   else
     tempStyle = ( getValue() ^ highlighted ) ? -style : style ;
 
-  abox . draw ( dx, dy, tempStyle, colour, isReturnDefault() ) ;
+  abox.draw ( dx, dy, tempStyle, colour, isReturnDefault(), border_thickness ) ;
 
   /*
     If greyed out then halve the opacity when drawing

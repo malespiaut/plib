@@ -80,7 +80,7 @@ void puListBox::draw ( int dx, int dy )
 {
   if ( !visible || ( window != puGetWindow () ) || list == NULL ) return ;
 
-  abox . draw ( dx, dy, style, colour, isReturnDefault() ) ;
+  abox.draw ( dx, dy, style, colour, isReturnDefault(), border_thickness ) ;
 
   /* If greyed out then halve the opacity when drawing the label and legend */
 

@@ -27,7 +27,6 @@
 #define PU_BEVEL              5
 #define PU_SMALL_BEVEL        2
 #define PU_DFLT_OFFSET        8
-#define PU_BOX_WIDTH          2
 #define PU_DROPSHADOW_OFFSET  5
 
 void puBox::extend ( puBox *bx )
@@ -42,7 +41,7 @@ void puBox::extend ( puBox *bx )
  
 
  
-void puBox::draw ( int dx, int dy, int style, puColour colour[], int am_default  )
+void puBox::draw ( int dx, int dy, int style, puColour colour[], int am_default, int border )
 {
   int mid = PUCOL_FOREGROUND ;
   int hi  = PUCOL_HIGHLIGHT  ;
@@ -285,8 +284,8 @@ void puBox::draw ( int dx, int dy, int style, puColour colour[], int am_default 
       glRecti ( dx + min[0], dy + min[1],
 		dx + max[0], dy + max[1] ) ;
       glColor4fv ( colour [ mid ] ) ;
-      glRecti ( dx + min[0]+PU_BOX_WIDTH, dy + min[1]+PU_BOX_WIDTH,
-		dx + max[0]-PU_BOX_WIDTH, dy + max[1]-PU_BOX_WIDTH ) ;
+      glRecti ( dx + min[0]+border, dy + min[1]+border,
+		dx + max[0]-border, dy + max[1]-border ) ;
       break ;
 
     case  PUSTYLE_RADIO      :
