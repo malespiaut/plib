@@ -80,6 +80,7 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 #define SSG_TYPE_INVISIBLE     0x00002000
 #define SSG_TYPE_VTXTABLE      0x00004000
 #define SSG_TYPE_VTXARRAY      0x00008000
+#define SSG_TYPE_TRANSFORM_ARRAY 0x00010000
 
 /* ssgStates */
 #define SSG_TYPE_STATE         0x00000004
@@ -407,6 +408,21 @@ public:
   ssgIndexArray ( int init = 3 ) : ssgSimpleList ( sizeof(short), init ) {} 
   short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
   void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
+} ;
+
+
+class ssgTransformArray : public ssgSimpleList
+{
+public:
+  int selection ;  /* used to remember last transform selected */
+
+  ssgTransformArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgMat4), init )
+  {
+    type |= SSG_TYPE_TRANSFORM_ARRAY ;
+    selection = 0 ;
+  } 
+  sgMat4 *get ( unsigned int n ) { return (sgMat4 *) raw_get ( n ) ; }
+  void   add ( sgMat4  thing ) { raw_add ( (char *) thing ) ; } ;
 } ;
 
 

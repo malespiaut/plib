@@ -1,7 +1,39 @@
-//
-// ASE ( 3DSMAX ASCII EXPORT Version 2.00 ) loader for SSG/PLIB
-// Written by Dave McClurg (dpm@efn.org) in Feb-2000
-//
+/****
+* NAME
+*   ssgLoadASE -- ASE model loader
+*
+* DESCRIPTION
+*   ssgLoadASE will load an ASE model exported from 3dsmax using
+*   the standard ascii export v2.00 plugin.
+*
+*   The material list and geometry objects are parsed and converted
+*   into an SSG scene graph.  shape, light, camera, and helper
+*   nodes are ignored.
+*
+*   If the geometry has vertex colours (pre-lit) then lighting is
+*   disabled for that leaf.
+*
+*   mesh animation creates ssgSelector entities.  transform
+*   animation creates ssgTransform entities with ssgTransformArray
+*   user_data.  see the viewer example for details on controlling
+*   animation.
+*
+*   NOTE: be sure you _reset the transform_ of the top-level object
+*   in 3dsmax before exporting transform animation.
+*
+*   Please report any bugs to the author.  Complete information about
+*   the ASE format can be found in the 3dsmax SDK source code.
+*
+* AUTHOR
+*   Dave McClurg <dpm@efn.org>
+*
+* CREATION DATE
+*   Feb-2000
+*
+* MODIFICATION HISTORY
+*   November 2000 - v1.1, Dave McClurg <dpm@efn.org>
+*     o support for transform animation samples
+****/
 
 #include "ssgLocal.h"
 #include "ssgParser.h"
@@ -25,11 +57,20 @@ struct aseVertexBuffer
 
 struct aseFace
 {
-   u32 v[3];
-   u32 tv[3];
-   u32 cv[3];
-   u32 sub_index;
+  u32 v[3];
+  u32 tv[3];
+  u32 cv[3];
+  u32 sub_index;
 };
+
+
+struct aseTransform
+{
+  sgVec3 pos ;
+  sgVec3 axis ;   // axis of rotation (unit vector)
+  f32 angle ;     // angle of rotation in radians (always >0)
+  sgVec3 scale ;
+} ;
 
 
 struct aseMesh
@@ -43,11 +84,28 @@ struct aseMesh
   sgVec3* verts ;
   sgVec2* tverts ;
   sgVec3* cverts ;
-
+  
   aseMesh();
   ~aseMesh();
 };
 
+
+struct aseObject
+{
+  char* name ;
+  char* parent ;
+  sgVec3 pos ;
+  u32 mat_index ;
+  u32 num_tkeys ;
+  aseTransform* tkeys ;
+  
+  enum { MAX_FRAMES = 256 };
+  aseMesh* mesh_list[ MAX_FRAMES ];
+  int mesh_count ;
+  
+  aseObject();
+  ~aseObject();
+};
 
 struct aseMaterial
 {
@@ -55,7 +113,7 @@ struct aseMaterial
   u32 mat_index ;
   u32 sub_index ;
   bool sub_flag ;
-   
+  
   sgVec4 amb ;
   sgVec4 diff ;
   sgVec4 spec ;
@@ -71,10 +129,6 @@ struct aseMaterial
 enum { MAX_MATERIALS = 1000 };
 static aseMaterial** materials ;
 static u32 num_materials ;
-
-enum { MAX_FRAMES = 256 };
-aseMesh* mesh_list[ MAX_FRAMES ];
-int mesh_count = 0 ;
 
 static u32 first_frame ;
 static u32 last_frame ;
@@ -108,6 +162,23 @@ aseMesh::~aseMesh()
   delete[] verts;
   delete[] tverts;
   delete[] cverts;
+}
+
+
+aseObject::aseObject()
+{
+  memset(this,0,sizeof(aseObject));
+}
+
+
+aseObject::~aseObject()
+{
+  delete[] name;
+  delete[] parent;
+  delete[] tkeys;
+  for ( int i=0; i<MAX_FRAMES; i++ )
+    delete mesh_list [ i ] ;
+  memset(this,0,sizeof(aseObject));
 }
 
 
@@ -149,22 +220,30 @@ static aseMaterial* find_material( u32 mat_index, u32 sub_index )
 }
 
 
-static ssgSimpleState* get_state( aseMaterial* mat )
+static ssgSimpleState* get_state( aseMaterial* mat, bool prelit )
 {
   ssgSimpleState *st = new ssgSimpleState () ;
 
-//  st -> setMaterial ( GL_AMBIENT, mat -> amb ) ;
-//  st -> setMaterial ( GL_DIFFUSE, mat -> diff ) ;
-  st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
-  st -> setShininess ( mat -> shine ) ;
-
-  st -> enable ( GL_COLOR_MATERIAL ) ;
-  st -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
-
-  st -> enable  ( GL_LIGHTING       ) ;
+  if ( prelit )
+  {
+    st -> disable ( GL_LIGHTING ) ;
+  }
+  else
+  {
+    st -> setMaterial ( GL_AMBIENT, mat -> amb ) ;
+    st -> setMaterial ( GL_DIFFUSE, mat -> diff ) ;
+    st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
+    st -> setShininess ( mat -> shine ) ;
+    
+    st -> enable ( GL_COLOR_MATERIAL ) ;
+    st -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
+    
+    st -> enable  ( GL_LIGHTING ) ;
+  }
+  
   st -> setShadeModel ( GL_SMOOTH ) ;
-
-  if ( mat -> transparency > 0.0f )
+  
+  if ( sgCompareFloat ( mat -> transparency, 0.0f, 0.01f ) > 0 )
   {
     st -> disable ( GL_ALPHA_TEST ) ;
     st -> enable  ( GL_BLEND ) ;
@@ -175,12 +254,15 @@ static ssgSimpleState* get_state( aseMaterial* mat )
     st -> disable ( GL_BLEND ) ;
     st -> setOpaque () ;
   }
-
-  if (mat -> tfname != NULL) {
-    st -> setTexture( current_options -> createTexture(mat->tfname) ) ;
-    st -> enable( GL_TEXTURE_2D );
-  } else {
-    st -> disable( GL_TEXTURE_2D );
+  
+  if (mat -> tfname != NULL)
+  {
+    st -> setTexture ( current_options -> createTexture ( mat->tfname ) ) ;
+    st -> enable ( GL_TEXTURE_2D ) ;
+  }
+  else
+  {
+    st -> disable( GL_TEXTURE_2D ) ;
   }
 
   return st ;
@@ -199,17 +281,17 @@ static void parse_map( aseMaterial* mat )
         parser.error("multiple textures for material: %s",mat->name);
       else
       {
-         char* fname = parser.parseString("bitmap filename") ;
-
-         //strip existing directory from fname
-         char* slash = strrchr ( fname, '/' ) ;
-         if ( !slash )
-           slash = strrchr ( fname, '\\' ) ; //for dos
-         if ( slash )
-           fname = slash + 1 ;
-
-         mat->tfname = new char [ strlen(fname)+1 ] ;
-         strcpy ( mat->tfname, fname ) ;
+        char* fname = parser.parseString("bitmap filename") ;
+        
+        //strip existing directory from fname
+        char* slash = strrchr ( fname, '/' ) ;
+        if ( !slash )
+          slash = strrchr ( fname, '\\' ) ; //for dos
+        if ( slash )
+          fname = slash + 1 ;
+        
+        mat->tfname = new char [ strlen(fname)+1 ] ;
+        strcpy ( mat->tfname, fname ) ;
       }
     }
     else if (!strcmp(token,"*UVW_U_TILING"))
@@ -237,7 +319,7 @@ static void parse_material( u32 mat_index, u32 sub_index, cchar* mat_name )
   if ( num_materials >= MAX_MATERIALS )
   {
     parser.error( "too many materials" );
-
+    
     // skip material definition
     int startLevel = parser.level;
     while (parser.getLine( startLevel ) != NULL)
@@ -246,7 +328,7 @@ static void parse_material( u32 mat_index, u32 sub_index, cchar* mat_name )
   }
   aseMaterial* mat = new aseMaterial;
   materials [ num_materials++ ] = mat ;
-
+  
   memset ( mat, 0, sizeof(aseMaterial) ) ;
   mat->mat_index = mat_index ;
   mat->sub_index = sub_index ;
@@ -267,7 +349,7 @@ static void parse_material( u32 mat_index, u32 sub_index, cchar* mat_name )
       {
         char buff [ 256 ] ;
         sprintf( buff, "%s, sub#%d", mat_name, sub_index );
-
+        
         mat->name = new char [ strlen(buff)+1 ] ;
         strcpy ( mat->name, buff ) ;
       }
@@ -317,7 +399,7 @@ static void parse_material( u32 mat_index, u32 sub_index, cchar* mat_name )
       parse_material( mat_index, sub_index, mat->name );
     }
   }
-
+  
   //parser.message("material: %s (%s)",mat->name,mat->tfname);
 }
 
@@ -326,7 +408,7 @@ static void parse_material_list()
 {
   if ( num_materials )
     parser.error("multiple material lists");
-
+  
   char* token;
   int startLevel = parser.level;
   while ((token = parser.getLine( startLevel )) != NULL)
@@ -340,18 +422,18 @@ static void parse_material_list()
 }
 
 
-static void parse_mesh()
+static void parse_mesh( aseObject* obj )
 {
   aseMesh* mesh = NULL ;
-
+  
   char* token;
   int startLevel = parser.level;
   while ((token = parser.getLine( startLevel )) != NULL)
   {
     if ( mesh == NULL )
     {
-      u32 frame = MAX_FRAMES ;
-
+      u32 frame = aseObject::MAX_FRAMES ;
+      
       if (!strcmp(token,"*TIMEVALUE"))
       {
         u32 time = parser.parseInt("time");
@@ -360,19 +442,19 @@ static void parse_mesh()
       else
       {
         parser.error("missing *TIMEVALUE");
-        frame = MAX_FRAMES ;
+        frame = aseObject::MAX_FRAMES ;
       }
-
-      if ( frame >= MAX_FRAMES || mesh_list [ frame ] != NULL )
+      
+      if ( frame >= aseObject::MAX_FRAMES || obj->mesh_list [ frame ] != NULL )
       {
         //ignore this mesh
         while (parser.getLine( startLevel )) ;
         return;
       }
-
+      
       mesh = new aseMesh ;
-      mesh_list [ frame ] = mesh ;
-      mesh_count ++ ;
+      obj->mesh_list [ frame ] = mesh ;
+      obj->mesh_count ++ ;
     }
     else if (!strcmp(token,"*MESH_NUMFACES"))
     {
@@ -436,14 +518,14 @@ static void parse_mesh()
       else
       {
         aseFace& face = mesh -> faces[ index ];
-
+        
         parser.expect("A:");
         face.v[0] = parser.parseInt("face.v[0]");
         parser.expect("B:");
         face.v[1] = parser.parseInt("face.v[1]");
         parser.expect("C:");
         face.v[2] = parser.parseInt("face.v[2]");
-
+        
         //search for other flags
         while ( (token = parser.parseToken(0)) != 0 )
         {
@@ -462,7 +544,7 @@ static void parse_mesh()
       else
       {
         aseFace& face = mesh -> faces[ index ];
-
+        
         face.tv[0] = parser.parseInt("tface.tv[0]");
         face.tv[1] = parser.parseInt("tface.tv[1]");
         face.tv[2] = parser.parseInt("tface.tv[2]");
@@ -476,7 +558,7 @@ static void parse_mesh()
       else
       {
         aseFace& face = mesh -> faces[ index ];
-
+        
         face.cv[0] = parser.parseInt("tface.cv[0]");
         face.cv[1] = parser.parseInt("tface.cv[1]");
         face.cv[2] = parser.parseInt("tface.cv[2]");
@@ -490,7 +572,7 @@ static void parse_mesh()
       else
       {
         sgVec3& vert = mesh -> verts[ index ];
-      
+        
         vert[0] = parser.parseFloat("vert.x");
         vert[1] = parser.parseFloat("vert.y");
         vert[2] = parser.parseFloat("vert.z");
@@ -504,7 +586,7 @@ static void parse_mesh()
       else
       {
         sgVec2& tvert = mesh -> tverts[ index ];
-      
+        
         tvert[0] = parser.parseFloat("tvert.x");
         tvert[1] = parser.parseFloat("tvert.y");
       }
@@ -517,7 +599,7 @@ static void parse_mesh()
       else
       {
         sgVec3& cvert = mesh -> cverts[ index ];
-      
+        
         cvert[0] = parser.parseFloat("cvert.x");
         cvert[1] = parser.parseFloat("cvert.y");
         cvert[2] = parser.parseFloat("cvert.z");
@@ -527,32 +609,131 @@ static void parse_mesh()
 }
 
 
-static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 sub_index )
+static void get_texcoord ( aseMaterial* mat, sgVec2 tv )
 {
-  aseMaterial* mat = find_material ( mat_index, sub_index ) ;
-  if ( mat == NULL )
-     return NULL ;
+  //invert Y coordinate
+  tv[1] = 1.0f - tv[1] ;
 
-  //compute number of faces
+  tv[0] *= mat->texrep[0] ;
+  tv[1] *= mat->texrep[1] ;
+  tv[0] += mat->texoff[0] ;
+  tv[1] += mat->texoff[1] ;
+}
+
+
+static ssgLeaf* add_points( aseObject* obj, aseMesh* mesh )
+{
+  aseMaterial* mat = find_material ( obj->mat_index, 0 ) ;
+  
+  u32 num_verts = mesh -> num_verts ;
+  if ( num_verts == 0 )
+    return NULL;
+  
+  //pass the data to ssg
+  ssgVertexArray* vl = new ssgVertexArray ( num_verts ) ;
+
+  sgVec3* vert = mesh -> verts ;
+  for ( u32 i=0; i < num_verts; i++, vert++ )
+    vl -> add ( *vert ) ;
+  
+  ssgVtxArray* leaf = new ssgVtxArray ( GL_POINTS,
+    vl, NULL, NULL, NULL, NULL ) ;
+
+  if ( leaf != NULL )
+  {
+    if ( mat != NULL )
+      leaf -> setState ( get_state ( mat, true ) ) ;
+
+    //fprintf( stdout, "add_points: %s\n", obj->name ) ;
+
+    // leaves with no faces are used for game logic
+    // and should not be culled and rendered
+    leaf -> clrTraversalMaskBits ( SSGTRAV_CULL ) ;
+  }
+
+  return current_options -> createLeaf ( leaf, obj -> name ) ;
+}
+
+
+static ssgLeaf* add_mesh( aseObject* obj, aseMesh* mesh, u32 sub_index )
+{
+  u32 i ;
+
+  aseMaterial* mat = find_material ( obj->mat_index, sub_index ) ;
+  if ( mat == NULL )
+    return NULL ;
+  
+  //compute number of faces for this sub-material
   u32 num_faces = mesh -> num_faces ;
   if ( mat->sub_flag )
   {
     num_faces = 0 ;
     aseFace* face = mesh -> faces ;
-    for ( u32 i=0; i<mesh -> num_faces; i++, face++ )
+    for ( i=0; i<mesh -> num_faces; i++, face++ )
     {
       if ( face->sub_index == mat->sub_index )
         num_faces ++ ;
     }
   }
   if ( num_faces == 0 )
-    return NULL;
+    return NULL ;
+  
+  if ( mesh -> cverts == NULL )
+  {
+    u32 num_verts = num_faces * 3 ;
 
-  u32 i ;
+    //pass the data to ssg
+    ssgSimpleState* st = get_state ( mat, false ) ;
+    ssgColourArray* cl = new ssgColourArray ( 1 ) ;
+    ssgVertexArray* vl = new ssgVertexArray ( num_verts ) ;
+    ssgNormalArray* nl = new ssgNormalArray ( num_verts ) ;
+    ssgTexCoordArray* tl = 0 ;
+    if ( mesh -> tverts )  
+      tl = new ssgTexCoordArray ( num_verts ) ;
 
+    //set the material colour
+    sgVec4 c ;
+    sgCopyVec3 ( c, mat -> diff ) ;
+    c[3] = 1.0f - mat -> transparency ;
+    cl -> add ( c ) ;
+
+    aseFace* face = mesh -> faces ;
+    for ( i=0; i<mesh -> num_faces; i++, face++ )
+    {
+      if ( mat->sub_flag && face->sub_index != mat->sub_index )
+        continue ;
+      
+      sgVec3 n ;
+      sgMakeNormal ( n,
+        mesh -> verts[ face->v[0] ] ,
+        mesh -> verts[ face->v[1] ] ,
+        mesh -> verts[ face->v[2] ] ) ;
+      
+      for ( u32 j=0; j<3; j++ )
+      {
+        vl -> add ( mesh -> verts[ face->v[j] ] ) ;
+        nl -> add ( n ) ;
+        
+        if ( mesh -> tverts )
+        {
+          sgVec2 tv ;
+          sgCopyVec2 ( tv, mesh -> tverts[ face->tv[j] ] ) ;
+          get_texcoord ( mat, tv ) ;
+          tl -> add ( tv ) ;
+        }
+      }
+    }
+
+    ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES,
+      vl, nl, tl, cl, NULL ) ;
+    leaf -> setCullFace ( TRUE ) ;
+    leaf -> setState ( st ) ;
+    return current_options -> createLeaf ( leaf, obj->name ) ;
+  }
+  
   //allocate map_index array
   int* map_index = new int [ mesh -> num_faces * 3 ] ;
-
+  
   //allocate the vertex list
   u32 max_verts = mesh -> num_verts + mesh -> num_faces * 3 ;
   aseVertexBuffer* vert_list = new aseVertexBuffer [ max_verts ] ;
@@ -563,9 +744,9 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
   {
     vert -> use_flag = false ;
   }
-
+  
   u32 extra_verts = 0 ;
-
+  
   //build the vertex list
   aseFace* face = mesh -> faces ;
   for ( i=0; i<mesh -> num_faces; i++, face++ )
@@ -576,10 +757,10 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
     for ( u32 j=0; j<3; j++ )
     {
       int k = i*3+j;
-
+      
       map_index [k] = face->v[j] ;
       vert = vert_list + map_index[k];
-
+      
       if ( vert -> use_flag )
       {
         //check for match
@@ -592,13 +773,13 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
           match = false ;
         if ( match )
           continue ;  //texcoord and color matches other vertex
-
+        
         extra_verts ++ ;
-
+        
         map_index [k] = mesh -> num_verts + k ;
         vert = vert_list + map_index[k];
       }
-
+      
       //add the vertex
       vert -> use_flag = true;
       sgCopyVec3 ( vert -> v, mesh -> verts[ face->v[j] ] ) ;
@@ -608,7 +789,7 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
         sgCopyVec3 ( vert -> cv, mesh -> cverts[ face->cv[j] ] ) ;
     }
   }
-
+  
   //assign a unique index to each vertex
   int num_verts = 0 ;
   vert = vert_list;
@@ -617,23 +798,23 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
     if ( vert -> use_flag )
       vert -> index = num_verts ++;
   }
-    
+  
   //if ( extra_verts > 0 )
   //   fprintf( stdout, "%d verts; %d added\n", num_verts-extra_verts, extra_verts );
   //else
   //   fprintf( stdout, "%d verts\n", num_verts );
-
+  
   //pass the data to ssg
+  ssgSimpleState* st = get_state ( mat, ( mesh -> cverts != NULL ) ) ;
   ssgIndexArray* il = new ssgIndexArray ( num_faces * 3 ) ;
   ssgVertexArray* vl = new ssgVertexArray ( num_verts ) ;
-  ssgTexCoordArray* tl = NULL ;
-  ssgColourArray* cl = NULL ;
-  ssgNormalArray* nl = NULL ;
+  ssgTexCoordArray* tl = 0 ;
+  ssgColourArray* cl = 0 ;
   if ( mesh -> tverts )  
     tl = new ssgTexCoordArray ( num_verts ) ;
   if ( mesh -> cverts )
     cl = new ssgColourArray ( num_verts ) ;
-
+  
   //build the index list
   face = mesh -> faces ;
   for ( i=0; i<mesh -> num_faces; i++, face++ )
@@ -645,14 +826,14 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
     {
       int k = i*3+j;
       vert = vert_list + map_index[k];
-
+      
       if ( ! vert -> use_flag )
         ulSetError ( UL_FATAL, "internal error" ) ;
-
+      
       il -> add ( vert -> index ) ;
     }
   }
-
+  
   //copy the vertex lists
   vert = vert_list;
   for ( i=0; i < max_verts; i++, vert++ )
@@ -660,112 +841,150 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
     if ( vert -> use_flag )
     {
       vl -> add ( vert -> v ) ;
-
+      
       if ( mesh -> tverts )
       {
         sgVec2 tv ;
         sgCopyVec2 ( tv, vert -> tv ) ;
-
-        tv[1] = 1.0f - tv[1] ;
-
-        tv[0] *= mat->texrep[0] ;
-        tv[1] *= mat->texrep[1] ;
-        tv[0] += mat->texoff[0] ;
-        tv[1] += mat->texoff[1] ;
-
+        get_texcoord ( mat, tv ) ;
         tl -> add ( tv ) ;
       }
-
+      
       if ( mesh -> cverts )
       {
         sgVec4 c ;
         sgCopyVec3 ( c, vert -> cv ) ;
-
+        
         c[3] = 1.0f; //alpha is always one ??
-
+        
         cl -> add ( c ) ;
       }
     }
   }
-
+  
   delete[] vert_list ;
   delete[] map_index ;
 
-  ssgSimpleState* st = get_state ( mat ) ;
-  if ( st -> isEnabled ( GL_LIGHTING ) )
-  {
-    if ( cl == NULL )
-    {
-      sgVec4 c ;
-      sgCopyVec3 ( c, mat -> diff ) ;
-      c[3] = 1.0f - mat -> transparency ;
-  
-      cl = new ssgColourArray ( 1 ) ;
-      cl -> add ( c ) ;
-    }
-  
-    if ( vl -> getNum () >= 3 )
-    {
-      sgVec3 n ;
-      sgMakeNormal ( n,
-        vl -> get(0),
-        vl -> get(1),
-        vl -> get(2) ) ;
-  
-      nl = new ssgNormalArray ( 1 ) ;
-      nl -> add ( n ) ;
-    }
-  }
-
   ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES,
-    vl, nl, tl, cl, il ) ;
+    vl, NULL, tl, cl, il ) ;
   leaf -> setCullFace ( TRUE ) ;
   leaf -> setState ( st ) ;
-  return current_options -> createLeaf ( leaf, mesh_name ) ;
+  return current_options -> createLeaf ( leaf, obj -> name ) ;
+}
+
+
+static aseTransform* get_tkey( aseObject* obj, u32 time )
+{
+  if ( obj->tkeys == NULL )
+  {
+    obj->num_tkeys = 0;
+    obj->tkeys = new aseTransform [ num_frames ] ;
+    
+    //initialize
+    aseTransform* tkey = obj->tkeys ;
+    for ( u32 i=0; i<num_frames; i++, tkey++ )
+    {
+      sgSetVec3 ( tkey->pos, 0, 0, 0 ) ;
+      sgSetVec3 ( tkey->axis, 0, 0, 1 ) ;
+      tkey->angle = 0.0f ;
+      sgSetVec3 ( tkey->scale, 1, 1, 1 ) ;
+    }
+  }
+  
+  //compute frame number
+  u32 frame = time / ticks_per_frame - first_frame;
+  if ((time % ticks_per_frame) != 0 || frame >= num_frames)
+    parser.error("bad time");
+  
+  if ( frame+1 > obj->num_tkeys )
+    obj->num_tkeys = frame+1;
+  
+  return( &obj->tkeys[ frame ] );
+}
+
+
+static void parse_tkeys( aseObject* obj )
+{
+  char* token;
+  int startLevel = parser.level;
+  while ((token = parser.getLine( startLevel )) != NULL)
+  {
+    if (!strcmp(token,"*CONTROL_POS_SAMPLE"))
+    {
+      u32 time = parser.parseInt("time");
+      aseTransform* tkey = get_tkey( obj, time );
+      
+      tkey->pos[0] = parser.parseFloat("pos.x");
+      tkey->pos[1] = parser.parseFloat("pos.y");
+      tkey->pos[2] = parser.parseFloat("pos.z");
+      
+      if ( obj->parent == NULL )
+        sgSubVec3 ( tkey->pos, obj->pos ) ;
+      
+      //copy the position forward
+      for ( u32 i=obj->num_tkeys; i<num_frames; i++ )
+        sgCopyVec3 ( obj->tkeys[ i ].pos, tkey->pos ) ;
+    }
+    else if (!strcmp(token,"*CONTROL_ROT_SAMPLE"))
+    {
+      u32 time = parser.parseInt("time");
+      aseTransform* tkey = get_tkey( obj, time );
+      
+      tkey->axis[0] = parser.parseFloat("axis.x");
+      tkey->axis[1] = parser.parseFloat("axis.y");
+      tkey->axis[2] = parser.parseFloat("axis.z");
+      tkey->angle = parser.parseFloat("angle");
+    }
+    else if (!strcmp(token,"*CONTROL_SCALE_SAMPLE"))
+    {
+      u32 time = parser.parseInt("time");
+      aseTransform* tkey = get_tkey( obj, time );
+      
+      tkey->scale[0] = parser.parseFloat("scale.x");
+      tkey->scale[1] = parser.parseFloat("scale.y");
+      tkey->scale[2] = parser.parseFloat("scale.z");
+    }
+  }
 }
 
 
 static void parse_object()
 {
-  char* mesh_name = 0 ;
-  char* mesh_parent = 0 ;
-  u32 mat_index = 0;
-
+  aseObject* obj = new aseObject ;
+  
   char* token;
   int startLevel = parser.level;
   while ((token = parser.getLine( startLevel )) != NULL)
   {
     if (!strcmp(token,"*NODE_NAME"))
     {
-      if ( !mesh_name )
+      if ( !obj->name )
       {
         char* name = parser.parseString("obj name");
-
-        mesh_name = new char [ strlen(name)+1 ] ;
-        strcpy ( mesh_name, name ) ;
+        
+        obj->name = new char [ strlen(name)+1 ] ;
+        strcpy ( obj->name, name ) ;
       }
     }
     else if (!strcmp(token,"*NODE_PARENT"))
     {
-      if ( !mesh_parent )
+      if ( !obj->parent )
       {
         char* name = parser.parseString("parent name");
-
-        mesh_parent = new char [ strlen(name)+1 ] ;
-        strcpy ( mesh_parent, name ) ;
+        
+        obj->parent = new char [ strlen(name)+1 ] ;
+        strcpy ( obj->parent, name ) ;
       }
     }
     else if (!strcmp(token,"*TM_POS"))
     {
-      //NEED: support for *TM_ROW0, ...
-      sgVec3 pos ;
-      pos[0] = parser.parseFloat("pos.x");
-      pos[1] = parser.parseFloat("pos.y");
-      pos[2] = parser.parseFloat("pos.z");
+      obj->pos[0] = parser.parseFloat("pos.x");
+      obj->pos[1] = parser.parseFloat("pos.y");
+      obj->pos[2] = parser.parseFloat("pos.z");
     }
     else if (!strcmp(token,"*MESH"))
     {
-      parse_mesh();
+      parse_mesh( obj );
     }
     else if (!strcmp(token,"*MESH_ANIMATION"))
     {
@@ -774,60 +993,57 @@ static void parse_object()
       {
         if (!strcmp(token,"*MESH"))
         {
-          parse_mesh();
+          parse_mesh( obj );
         }
       }
     }
     else if (!strcmp(token,"*TM_ANIMATION"))
     {
-      //ignore this since we can't get it to work correctly
-      int startLevel = parser.level;
-      while ((token = parser.getLine( startLevel )) != NULL)
-        ;
+      parse_tkeys( obj );
     }
     else if (!strcmp(token,"*MATERIAL_REF"))
     {
-      mat_index = parser.parseInt("mat #");
+      obj->mat_index = parser.parseInt("mat #");
     }
   }
-
-  if ( mesh_parent != NULL )
-     fprintf( stdout, "add_mesh: %s, parent=%s\n", mesh_name, mesh_parent ) ;
-  else
-     fprintf( stdout, "add_mesh: %s\n", mesh_name ) ;
-
+  
+  //if ( obj->parent != NULL )
+  //  fprintf( stdout, "add_mesh: %s, parent=%s\n", obj->name, obj->parent ) ;
+  //else
+  //  fprintf( stdout, "add_mesh: %s\n", obj->name ) ;
+  
   ssgEntity* mesh_entity = NULL ;
-
-  if ( mesh_count > 1 )
+  
+  if ( obj->mesh_count > 1 )
   {
     //how many frames?
     int num_frames = 0 ;
     int i ;
-    for ( i=0; i<MAX_FRAMES; i++ )
+    for ( i=0; i<aseObject::MAX_FRAMES; i++ )
     {
-      aseMesh* mesh = mesh_list [ i ] ;
+      aseMesh* mesh = obj->mesh_list [ i ] ;
       if ( mesh == NULL )
         num_frames ++ ;
     }
-
+    
     //allocate selector
-    ssgTimedSelector* selector = new ssgTimedSelector ( num_frames ) ;
-
+    ssgSelector* selector = new ssgSelector ( num_frames ) ;
+    
     //init
-    for ( i=0; i<MAX_FRAMES; i++ )
+    for ( i=0; i<aseObject::MAX_FRAMES; i++ )
     {
-      aseMesh* mesh = mesh_list [ i ] ;
+      aseMesh* mesh = obj->mesh_list [ i ] ;
       if ( mesh == NULL )
-         continue ;
-
-      u32 num_subs = count_sub_materials ( mat_index );
+        continue ;
+      
+      u32 num_subs = count_sub_materials ( obj->mat_index );
       if ( num_subs > 1 )
       {
         //break apart the mesh for each sub material
         ssgBranch* branch = new ssgBranch ;
         for ( u32 sub_index=0; sub_index<num_subs; sub_index++ )
         {
-          ssgLeaf* leaf = add_mesh ( mesh_name, mesh, mat_index, sub_index );
+          ssgLeaf* leaf = add_mesh ( obj, mesh, sub_index );
           if ( leaf )
             branch -> addKid ( leaf ) ;
         }
@@ -835,47 +1051,58 @@ static void parse_object()
       }
       else
       {
-        ssgLeaf* leaf = add_mesh ( mesh_name, mesh, mat_index, 0 );
+        ssgLeaf* leaf = add_mesh ( obj, mesh, 0 ) ;
         if ( leaf )
           selector -> addKid ( leaf ) ;
       }
     }
-    selector -> setLimits ( 0, selector -> getNumKids()-1 );
+
+    selector -> selectStep ( 0 ) ;
     mesh_entity = selector ;
   }
-  else if ( mesh_list [ 0 ] != NULL )
+  else if ( obj->mesh_list [ 0 ] != NULL )
   {
-    aseMesh* mesh = mesh_list [ 0 ] ;
+    aseMesh* mesh = obj->mesh_list [ 0 ] ;
     ssgBranch* branch = new ssgBranch ;
 
-    u32 num_subs = count_sub_materials ( mat_index );
-    if ( num_subs > 1 )
+    u32 num_faces = mesh -> num_faces ;
+    if ( num_faces == 0 )
     {
-      //break apart the mesh for each sub material
-      for ( u32 sub_index=0; sub_index<num_subs; sub_index++ )
+      ssgLeaf* leaf = add_points( obj, mesh ) ;
+      if ( leaf )
+        branch -> addKid ( leaf ) ;
+    }
+    else
+    {
+      u32 num_subs = count_sub_materials ( obj->mat_index );
+      if ( num_subs > 1 )
       {
-        ssgLeaf* leaf = add_mesh ( mesh_name, mesh, mat_index, sub_index );
+        //break apart the mesh for each sub material
+        for ( u32 sub_index=0; sub_index<num_subs; sub_index++ )
+        {
+          ssgLeaf* leaf = add_mesh ( obj, mesh, sub_index );
+          if ( leaf )
+            branch -> addKid ( leaf ) ;
+        }
+      }
+      else
+      {
+        ssgLeaf* leaf = add_mesh ( obj, mesh, 0 );
         if ( leaf )
           branch -> addKid ( leaf ) ;
       }
     }
-    else
-    {
-      ssgLeaf* leaf = add_mesh ( mesh_name, mesh, mat_index, 0 );
-      if ( leaf )
-        branch -> addKid ( leaf ) ;
-    }
-
+    
     mesh_entity = branch ;
   }
-
+  
   if ( mesh_entity != NULL )
   {
     //add to graph -- find parent branch
     ssgBranch* parent_branch ;
-    if ( mesh_parent )
+    if ( obj->parent )
     {
-      ssgEntity* found = top_branch -> getByName ( mesh_parent ) ;
+      ssgEntity* found = top_branch -> getByName ( obj->parent ) ;
       if ( found != NULL )
       {
         assert ( found -> isAKindOf ( SSG_TYPE_BRANCH ) ) ;
@@ -883,7 +1110,7 @@ static void parse_object()
       }
       else
       {
-        parser.error("mesh %s: parent %s not seen",mesh_name,mesh_parent);
+        //parser.error("object %s: parent %s not seen",obj->name,obj->parent);
         parent_branch = top_branch ;
       }
     }
@@ -891,24 +1118,68 @@ static void parse_object()
     {
       parent_branch = top_branch ;
     }
+    
+    if ( obj->num_tkeys > 0 )
+    {
+      ssgTransform* selector = new ssgTransform ;
+      ssgTransformArray* ta = new ssgTransformArray ( obj->num_tkeys ) ;
+      selector -> setUserData ( ta ) ;
 
-    mesh_entity -> setName ( mesh_name ) ;
+      /*
+      Build the transforms
+      */
+      sgMat4 rmat;
+      sgMakeIdentMat4 ( rmat ) ;
+      ta -> add ( rmat ) ;
+
+      for ( u32 i = 1 ; i < obj->num_tkeys ; i++ )
+      {
+        aseTransform* tkey = obj->tkeys + i ;
+        
+        sgVec3 pos ;
+        sgMat4 tmp ;
+        sgMat4 mat ;
+        
+        /*
+        *  compute rmat
+        *  the key rotation is additive to the last rotation
+        */
+        sgMakeRotMat4 ( tmp, -tkey->angle * SG_RADIANS_TO_DEGREES, tkey->axis ) ;
+        sgPostMultMat4 ( rmat, tmp ) ;
+        
+        /*
+        *  rotation is around the mesh pivot point (obj->pos)
+        *  translate -obj->pos
+        */
+        sgCopyVec3 ( pos, obj->pos ) ;
+        sgNegateVec3 ( pos ) ;
+        sgMakeTransMat4 ( mat, pos ) ;
+        
+        /*
+        *  perform the rotation
+        */
+        sgPostMultMat4 ( mat, rmat ) ;
+        
+        /*
+        *  translate obj->pos + tkey->pos
+        */
+        sgCopyVec3 ( pos, obj->pos ) ;
+        sgAddVec3 ( pos, tkey->pos ) ;
+        sgMakeTransMat4 ( tmp, pos ) ;
+        sgPostMultMat4 ( mat, tmp ) ;
+        
+        ta -> add ( mat ) ;
+      }
+      
+      selector -> addKid ( mesh_entity ) ;
+      mesh_entity = selector ;
+    }
+
     parent_branch -> addKid ( mesh_entity ) ;
+    mesh_entity -> setName ( obj->name ) ;
   }
-
-  /*
-   *  free up memory
-   */
-  delete[] mesh_name;
-  delete[] mesh_parent;
-  for ( int i=0; i<MAX_FRAMES; i++ )
-  {
-    aseMesh* mesh = mesh_list [ i ] ;
-    if ( mesh != NULL )
-       delete mesh ;
-    mesh_list [ i ] = NULL ;
-  }
-  mesh_count = 0 ;
+  
+  delete obj ;
 }
 
 
@@ -920,7 +1191,7 @@ static bool parse()
     parser.error("not enough memory");
     return false ;
   }
-
+  
   num_materials = 0 ;
   
   first_frame = 0 ;
@@ -1008,12 +1279,12 @@ ssgEntity *ssgLoadASE ( const char *fname, const ssgLoaderOptions* options )
   parser.openFile( fname, &parser_spec );
   if ( !parse() )
   {
-     delete top_branch ;
-     top_branch = 0 ;
+    delete top_branch ;
+    top_branch = 0 ;
   }
   parse_free();
   parser.closeFile();
-
+  
   current_options -> end () ;
   return top_branch ;
 }

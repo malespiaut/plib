@@ -40,7 +40,7 @@ puFilePicker* file_picker = 0 ;
 /*
 frame rate vars
 */
-int frames = 0;
+int frame_counter = 0;
 float fps = 0;
 
 /*
@@ -52,6 +52,8 @@ static const int speed_tab [] =
 
 int speed_index = 0 ;
 int anim_delay = -1 ;
+int anim_frame ;
+int num_anim_frames ;
 
 /*
 spinner vars
@@ -130,22 +132,71 @@ static void end2d ( void )
   glBlendFunc    ( GL_ONE, GL_ZERO ) ;
 }
 
-void show_frame( ssgEntity *e )
+
+void count_anim_frames( ssgEntity *e )
 {
   if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
   {
     ssgBranch *br = (ssgBranch *) e ;
     
     for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      show_frame ( br -> getKid ( i ) ) ;
+      count_anim_frames ( br -> getKid ( i ) ) ;
     
-    if ( e -> isAKindOf ( SSG_TYPE_TIMEDSELECTOR ) )
+    if ( e -> isAKindOf ( SSG_TYPE_SELECTOR ) )
     {
-      ssgTimedSelector* p = (ssgTimedSelector*) e ;
-      int frame = p -> getStep () ;	
-      char buffer [40];
-      sprintf ( buffer, "frame : %-4d\n", frame ) ;
-      text -> puts ( buffer ) ;
+      ssgSelector* p = (ssgSelector*) e ;
+      int num = p -> getMaxKids () ;
+      if ( num > num_anim_frames )
+        num_anim_frames = num ;
+    }
+    else if ( e -> isAKindOf ( SSG_TYPE_TRANSFORM ) )
+    {
+      ssgBase* data = e -> getUserData () ;
+      if ( data != NULL && data -> isAKindOf ( SSG_TYPE_TRANSFORM_ARRAY ) )
+      {
+        ssgTransform* p = (ssgTransform*) e ;
+        ssgTransformArray* ta = (ssgTransformArray*) data ;
+        int num = ta -> getNum () ;
+        if ( num > num_anim_frames )
+          num_anim_frames = num ;
+      }
+    }
+  }
+}
+
+
+void set_anim_frame( ssgEntity *e )
+{
+  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
+  {
+    ssgBranch *br = (ssgBranch *) e ;
+    
+    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
+      set_anim_frame ( br -> getKid ( i ) ) ;
+    
+    if ( e -> isAKindOf ( SSG_TYPE_SELECTOR ) )
+    {
+      ssgSelector* p = (ssgSelector*) e ;
+      int num = p -> getMaxKids () ;
+      int frame = anim_frame ;
+      if ( frame >= num )
+        frame = 0 ;
+      p -> selectStep ( frame ) ;
+    }
+    else if ( e -> isAKindOf ( SSG_TYPE_TRANSFORM ) )
+    {
+      ssgBase* data = e -> getUserData () ;
+      if ( data != NULL && data -> isAKindOf ( SSG_TYPE_TRANSFORM_ARRAY ) )
+      {
+        ssgTransform* p = (ssgTransform*) e ;
+        ssgTransformArray* ta = (ssgTransformArray*) data ;
+        int num = ta -> getNum () ;
+        int frame = anim_frame ;
+        if ( frame >= num )
+          frame = 0 ;
+        ta -> selection = frame ;
+        p -> setTransform ( *( ta -> get ( ta -> selection ) ) ) ;
+      }
     }
   }
 }
@@ -197,8 +248,6 @@ void display(void)
   glEnable(GL_BLEND);
   glEnable( GL_DEPTH_TEST ) ;
   
-  int frameCounter = ssgGetFrameCounter () ;
-  
   /*
   increment the frame counter
   */
@@ -211,7 +260,9 @@ void display(void)
     static int anim_time = 0 ;
     if ( anim_delay != -1 && ++ anim_time >= anim_delay )
     {
-      ssgSetFrameCounter ( ++ frameCounter ) ;
+      if ( ++ anim_frame >= num_anim_frames )
+        anim_frame = 0 ;
+      set_anim_frame ( scene ) ;
       anim_time = 0 ;
     }
   }
@@ -221,17 +272,12 @@ void display(void)
   */
   static int last_time2 = 0;
   if (curr_time >= last_time2 + 2000) {
-    fps = frames * 1000.0f / (curr_time - last_time2);
-    frames = 0;
+    fps = frame_counter * 1000.0f / (curr_time - last_time2);
+    frame_counter = 0;
     last_time2 = curr_time;
   }
   
   ssgCullAndDraw ( scene ) ;
-
-  /*
-  restore frameCounter since ssgCullAndDraw() changes it
-  */
-  ssgSetFrameCounter ( frameCounter ) ;
 
   /*
   do the interface stuff
@@ -271,16 +317,15 @@ void display(void)
       text -> puts ( buffer ) ;
     sprintf ( buffer, "anim_speed : %d fps\n", speed_tab[ speed_index ] ) ;
       text -> puts ( buffer ) ;
-    sprintf ( buffer, "time : %-4d, %d\n", curr_time, frameCounter ) ;
+    sprintf ( buffer, "time : %-4d, %d\n", curr_time, anim_frame ) ;
       text -> puts ( buffer ) ;
-    show_frame( scene ) ;
     text -> end () ;
   }
   
   glColor3f ( 1, 1, 1 ) ;
   end2d () ;
   
-  frames ++;
+  frame_counter ++;
   
   puDisplay () ;
 
@@ -423,25 +468,6 @@ void special(int key, int x, int y)
   }
 }
 
-void start_anim( ssgEntity *e )
-{
-  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
-  {
-    ssgBranch *br = (ssgBranch *) e ;
-    
-    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      start_anim ( br -> getKid ( i ) ) ;
-    
-    if ( e -> isAKindOf ( SSG_TYPE_TIMEDSELECTOR ) )
-    {
-      ssgTimedSelector* p = (ssgTimedSelector*) e ;
-      p -> setMode ( SSG_ANIM_SHUTTLE ) ;
-      p -> control ( SSG_ANIM_START ) ;
-    }
-  }
-}
-
-
 void pick_cb ( puObject * )
 {
   char* str ;
@@ -458,9 +484,10 @@ void pick_cb ( puObject * )
   if ( !obj )
     return;
   
-  start_anim( obj );
-  
   scene -> addKid ( obj ) ;
+
+  num_anim_frames = 0 ;
+  count_anim_frames ( scene ) ;
   
   SGfloat radius = scene->getBSphere()->getRadius();
   EyeDist = float( radius * 1.5f / tan( float( FOV/2 * SG_DEGREES_TO_RADIANS ) ) );
