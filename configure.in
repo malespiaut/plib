@@ -168,6 +168,7 @@ AC_OUTPUT( \
 	src/sg/Makefile \
 	src/sl/Makefile \
 	src/ssg/Makefile \
+	src/ssgAux/Makefile \
 	src/fnt/Makefile \
 	auxlibs/Makefile )
 
