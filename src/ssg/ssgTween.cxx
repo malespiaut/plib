@@ -98,20 +98,10 @@ void ssgTween::init ()
   banked_texcoords = new ulList ( 2 ) ;
   banked_colours   = new ulList ( 2 ) ;
 
-  banked_vertices  -> addEntity ( new ssgVertexArray   () ) ;
-  banked_normals   -> addEntity ( new ssgNormalArray   () ) ;
-  banked_texcoords -> addEntity ( new ssgTexCoordArray () ) ;
-  banked_colours   -> addEntity ( new ssgColourArray   () ) ;
-
-  vertices  = (ssgVertexArray   *) banked_vertices  -> getEntity ( 0 ) ;
-  normals   = (ssgNormalArray   *) banked_normals   -> getEntity ( 0 ) ;
-  texcoords = (ssgTexCoordArray *) banked_texcoords -> getEntity ( 0 ) ;
-  colours   = (ssgColourArray   *) banked_colours   -> getEntity ( 0 ) ;
-
-  vertices  -> ref () ;
-  normals   -> ref () ;
-  texcoords -> ref () ;
-  colours   -> ref () ;
+  vertices  = render_vertices  ;
+  normals   = render_normals   ;
+  texcoords = render_texcoords ;
+  colours   = render_colours   ;
 
   recalcBSphere () ;
 }
@@ -155,6 +145,8 @@ int ssgTween::newBank ( ssgVertexArray   *vl, ssgNormalArray   *nl,
   texcoords -> ref () ;
   colours   -> ref () ;
 
+  dirtyBSphere () ;  /* Cause parents to redo their bspheres */
+  bsphere_is_invalid = TRUE ;
   return bank ;
 }
 
@@ -187,24 +179,32 @@ void ssgTween::setVertices ( ssgVertexArray *vl )
 {
   banked_vertices -> replaceEntity ( curr_bank, vl ) ;
   ssgVtxTable::setVertices ( vl ) ;
+  dirtyBSphere () ;  /* Cause parents to redo their bspheres */
+  bsphere_is_invalid = TRUE ;
 }
 
 void ssgTween::setNormals ( ssgNormalArray *nl )
 {
   banked_normals -> replaceEntity ( curr_bank, nl ) ;
   ssgVtxTable::setNormals ( nl ) ;
+  dirtyBSphere () ;  /* Cause parents to redo their bspheres */
+  bsphere_is_invalid = TRUE ;
 }
 
 void ssgTween::setTexCoords ( ssgTexCoordArray *tl )
 {
   banked_texcoords -> replaceEntity ( curr_bank, tl ) ;
   ssgVtxTable::setTexCoords ( tl ) ;
+  dirtyBSphere () ;  /* Cause parents to redo their bspheres */
+  bsphere_is_invalid = TRUE ;
 }
 
 void ssgTween::setColours ( ssgColourArray *cl )
 {
   banked_colours -> replaceEntity ( curr_bank, cl ) ;
   ssgVtxTable::setColours ( cl ) ;
+  dirtyBSphere () ;  /* Cause parents to redo their bspheres */
+  bsphere_is_invalid = TRUE ;
 }
 
 ssgTween::~ssgTween ()
@@ -260,8 +260,8 @@ void ssgTween::draw ()
 
   float tstate = _ssgGetCurrentTweenState () ;
 
-  if ( tstate > (float)( banked_vertices -> getNumEntities ()) )
-    tstate = (float)( banked_vertices -> getNumEntities ()) ;
+  if ( tstate >= (float)( banked_vertices -> getNumEntities () - 1) )
+    tstate = (float)( banked_vertices -> getNumEntities () - 1) - 0.001 ;
 
   int   state1 = (int) floor ( tstate ) ;
   int   state2 = state1 + 1 ;
@@ -282,13 +282,15 @@ void ssgTween::draw ()
     render_vertices -> setNum ( l1 ) ;
 
   if ( v1 == v2 )
+{
     vertices = v1 ;
+}
   else
   {
     vertices = render_vertices ;
 
     for ( int i = 0 ; i < l1 ; i++ )
-      sgLerpVec3 ( vertices->get(i),v1->get(0),v2->get(0), tween ) ;
+      sgLerpVec3 ( vertices->get(i),v1->get(i),v2->get(i), tween ) ;
   }
 
   /* Lerp the normals */
@@ -310,7 +312,7 @@ void ssgTween::draw ()
     normals = render_normals ;
 
     for ( int i = 0 ; i < l1 ; i++ )
-      sgLerpVec3 ( normals->get(i),n1->get(0),n2->get(0), tween ) ;
+      sgLerpVec3 ( normals->get(i),n1->get(i),n2->get(i), tween ) ;
   }
 
   /* Lerp the texcoords */
@@ -332,7 +334,7 @@ void ssgTween::draw ()
     texcoords = render_texcoords ;
 
     for ( int i = 0 ; i < l1 ; i++ )
-      sgLerpVec2 ( texcoords->get(i),t1->get(0),t2->get(0), tween ) ;
+      sgLerpVec2 ( texcoords->get(i),t1->get(i),t2->get(i), tween ) ;
   }
 
   /* Lerp the colours */
@@ -354,7 +356,7 @@ void ssgTween::draw ()
     colours = render_colours ;
 
     for ( int i = 0 ; i < l1 ; i++ )
-      sgLerpVec2 ( colours->get(i),c1->get(0),c2->get(0), tween ) ;
+      sgLerpVec4 ( colours->get(i),c1->get(i),c2->get(i), tween ) ;
   }
 
   draw_geometry () ;
@@ -420,5 +422,24 @@ int ssgTween::save ( FILE *fd )
   return TRUE ;
 }
 
+
+
+
+void ssgTween::print ( FILE *fd, char *indent, int how_much )
+{
+  char in [ 100 ] ;
+
+  if ( how_much == 0 ) 
+    return ;
+  
+  sprintf ( in, "%s  ", indent );
+	
+  ssgLeaf  ::print ( fd, indent, how_much ) ;
+		
+  vertices  -> print ( fd, in, how_much ) ;
+  normals   -> print ( fd, in, how_much ) ;
+  texcoords -> print ( fd, in, how_much ) ;
+  colours   -> print ( fd, in, how_much ) ;
+}
 
 
