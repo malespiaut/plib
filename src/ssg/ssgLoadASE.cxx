@@ -941,8 +941,7 @@ static ssgLeaf* add_mesh( aseObject* obj, aseMesh* mesh, u32 sub_index )
       {
         sgVec4 c ;
         sgCopyVec3 ( c, vert -> cv ) ;
-        
-        c[3] = 1.0f; //alpha is always one ??
+        c[3] = 1.0f - mat -> transparency ;
         
         cl -> add ( c ) ;
       }
@@ -1139,7 +1138,7 @@ static int parse_object()
     for ( i=0; i<aseObject::MAX_FRAMES; i++ )
     {
       aseMesh* mesh = obj->mesh_list [ i ] ;
-      if ( mesh == NULL )
+      if ( mesh != NULL )
         num_frames ++ ;
     }
     
