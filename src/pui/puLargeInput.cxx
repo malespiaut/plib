@@ -259,6 +259,8 @@ void puLargeInput::setSelectRegion ( int s, int e )
       right_slider->setValue ( 0.0f ) ;
     }
   }
+
+  puPostRefresh () ;
 }
 
 void  puLargeInput::selectEntireLine ( void )
@@ -273,6 +275,8 @@ void  puLargeInput::selectEntireLine ( void )
 
   select_end_position = int ( strchr ( temp_text + select_end_position, '\n' ) + 1 - temp_text ) ;
   if ( select_end_position == 1 ) select_end_position = strlen ( temp_text ) ;
+
+  puPostRefresh () ;
 }
 
 void  puLargeInput::addNewLine ( const char *l )
@@ -364,7 +368,7 @@ void  puLargeInput::setText ( const char *l )
   if ( bottom_slider ) bottom_slider->setSliderFraction ( 0.0 ) ;
   right_slider->setSliderFraction ( 0.0 ) ;
 
-  puPostRefresh() ;
+  puPostRefresh () ;
 
   if ( !l )
   {

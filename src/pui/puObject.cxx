@@ -113,6 +113,7 @@ void puGetDefaultColourScheme ( float *r, float *g, float *b, float *a )
 void puObject::setColourScheme ( float r, float g, float b, float a )
 {
   load_colour_scheme ( colour, r, g, b, a ) ;
+  puPostRefresh () ;
 }
 
 puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
@@ -154,7 +155,7 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   if ( ! puNoGroup() )
     puGetCurrGroup() -> add ( this ) ;
 
-  puPostRefresh() ;
+  puPostRefresh () ;
 }
 
 
@@ -165,6 +166,8 @@ puObject::~puObject ()
 
   if ( this == puActiveWidget () )
     puDeactivateWidget () ;
+
+  puPostRefresh () ;
 }
 
 void puObject::recalc_bbox ( void )
