@@ -12,7 +12,11 @@
 #       0.2 (06/28/2002): Generate fonts with proper padding
 #       0.1 (06/28/2002): Initial version
 #
-# Copyright (C) 2002 Andy Ross
+# Copyright (C) 2002 Andrew James Ross
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
 
 use strict;
 
@@ -276,3 +280,4 @@ sub genPostscript {
 
     return \@PS;
 }
+
