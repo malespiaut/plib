@@ -1,0 +1,248 @@
+
+<TITLE>WELCOME TO S.I.M.O.N</TITLE>
+<H1>WELCOME TO S.I.M.O.N</H1>
+<center>by Steve Baker</center>
+
+SIMON stands for:
+<pre>
+
+     Simple
+     Interface for
+     Making
+     Oliver's programs
+     Nice.
+
+</pre>
+This is a simple set of functions that hide much of the nastiness
+of 3D programming to make it possible for someone with only the
+very minimum of programming experience to write simple 3D applications.
+<p>
+If you want something more complicated or with better features then
+don't complain about SIMON - just use raw PLIB (upon which SIMON is
+based).
+
+<H1>HOW TO WRITE YOUR PROGRAM.</H1>
+
+You have to write TWO C (or C++) functions:
+<pre>
+
+   int main ()
+
+</pre>
+...and...
+<pre>
+
+   void siUpdate ()
+
+</pre>
+The 'main' function has to load whatever 3D models the program needs
+and then call a function called 'siRun()'.
+<p>
+siRun does things like opening the 3D window, clearing the screen and
+drawing all of the models.  When it's time to move the models around,
+it calls your function 'siUpdate'.
+<p>
+All SIMON programs have to start with the line:
+<pre>
+
+   #include <simon.h>
+
+</pre>
+...this brings in all the information the compiler needs in order for you to
+write a SIMON program.  Think of it like '#include <stdio.h>' but for programs
+that are just doing 3D rendering.
+<p>
+Then, you have to declare an integer variable for everything in the scene
+that your program needs - which includes at least the scenery and the camera.
+<p>
+For example:
+<pre>
+
+  int camera  ;
+  int tux     ;
+  int scenery ;
+ 
+</pre>
+Next, you have your 'main' program - which loads up the models and then
+calls the 'siRun()' function and then exits.
+<pre>
+
+  int main ()
+  {
+    scenery = siLoad ( "scenery.ac" ) ;
+    tux     = siLoad ( "tuxedo.ac"  ) ;
+
+    camera  = 0 ;
+ 
+    siRun () ;
+    return 0 ;
+  }
+
+</pre>
+The 'siLoad' function loads a 3D model and returns a number for
+that model that you can save into a variable.  That number can be
+used to move the model around later on.  The final part of this
+'loading' stage is to set the number for the 'camera'. In SIMON,
+the camera is always model number zero and you can't 'siLoad' a
+model for it or it won't work.
+<p>
+Then, you call 'siRun()' - which runs the entire update process.  If
+'siRun' ever returns, you can just exit the program.
+<p>
+Now we have our scene all set up and ready to go - so the program
+will call your 'siUpdate' function to move the models (and the
+camera) around - and then draw the scene.
+<pre>
+
+  int frameno = 0 ;
+
+  void siUpdate ()
+  {
+    frameno = frameno + 1 ;
+ 
+    siPosition ( tux   , 0,  0, 0, frameno, 0, 0 ) ;
+    siPosition ( camera, 0, -5, 1, 0, 0, 0 ) ;
+  }
+ 
+</pre>
+Here we defined a simple variable called 'frameno' which is increased
+by one every time the 'siUpdate' function is called to give the program
+an idea of how much time has gone by.
+<p>
+Finally, we set the position of the camera and tux by calling
+'siPosition' for each of them.
+<p>
+'siPosition' is a function that needs SEVEN things to be passed to it.
+<ol>
+<li>The first is the variable that contains the number of the object you
+    want to position.
+<li>The second is the X coordinate that you want that object to have
+    (in Meters).
+<li>The third is the Y coordinate.
+<li>The fourth is the Z coordinate (the height).
+<li>The fifth is the 'heading' - which is the direction that the object
+    is pointing.  If you model your objects with their noses pointing
+    North in the modeller then this number will be the angle in degrees
+    measured in an anticlockwise direction from due North.
+<li>The sixth is the 'pitch' - which is the amount that the object is
+    leaning backwards (in degrees).
+<li>The seventh (and last) is the 'roll' - which is the amount that the
+    object is leaning sideways (also in degrees).
+</ol>
+That's a lot of information - but it's what you need to tell the
+object for it to know where to appear in the scene.
+<p>
+In our example program, we first had:
+<pre>
+
+    siPosition ( tux, 0, 0, 0, frameno, 0, 0 ) ;
+
+</pre>
+...which puts Tux at X=0, Y=0, Z=0 (which is at the origin of the scene)
+and sets his 'heading' equal to this 'frameno' variable.  Thus, as time
+goes on, and we keep adding one to 'frameno', Tux's heading number will
+gradually increase from zero upwards. This should cause him to rotate
+in place.  Since pitch and roll are both zero, he'll be standing upright.
+<p>
+The slPosition command for the Camera:
+<pre>
+
+    siPosition ( camera, 0, -5, 1, 0, 0, 0 ) ;
+
+</pre>
+...puts the camera at X=0, Y=-5, Z=1 - which is back 5 meters from where
+Tux is - and one meter up into the air.  This should give us a nice view
+of him as he spins.
+
+<H1>READING THE JOYSTICK.</H1>
+ 
+These functions let you read the Left/Right and Up/Down axes of the
+joystick:
+<pre>
+
+  leftright = siJoystickLR () ;
+  updown    = siJoystickUD () ;
+ 
+</pre>
+The numbers that this will put into the variables 'leftright' and
+'updown' range from -1.0 to +1.0.  Leftwards and Upwards movements
+generate 1, Rightwards and Downwards movements generate -1, when the
+stick is in the middle you get zeroes.
+<p>
+To read the buttons, you can use these functions:
+<pre>
+
+  buttonA =  siJoystickA () ;
+  buttonB =  siJoystickB () ;
+  buttonC =  siJoystickC () ;
+  buttonD =  siJoystickD () ;
+  buttonL =  siJoystickL () ;
+  buttonR =  siJoystickR () ;
+
+</pre>
+...the variables should be 'int' varaibles and will be set to 1 if the
+button is pressed or 0 if it's not.
+
+<H1>OTHER MOVEMENT COMMANDS.</H1>
+
+Other commands let you set the Velocity for objects:
+<pre>
+
+    siVelocity ( object, x, y, z, h, p, r ) ;
+
+</pre>
+...and set a speed and a direction:
+<pre>
+
+    siSpeedAndDirection ( object, speed, heading, pitch ) ;
+
+</pre>
+...you can also get the current position for the object:
+<pre>
+
+    x = siGetPositionX ( object ) ;
+    y = siGetPositionY ( object ) ;
+    z = siGetPositionZ ( object ) ;
+    h = siGetPositionH ( object ) ;
+    p = siGetPositionP ( object ) ;
+    r = siGetPositionR ( object ) ;
+
+</pre>
+<H1>THE MAKEFILE.</H1>
+
+Once you start to have things like SIMON being used with your program,
+it can be quite a complicated process to compile your program.  It's a
+lot of typing and you'll make lots of mistakes.
+<p>
+For that reason, Linux uses a command called 'make' to compile complicated
+programs according to some rules that you tell it in a special file that's
+called 'Makefile'.  Once you have a 'Makefile' set up for your program,
+you only ever need to type 'make' in order to compile your program -
+no matter how complicated it gets to be.
+<p>
+A good 'Makefile' for a SIMON program would be:
+<pre>
+
+  #
+  # List the names of the programs we want to build here...
+  #
+  TARGETS = test1
+ 
+  #======================== DON'T CHANGE THIS PART =============================
+  #
+  SIMONDIR = /usr/local/simon
+  SIMON = -I${SIMONDIR} -L${SIMONDIR}
+  LIBS  = -lsimon -lplibssg -lplibsg -lglut -lGLU -lGL -L/usr/X11/lib -lX11 -lm
+ 
+  all: ${TARGETS}
+ 
+  #=============================================================================
+ 
+  #
+  # Copy this for every program you want to write - changing 'test1'
+  # to whatever your program is called.
+  #
+ 
+  test1 : test1.cxx ; g++ ${SIMON} -o test1 test1.cxx ${LIBS}                                               
+</pre>
+
