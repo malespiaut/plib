@@ -248,6 +248,7 @@ int HandleTextureFileName(const char *sName, const char *firstToken)
   currentState -> setTexture( current_options -> createTexture( filename_ptr ) );
   currentState -> enable( GL_TEXTURE_2D );
 
+
 	parser.expectNextToken(";");
 	parser.expectNextToken("}");
 	delete [] filename;
@@ -386,7 +387,6 @@ int HandleTextureCoords(const char *sName, const char *firstToken)
 		currentMesh.addTCPV ( tv ) ;
 	}
 	parser.expectNextToken("}");
-	parser.error("Did read TC!\n");
 	return TRUE;
 }
 
@@ -421,25 +421,29 @@ int HandleMeshMaterialList(const char *sName, const char *firstToken)
 							( int ) nFaceIndexes, ( int ) currentMesh.getNumFaces());
 	for ( i=0 ; i<nFaceIndexes ; i++ )
 	{
-		int iIndex;
+		int iIndex, j;
+		char *ptr;
 		if (!parser.getNextInt(iIndex, "Face index"))
 			return FALSE;
 		currentMesh.addMaterialIndex ( iIndex ) ;
-		//parser.expectNextToken(";"); // wk: Where did this line come from?
-		if(i==nFaceIndexes -1)
-		{ //if ( nFaceIndexes > 1 )  // this is important for files created by MSs convx, for example rocket1_new.x
-			  parser.expectNextToken(";");
+		// I don't quite know why, but different .X files I have have a 
+		// different syntax here, some have one ";" and some two.
+		// Therefore, the following code
+		for (j=0;j<2;j++)
+		{ ptr = parser.peekAtNextToken( "," );
+		  if ( strlen(ptr) == 1)
+				if ( (ptr[0]==',') || (ptr[0]==';') )
+				{ ptr = parser.getNextToken( "," ); // ignore this token
+				}
+  
 		}
-		else
-			parser.expectNextToken(",");
 	}
 	while(TRUE)
 	{ char *nextToken =parser.getNextToken(0);
 	  if (0==strcmp("}", nextToken))
 		{ if ( nMaterialsRead < nMaterials )
 		    parser.error("Too few Materials!\n");
-			else
-				parser.error("Success! MeshMaterialList!\n");
+			//else	parser.error("Success! MeshMaterialList!\n");
 			return TRUE; // Mesh is finished. success
 		}
 		if ( 0!= strcmp("Material", nextToken) )
