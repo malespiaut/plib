@@ -34,53 +34,52 @@ void puBiSlider::draw ( int dx, int dy )
                  style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
                 colour, FALSE ) ;
 
-  int sd, od ;
-
-  if ( isVertical() ) { sd = 1 ; od = 0 ; } else { sd = 0 ; od = 1 ; }
-
-//  int sz = abox.max [sd] - abox.min [sd] ;  // Size of slider box, in pixels
-
-  // Draw the current_max slider and label it
-
-  float val ;
-
-  if ( getMaxValue() > getMinValue() )
-    val = (float)(getCurrentMax() - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
+  if ( r_cb )
+    r_cb ( this, dx, dy, render_data ) ;
   else
-    val = 1.0f ;
+  {
+    // Draw the current_max slider and label it
 
-  char str_value[10] ;
-  sprintf (str_value, "%d", getCurrentMax() ) ;
+    float val ;
 
-  draw_slider_box ( dx, dy, val, str_value ) ;
+    if ( getMaxValue() > getMinValue() )
+      val = (float)(getCurrentMax() - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
+    else
+      val = 1.0f ;
 
-  // Draw the current_min slider and label it
+    char str_value[10] ;
+    sprintf (str_value, "%d", getCurrentMax() ) ;
 
-  if ( getMaxValue() > getMinValue() )
-    val = (float)(getCurrentMin() - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
-  else
-    val = 0.0f ;
+    draw_slider_box ( dx, dy, val, str_value ) ;
 
-  sprintf (str_value, "%d", getCurrentMin() ) ;
+    // Draw the current_min slider and label it
 
-  draw_slider_box ( dx, dy, val, str_value ) ;
+    if ( getMaxValue() > getMinValue() )
+      val = (float)(getCurrentMin() - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
+    else
+      val = 0.0f ;
 
-  // If greyed out then halve the opacity when drawing the label and legend
+    sprintf (str_value, "%d", getCurrentMin() ) ;
 
-  if ( active )
-    glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
-  else
-    glColor4f ( colour [ PUCOL_LEGEND ][0],
-                colour [ PUCOL_LEGEND ][1],
-                colour [ PUCOL_LEGEND ][2],
-                colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
+    draw_slider_box ( dx, dy, val, str_value ) ;
 
-  int xx = ( abox.max[0] - abox.min[0] - puGetStringWidth(legendFont,legend) ) / 2 ;
-  int yy = ( abox.max[1] - abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
+    // If greyed out then halve the opacity when drawing the label and legend
 
-  puDrawString ( legendFont, legend,
-                  dx + abox.min[0] + xx,
-                  dy + abox.min[1] + yy ) ;
+    if ( active )
+      glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
+    else
+      glColor4f ( colour [ PUCOL_LEGEND ][0],
+                  colour [ PUCOL_LEGEND ][1],
+                  colour [ PUCOL_LEGEND ][2],
+                  colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
+
+    int xx = ( abox.max[0] - abox.min[0] - puGetStringWidth(legendFont,legend) ) / 2 ;
+    int yy = ( abox.max[1] - abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
+
+    puDrawString ( legendFont, legend,
+                    dx + abox.min[0] + xx,
+                    dy + abox.min[1] + yy ) ;
+  }
 
   draw_label ( dx, dy ) ;
 }

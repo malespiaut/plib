@@ -34,60 +34,65 @@ void puTriSlider::draw ( int dx, int dy )
                  style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
                 colour, FALSE ) ;
 
-  // Draw the central slider and label it
-
-  float val;
-  if ( getMaxValue() > getMinValue() )
-    val = (float)(getValue () - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
+  if ( r_cb )
+    r_cb ( this, dx, dy, render_data ) ;
   else
-    val = 0.5f ;
+  {
+    // Draw the central slider and label it
 
-  char str_value[10] ;
-  sprintf (str_value, "%d", getValue () ) ;
+    float val;
+    if ( getMaxValue() > getMinValue() )
+      val = (float)(getValue () - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
+    else
+      val = 0.5f ;
 
-  draw_slider_box ( dx, dy, val, str_value ) ;
+    char str_value[10] ;
+    sprintf (str_value, "%d", getValue () ) ;
 
-  if ( val < 0.0f ) val = 0.0f ;
-  if ( val > 1.0f ) val = 1.0f ;
+    draw_slider_box ( dx, dy, val, str_value ) ;
 
-  // Draw the current_max slider and label it
+    if ( val < 0.0f ) val = 0.0f ;
+    if ( val > 1.0f ) val = 1.0f ;
 
-  if ( getMaxValue() > getMinValue() )
-    val = (float)(getCurrentMax() - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
-  else
-    val = 1.0f ;
+    // Draw the current_max slider and label it
 
-  sprintf (str_value, "%d", getCurrentMax() ) ;
+    if ( getMaxValue() > getMinValue() )
+      val = (float)(getCurrentMax() - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
+    else
+      val = 1.0f ;
 
-  draw_slider_box ( dx, dy, val, str_value ) ;
+    sprintf (str_value, "%d", getCurrentMax() ) ;
 
-  // Draw the current_min slider and label it
+    draw_slider_box ( dx, dy, val, str_value ) ;
 
-  if ( getMaxValue() > getMinValue() )
-    val = (float)(getCurrentMin() - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
-  else
-    val = 0.0f ;
+    // Draw the current_min slider and label it
 
-  sprintf (str_value, "%d", getCurrentMin() ) ;
+    if ( getMaxValue() > getMinValue() )
+      val = (float)(getCurrentMin() - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
+    else
+      val = 0.0f ;
 
-  draw_slider_box ( dx, dy, val, str_value ) ;
+    sprintf (str_value, "%d", getCurrentMin() ) ;
 
-  // If greyed out then halve the opacity when drawing the label and legend
+    draw_slider_box ( dx, dy, val, str_value ) ;
 
-  if ( active )
-    glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
-  else
-    glColor4f ( colour [ PUCOL_LEGEND ][0],
-                colour [ PUCOL_LEGEND ][1],
-                colour [ PUCOL_LEGEND ][2],
-                colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
+    // If greyed out then halve the opacity when drawing the label and legend
 
-  int xx = ( abox.max[0] - abox.min[0] - puGetStringWidth(legendFont,legend) ) / 2 ;
-  int yy = ( abox.max[1] - abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
+    if ( active )
+      glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
+    else
+      glColor4f ( colour [ PUCOL_LEGEND ][0],
+                  colour [ PUCOL_LEGEND ][1],
+                  colour [ PUCOL_LEGEND ][2],
+                  colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
 
-  puDrawString ( legendFont, legend,
-                  dx + abox.min[0] + xx,
-                  dy + abox.min[1] + yy ) ;
+    int xx = ( abox.max[0] - abox.min[0] - puGetStringWidth(legendFont,legend) ) / 2 ;
+    int yy = ( abox.max[1] - abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
+
+    puDrawString ( legendFont, legend,
+                    dx + abox.min[0] + xx,
+                    dy + abox.min[1] + yy ) ;
+  }
 
   draw_label ( dx, dy ) ;
 }
