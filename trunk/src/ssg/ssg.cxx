@@ -170,21 +170,6 @@ void ssgCullAndDraw ( ssgRoot *r )
 }
 
 
-void ssgModelPath ( char *s )
-{
-  delete _ssgModelPath ;
-  _ssgModelPath = new char [ strlen ( s ) + 1 ] ;
-  strcpy ( _ssgModelPath, s ) ;
-}
-
-void ssgTexturePath ( char *s )
-{
-  delete _ssgTexturePath ;
-  _ssgTexturePath = new char [ strlen ( s ) + 1 ] ;
-  strcpy ( _ssgTexturePath, s ) ;
-}
-
-
 char *ssgBase         ::getTypeName (void) { return "ssgBase"          ; }
 char *ssgTexture      ::getTypeName (void) { return "ssgTexture"       ; }
 char *ssgState        ::getTypeName (void) { return "ssgState"         ; }
@@ -203,87 +188,3 @@ char *ssgTransform    ::getTypeName (void) { return "ssgTransform"     ; }
 char *ssgTexTrans     ::getTypeName (void) { return "ssgTexTrans"      ; }
 char *ssgCutout       ::getTypeName (void) { return "ssgCutout"        ; }
 char *ssgRoot         ::getTypeName (void) { return "ssgRoot"          ; }
-
-
-static char *file_extension ( char *fname )
-{
-  char *p = & ( fname [ strlen(fname) ] ) ;
-
-  while ( p != fname && *p != '/' && *p != '.' )
-    p-- ;
-
-  return p ;
-}
-
-
-typedef ssgEntity *_ssgLoader ( char *, ssgHookFunc ) ;
-typedef int         _ssgSaver ( char *, ssgEntity * ) ;
-
-struct _ssgFileFormat
-{
-  char *extension ;
-  _ssgLoader *loadfunc ;
-  _ssgSaver  *savefunc ;
-} ;
-
-
-static _ssgFileFormat formats[] =
-{
-  { ".3ds", ssgLoad3ds , NULL       },
-  { ".ac" , ssgLoadAC3D, ssgSaveAC  },
-  { ".ase", ssgLoadASE , ssgSaveASE },
-  { ".dxf", ssgLoadDXF , ssgSaveDXF },
-  { ".obj", ssgLoadOBJ , ssgSaveOBJ },
-  { ".ssg", ssgLoadSSG , ssgSaveSSG },
-  { ".tri", ssgLoadTRI , ssgSaveTRI },
-  { ".wrl", ssgLoadVRML, NULL       },
-  { NULL  , NULL       , NULL       }
-} ;
-
-  
-ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
-{
-  if ( fname == NULL || *fname == '\0' )
-    return NULL ;
-
-  char *extn = file_extension ( fname ) ;
-
-  if ( *extn != '.' )
-  {
-    ulSetError ( UL_WARNING, "ssgLoad: Cannot determine file type for '%s'", fname );
-    return NULL ;
-  }
-
-  for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
-    if ( f->loadfunc != NULL &&
-         _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
-      return f->loadfunc( fname, hookfunc ) ;
-
-  ulSetError ( UL_WARNING, "ssgLoad: Unrecognised file type '%s'", extn ) ;
-  return NULL ;
-}
-
-
-int ssgSave ( char *fname, ssgEntity *ent )
-{
-  if ( fname == NULL || ent == NULL || *fname == '\0' )
-    return FALSE ;
-
-  char *extn = file_extension ( fname ) ;
-
-  if ( *extn != '.' )
-  {
-    ulSetError ( UL_WARNING, "ssgSave: Cannot determine file type for '%s'", fname );
-    return FALSE ;
-  }
-
-  for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
-    if ( f->savefunc != NULL &&
-         _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
-      return f->savefunc( fname, ent ) ;
-
-  ulSetError ( UL_WARNING, "ssgSave: Unrecognised file type '%s'", extn ) ;
-  return FALSE ;
-}
-
-

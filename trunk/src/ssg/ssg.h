@@ -1757,6 +1757,37 @@ int  ssgIsect       ( ssgRoot *root, sgSphere *s, sgMat4 m, ssgHit **results ) ;
 int  ssgHOT         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 
+/* Weird private stuff */
+
+int _ssgStrEqual ( char *s1, char *s2 ) ;
+char* _ssgMakePath( char* path, const char* dir, const char* fname ) ;
+
+void _ssgShareReset () ;
+GLuint _ssgShareTexture ( char* tfname ) ;
+ssgSimpleState* _ssgShareState ( ssgSimpleState* st ) ;
+
+/* Load/Save functions */
+
+class ssgCreateData
+{ 
+public: 
+  ssgCreateData () ;
+  ~ssgCreateData () ;
+
+  char* parentName ; 
+  GLenum gltype ; 
+  ssgVertexArray *vl ; 
+  ssgNormalArray *nl ; 
+  ssgTexCoordArray *tl ; 
+  ssgColourArray *cl ; 
+  ssgSimpleState *st ;     //setTexture() not yet called 
+  char* tfname ;           //nonzero if has texture 
+  int cull_face ;
+} ; 
+
+ssgLeaf* _ssgCreateFunc ( ssgCreateData* data ) ;
+
+typedef ssgLeaf *(*ssgCreateFunc)(ssgCreateData *data) ;
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
 
 int        ssgSave     ( char *fname, ssgEntity *ent ) ;
@@ -1767,19 +1798,19 @@ int        ssgSaveDXF  ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveTRI  ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveOBJ  ( char *fname, ssgEntity *ent ) ;
 
-ssgEntity *ssgLoad     ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadASE  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadTRI  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadOBJ  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoad     ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoadASE  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoadTRI  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoadOBJ  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
 
 /* For backwards compatibility */
 
-ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;

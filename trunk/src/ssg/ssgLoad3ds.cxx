@@ -830,7 +830,7 @@ static int parse_chunks(char *p, char *chunk_end, _ssg3dsChunk *chunk_list)
 
 
 
-ssgEntity *ssgLoad3ds( char *filename, ssgHookFunc hookfunc ) {
+ssgEntity *ssgLoad3ds( char *filename, ssgHookFunc hookfunc, ssgCreateFunc createfunc ) {
   int i = 1 ;
   is_little_endian = *((char *) &i );
 

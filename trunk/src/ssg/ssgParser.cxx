@@ -52,7 +52,7 @@ void _ssgParser::message( cchar *format, ... )
 void _ssgParser::openFile( cchar* fname )
 {
   memset(this,0,sizeof(_ssgParser));
-  ptr = fopen( _ssgMakePath(path,_ssgModelPath,fname,0), "rb" );
+  ptr = fopen( _ssgMakePath(path,_ssgModelPath,fname), "rb" );
   if ( ! ptr )
     error("cannot open file: %s",path);
 }
@@ -156,27 +156,3 @@ void _ssgParser::expect( cchar* name )
   if (strcmp(token,name))
     error("missing %s",name) ;
 }
-
-
-char* _ssgMakePath( char* path, cchar* dir, cchar* fname, cchar* ext )
-{
-  //remove any existing directory from fname
-  char* slash = strrchr ( fname, '/' ) ;
-  if ( !slash )
-    slash = strrchr ( fname, '\\' ) ; //for dos
-  if ( slash )
-    fname = slash + 1 ;
-  if ( dir != NULL && dir[ 0 ] != '\0' )
-  {
-    strcpy ( path, dir ) ;
-    strcat ( path, "/" ) ;
-    strcat ( path, fname ) ;
-  }
-  else
-    strcpy ( path, fname ) ;
-  if ( ext != NULL )
-    strcat ( path, ext );
-  return( path );
-}
-
-

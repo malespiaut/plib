@@ -45,7 +45,4 @@ public :
 };
 
 
-char* _ssgMakePath( char* path, cchar* dir, cchar* fname, cchar* ext );
-
-
 #endif

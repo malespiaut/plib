@@ -1151,7 +1151,8 @@ int VRMLdo_description  ( char *s )
 
 
 
-ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc)// int &leafCount, vTableList &vTableList; )
+ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
+// int &leafCount, vTableList &vTableList; )
 {
   current_hookFunc = hookfunc ;
   char filename [ 1024 ] ;
