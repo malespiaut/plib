@@ -1867,11 +1867,14 @@ public:
   ~ssgCreateData () ;
 
   char* parentName ; 
+
   GLenum gltype ; 
   ssgVertexArray *vl ; 
   ssgNormalArray *nl ; 
   ssgTexCoordArray *tl ; 
   ssgColourArray *cl ; 
+  ssgIndexArray *il ;
+
   ssgSimpleState *st ;     //setTexture() not yet called 
   char* tfname ;           //nonzero if has texture 
   int cull_face ;

@@ -6,7 +6,6 @@
 #include "ssgLocal.h"
 #include "ssgParser.h"
 
-
 struct aseFace
 {
    u32 v[3];
@@ -18,9 +17,6 @@ struct aseFace
 
 struct aseMesh
 {
-  char name[ 256 ] ;
-  u32 time ;  //used for mesh animations
-  
   u32 num_faces ;
   u32 num_verts ;
   u32 num_tverts ;
@@ -30,16 +26,15 @@ struct aseMesh
   sgVec3* verts ;
   sgVec2* tverts ;
   sgVec3* cverts ;
-  sgVec3* norms ;
-  
-  void init();
-  void free();
+
+  aseMesh();
+  ~aseMesh();
 };
 
 
 struct aseMaterial
 {
-  char name[ 256 ] ;
+  char* name ;
   u32 mat_index ;
   u32 sub_index ;
   bool sub_flag ;
@@ -48,9 +43,9 @@ struct aseMaterial
   sgVec4 diff ;
   sgVec4 spec ;
   f32 shine ;
-  f32 trans ;
+  f32 transparency ;
   
-  char tfname[ 256 ] ;
+  char* tfname ;
   sgVec2 texrep ;
   sgVec2 texoff ;
 };
@@ -60,6 +55,10 @@ enum { MAX_MATERIALS = 1000 };
 static aseMaterial** materials ;
 static u32 num_materials ;
 
+enum { MAX_FRAMES = 32 };   /* ssgTimedSelector only handles 32 kids */
+aseMesh* mesh_list[ MAX_FRAMES ];
+int mesh_count = 0 ;
+
 static u32 first_frame ;
 static u32 last_frame ;
 static u32 frame_speed ;
@@ -67,23 +66,21 @@ static u32 ticks_per_frame ;
 static u32 num_frames ;
 
 static _ssgParser parser;
-static ssgBranch* current_branch;
+static ssgBranch* top_branch;
 static ssgCreateFunc current_createFunc = NULL ;
 
-
-void aseMesh::init()
+aseMesh::aseMesh()
 {
   memset(this,0,sizeof(aseMesh));
 }
 
 
-void aseMesh::free()
+aseMesh::~aseMesh()
 {
   delete[] faces;
   delete[] verts;
   delete[] tverts;
   delete[] cverts;
-  delete[] norms;
 }
 
 
@@ -140,7 +137,7 @@ static ssgSimpleState* get_state( aseMaterial* mat )
   st -> enable  ( GL_LIGHTING       ) ;
   st -> setShadeModel ( GL_SMOOTH ) ;
 
-  if ( mat -> trans < 0.99f )
+  if ( mat -> transparency < 0.99f )
   {
     st -> disable ( GL_ALPHA_TEST ) ;
     st -> enable  ( GL_BLEND ) ;
@@ -164,7 +161,7 @@ static void parse_map( aseMaterial* mat )
   {
     if (!strcmp(token,"*BITMAP"))
     {
-      if ( mat->tfname[0] != 0 )
+      if ( mat->tfname != NULL )
         parser.error("multiple textures for material: %s",mat->name);
       else
       {
@@ -177,6 +174,7 @@ static void parse_map( aseMaterial* mat )
          if ( slash )
            fname = slash + 1 ;
 
+         mat->tfname = new char [ strlen(fname)+1 ] ;
          strcpy ( mat->tfname, fname ) ;
       }
     }
@@ -232,9 +230,18 @@ static void parse_material( u32 mat_index, u32 sub_index, cchar* mat_name )
     {
       char* name = parser.parseString("mat name");
       if ( mat->sub_flag )
-        sprintf( mat->name, "%s, sub#%d", mat_name, sub_index );
+      {
+        char buff [ 256 ] ;
+        sprintf( buff, "%s, sub#%d", mat_name, sub_index );
+
+        mat->name = new char [ strlen(buff)+1 ] ;
+        strcpy ( mat->name, buff ) ;
+      }
       else
-        strcpy( mat->name, name );
+      {
+        mat->name = new char [ strlen(name)+1 ] ;
+        strcpy ( mat->name, name ) ;
+      }
     }
     else if (!strcmp(token,"*MATERIAL_AMBIENT"))
     {
@@ -263,7 +270,7 @@ static void parse_material( u32 mat_index, u32 sub_index, cchar* mat_name )
     }
     else if (!strcmp(token,"*MATERIAL_TRANSPARENCY"))
     {
-      mat->trans = parser.parseFloat("trans");
+      mat->transparency = parser.parseFloat("transparency");
     }
     else if (!strcmp(token,"*MAP_DIFFUSE"))
     {
@@ -299,15 +306,39 @@ static void parse_material_list()
 }
 
 
-static void parse_mesh( aseMesh* mesh )
+static void parse_mesh()
 {
+  aseMesh* mesh = NULL ;
+
   char* token;
   int startLevel = parser.level;
   while ((token = parser.getLine( startLevel )) != NULL)
   {
-    if (!strcmp(token,"*TIMEVALUE"))
+    if ( mesh == NULL )
     {
-      mesh -> time = parser.parseInt("time");
+      u32 frame = MAX_FRAMES ;
+
+      if (!strcmp(token,"*TIMEVALUE"))
+      {
+        u32 time = parser.parseInt("time");
+        frame = (time + (ticks_per_frame-1)) / ticks_per_frame - first_frame;
+      }
+      else
+      {
+        parser.error("missing *TIMEVALUE");
+        frame = MAX_FRAMES ;
+      }
+
+      if ( frame >= MAX_FRAMES || mesh_list [ frame ] != NULL )
+      {
+        //ignore this mesh
+        while (parser.getLine( startLevel )) ;
+        return;
+      }
+
+      mesh = new aseMesh ;
+      mesh_list [ frame ] = mesh ;
+      mesh_count ++ ;
     }
     else if (!strcmp(token,"*MESH_NUMFACES"))
     {
@@ -458,28 +489,16 @@ static void parse_mesh( aseMesh* mesh )
         cvert[2] = parser.parseFloat("cvert.z");
       }
     }
-    else if (!strcmp(token,"*MESH_VERTEXNORMAL"))
-    {
-      if (mesh -> norms == 0)
-        mesh -> norms = new sgVec3[ mesh -> num_verts ];
-      u32 index = parser.parseInt("vertex #");
-      if (index >= mesh -> num_verts)
-        parser.error("bad vertex #");
-      else
-      {
-        sgVec3& norm = mesh -> norms[ index ];
-      
-        norm[0] = parser.parseFloat("norm.x");
-        norm[1] = parser.parseFloat("norm.y");
-        norm[2] = parser.parseFloat("norm.z");
-      }
-    }
   }
 }
 
 
-static void add_mesh( aseMesh* mesh, aseMaterial* mat )
+static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 sub_index )
 {
+  aseMaterial* mat = find_material ( mat_index, sub_index ) ;
+  if ( mat == NULL )
+     return NULL ;
+
   //compute number of faces
   u32 num_faces = mesh -> num_faces ;
   if ( mat->sub_flag )
@@ -493,21 +512,18 @@ static void add_mesh( aseMesh* mesh, aseMaterial* mat )
     }
   }
   if ( num_faces == 0 )
-    return ;
+    return NULL;
 
   //allocate lists  
   u32 vcount = num_faces * 3 ;
   ssgVertexArray   *vlist = new ssgVertexArray ( vcount ) ;
   ssgTexCoordArray *tlist = 0 ;
   ssgColourArray   *clist = 0 ;
-  ssgNormalArray   *nlist = 0 ;
 
   if ( mesh -> tverts )  
     tlist = new ssgTexCoordArray ( vcount ) ;
   if ( mesh -> cverts )
     clist = new ssgColourArray ( vcount ) ;
-  if ( mesh -> norms )
-    nlist = new ssgNormalArray ( vcount ) ;
   
   aseFace* face = mesh -> faces ;
   for ( u32 i=0; i<mesh -> num_faces; i++, face++ )
@@ -526,6 +542,8 @@ static void add_mesh( aseMesh* mesh, aseMaterial* mat )
         sgVec2 tv ;
         sgCopyVec2 ( tv, mesh -> tverts[ face->tv[j] ] ) ;
 
+        tv[1] = 1.0f - tv[1] ;
+
         tv[0] *= mat->texrep[0] ;
         tv[1] *= mat->texrep[1] ;
         tv[0] += mat->texoff[0] ;
@@ -539,87 +557,87 @@ static void add_mesh( aseMesh* mesh, aseMaterial* mat )
         sgCopyVec3 ( v, mesh -> cverts[ face->cv[j] ] ) ;
         clist -> add ( v ) ;
       }
-
-      if ( mesh -> norms )
-      {
-        sgCopyVec3 ( v, mesh -> norms[ face->v[j] ] ) ;
-        nlist -> add ( v ) ;
-      }
     }
   }
-
-  char name[ 256 ];
-  if ( mat->sub_flag )
-    sprintf(name,"%s, sub#%d",mesh->name,mat->sub_index);
+  
+  ssgCreateData* data = new ssgCreateData ;
+  if ( mesh_name != NULL )
+  {
+    data->parentName = new char [ strlen(mesh_name)+1 ] ;
+    strcpy ( data->parentName, mesh_name ) ;
+  }
   else
-    strcpy(name,mesh->name);
-    
-  ssgCreateData *data = new ssgCreateData ;
-  data->parentName = new char [ strlen(name)+1 ] ;
-  strcpy ( data->parentName, name ) ;
+    data->parentName = NULL ;
   data->gltype = GL_TRIANGLES ;
   data->vl = vlist ;
-  data->nl = nlist ;
+  data->nl = NULL ;
   data->tl = tlist ;
   data->cl = clist ;
   data->st = get_state ( mat ) ;
   data->tfname = mat -> tfname ;
   data->cull_face = TRUE ;
- 
-  ssgLeaf* vtab = (*current_createFunc) ( data ) ;
 
-  if ( vtab )
-  {
-     vtab -> setName ( name ) ;
-     current_branch -> addKid ( vtab ) ;
-  }
-  
-  //printf( "add_mesh: %s (%s)\n", name, mat -> tfname ) ;
+  ssgLeaf* leaf = (*current_createFunc) ( data ) ;
+  return leaf ;
 }
 
 
 static void parse_object()
 {
+  char* mesh_name = 0 ;
+  char* mesh_parent = 0 ;
   u32 mat_index = 0;
 
-  aseMesh mesh;
-  mesh.init();
-  
   char* token;
   int startLevel = parser.level;
   while ((token = parser.getLine( startLevel )) != NULL)
   {
-    if (!strcmp(token,"*NODE_NAME")) {
-      if (parser.level==1) {
+    if (!strcmp(token,"*NODE_NAME"))
+    {
+      if ( !mesh_name )
+      {
         char* name = parser.parseString("obj name");
-        strcpy( mesh.name, name );
-        //parser.message("mesh: %s",name);
+
+        mesh_name = new char [ strlen(name)+1 ] ;
+        strcpy ( mesh_name, name ) ;
       }
     }
-    //Need: support for *NODE_PARENT
-    //Need: support for *TM_ROW0, ...
-#if 0
-    else if (!strcmp(token,"*TM_POS")) {
-      token = parser.parse_token("obj->pos.x");
-      obj->pos.x = f32(atof(token));
-      token = parser.parse_token("obj->pos.y");
-      obj->pos.y = f32(atof(token));
-      token = parser.parse_token("obj->pos.z");
-      obj->pos.z = f32(atof(token));
+    else if (!strcmp(token,"*NODE_PARENT"))
+    {
+      if ( !mesh_parent )
+      {
+        char* name = parser.parseString("parent name");
+
+        mesh_parent = new char [ strlen(name)+1 ] ;
+        strcpy ( mesh_parent, name ) ;
+      }
     }
-#endif
+    else if (!strcmp(token,"*TM_POS"))
+    {
+      //NEED: support for *TM_ROW0, ...
+      sgVec3 pos ;
+      pos[0] = parser.parseFloat("pos.x");
+      pos[1] = parser.parseFloat("pos.y");
+      pos[2] = parser.parseFloat("pos.z");
+    }
     else if (!strcmp(token,"*MESH"))
     {
-      parse_mesh( &mesh );
+      parse_mesh();
     }
-    else if (!strcmp(token,"*TM_ANIMATION")) {
-      //parse_transform();
+    else if (!strcmp(token,"*MESH_ANIMATION"))
+    {
       int startLevel = parser.level;
       while ((token = parser.getLine( startLevel )) != NULL)
-        ;
+      {
+        if (!strcmp(token,"*MESH"))
+        {
+          parse_mesh();
+        }
+      }
     }
-    else if (!strcmp(token,"*MESH_ANIMATION")) {
-      //parse_mesh_anim();
+    else if (!strcmp(token,"*TM_ANIMATION"))
+    {
+      //ignore this since we can't get it to work correctly
       int startLevel = parser.level;
       while ((token = parser.getLine( startLevel )) != NULL)
         ;
@@ -630,32 +648,105 @@ static void parse_object()
     }
   }
 
-#if 0
-  {
-    //add the transform
-    sgMat4 tm ;
-    sgMakeIdentMat4 ( tm ) ;
-    ssgTransform *tr = new ssgTransform () ;
-    tr -> setTransform ( tm ) ;
-    current_branch -> addKid ( tr ) ;
-  }
-#endif
+  if ( mesh_parent != NULL )
+     fprintf( stdout, "add_mesh: %s, parent=%s\n", mesh_name, mesh_parent ) ;
+  else
+     fprintf( stdout, "add_mesh: %s\n", mesh_name ) ;
 
-  //break apart the mesh for each sub material
-  u32 num_subs = count_sub_materials ( mat_index );
-  if ( num_subs == 0 )
-    num_subs = 1 ;
-  for ( u32 sub_index=0; sub_index<num_subs; sub_index++ )
-  {
-    aseMaterial* mat = find_material ( mat_index, sub_index );
-    if ( mat )
-       add_mesh ( &mesh, mat );
-  }
-  
-  //NEED: to support mesh animations
+  ssgEntity* mesh_entity = NULL ;
 
-  //free the local mesh
-  mesh.free();
+  if ( mesh_count > 1 )
+  {
+    ssgTimedSelector* selector = new ssgTimedSelector ;
+    for ( int i=0; i<MAX_FRAMES; i++ )
+    {
+      aseMesh* mesh = mesh_list [ i ] ;
+      if ( mesh == NULL )
+         continue ;
+
+      u32 num_subs = count_sub_materials ( mat_index );
+      if ( num_subs > 1 )
+      {
+        //break apart the mesh for each sub material
+        ssgBranch* branch = new ssgBranch ;
+        for ( u32 sub_index=0; sub_index<num_subs; sub_index++ )
+        {
+          ssgLeaf* leaf = add_mesh ( mesh_name, mesh, mat_index, sub_index );
+          if ( leaf )
+            branch -> addKid ( leaf ) ;
+        }
+        selector -> addKid ( branch ) ;
+      }
+      else
+      {
+        ssgLeaf* leaf = add_mesh ( mesh_name, mesh, mat_index, 0 );
+        if ( leaf )
+          selector -> addKid ( leaf ) ;
+      }
+    }
+    selector -> setLimits ( 0, mesh_count - 1 );
+    mesh_entity = selector ;
+  }
+  else if ( mesh_list [ 0 ] != NULL )
+  {
+    aseMesh* mesh = mesh_list [ 0 ] ;
+    ssgBranch* branch = new ssgBranch ;
+
+    u32 num_subs = count_sub_materials ( mat_index );
+    if ( num_subs > 1 )
+    {
+      //break apart the mesh for each sub material
+      for ( u32 sub_index=0; sub_index<num_subs; sub_index++ )
+      {
+        ssgLeaf* leaf = add_mesh ( mesh_name, mesh, mat_index, sub_index );
+        if ( leaf )
+          branch -> addKid ( leaf ) ;
+      }
+    }
+    else
+    {
+      ssgLeaf* leaf = add_mesh ( mesh_name, mesh, mat_index, 0 );
+      if ( leaf )
+        branch -> addKid ( leaf ) ;
+    }
+
+    mesh_entity = branch ;
+  }
+
+  if ( mesh_entity != NULL )
+  {
+    //add to graph -- find parent branch
+    ssgBranch* parent_branch ;
+    if ( mesh_parent )
+    {
+      ssgEntity* found = top_branch -> getByName ( mesh_parent ) ;
+      if ( !found )
+        parser.error("mesh %s: parent %s not seen",mesh_name,mesh_parent);
+      assert ( found -> isAKindOf ( SSG_TYPE_BRANCH ) ) ;
+      parent_branch = (ssgBranch *) found ;
+    }
+    else
+    {
+      parent_branch = top_branch ;
+    }
+
+    mesh_entity -> setName ( mesh_name ) ;
+    parent_branch -> addKid ( mesh_entity ) ;
+  }
+
+  /*
+   *  free up memory
+   */
+  delete[] mesh_name;
+  delete[] mesh_parent;
+  for ( int i=0; i<MAX_FRAMES; i++ )
+  {
+    aseMesh* mesh = mesh_list [ i ] ;
+    if ( mesh != NULL )
+       delete mesh ;
+    mesh_list [ i ] = NULL ;
+  }
+  mesh_count = 0 ;
 }
 
 
@@ -734,8 +825,13 @@ static bool parse()
 
 static void parse_free()
 {
-  for ( u32 i = 0 ; i < num_materials ; i++ )
+  u32 i ;
+  for ( i = 0 ; i < num_materials ; i++ )
+  {
+    delete materials[ i ] -> name ;
+    delete materials[ i ] -> tfname ;
     delete materials[ i ] ;
+  }
   delete[] materials ;
   materials = 0 ;
 }
@@ -746,17 +842,16 @@ ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createf
   current_createFunc = ( createfunc != NULL )? createfunc: _ssgCreateFunc ;
   (*current_createFunc) ( 0 ) ;  //reset
 
-  current_branch = new ssgBranch ;
+  top_branch = new ssgBranch ;
   parser.openFile( fname );
   if ( !parse() )
   {
-     delete current_branch ;
-     current_branch = 0 ;
+     delete top_branch ;
+     top_branch = 0 ;
   }
   parse_free();
   parser.closeFile();
 
   (*current_createFunc) ( 0 ) ;  //reset
-  return current_branch ;
+  return top_branch ;
 }
-

@@ -335,11 +335,14 @@ ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
 ssgCreateData::ssgCreateData ()
 {
   parentName = NULL ;
+
   gltype = GL_TRIANGLES ;
   vl = NULL ;
   nl = NULL ;
   tl = NULL ;
   cl = NULL ;
+  il = NULL ;
+
   st = NULL ;
   tfname = NULL ;
   cull_face = TRUE ;
@@ -352,6 +355,7 @@ ssgCreateData::~ssgCreateData ()
   delete nl ;
   delete tl ;
   delete cl ;
+  delete il ;
   delete st ;
   delete tfname ;
 }
@@ -363,11 +367,16 @@ ssgLeaf* _ssgCreateFunc ( ssgCreateData* data )
 
   if ( data )
   {
-    vtab = new ssgVtxTable ( data->gltype,
-      data->vl, data->nl, data->tl, data->cl ) ;
+    if ( data -> il != NULL )
+      vtab = new ssgVtxArray ( data->gltype,
+        data->vl, data->nl, data->tl, data->cl, data->il ) ;
+    else
+      vtab = new ssgVtxTable ( data->gltype,
+        data->vl, data->nl, data->tl, data->cl ) ;
+
     vtab -> setCullFace ( data -> cull_face ) ;
 
-    //an old hack
+    /* do we have a global AppState function? */
     if ( _ssgGetAppState != NULL &&
          data -> tfname != NULL && data -> tfname[0] != 0 )
     {
