@@ -176,9 +176,9 @@ enum ulSeverity
 } ;
 
 
-typedef void (*ulErrorCallback) ( int severity, char* msg ) ;
+typedef void (*ulErrorCallback) ( enum ulSeverity severity, char* msg ) ;
 
-void            ulSetError         ( int severity, const char *fmt, ... ) ;
+void            ulSetError         ( enum ulSeverity severity, const char *fmt, ... ) ;
 char*           ulGetError         ( void ) ;
 void            ulClearError       ( void ) ;
 ulErrorCallback ulGetErrorCallback ( void ) ;
