@@ -275,9 +275,30 @@ void ssgBranch::hot ( sgVec3 s, sgMat4 m, int test_needed )
 
   _ssgPopPath () ;
 
-  postTravTests ( SSGTRAV_HOT ) ; 
+  postTravTests ( SSGTRAV_HOT ) ;
 }
 
+
+
+void ssgBranch::los ( sgVec3 s, sgMat4 m, int test_needed )
+{
+  if ( ! preTravTests ( &test_needed, SSGTRAV_LOS ) )
+    return ;
+
+  int los_result = los_test ( s, m, test_needed ) ;
+
+  if ( los_result == SSG_OUTSIDE )
+    return ;
+
+  _ssgPushPath ( this ) ;
+
+  for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid() )
+    e -> los ( s, m, los_result != SSG_INSIDE ) ;
+
+  _ssgPopPath () ;
+
+  postTravTests ( SSGTRAV_LOS) ;
+}
 
 
 void ssgBranch::isect ( sgSphere *s, sgMat4 m, int test_needed )

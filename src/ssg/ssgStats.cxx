@@ -37,6 +37,13 @@ int stats_hot_radius_reject=0 ;
 int stats_hot_triv_accept = 0 ;
 int stats_hot_straddle    = 0 ;
 
+int stats_los_triangles   = 0 ;
+int stats_los_test        = 0 ;
+int stats_los_no_trav     = 0 ;
+int stats_los_radius_reject=0 ;
+int stats_los_triv_accept = 0 ;
+int stats_los_straddle    = 0 ;
+
 static char stats_string [ 1024 ] ;
 
 char *ssgShowStats ()
@@ -73,6 +80,13 @@ char *ssgShowStats ()
   stats_hot_radius_reject=0 ;
   stats_hot_triv_accept = 0 ;
   stats_hot_straddle    = 0 ;
+
+  stats_los_triangles   = 0 ;
+  stats_los_test        = 0 ;
+  stats_los_no_trav     = 0 ;
+  stats_los_radius_reject=0 ;
+  stats_los_triv_accept = 0 ;
+  stats_los_straddle    = 0 ;
 
   return stats_string ;
 }

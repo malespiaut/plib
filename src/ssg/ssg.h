@@ -47,6 +47,7 @@ enum ssgCullResult
 #define SSGTRAV_CULL   1
 #define SSGTRAV_ISECT  2
 #define SSGTRAV_HOT    4
+#define SSGTRAV_LOS    8
 
 class ssgList            ;
 class ssgKidList         ;
@@ -71,7 +72,7 @@ class ssgRoot            ;
 
 void  ssgDeRefDelete ( ssgBase *br ) ;
 
-/* 
+/*
   Think twice before assigning new type bits, it is rather complicated.
   Perhaps some kind of automatic assignment would be good?
  */
@@ -1064,6 +1065,7 @@ protected:
   virtual ssgCullResult cull_test  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual ssgCullResult isect_test ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual ssgCullResult hot_test   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual ssgCullResult los_test   ( sgVec3     s, sgMat4 m, int test_needed ) ;
 
   virtual void copy_from ( ssgEntity *src, int clone_flags ) ;
 public:
@@ -1124,6 +1126,7 @@ public:
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) = 0 ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) = 0 ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) = 0 ;
+  virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) = 0 ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1173,7 +1176,7 @@ public:
 
   ssgState *getState () { return state ; }
   void      setState ( ssgState *st ); //~~ T.G. Body extended & moved into CXX file
- 
+
   virtual ssgCallback getCallback ( int cb_type )
   {
     return ( cb_type == SSG_CALLBACK_PREDRAW ) ? preDrawCB : postDrawCB ;
@@ -1221,8 +1224,10 @@ public:
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void isect_triangles ( sgSphere *s, sgMat4 m, int test_needed ) = 0 ;
   virtual void hot_triangles   ( sgVec3    s, sgMat4 m, int test_needed ) = 0 ;
+  virtual void los_triangles   ( sgVec3    s, sgMat4 m, int test_needed ) = 0 ;
   virtual void draw  () = 0 ;
 } ;
 
@@ -1325,6 +1330,7 @@ public:
 
   virtual void isect_triangles ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void los_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1401,6 +1407,7 @@ public:
 
   virtual void isect_triangles ( sgSphere *s, sgMat4 m, int test_needed ) ;
   virtual void hot_triangles   ( sgVec3    s, sgMat4 m, int test_needed ) ;
+  virtual void los_triangles   ( sgVec3    s, sgMat4 m, int test_needed ) ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2);
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1543,6 +1550,7 @@ public:
   virtual void cull          ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect         ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot           ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void los           ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void print         ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1657,6 +1665,7 @@ public:
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) ;
 } ;
 
 
@@ -1707,6 +1716,7 @@ public:
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) ;
 } ;
 
 
@@ -1824,6 +1834,7 @@ public:
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) ;
 } ;
 
 
@@ -1909,6 +1920,7 @@ public:
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void recalcBSphere () ;
 } ;
 
@@ -1985,6 +1997,7 @@ public:
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+  virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) ;
 } ;
 
 

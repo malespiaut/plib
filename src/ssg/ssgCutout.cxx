@@ -132,6 +132,10 @@ void ssgCutout::hot ( sgVec3 s, sgMat4 m, int test_needed )
   ssgBranch::hot ( s, m, test_needed ) ;
 }
 
+void ssgCutout::los ( sgVec3 s, sgMat4 m, int test_needed )
+{
+  ssgBranch::los ( s, m, test_needed ) ;
+}
 
 
 void ssgCutout::isect ( sgSphere *s, sgMat4 m, int test_needed )

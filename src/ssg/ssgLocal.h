@@ -1,7 +1,7 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
@@ -31,6 +31,7 @@ extern void (*__ssgDisableTable[64])() ;
 
 extern sgMat4 _ssgOpenGLAxisSwapMatrix ;
 extern int    _ssgIsHotTest ;
+extern int    _ssgIsLosTest ;
 extern int    _ssgFileVersionNumber ;
 
 void _ssgForceLineState () ;
@@ -60,6 +61,13 @@ extern int stats_hot_no_trav     ;
 extern int stats_hot_radius_reject ;
 extern int stats_hot_triv_accept ;
 extern int stats_hot_straddle    ;
+
+extern int stats_los_triangles   ;
+extern int stats_los_test        ;
+extern int stats_los_no_trav     ;
+extern int stats_los_radius_reject ;
+extern int stats_los_triv_accept ;
+extern int stats_los_straddle    ;
 
 extern ssgState *( *_ssgGetAppState)( char *) ;
 
@@ -107,7 +115,7 @@ float _ssgGetCurrentTweenState () ;
 void  _ssgSetCurrentTweenState ( float tweenstate ) ;
 
 /*
-  Routines for storing arbitrary ssgBase derived objects within SSG files. 
+  Routines for storing arbitrary ssgBase derived objects within SSG files.
   Both functions return 1 on success, and 0 on failure.
   If an object is encountered that is not derived from type_mask, then
   the loading is aborted and 0 returned.

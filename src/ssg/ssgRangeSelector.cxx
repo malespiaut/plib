@@ -127,9 +127,33 @@ void ssgRangeSelector::hot ( sgVec3 sp, sgMat4 m, int test_needed )
     _ssgPopPath () ;
   }
 
-  postTravTests ( SSGTRAV_HOT ) ; 
+  postTravTests ( SSGTRAV_HOT ) ;
 }
 
+
+void ssgRangeSelector::los ( sgVec3 sp, sgMat4 m, int test_needed )
+{
+  if ( ! preTravTests ( &test_needed, SSGTRAV_LOS ) )
+    return ;
+
+  if ( additive )
+    ssgBranch::los ( sp, m, test_needed ) ;
+  else
+  {
+    /* No point in testing this node since it only has one child */
+
+    _ssgPushPath ( this ) ;
+
+    ssgEntity *e = getKid ( 0 ) ;
+
+    if ( e != NULL )
+      e -> los ( sp, m, test_needed ) ;
+
+    _ssgPopPath () ;
+  }
+
+  postTravTests ( SSGTRAV_LOS ) ;
+}
 
 void ssgRangeSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 {
