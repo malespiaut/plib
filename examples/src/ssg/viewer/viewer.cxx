@@ -7,10 +7,8 @@
 *   animate the model, and manipulate the camera.
 *   several models can be loaded at the same time.
 *
-* CREATION DATE
-*   Sep-2000 Dave McClurg <dpm@efn.org>
-*
 * MODIFICATION HISTORY
+*   Sep-2000 Dave McClurg <dpm@efn.org> Created
 *   Sep-2001 Dave McClurg <dpm@efn.org> Added wireframe toggle
 ****/
 
@@ -44,6 +42,7 @@ Defines what type of arrows to uses with puFileSelector
 scene graph
 */
 ssgRoot *scene = NULL ;
+ssgEntity* camera_object = NULL ;
 
 /*
 font vars
@@ -112,7 +111,8 @@ GLfloat Ex     = 0.0f;
 GLfloat Ey     = 0.0f;
 GLfloat Ez     = 0.0f;
 
-#define FOV 60.0f
+//#define FOV 60.0f
+#define FOV 45.0f
 
 int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
 int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
@@ -308,6 +308,53 @@ void make_matrix( sgMat4 mat )
 }
 
 
+bool get_camera_dir ( ssgEntity* e, sgVec3 eye, sgVec3 target )
+{
+  if ( e -> isAKindOf ( ssgTypeBranch() ) )
+  {
+    ssgBranch *br = (ssgBranch *) e ;
+    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
+    {
+      if ( get_camera_dir ( br -> getKid ( i ), eye, target ) )
+        return true ;
+    }
+  }
+  else if ( e -> isAKindOf ( ssgTypeLeaf() ) )
+  {
+    ssgLeaf* leaf = (ssgLeaf *) e ;
+    if ( leaf -> getNumVertices () >= 2 )
+    {
+      sgCopyVec3 ( eye, leaf -> getVertex ( 0 ) ) ;
+      sgCopyVec3 ( target, leaf -> getVertex ( 1 ) ) ;
+      return true ;
+    }
+  }
+  return false ;
+}
+
+
+void follow_camera ( sgMat4 mat )
+{
+  if ( camera_object != NULL )
+  {
+    sgVec3 v1, v2 ;
+    if ( camera_object -> isAKindOf ( ssgTypeTransform() ) &&
+      get_camera_dir ( camera_object, v1, v2 ) )
+    {
+      ssgTransform* tr = (ssgTransform*) camera_object ;
+      sgMat4 m ;
+      tr -> getTransform ( m ) ;
+
+      sgVec3 up = { 0.0f, 0.0f, 1.0f } ;
+      sgVec3 eye, target ;
+      sgXformPnt3 ( eye, v1, m ) ;
+      sgXformPnt3 ( target, v2, m ) ;
+      sgMakeLookAtMat4 ( mat, eye, target, up ) ;
+    }
+  }
+}
+
+
 /*
   The GLUT window reshape event
 */
@@ -329,6 +376,7 @@ void display(void)
   
   sgMat4 mat ;
   make_matrix ( mat ) ;
+  follow_camera ( mat ) ;
   ssgSetCamera ( mat );
   
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -606,6 +654,9 @@ void pick_cb ( puObject * )
     Ey = sp.getCenter()[ 1 ] ;
     Ez = sp.getCenter()[ 2 ] ;
   }
+
+  /* try to find the animated camera */
+  camera_object = scene -> getByName ( "FlyCam" ) ;
 }
 
 
