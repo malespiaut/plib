@@ -34,7 +34,6 @@
  *******************************************************/
 
 #include "ssgLocal.h"
-#include "ssgLoaderWriterStuff.h"
 
 //defaults
 #define FRAME_DELAY 3
@@ -270,8 +269,6 @@ ssgEntity * convert_to_ssg()
 	
 	/**Load all the skins into a state selector
 	  */
-	char filepath[1024];
-	
 	int num_skins = header.numSkins;
 	if(num_skins == 0)
 		num_skins = 1;
@@ -283,12 +280,10 @@ ssgEntity * convert_to_ssg()
 	for(i=0; i<header.numSkins; i++){
 		stated = true;
 
-		ssgFindOptConvertTexture( filepath, skins[i] ) ;
-
 		ssgSimpleState *state = new ssgSimpleState();
 		state ->  enable ( GL_TEXTURE_2D );
 		//state ->  setTexture( filepath ) ;
-		state ->  setTexture( current_options -> createTexture ( filepath ) );
+		state ->  setTexture( current_options -> createTexture ( skins[i] ) );
 		states -> setStep ( i, state );	
 	}
 	
