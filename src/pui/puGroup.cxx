@@ -311,7 +311,7 @@ puGroup::~puGroup ()
 }
 
 
-void puGroup::setChildStyle ( int childs, int style, int recursive = FALSE )
+void puGroup::setChildStyle ( int childs, int style, int recursive )
 {
   puObject *curr_obj ;
 
@@ -329,7 +329,7 @@ void puGroup::setChildStyle ( int childs, int style, int recursive = FALSE )
   }
 }
 
-void puGroup::setChildBorderThickness ( int childs, int t, int recursive = FALSE )
+void puGroup::setChildBorderThickness ( int childs, int t, int recursive )
 {
   puObject *curr_obj ;
 
@@ -347,7 +347,7 @@ void puGroup::setChildBorderThickness ( int childs, int t, int recursive = FALSE
   }
 }
 
-void puGroup::setChildColour ( int childs, int which, float r, float g, float b, float a = 1.0f, int recursive = FALSE )
+void puGroup::setChildColour ( int childs, int which, float r, float g, float b, float a, int recursive )
 {
   puObject *curr_obj ;
 
@@ -365,7 +365,7 @@ void puGroup::setChildColour ( int childs, int which, float r, float g, float b,
   }
 }
 
-void puGroup::setChildColourScheme ( int childs, float r, float g, float b, float a = 1.0f, int recursive = FALSE )
+void puGroup::setChildColourScheme ( int childs, float r, float g, float b, float a, int recursive )
 {
   puObject *curr_obj ;
 
