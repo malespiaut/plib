@@ -85,7 +85,7 @@ int ssgSaveATG( const char* fname, ssgEntity *ent ) {
 				char *p = strrchr(s, '.');
 				if ( p != NULL ) 
 				{ 
-					if (((p[2]='a') || (p[2]='A')) && ((p[2]='f') || (p[2]='F')))
+					if (((p[2]=='a') || (p[2]=='A')) && ((p[3]=='f') || (p[3]=='F')))
 					// *.?af textures are special:
 					// the name before the ':' is not unique, you have to use the first character of the extension as
 					// well. The tool af2rgb, which converts *.?af into rgb-files, also appends this char to the filename.
