@@ -83,6 +83,7 @@ void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
     exit ( 1 ) ;
   }
 
+  _ssgZeroSelection  () ;
   ssgForceBasicState () ;
 
   int w = (int)(topright[0] - botleft[0]) ;

@@ -1,6 +1,8 @@
 
 #include "ssgLocal.h"
 
+static int next_unique_id = 1 ;
+
 void *ssgBase::operator new ( size_t sz )
 {
   return malloc ( sz ) ;
@@ -30,6 +32,7 @@ ssgBase:: ssgBase (void)
 {
   spare = refc = 0 ;
   type = SSG_TYPE_BASE ;
+  unique = next_unique_id++ ;
 }
 
 ssgBase::~ssgBase (void)
