@@ -6,6 +6,8 @@ int main ( int, char ** )
   jsJoystick *js[2] ;
   float      *ax[2] ;
 
+  jsInit () ;
+
   js[0] = new jsJoystick ( 0 ) ;
   js[1] = new jsJoystick ( 1 ) ;
 
