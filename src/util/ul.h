@@ -98,6 +98,13 @@
 
 #endif
 
+
+#if defined(BORLANDBUILDER)
+
+#define UL_BB     1
+
+#endif
+
 /*
   Add specialised includes/defines...
 */
