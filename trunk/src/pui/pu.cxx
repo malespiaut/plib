@@ -232,9 +232,7 @@ void puInit ( void )
         "puInit called without a valid OpenGL context.");
     }
 
-    puInterface *base_interface = new puInterface ( 0, 0 ) ;
-    puPushGroup         ( base_interface ) ;
-    puPushLiveInterface ( base_interface ) ;
+    new puInterface ( 0, 0 ) ;
 
     active_widget = NULL ;
     input_paste_buffer = NULL ;
