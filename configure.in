@@ -367,6 +367,19 @@ esac
 CFLAGS="$CFLAGS $WFLAG"
 CXXFLAGS="$CXXFLAGS $WFLAG"
 
+dnl FreeBSD requires the -pthread switch to enable pthreads. Look for this
+dnl weirdness.
+save_CXXFLAGS="$CXXFLAGS"
+save_CFLAGS="$CFLAGS"
+save_LIBS=$LIBS
+CXXFLAGS="-pthread $CXXFLAGS"
+CFLAGS="-pthread $CFLAGS"
+AC_CHECK_LIB(c_r, pthread_exit)
+if test "x$ac_cv_lib_c_r_pthread_exit" != "xyes"; then
+    CFLAGS="$CFLAGS -pthread"
+    CXXFLAGS="$CXXFLAGS -pthread"
+fi
+LIBS=$save_LIBS
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
