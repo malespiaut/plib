@@ -39,7 +39,7 @@ void pslSetErrorCallback ( void (*CB) ( int, const char *, int, const char * ) )
 
 
 
-void pslCompiler::warning ( const char *fmt, ... )
+int pslCompiler::warning ( const char *fmt, ... )
 {
   va_list argp;
   va_start ( argp, fmt ) ;
@@ -55,11 +55,12 @@ void pslCompiler::warning ( const char *fmt, ... )
                                                            _pslErrorBuffer ) ;
 
   bumpWarnings () ;
+  return FALSE ;
 }
 
 
 
-void pslCompiler::error ( const char *fmt, ... )
+int pslCompiler::error ( const char *fmt, ... )
 {
   va_list argp;
   va_start ( argp, fmt ) ;
@@ -75,6 +76,7 @@ void pslCompiler::error ( const char *fmt, ... )
                                                            _pslErrorBuffer ) ;
 
   bumpErrors () ;
+  return FALSE ;
 }
 
 
