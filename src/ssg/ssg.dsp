@@ -162,6 +162,10 @@ SOURCE=.\ssgLoadASE.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadDXF.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadSSG.cxx
 # End Source File
 # Begin Source File
@@ -199,6 +203,10 @@ SOURCE=.\ssgSaveAC.cxx
 # Begin Source File
 
 SOURCE=.\ssgSaveASE.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveDXF.cxx
 # End Source File
 # Begin Source File
 
