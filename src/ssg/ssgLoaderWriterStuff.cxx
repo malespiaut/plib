@@ -33,20 +33,9 @@
 // in Nov of 2000
 // Distributed with Steve Bakers plib under the LGPL licence
 
-#include  "ssgLocal.h"
+#include "ssgLocal.h"
 #include "ssgLoaderWriterStuff.h"
 
-// need a prototype for alloca:
-#if defined(__sgi) || defined(__MWERKS__)
-#include <alloca.h>
-#endif
-#if defined(_MSC_VER)
-#include <malloc.h>
-#endif
-
-#if defined(__MINGW32__)
-#include <libiberty.h>
-#endif
 
 #undef ABS
 #undef MIN
@@ -141,7 +130,7 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
 		       ( new_vertex[2] - oldvertex[2] > -epsilon) &&
 		       ( new_vertex[2] - oldvertex[2] < epsilon))
 		     { 
-			float *f;
+			float *f = 0;
 			if ( useTexture )
 			  {
 			     assert( texCoordArray ); // if texCoordArray would be NULL, useTexture would not be set.
@@ -202,7 +191,7 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
   ssgTriangulate - triangulate a simple polygon.
 */
 
-static int triangulateConcave(sgVec3 *coords, int *w, int n, int x, int y, int *tris) // was: triangulate_concave
+static int triangulateConcave(sgVec3 *coords, int *w, int n, int x, int y, int *tris)
 {
    struct Vtx {
       int index;
@@ -210,19 +199,20 @@ static int triangulateConcave(sgVec3 *coords, int *w, int n, int x, int y, int *
       Vtx *next;
    };
 
-   Vtx *p0, *p1, *p2, *m0, *m1, *m2, *t;
+   Vtx buf[16], *arr, *p0, *p1, *p2, *m0, *m1, *m2, *t;
    int i, chk, num_tris;
    float a0, a1, a2, b0, b1, b2, c0, c1, c2;
 
    /* construct a circular linked list of the vertices */
-   p0 = (Vtx *) alloca(sizeof(Vtx));
+   arr = (n > 16) ? new Vtx [ n ] : buf;
+   p0 = &arr[0];
    p0->index = w ? w[0] : 0;
    p0->x = coords[p0->index][x];
    p0->y = coords[p0->index][y];
    p1 = p0;
    p2 = 0;
    for (i = 1; i < n; i++) {
-      p2 = (Vtx *) alloca(sizeof(Vtx));
+      p2 = &arr[i];
       p2->index = w ? w[i] : i;
       p2->x = coords[p2->index][x];
       p2->y = coords[p2->index][y];
@@ -241,6 +231,8 @@ static int triangulateConcave(sgVec3 *coords, int *w, int n, int x, int y, int *
       if (chk && m0 == p0 && m1 == p1 && m2 == p2) {
 	 /* no suitable vertex found.. */
          ulSetError(UL_WARNING, "ssgTriangulate: Self-intersecting polygon.");	 
+	 if (arr != buf)
+	   delete [] arr;
          return 0;
       }
       chk = 1;
@@ -306,6 +298,9 @@ static int triangulateConcave(sgVec3 *coords, int *w, int n, int x, int y, int *
    tris[3 * num_tris + 1] = p1->index;
    tris[3 * num_tris + 2] = p2->index;
    num_tris++;
+
+   if (arr != buf)
+     delete [] arr;
 
    return num_tris;
 }
