@@ -749,6 +749,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   {
     ulSetError( UL_WARNING, "ssgLoadMDL: No BGL Code found in file '%s'!",
       filename );
+		fclose(fp);
     return NULL;
   }
   
