@@ -352,11 +352,11 @@ static int do_data     ( char *s )
   current_data = new char [ len + 1 ] ;
 
   for ( int i = 0 ; i < len ; i++ )
-    current_data [ i ] = fgetc ( loader_fd ) ;
+    current_data [ i ] = getc ( loader_fd ) ;
 
   current_data [ len ] = '\0' ;
 
-  fgetc ( loader_fd ) ;  /* Final RETURN */
+  getc ( loader_fd ) ;  /* Final RETURN */
 
   ssgBranch *br = current_options -> createBranch ( current_data ) ;
 

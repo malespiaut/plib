@@ -103,7 +103,7 @@ static void go_up_one_directory ( char *fname )
 
   chop_file ( fname ) ;
 
-  if ( strlen ( fname ) == 0 )
+  if ( fname [ 0 ] == '\0' )
   {
     /* Empty string!  The only way to go up is to append a "../" */
 
@@ -273,7 +273,6 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
   dflag = NULL ;
   num_files = 0 ;
 
-  strcpy ( getStringValue(), "" ) ;
   strcpy ( startDir, dir ) ;
 
   if ( arrows > 2 ) arrows = 2 ;

@@ -321,7 +321,7 @@ int slSample::loadWavFile ( const char *fname )
       fread ( & header, sizeof(header), 1, fd ) ;
 
       for ( int junk = sizeof(header) ; junk < leng1 ; junk++ )
-        fgetc ( fd ) ;
+        getc ( fd ) ;
 
       if ( needs_swabbing )
       {

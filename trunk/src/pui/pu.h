@@ -50,6 +50,7 @@
 
 #ifdef PU_NOT_USING_GLUT
 
+#define PU_NOBUTTON            -1
 #define PU_LEFT_BUTTON          0
 #define PU_MIDDLE_BUTTON        1
 #define PU_RIGHT_BUTTON         2
@@ -58,6 +59,7 @@
 
 #else
 
+#define PU_NOBUTTON         -1
 #define PU_LEFT_BUTTON      GLUT_LEFT_BUTTON
 #define PU_MIDDLE_BUTTON    GLUT_MIDDLE_BUTTON
 #define PU_RIGHT_BUTTON     GLUT_RIGHT_BUTTON

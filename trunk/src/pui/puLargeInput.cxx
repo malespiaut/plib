@@ -390,7 +390,7 @@ void  puLargeInput::setText ( const char *l )
 
   text = new char [ length ] ;
   strcpy ( text, l ) ;
-  if ( ( strlen(l) == 0 ) || ( *(l+strlen(l)-1) != '\n' ) )
+  if ( ( l [ 0 ] == '\0' ) || ( *(l+strlen(l)-1) != '\n' ) )
     strcat ( text, "\n" ) ;
 
   // Find the greatest width of a line
