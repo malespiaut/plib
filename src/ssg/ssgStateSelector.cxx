@@ -102,119 +102,229 @@ void ssgStateSelector::setStep  (int i, ssgSimpleState *step)
 
 void ssgStateSelector::force (void)
 {
-  getCurrentStep()->force() ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::force() ;
+  else
+    s -> force() ;
 }
 
 void ssgStateSelector::apply (void)
 {
-  getCurrentStep()->apply() ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::apply() ;
+  else
+    s -> apply() ;
 }
 
 
 void ssgStateSelector:: care_about ( int mode )
 {
-  getCurrentStep()->care_about (mode);
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::care_about (mode) ;
+  else
+    s -> care_about (mode);
 }
 
 
 void ssgStateSelector::dont_care_about ( int mode )
 {
-  getCurrentStep()->dont_care_about(mode);
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::dont_care_about(mode) ;
+  else
+    s -> dont_care_about(mode);
 }
 
 
 int  ssgStateSelector::isEnabled ( GLenum mode )
 {
-  return getCurrentStep()->isEnabled(mode);
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    return ssgSimpleState::isEnabled(mode) ;
+  else
+    return s -> isEnabled(mode) ;
 }
 
 void ssgStateSelector::disable ( GLenum mode )
 {
-  getCurrentStep()->disable(mode);
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::disable(mode) ;
+  else
+    s  -> disable(mode) ;
 }
 
 void ssgStateSelector::enable ( GLenum mode )
 {
-  getCurrentStep()->enable(mode);
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::enable(mode) ;
+  else
+    s -> enable(mode) ;
 }
 
 
 void ssgStateSelector::setTexture ( char *fname, int _wrapu, int _wrapv,
 				    int _mipmap )
 {
-  getCurrentStep()->setTexture ( fname, _wrapu, _wrapv, _mipmap ) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setTexture ( fname, _wrapu, _wrapv, _mipmap ) ;
+  else
+    s  -> setTexture ( fname, _wrapu, _wrapv, _mipmap ) ;
 }
 
 char *ssgStateSelector::getTextureFilename (void)  
 {
-  return getCurrentStep()->getTextureFilename();
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    return ssgSimpleState::getTextureFilename() ;
+  else
+    return s -> getTextureFilename();
 }
 
 void ssgStateSelector::setTextureFilename ( char *fname )  
 {
-  getCurrentStep()->setTextureFilename ( fname ) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setTextureFilename ( fname ) ;
+  else
+    s -> setTextureFilename ( fname ) ;
 }
 
 GLuint ssgStateSelector::getTextureHandle (void)  
 {
-  return getCurrentStep()->getTextureHandle();
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    return ssgSimpleState::getTextureHandle() ;
+  else
+    return s -> getTextureHandle() ;
 }
 
 void ssgStateSelector::setTexture ( ssgTexture *tex )
 {
-  getCurrentStep()->setTexture(tex) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setTexture(tex) ;
+  else
+    s -> setTexture(tex) ;
 }
 
 void ssgStateSelector::setTexture ( GLuint tex )
 {
-  getCurrentStep()->setTexture(tex) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setTexture(tex) ;
+  else
+    s -> setTexture(tex) ;
 }
 
 void ssgStateSelector::setColourMaterial(GLenum which)
 {
-  getCurrentStep()->setColourMaterial(which) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setColourMaterial(which) ;
+  else
+    s -> setColourMaterial(which) ;
 }
 
 void ssgStateSelector::setMaterial ( GLenum which, float r, float g,
                                                    float b, float a )
 {
-  getCurrentStep()->setMaterial(which,r,g,b,a) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setMaterial(which,r,g,b,a) ;
+  else
+    s -> setMaterial(which,r,g,b,a) ;
 }
 
 
 void ssgStateSelector::setMaterial ( GLenum which, sgVec4 rgba )
 {
-  getCurrentStep()->setMaterial(which,rgba) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setMaterial(which,rgba) ;
+  else
+    s -> setMaterial(which,rgba) ;
 }
 
 float *ssgStateSelector::getMaterial ( GLenum which )
 {
-  return getCurrentStep()->getMaterial(which) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    return ssgSimpleState::getMaterial(which) ;
+  else
+    return s -> getMaterial(which) ;
 }
 
 float ssgStateSelector::getShininess (void)
 {
-  return getCurrentStep()->getShininess() ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    return ssgSimpleState::getShininess() ;
+  else
+    return s -> getShininess() ;
 }
 
 void ssgStateSelector::setShininess ( float sh )
 {
-  getCurrentStep()->setShininess(sh) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setShininess(sh) ;
+  else
+    s -> setShininess(sh) ;
 }
 
 void ssgStateSelector::setShadeModel ( GLenum model )
 {
-  getCurrentStep()->setShadeModel(model) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setShadeModel(model) ;
+  else
+    s -> setShadeModel(model) ;
 }
 
 void ssgStateSelector::setAlphaClamp ( float clamp )
 {
-  getCurrentStep()->setAlphaClamp(clamp) ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setAlphaClamp(clamp) ;
+  else
+    s -> setAlphaClamp(clamp) ;
 }
 
 void ssgStateSelector::print ( FILE *fd, char *indent )
 {
-  getCurrentStep()->print(fd,indent);
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::print(fd,indent) ;
+  else
+    s -> print(fd,indent) ;
 }
 
 
