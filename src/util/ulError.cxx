@@ -51,7 +51,14 @@ void ulSetError ( enum ulSeverity severity, const char *fmt, ... )
     fprintf ( stderr, "%s: %s\n",
        _ulSeverityText[ severity ], _ulErrorBuffer ) ;
     if ( severity == UL_FATAL )
+    {
+#ifdef WIN32
+      // A Windows user that does not start the program from the command line
+      // will not see output to stderr
+      ::MessageBox(0, _ulErrorBuffer, "fatal error!:", 0);
+#endif
       exit (1) ;
+    }
   }
 }
  
