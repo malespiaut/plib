@@ -27,13 +27,16 @@ puDialogBox *dialog_box ;
 puText      *dialog_box_message ;
 puOneShot   *dialog_box_ok_button ;
 puText      *timer_text ;
+puGroup *mygroup ;
+puInput *input1 ;
+puInput *input2 ;
 
 int          slider_window ;
 puSlider    *rspeedSlider ;
 puSlider    *directSlider ;
 
 int          save_window ;
-puFilePicker *file_picker ;
+puFileSelector *file_selector ;
 
 int          coordinate_window ;
 puGroup     *coordinate_group ;
@@ -337,13 +340,13 @@ void mk_dialog ( char *fmt, ... )
 void pick_cb ( puObject * )
 {
   char* filename ;
-  file_picker -> getValue ( &filename ) ;
+  file_selector -> getValue ( &filename ) ;
 
   //NOTE: interface creation/deletion must be nested
   //the old interface must be deleted *before* a new one is created
   //otherwise the interface stack will be messed up
-  puDeleteObject ( file_picker ) ;
-  file_picker = 0 ;
+  puDeleteObject ( file_selector ) ;
+  file_selector = 0 ;
   glutHideWindow () ;
   glutSetWindow ( main_window ) ;
 
@@ -355,7 +358,7 @@ void pick_cb ( puObject * )
 
 void savereshapefn ( int w, int h )
 {
-  file_picker->setSize ( w, h ) ;
+  file_selector->setSize ( w, h ) ;
 }
 
 void coordreshapefn ( int w, int h )
@@ -375,8 +378,11 @@ void save_cb ( puObject * )
   glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
   if ( ++save_count > 2 ) save_count = 0 ;
 
-  file_picker = new puFilePicker ( 0, 0, w, h, save_count, ".", "Pick Place To Save" ) ;
-  file_picker -> setCallback ( pick_cb ) ;
+  file_selector = new puFileSelector ( 0, 0, w, h, save_count, ".", "Pick Place To Save" ) ;
+  file_selector -> setCallback ( pick_cb ) ;
+  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
+  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
+  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
 }
 
 void ni_cb ( puObject * )
@@ -457,10 +463,8 @@ int main ( int argc, char **argv )
   tim = new fntTexFont ;
   hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
   tim -> load ( "../fnt/data/times_medium.txf" ) ;
-  
-#define ITALIC .3
-  puFont helvetica ( hel, 15, ITALIC ) ;
-  puFont times_medium ( tim, 13, ITALIC ) ;
+  puFont helvetica ( hel, 15 ) ;
+  puFont times_medium ( tim, 13 ) ;
   puSetDefaultFonts        ( helvetica, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
   puSetDefaultColourScheme ( 0.3, 0.4, 0.6, 1.0) ;
@@ -487,6 +491,11 @@ int main ( int argc, char **argv )
   }
   main_menu_bar -> close () ; 
 
+  mygroup = new puGroup ( 40, 40 ) ;
+  input1 = new puInput ( 10, 70, 90, 90 ) ;
+  input2 = new puInput ( 10, 40, 90, 60 ) ;
+  mygroup->close () ;
+
   slider_window = glutCreateWindow      ( "Slider Window"  ) ;
   glutPositionWindow    (  20, 100 ) ;
   glutReshapeWindow     ( 150,  200 ) ;
@@ -510,6 +519,7 @@ int main ( int argc, char **argv )
   rspeedSlider->setCallback(sliderCB);
   rspeedSlider->setLabel ( "Speed" ) ;
   rspeedSlider->setLabelPlace ( PUPLACE_BOTTOM_LEFT ) ;
+  rspeedSlider->setValue ( 0.8f ) ;
 
   directSlider = new puSlider (80,30,150,TRUE);
   directSlider->setDelta(0.1);
