@@ -64,6 +64,8 @@ void _ssgReadUShort  ( FILE *fd, const unsigned int n,       unsigned short *var
 void _ssgWriteUShort ( FILE *fd, const unsigned int n, const unsigned short *var ) ;
 void _ssgReadShort   ( FILE *fd, const unsigned int n,                short *var ) ;
 void _ssgWriteShort  ( FILE *fd, const unsigned int n, const          short *var ) ;
+void _ssgReadBytes   ( FILE *fd, const unsigned int n,                 void *var ) ;
+void _ssgWriteBytes  ( FILE *fd, const unsigned int n, const           void *var ) ;
 
 void _ssgReadString  ( FILE *fd,       char **var ) ;
 void _ssgWriteString ( FILE *fd, const char  *var ) ;

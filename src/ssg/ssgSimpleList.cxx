@@ -129,7 +129,13 @@ int ssgSimpleList::load ( FILE *fd )
   limit = total ;
   list = new char [ limit * size_of ] ;
 	assert(list!=NULL);
-  _ssgReadFloat ( fd, limit * size_of / sizeof(float), (float *)list ) ;
+	// wk: The old code:
+  //_ssgReadFloat ( fd, limit * size_of / sizeof(float), (float *)list ) ;
+	// doesn't work since some ssgSimpleLists consist of shorts, so limit * size_of
+	// may not be divisible by sizeof(float).
+	// The new code works, but I am not 100% sure what we want in the event that there are machines with another sizeof(float).
+	_ssgReadBytes   ( fd, limit * size_of , list) ;
+
   return ! _ssgReadError () ;
 }
 
@@ -139,7 +145,9 @@ int ssgSimpleList::save ( FILE *fd )
 {
   _ssgWriteUInt ( fd, size_of ) ;
   _ssgWriteUInt ( fd, total   ) ;
-  _ssgWriteFloat( fd, total * size_of / sizeof(float), (float *)list ) ;
+	// see comment in ssgSimpleList::load
+  // _ssgWriteFloat( fd, total * size_of / sizeof(float), (float *)list ) ;
+  _ssgWriteBytes ( fd, total * size_of, list);
   return ! _ssgWriteError () ;
 }
 

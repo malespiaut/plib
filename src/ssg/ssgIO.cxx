@@ -26,6 +26,7 @@ void _ssgWriteFloat ( FILE *fd, const float var )
 }
 
 
+
 void _ssgReadUInt ( FILE *fd, unsigned int *var )
 {
   if ( fread ( var, sizeof(unsigned int), 1, fd ) == 1 ) return ;
@@ -92,6 +93,24 @@ void _ssgReadFloat ( FILE *fd, const unsigned int n, float *var )
 void _ssgWriteFloat ( FILE *fd, const unsigned int n, const float *var )
 {
   if ( fwrite ( var, sizeof(float), n, fd ) == n ) return ;
+  write_error = TRUE ;
+}
+
+void _ssgReadBytes   ( FILE *fd, const unsigned int n, void *var ) 
+{
+  if ( n == 0)
+		return;
+  if ( fread ( var, n, 1, fd ) == 1 ) 
+		return ;
+  read_error = TRUE ;
+}
+
+void _ssgWriteBytes ( FILE *fd, const unsigned int n, const void *var ) 
+{
+	if ( n == 0)
+		return;
+  if ( fwrite ( var, n, 1, fd ) == 1 ) 
+		return ;
   write_error = TRUE ;
 }
 
