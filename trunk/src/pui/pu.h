@@ -439,6 +439,8 @@ protected:
   int   string_size ;
   int   res_string_sz ;
 
+  int   convert ;
+
   void re_eval    ( void ) const ;
   void update_res ( void ) const { } /* Obsolete ! */ ;
 
@@ -448,9 +450,15 @@ protected:
   float * getFloaterp ( void ) const { return res_floater != NULL ? res_floater : floater ; }
   char *  getStringp  ( void ) const { return res_string != NULL ? res_string : string ; }
 
+  void enableConversion  ( void ) { convert = TRUE  ; }
+  void disableConversion ( void ) { convert = FALSE ; }
+  int  conversionEnabled ( void ) const { return convert ; }
+
 public:
   puValue ()
   {
+    convert = TRUE ;
+
     /* Fake mutable */
     integer = new int ;
     floater = new float ;
@@ -484,14 +492,38 @@ public:
     puPostRefresh () ;
   }
 
-  void setValuator ( int   *i ) { res_integer = i    ; res_floater = NULL ; res_string = NULL ; re_eval () ; }
-  void setValuator ( float *f ) { res_integer = NULL ; res_floater = f    ; res_string = NULL ; re_eval () ; }
+  void setValuator ( int   *i )
+  {
+    res_integer = i ;
+
+    if ( convert == TRUE )
+    {
+      res_floater = NULL ; res_string = NULL ;
+      re_eval () ;
+    }
+  }
+
+  void setValuator ( float *f )
+  {
+    res_floater = f ;
+
+    if ( convert == TRUE )
+    {
+      res_integer = NULL ; res_string = NULL ;
+      re_eval () ;
+    }
+  }
+
   void setValuator ( char *s, int size )
   {
-    res_integer = NULL ; res_floater = NULL ; res_string = s ;
+    res_string = s ;
     res_string_sz = size ;
 
-    re_eval () ;
+    if ( convert == TRUE )
+    {
+      res_integer = NULL ; res_floater = NULL ;
+      re_eval () ;
+    }
   }
 
   /* Obsolete ! */
@@ -499,27 +531,39 @@ public:
 
   void setValue ( int   i )
   {
-    *getIntegerp () = i ; *getFloaterp () = (float) i ;
-    sprintf ( getStringp (), "%d", i ) ; puPostRefresh () ;
-  }
-  void setValue ( float f )
-  {
-    *getIntegerp () = (int) f ; *getFloaterp () = f ;
-    sprintf ( getStringp (), "%g", f ) ;
+    *getIntegerp () = i ;
+
+    if ( convert == TRUE )
+    {
+      *getFloaterp () = (float) i ; sprintf ( getStringp (), "%d", i ) ;
+    }
+
     puPostRefresh () ;
   }
+
+  void setValue ( float f )
+  {
+    *getFloaterp () = f ;
+
+    if ( convert == TRUE )
+    {
+      *getIntegerp () = (int) f ; sprintf ( getStringp (), "%g", f ) ;
+    }
+
+    puPostRefresh () ;
+  }
+
   void setValue ( const char *s )
   { 
     if ( s == NULL )
-    {
-      *getIntegerp () = 0 ; *getFloaterp () = 0.0f ;
-      copy_stringval ( "" ) ;
-    }
-    else
+      s = "" ;
+
+    copy_stringval ( s ) ;
+
+    if ( convert == TRUE )
     {
       *getIntegerp () = (int) strtol ( s, NULL, 0 ) ;
       *getFloaterp () = (float) strtod ( s, NULL ) ;
-      copy_stringval ( s ) ;
     }
 
     puPostRefresh () ;

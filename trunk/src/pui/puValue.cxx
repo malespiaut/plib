@@ -26,6 +26,9 @@
 
 void puValue::re_eval ( void ) const
 {
+  if ( convert == FALSE )
+    return ;
+
   if ( res_integer != NULL )
   {
     *floater = (float) *res_integer ;
