@@ -9,12 +9,4 @@
 #include <unistd.h>
 #endif
 #include <math.h>
-#include <GL/glut.h>
-#include <plib/sg.h>
-#include <plib/ssg.h>
-#include <plib/ssgAux.h>
-#include <plib/ul.h>
-
-extern ssgRoot   *tweenScene ;
-
 
