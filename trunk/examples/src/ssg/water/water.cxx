@@ -77,7 +77,6 @@ void writeCplusplusCode ()
   printf ( "{\n" ) ;
   printf ( "  ssgaWaveTrain  *wavetrain ;\n" ) ;
   printf ( "  ssgaWaveSystem *ocean ;\n" ) ;
-  printf ( "  sgVec4 WHITE = { 1,1,1,1 } ;\n" ) ;
   printf ( "  ocean =  new ssgaWaveSystem ( %d ) ;\n", ocean->getNumTris() ) ;
   printf ( "  ocean -> setSize            ( %g ) ;\n", ocean->getSize()[0] ) ;
   printf ( "  ocean -> setKidState        ( state ) ;\n" ) ;
@@ -96,7 +95,7 @@ void writeCplusplusCode ()
       printf ( "  wavetrain->setLength     ( %g ) ;\n",trains[i].getLength ());
       printf ( "  wavetrain->setLambda     ( %g ) ;\n",trains[i].getLambda ());
       printf ( "  wavetrain->setHeading    ( %g ) ;\n",trains[i].getHeading ());
-      printf ( "  wavetrain->getWaveHeight ( %g ) ;\n",trains[i].getWaveHeight());
+      printf ( "  wavetrain->setWaveHeight ( %g ) ;\n",trains[i].getWaveHeight());
 
       printf ( "  ocean -> setWaveTrain ( %d, wavetrain ) ;\n\n", i ) ;
     }
