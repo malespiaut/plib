@@ -614,6 +614,7 @@ static ssgBranch *getCurrGroup() {
 // wk : It's not completely clear to me whether the following two functions can not be merged; Oh well.
 // CreateAndAddLeaf1 is called then faces are created and then CreateAndAddLeaf2 is called
    
+
 static void CreateAndAddLeaf1(GLenum ty, ssgTexCoordArray *tex_coords_P, bool use_texture)
 {
 	curr_index_ = new ssgIndexArray();
@@ -1757,6 +1758,10 @@ void FindBGLBeginOldVersion(FILE *fp)
   }
 }
 
+
+// kludge: global
+int g_noLoDs =1;
+
 ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 {
   ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
@@ -1857,7 +1862,8 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   last_idx_  = 0;
   curr_var_ = 0;
   stack_depth_ = 0;
-	noLoDs = 0;
+	noLoDs = 1; // if there is no "branch" and no "++noLoDs" is called, we have 1 LoD. 
+	            // If there is one branch, we have 2, etc.
 	curr_lod = 0;
   sgMakeIdentMat4(curr_matrix_);
   
@@ -1879,9 +1885,10 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 #endif
 // :-(((  delete curr_vtx_;
   delete curr_norm_;
-  
-  DEBUGPRINT("\n" << vertex_array_->getNum() << " vertices\n");
+
+	DEBUGPRINT("\n" << vertex_array_->getNum() << " vertices\n");
 	printf("NoLoDs = %d\n", (int)noLoDs);
+	g_noLoDs = noLoDs;
 
   return model_;
 }
