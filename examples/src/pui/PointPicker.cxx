@@ -190,7 +190,7 @@ static void displayfn (void)
 {
   /* Clear the screen */
 
-  glClearColor ( 0.4, 0.1, 0.1, 1.0 ) ;
+  glClearColor ( 0.4f, 0.1f, 0.1f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Draw the points */
@@ -293,11 +293,11 @@ void point_no_down_cb ( puObject *ob )
 
 void move_point_cb ( puObject *ob )
 {
-  point[picked_point].x += 0.1 ;
+  point[picked_point].x += 0.1f ;
   if ( point[picked_point].x > 1.0 )
   {
     point[picked_point].x = -1.0 ;
-    point[picked_point].y += 0.1 ;
+    point[picked_point].y += 0.1f ;
   }
 }
 
@@ -338,10 +338,10 @@ int main ( int argc, char **argv )
 
   tim = new fntTexFont ;
   tim -> load ( "../fnt/data/times_medium.txf" ) ;
-  puFont times_medium ( tim, 15, 0.3 ) ;
+  puFont times_medium ( tim, 15, 0.3f ) ;
   puSetDefaultFonts        ( times_medium, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
-  puSetDefaultColourScheme ( 0.1, 0.8, 0.1, 1.0) ;
+  puSetDefaultColourScheme ( 0.1f, 0.8f, 0.1f, 1.0f) ;
 
   // Set up the widgets in the window
 

@@ -182,7 +182,7 @@ static void displayfn (void)
 {
   /* Clear the screen */
 
-  glClearColor ( 0.1, 0.3, 0.5, 1.0 ) ;
+  glClearColor ( 0.1f, 0.3f, 0.5f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Draw the tumbling cube */
@@ -220,7 +220,7 @@ static void sliderdisplayfn (void)
 
   /* Clear the screen */
 
-  glClearColor ( 0.1, 0.3, 0.5, 1.0 ) ;
+  glClearColor ( 0.1f, 0.3f, 0.5f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Make PUI redraw the slider window */
@@ -245,7 +245,7 @@ static void savedisplayfn (void)
 
   /* Clear the screen */
 
-  glClearColor ( 0.1, 0.1, 5.0, 1.0 ) ;
+  glClearColor ( 0.1f, 0.1f, 5.0f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Make PUI redraw the save window */
@@ -270,7 +270,7 @@ static void coorddisplayfn (void)
 
   /* Clear the screen */
 
-  glClearColor ( 0.1, 0.3, 0.5, 1.0 ) ;
+  glClearColor ( 0.1f, 0.3f, 0.5f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Make PUI redraw the slider window */
@@ -467,7 +467,7 @@ int main ( int argc, char **argv )
   puFont times_medium ( tim, 13 ) ;
   puSetDefaultFonts        ( helvetica, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
-  puSetDefaultColourScheme ( 0.3, 0.4, 0.6, 1.0) ;
+  puSetDefaultColourScheme ( 0.3f, 0.4f, 0.6f, 1.0f) ;
 
   timer_text = new puText ( 300, 10 ) ;
   timer_text -> setColour ( PUCOL_LABEL, 1.0, 1.0, 1.0 ) ;
@@ -514,7 +514,7 @@ int main ( int argc, char **argv )
   puGroup *slider_group = new puGroup ( 0, 0 ) ;  // Necessary so that "sliderdisplayfn" will draw all widgets
 
   rspeedSlider = new puSlider (10,30,150,TRUE);
-  rspeedSlider->setDelta(0.1);
+  rspeedSlider->setDelta(0.1f);
   rspeedSlider->setCBMode( PUSLIDER_DELTA );
   rspeedSlider->setCallback(sliderCB);
   rspeedSlider->setLabel ( "Speed" ) ;
@@ -522,7 +522,7 @@ int main ( int argc, char **argv )
   rspeedSlider->setValue ( 0.8f ) ;
 
   directSlider = new puSlider (80,30,150,TRUE);
-  directSlider->setDelta(0.1);
+  directSlider->setDelta(0.1f);
   directSlider->setCBMode( PUSLIDER_DELTA );
   directSlider->setCallback(sliderCB);
   directSlider->setLabel ( "Direction" ) ;

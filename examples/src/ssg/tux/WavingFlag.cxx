@@ -42,9 +42,9 @@ WavingFlag::WavingFlag( sgVec4 color, char *texture1, char *texture2, int s )
 	state1->setShadeModel( GL_SMOOTH ) ;
 	state1->enable( GL_COLOR_MATERIAL ) ;
 	state1->setColourMaterial( GL_AMBIENT_AND_DIFFUSE ) ;
-	state1->setMaterial( GL_EMISSION, 0.91, 0.41, 0.81, .94 ) ;
-	state1->setMaterial( GL_SPECULAR, 0.91, 0.41, 0.81, .94 ) ;
-	state1->setShininess( 0.3 ) ;
+	state1->setMaterial( GL_EMISSION, 0.91f, 0.41f, 0.81f, .94f ) ;
+	state1->setMaterial( GL_SPECULAR, 0.91f, 0.41f, 0.81f, .94f ) ;
+	state1->setShininess( 0.3f ) ;
 	state1->setTranslucent() ;
 	state1->enable( GL_BLEND ) ;
     state1->enable ( GL_ALPHA_TEST ) ;
@@ -72,9 +72,9 @@ WavingFlag::WavingFlag( sgVec4 color, char *texture1, char *texture2, int s )
 	state2->setShadeModel( GL_SMOOTH ) ;
 	state2->enable( GL_COLOR_MATERIAL ) ;
 	state2->setColourMaterial( GL_AMBIENT_AND_DIFFUSE ) ;
-	state2->setMaterial( GL_EMISSION, 0.91, 0.41, 0.81, .94 ) ;
-	state2->setMaterial( GL_SPECULAR, 0.91, 0.41, 0.81, .94 ) ;
-	state2->setShininess( 0.3 ) ;
+	state2->setMaterial( GL_EMISSION, 0.91f, 0.41f, 0.81f, .94f ) ;
+	state2->setMaterial( GL_SPECULAR, 0.91f, 0.41f, 0.81f, .94f ) ;
+	state2->setShininess( 0.3f ) ;
 	state2->setTranslucent() ;
 	state2->enable( GL_BLEND ) ;
     state2->enable ( GL_ALPHA_TEST ) ;
@@ -156,7 +156,7 @@ void WavingFlag::animate( float time, float windVelocity )
 			n[1] = v[1];
 			//d *= 1.002;
 		}
-		k *= 0.9;
+		k *= 0.9f;
 	}
 	if ( d > SG_PI/2.0 ) printf ("Problems\n");
 	branch -> dirtyBSphere () ; 
