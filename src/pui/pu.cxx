@@ -23,49 +23,80 @@
 
 #include "puLocal.h"
 
-#if defined(UL_MACINTOSH)
+#if defined(UL_AGL)
 #  include <agl.h>
-#elif defined(UL_MAC_OSX)
+#elif defined(UL_CGL)
 #  include <OpenGL/CGLCurrent.h>
-#elif defined(UL_WIN32)
-   /* Nothing */
-#else
+#elif defined(UL_GLX)
 #  include <GL/glx.h>
 #endif
 
+
 int puRefresh = TRUE ;
 
-static int puWindowWidth  = 400 ;
-static int puWindowHeight = 400 ;
-static int openGLSize     =   0 ;
 
-void puSetResizeMode ( int mode ) { openGLSize = mode ; }
+static puGetWindowCallback     cbGetWindow;
+static puSetWindowCallback     cbSetWindow;
+static puGetWindowSizeCallback cbGetWindowSize;
+static puSetWindowSizeCallback cbSetWindowSize;
 
 
-#ifdef PU_NOT_USING_GLUT
+void puSetWindowFuncs ( puGetWindowCallback   getWindow,
+			puSetWindowCallback   setWindow,
+			puGetWindowSizeCallback getWindowSize,
+			puSetWindowSizeCallback setWindowSize )
+{
+    cbGetWindow     = getWindow;
+    cbSetWindow     = setWindow;
+    cbGetWindowSize = getWindowSize;
+    cbSetWindowSize = setWindowSize;
+}
 
-int  puGetWindow     ( void  ) { return 0 ; }
-void puSetWindow     ( int w ) {}
-void puSetWindowSize ( int width, int height ) {}
 
-#else
+int puGetWindow ()
+{
+    if ( !cbGetWindow )
+	ulSetError ( UL_FATAL, "puGetWindow: Callbacks not initialized." ) ;
+    return ( *cbGetWindow ) () ;
+}
 
-int  puGetWindow ( void  ) { return glutGetWindow () ; }
-void puSetWindow ( int w ) { glutSetWindow ( w ) ;  }
+void puSetWindow ( int window )
+{
+    if ( !cbSetWindow )
+	ulSetError ( UL_WARNING, "puSetWindow: Cannot set window (null callback)." ) ;
+    else
+	( *cbSetWindow ) ( window ) ;
+}
+
+void puGetWindowSize ( int *width, int *height )
+{
+    if ( !cbGetWindowSize )
+	ulSetError ( UL_FATAL, "puGetWindowSize: Callbacks not initialized." ) ;
+    ( *cbGetWindowSize ) ( width, height ) ;
+}
 
 void puSetWindowSize ( int width, int height )
 {
-  if ( ! openGLSize )
-    ulSetError ( UL_WARNING, "PUI: puSetWindowSize shouldn't be used with GLUT." ) ;
-  else
-  {
-    glutReshapeWindow ( width, height ) ;
-    puWindowWidth  = width  ;
-    puWindowHeight = height ;
-  }
+    if ( !cbSetWindowSize )
+	ulSetError ( UL_WARNING, "puSetWindowSize: Cannot change size (null callback)." ) ;
+    else
+	( *cbSetWindowSize ) ( width, height ) ;
 }
 
-#endif
+int puGetWindowWidth ()
+{
+    int w, h ;
+    puGetWindowSize ( &w, &h ) ;
+    return w ;
+}
+
+int puGetWindowHeight ()
+{
+    int w, h ;
+    puGetWindowSize ( &w, &h ) ;
+    return h ;
+}
+
 
 
 static bool glIsValidContext ( void )
@@ -202,7 +233,7 @@ static char *input_paste_buffer ;  /* Cut/Copy/Paste buffer for input widgets */
 
 static int firsttime = TRUE ;
 
-void puInit ( void )
+void puRealInit ( void )
 {
   if ( firsttime )
   {
@@ -218,19 +249,6 @@ void puInit ( void )
     input_paste_buffer = NULL ;
 
     firsttime = FALSE ;
-#ifdef PU_NOT_USING_GLUT
-
-    // No GLUT fonts, try some corresponding textured fonts
-
-    if ( ( _puCourierFont.load   ( "Courier.txf"     ) == FALSE ) ||
-         ( _puTimesFont.load     ( "Times-Roman.txf" ) == FALSE ) ||
-         ( _puHelveticaFont.load ( "Helvetica.txf"   ) == FALSE ) )
-    {
-      // Exit
-      ulSetError ( UL_FATAL, "PUI: Could not load default fonts." ) ;
-    }
-
-#endif
   }
 }
 
@@ -245,13 +263,11 @@ void puExit ( void )
 
 static void puSetOpenGLState ( void )
 {
-  int w = puGetWindowWidth  () ;
-  int h = puGetWindowHeight () ;
+  int w, h ;
 
-  if ( ! openGLSize )
-    glPushAttrib   ( GL_ENABLE_BIT | GL_TRANSFORM_BIT | GL_LIGHTING_BIT ) ;
-  else
-    glPushAttrib   ( GL_ENABLE_BIT | GL_VIEWPORT_BIT | GL_TRANSFORM_BIT | GL_LIGHTING_BIT ) ;
+  puGetWindowSize ( &w, &h ) ;
+
+  glPushAttrib ( GL_ENABLE_BIT | GL_VIEWPORT_BIT  | GL_TRANSFORM_BIT | GL_LIGHTING_BIT ) ;
 
   glDisable      ( GL_LIGHTING   ) ;
   glDisable      ( GL_FOG        ) ;
@@ -259,8 +275,7 @@ static void puSetOpenGLState ( void )
   glDisable      ( GL_DEPTH_TEST ) ;
   glDisable      ( GL_CULL_FACE  ) ;
 
-  if ( ! openGLSize )
-    glViewport   ( 0, 0, w, h ) ;
+  glViewport ( 0, 0, w, h ) ;
 
   glMatrixMode   ( GL_PROJECTION ) ;
   glPushMatrix   () ;
@@ -453,66 +468,10 @@ int  puNeedRefresh ( void )  {  return puRefresh ;  }
 void puPostRefresh ( void )  {  puRefresh = TRUE ;  }
 
 
-#ifdef UL_GLX
-
-int puGetWindowWidth ( void )
+void puSetResizeMode ( int mode )
 {
-  if ( openGLSize )
-    return puWindowWidth ;
-
-  unsigned int width, height ;
-  Window w ;
-  int x, y ;
-  unsigned int bw, dr ;
-
-  XGetGeometry ( glXGetCurrentDisplay  (),
-                 glXGetCurrentDrawable (),
-                 &w, &x, &y, &width, &height, &bw, &dr ) ;
-
-  return width ;
+    static int last = 0;
+    if ( last == 0 && mode != 0 )
+	ulSetError ( UL_WARNING, "puSetResizeMode is deprecated!" ) ;
+    last = mode ;
 }
-
-
-
-int puGetWindowHeight ( void )
-{
-  if ( openGLSize )
-    return puWindowHeight ;
-
-  unsigned int width, height ;
-  Window w ;
-  int x, y ;
-  unsigned int bw, dr ;
-
-  XGetGeometry ( glXGetCurrentDisplay  (),
-                 glXGetCurrentDrawable (),
-                 &w, &x, &y, &width, &height, &bw, &dr ) ;
-
-  return height ;
-}
-
-#else
-
-//
-// Please contribute WGL, CGL and AGL code for this section!
-//
-
-int puGetWindowHeight ( void )
-{
-  if ( openGLSize )
-    return puWindowHeight ;
-
-  return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ;
-}
-
-
-int puGetWindowWidth ( void )
-{
-  if ( openGLSize )
-    return puWindowWidth ;
-
-  return glutGet ( (GLenum) GLUT_WINDOW_WIDTH ) ;
-}
-
-#endif
-

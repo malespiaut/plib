@@ -46,13 +46,13 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
     // If the parent floats in its own window, and the submenu drops off the window,
     // expand the window to fit.
 
-#ifndef PU_NOT_USING_GLUT
+#if 1
     puGroup *parent = p -> getParent () ;
 
     if ( ( parent != parent -> getParent () ) && parent -> getFloating () )  // DEPRECATED! -- we need to replace this code.
     {
       int temp_window = puGetWindow () ;
-      glutSetWindow ( parent -> getWindow () ) ;
+      puSetWindow ( parent -> getWindow () ) ;
 
       puBox *par_box = parent -> getBBox () ;
       puBox *cur_box = p -> getBBox () ;
@@ -62,12 +62,11 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
       int y_min = (cur_box->min[1] < 0) ? par_box->min[1] + cur_box->min[1] : par_box->min[1] ;
       int y_max = (par_box->max[1] > par_box->min[1] + cur_box->max[1]) ?
                                     par_box->max[1] : par_box->min[1] + cur_box->max[1] ;
-      int x_siz = glutGet ( (GLenum)GLUT_WINDOW_WIDTH ) ;
-      int y_siz = glutGet ( (GLenum)GLUT_WINDOW_HEIGHT ) ;
+      int x_siz, y_siz;
+      puGetWindowSize ( &x_siz, &y_siz ) ;
       if ( x_siz < (x_max - x_min) ) x_siz = x_max - x_min ;    // Adjust the present size
       if ( y_siz < (y_max - y_min) ) y_siz = y_max - y_min ;
-
-      glutReshapeWindow ( x_siz, y_siz ) ;
+      puSetWindowSize ( x_siz, y_siz ) ;
 
       x_min = par_box->min[0] - x_min ;
       y_min = y_siz - ( par_box->max[1] - par_box->min[1] ) ;
@@ -77,7 +76,7 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
       if (parent -> getVStatus () == 1)
         parent -> setPosition ( x_min, y_min ) ;
 
-      glutSetWindow ( temp_window ) ;
+      puSetWindow ( temp_window ) ;
     }
 #endif
   }

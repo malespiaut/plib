@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\fnt" /I "..\sg" /I "..\util" /I "../../../glut/include" /I "../../glut/include" /I ".." /I "../glut/include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "GLUT_IS_PRESENT" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\fnt" /I "..\sg" /I "..\util" /I ".." /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "PU_USE_NONE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -70,7 +70,7 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy pu.h ..\..\pu.h
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\fnt" /I "..\sg" /I "..\util" /I "../../../glut/include" /I "../../glut/include" /I ".." /I "../glut/include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "GLUT_IS_PRESENT" /FR /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\fnt" /I "..\sg" /I "..\util" /I ".." /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "PU_USE_NONE" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -99,6 +99,22 @@ SOURCE=.\pu.cxx
 # Begin Source File
 
 SOURCE=.\pu.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\puGLUT.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\puFLTK.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\puSDL.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\puNative.h
 # End Source File
 # Begin Source File
 
