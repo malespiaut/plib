@@ -89,11 +89,22 @@ static void puFileSelectorHandleArrow ( puObject *arrow )
 }
 
 
+static bool is_slash ( char ch )
+{
+#if defined(WIN32)
+  /* win32 can use back or forward slash */
+  return ch == '\\' || ch == '/' ;
+#else
+  return ch == SLASH[0] ;
+#endif
+}
+
+
 static void chop_file ( char *fname )
 {
   /* removes everything back to the last '/' */
 
-  for ( int i = strlen(fname)-1 ; fname[i] != SLASH[0] && i >= 0 ; i-- )
+  for ( int i = strlen(fname)-1 ; ! is_slash ( fname[i] ) && i >= 0 ; i-- )
     fname[i] = '\0' ;
 }
 
@@ -145,9 +156,12 @@ void puFileSelector::input_entered ( puObject* input )
   }
   else
   {
-    strcpy ( file_selector->getStringValue (), file_selector->__getStartDir());
-    strcat ( file_selector->getStringValue (), SLASH    ) ;
-    strcat ( file_selector->getStringValue (), input -> getStringValue () ) ;
+    //strcpy ( file_selector->getStringValue (), file_selector->__getStartDir());
+    //strcat ( file_selector->getStringValue (), SLASH    ) ;
+    //strcat ( file_selector->getStringValue (), input -> getStringValue () ) ;
+
+    ulMakePath ( file_selector->getStringValue (),
+      file_selector->__getStartDir(), input -> getStringValue () ) ;
   }
 
   /*
@@ -343,13 +357,13 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
       return ;
     }
 
-    if ( startDir[strlen(startDir)-1] != SLASH[0] )
+    if ( ! is_slash ( startDir[strlen(startDir)-1] ) )
       strcat ( startDir, SLASH ) ;
 
     strcat ( startDir, dir ) ;
   }
 
-  if ( startDir[strlen(startDir)-1] != SLASH[0] )
+  if ( ! is_slash ( startDir[strlen(startDir)-1] ) )
     strcat ( startDir, SLASH ) ;
 
   strcpy ( getStringValue (), startDir ) ;
@@ -560,7 +574,7 @@ void puFileSelector::find_files ()
 
   strcpy ( dir, getStringValue() ) ;
 
-  if ( dir [ strlen ( dir ) - 1 ] != SLASH[0] )  /* Someone forgot a trailing '/' */
+  if ( ! is_slash ( dir [ strlen ( dir ) - 1 ] ) )  /* Someone forgot a trailing '/' */
     strcat ( dir, SLASH ) ;
 
   int ifile = 0 ;
