@@ -194,9 +194,9 @@ static int parse()
 		return FALSE;
 	
 	// **** init theMesh ***
-	theMesh.ReInit ();
-	theMesh.ThereAreNVertices( _ssgNoVerticesToRead );
-  theMesh.ThereAreNFaces ( _ssgNoFacesToRead );
+	theMesh.reInit ();
+	theMesh.createVertices( _ssgNoVerticesToRead );
+   theMesh.createFaces ( _ssgNoFacesToRead );
 
   	
 	// ***** read Vertex Coords
@@ -241,7 +241,7 @@ static int parse()
 		}
 		
 		// use array aiVertices
-		theMesh.AddFaceFromCArray(nNoOfVerticesForThisFace, aiVertices); 
+		theMesh.addFaceFromIntegerArray(nNoOfVerticesForThisFace, aiVertices); 
 	}
 
 
@@ -304,14 +304,14 @@ static int parse()
 	}
 
 
-	theMesh.ThereAreNMaterials( 1 );
+	theMesh.createMaterials( 1 );
 	theMesh.addMaterial( &ss );
-	theMesh.ThereAreNMaterialIndexes( _ssgNoFacesToRead ) ;
+	theMesh.createMaterialIndices( _ssgNoFacesToRead ) ;
 	for(i=0;i<_ssgNoFacesToRead ;i++)
 	   theMesh.addMaterialIndex ( 0 ) ;
 		
 
-	theMesh.add2SSG(
+	theMesh.addToSSG(
 		ss, // kludge. NIV135
 		current_options,
 		top_branch);
