@@ -70,18 +70,18 @@ void puGroup::remove ( puObject *obj )
 
   /* Are we the first object in the list */
 
-  if ( obj -> prev == NULL )
-    dlist = obj -> next ;
+  if ( obj -> getPrevObject() == NULL )
+    dlist = obj -> getNextObject() ;
   else
-    obj -> prev -> next = obj -> next ;
+    obj -> getPrevObject() -> setNextObject( obj -> getNextObject() ) ;
 
   /* Are we the last object in the list */
 
-  if ( obj -> next != NULL )
-    obj -> next -> prev = obj -> prev ;
+  if ( obj -> getNextObject() != NULL )
+    obj -> getNextObject() -> setPrevObject( obj -> getPrevObject() ) ;
 
-  obj -> next = NULL ;
-  obj -> prev = NULL ;
+  obj -> setNextObject ( NULL ) ;
+  obj -> setPrevObject ( NULL ) ;
 
   num_children-- ;
   recalc_bbox () ;
@@ -118,19 +118,21 @@ void puGroup::add ( puObject *new_obj )
   if ( dlist == NULL )
   {
     dlist = new_obj ;
-    new_obj -> next = NULL ;
-    new_obj -> prev = NULL ;
+    new_obj -> setNextObject ( NULL ) ;
+    new_obj -> setPrevObject ( NULL ) ;
   }
   else
   {
     puObject *last ;
 
-    for ( last = dlist ; last->next != NULL ; last = last->next )
+    for ( last = dlist ;
+          last -> getNextObject() != NULL ;
+          last = last -> getNextObject() )
       /* Search for end of list. */ ;
 
-    last -> next = new_obj ;
-    new_obj -> prev = last ;
-    new_obj -> next = NULL ;
+    last -> setNextObject ( new_obj ) ;
+    new_obj -> setPrevObject ( last ) ;
+    new_obj -> setNextObject ( NULL ) ;
   }
 
   num_children++ ;
@@ -149,10 +151,12 @@ int puGroup::checkKey ( int key, int updown )
     the click order is the same as the DRAW order.
   */
 
-  for ( bo = dlist ; bo->next != NULL ; bo = bo->next )
+  for ( bo = dlist ;
+        bo -> getNextObject() != NULL ;
+        bo = bo -> getNextObject() )
     /* Find the last object in our list. */ ;
 
-  for ( ; bo != NULL ; bo = bo->prev )
+  for ( ; bo != NULL ; bo = bo -> getPrevObject() )
     if ( bo -> checkKey ( key, updown ) )
       return TRUE ;
 
@@ -186,9 +190,11 @@ int puGroup::checkHit ( int button, int updown, int x, int y )
   {
     /* Find the last object in our list. */
 
-    for ( bo = dlist ; bo->next != NULL ; bo = bo->next ) ;
+    for ( bo = dlist ;
+          bo -> getNextObject() != NULL ;
+          bo = bo -> getNextObject() ) ;
 
-    for ( ; bo != NULL ; bo = bo->prev )
+    for ( ; bo != NULL ; bo = bo -> getPrevObject() )
       if ( bo -> checkHit ( button, updown, x, y ) )
         return TRUE ;
   }
@@ -249,7 +255,7 @@ void puGroup::draw ( int dx, int dy )
   if ( ! isVisible () )
     return ;
 
-  for ( puObject *bo = dlist ; bo != NULL ; bo = bo->next )
+  for ( puObject *bo = dlist ; bo != NULL ; bo = bo -> getNextObject() )
   {
     /* June 16th, 98, Shammi :
      * The next if statement checks if the object is
@@ -274,7 +280,9 @@ void puGroup::recalc_bbox ( void )
   puBox contents ;
   contents . empty () ;
 
-  for ( puObject *bo = dlist ; bo != NULL ; bo = bo->next )
+  for ( puObject *bo = dlist ;
+        bo != NULL ;
+        bo = bo -> getNextObject() )
     contents . extend ( bo -> getBBox() ) ;
 
   if ( contents . isEmpty () )
@@ -302,7 +310,7 @@ puGroup::~puGroup ()
   for ( puObject *bo = dlist ; bo != NULL ; /* Nothing */ )
   {
     dlist = bo    ;
-    bo = bo->next ;
+    bo = bo -> getNextObject() ;
     delete dlist  ;
   }
 

@@ -198,8 +198,8 @@ void puDeleteObject ( puObject *ob )
   if ( ob -> getType () & PUCLASS_INTERFACE )
     puPopLiveInterface ( (puInterface*)ob ) ;
 
-  ob -> prev = NULL ;                       // Add to linked list to be deleted
-  ob -> next = objects_to_delete ;
+  ob -> setPrevObject ( NULL ) ;            // Add to linked list to be deleted
+  ob -> setNextObject ( objects_to_delete ) ;
   objects_to_delete = ob ;
   ob -> setParent ( NULL ) ;
 }
@@ -210,7 +210,7 @@ static void puCleanUpJunk ()
   /* Step through the linked list of objects to delete, removing them. */
   while ( objects_to_delete != NULL )
   {
-    puObject *next_ob = objects_to_delete ->next ;
+    puObject *next_ob = objects_to_delete -> getNextObject() ;
     delete objects_to_delete ;
     objects_to_delete = next_ob ;
   }

@@ -83,7 +83,7 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
     p->hide () ;
 
   for ( puObject *child = b -> getParent () -> getFirstChild () ;
-        child != NULL ; child = child -> next )
+        child != NULL ; child = child -> getNextObject() )
   {
     if (( child -> getType() & PUCLASS_BUTTON    ) != 0 && child != b ) child -> clrValue () ;
     if (( child -> getType() & PUCLASS_POPUPMENU ) != 0 && child != p ) child -> hide     () ;
@@ -146,7 +146,7 @@ void puMenuBar::close (void)
     Use alternate objects - which gets the puOneShot/puPopupMenu pairs
   */
 
-  for ( ob = dlist ; ob != NULL ; ob = ob -> next )
+  for ( ob = dlist ; ob != NULL ; ob = ob -> getNextObject() )
   {
     int w, h ;
 
@@ -154,7 +154,7 @@ void puMenuBar::close (void)
 
     ob -> getSize ( &w, &h ) ;
     ob -> setPosition ( width, 0 ) ;
-    ob = ob -> next ;
+    ob = ob -> getNextObject() ;
 
     /* Reposition the submenu so it sits under the button */
 

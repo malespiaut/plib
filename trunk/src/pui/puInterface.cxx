@@ -110,7 +110,7 @@ puInterface::~puInterface ()
   for ( puObject *bo = dlist ; bo != NULL ; /* Nothing */ )
   {
     dlist = bo    ;
-    bo = bo->next ;
+    bo = bo -> getNextObject() ;
     delete dlist  ;
   }
 
