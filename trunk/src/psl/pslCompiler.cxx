@@ -244,8 +244,14 @@ int pslCompiler::pushStatement ()
   if ( strcmp ( c, "static" ) == 0 )
     return pushStaticVariableDeclaration () ;
 
+  if ( strcmp ( c, "string" ) == 0 )
+    return pushLocalVariableDeclaration ( PSL_STRING ) ;
+
+  if ( strcmp ( c, "int" ) == 0 )
+    return pushLocalVariableDeclaration ( PSL_INT ) ;
+
   if ( strcmp ( c, "float" ) == 0 )
-    return pushLocalVariableDeclaration () ;
+    return pushLocalVariableDeclaration ( PSL_FLOAT ) ;
 
   if ( strcmp ( c, "return" ) == 0 )
     return pushReturnStatement () ;
@@ -300,7 +306,7 @@ void pslCompiler::pushProgram ()
 
 
 
-int pslCompiler::pushLocalVariableDeclaration ()
+int pslCompiler::pushLocalVariableDeclaration ( pslType t )
 {
   char c  [ MAX_TOKEN ] ;
   char s  [ MAX_TOKEN ] ;
@@ -309,6 +315,14 @@ int pslCompiler::pushLocalVariableDeclaration ()
 
   setVarSymbol ( s ) ;
 
+  switch ( t )
+  {
+    case PSL_VOID   :
+    case PSL_INT    : makeIntVariable    ( s ) ; break ;
+    case PSL_FLOAT  : makeFloatVariable  ( s ) ; break ;
+    case PSL_STRING : makeStringVariable ( s ) ; break ;
+  }
+ 
   pslGetToken ( c ) ;
 
   if ( c[0] == '=' )
@@ -333,11 +347,20 @@ int pslCompiler::pushStaticVariableDeclaration ()
 
 
 
-int pslCompiler::pushGlobalVariableDeclaration ( const char *s )
+int pslCompiler::pushGlobalVariableDeclaration ( const char *s, pslType t )
 {
   char c  [ MAX_TOKEN ] ;
 
   setVarSymbol ( s ) ;
+
+  switch ( t )
+  {
+    case PSL_VOID   :
+    case PSL_INT    : makeIntVariable    ( s ) ; break ;
+    case PSL_FLOAT  : makeFloatVariable  ( s ) ; break ;
+    case PSL_STRING : makeStringVariable ( s ) ; break ;
+  }
+ 
 
   pslGetToken ( c ) ;
 
@@ -374,13 +397,18 @@ int pslCompiler::pushGlobalDeclaration ()
     pslGetToken ( c ) ;
   }
 
-  if ( ! (strcmp ( c, "void"  ) == 0) &&
-       ! (strcmp ( c, "float" ) == 0) )
-  {
-    ulSetError ( UL_WARNING,
-           "PSL: Expected a declaration of a variable or function - but got '%s'", c ) ;
-    return FALSE ;
-  }
+  pslType t ;
+
+  if ( strcmp ( c, "void"   ) == 0 ) t = PSL_VOID   ; else
+    if ( strcmp ( c, "int"    ) == 0 ) t = PSL_INT    ; else
+      if ( strcmp ( c, "float"  ) == 0 ) t = PSL_FLOAT  ; else
+        if ( strcmp ( c, "string" ) == 0 ) t = PSL_STRING ; else
+        {
+          ulSetError ( UL_WARNING,
+            "PSL: Expected declaration of variable or function - but got '%s'",
+                                                                          c ) ;
+          return FALSE ;
+        }
 
   pslGetToken ( fn ) ;
 
@@ -395,7 +423,7 @@ int pslCompiler::pushGlobalDeclaration ()
   if ( c[0] == '=' || c[0] == ';' )
   {
     pslUngetToken ( c ) ;
-    return pushGlobalVariableDeclaration ( fn ) ;
+    return pushGlobalVariableDeclaration ( fn, t ) ;
   }
 
   ulSetError ( UL_WARNING,

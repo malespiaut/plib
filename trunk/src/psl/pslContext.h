@@ -28,10 +28,10 @@ class pslContext
   pslExtension *extensions ;
   pslProgram   *program    ;
 
-  pslVariable   variable [ MAX_VARIABLE ] ;
-  pslVariable   stack    [ MAX_STACK    ] ; 
-  int            sp ;
-  pslAddress    pc ;
+  pslVariable  variable [ MAX_VARIABLE ] ;
+  pslValue     stack    [ MAX_STACK    ] ; 
+  int          sp ;
+  pslAddress   pc ;
 
 public:
 
@@ -40,25 +40,38 @@ public:
     code       = p -> getCode       () ;
     extensions = p -> getExtensions () ;
     program    = p ;
+
     reset () ;
   }
 
   ~pslContext () {} ;
 
-  void pushInt      ( int          x ) { stack [ sp++ ] . i = x ; }
-  void pushFloat    ( float        x ) { stack [ sp++ ] . f = x ; }
-  void pushVariable ( pslVariable x ) { stack [ sp++ ]     = x ; }
+  void pushInt    ( int        x ) { stack [ sp++ ] . set ( x ) ; }
+  void pushFloat  ( float      x ) { stack [ sp++ ] . set ( x ) ; }
+  void pushString ( char      *x ) { stack [ sp++ ] . set ( x ) ; }
+  void pushNumber ( pslNumber *x ) { stack [ sp++ ] . set ( x ) ; }
 
-  void         popVoid     () {                --sp       ; }
-  int          popInt      () { return stack [ --sp ] . i ; }
-  float        popFloat    () { return stack [ --sp ] . f ; }
-  pslVariable popVariable () { return stack [ --sp ]     ; }
+  void   popVoid    () {                --sp                  ; }
+  int    popInt     () { return stack [ --sp ] . getInt    () ; }
+  float  popFloat   () { return stack [ --sp ] . getFloat  () ; }
+  char  *popString  () { return stack [ --sp ] . getString () ; }
 
-  pslResult step () ;
+  void   popNumber  ( pslNumber *v ) { v -> set ( & stack [ --sp ] ) ; }
+
+  pslResult step  () ;
+
+  pslResult trace ()
+  {
+    program -> getCompiler () -> printInstruction ( stdout, pc ) ;
+    fflush ( stdout ) ;
+    return step () ;
+  }
 
   void reset ()
   {
-    memset ( variable, 0, MAX_VARIABLE * sizeof ( pslVariable ) ) ;
+    for ( int i = 0 ; i < MAX_VARIABLE ; i++ )
+      variable [ i ] . reset () ;
+
     sp = 0 ;
     pc = 0 ;
   }

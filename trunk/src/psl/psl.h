@@ -37,12 +37,171 @@ class pslContext ;
 class pslCompiler  ;
 class pslProgram ;
 
- 
-union pslVariable
+
+enum pslType
 {
-  float f ;
-  int   i ;
-} ;                                                                             
+  PSL_INT    = 0,
+  PSL_FLOAT  = 1,
+  PSL_STRING = 3,
+  PSL_VOID   = 4
+} ;
+ 
+
+class pslNumber
+{
+protected:
+
+  union
+  {
+    int   i ;
+    float f ;
+  } ;
+
+  char *s ;
+
+
+  pslType t ;
+
+public:
+
+  pslNumber () { t = PSL_VOID ; s = NULL ; }
+
+  virtual void set ( int          ) = 0 ;
+  virtual void set ( float        ) = 0 ;
+  virtual void set ( const char * ) = 0 ;
+  virtual void set ( pslNumber  * ) = 0 ;
+
+  void reset () { t = PSL_VOID ; i = 0 ; delete [] s ; s = NULL ; }
+
+  pslType getType ()                { return t  ; }
+  void    setType ( pslType _type ) { t = _type ; }
+
+  int getInt ()
+  {
+    switch ( t )
+    {
+      case PSL_INT    : return       i ;
+      case PSL_FLOAT  : return (int) f ;
+      case PSL_STRING : return atoi(s) ;
+      case PSL_VOID   : return       0 ;
+    }
+    return 0 ;
+  }
+
+  float getFloat ()
+  {
+    switch ( t )
+    {
+      case PSL_INT    : return (float) i ;
+      case PSL_FLOAT  : return         f ;
+      case PSL_STRING : return atof( s ) ;
+      case PSL_VOID   : return      0.0f ;
+    }
+    return 0.0f ;
+  }
+
+  char *getString ()
+  {
+    switch ( t )
+    {
+      case PSL_STRING : return  s   ;
+      case PSL_INT    :
+      case PSL_FLOAT  :
+      case PSL_VOID   : return NULL ;
+    }
+    return NULL ;
+  }
+
+} ;
+
+
+
+/*
+  psValues can change their type as needed.
+*/
+
+class pslValue : public pslNumber
+{
+public:
+  virtual void set ()                { t = PSL_VOID   ; }
+  virtual void set ( int         v ) { t = PSL_INT    ; i = v ; }
+  virtual void set ( float       v ) { t = PSL_FLOAT  ; f = v ; }
+  virtual void set ( const char *v ) { t = PSL_STRING ;
+                                         delete [] s ;
+                                         s = new char [ strlen(v)+1 ] ;
+                                         strcpy ( s, v ) ; }
+
+  virtual void set ( pslNumber *v )
+  {
+    t = v -> getType ()  ;
+
+    switch ( t )
+    {
+      case PSL_INT    : set ( v -> getInt    () ) ; break ;
+      case PSL_FLOAT  : set ( v -> getFloat  () ) ; break ;
+      case PSL_STRING : set ( v -> getString () ) ; break ;
+      case PSL_VOID   : break ;
+    }
+  }
+
+} ;
+
+
+/*
+  psVariables can change value - but their type is
+  fixed once set.
+*/
+
+class pslVariable : public pslNumber
+{
+public:
+  virtual void set ( int v )
+  {
+    switch ( t )
+    {
+      case PSL_INT    : i = v ; return ;
+      case PSL_FLOAT  : f = (float) v ; return ;
+      case PSL_STRING :
+      case PSL_VOID   : return ;
+    }
+  }
+
+  virtual void set ( float v )
+  {
+    switch ( t )
+    {
+      case PSL_INT    : i = (int) v ; return ;
+      case PSL_FLOAT  : f =  v ; return ;
+      case PSL_STRING :
+      case PSL_VOID   : return ;
+    }
+  }
+
+  virtual void set ( const char *v )
+  {
+    switch ( t )
+    {
+      case PSL_INT    : i = atoi ( v ) ; return ;
+      case PSL_FLOAT  : f = atof ( v ) ; return ;
+      case PSL_STRING : delete [] s ;
+                        s = new char [ strlen(v)+1 ] ;
+                        strcpy ( s, v ) ;
+                        return ;
+      case PSL_VOID   : return ;
+    }
+  }
+
+  virtual void set ( pslNumber *v )
+  {
+    switch ( t )
+    {
+      case PSL_INT    : set ( v -> getInt    () ) ; return ;
+      case PSL_FLOAT  : set ( v -> getFloat  () ) ; return ;
+      case PSL_STRING : set ( v -> getString () ) ; return ;
+      case PSL_VOID   : return ;
+    }
+  }
+} ;
 
 
 class pslExtension
@@ -50,7 +209,7 @@ class pslExtension
 public:
   const char *symbol ;
   int   argc ;
-  pslVariable (*func) ( int, pslVariable *, pslProgram *p ) ;
+  pslValue (*func) ( int, pslValue *, pslProgram *p ) ;
 } ;
 
 
@@ -59,7 +218,7 @@ class pslProgram
 {
   pslOpcode     *code       ;
   pslContext    *context    ;
-  pslCompiler     *compiler     ;
+  pslCompiler   *compiler   ;
   pslExtension  *extensions ;
 
   void *userData ;
@@ -67,13 +226,13 @@ class pslProgram
 public:
 
    pslProgram ( pslExtension *ext ) ;
-   pslProgram ( pslProgram *src ) ;
+   pslProgram ( pslProgram   *src ) ;
 
   ~pslProgram () ;
 
   pslContext   *getContext     () const { return context    ; }
   pslOpcode    *getCode        () const { return code       ; }
-  pslCompiler  *getCompiler    () const { return compiler     ; }
+  pslCompiler  *getCompiler    () const { return compiler   ; }
   pslExtension *getExtensions  () const { return extensions ; }
 
   void      *getUserData () const     { return userData ; }
@@ -83,7 +242,8 @@ public:
   int        compile ( const char *fname ) ;
   int        compile ( FILE *fd ) ;
   void       reset () ;
-  pslResult step  () ;
+  pslResult  step  () ;
+  pslResult  trace () ;
 } ;
 
 

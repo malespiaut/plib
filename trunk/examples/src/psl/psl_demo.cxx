@@ -32,27 +32,37 @@
 #include <plib/psl.h>
 
 
-pslVariable print ( int argc, pslVariable *argv, pslProgram *p )
+pslValue my_printf ( int argc, pslValue *argv, pslProgram *p )
 {
-  for ( int i = 0 ; i < argc ; i++ )
-    printf ( "%f ", argv[i].f ) ;
+  if ( argv[0].getType() != PSL_STRING )
+    printf ( "printf: ERROR - First param must be a string!\n" ) ;
+  else
+  {
+    printf ( "%s", argv[0].getString() ) ;
 
+    for ( int i = 1 ; i < argc ; i++ )
+    {
+      switch ( argv[i].getType () )
+      { 
+        case PSL_INT    : printf ( "%d ", argv[i].getInt    () ) ; break ;
+        case PSL_FLOAT  : printf ( "%f ", argv[i].getFloat  () ) ; break ;
+        case PSL_STRING : printf ( "%s ", argv[i].getString () ) ; break ;
+        case PSL_VOID   : printf ( "(void) " ) ; break ;
+      }
+    }
+  }
   printf ( "\n" ) ;
 
-  pslVariable ret ;
-  ret.f = 0.0f ;
-
+  pslValue ret ;
   return ret ;
 }
 
 
-pslVariable identify ( int argc, pslVariable *argv, pslProgram *p )
+pslValue identify ( int argc, pslValue *argv, pslProgram *p )
 {
   printf ( "I am %s.\n", (char *)( p->getUserData ()) ) ;
 
-  pslVariable ret ;
-  ret.f = 0.0f ;
-
+  pslValue ret ;
   return ret ;
 }
 
@@ -60,7 +70,7 @@ pslVariable identify ( int argc, pslVariable *argv, pslProgram *p )
 pslExtension extensions [] =
 {
   { "identify",  0, identify },
-  { "print", -1, print },
+  { "printf", -1, my_printf },
   { NULL, 0, NULL }
 } ;
 
@@ -90,7 +100,7 @@ int main ()
   while ( 1 )
   {
     if ( prog_1 -> step () == PSL_PROGRAM_END ) break ;
-    if ( prog_2 -> step () == PSL_PROGRAM_END ) break ;
+//    if ( prog_2 -> step () == PSL_PROGRAM_END ) break ;
   }
 
   exit ( 0 ) ;

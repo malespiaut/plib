@@ -1,32 +1,39 @@
 
 
-float x = 0.0 ;
+int x = 0.0 ;
 
-void wibble ()
+int wibble ()
 {
   x = x + 1 ;
   identify () ;
+  return 123 ;
 }
 
 float y = 987.654 ;
+
+/*
+  C style Comments...
+*/
+
+// ...and C++ style both work...
 
 void main ()
 {
   x = 0 ;
 
-  print ( x ) ;
+  printf ( "X,Y=", x, y ) ;
 
   {
-    float x = 123 ;
+    int x = wibble();
 
-    print ( x ) ;
+    printf ( "X=", x ) ;
 
     {
-/*    float x = 456 ; //**/
-      print ( x ) ;
+      int x = 456.0 ; 
+      printf ( "Local X=", x ) ;
     }
 
-    print ( x ) ;
+    printf ( "X=", x ) ;
   }
 }
 
