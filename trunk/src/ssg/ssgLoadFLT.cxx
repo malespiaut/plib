@@ -153,7 +153,7 @@ typedef unsigned int uint;
 
 #if !defined(BYTE_ORDER) || BYTE_ORDER != BIG_ENDIAN
 
-static void bswap16(const void *src, void *dst, int n)
+static void _swab16(const void *src, void *dst, int n)
 {
    ushort *s = (ushort *)src;
    ushort *d = (ushort *)dst;
@@ -164,7 +164,7 @@ static void bswap16(const void *src, void *dst, int n)
    }
 }
 
-static void bswap32(const void *src, void *dst, int n)
+static void _swab32(const void *src, void *dst, int n)
 {
    uint *s = (uint *)src;
    uint *d = (uint *)dst;
@@ -177,7 +177,7 @@ static void bswap32(const void *src, void *dst, int n)
    }
 }
 
-static void bswap64(const void *src, void *dst, int n)
+static void _swab64(const void *src, void *dst, int n)
 {
    /* XXX how to check if 64-bit integers are available?? */
    uint *s = (uint *)src;
@@ -200,17 +200,17 @@ static void bswap64(const void *src, void *dst, int n)
 
 #if !defined(BYTE_ORDER) || BYTE_ORDER != LITTLE_ENDIAN
 
-static void bcopy16(const void *src, void *dst, int n)
+static void _copy16(const void *src, void *dst, int n)
 {
    memcpy(dst, src, 2*n);
 }
 
-static void bcopy32(const void *src, void *dst, int n)
+static void _copy32(const void *src, void *dst, int n)
 {
    memcpy(dst, src, 4*n);
 }
 
-static void bcopy64(const void *src, void *dst, int n)
+static void _copy64(const void *src, void *dst, int n)
 {
    memcpy(dst, src, 8*n);
 }
@@ -232,9 +232,9 @@ inline uint get32u(const void *ptr)
    return *(uint *)ptr;
 }
 
-#define get16v bcopy16
-#define get32v bcopy32
-#define get64v bcopy64
+#define get16v _copy16
+#define get32v _copy32
+#define get64v _copy64
 
 #elif defined(BYTE_ORDER) && BYTE_ORDER == LITTLE_ENDIAN
 
@@ -256,9 +256,9 @@ inline uint get32u(const void *ptr)
 	   ((tmp & 0x000000ffU) << 24));
 }
 
-#define get16v bswap16
-#define get32v bswap32
-#define get64v bswap64
+#define get16v _swab16
+#define get32v _swab32
+#define get64v _swab64
 
 #else
 
@@ -773,11 +773,13 @@ static int tricmp(const void *a, const void *b)
    return d;
 }
 
+#if 0 /* no longer needed since this is now the default blend equation */
 static int PreDrawTranslucent(ssgEntity *)
 {
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    return 1;
 }
+#endif
 
 static int PreDrawSubface(ssgEntity *)
 {
@@ -1020,10 +1022,13 @@ static ssgEntity *Build(fltState *state)
 
       leaf = geom;
       
+#if 0
       if ((flags & TRI_TRANSLUCENT)) {
 	 leaf->setCallback(SSG_CALLBACK_PREDRAW, PreDrawTranslucent);
       }
-      else if ((flags & TRI_SUBFACE)) {
+      else 
+#endif
+      if ((flags & TRI_SUBFACE)) {
 	 leaf->setCallback(SSG_CALLBACK_PREDRAW, PreDrawSubface);
 	 leaf->setCallback(SSG_CALLBACK_POSTDRAW, PostDrawSubface);
       }
@@ -1314,7 +1319,7 @@ static void ReportBadChunk(const ubyte *ptr, const char *name)
    ulSetError(UL_WARNING, "[flt] Bad record, opcode %d (%s), length %d:", op, name, len);
    hexdump(UL_WARNING, ptr, len, 0);
    ulSetError(UL_WARNING, "Please report this, either at http://plib.sourceforge.net/,");
-   ulSetError(UL_WARNING, "or by email to stromberg@sourceforge.net. Thanks.");
+   ulSetError(UL_WARNING, "or by email to plib-devel@lists.sourceforge.net. Thanks.");
 }
 
 #define BAD_CHUNK(ptr, name)\
@@ -1614,7 +1619,10 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
                   int offset = get32i(p), *ptr;
 		  ptr = (int *)bsearch(&offset, state->offset, state->vnum, 
 				       sizeof(int), intcmp);
-                  if (!ptr) break;
+                  if (!ptr) {
+		     ulSetError(UL_DEBUG, "[flt] Bad vertex offset %i.", offset);
+		     break;
+		  }
                   w[i] = ptr - state->offset;
 		  bind &= state->bind[w[i]] | BIND_FLAT;
                   p += 4;
@@ -1859,20 +1867,26 @@ static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
       if (num > 1)
 	 break;
       if (num == 1) {
-	 node = grp->getKid(0);
-	 if (grp->getName())
-	    node->setName(grp->getName());
-	 if (grp->getRef() == 0) {
-	    node->ref();
-	    grp->removeKid(0);
-	    node->deRef();
+	 ssgEntity *kid = grp->getKid(0);
+	 if (grp->getName()) {
+	    if (kid->getName())
+	       break;
+	    kid->setName(grp->getName());
 	 }
+	 if (grp->getRef() == 0) {
+	    kid->ref();
+	    grp->removeKid(0);
+	    kid->deRef();
+	    delete grp;
+	 }
+	 node = kid;
 	 assert(!node->isA(0xDeadBeef));
       }
       else {
+	 if (grp->getRef() == 0)
+	    delete grp;
 	 node = 0;
       }
-      ssgDelete(grp);
    }
 #endif
 
@@ -1921,7 +1935,6 @@ static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
 	       printf("  %6.2f %6.2f %6.2f %6.2f\n", mat[i][0], mat[i][1], mat[i][2], mat[i][3]);
 #endif
 	    for (i = 0; i < attr->replicate; ++i) {
-	       /*sgMultMat4(mat, mat, attr->mat);*/
 	       sgPostMultMat4(mat, attr->mat);
 	       scs = new ssgTransform;
 	       scs->setTransform(mat);
@@ -2356,13 +2369,15 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 /* parse the vertex table */
 static int VertexTable(ubyte *ptr0, ubyte *end, fltState *state)
 {
-   int size, num, i;
+   int len, size, num, i;
    ubyte *ptr = ptr0;
 
    assert(get16u(ptr) == 67); /* vtx tab op code */
+   len = get16u(ptr + 2);
 
    size = get32i(ptr + 4);
-   num = (size - 47)/40; /* max # of vertices */
+   /*printf("vertex table header len %d, total size %d\n", len, size);*/
+   num = (size - len)/40; /* max # of vertices */
    if (num <= 0 || state->vtab) {
       if (state->vtab)
 	 ulSetError(UL_WARNING, "[flt] Multiple vertex tables not allowed.");
@@ -2370,7 +2385,7 @@ static int VertexTable(ubyte *ptr0, ubyte *end, fltState *state)
    }
    state->vtab = ptr;
    end = MIN(end, ptr + size);
-   ptr += get16u(ptr + 2);
+   ptr += len;
 
    state->offset   = new int [num];
    state->bind     = new ubyte [num];
@@ -2432,7 +2447,7 @@ static int VertexTable(ubyte *ptr0, ubyte *end, fltState *state)
       state->bind[i] = bind;
       ptr += len;      
    }
-   /*fprintf(stderr, "got %d vertices\n", i);*/
+   /*printf("got %d vertices\n", i);*/
 
    state->vnum = i;
 
@@ -2894,7 +2909,7 @@ static ssgEntity *LoadFLT(const char *file)
    return (ssgEntity *)cache->data;
 }
 
-#if 1
+#if 0
 static struct snode *Flattened;
 
 static ssgEntity *Flatten(ssgEntity *node, float (*mat)[4])
@@ -3069,16 +3084,16 @@ static void Init(void)
       short tmp = 42;
       if (*(char *)&tmp == 42) {
          /* little endian */
-         get16v = bswap16;
-         get32v = bswap32;
-         get64v = bswap64;
+         get16v = _swab16;
+         get32v = _swab32;
+         get64v = _swab64;
 	 ulSetError(UL_DEBUG, "[flt] Little endian architecture.");
       }
       else {
          /* big endian */
-         get16v = bcopy16;
-         get32v = bcopy32;
-         get64v = bcopy64;
+         get16v = _copy16;
+         get32v = _copy32;
+         get64v = _copy64;
 	 ulSetError(UL_DEBUG, "[flt] Big endian architecture.");
       }
    }
@@ -3090,14 +3105,6 @@ static void Init(void)
    if (getenv("FLTNOCLEAN"))  NoClean = 1;
 
    return;
-}
-
-static void PreLoad(void)
-{
-}
-
-static void PostLoad(void)
-{
 }
 
 ssgEntity *ssgLoadFLT(const char *filename, 
@@ -3138,7 +3145,7 @@ ssgEntity *ssgLoadFLT(const char *filename,
    FltCache = 0;
    if (node) node->deRef();
 
-#if 1
+#if 0
    if (node && !NoClean) {
       node = Flatten(node, 0);
       sfree(Flattened, 0);
@@ -3149,7 +3156,7 @@ ssgEntity *ssgLoadFLT(const char *filename,
 #if 1 /* debug */
    if (node && getenv("FLTDUMP")) {
       const char *file = "/tmp/tree.txt";
-      FILE *f = fopen(file, "wb");
+      FILE *f = fopen(file, "w");
       if (f == 0)
 	 perror(file);
       else {
