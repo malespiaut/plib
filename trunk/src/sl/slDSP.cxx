@@ -629,22 +629,22 @@ void slDSP::stop ()
 
 void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
 {
-#if 0
   if ( _bps != 8 )
   {
     perror ( "slDSP: supports only 8bit audio for sgi" ) ;
     error = SL_TRUE;
     return;
   }
-#endif
 
-  init_bytes = 1024 * 16;
+  init_bytes = 1024 * 32;
+  if (_bps == 8) init_bytes /= 2;
+  if (_stereo) init_bytes /= 2;
+
   config = alNewConfig();
-  
   alSetChannels(config, _stereo ? AL_STEREO : AL_MONO);
   alSetWidth(config, _bps == 8 ? AL_SAMPLE_8 : AL_SAMPLE_16);
   alSetQueueSize(config, init_bytes);
-  init_bytes = alGetQueueSize(config);
+  // init_bytes = alGetQueueSize(config);
 
   port = alOpenPort(device, "w", config);
     
