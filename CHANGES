@@ -16,6 +16,8 @@ PLIB v1.3.1 (??)
 
     AC_CHECK_LIB(plibul, ulInit,,,)
 
+  * Documents and Examples are now under CVS.
+
 PLIB v1.3.0 (July 1st 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

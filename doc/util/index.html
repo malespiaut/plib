@@ -1,0 +1,49 @@
+<TITLE>The Utility Library.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<H1>The PLIB general Utility Library.</H1>
+By Steve Baker
+<H2>Introduction.</H2>
+The 'UL' utility library is primarily targetted towards hiding common
+operating system functions behind a thin layer that makes them portable.
+<p>
+For example, if you need to 'sleep' for 3 seconds, then under Linux/UNIX,
+you'd need to call:
+<pre>
+
+  sleep ( 3 ) ;
+
+</pre>
+But under MS-Windows, you have to say:
+<pre>
+
+  Sleep ( 3000 ) ;
+
+</pre>
+In order to avoid writing non-portable code, you can instead call:
+<pre>
+
+  ulSleep ( 3 ) ;
+
+...or...
+
+  ulMilliSecondSleep ( 3000 ) ;
+
+</pre>
+...under either operating system.
+<p>
+UL is a part of <A HREF="../index.html">PLIB</A>.
+<p>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+
