@@ -102,9 +102,8 @@ void puListBox::draw ( int dx, int dy )
     r_cb ( this, dx, dy, render_data ) ;
   else
   {
-    int ysize = abox.max[1] - abox.min[1] + 1 ;
     int yinc = legendFont.getStringHeight () + PUSTR_BGAP ;
-    int num_vis = (ysize - PUSTR_BGAP) / yinc ;
+    int num_vis = getNumVisible () ;
 
     int selected ;
     getValue ( &selected ) ;

@@ -1259,6 +1259,13 @@ public:
 
   void newList     ( char ** _list ) ;
   int  getNumItems ( void ) const { return num ; }
+  int  getNumVisible ( void ) const
+  {
+    int ysize = abox.max[1] - abox.min[1] + 1 ;
+    int yinc = legendFont.getStringHeight () + PUSTR_BGAP ;
+    return (ysize - PUSTR_BGAP) / yinc ;
+  }
+
   int  getTopItem  ( void ) const { return top ; }
   void setTopItem  ( int item_index ) ;
 } ;
