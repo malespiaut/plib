@@ -29,6 +29,12 @@ UL_RTTI_DEF1(puGroup,puObject)
 
 #define PUSTACK_MAX 100
 
+ /*
+  This is a stack of groups that are currently being filled with other widgets.
+  A group is pushed onto the stack when it is created and it is popped off the
+  stack when its "close" function is called.
+  */
+
 static int currGroup = -1 ;
 static puGroup *groupStack [ PUSTACK_MAX ] ;
 
@@ -48,28 +54,6 @@ void  puPopGroup ( void )
   else 
     ulSetError ( UL_WARNING, "PUI: puGroup stack is empty!" ) ;
 }
-
-void puRemoveGroup ( puGroup *gr )
-{
-  int index = currGroup ;
-  while ( index >= 0 )
-  {
-    if ( groupStack [ index ] == gr )
-    {
-      int jndx ;
-      for ( jndx = index; jndx < currGroup - 1; jndx ++ )
-        groupStack [ jndx ] = groupStack [ jndx + 1 ] ;
-
-      currGroup -- ;
-      return ;
-    }
-
-    index -- ;
-  }
-
-  ulSetError ( UL_WARNING, "PUI:  Trying to remove invalid puGroup from puGroup stack!" ) ;
-}
-
 
 int  puNoGroup ( void )
 {
@@ -373,8 +357,6 @@ void puGroup::doHit ( int, int, int, int )
 puGroup::~puGroup ()
 {
   void puCleanUpJunk ( void ) ;
-
-  puRemoveGroup ( this ) ;
 
   puObject *bo = getLastChild () ;
 
