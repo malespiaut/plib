@@ -16,7 +16,7 @@
 #include "ssgVertSplitter.h"
 
 #include <math.h>
-#include <plib/sg.h>
+#include "sg.h"
 
 //
 ////////////////////////////////////////////////////////////////////////
