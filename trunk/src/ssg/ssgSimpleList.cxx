@@ -71,6 +71,13 @@ ssgBase *ssgColourArray::clone ( int clone_flags )
   return b ;
 }
 
+ssgBase *ssgIndexArray::clone ( int clone_flags )
+{
+  ssgIndexArray *b = new ssgIndexArray () ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
 
 
  

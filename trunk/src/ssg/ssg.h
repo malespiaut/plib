@@ -564,6 +564,7 @@ class ssgIndexArray : public ssgSimpleList
 {
 public:
 
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgIndexArray ( int init = 3, short* things = 0 )
     : ssgSimpleList ( sizeof(short), init, (char*)things )
   {
