@@ -380,15 +380,15 @@ static void createTriangIndices(ssgIndexArray *ixarr,
     int bWrong=FALSE;
     // a lot of debug output follows - sorry!
     sprintf(tsA, "------- %ld %f\n%f, %f, %f\n", 
-              dist, dist/(512.0*32767.0), s_norm[0], s_norm[1], s_norm[2]);
+        dist, ((float)dist)/(512.0f*32767.0f), s_norm[0], s_norm[1], s_norm[2]);
     for(int i = 1; i < numverts; i++)
     {
       ix1 = *ixarr->get( flip ? numverts-i : i);
 //
       SGfloat f = sgScalarProductVec3(s_norm, vertex_array_->get(ix1));
-      sprintf(tsA, "%s%f, ", tsA, (float)f);
-      f = f - dist/(512.0*32767.0);
-      if((f<-0.5) || (f>0.5))
+      sprintf(tsA, "%s%f, ", tsA, f);
+      f = f - ((float)dist)/(512.0f*32767.0f);
+      if((f<-0.5f) || (f>0.5f))
         bWrong = TRUE;
 //
       if ( ix1 >= vertex_array_->getNum() ) {
