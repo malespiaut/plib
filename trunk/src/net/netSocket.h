@@ -45,11 +45,6 @@
 #include <errno.h>
 
 
-#if defined (WIN32)
-#define strcasecmp stricmp 
-#define strncasecmp strnicmp 
-#endif
-
 /*
  * Define Basic types
  */
