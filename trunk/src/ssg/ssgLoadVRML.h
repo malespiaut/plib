@@ -115,6 +115,7 @@ bool vrml1_parseShapeHints( ssgBranch *parentBranch, _traversalState *currentDat
 bool vrml1_parseMatrixTransform( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 bool vrml1_parseScale( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 bool vrml1_parseRotation( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+bool vrml1_parseTranslation( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 bool vrml1_parseUseDirective( ssgBranch *parentBranch, _traversalState *currentData, char *useName, char *defName );
 bool vrml1_parseCoordIndex( ssgLoaderWriterMesh *loaderMesh, _traversalState *currentData );
 bool vrml1_parseTextureCoordIndex( ssgLoaderWriterMesh *loaderMesh, _traversalState *currentData );

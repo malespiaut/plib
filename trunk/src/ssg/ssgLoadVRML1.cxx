@@ -1,6 +1,6 @@
 /*
      PLIB - A Suite of Portable Game Libraries
-     Copyright (C) 2001  Steve Baker
+     Copyright (C) 2001 William Lachance
  
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
@@ -71,6 +71,7 @@ _parseTag vrmlTags [] =
      { "MatrixTransform", vrml1_parseMatrixTransform },
      { "Scale", vrml1_parseScale },
      { "Rotation", vrml1_parseRotation },
+     { "Translation", vrml1_parseTranslation },
      { NULL, NULL },
 };
 
@@ -82,7 +83,7 @@ ssgEntity *ssgLoadVRML1( const char *fname, const ssgLoaderOptions* options )
    if ( !vrmlParser.openFile( fname, &parser_spec ) ) {
     ulSetError ( UL_WARNING, "ssgLoadVRML1: Failed to open '%s' for reading", fname ) ;
     return 0;
-  }
+   }
 
    definedNodes = new _nodeIndex();
    
@@ -740,6 +741,27 @@ bool vrml1_parseRotation( ssgBranch *parentBranch, _traversalState *currentData,
    
    return TRUE;
 }
+
+bool vrml1_parseTranslation( ssgBranch *parentBranch, _traversalState *currentData, char *defName )
+{
+   ssgTransform *currentTransform = new ssgTransform();
+   sgVec3 transform;
+   
+   vrmlParser.expectNextToken("{");
+   vrmlParser.expectNextToken("translation");
+   if( !parseVec( transform, 3 ) )
+     return FALSE;
+   vrmlParser.expectNextToken("}");
+
+   currentTransform->setTransform( transform );
+   
+   applyTransform( currentTransform, currentData );
+   
+   printf("Found a translation: %f %f %f\n", transform[0], transform[1], transform[2] );
+   
+   return TRUE;
+}
+
 
 bool vrml1_parseUseDirective( ssgBranch *parentBranch, _traversalState *currentData, char *useName, char *defName )
 {
