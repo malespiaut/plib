@@ -56,13 +56,13 @@
 #define INADDR_NONE ((unsigned long)-1)
 #endif
                                                                                                
-netAddress::netAddress ( cchar* host, int port )
+netAddress::netAddress ( const char* host, int port )
 {
   set ( host, port ) ;
 }
 
 
-void netAddress::set ( cchar* host, int port )
+void netAddress::set ( const char* host, int port )
 {
 	memset(this, 0, sizeof(netAddress));
 
@@ -116,10 +116,10 @@ void netAddress::set ( cchar* host, int port )
    This is always a string of the form 'dd.dd.dd.dd' (with variable
    size numbers). */
 
-cchar* netAddress::getHost () const
+const char* netAddress::getHost () const
 {
 #if 0
-  cchar* buf = inet_ntoa ( sin_addr ) ;
+  const char* buf = inet_ntoa ( sin_addr ) ;
 #else
   static char buf [32];
 	long x = ntohl(sin_addr);
@@ -136,7 +136,7 @@ int netAddress::getPort() const
   return ntohs(sin_port);
 }
 
-cchar* netAddress::getLocalHost ()
+const char* netAddress::getLocalHost ()
 {
   //gethostbyname(gethostname())
 
@@ -147,7 +147,7 @@ cchar* netAddress::getLocalHost ()
 	if (hp && *hp->h_addr_list)
   {
     in_addr addr = *((in_addr*)*hp->h_addr_list);
-    cchar* host = inet_ntoa(addr);
+    const char* host = inet_ntoa(addr);
     if ( host )
       return host ;
 	}
@@ -226,7 +226,7 @@ netSocket::setBroadcast ( bool broadcast )
 }
 
 int
-netSocket::bind ( cchar* host, int port )
+netSocket::bind ( const char* host, int port )
 {
   assert ( handle != -1 ) ;
   netAddress addr ( host, port ) ;
@@ -249,7 +249,7 @@ netSocket::accept ( netAddress* addr )
 }
 
 int
-netSocket::connect ( cchar* host, int port )
+netSocket::connect ( const char* host, int port )
 {
   assert ( handle != -1 ) ;
   netAddress addr ( host, port ) ;
@@ -263,14 +263,14 @@ int
 netSocket::send (const void * buffer, int size, int flags)
 {
   assert ( handle != -1 ) ;
-  return ::send (handle, (cchar*)buffer, size, flags);
+  return ::send (handle, (const char*)buffer, size, flags);
 }
 
 int
 netSocket::sendto ( const void * buffer, int size, int flags, const netAddress* to )
 {
   assert ( handle != -1 ) ;
-  return ::sendto(handle,(cchar*)buffer,size,flags,(const sockaddr*)to,sizeof(netAddress));
+  return ::sendto(handle,(const char*)buffer,size,flags,(const sockaddr*)to,sizeof(netAddress));
 }
 
 int
@@ -443,7 +443,7 @@ int netInit ()
 	return(0);
 }
 
-cchar* netFormat ( cchar* format, ... )
+const char* netFormat ( const char* format, ... )
 {
   static char buffer[ 256 ];
   va_list argptr;
