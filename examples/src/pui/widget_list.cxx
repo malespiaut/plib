@@ -78,9 +78,6 @@ puLargeInput *large_input ;
 fntTexFont *tim ;
 
 
-static int firsttime;
-
-
 
 /**************************************\
 *                                      *
@@ -108,9 +105,9 @@ static void motionfn ( int x, int y )
   glutPostRedisplay () ;
 }
 
-static void mousefn ( int button, int updown, int x, int y )
+static void mousefn ( int btn, int updown, int x, int y )
 {
-  puMouse ( button, updown, x, y ) ;
+  puMouse ( btn, updown, x, y ) ;
   glutPostRedisplay () ;
 }
 
@@ -125,16 +122,15 @@ static void displayfn (void)
   /* Clear the screen */
 
   glClearColor ( 0.4, 1.0, 1.0, 1.0 ) ;
-  glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
+  glClear      ( GL_COLOR_BUFFER_BIT ) ;
 
   /* Make PUI redraw */
 
   puDisplay () ;
-  
-  /* Off we go again... */
+
+  /* Swap buffers */
 
   glutSwapBuffers   () ;
-  glutPostRedisplay () ;
 }
 
 
@@ -165,20 +161,16 @@ puCallback help_submenu_cb [] = {   NULL, NULL, NULL } ;
 
 int main ( int argc, char **argv )
 {
-  firsttime = TRUE;
-
   glutInitWindowPosition( 100,   0 ) ;
   glutInitWindowSize    ( 640, 480 ) ;
   glutInit              ( &argc, argv ) ;
-  glutInitDisplayMode   ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
+  glutInitDisplayMode   ( GLUT_RGB | GLUT_DOUBLE ) ;
   main_window = glutCreateWindow      ( "PUI Widget List"  ) ;
   glutDisplayFunc       ( displayfn ) ;
   glutKeyboardFunc      ( keyfn     ) ;
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   puInit () ;
 
@@ -203,8 +195,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -221,8 +211,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -238,8 +226,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -255,8 +241,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -275,8 +259,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -292,8 +274,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -315,8 +295,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -338,8 +316,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -355,8 +331,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -372,8 +346,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -389,8 +361,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -406,8 +376,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -423,8 +391,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -443,8 +409,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -464,8 +428,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -487,8 +449,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
@@ -510,8 +470,6 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
-  glutPassiveMotionFunc ( motionfn  ) ;
-  glutIdleFunc          ( displayfn ) ;
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
