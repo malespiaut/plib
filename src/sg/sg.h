@@ -180,11 +180,15 @@ inline void sgFullXformPnt4 ( sgVec4 dst, const sgMat4 mat ) { sgFullXformPnt4 (
 #define SG_IDENTITY        0x00   // for clarity
 #define SG_ROTATION        0x01   // includes a rotational component
 #define SG_MIRROR          0x02   // changes handedness (det < 0)
-#define SG_UNIFORM_SCALE   0x04   // uniform scaling
-#define SG_GENERAL_SCALE   0x08   // x, y and z scaled differently
-#define SG_NONORTHO        0x10   // 3x3 row vectors not orthogonal
+#define SG_SCALE           0x04   // uniform scaling
+#define SG_NONORTHO        0x10   // 3x3 not orthogonal
 #define SG_TRANSLATION     0x20   // translates
 #define SG_PROJECTION      0x40   // forth column not 0,0,0,1
+
+/* Are these needed? sgClassifyMat4() does set the general scale bit for some matrices,
+ * but it is not easily defined. Use SG_NONORTHO instead (which is also set). */
+#define SG_UNIFORM_SCALE   SG_SCALE
+#define SG_GENERAL_SCALE   0x08   // x, y and z scaled differently
 
 extern int sgClassifyMat4 ( const sgMat4 mat ) ;
 

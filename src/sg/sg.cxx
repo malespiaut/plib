@@ -1603,7 +1603,7 @@ int sgClassifyMat4 ( const sgMat4 m )
     if ( n > 1 )
       flags |= SG_ROTATION ;
 
-    if ( n % 2 )
+    if ( n % 2 != 0 )
       flags |= SG_MIRROR ;
 
     sx = m[0][0] * m[0][0] ;
@@ -1640,12 +1640,13 @@ int sgClassifyMat4 ( const sgMat4 m )
   if ( sgAbs ( sx - sy ) > epsilon ||
        sgAbs ( sx - sz ) > epsilon )
   {
-    flags |= SG_GENERAL_SCALE ;
+    flags |= SG_NONORTHO ;
+    flags |= SG_GENERAL_SCALE ; // also set general scale bit, though it may be deleted in the future
   }
   else
   {
     if ( sgAbs ( sx - SG_ONE ) > epsilon )
-      flags |= SG_UNIFORM_SCALE ;
+      flags |= SG_SCALE ;
   }
 
 

@@ -590,6 +590,39 @@ versions - which are quite a bit slower than the other forms:
   void sgFullXformPnt4 ( sgVec4 dst, sgVec4 src, sgMat4 mat ) ;
 
 </pre>
+The properties of a matrix can be tested with:
+<pre>
+  int sgClassifyMat4 ( const sgMat4 mat ) ;
+</pre>
+which returns a bitmask with zero or more of the following bits set:
+<p>
+<table>
+  <tr>
+    <td>SG_ROTATION</td>
+    <td>Upper 3x3 includes a rotational component.</td>
+  </tr>
+  <tr>
+    <td>SG_MIRROR</td>
+    <td>Changes handedness.</td>
+  </tr>
+  <tr>
+    <td>SG_SCALE</td>
+    <td>Uniform scaling going on.</td>
+  </tr>
+  <tr>
+    <td>SG_NONORTHO</td>
+    <td>Upper 3x3 not orthogonal (including non-uniform scaling).</td>
+  </tr>
+  <tr>
+    <td>SG_TRANSLATION</td>
+    <td>Translates.</td>
+  </tr>
+  <tr>
+    <td>SG_PROJECTION</td>
+    <td>Forth column not 0,0,0,1.</td>
+  </tr>
+</table>
+
 <H3>Coord routines:</H3>
 These routines operate on 'sgCoord' structures:
 <pre>
