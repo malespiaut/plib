@@ -253,6 +253,8 @@ void ssgCullAndDraw ( ssgRoot *r )
     ulSetError ( UL_FATAL, "ssg: No Current Context: Did you forgot to call ssgInit()?" ) ;
   }
 
+  _ssgStartOfFrameInit () ;
+
   ssgForceBasicState () ;
 
   glMatrixMode ( GL_PROJECTION ) ;
@@ -282,6 +284,7 @@ void ssgCullAndDraw ( ssgRoot *r )
   glMatrixMode ( GL_MODELVIEW ) ;
   glLoadIdentity () ;
 
+  _ssgEndOfFrameCleanup () ;
   _ssgFrameCounter++ ;
 }
 
