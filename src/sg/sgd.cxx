@@ -859,26 +859,24 @@ SGDfloat sgdDistSquaredToLineVec3 ( const sgdLine3 line, const sgdVec3 pnt )
 SGDfloat sgdDistSquaredToLineSegmentVec3 ( const sgdLineSegment3 line,
                                          const sgdVec3 pnt )
 {
-  sgdLine3 l ; sgdLineSegment3ToLine3 ( & l, line ) ;
- 
-  sgdVec3 v ; sgdSubVec3 ( v, line.b, line.a ) ; sgdNormalizeVec3 ( v ) ;
+  sgdVec3 v ; sgdSubVec3 ( v, line.b, line.a ) ;
   sgdVec3 r1 ; sgdSubVec3 ( r1, pnt, line.a ) ;
- 
-  SGDfloat r1_dot_v = sgdScalarProductVec3 ( r1, v /*l.direction_vector*/ ) ;
- 
+
+  SGDfloat r1_dot_v = sgdScalarProductVec3 ( r1, v ) ;
+
   if ( r1_dot_v <= 0 )  /* Off the "A" end  */
     return sgdScalarProductVec3 ( r1, r1 ) ;
- 
+
   sgdVec3 r2 ; sgdSubVec3 ( r2, pnt, line.b ) ;
 
-  SGDfloat r2_dot_v = sgdScalarProductVec3 ( r2, v /*l.direction_vector*/ ) ;
- 
+  SGDfloat r2_dot_v = sgdScalarProductVec3 ( r2, v ) ;
+
   if ( r2_dot_v >= 0 )  /* Off the "B" end */
     return sgdScalarProductVec3 ( r2, r2 ) ;
 
   /* Closest point on line is on the line segment */
  
-  return sgdScalarProductVec3 ( r1, r1 ) - r1_dot_v * r1_dot_v ;
+  return sgdScalarProductVec3 ( r1, r1 ) - r1_dot_v * r1_dot_v / sgdScalarProductVec3 ( v, v ) ;
 }
 
 
