@@ -13,33 +13,68 @@
 
 fntRenderer *text ;
 
-#define MAX_FONTS 20
-
-const char *font_names [ MAX_FONTS ] =
+const char *font_names [] =
 {
-  "sorority.txf",          /* This is the default */
-  "charter.txf", 
-  "courier-bold.txf", 
-  "courier_medium.txf", 
-  "curlfont.txf", 
-  "default.txf", 
-  "derniere.txf", 
-  "haeberli.txf", 
-  "helvetica_bold.txf", 
-  "helvetica_medium.txf", 
-  "junius.txf", 
-  "lucida.txf", 
-  "lucidabright_bold.txf", 
-  "schoolbook_bold.txf", 
-  "schoolbook_medium.txf", 
-  "symbol.txf", 
-  "times_bold.txf", 
-  "times_medium.txf", 
-  "typewriter.txf",
+  "Helvetica.txf",         /* This is the default */
+  "Helvetica-Bold.txf",
+  "Helvetica-Oblique.txf",
+  "Helvetica-BoldOblique.txf",
+
+  "AvantGarde-Book.txf",
+  "AvantGarde-BookOblique.txf",
+  "AvantGarde-Demi.txf",
+  "AvantGarde-DemiOblique.txf",
+
+  "Bookman-Light.txf",
+  "Bookman-LightItalic.txf",
+  "Bookman-Demi.txf",
+  "Bookman-DemiItalic.txf",
+
+  "Courier.txf",
+  "Courier-Bold.txf",
+  "Courier-Oblique.txf",
+  "Courier-BoldOblique.txf",
+
+  "NewCenturySchlbk-Roman.txf",
+  "NewCenturySchlbk-Italic.txf",
+  "NewCenturySchlbk-Bold.txf",
+  "NewCenturySchlbk-BoldItalic.txf",
+
+  "Palatino-Roman.txf",
+  "Palatino-Italic.txf",
+  "Palatino-Bold.txf",
+  "Palatino-BoldItalic.txf",
+
+  "Times-Roman.txf",
+  "Times-Italic.txf",
+  "Times-Bold.txf",
+  "Times-BoldItalic.txf",
+
+  "ZapfChancery-MediumItalic.txf",
+
+  "old/sorority.txf",
+  "old/charter.txf", 
+/*  "old/courier-bold.txf", 
+    "old/courier_medium.txf", */
+  "old/curlfont.txf", 
+  "old/default.txf", 
+  "old/derniere.txf", 
+  "old/haeberli.txf", 
+/*  "old/helvetica_bold.txf", 
+    "old/helvetica_medium.txf", */
+  "old/junius.txf", 
+  "old/lucida.txf", 
+  "old/lucidabright_bold.txf", 
+/*  "old/schoolbook_bold.txf", 
+    "old/schoolbook_medium.txf", */
+  "old/symbol.txf", 
+/*  "old/times_bold.txf", 
+    "old/times_medium.txf",
+    "old/typewriter.txf", */
   NULL
 } ;
 
-fntTexFont *font_list [ MAX_FONTS ] ;
+fntTexFont **font_list ;
 
 int cur_font = 0 ;
 int max_font = 0 ;
@@ -171,6 +206,8 @@ void displayfn (void)
 
 int main ( int argc, char **argv )
 {
+  font_list = new fntTexFont* [ sizeof(font_names) / sizeof(font_names[0]) ] ;
+
   glutInitWindowPosition ( 0, 0 ) ;
   glutInitWindowSize  ( 640, 480 ) ;
   glutInit            ( &argc, argv ) ;
