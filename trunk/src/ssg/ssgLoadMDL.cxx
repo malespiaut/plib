@@ -445,7 +445,7 @@ static void createTriangIndices(ssgIndexArray *ixarr,
 
 //===========================================================================
 
-static bool readTexIndices(FILE* fp, int numverts, const sgVec3 s_norm)
+static bool readTexIndices(int numverts, const sgVec3 s_norm, bool flip_y)
 {
   if(numverts <= 0)
     return false;
@@ -470,6 +470,10 @@ static bool readTexIndices(FILE* fp, int numverts, const sgVec3 s_norm)
       ix     = ulEndianReadLittle16(model_file_);
       tx_int = ulEndianReadLittle16(model_file_);
       ty_int = ulEndianReadLittle16(model_file_);
+
+      if (flip_y) {
+	ty_int = 255 - ty_int;
+      }
 
       int tex_idx = ix - start_idx_ + last_idx_;
 
@@ -865,7 +869,10 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    fread(&d, 4, 1, model_file_);  // we don't care about endian here
 
 	    // Read vertex inidices and texture coordinates
-	    readTexIndices(model_file_, numverts, v);
+	    char *texture_extension = 
+	      curr_tex_name_ + strlen(curr_tex_name_) - 3;
+	    bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
+	    readTexIndices(numverts, v, flip_y);
 
 	    if(!has_normals_)
 	      {
