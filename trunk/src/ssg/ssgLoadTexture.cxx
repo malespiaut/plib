@@ -248,3 +248,5 @@ bool ssgLoadTexture ( const char * filename, ssgTextureInfo* info )
   ssgLoadDummyTexture ( info ) ;
   return false ;
 }
+
+

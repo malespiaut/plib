@@ -2,7 +2,7 @@
 
 bindir=$(prefix)/games
 
-bin_PROGRAMS = exposer
+bin_PROGRAMS = exposer merge_tweens
 
 exposer_SOURCES = \
        exposer.cxx   exposer.h   \
@@ -14,4 +14,7 @@ exposer_SOURCES = \
        bones.cxx     bones.h     \
        event.cxx     event.h     \
        model.cxx     model.h
+
+merge_tweens_SOURCES = \
+       merge_tweens.cxx   merge_tweens.h
 
