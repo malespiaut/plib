@@ -37,14 +37,15 @@ void ssgVtxArray::transform ( sgMat4 m )
 
   for ( i = 0 ; i < getNumIndices() ; i++ )
   {
-	int ii = *( indices->get(i) );
+  	int ii = *( indices->get(i) );
     sgXformPnt3 ( vertices->get(ii), vertices->get(ii), m ) ;
   }
 
   for ( i = 0 ; i < getNumIndices() ; i++ )
   {
-	int ii = *( indices->get(i) );
-    sgXformPnt3 ( normals->get(ii), normals->get(ii), m ) ;
+	  int ii = *( indices->get(i) );
+    if ( ii < getNumNormals() )
+      sgXformPnt3 ( normals->get(ii), normals->get(ii), m ) ;
   }
 
   recalcBSphere () ;
