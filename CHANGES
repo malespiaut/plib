@@ -10,6 +10,12 @@ PLIB v1.3.1 (??)
     include <plib/ul.h> and call ulInit() before
     making UL calls.
 
+    If you use automake/autoconf, then it's easy
+    to make applications that will compile and link
+    under both PLIB 1.2 and 1.3/1.4, just add this:
+
+    AC_CHECK_LIB(plibul, ulInit,,,)
+
 PLIB v1.3.0 (July 1st 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

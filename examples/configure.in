@@ -12,6 +12,9 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 
 dnl Checks for library functions.
+
+AC_CHECK_LIB(plibul, ulInit,,,)
+
 dnl check for OpenGL related libraries
 
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
