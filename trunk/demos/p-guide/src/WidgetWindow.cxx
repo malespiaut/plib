@@ -128,8 +128,6 @@ void vertical_menu_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-
-
 void input_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;

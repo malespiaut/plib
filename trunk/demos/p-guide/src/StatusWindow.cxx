@@ -30,10 +30,13 @@ extern int max_layer ;
 extern WidgetList *active_widget ;
 extern puObject *active_object ;
 
+extern char pguide_current_directory [ PUSTRING_MAX ] ;
+
 extern bool main_window_changed ;
 
 // Status window parameters
 int status_window = 0 ;  // Window handle
+extern int main_window ;
 
 // Status window widgets
 
@@ -62,12 +65,15 @@ puInput *window_size_y ;
 puInput *window_position_x ;
 puInput *window_position_y ;
 
-puInput *window_color_r ;
-puInput *window_color_g ;
-puInput *window_color_b ;
-puInput *window_color_a ;
+puText *window_color_label ;
+puSpinBox *window_color_r ;
+puSpinBox *window_color_g ;
+puSpinBox *window_color_b ;
+puSpinBox *window_color_a ;
 
 puDialogBox *dialog = (puDialogBox *)NULL ;
+
+puMenuBar *menubar ;
 
 // Saving Window Parameters
 
@@ -190,7 +196,7 @@ void setStatusWidgets ( WidgetList *wid )
 
 static void status_window_specialfn ( int key, int, int )
 {
-  puKeyboard ( key, PU_DOWN ) ;
+  puKeyboard ( key + PU_KEY_GLUT_SPECIAL_OFFSET, PU_DOWN ) ;
 
   glutPostRedisplay () ;
 }
@@ -255,6 +261,10 @@ static void selection_window_displayfn ( void )
 
 extern void write_code ( puObject *ob ) ;
 
+extern void saveProject ( puObject *ob ) ;
+
+extern void loadProject ( puObject *ob ) ;
+
 void write_window_reshapefn ( int w, int h )
 {
   file_selector->setSize ( w, h ) ;
@@ -282,10 +292,70 @@ void write_code_cb ( puObject *ob )
   glutReshapeWindow ( w, h ) ;
   glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
 
-  file_selector = new puFileSelector ( 0, 0, w, h, 1, "\\", "Pick File to Write To" ) ;
+  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick File to Write To" ) ;
   file_selector -> setCallback ( write_code ) ;
   file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
   file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
+  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
+}
+
+void saveProject_cb ( puObject *ob )
+{
+  int w = 320, h = 270 ;
+  if ( write_window )
+    glutSetWindow ( write_window ) ;
+  else
+  {
+    write_window = glutCreateWindow ( "Saving " ) ;
+    glutDisplayFunc       ( selection_window_displayfn ) ;
+    glutKeyboardFunc      ( status_window_keyfn     ) ;
+    glutSpecialFunc       ( status_window_specialfn ) ;
+    glutMouseFunc         ( status_window_mousefn   ) ;
+    glutMotionFunc        ( status_window_motionfn  ) ;
+    glutPassiveMotionFunc ( status_window_motionfn  ) ;
+    glutIdleFunc          ( selection_window_displayfn ) ;
+    glutReshapeFunc       ( write_window_reshapefn ) ;
+  }
+
+  glutShowWindow () ;
+  glutReshapeWindow ( w, h ) ;
+  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
+
+  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick .XML File to Save To" ) ;
+  file_selector -> setCallback ( saveProject ) ;
+  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
+  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
+  file_selector->setInitialValue(".xml");
+  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
+}
+
+void loadProject_cb ( puObject *ob )
+{
+  int w = 320, h = 270 ;
+  if ( write_window )
+    glutSetWindow ( write_window ) ;
+  else
+  {
+    write_window = glutCreateWindow ( "Loading " ) ;
+    glutDisplayFunc       ( selection_window_displayfn ) ;
+    glutKeyboardFunc      ( status_window_keyfn     ) ;
+    glutSpecialFunc       ( status_window_specialfn ) ;
+    glutMouseFunc         ( status_window_mousefn   ) ;
+    glutMotionFunc        ( status_window_motionfn  ) ;
+    glutPassiveMotionFunc ( status_window_motionfn  ) ;
+    glutIdleFunc          ( selection_window_displayfn ) ;
+    glutReshapeFunc       ( write_window_reshapefn ) ;
+  }
+
+  glutShowWindow () ;
+  glutReshapeWindow ( w, h ) ;
+  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
+
+  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick P-Guide .XML File to load" ) ;
+  file_selector -> setCallback ( loadProject ) ;
+  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
+  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
+  file_selector->setInitialValue("*.xml");
   file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
 }
 
@@ -311,7 +381,20 @@ void clear_ok_cb ( puObject *ob )
 
   active_widget = (WidgetList *)NULL ;
   active_object = (puObject *)NULL ;
+  window_color_r->setValue(1.0f) ;
+  window_color_g->setValue(1.0f) ;
+  window_color_b->setValue(1.0f) ;
+  window_color_a->setValue(1.0f) ;
+  window_name->setValue("PUI GUI Builder");
+  window_size_x->setValue(600) ;
+  window_size_y->setValue(600) ;
+  window_position_x->setValue(0) ;
+  window_position_y->setValue(0) ;
   main_window_changed = false ;
+
+  glutSetWindow ( main_window ) ;
+  glutReshapeWindow ( 600, 600 ) ;
+  glutSetWindow ( status_window ) ;
 
   setStatusWidgets ( active_widget ) ;
 
@@ -331,7 +414,7 @@ void clear_cb ( puObject *ob )
 {
   if ( main_window_changed )
   {
-    dialog = new puDialogBox ( 180, 20 ) ;
+    dialog = new puDialogBox ( 50, 300 ) ;
     new puFrame ( 0, 0, 125, 70 ) ;
     puText *text = new puText ( 10, 40 ) ;
     text->setLabel ( "Are you sure?" ) ;
@@ -355,7 +438,7 @@ void quit_cb ( puObject *ob )
 {
   if ( main_window_changed )
   {
-    dialog = new puDialogBox ( 280, 20 ) ;
+    dialog = new puDialogBox ( 50, 300 ) ;
     new puFrame ( 0, 0, 125, 70 ) ;
     puText *text = new puText ( 10, 40 ) ;
     text->setLabel ( "Are you sure?" ) ;
@@ -442,13 +525,13 @@ void window_name_cb ( puObject *ob )
 
 void label_cb ( puObject *ob )
 {
-  if ( active_widget )
-  {
+  //if ( active_widget )
+  //{
     delete active_widget->label_text ;
     active_widget->label_text = new char [ strlen ( ob->getStringValue () ) + 1 ] ;
     strcpy ( active_widget->label_text, ob->getStringValue () ) ;
     active_widget->obj->setLabel ( active_widget->label_text ) ;
-  }
+  //}
 }
 
 void label_place_cb ( puObject *ob )
@@ -665,6 +748,11 @@ void layer_cb ( puObject *ob )
   }
 }
 
+// Setup Menubar
+
+char      *file_submenu    [] = {  "Exit", "------------", "Export Code", "------------", "Save Project", "Load Project", "New Project", NULL } ;
+puCallback file_submenu_cb [] = { quit_cb, NULL, write_code_cb, NULL, saveProject_cb, loadProject_cb, clear_cb, NULL } ;
+
 // Function to define the window
 
 int define_status_window ()
@@ -684,36 +772,29 @@ int define_status_window ()
   puGroup *status_group = new puGroup ( 0, 0 ) ;
   puFrame *status_frame = new puFrame ( 0, 0, 500, 380 ) ;
 
-  puOneShot *oneshot = (puOneShot *)NULL ;
-  oneshot = new puOneShot ( 10, 10, 200, 30 ) ;
-  oneshot->setLegend ( "Write Window Code" ) ;
-  oneshot->setCallback ( write_code_cb ) ;
+  menubar = new puMenuBar () ; 
+  {
+    menubar -> add_submenu ( "File", file_submenu, file_submenu_cb ) ;
+  }
+  menubar -> close() ;
 
-  oneshot = new puOneShot ( 210, 10, 300, 30 ) ;
-  oneshot->setLegend ( "Clear" ) ;
-  oneshot->setCallback ( clear_cb ) ;
-
-  oneshot = new puOneShot ( 310, 10, 400, 30 ) ;
-  oneshot->setLegend ( "Quit" ) ;
-  oneshot->setCallback ( quit_cb ) ;
-
-  object_size_x = new puInput ( 360, 40, 410, 60 ) ;
+  object_size_x = new puInput ( 380, 10, 430, 30 ) ;
   object_size_x->setLabel ( "Object Size :" ) ;
   object_size_x->setLabelPlace ( PUPLACE_LEFT ) ;
   object_size_x->setCallback ( object_size_cb ) ;
   object_size_x->setDownCallback ( object_size_cb ) ;
 
-  object_size_y = new puInput ( 410, 40, 460, 60 ) ;
+  object_size_y = new puInput ( 430, 10, 480, 30 ) ;
   object_size_y->setCallback ( object_size_cb ) ;
   object_size_y->setDownCallback ( object_size_cb ) ;
 
-  object_position_x = new puInput ( 160, 40, 210, 60 ) ;
+  object_position_x = new puInput ( 160, 10, 210, 30 ) ;
   object_position_x->setLabel ( "Object Position :" ) ;
   object_position_x->setLabelPlace ( PUPLACE_LEFT ) ;
   object_position_x->setCallback ( object_position_cb ) ;
   object_position_x->setDownCallback ( object_position_cb ) ;
 
-  object_position_y = new puInput ( 210, 40, 260, 60 ) ;
+  object_position_y = new puInput ( 210, 10, 260, 30 ) ;
   object_position_y->setCallback ( object_position_cb ) ;
   object_position_y->setDownCallback ( object_position_cb ) ;
 
@@ -723,35 +804,35 @@ int define_status_window ()
 
   static char *horz_place_entries [] = { "Left", "Center", "Right", NULL } ;
 
-  object_label = new puInput ( 60, 70, 260, 90 ) ;
+  object_label = new puInput ( 60, 40, 260, 60 ) ;
   object_label->setLabel ( "Label" ) ;
   object_label->setLabelPlace ( PUPLACE_LEFT ) ;
   object_label->setCallback ( label_cb ) ;
   object_label->setDownCallback ( label_cb ) ;
 
-  object_vert_label_place = new puComboBox ( 310, 70, 400, 90, vert_place_entries, FALSE ) ;
+  object_vert_label_place = new puComboBox ( 310, 40, 400, 60, vert_place_entries, FALSE ) ;
   object_vert_label_place->setLabel ( "Place" ) ;
   object_vert_label_place->setLabelPlace ( PUPLACE_LEFT ) ;
   object_vert_label_place->setCallback ( label_place_cb ) ;
 
-  object_horz_label_place = new puComboBox ( 400, 70, 490, 90, horz_place_entries, FALSE ) ;
+  object_horz_label_place = new puComboBox ( 400, 40, 490, 60, horz_place_entries, FALSE ) ;
   object_horz_label_place->setCallback ( label_place_cb ) ;
 
-  object_legend = new puInput ( 60, 100, 260, 120 ) ;
+  object_legend = new puInput ( 60, 70, 260, 90 ) ;
   object_legend->setLabel ( "Legend" ) ;
   object_legend->setLabelPlace ( PUPLACE_LEFT ) ;
   object_legend->setCallback ( legend_cb ) ;
   object_legend->setDownCallback ( legend_cb ) ;
 
-  object_vert_legend_place = new puComboBox ( 310, 100, 400, 120, vert_place_entries, FALSE ) ;
+  object_vert_legend_place = new puComboBox ( 310, 70, 400, 90, vert_place_entries, FALSE ) ;
   object_vert_legend_place->setLabel ( "Place" ) ;
   object_vert_legend_place->setLabelPlace ( PUPLACE_LEFT ) ;
   object_vert_legend_place->setCallback ( legend_place_cb ) ;
 
-  object_horz_legend_place = new puComboBox ( 400, 100, 490, 120, horz_place_entries, FALSE ) ;
+  object_horz_legend_place = new puComboBox ( 400, 70, 490, 90, horz_place_entries, FALSE ) ;
   object_horz_legend_place->setCallback ( legend_place_cb ) ;
 
-  object_name = new puInput ( 110, 130, 310, 150 ) ;
+  object_name = new puInput ( 110, 100, 310, 120 ) ;
   object_name->setLabel ( "Widget Name:" ) ;
   object_name->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   object_name->setCallback ( name_cb ) ;
@@ -775,49 +856,71 @@ int define_status_window ()
   object_layer->setLabel ( "Widget Layer" ) ;
   object_layer->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   object_layer->setCallback ( layer_cb ) ;
+  object_layer->setDownCallback ( layer_cb ) ;
 
 
-  window_name = new puInput ( 130, 350, 430, 370 ) ;
+  window_name = new puInput ( 130, 340, 430, 360 ) ;
   window_name->setLabel ( "Window Name :" ) ;
   window_name->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   window_name->setCallback ( window_name_cb ) ;
   window_name->setDownCallback ( window_name_cb ) ;
 
-  window_size_x = new puInput ( 130, 320, 180, 340 ) ;
+  window_size_x = new puInput ( 130, 310, 180, 330 ) ;
   window_size_x->setLabel ( "Window Size :" ) ;
   window_size_x->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   window_size_x->setCallback ( window_size_cb ) ;
   window_size_x->setDownCallback ( window_size_cb ) ;
 
-  window_size_y = new puInput ( 180, 320, 230, 340 ) ;
+  window_size_y = new puInput ( 180, 310, 230, 330 ) ;
   window_size_y->setCallback ( window_size_cb ) ;
   window_size_y->setDownCallback ( window_size_cb ) ;
 
   extern int main_window_x, main_window_y ;
 
-  window_position_x = new puInput ( 130, 290, 180, 310 ) ;
-  window_position_x->setLabel ( "Window Position:" ) ;
+  window_position_x = new puInput ( 130, 285, 180 , 305 ) ;
+  window_position_x->setLabel ( "Position :" ) ;
   window_position_x->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   window_position_x->setValuator ( &main_window_x ) ;
 
-  window_position_y = new puInput ( 180, 290, 230, 310 ) ;
+  window_position_y = new puInput ( 180, 285, 230, 305 ) ;
   window_position_y->setValuator ( &main_window_y ) ;
 
   extern float main_window_color_r, main_window_color_g,
                main_window_color_b, main_window_color_a ;
 
-  window_color_r = new puInput ( 120, 260, 160, 280 ) ;
-  window_color_r->setLabel ( "Window Color:" ) ;
-  window_color_r->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
+  window_color_label = new puText (340, 320) ;
+  window_color_label->setLabel ( "Color: " ) ;
+
+  window_color_r = new puSpinBox ( 270, 285, 320, 305 ) ;
+  window_color_r->setMinValue(0.0);
+  window_color_r->setMaxValue(1.0);
+  window_color_r->setStepSize(0.05);
+  window_color_r->setLabel ( "Red" ) ;
+  window_color_r->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_r->setValuator ( &main_window_color_r ) ;
 
-  window_color_g = new puInput ( 160, 260, 200, 280 ) ;
+  window_color_g = new puSpinBox ( 320, 285, 370, 305 ) ;
+  window_color_g->setMinValue(0.0);
+  window_color_g->setMaxValue(1.0);
+  window_color_g->setStepSize(0.05);
+  window_color_g->setLabel ( "Green" ) ;
+  window_color_g->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_g->setValuator ( &main_window_color_g ) ;
-
-  window_color_b = new puInput ( 200, 260, 240, 280 ) ;
+  
+  window_color_b = new puSpinBox ( 370, 285, 420, 305 ) ;
+  window_color_b->setMinValue(0.0);
+  window_color_b->setMaxValue(1.0);
+  window_color_b->setStepSize(0.05);
+  window_color_b->setLabel ( "Blue" ) ;
+  window_color_b->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_b->setValuator ( &main_window_color_b ) ;
 
-  window_color_a = new puInput ( 240, 260, 280, 280 ) ;
+  window_color_a = new puSpinBox ( 420, 285, 470, 305 ) ;
+  window_color_a->setMinValue(0.0);
+  window_color_a->setMaxValue(1.0);
+  window_color_a->setStepSize(0.05);
+  window_color_a->setLabel ( "Alpha" ) ;
+  window_color_a->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_a->setValuator ( &main_window_color_a ) ;
 
   status_group->close () ;
