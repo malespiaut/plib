@@ -779,7 +779,11 @@ public:
   int isEmpty (void) const { return radius <  SG_ZERO ; }
   void empty  (void)	   { radius = - SG_ONE ; }
 
-  void orthoXform ( const sgMat4 m ) { sgXformPnt3 ( center, center, m ) ; }
+  void orthoXform ( const sgMat4 m )
+  {
+    sgXformPnt3 ( center, center, m ) ;
+    radius *= sgLengthVec3 ( m[0] ) ;
+  }
 
   void extend ( const sgSphere *s ) ;
   void extend ( const sgBox    *b ) ;
@@ -1952,7 +1956,11 @@ public:
   int isEmpty (void) const { return radius <  SGD_ZERO ; }
   void empty  (void)       { radius = - SGD_ONE ; }
 
-  void orthoXform ( const sgdMat4 m ) { sgdXformPnt3 ( center, center, m ) ; }
+  void orthoXform ( const sgdMat4 m )
+  {
+    sgdXformPnt3 ( center, center, m ) ;
+    radius *= sgdLengthVec3 ( m[0] ) ;
+  }
 
   void extend ( const sgdSphere *s ) ;
   void extend ( const sgdBox    *b ) ;
