@@ -724,7 +724,7 @@ public:
 
   void * getNodeData ( int pos ) const ;
 
-  void forEach ( ulIterateFunc fn ) const ;
+  void * forEach ( ulIterateFunc fn ) const ;
 
   void empty ( ulIterateFunc destroyfn = NULL ) ;
 } ;
