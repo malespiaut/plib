@@ -168,8 +168,9 @@ static int dxf_read ( FILE *filein )
           if ( num_vert >= 3 ) {
             //quad?
             if ( num_vert >= 4 && num_facevert + 6 < MAX_VERT ) {
-              sgCopyVec3( facevert[num_facevert + 4], facevert[num_facevert + 0] );
-              sgCopyVec3( facevert[num_facevert + 5], facevert[num_facevert + 1] );
+              sgCopyVec3( facevert[num_facevert + 4], facevert[num_facevert + 1] );
+              sgCopyVec3( facevert[num_facevert + 5], facevert[num_facevert + 2] );
+              sgCopyVec3( facevert[num_facevert + 2], facevert[num_facevert + 3] );
               num_face += 2;
               num_facevert += 6;
             }
