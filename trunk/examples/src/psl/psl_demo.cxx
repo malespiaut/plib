@@ -31,7 +31,6 @@
 #endif
 #include <plib/psl.h>
 
-
 pslValue my_printf ( int argc, pslValue *argv, pslProgram *p )
 {
   if ( argv[0].getType() != PSL_STRING )
@@ -82,8 +81,16 @@ int main ()
 
   pslProgram *prog_1 = new pslProgram ( extensions, "code1" ) ;
 
+  ulClock ck ;
+  ck.setMaxDelta ( 100000.0 ) ;
+  ck.update () ;
+
   prog_1 -> compile ( "data/test.psl" ) ;
-  // prog_1 -> dump () ;
+
+  ck.update () ;
+  fprintf(stderr, "%fs compiletime elapsed\n", ck.getDeltaTime () ) ;
+
+  prog_1 -> dump () ;
 
   /* Clone program 2 from program 1 */
 
@@ -94,13 +101,16 @@ int main ()
   prog_1 -> setUserData ( (void *) "Program 1" ) ;
   prog_2 -> setUserData ( (void *) "Program 2" ) ;
 
-  /* Run both programs together until one of them ends */
+  ck.update () ;
 
   while ( 1 )
   {
-    if ( prog_1 -> step () == PSL_PROGRAM_END ) break ;
-//    if ( prog_2 -> step () == PSL_PROGRAM_END ) break ;
+    if ( prog_1 -> step () == PSL_PROGRAM_END ||
+         prog_2 -> step () == PSL_PROGRAM_END )
+      break ;
   }
+  ck.update () ;
+  fprintf(stderr, "%fs runtime elapsed\n", ck.getDeltaTime () ) ;
 
   exit ( 0 ) ;
 }

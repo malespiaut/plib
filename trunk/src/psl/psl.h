@@ -261,6 +261,6 @@ public:
 
 
 void pslInit () ;
-void pslSetErrorCallback ( void (*CB) ( int, char *, int, char * ) ) ;
+void pslSetErrorCallback ( void (*CB) ( pslProgram *, int, char *, int, char * ) ) ;
 
 

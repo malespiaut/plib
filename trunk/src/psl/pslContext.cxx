@@ -107,9 +107,13 @@ pslResult pslContext::step ()
 
     case OPCODE_RETURN :
       {
+        int nargs ;
         pslValue result ;
+
         popNumber ( &result ) ;
         pc = popInt () ;
+        nargs = popInt () ;
+        popVoid ( nargs ) ;
         pushNumber ( &result ) ;
       }
       return PSL_PROGRAM_CONTINUE ;

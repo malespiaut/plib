@@ -13,21 +13,140 @@
 <tr>
 <td>
 <center>
-<h1>The PSL Programming Guide </h1></center>
+<h1>The PLIB Scripting Language Programming Guide </h1></center>
 <center>By Steve Baker</center>
 </td>
 </tr>
 </table>
 <H1>Introduction</H1>
+
 This document explains how to write PSL programs.
+
 <p>
+
 How you actually run those programs depends on which PSL-enabled
-application you are running.  There is a stand-along PSL interpreter
-in plib/examples/src/psl/psl - but it's unlikely to be as useful
-as the actual application you are writing for.
+application you are running.  There is a stand-alone PSL interpreter
+in plib/examples/src/psl/psl_demo - but it doesn't include any
+application-specific language extensions - so a PSL program
+that's written for a specific application may not run
+on <code>psl_demo</code>.
+
 <p>
+
+However, psl_demo is great for learning to write PSL scripts.
+
+<H1>The PSL Language</H1>
+
+PSL is designed to be as close to the C Programming
+Language - although we
+cut a few corners - we extended the language in a few places - and
+we consciously omitted other features that are dangerous in a
+scripting language.
+
+<p>
+
+The following C features are implemented much as you'd expect:
+<ul>
+  <li> Types 'void', 'int' and 'float'.
+  <li> Function definitions.
+  <li> Global variable definitions.
+  <li> Statement types:
+  <ul>
+    <li> Local variable definitions.
+    <li> Static variable definitions.
+    <li> "return"
+    <li> "break"
+    <li> "continue"
+    <li> "for"
+    <li> "do/while"
+    <li> "switch/case/default"
+    <li> "while"
+    <li> "if"
+    <li> "if/else"
+    <li> "{}" compound statements.
+    <li> Assignment statements.
+    <li> Procedure calls.
+  </ul>
+  <li> Most Arithmetic operators.
+  <li> Comments '/*' '*/'.
+  <li> C preprocessor directives:
+  <ul>
+    <li> "#include"
+    <li> "#define" without parameters.
+    <li> "#undef"
+    <li> "#ifdef/#endif"
+    <li> "#ifdef/#else/#endif"
+    <li> "#ifndef/#endif"
+    <li> "#ifndef/#else/#endif"
+  </ul>
+  <li> Special characters in strings:
+  <ul>
+    <li> "\n"
+    <li> "\r"
+    <li> "\a"
+    <li> "\b"
+    <li> "\f"
+    <li> "\t"
+    <li> "\\"
+    <li> "\""
+  </ul>
+  <li> Recursion, etc.
+</ul>
+
+Some new features have been added that are not part of C:
+<ul>
+  <li> "pause" -- Pause the program until next frame.
+  <li> "string" data type.
+  <li> Casts are unnecessary between compatible types.
+  <li> C++ style '//' comments.
+  <li> C++ style local variable declarations.
+</ul>
+
+Some features of C are NOT IMPLEMENTED in PSL:
+<ul>
+  <li> Pointers.
+  <li> Casts.
+  <li> Dynamic Memory Allocation.
+  <li> ',' and '?:' operators in expressions.
+  <li> "static", "automatic".
+  <li> "char", "short", "unsigned", "signed", "long", "double".
+  <li> "typedef"
+  <li> "enum", "union", bitfields.
+  <li> "goto".
+  <li> "#if"
+  <li> "#pragma"
+  <li> "#define" with parameters.
+  <li> 'f' and 'l' suffixes for float and long numbers.
+  <li> All preprocessor directives must have the '#' as the
+       very first character on the line - they cannot be
+       preceded with whitespace.
+</ul>
+
+The following feature are "NOT IMPLEMENTED YET" - but will
+hopefully arrive soon:
+<ul>
+  <li> Assignment operators "+=", "-=", etc.
+  <li> Logic operators "!", "~", "&", "|", "^" "&&", "||", ^^".
+  <li> "++" and "--"
+  <li> "&gt;&gt;" and "&lt;&lt;"
+  <li> Character constants.
+  <li> Hex and octal constants.
+  <li> Arrays & Structs.
+  <li> Operations on "string" variables.
+  <li> String concatenation.
+  <li> '\' to escape the end-of-line character in strings and macro's.
+  <li> Array bounds checking.
+  <li> Parameter passing by name.
+  <li> Many of C's standard library functions are needed.
+</ul>
+
+Currently there are hard limits in many places - the number of
+variables, the size of the program, the depth of nesting, etc.
+These limits will gradually be removed as PSL is developed.
+
 <hr>
 <address>
 <a href="http://www.sjbaker.org">Steve J. Baker.</a> &lt;<a href="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</a>&gt;</address>
 </body>
 </html>
+

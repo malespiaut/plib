@@ -98,6 +98,7 @@ class pslCompiler
   void pushIntConstant   ( const char *s ) ;
   void pushFloatConstant ( const char *s ) ;
   void pushStringConstant( const char *s ) ;
+  void pushIntConstant   ( int i ) ;
 
   void pushVoidConstant  () ;
 

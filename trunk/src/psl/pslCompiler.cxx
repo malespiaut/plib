@@ -591,6 +591,8 @@ void pslCompiler::pushProgram ()
 
   /* Have the program call 'main' and then halt */
 
+  pushIntConstant ( 0 ) ;  /* No arguments to main *YET*  */
+
   pushCodeByte ( OPCODE_CALL ) ;
   pushCodeAddr ( getCodeSymbol ( "main", next_code ) ) ;
   pushCodeByte ( 0 ) ;  /* Argc */

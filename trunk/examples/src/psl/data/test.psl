@@ -1,66 +1,18 @@
 
-#define ONE    1 
+float f = 1.0 ;
+
+
+void xxx ()
+{
+  f = f * 1.0001 ;
+}
+
 
 void main ()
 {
+  int i ;
 
-#ifdef ONE
-   printf ( "Yes! 1\n" ) ;
-#endif
-
-#ifdef ONE
-   printf ( "Yes! 2\n" ) ;
-#else
-   printf ( "No...2\n" ) ;
-#endif
-
-#ifndef ONE
-   printf ( "No...3\n" ) ;
-#else
-   printf ( "Yes! 3\n" ) ;
-#endif
-
-
-#ifdef ONE
-
-#ifdef ONE
-     printf ( "Yes! 4\n" ) ;
-#endif
-
-#ifdef ONE
-     printf ( "Yes! 5\n" ) ;
-#else
-     printf ( "No...5\n" ) ;
-#endif
-
-#ifndef ONE
-     printf ( "No...6\n" ) ;
-#else
-     printf ( "Yes! 6\n" ) ;
-#endif
-
-  printf ( "Yes! 7\n" ) ;
-#else
-
-#ifdef ONE
-     printf ( "No...7\n" ) ;
-#endif
-
-#ifdef ONE
-     printf ( "No...8\n" ) ;
-#else
-     printf ( "No...9\n" ) ;
-#endif
-
-#ifndef ONE
-     printf ( "No...A\n" ) ;
-#else
-     printf ( "No...B\n" ) ;
-#endif
-
-     printf ( "No...C\n" ) ;
-#endif
-
-  printf ( "Yes! 8\n" ) ;
+  for ( i = 0 ; i < 1000000 ; i = i + 1 )
+    xxx () ;
 }
 
