@@ -36,7 +36,7 @@ ssgContext::ssgContext ()
   currentState -> ref(); //~~ T.G. 
 
   basicState   = new ssgSimpleState ( 0 ) ;
-  currentState -> ref(); //~~ T.G. 
+  basicState -> ref(); //~~ T.G. 
 
   currentState -> force () ;
 

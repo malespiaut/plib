@@ -62,7 +62,7 @@ ssgBase::~ssgBase (void)
 }
 
  
-void ssgBase::setName ( char *nm )
+void ssgBase::setName ( const char *nm )
 {
   delete name ;
  

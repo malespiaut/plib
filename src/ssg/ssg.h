@@ -262,7 +262,7 @@ public:
       s -> ref () ;
   }
 
-  void  setName ( char *nm ) ;
+  void  setName ( const char *nm ) ;
   char *getName () { return name ; }
   const char *getPrintableName () { return (name == NULL) ? "NoName" : name ; }
 } ;
@@ -1328,6 +1328,14 @@ public:
         rng_list [ i ] = SG_MAX ;
   }
 
+   void setRange ( unsigned int which, float range )
+   {
+ 	  if ( which < 33 )
+ 		  rng_list [ which ] = range ;
+ 	  else
+ 		  rng_list [ which ] = SG_MAX ;
+   }
+   
   float getRange ( unsigned int which )
   {
     return ( which < 33 ) ? rng_list[which] : SG_MAX ;
