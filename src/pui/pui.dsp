@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy pu.h ..\..\pu.h	copy puGLUT.h "..\..\"	copy puFLTK.h "..\..\"	copy puSDL.h "..\..\"	copy puNative.h "..\..\"
+PostBuild_Cmds=copy  release\*.lib  ..\..\*.* 	copy  pu.h  ..\..\pu.h 	copy  puGLUT.h  "..\..\" 	copy  puFLTK.h  "..\..\" 	copy  puSDL.h  "..\..\" 	copy  puNative.h  "..\..\" 	copy  puPW.h  ..\..\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "pui - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy pu.h ..\..\pu.h	copy puGLUT.h "..\..\"	copy puFLTK.h "..\..\"	copy puSDL.h "..\..\"	copy puNative.h "..\..\"
+PostBuild_Cmds=copy  debug\*.lib  ..\..\*.* 	copy  pu.h  ..\..\pu.h 	copy  puGLUT.h  "..\..\" 	copy  puFLTK.h  "..\..\" 	copy  puSDL.h  "..\..\" 	copy  puNative.h  "..\..\" 	copy  puPW.h  ..\..\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -99,22 +99,6 @@ SOURCE=.\pu.cxx
 # Begin Source File
 
 SOURCE=.\pu.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\puGLUT.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\puFLTK.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\puSDL.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\puNative.h
 # End Source File
 # Begin Source File
 
@@ -158,6 +142,10 @@ SOURCE=.\puFileSelector.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puFLTK.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\puFont.cxx
 # End Source File
 # Begin Source File
@@ -166,15 +154,19 @@ SOURCE=.\puFrame.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puGLUT.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\puGroup.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\puInputBase.cxx
+SOURCE=.\puInput.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\puInput.cxx
+SOURCE=.\puInputBase.cxx
 # End Source File
 # Begin Source File
 
@@ -198,6 +190,10 @@ SOURCE=.\puMenuBar.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puNative.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\puObject.cxx
 # End Source File
 # Begin Source File
@@ -214,11 +210,19 @@ SOURCE=.\puPopupMenu.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puPW.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\puRange.cxx
 # End Source File
 # Begin Source File
 
 SOURCE=.\puScrollBar.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puSDL.h
 # End Source File
 # Begin Source File
 
