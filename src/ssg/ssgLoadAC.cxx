@@ -213,7 +213,21 @@ static ssgState *get_state ( _ssgMaterial *mat )
   st -> enable  ( GL_LIGHTING ) ;
   st -> setShadeModel ( GL_SMOOTH ) ;
 
-  if ( mat -> rgb[3] < 0.99 )
+  bool has_alpha = false ;
+
+  if ( current_tfname != NULL )
+  {
+    ssgTexture *tex = current_options -> createTexture ( current_tfname ) ;
+    has_alpha = tex -> hasAlpha () ;
+    st -> setTexture( tex ) ;
+    st -> enable( GL_TEXTURE_2D ) ;
+  }
+  else
+  {
+    st -> disable( GL_TEXTURE_2D ) ;
+  }
+
+  if ( mat -> rgb[3] < 0.99 || has_alpha )
   {
     st -> disable ( GL_ALPHA_TEST ) ;
     st -> enable  ( GL_BLEND ) ;
@@ -221,15 +235,9 @@ static ssgState *get_state ( _ssgMaterial *mat )
   }
   else
   {
+    st -> disable ( GL_ALPHA_TEST ) ;
     st -> disable ( GL_BLEND ) ;
     st -> setOpaque () ;
-  }
-
-  if (current_tfname != NULL) {
-    st -> setTexture( current_options -> createTexture(current_tfname) ) ;
-    st -> enable( GL_TEXTURE_2D ) ;
-  } else {
-    st -> disable( GL_TEXTURE_2D ) ;
   }
 
   return st ;
