@@ -236,6 +236,8 @@ class pslCompiler
   void addFwdRef              ( const char *s, pslAddress where ) ;
   void checkUnresolvedSymbols () ;
 
+  int  cleanup () ;  /* Report errors, etc after a compile */
+
   void pushLocality ()
   {
     if ( locality_sp >= MAX_NESTING-1 )
@@ -388,6 +390,7 @@ public:
   void dump () const ;
   int  compile ( const char *fname ) ;
   int  compile ( FILE *fd, const char *fname = NULL ) ;
+  int  compile ( const char *memptr, const char *prog_name ) ;
 } ;
 
 

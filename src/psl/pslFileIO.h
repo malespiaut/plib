@@ -26,6 +26,7 @@ int   _pslGetLineNo       () ;
 
 void  _pslPopDefaultFile  () ;
 void  _pslPushDefaultFile ( FILE *fd, const char *fname ) ;
+void  _pslPushDefaultFile ( const char *memptr, const char *fname ) ;
 void  _pslPushDefaultFile ( const char *fname ) ;
 
 void  _pslUnGetChar       ( int c ) ;

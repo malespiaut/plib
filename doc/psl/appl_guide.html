@@ -102,6 +102,7 @@ Each PSL script is represented by an object of class <code>pslProgram</code>.
     pslResult step  () ;
     pslResult trace () ;
 
+    int compile ( const char *memptr, const char *fname ) ;
     int compile ( const char *fname ) ;
     int compile ( FILE *fd ) ;
   } ;
@@ -143,10 +144,18 @@ is returned as the result of the 'compile' function.  Programs may
 choose to ignore any compilation errors - but executing the resulting
 program will immediately produce a PSL_PROGRAM_END.
 <p>
-You can pass either a filename or a 'FILE *' descriptor to the compiler,
-if you do the former, then error messages will refer to the name of the
-file - if you do the latter then the program name that you passed to the
-constructor function will be reported.
+You can pass to the compiler either:
+<ol>
+<li> The filename of the file containing the PSL source code...or...
+<li> A 'FILE *' descriptor for the file containing the PSL source...or...
+<li> The address of a null terminated string containing the
+     program source PLUS a name to use for the program when reporting
+     errors, etc.
+</ol>
+If you pass the filename (1) or the address of the source with a name (3),
+then error messages from PSL will refer to that name. But if you pass a
+file destriptor then the program name that you passed to the constructor
+function will be reported.
 <p>
 Applications that would like to report scripting errors in a more elegant
 way, may register a callback function that will be called whenever there
@@ -186,7 +195,7 @@ Your function will be called with five parameters:
 <li> The 'message' parameter is the actual text of the error message.
 </ul>
 Notice that at compiletime, the 'progname' parameter is the name of the
-file being compiled (if that's known to the compiler).   Since it's
+file or string being compiled (if that's known to the compiler).   Since it's
 possible for one PSL source file to '#include' another, you should
 always use the 'progName' parameter in your error messages in preference
 to <code>prog-&gt;getProgName()</code> member function.

@@ -322,6 +322,7 @@ public:
 
   void       dump  () const ;
   int        compile ( const char *fname ) ;
+  int        compile ( const char *memptr, const char *fname ) ;
   int        compile ( FILE *fd ) ;
   void       reset () ;
   pslResult  step  () ;

@@ -45,16 +45,34 @@ int pslCompiler::compile ( const char *fname )
 }
  
  
+int pslCompiler::compile ( const char *memptr, const char *fname )
+{
+  init () ;
+ 
+  _pslPushDefaultFile ( memptr, (fname == NULL) ? progName : fname ) ;
+  genProgram     () ;
+  _pslPopDefaultFile  () ;
+ 
+  return cleanup () ;
+}
+
+
 int pslCompiler::compile ( FILE *fd, const char *fname )
 {
-  const char *dump_env = getenv ( "PSL_DUMP" ) ;
-
   init () ;
  
   _pslPushDefaultFile ( fd, (fname == NULL) ? progName : fname ) ;
   genProgram     () ;
   _pslPopDefaultFile  () ;
  
+  return cleanup () ;
+}
+
+
+int pslCompiler::cleanup ()
+{
+  const char *dump_env = getenv ( "PSL_DUMP" ) ;
+
   if ( num_errors != 0 || num_warnings != 0 )
     fprintf ( stderr, "PSL: '%s' Compiled with %d Warnings, %d Fatal Errors\n",
              progName, num_warnings, num_errors ) ;
