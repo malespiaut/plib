@@ -43,6 +43,10 @@ AC_ARG_ENABLE(sg,
 [  --enable-sg             build SG examples                       default: yes],,
 enable_sg=yes)
 
+AC_ARG_ENABLE(psl,
+[  --enable-psl            build PSL examples                       default: yes],,
+enable_psl=yes)
+
 AC_ARG_ENABLE(sl,
 [  --enable-sl             build SL examples                       default: yes],,
 enable_sl=yes)
@@ -67,6 +71,7 @@ AM_CONDITIONAL(BUILD_JS, test "x$enable_js" = "xyes")
 AM_CONDITIONAL(BUILD_NET, test "x$enable_net" = "xyes")
 AM_CONDITIONAL(BUILD_PUI, test "x$enable_pui" = "xyes")
 AM_CONDITIONAL(BUILD_SG, test "x$enable_sg" = "xyes")
+AM_CONDITIONAL(BUILD_PSL, test "x$enable_psl" = "xyes")
 AM_CONDITIONAL(BUILD_SL, test "x$enable_sl" = "xyes")
 AM_CONDITIONAL(BUILD_SSG, test "x$enable_ssg" = "xyes")
 AM_CONDITIONAL(BUILD_UL, test "x$enable_ul" = "xyes")
@@ -265,6 +270,7 @@ AC_OUTPUT( \
 	src/net/client_server/Makefile \
 	src/net/http_get/Makefile \
 	src/net/net_echo/Makefile \
+	src/psl/Makefile \
 	src/util/Makefile )
 
 if test "x$need_opengl" = "xyes"; then
@@ -285,6 +291,7 @@ AC_MSG_RESULT(
   Building NET examples:         $enable_net
   Building PUI examples:         $enable_pui
   Building SG examples:          $enable_sg
+  Building PSL examples:         $enable_psl
   Building SL examples:          $enable_sl
   Building SSG/ssgAux examples:  $enable_ssg
   Building UTIL examples:        $enable_ul

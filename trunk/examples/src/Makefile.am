@@ -1,3 +1,3 @@
 
-SUBDIRS = js pui sl sg ssg fnt net util
+SUBDIRS = js pui sl sg ssg fnt net util psl
 

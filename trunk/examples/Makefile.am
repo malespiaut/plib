@@ -7,6 +7,7 @@ dist-hook:
              src/ssg/tux/data \
              src/ssg/water/data \
              src/ssg/majik/data \
+             src/psl/data \
              src/fnt/data     \
              data     \
 	   | ( cd $(distdir) ; tar xf - )
