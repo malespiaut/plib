@@ -1025,25 +1025,37 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
       cursor_position++ ;
     select_start_position = select_end_position = cursor_position ;
     break ;
+
   case PU_KEY_LEFT   :
   case PU_KEY_RIGHT  :
-    if ( key == PU_KEY_LEFT ) {
-        cursor_position-- ; /* Left key pressed */
-        if (old_text [ cursor_position ] == '\n')
-            bottom_slider->setValue( ( (prev_line_width - box_width)<0 ) ? 0.0f : float(prev_line_width+10) / max_width);
-        /* If the cursor is going off the left edge of the box, scroll left. */
-        else if ((bottom_value*max_width) > line_width_to_cursor+5) {
-            bottom_slider->setValue( ((bottom_value*max_width)-(box_width/2)-5)<0 ? 0.0f :
-              ((bottom_value*max_width)-(box_width/2)-5)/max_width ) ;
-        }
-    } else {
-        cursor_position++ ; /* Right key pressed */
-        if (old_text [ cursor_position-1 ] == '\n')
-          bottom_slider->setValue(0.0f) ;
-        else if ((bottom_value*max_width)+(box_width) < line_width_to_cursor+5) {
-          bottom_slider->setValue( ((bottom_value*max_width)+(box_width/2)+5)/max_width ) ;
-        }
-    }
+    if ( key == PU_KEY_LEFT )
+      {
+	/* This stops it crashing out sometimes when wrappable text is used.
+	 * Since there is no bottom scrollbar when wrapped text is turned on, the bottom
+	 * slider code could make the application die when the user pressed the left
+	 * cursor key before they began the first line.
+	 * Fix by Simon <sickz6sickz AT hotmail DOT com> */
+	cursor_position-- ; /* Left key pressed */
+	if ( bottom_slider )
+	  {
+	    if (old_text [ cursor_position ] == '\n')
+	      bottom_slider->setValue( ( (prev_line_width - box_width)<0 ) ? 0.0f : float(prev_line_width+10) /max_width);
+	    /* If the cursor is going off the left edge of the box, scroll left. */
+	    else if ((bottom_value*max_width) > line_width_to_cursor+5) {
+	      bottom_slider->setValue( ((bottom_value*max_width)-(box_width/2)-5)<0 ? 0.0f :
+				       ((bottom_value*max_width)-(box_width/2)-5)/max_width ) ;
+	    }
+	  }
+      } else {
+	cursor_position++ ; /* Right key pressed */
+	if ( bottom_slider ) {
+	  if (old_text [ cursor_position-1 ] == '\n')
+	    bottom_slider->setValue(0.0f) ;
+	  else if ((bottom_value*max_width)+(box_width) < line_width_to_cursor+5) {
+	    bottom_slider->setValue( ((bottom_value*max_width)+(box_width/2)+5)/max_width ) ;
+	  }
+	}
+      }
     select_start_position = select_end_position = cursor_position ;
     break ;
 
