@@ -865,12 +865,12 @@ public:
 
   virtual GLenum getColourMaterial ()
   {
-    return colour_material_mode ;
+    return (GLenum) colour_material_mode ;
   }
 
   virtual void setColourMaterial ( GLenum which )
   {
-    colour_material_mode = which ;
+    colour_material_mode = (int) which ;
     care_about ( SSG_GL_COLOR_MATERIAL ) ;
   }
 

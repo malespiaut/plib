@@ -269,7 +269,7 @@ void ssgContext::cull ( ssgRoot *r )
 void ssgContext::removeClipPlanes ()
 {
   for ( int i = 0 ; i < 6 ; i++ )
-    glDisable ( GL_CLIP_PLANE0 + i ) ;
+    glDisable ( (GLenum)( GL_CLIP_PLANE0 + i) ) ;
 }
 
 void ssgContext::applyClipPlanes ()
@@ -286,11 +286,11 @@ void ssgContext::applyClipPlanes ()
       eqn[1] = (double) clipPlane[i][1] ;
       eqn[2] = (double) clipPlane[i][2] ;
       eqn[3] = (double) clipPlane[i][3] ;
-      glClipPlane ( GL_CLIP_PLANE0 + i, eqn ) ; 
-      glEnable ( GL_CLIP_PLANE0 + i ) ;
+      glClipPlane ( (GLenum)(GL_CLIP_PLANE0 + i), eqn ) ; 
+      glEnable ( (GLenum)(GL_CLIP_PLANE0 + i) ) ;
     }
     else
-      glDisable ( GL_CLIP_PLANE0 + i ) ;
+      glDisable ( (GLenum)(GL_CLIP_PLANE0 + i) ) ;
   }
 }
 
