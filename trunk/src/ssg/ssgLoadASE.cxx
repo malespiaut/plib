@@ -1240,7 +1240,7 @@ static int parse_object()
     }
 
     selector -> selectStep ( 0 ) ;
-    mesh_entity = selector ;
+    mesh_entity = current_options -> createSelector ( selector ) ;
   }
   else if ( obj->mesh_list [ 0 ] != NULL )
   {

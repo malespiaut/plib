@@ -128,6 +128,11 @@ ssgTransform* ssgLoaderOptions::createTransform ( ssgTransform* tr,
   return tr ;
 }
 
+ssgSelector* ssgLoaderOptions::createSelector ( ssgSelector* s ) const
+{
+  return s ;
+}
+
 
 void ssgLoaderOptions::setModelDir ( const char *s )
 {

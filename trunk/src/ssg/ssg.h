@@ -2496,6 +2496,7 @@ public:
 			      int mipmap = TRUE ) ;
   virtual ssgTransform* createTransform ( ssgTransform* tr,
       ssgTransformArray* ta ) const ;
+  virtual ssgSelector* createSelector ( ssgSelector* s ) const ;
   virtual ssgBranch* createBranch ( char* text ) const
   {
     if ( create_branch_cb != NULL )
