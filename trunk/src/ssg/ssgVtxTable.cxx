@@ -204,7 +204,7 @@ void ssgVtxTable::transform ( sgMat4 m )
     sgXformPnt3 ( vertices->get(i), vertices->get(i), m ) ;
 
   for ( i = 0 ; i < getNumNormals() ; i++ )
-    sgXformPnt3 ( normals->get(i), normals->get(i), m ) ;
+    sgXformVec3 ( normals->get(i), normals->get(i), m ) ;
 
   recalcBSphere () ;
 }
