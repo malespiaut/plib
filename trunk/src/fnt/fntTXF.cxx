@@ -1,21 +1,21 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
@@ -23,6 +23,31 @@
 
 
 #include "fntLocal.h"
+
+#ifndef WIN32
+#  if defined(macintosh)
+#    include <agl.h>
+#  elif defined(__APPLE__)
+#    include <OpenGL/CGLCurrent.h>
+#  else
+#    include <GL/glx.h>
+#  endif
+#endif
+
+static bool glIsValidContext ( void )
+{
+#if defined(CONSOLE)
+  return true ;
+#elif defined(WIN32)
+  return ( wglGetCurrentContext () != NULL ) ;
+#elif defined(macintosh)
+  return ( aglGetCurrentContext () != NULL ) ;
+#elif defined(__APPLE__)
+  return ( CGLGetCurrentContext () != NULL ) ;
+#else
+  return ( glXGetCurrentContext () != NULL ) ;
+#endif
+}
 
 FILE *curr_image_fd ;
 int isSwapped = FALSE ;
@@ -147,7 +172,7 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
 
 int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 {
-  if ( ! ulIsValidContext () )
+  if ( ! glIsValidContext () )
   {
     ulSetError ( UL_FATAL,
       "FNT font loader called without a valid OpenGL context.");
