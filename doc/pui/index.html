@@ -5,7 +5,7 @@
    <meta name="GENERATOR" content="Mozilla/4.75 [en] (Win98; U) [Netscape]">
    <title>The Picoscopic User Interface: Programmers Guide.</title>
 </head>
-<body text="#B5A642" bgcolor="#005000" link="#8FFF8F" vlink="#18A515" alink="#20336B" background="marble.png">
+<body text="#B5A642" bgcolor="#005000" link="#8FFF8F" vlink="#18A515" alink="#20336B" background="../marble.png">
  
 <table>
 <tr>
@@ -725,8 +725,7 @@ another widget.  The following functions do these things:
 Most widgets can have a LEGEND (text inside the active area of the widget),
 and also a LABEL (text outside the active area). The application gets to
 choose where the LABEL is placed relative to the active area of the widget. 
-You can also move the LEGEND text around inside the widget to a very limited
-extent, although this is generally not recommended.
+You can also move the LEGEND text around inside the widget.
 <pre>
 
   void   puObject::setLegend ( char *str ) ;
@@ -745,24 +744,71 @@ extent, although this is generally not recommended.
   int   puObject::getLabelPlace () ;
 
   where 'place' is one of:
-      PUPLACE_ABOVE
-      PUPLACE_BELOW
-      PUPLACE_LEFT
-      PUPLACE_RIGHT    -- The default LABEL place.
-      PUPLACE_TOP_CENTER
-      PUPLACE_BOTTOM_CENTER
-      PUPLACE_LEFT_CENTER
-      PUPLACE_RIGHT_CENTER</pre>
+</pre>
 
+<table width=100%>
+<tr><td>
+<pre>
+      PUPLACE_ABOVE_LEFT
+      PUPLACE_ABOVE_RIGHT
+
+      PUPLACE_TOP_LEFT
+      PUPLACE_TOP_CENTERED
+      PUPLACE_TOP_RIGHT
+
+      PUPLACE_UPPER_LEFT
+      PUPLACE_UPPER_RIGHT
+
+      PUPLACE_CENTERED_LEFT
+      PUPLACE_CENTERED_RIGHT
+
+      PUPLACE_LOWER_LEFT
+      PUPLACE_LOWER_RIGHT    -- The default LABEL place
+
+      PUPLACE_BOTTOM_LEFT
+      PUPLACE_BOTTOM_CENTERED
+      PUPLACE_BOTTOM_RIGHT
+
+      PUPLACE_BELOW_LEFT
+      PUPLACE_BELOW_RIGHT
+</pre>
+</td></tr>
+
+<tr><td>
+<img SRC="labelplaces.png" ALT="Illustration of label places" height=154 width=680 align=RIGHT>
+</td></tr>
+</table>
+
+<pre>
   void  puObject::setLegendPlace ( int place ) ;
   int   puObject::getLegendPlace () ;
 
   where 'place' is one of:
-      PUPLACE_LEFT
-      PUPLACE_RIGHT
-      PUPLACE_CENTERED    -- The default LEGEND place.
-
 </pre>
+
+<table width=100%>
+<tr><td>
+<pre>
+      PUPLACE_TOP_LEFT
+      PUPLACE_TOP_CENTERED
+      PUPLACE_TOP_RIGHT
+
+      PUPLACE_CENTERED_LEFT
+      PUPLACE_CENTERED_CENTERED    -- The default LEGEND place.
+      PUPLACE_CENTERED_RIGHT
+
+      PUPLACE_BOTTOM_LEFT
+      PUPLACE_BOTTOM_CENTERED
+      PUPLACE_BOTTOM_RIGHT
+</pre>
+</td></tr>
+
+<tr><td>
+<img SRC="legendplaces.png" ALT="Illustration of legend places" align=RIGHT>
+</td></tr>
+</table>
+
+<p>
 Each widget can be hidden (so it isn't drawn - and can't be clicked
 on), or simply 'greyed out' (so it can't be clicked on even though it's
 drawn - but in a style that makes it clear that this is the case).
