@@ -57,6 +57,11 @@ void kbFunc ( int key, int updn, int x, int y )
     }
 
   fprintf ( stderr, "\n" ) ;
+
+  if ( key == '<' ) pwSetSize ( 100, 100 ) ;
+  else
+  if ( key == '>' ) pwSetSize ( 640, 480 ) ;
+
   if ( key == 0x1B ) /* ESC */
   {
     pwCleanup () ;
