@@ -54,7 +54,7 @@ int pslCompiler::getChar ()
 }
 
 
-int pslCompiler::searchDefines ( char *token )
+int pslCompiler::searchDefines ( const char *token ) const
 {
   for ( int i = 0 ; i < next_define ; i++ )
     if ( define_token [ i ] != NULL &&

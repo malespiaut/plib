@@ -149,7 +149,7 @@ class pslCompiler
   char *define_token       [ MAX_SYMBOL ] ;
   char *define_replacement [ MAX_SYMBOL ] ;
 
-  int searchDefines ( char *s ) ;
+  int searchDefines ( const char *s ) const ;
 
   pslSymbol         symtab [ MAX_SYMBOL ] ;
   pslSymbol    code_symtab [ MAX_SYMBOL ] ;
