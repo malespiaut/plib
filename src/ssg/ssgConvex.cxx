@@ -2,6 +2,12 @@
 
 #ifdef GLU_VERSION_1_1
 
+/* Some weirdness with Windows and callbacks makes the following
+   necessary for non-win platforms: */
+#ifndef CALLBACK
+#define CALLBACK
+#endif
+
 static GLUtriangulatorObj *tesselator     = NULL;
 static ssgVtxTable        *source         = NULL;
 static ssgBranch          *poly_branch    = NULL;
@@ -12,7 +18,7 @@ static ssgNormalArray     *curr_normals   = NULL;
 static ssgColourArray     *curr_colours   = NULL;
 static ssgTexCoordArray   *curr_texcoords = NULL;
 
-static void vertexCallback( GLvoid *vertex_data ) {
+static CALLBACK void vertexCallback( GLvoid *vertex_data ) {
   int index = *(short*)vertex_data;
 
   curr_vertices -> add( source -> getVertex(index) );
@@ -25,7 +31,7 @@ static void vertexCallback( GLvoid *vertex_data ) {
     curr_texcoords -> add ( source -> getTexCoord (index) );
 }
 
-static void beginCallback( GLenum type ) {
+static CALLBACK void beginCallback( GLenum type ) {
   curr_gltype    = type;
   curr_vertices  = new ssgVertexArray;
   curr_normals   = new ssgNormalArray;
@@ -38,7 +44,7 @@ static void beginCallback( GLenum type ) {
     curr_normals -> add ( source -> getNormal (0) );
 }
 
-static void endCallback( void ) {
+static CALLBACK void endCallback( void ) {
   ssgVtxTable *leaf = new ssgVtxTable( curr_gltype,
 				       curr_vertices,
 				       curr_normals,
