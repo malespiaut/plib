@@ -77,11 +77,11 @@ public:
                        ssgaParticleDeleteFunc _particle_delete = NULL ) ;
 
   virtual ~ssgaParticleSystem () ;
+  virtual void update ( float t ) ;
 
   void setSize ( float sz ) { size = sz ; }
   float getSize () { return size ; }
 
-  void update ( float t ) ;
   void draw_geometry () ;
 
   int getNumActiveParticles () { return num_active ; }
