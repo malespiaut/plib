@@ -28,7 +28,7 @@
 
 static float optimise_vtol [3] =
 {
-  0.001f,  /* DISTANCE_SLOP = One millimeter */
+  0.001f,   /* DISTANCE_SLOP = One millimeter */
   0.04f,   /* COLOUR_SLOP = Four percent */
   0.004f,  /* TEXCOORD_SLOP = One texel on a 256 map */
 } ;
@@ -374,7 +374,7 @@ short OptVertexList::add ( sgVec3 v, sgVec2 t, sgVec4 c )
 {
   short i = find ( v, t, c, FALSE ) ;
   
-  if ( i >= 0 )
+  if (( i >= 0 ) && (i <0xFFFF))
   {
     vlist [ i ] -> bump () ;
     return i ;
@@ -898,7 +898,7 @@ static void strip ( ssgEntity *ent )
   }
 }
 
-static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
+void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
 {
   /*
     Move all transforms down to the leaf nodes and
