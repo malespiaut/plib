@@ -261,7 +261,7 @@ void ssgTween::draw ()
   float tstate = _ssgGetCurrentTweenState () ;
 
   if ( tstate >= (float)( banked_vertices -> getNumEntities () - 1) )
-    tstate = (float)( banked_vertices -> getNumEntities () - 1) - 0.001 ;
+    tstate = (float)( banked_vertices -> getNumEntities () - 1) - 0.001f ;
 
   int   state1 = (int) floor ( tstate ) ;
   int   state2 = state1 + 1 ;
