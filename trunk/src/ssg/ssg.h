@@ -1777,11 +1777,6 @@ ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadTRI  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadOBJ  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 
-//Simple error message routines for SSG
-void ssgSetError(const char *fmt, ...);
-char* ssgGetError(void);
-void ssgClearError(void);
-
 /* For backwards compatibility */
 
 ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL ) ;
