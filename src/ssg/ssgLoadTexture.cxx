@@ -85,7 +85,7 @@ bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
 
   int map_level = 0 ;
 
-#ifdef PROXY_TEXTURES_ARE_NOT_BROKEN
+#ifndef PROXY_TEXTURES_ARE_BROKEN
   int ww ;
 
   do
