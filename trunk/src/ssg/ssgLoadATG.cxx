@@ -39,6 +39,12 @@ ssgLoadATG and ssgSaveATG are not finished at all and there are some known bugs:
 - texture coordinate reading doesn't work 100%, writing is not implemented yet.
 - Only faces with "f". TriStrips ("ts") and TriFans ("tf") not yet supported.
 
+First of all, make sure the FG textures are in your texture path. If
+your FG is in, then add 
+C:/FG/Textures/$(...)
+to the string in viewer.setTexturePath in .ppe_rc.
+If you run PPE, it will tell you where you .pee_rc is (and create one if you don't have one).
+
 
 As an example, say you want to add a tower to the airport KLVK.
 It goes something like this:
@@ -233,11 +239,9 @@ static int parse()
 	// ********* Read Faces **********
 	int aiVertices[MAX_NO_VERTICES_PER_FACE], aiTCs[MAX_NO_VERTICES_PER_FACE];
 	unsigned int nNoOfVerticesForThisFace;
-	
+		
 	while ( 0 == strcmp( token, "f") )
 	{ char *ptr, buffer[1024], *ptr2Slash;
-
-		printf("%s\n",_current_usemtl);
 
 		if ( !ulStrEqual (_current_usemtl, _last_usemtl))
 		// ***************+ material has changed. ***********
@@ -326,7 +330,7 @@ static int parse()
 		// use array aiVertices
 		
 		unsigned int j;
-		ssgTexCoordArray * sca = new ssgTexCoordArray ();
+		ssgTexCoordArray * sca = new ssgTexCoordArray (nNoOfVerticesForThisFace);
 		sca->ref();
 		for(j=0;j<nNoOfVerticesForThisFace;j++)
 			sca->add(linearListTCPFAV->get(aiTCs[j]));
