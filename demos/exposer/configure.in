@@ -45,6 +45,8 @@ case "${host}" in
   LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32 -luser32 -lgdi32"
 	;;
 *-apple-darwin*)
+  dnl Mac OS X
+
   LIBS="$LIBS -framework GLUT -lobjc -framework OpenGL -framework Carbon"
 	;;
 *)
