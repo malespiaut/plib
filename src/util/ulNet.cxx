@@ -27,6 +27,9 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <sys/errno.h>
+#ifdef __sgi
+#include <errno.h>
+#endif
 
 #include "ul.h"
 
