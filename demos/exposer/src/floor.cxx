@@ -41,17 +41,17 @@ void Floor::draw ()
   glEnable  ( GL_TEXTURE_2D ) ;
   glEnable  ( GL_CULL_FACE  ) ;
   glBindTexture ( GL_TEXTURE_2D, texhandle ) ;
-  glColor4f ( 1, 1, 1, 1 ) ;
+  glColor4f ( 1.0f, 1.0f, 1.0f, 1.0f ) ;
 
   glBegin ( GL_QUADS ) ;
-    glTexCoord2f ( -30, timebox->getGroundPosition() - 30 ) ;
-    glVertex3f ( -30, -30, z_coord ) ;
-    glTexCoord2f (  30, timebox->getGroundPosition() - 30 ) ;
-    glVertex3f (  30, -30, z_coord ) ;
-    glTexCoord2f (  30, timebox->getGroundPosition() + 30 ) ;
-    glVertex3f (  30,  30, z_coord ) ;
-    glTexCoord2f ( -30, timebox->getGroundPosition() + 30 ) ;
-    glVertex3f ( -30,  30, z_coord ) ;
+    glTexCoord2f ( -30.0f, timebox->getGroundPosition() - 30.0f ) ;
+    glVertex3f ( -30.0f, -30.0f, z_coord ) ;
+    glTexCoord2f (  30.0f, timebox->getGroundPosition() - 30.0f ) ;
+    glVertex3f (  30.0f, -30.0f, z_coord ) ;
+    glTexCoord2f (  30.0f, timebox->getGroundPosition() + 30.0f ) ;
+    glVertex3f (  30.0f,  30.0f, z_coord ) ;
+    glTexCoord2f ( -30.0f, timebox->getGroundPosition() + 30.0f ) ;
+    glVertex3f ( -30.0f,  30.0f, z_coord ) ;
   glEnd () ;
 
   glDisable ( GL_TEXTURE_2D ) ;
