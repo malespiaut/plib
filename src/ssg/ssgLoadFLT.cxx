@@ -1260,8 +1260,8 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
           */
 
 	 static float default_mtl[14] = {
-	    0.2f, 0.2f, 0.2f,
-	    0.8f, 0.8f, 0.8f,
+	    1.0f, 1.0f, 1.0f,
+	    1.0f, 1.0f, 1.0f,
 	    0.0f, 0.0f, 0.0f,
 	    0.0f, 0.0f, 0.0f,
 	    8.0f, 1.0f
