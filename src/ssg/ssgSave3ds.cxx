@@ -2,7 +2,7 @@
  **  ssgSave3ds.cxx
  **  
  **  Written by Per Liedman (liedman@home.se)
- **  Last updated: 2000-12-25
+ **  Last updated: 2001-02-25
  **
  **  This was written to be a part of Stephen J Bakers
  **  PLIB (http://plib.sourceforge.net)
@@ -16,7 +16,7 @@
 #include "ssgLocal.h"
 #include "ssg3ds.h"
 
-FILE* save_fd;
+static FILE* save_fd;
 
 static const int MAX_MATERIALS = 128;
 static ssgSimpleState* mat[MAX_MATERIALS];
