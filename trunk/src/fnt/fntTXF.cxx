@@ -128,7 +128,7 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
 
     if ( ww == 0 )
     {
-      delete texels [ 0 ] ;
+      delete [] texels [ 0 ] ;
       xsize >>= 1 ;
       ysize >>= 1 ;
 
@@ -160,7 +160,7 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
                                        GL_RGBA,
                             GL_UNSIGNED_BYTE, (GLvoid *) texels[i] ) ;
     map_level++ ;
-    delete texels [ i ] ;
+    delete [] texels [ i ] ;
   }
 }
 
@@ -284,7 +284,7 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
           teximage [ i*2 + 1 ] = orig [ i ] ;
         }
 
-        delete orig ;
+        delete [] orig ;
       }
       break ;
    
@@ -296,7 +296,7 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 
         if ( (int)fread ( texbitmap, 1, stride * h, fd ) != stride * h )
         {
-          delete texbitmap ;
+          delete [] texbitmap ;
           ulSetError ( UL_WARNING,
             "fntLoadTXF: Premature EOF in '%s'.", fname ) ;
           return FNT_FALSE ;
@@ -315,7 +315,7 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 	      teximage[(i * w + j) * 2 + 1] = 255;
 	    }
 
-        delete texbitmap ;
+        delete [] texbitmap ;
       }
       break ;
 
