@@ -30,7 +30,7 @@
  ***************************************************************************/
 /*******************************************************
  **  This was written to be a part of Stephen J Bakers
- **  PLIB (http://www.woodsoup.org/projs/plib)
+ **  PLIB (http://plib.sourceforge.net)
  *******************************************************/
 
 #include "ssgLocal.h"
