@@ -18,3 +18,5 @@ exposer_SOURCES = \
 merge_tweens_SOURCES = \
        merge_tweens.cxx   merge_tweens.h
 
+EXTRA_DIST = exposer.dsp
+

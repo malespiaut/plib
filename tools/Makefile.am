@@ -1,6 +1,6 @@
 SUBDIRS = src
 
-EXTRA_DIST = README CHANGES LICENSE NOTICE acsite.m4
+EXTRA_DIST = autogen.sh README NOTICE tools.dsw
 
 dist-hook:
 	tar cf - doc \

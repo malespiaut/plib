@@ -1,6 +1,7 @@
-SUBDIRS = src data
+SUBDIRS = src
 
-EXTRA_DIST = README CHANGES LICENSE NOTICE acsite.m4 mkinstalldir install-sh
+EXTRA_DIST = autogen.sh README CHANGES NOTICE plib_examples.dsp \
+	plib_examples.dsw
 
 dist-hook:
 	tar cf - doc \

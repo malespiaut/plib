@@ -1,4 +1,4 @@
 SUBDIRS = src wavs images data mods fonts doc
 
-EXTRA_DIST = CHANGES LICENSE acsite.m4 install-sh mkinstalldirs
+EXTRA_DIST = autogen.sh README CHANGES acinclude.m4 TTT3D.dsw TTT3D.dsp
 

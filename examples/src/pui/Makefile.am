@@ -16,6 +16,5 @@ widget_list_LDADD = -lplibpu -lplibfnt -lplibsg -lplibul
 
 PointPicker_LDADD = -lplibpu -lplibfnt -lplibsg -lplibul
 
-EXTRA_DIST = complex.dsp simple.dsp
-
+EXTRA_DIST = complex.dsp simple.dsp PointPicker.dsp widget_list.dsp
 
