@@ -60,6 +60,8 @@ void       transformModel  ( ssgRoot   *boneRoot, float tim ) ;
 void opaqueBones () ;
 void blendBones  () ;
 
+float getLowestVertexZ () ;
+
 void init_bones () ;
 
 int getNumBones () ;

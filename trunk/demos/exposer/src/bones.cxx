@@ -151,7 +151,6 @@ void Bone::createJoint ()
   na = new puInput ( 0,20,80,40 ) ;
 
   na->setUserData ( this ) ;
-  na->setLegendFont ( PUFONT_HELVETICA_10 ) ;
   na->setColourScheme ( colour[0], colour[1], colour[2], 0.5f ) ;
 
   rs->setUserData ( this ) ;
@@ -793,6 +792,22 @@ void extractVertices ( ssgBranch *root )
 
 
 
+float getLowestVertexZ ()
+{
+  float lowest = FLT_MAX ;
+
+  for ( int i = 0 ; i < nextVertex ; i++ )
+  {
+    float v = vertex[i].vx [ 2 ] ;
+
+    if ( v < lowest )
+      lowest = v ;
+  }
+
+  return lowest ;
+}
+
+
 void walkTransforms ( ssgBranch *root, sgMat4 mat )
 {
   if ( root == NULL )
@@ -1001,7 +1016,6 @@ void init_bones ()
   puText   *message ;
 
   XtranslateInput  =  new puInput ( 5, 485, 80, 505 ) ;
-  XtranslateInput  -> setLegendFont ( PUFONT_HELVETICA_10 ) ;
   XtranslateInput  -> setCallback ( currTranslateTxtXCB ) ;
 
   XtranslateSlider = new puSlider ( 80, 485, 120, FALSE ) ;
@@ -1011,7 +1025,6 @@ void init_bones ()
   message = new puText ( 205,485 ) ; message->setLabel ( "X" ) ; 
 
   YtranslateInput  =  new puInput ( 5, 505, 80, 525 ) ;
-  YtranslateInput  -> setLegendFont ( PUFONT_HELVETICA_10 ) ;
   YtranslateInput  -> setCallback ( currTranslateTxtYCB ) ;
 
   YtranslateSlider = new puSlider ( 80, 505, 120, FALSE ) ;
@@ -1021,7 +1034,6 @@ void init_bones ()
   message = new puText ( 205,505 ) ; message->setLabel ( "Y" ) ; 
 
   ZtranslateInput  =  new puInput ( 5, 525, 80, 545 ) ;
-  ZtranslateInput  -> setLegendFont ( PUFONT_HELVETICA_10 ) ;
   ZtranslateInput  -> setCallback ( currTranslateTxtZCB ) ;
 
   ZtranslateSlider = new puSlider ( 80, 525, 120, FALSE ) ;
