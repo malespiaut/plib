@@ -24,8 +24,43 @@
 
 #include "pslLocal.h"
 
-int _pslInitialised = FALSE ;
+int   _pslInitialised = FALSE ;
+char *_pslScriptPath  = NULL  ;
 
 void pslInit () { _pslInitialised = TRUE ; }
+
+void pslScriptPath ( char *path )
+{
+  delete [] _pslScriptPath ;
+  _pslScriptPath = ulStrDup ( path ) ;
+}
+
+
+char* _pslMakeScriptPath ( char* path, const char* fname )
+{
+  if ( fname != NULL && fname [ 0 ] != '\0' )
+  {
+    if ( ! ulIsAbsolutePathName ( fname ) &&
+       _pslScriptPath != NULL && _pslScriptPath[0] != '\0' )
+    {
+      strcpy ( path, _pslScriptPath ) ;
+      strcat ( path, "/" ) ;
+      strcat ( path, fname ) ;
+    }
+    else
+      strcpy ( path, fname ) ;
+ 
+    /* Convert backward slashes to forward slashes */
+
+    for ( char* ptr = path ; *ptr ; ptr ++ )
+      if ( *ptr == '\\' )
+        *ptr = '/' ;
+  }
+  else
+    path [0] = 0 ;
+
+  return path ;
+}
+
 
 

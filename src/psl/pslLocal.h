@@ -59,4 +59,5 @@ extern int _pslInitialised ;
 #include "pslCompiler.h"
 #include "pslContext.h"
 
+char* _pslMakeScriptPath ( char* path, const char* fname ) ;
 

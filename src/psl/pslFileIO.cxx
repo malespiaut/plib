@@ -120,11 +120,15 @@ void _pslPushDefaultFile ( FILE *fd, const char *fname ) { new pslFile ( fd, fna
 
 void _pslPushDefaultFile ( const char *fname )
 {
-  FILE *fd = fopen ( fname, "ra" ) ;
+  char filename [ 1024 ] ;
+  _pslMakeScriptPath ( filename, fname ) ;                        
+
+  FILE *fd = fopen ( filename, "ra" ) ;
 
   if ( fd == NULL )
   {
-    fprintf ( stderr, "PSL: ERROR - Can't open #include'ed file '%s'", fname ) ;
+    fprintf ( stderr,
+                 "PSL: ERROR - Can't open #include'ed file '%s'", filename ) ;
     return ;
   }
 

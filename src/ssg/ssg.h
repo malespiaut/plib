@@ -2654,7 +2654,8 @@ ssgEntity *ssgLoadStrip( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadOFF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadATG  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadVRML1( const char *fname, const ssgLoaderOptions* options = NULL ) ;
-ssgEntity *ssgLoadIV( const char *fname, const ssgLoaderOptions* options = NULL ) ;
+ssgEntity *ssgLoadIV   ( const char *fname, const ssgLoaderOptions* options = NULL ) ;
+ssgEntity *ssgLoadXPlaneOBJ ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 
 
 typedef ssgEntity *ssgLoadFunc ( const char *, const ssgLoaderOptions * ) ;

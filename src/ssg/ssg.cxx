@@ -143,7 +143,6 @@ void ssgInit ()
   ssgAddModelFormat ( ".wrl",   ssgLoadVRML1, ssgSaveVRML1 ) ;
   ssgAddModelFormat ( ".iv", ssgLoadIV , NULL ) ;
 
-
 #ifdef SSG_LOAD_MDL_SUPPORTED
   ssgAddModelFormat ( ".mdl",   ssgLoadMDL  , NULL       ) ;
 #endif
@@ -199,6 +198,9 @@ void ssgInit ()
   ssgAddTextureFormat ( ".ngt" ,   ssgLoadMDLTexture ) ;
 #endif
 
+#ifdef SSG_LOAD_XPL_SUPPORTED
+  ssgAddModelFormat ( ".xpl",   ssgLoadXPlaneOBJ  , NULL ) ;
+#endif
 }
 
 
