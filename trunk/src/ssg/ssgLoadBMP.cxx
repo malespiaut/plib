@@ -97,7 +97,7 @@ struct RGBA
 } ;
 
 
-void ssgLoadBMP ( const char *fname )
+bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
 {
   int w, h, bpp ;
   RGBA pal [ 256 ] ;
@@ -112,7 +112,7 @@ void ssgLoadBMP ( const char *fname )
   {
     perror ( "ssgLoadTexture" ) ;
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", curr_image_fname ) ;
-    return ;
+    return false ;
   }
 
   /*
@@ -131,7 +131,7 @@ void ssgLoadBMP ( const char *fname )
   {
     ulSetError ( UL_WARNING, "%s: Unrecognised magic number 0x%04x",
                             curr_image_fname, bmphdr.FileType ) ;
-    return ;
+    return false ;
   }
 
   bmphdr.FileSize      = readInt   () ;
@@ -208,7 +208,7 @@ void ssgLoadBMP ( const char *fname )
       if ( fread ( row_ptr, 1, row_size, curr_image_fd ) != (unsigned)row_size )
       {
         ulSetError ( UL_WARNING, "Premature EOF in '%s'", curr_image_fname ) ;
-        return ;
+        return false ;
       }
     }
   }
@@ -278,52 +278,63 @@ void ssgLoadBMP ( const char *fname )
   else
   {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Can't load %d bpp BMP textures.", bpp ) ;
-    ssgLoadDummyTexture () ;
-    return ;
+    return false ;
   }
 
-  _ssgSetTextureAlphaFlag ( z == 4 ) ;
-  ssgMakeMipMaps ( image, w, h, z ) ;
+  if ( info != NULL )
+  {
+    info -> width = w ;
+    info -> height = h ;
+    info -> depth = z ;
+    info -> alpha = ( z == 4 ) ;
+  }
+
+  return ssgMakeMipMaps ( image, w, h, z ) ;
 }
 
 
 // This really simple (raw paletted) format is used by older MSFS for textures
-void ssgLoadMDLTexture ( const char *fname )
+bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
 {
   FILE *tfile;
   if ( (tfile = fopen(fname, "rb")) == NULL) {
     ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname );
-    ssgLoadDummyTexture () ;
-    return;
+    return false ;
   }
-
+  
   fseek(tfile, 0, SEEK_END);
   unsigned long file_length = ftell(tfile);
-
+  
   if (file_length != 65536) {
     // this is not a MSFS-formatted texture, so it's probably a BMP
     fclose(tfile);
-    ssgLoadBMP( fname );
-    return;
+    return ssgLoadBMP( fname, info );
   } else {
     fseek(tfile, 0, SEEK_SET);
-
+    
     unsigned char *texels = new unsigned char[256 * 256 * 4];
     int c = 0;
     for (int y = 0; y < 256; y++) {
       for (int x = 0; x < 256; x++) {
-	unsigned char b;
-	fread(&b, 1, 1, tfile);
-	texels[c++] = fsTexPalette[b*4    ];
-	texels[c++] = fsTexPalette[b*4 + 1];
-	texels[c++] = fsTexPalette[b*4 + 2];
-	texels[c++] = fsTexPalette[b*4 + 3];
+        unsigned char b;
+        fread(&b, 1, 1, tfile);
+        texels[c++] = fsTexPalette[b*4    ];
+        texels[c++] = fsTexPalette[b*4 + 1];
+        texels[c++] = fsTexPalette[b*4 + 2];
+        texels[c++] = fsTexPalette[b*4 + 3];
       }
     }
-
+    
     fclose(tfile);
     
-    // tm -> setAlphaFlag ( TRUE ) ; ??
-    ssgMakeMipMaps ( texels, 256, 256, 4 ) ;
+    if ( info != NULL )
+    {
+      info -> width = 256 ;
+      info -> height = 256 ;
+      info -> depth = 4 ;
+      info -> alpha = FALSE ;  //??
+    }
+    
+    return ssgMakeMipMaps ( texels, 256, 256, 4 ) ;
   }
 }

@@ -5,7 +5,7 @@
 struct _ssgTextureFormat
 {
   const char *extension ;
-  void (*loadfunc) ( const char * ) ;
+  bool (*loadfunc) ( const char *, ssgTextureInfo* info ) ;
 } ;
 
 
@@ -15,7 +15,6 @@ static _ssgTextureFormat formats [ MAX_FORMATS ] ;
 static int num_formats = 0 ;
 
 static int total_texels_loaded = 0 ;
-static int alpha_flag = FALSE ;
 
 
 int ssgGetNumTexelsLoaded ()
@@ -24,26 +23,13 @@ int ssgGetNumTexelsLoaded ()
 }
 
 
-int _ssgGetTextureAlphaFlag ()
-{
-  return alpha_flag ;
-}
-
-
-void _ssgSetTextureAlphaFlag ( int flag )
-{
-  alpha_flag = flag ;
-}
-
-
-void ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
+bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
 {
   if ( ! ((xsize & (xsize-1))==0) ||
        ! ((ysize & (ysize-1))==0) )
   {
     ulSetError ( UL_WARNING, "Map is not a power-of-two in size!" ) ;
-    ssgLoadDummyTexture () ;
-    return ;
+    return false ;
   }
 
   GLubyte *texels [ 20 ] ;   /* One element per level of MIPmap */
@@ -152,12 +138,14 @@ void ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
     map_level++ ;
     delete texels [ i ] ;
   }
+
+  return true ;
 }
 
 
-void ssgLoadDummyTexture ()
+static void ssgLoadDummyTexture ( ssgTextureInfo* info )
 {
-  GLubyte *image = new GLubyte [ 4 * 3 ] ;
+  GLubyte *image = new GLubyte [ 2 * 2 * 3 ] ;
 
   /* Red and white chequerboard */
 
@@ -166,12 +154,20 @@ void ssgLoadDummyTexture ()
   image [ 6 ] = 255 ; image [ 7 ] = 255 ; image [ 8 ] = 255 ;
   image [ 9 ] = 255 ; image [ 10] =  0  ; image [ 11] =  0  ;
 
+  if ( info != NULL )
+  {
+    info -> width = 2 ;
+    info -> height = 2 ;
+    info -> depth = 3 ;
+    info -> alpha = 0 ;
+  }
+
   ssgMakeMipMaps ( image, 2, 2, 3 ) ;
 }
 
 
 void ssgAddTextureFormat ( const char* extension,
-                          void (*loadfunc) ( const char* fname ) )
+          bool (*loadfunc) (const char*, ssgTextureInfo* info) )
 {
   if ( num_formats < MAX_FORMATS )
   {
@@ -186,12 +182,18 @@ void ssgAddTextureFormat ( const char* extension,
 }
 
 
-void ssgLoadTexture ( const char *fname )
+bool ssgLoadTexture ( const char *fname, ssgTextureInfo* info )
 {
-  _ssgSetTextureAlphaFlag ( FALSE ) ;
+  if ( info != NULL )
+  {
+    info -> width = 0 ;
+    info -> height = 0 ;
+    info -> depth = 0 ;
+    info -> alpha = 0 ;
+  }
 
   if ( fname == NULL || *fname == '\0' )
-    return ;
+    return false ;
 
   //find extension
   const char *extn = & ( fname [ strlen(fname) ] ) ;
@@ -201,19 +203,24 @@ void ssgLoadTexture ( const char *fname )
   if ( *extn != '.' )
   {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Cannot determine file type for '%s'", fname );
-    return ;
+    ssgLoadDummyTexture ( info ) ;
+    return false ;
   }
 
   for ( _ssgTextureFormat *f = formats; f->extension != NULL; f++ )
     if ( f->loadfunc != NULL &&
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
     {
-      f->loadfunc( fname ) ;
-      return ;
+      if ( f->loadfunc( fname, info ) )
+        return true ;
+
+      ssgLoadDummyTexture ( info ) ; /* fail */
+      return false ;
     }
 
   ulSetError ( UL_WARNING, "ssgLoadTexture: Unrecognised file type '%s'", extn ) ;
-  ssgLoadDummyTexture () ;
+  ssgLoadDummyTexture ( info ) ;
+  return false ;
 }
 
 
