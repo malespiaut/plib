@@ -1057,28 +1057,23 @@ public:
 } ;
 
 
-class puDial : public puObject
+class puDial : public puSlider
 {
 protected:
-  float min_value ;
-  float max_value ;
+  int wrap ;  // Flag telling whether you can wrap around the bottom of the dial
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
   puDial ( int minx, int miny, int sz ) :
-     puObject ( minx, miny, minx+sz, miny+sz )
+     puSlider ( minx, miny, sz )
   {
     type |= PUCLASS_DIAL ;
     setValue ( 0.0f ) ;
-    min_value = -180.0f ;
-    max_value = +180.0f ;
+    wrap = TRUE ;
   }
 
-  void setMinimum ( float f ) { min_value = f ; }
-  float getMinimum ( void ) { return min_value ; }
-
-  void setMaximum ( float f ) { max_value = f ; }
-  float getMaximum ( void ) { return max_value ; }
+  void setWrap ( int in )  {  wrap = in ;  }
+  int getWrap ( void )  {  return wrap ;  }
 } ;
 
 

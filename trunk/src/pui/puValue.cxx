@@ -42,14 +42,14 @@ char *puValue::getTypeString ( void )
 {
   int i = getType () ;
 
-  if ( i & PUCLASS_LARGEINPUT  ) return "puDialogBox" ;
-  if ( i & PUCLASS_VERTMENU    ) return "puSlider" ;
-  if ( i & PUCLASS_TRISLIDER   ) return "puButtonBox" ;
-  if ( i & PUCLASS_BISLIDER    ) return "puInput" ;
-  if ( i & PUCLASS_FILEPICKER  ) return "puMenuBar" ;
-  if ( i & PUCLASS_DIAL        ) return "puPopupMenu" ;
-  if ( i & PUCLASS_LISTBOX     ) return "puPopup" ;
-  if ( i & PUCLASS_ARROW       ) return "puOneShot" ;
+  if ( i & PUCLASS_LARGEINPUT  ) return "puLargeInput" ;
+  if ( i & PUCLASS_VERTMENU    ) return "puVerticalMenu" ;
+  if ( i & PUCLASS_TRISLIDER   ) return "puTriSlider" ;
+  if ( i & PUCLASS_BISLIDER    ) return "puBiSlider" ;
+  if ( i & PUCLASS_FILEPICKER  ) return "puFilePicker" ;
+  if ( i & PUCLASS_DIAL        ) return "puDial" ;
+  if ( i & PUCLASS_LISTBOX     ) return "puListBox" ;
+  if ( i & PUCLASS_ARROW       ) return "puArrowButton" ;
   if ( i & PUCLASS_DIALOGBOX   ) return "puDialogBox" ;
   if ( i & PUCLASS_SLIDER      ) return "puSlider" ;
   if ( i & PUCLASS_BUTTONBOX   ) return "puButtonBox" ;
