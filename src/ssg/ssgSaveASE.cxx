@@ -80,6 +80,15 @@ static void save_states ()
 
 static void save_mesh ( ssgVtxTable *vt )
 {
+  GLenum mode = vt -> getGLtype () ;
+  if ( mode != GL_TRIANGLES &&
+    mode != GL_TRIANGLE_FAN &&
+    mode != GL_TRIANGLE_STRIP )
+  {
+    //only triangle export
+    return;
+  }
+
   const char* name = vt->getPrintableName() ;
   int j ;
 
@@ -154,7 +163,8 @@ static void save_mesh ( ssgVtxTable *vt )
 /*
   Item MESH_NUMTVERTEX.
 */
-  if ( st && st -> isEnabled ( GL_TEXTURE_2D ) )
+  if ( st && st -> isEnabled ( GL_TEXTURE_2D ) &&
+    vt -> getNumTexCoords () == num_vert )
   {
     fprintf ( save_fd, "    *MESH_NUMTVERTEX %d\n", num_vert );
     fprintf ( save_fd, "    *MESH_TVERTLIST {\n" );
@@ -163,7 +173,7 @@ static void save_mesh ( ssgVtxTable *vt )
       sgVec2 tv ;
       sgCopyVec2 ( tv, vt->getTexCoord ( j ) ) ;
       fprintf ( save_fd, "      *MESH_TVERT %d %f %f %f\n",
-        j, tv[0], tv[1], 1.0f );
+        j, tv[0], 1.0f - tv[1], 1.0f );
     }
     fprintf ( save_fd, "    }\n" );
     fprintf ( save_fd, "    *MESH_NUMTVFACES %d\n", num_face );

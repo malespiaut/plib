@@ -22,6 +22,12 @@
 #include <errno.h>
 
 
+#if !defined (WIN32)
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+#endif
+
+
 /*
  * Define Basic types
  */
