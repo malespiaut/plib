@@ -315,6 +315,9 @@ Here comes a table of the features of all the file formats and loaders and write
 VRML doesn't really work, so you won't find it here. 
 The "QHI" (QHull Input - a format used by a toll to create convex hulls)
 writer only writes a point cloud and suppoorts no other features, so I also didn't add it to the table.
+BTW, if you want to create convex hulls of existing geometry, you just need a few lines. Look
+into PPE (prettypoly editor, on SourceForge as well), into the file ppeCoreFuncs.cxx,
+function addConvexHull.
 The SSG loaders/writers support all
 features of the ssg-lib, so missing features mean they miss in the library (normaly because they miss in OpenGL)
 The letters mean:
