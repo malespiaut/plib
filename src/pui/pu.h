@@ -422,26 +422,39 @@ puObject *puActiveWidget ( void ) ;
 
 class puValue
 {
-protected:
-  int   type    ;
-  int   integer ;
-  float floater ;
+private:
+  /* Fake mutable */
+  int   *integer ;
+  float *floater ;
+
   char  *string ;
-  int   string_size ;
 
   int   *res_integer  ;
   float *res_floater  ;
   char  *res_string   ;
+
+protected:
+  int   type    ;
+
+  int   string_size ;
   int   res_string_sz ;
 
-  void re_eval    ( void ) ;
-  void update_res ( void ) const ;
+  void re_eval    ( void ) const ;
+  void update_res ( void ) const { } /* Obsolete ! */ ;
 
   void copy_stringval ( const char *str ) ;
+
+  int *   getIntegerp ( void ) const { return res_integer != NULL ? res_integer : integer ; }
+  float * getFloaterp ( void ) const { return res_floater != NULL ? res_floater : floater ; }
+  char *  getStringp  ( void ) const { return res_string != NULL ? res_string : string ; }
 
 public:
   puValue ()
   {
+    /* Fake mutable */
+    integer = new int ;
+    floater = new float ;
+
     string_size = PUSTRING_INITIAL ;
     string = new char [ string_size ] ;
 
@@ -452,7 +465,12 @@ public:
     clrValue () ;
   }
 
-  virtual ~puValue () { delete [] string ; }
+  virtual ~puValue ()
+  {
+    delete integer ;
+    delete floater ;
+    delete [] string ;
+  }
 
   int  getType ( void ) const { return type ; }
   const char *getTypeString ( void ) const ;
@@ -460,16 +478,14 @@ public:
 
   void setValue ( puValue *pv )
   {
-    integer = pv -> integer ;
-    floater = pv -> floater ;
-    copy_stringval ( pv -> string ) ;
-    update_res () ;
+    *getIntegerp () = pv -> getIntegerValue () ;
+    *getFloaterp () = pv -> getFloatValue () ;
+    copy_stringval ( pv -> getStringValue () ) ;
     puPostRefresh () ;
   }
 
   void setValuator ( int   *i ) { res_integer = i    ; res_floater = NULL ; res_string = NULL ; re_eval () ; }
   void setValuator ( float *f ) { res_integer = NULL ; res_floater = f    ; res_string = NULL ; re_eval () ; }
-
   void setValuator ( char *s, int size )
   {
     res_integer = NULL ; res_floater = NULL ; res_string = s ;
@@ -481,48 +497,55 @@ public:
   /* Obsolete ! */
   void setValuator ( char *s ) { setValuator ( s, PUSTRING_MAX ) ; }
 
-  void setValue ( int   i ) { integer = i ; floater = (float) i ; sprintf ( string, "%d", i ) ; update_res() ; puPostRefresh () ; }
-  void setValue ( float f ) { integer = (int) f ; floater = f ; sprintf ( string, "%g", f ) ; update_res() ; puPostRefresh () ; }
-
+  void setValue ( int   i )
+  {
+    *getIntegerp () = i ; *getFloaterp () = (float) i ;
+    sprintf ( getStringp (), "%d", i ) ; puPostRefresh () ;
+  }
+  void setValue ( float f )
+  {
+    *getIntegerp () = (int) f ; *getFloaterp () = f ;
+    sprintf ( getStringp (), "%g", f ) ;
+    puPostRefresh () ;
+  }
   void setValue ( const char *s )
   { 
-    if ( s == NULL || s[0] == '\0' )
+    if ( s == NULL )
     {
-      integer = 0 ; floater = 0.0f ;
+      *getIntegerp () = 0 ; *getFloaterp () = 0.0f ;
       copy_stringval ( "" ) ;
     }
     else
     {
-      integer = (int) strtol ( s, NULL, 0 ) ;
-      floater = (float) strtod ( s, NULL ) ;
+      *getIntegerp () = (int) strtol ( s, NULL, 0 ) ;
+      *getFloaterp () = (float) strtod ( s, NULL ) ;
       copy_stringval ( s ) ;
     }
 
-    update_res () ;
     puPostRefresh () ;
   }
 
-  void getValue ( int   *i ) { re_eval () ; *i = integer ; }
-  void getValue ( float *f ) { re_eval () ; *f = floater ; }
-  void getValue ( char **s ) { re_eval () ; *s = string  ; }
-  void getValue ( char  *s, int size )
+  void getValue ( int   *i ) const { re_eval () ; *i = *getIntegerp () ; }
+  void getValue ( float *f ) const { re_eval () ; *f = *getFloaterp () ; }
+  void getValue ( char **s ) const { re_eval () ; *s = getStringp ()   ; }
+  void getValue ( char  *s, int size ) const
   {
     re_eval () ;
 
     /* Work around ANSI strncpy's null-fill behaviour */
 
     s[0] = '\0' ;
-    strncat ( s, string, size-1 ) ;
+    strncat ( s, getStringp (), size-1 ) ;
   }
 
-  void getValue ( char  *s ) { getValue ( s, PUSTRING_MAX ) ; } /* Obsolete ! */
+  void getValue ( char  *s ) const { getValue ( s, PUSTRING_MAX ) ; } /* Obsolete ! */
 
-  int  getValue ( void ) { re_eval () ; return integer ; } /* Obsolete ! */
+  int  getValue ( void ) const { return getIntegerValue () ; } /* Obsolete ! */
 
-  int   getIntegerValue ( void ) { re_eval () ; return integer   ; }
-  float getFloatValue ( void )   { re_eval () ; return floater   ; }
-  char  getCharValue ( void )    { re_eval () ; return string[0] ; }
-  char *getStringValue ( void )  { re_eval () ; return string    ; }
+  int   getIntegerValue ( void ) const { re_eval () ; return *getIntegerp () ; }
+  float getFloatValue ( void ) const   { re_eval () ; return *getFloaterp () ; }
+  char  getCharValue ( void ) const    { re_eval () ; return getStringp ()[0]; }
+  char *getStringValue ( void ) const  { re_eval () ; return getStringp   () ; }
 } ;
 
 typedef void (*puCallback)(class puObject *) ;
@@ -794,16 +817,16 @@ public:
   void setDefaultValue ( float  f ) { default_value.setValue ( f ) ; }
   void setDefaultValue ( const char *s ) { default_value.setValue ( s ) ; }
 
-  void getDefaultValue ( int   *i ) { default_value.getValue ( i ) ; }
-  void getDefaultValue ( float *f ) { default_value.getValue ( f ) ; }
-  void getDefaultValue ( char **s ) { default_value.getValue ( s ) ; }
-  void getDefaultValue ( char  *s ) { default_value.getValue ( s ) ; }
+  void getDefaultValue ( int   *i ) const { default_value.getValue ( i ) ; }
+  void getDefaultValue ( float *f ) const { default_value.getValue ( f ) ; }
+  void getDefaultValue ( char **s ) const { default_value.getValue ( s ) ; }
+  void getDefaultValue ( char  *s ) const { default_value.getValue ( s ) ; }
 
-  int  getDefaultValue ( void )     { return default_value.getValue () ; } /* Obsolete ! */
+  int  getDefaultValue ( void )     const { return default_value.getValue () ; } /* Obsolete ! */
 
-  int  getDefaultIntegerValue ( void ) { return default_value.getIntegerValue () ; }
-  float getDefaultFloatValue  ( void ) { return default_value.getFloatValue   () ; }
-  char *getDefaultStringValue ( void ) { return default_value.getStringValue  () ; }
+  int  getDefaultIntegerValue ( void ) const { return default_value.getIntegerValue () ; }
+  float getDefaultFloatValue  ( void ) const { return default_value.getFloatValue   () ; }
+  char *getDefaultStringValue ( void ) const { return default_value.getStringValue  () ; }
 } ;
 
 /*
