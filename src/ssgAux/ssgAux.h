@@ -28,14 +28,16 @@
 #include "sg.h"
 #include "ssg.h"
 #include "ssgaShapes.h"
+#include "ssgaParticleSystem.h"
 
 
-#define _SSGA_TYPE_SHAPE     0x00008000
-#define _SSGA_TYPE_CUBE      0x00004000
-#define _SSGA_TYPE_SPHERE    0x00002000
-#define _SSGA_TYPE_CYLINDER  0x00001000
-#define _SSGA_TYPE_PATCH     0x00010000
-#define _SSGA_TYPE_TEAPOT    0x00020000
+#define _SSGA_TYPE_SHAPE          0x00008000
+#define _SSGA_TYPE_CUBE           0x00004000
+#define _SSGA_TYPE_SPHERE         0x00002000
+#define _SSGA_TYPE_CYLINDER       0x00001000
+#define _SSGA_TYPE_PATCH          0x00010000
+#define _SSGA_TYPE_TEAPOT         0x00020000
+#define _SSGA_TYPE_PARTICLESYSTEM 0x00040000
 
 inline int ssgaTypeShape   () { return _SSGA_TYPE_SHAPE    | ssgTypeBranch ();}
 inline int ssgaTypeCube    () { return _SSGA_TYPE_CUBE     | ssgaTypeShape ();}
@@ -43,6 +45,8 @@ inline int ssgaTypeSphere  () { return _SSGA_TYPE_SPHERE   | ssgaTypeShape ();}
 inline int ssgaTypeCylinder() { return _SSGA_TYPE_CYLINDER | ssgaTypeShape ();}
 inline int ssgaTypePatch   () { return _SSGA_TYPE_PATCH    | ssgaTypeShape ();}
 inline int ssgaTypeTeapot  () { return _SSGA_TYPE_TEAPOT   | ssgaTypeShape ();}
+inline int ssgaTypeParticleSystem ()
+                        { return _SSGA_TYPE_PARTICLESYSTEM | ssgaTypeShape ();}
 
 void ssgaInit () ;
 
