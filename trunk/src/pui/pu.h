@@ -258,7 +258,8 @@ extern int puRefresh ;
 #define PUCLASS_DIALOGBOX        0x00004000
 #define PUCLASS_ARROW            0x00008000
 #define PUCLASS_LISTBOX          0x00010000
-#define PUCLASS_DIAL             0x00010000
+#define PUCLASS_DIAL             0x00020000
+#define PUCLASS_FILEPICKER       0x00040000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -285,6 +286,7 @@ class puSlider           ;
 class puListBox          ;
 class puArrowButton      ;
 class puDial             ;
+class puFilePicker       ;
 
 typedef float puColour [ 4 ] ;  /* RGBA */
 
@@ -511,7 +513,7 @@ public:
     recalc_bbox() ; puRefresh = TRUE ;
   }
 
-  void setSize ( int w, int h )
+  virtual void setSize ( int w, int h )
   {
     abox.max[0] = abox.min[0] + w ;
     abox.max[1] = abox.min[1] + h ;
@@ -818,7 +820,7 @@ public:
     cb_mode = PUSLIDER_ALWAYS ;
   }
 
-  /* Blake Friesen - alternate constructor which lets you explicity set width */
+  /* Blake Friesen - alternate constructor which lets you explicitly set width */
   puSlider ( int minx, int miny, int sz, int vertical, int width ) :
      puObject ( minx, miny, vertical ?
                              ( minx + width ) :
@@ -1052,10 +1054,15 @@ class puFilePicker : public puDialogBox
   static void handle_select ( puObject* ) ;
 
 protected:
+  void puFilePickerInit ( int x, int y, int w, int h, const char *dir, const char *title ) ;
+
 public:
 
-  puFilePicker ( int x, int y, const char* dir ) ;
+  puFilePicker ( int x, int y, const char* dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, int w, int h, const char *dir, const char *title = "Pick a file" ) ;
   ~puFilePicker () ;
+
+  void setSize ( int w, int h ) ;
 } ;
 
 

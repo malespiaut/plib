@@ -38,47 +38,39 @@ static void handle_ok ( puObject* b )
   file_picker -> invokeCallback () ;
 }
 
-puFilePicker::puFilePicker ( int x, int y, const char* dir ) : puDialogBox ( x, y )
+void puFilePicker::setSize ( int w, int h )
 {
-  files = 0 ;
-  num_files = 0 ;
-  setValue ( "" ) ;
+  puObject *ob ;
+  for ( ob = dlist; ob != NULL; ob = ob->next )
+  {
+    if ( ob->getType() & PUCLASS_FRAME )  /* Resize the frame */
+      ob->setSize ( w, h ) ;
+    else if ( ob->getType() & PUCLASS_SLIDER )  /* Resize and position the slider */
+    {
+      ob->setPosition ( w-40, 40 ) ;
+      ob->setSize ( 20, h-70 ) ;
+    }
+    else if ( ob->getType() & PUCLASS_LISTBOX )  /* Resize the list box */
+      ob->setSize ( w-70, h-70 ) ;
+    else  /* One-shot widgets, need to distinguish between them */
+    {
+      ob->setSize ( (w<170)?(w/2-15):70, 20 ) ;  /* Both buttons are the same size */
+      if ( *( ob->getLegend () ) == 'O' )  /* "Ok" button */
+        ob->setPosition ( (w<170)?(w/2+5):90, 10 ) ;
+    }
+  }
+}
 
-  find_files ( dir ) ;
+puFilePicker::puFilePicker ( int x, int y, int w, int h, const char* dir, const char *title )
+                           : puDialogBox ( x, y )
+{
+  puFilePickerInit ( x, y, w, h, dir, title ) ;
+}
 
-  new puFrame ( 0, 0, 220, 170 );
-
-  puSlider* slider = new puSlider (170+10,40,100,TRUE);
-  slider->setDelta(0.1f);
-  slider->setValue(1.0f);
-  slider->setSliderFraction (0.2f) ;
-  slider->setCBMode( PUSLIDER_DELTA );
-  
-  puListBox* list_box = new puListBox ( 20, 40, 170, 140, files ) ;
-  list_box -> setLabel ( "Pick a file" );
-  list_box -> setLabelPlace ( PUPLACE_ABOVE ) ;
-  list_box -> setStyle ( -PUSTYLE_SMALL_SHADED ) ;
-  list_box -> setUserData ( this ) ;
-  list_box -> setCallback ( handle_select ) ;
-  list_box -> setValue ( 0 ) ;
-  handle_select ( list_box ) ;
-  
-  slider -> setUserData ( list_box ) ;
-  slider -> setCallback ( handle_slider ) ;
-
-  puOneShot* cancel_button = new puOneShot ( 20, 10, 90, 30 ) ;
-  cancel_button -> setLegend ( "Cancel" ) ;
-  cancel_button -> setUserData ( this ) ;
-  cancel_button -> setCallback ( handle_cancel ) ;
-  
-  puOneShot* ok_button = new puOneShot ( 100, 10, 170, 30 ) ;
-  ok_button -> setLegend ( "Ok" ) ;
-  ok_button -> setUserData ( this ) ;
-  ok_button -> setCallback ( handle_ok ) ;
-//  ok_button->makeReturnDefault ( TRUE ) ;
-
-  close  () ;
-  reveal () ;
+puFilePicker::puFilePicker ( int x, int y, const char* dir, const char *title )
+                           : puDialogBox ( x, y )
+{
+  puFilePickerInit ( x, y, 220, 170, dir, title ) ;
 }
 
 puFilePicker::~puFilePicker ()
@@ -94,6 +86,51 @@ puFilePicker::~puFilePicker ()
     files = 0;
   }
   num_files = 0;
+}
+
+void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, const char *dir,
+                                      const char *title )
+{
+  type |= PUCLASS_FILEPICKER ;
+  files = 0 ;
+  num_files = 0 ;
+  setValue ( "" ) ;
+
+  find_files ( dir ) ;
+
+  new puFrame ( 0, 0, w, h );
+
+  puSlider* slider = new puSlider (w-40,40,h-70,TRUE);
+  slider->setDelta(0.1f);
+  slider->setValue(1.0f);
+  slider->setSliderFraction (0.2f) ;
+  slider->setCBMode( PUSLIDER_DELTA );
+  
+  puListBox* list_box = new puListBox ( 20, 40, w-50, h-30, files ) ;
+  list_box -> setLabel ( title );
+  list_box -> setLabelPlace ( PUPLACE_ABOVE ) ;
+  list_box -> setStyle ( -PUSTYLE_SMALL_SHADED ) ;
+  list_box -> setUserData ( this ) ;
+  list_box -> setCallback ( handle_select ) ;
+  list_box -> setValue ( 0 ) ;
+  handle_select ( list_box ) ;
+  
+  slider -> setUserData ( list_box ) ;
+  slider -> setCallback ( handle_slider ) ;
+
+  puOneShot* cancel_button = new puOneShot ( 10, 10, (w<170)?(w/2-5):80, 30 ) ;
+  cancel_button -> setLegend ( "Cancel" ) ;
+  cancel_button -> setUserData ( this ) ;
+  cancel_button -> setCallback ( handle_cancel ) ;
+  
+  puOneShot* ok_button = new puOneShot ( (w<170)?(w/2+5):90, 10, (w<170)?(w-10):160, 30 ) ;
+  ok_button -> setLegend ( "Ok" ) ;
+  ok_button -> setUserData ( this ) ;
+  ok_button -> setCallback ( handle_ok ) ;
+//  ok_button->makeReturnDefault ( TRUE ) ;
+
+  close  () ;
+  reveal () ;
 }
 
 static int my_stricmp ( const char *s1, const char *s2 )
@@ -142,7 +179,7 @@ static void sort ( char** list, int size )
   int gap = size;
   do
   {
-    gap = ((gap * 197) >> 8);  // gap *= 1.3;
+    gap = ((gap * 197) >> 8);  // gap /= 1.3;
     switch (gap)
     {
     case 0:  // the smallest gap is 1 -- bubble sort
