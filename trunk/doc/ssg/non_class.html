@@ -312,7 +312,10 @@ AC, ASE, DXF, OBJ and TRI-formats.
 <H3>Features of the file formats and status of the loaders/writers</H3>
 
 Here comes a table of the features of all the file formats and loaders and writers.
-VRML doesn't really work, so you won't find it here. The SSG loaders/writers support all
+VRML doesn't really work, so you won't find it here. 
+The "QHI" (QHull Input - a format used by a toll to create convex hulls)
+writer only writes a point cloud and suppoorts no other features, so I also didn't add it to the table.
+The SSG loaders/writers support all
 features of the ssg-lib, so missing features mean they miss in the library (normaly because they miss in OpenGL)
 The letters mean:
 <BR><BR>
@@ -374,8 +377,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;3DS<BR>load</td>
     <td>&nbsp;AC<BR>load</td>
     <td>&nbsp;AC<BR>save</td>
-    <td>&nbsp;ASE<BR>load</td>
-    <td>&nbsp;ASE<BR>save</td>
+    <td>&nbsp;ASE<BR>load/<BR>save</td>
     <td>&nbsp;DXF<BR>load</td>
     <td>&nbsp;DXF<BR>save</td>
     <td>&nbsp;FLT<BR>load</td>
@@ -385,6 +387,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;MDL<BR>load</td>
     <td>&nbsp;OBJ<BR>load</td>
     <td>&nbsp;OBJ<BR>save</td>
+    <td>&nbsp;OFF<BR>load</td>
     <td>&nbsp;SSG<BR>load/<BR>save</td>
     <td>&nbsp;Strip<BR>load</td>
     <td>&nbsp;TRI<BR>load</td>
@@ -393,7 +396,6 @@ Normaly, you would switch one set on and the other off.
   </tr>
   <tr>
     <td>&nbsp;Filled polys</td>
-    <td>&nbsp;E</td>
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
@@ -409,6 +411,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
+    <td>&nbsp;E</td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>&nbsp;E</td>
@@ -417,7 +420,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;# sides</td>
     <td>&nbsp;</td>
     <td>&nbsp;n</td>
-    <td>&nbsp;3</td>
     <td>&nbsp;3</td>
     <td>&nbsp;3</td>
     <td>&nbsp;3,4(4)</td>
@@ -429,7 +431,8 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;</td>
     <td>&nbsp;n?</td>
     <td>&nbsp;3</td>
-    <td>&nbsp;3,4(4)</td>
+    <td>&nbsp;n</td>
+	<td>&nbsp;3,4(4)</td>
     <td>&nbsp;</td>
     <td>&nbsp;3?</td>
     <td>&nbsp;3?</td>
@@ -441,7 +444,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;D</td>
     <td>&nbsp;C</td>
     <td>&nbsp;C</td>
-    <td>&nbsp;C</td>
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
     <td>&nbsp;A</td>
@@ -451,6 +453,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;D</td>
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
+    <td>&nbsp;A?</td>
     <td>&nbsp;D</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -463,7 +466,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;C</td>
-    <td>&nbsp;C</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;B</td>
@@ -471,6 +473,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;?</td>
     <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;D</td>
@@ -485,7 +488,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;D</td>
     <td>&nbsp;E</td>
-    <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
@@ -495,6 +497,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;C-D</td>
     <td>&nbsp;C-D</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -507,7 +510,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;D</td>
     <td>&nbsp;E</td>
-    <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
@@ -517,6 +519,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;C</td>
     <td>&nbsp;C</td>
     <td>&nbsp;C</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -531,12 +534,12 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
-    <td>&nbsp;A</td>
     <td>&nbsp;?</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;?</td>
     <td>&nbsp;A?</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
@@ -553,7 +556,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
-    <td>&nbsp;E</td>
     <td>&nbsp;D(1)</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
@@ -561,6 +563,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;D</td>
     <td>&nbsp;C</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;D</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -573,7 +576,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;D</td>
     <td>&nbsp;E</td>
-    <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
@@ -583,6 +585,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;D</td>
     <td>&nbsp;C</td>
+    <td>&nbsp;B</td>
     <td>&nbsp;D</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -595,7 +598,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;D</td>
     <td>&nbsp;E</td>
-    <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
@@ -605,6 +607,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;E</td>
     <td>&nbsp;C</td>
+    <td>&nbsp;B</td>
     <td>&nbsp;D</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -617,7 +620,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;D(?)</td>
     <td>&nbsp;D(?)</td>
     <td>&nbsp;E</td>
-    <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A(?)</td>
@@ -627,6 +629,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E(?)</td>
     <td>&nbsp;E</td>
     <td>&nbsp;C</td>
+    <td>&nbsp;B(?)</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -641,7 +644,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
-    <td>&nbsp;A</td>
     <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
@@ -649,6 +651,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
+    <td>&nbsp;B(?)</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -661,7 +664,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;D</td>
     <td>&nbsp;D</td>
     <td>&nbsp;D</td>
-    <td>&nbsp;D</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
@@ -671,6 +673,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;D</td>
     <td>&nbsp;A?</td>
     <td>&nbsp;A?</td>
+    <td>&nbsp;B(?)</td>
     <td>&nbsp;D</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -683,7 +686,6 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
-    <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;B(2)</td>
@@ -693,6 +695,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;D</td>
     <td>&nbsp;A?</td>
     <td>&nbsp;A?</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;D</td>
     <td>&nbsp;A</td>
     <td>&nbsp;</td>
@@ -707,12 +710,12 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
-    <td>&nbsp;A</td>
     <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;?</td>
     <td>&nbsp;</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;D</td>
@@ -729,12 +732,12 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
-    <td>&nbsp;A</td>
     <td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;?</td>
     <td>&nbsp;?</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;D</td>
@@ -751,12 +754,12 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
-    <td>&nbsp;A</td>
     <td>&nbsp;D</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;?</td>
     <td>&nbsp;?</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;D</td>
@@ -773,12 +776,12 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
-    <td>&nbsp;A</td>
     <td>&nbsp;B</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;B</td>
     <td>&nbsp;B</td>
+    <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;B</td>
@@ -823,6 +826,13 @@ knows. The format isn't that easily translated into SSG. I'm working on a
 more complete and powerful loader (that would probably also handle 
 BGL-files), but it's a quite large task to write such a loader and the 
 documentation is sparse to say the least.
+
+<BR><BR>
+OFF loader:
+<BR>
+Warning: There are two formats called OFF! We support the OFF from GeomView, 
+not the one from DEC.
+We support 2D and 3D, but no higher dimensions.
 
 <BR><BR>
 .SSG file loader/writer:

@@ -198,6 +198,10 @@ SOURCE=.\ssgLoadOBJ.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadOFF.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadSSG.cxx
 # End Source File
 # Begin Source File
@@ -263,6 +267,14 @@ SOURCE=.\ssgSaveM.cxx
 # Begin Source File
 
 SOURCE=.\ssgSaveOBJ.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveOFF.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveQHI.cxx
 # End Source File
 # Begin Source File
 
