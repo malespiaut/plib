@@ -3,11 +3,6 @@
 
 
 static char _ssgAPOM[16*1024]=""; // APOM = actual path of model (!=ModelPath)
-static char _ssgANOM[256]=""; // actual name of model
-
-char * ssgGetANOM()
-{ return _ssgANOM;
-}
 
 char * ssgGetAPOM()
 { return _ssgAPOM;
