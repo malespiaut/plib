@@ -3,6 +3,22 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "WavingFlag"=.\src\ssg\tux\WavingFlag.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    WavingFlag
+    .\src\ssg\tux
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "bend"=.\src\ssg\tux\bend.dsp - Package Owner=<4>
 
 Package=<5>
