@@ -1,0 +1,392 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"> 
+<TITLE>Exposer Home Page</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="marble.png">
+<TABLE>
+<TR>
+<TD>
+<IMG SRC="exposer_logo.png" ALT="Exposer Logo">
+<br>
+</TD>
+<TD>
+<center>
+<H1>
+     <FONT SIZE=9>E</FONT><FONT SIZE=5>x</FONT>
+     <FONT SIZE=9>P</FONT><FONT SIZE=5>OSER:</FONT>
+     <FONT SIZE=9>A</FONT>
+     <FONT SIZE=9>T</FONT><FONT SIZE=5>OOL FOR</FONT>
+     <FONT SIZE=9>A</FONT><FONT SIZE=5>NIMATING
+     <FONT SIZE=9>PLIB</FONT>
+     <FONT SIZE=9>C</FONT><FONT SIZE=5>RITTERS.</FONT>
+</H1>
+</center>
+</TD>
+<TD>
+<ul>
+   The foot bone's connected to the leg bone,<br>
+   The leg bone's connected to the knee bone,<br>
+   The knee bone's connected to the thigh bone,<br>
+   The thigh bone's connected to the back bone,<br>
+   The back bone's connected to the neck bone,<br>
+   The neck bone's connected to the head bone,<br>
+   Oh, hear the word of the Lord!<br>
+<br>
+-- Unknown (but incompetent) anatomist.
+</ul>
+<center>
+<A href="http://sourceforge.net"> 
+<IMG src="http://sourceforge.net/sflogo.php?group_id=382&type=1" width="88" height="31" border="0" ALT="Sourceforge Logo"></A> 
+</center>
+</TD>
+</TR>
+</TABLE>
+
+<H1>Introduction.</H1>
+Exposer is a tool to allow you to perform fairly complex animations
+of complex creatures with relative ease using the
+<A HREF="http://plib.sf.net"> PLIB Scene Graph API</A>.  Naturally,
+Exposer is written using PLIB and generates output in several forms
+that PLIB programs will find useful.
+<p>
+Exposer is totally unrelated to the Windows program 'poser'. The
+name 'exposer' relates to the fact that this program used to be
+called 'poser' until I heard of the existance of a Windows program
+of the same name.  This is therefore the ex-Poser program.
+<p>
+Exposer has a complex (but very powerful) GUI - you <b>WILL</b> need to
+read this manual in order to take advantage of it.
+<H2>Licensing.</H2>
+Exposer is OpenSource software, issued under the terms of the
+GNU Public License (GPL).
+<H2>Installing and Running Exposer</H2>
+First unpack the tarball containing the Exposer sources:
+<pre>
+
+   tar xzvf exposer-0.0.0.tar.gz
+
+</pre>
+Then run the usual:
+<pre>
+
+   ./configure ; make
+
+</pre>
+(And you can optionally run 'make install' if you wish to fully
+install the program rather than running it out of the installation
+directory).
+<p>
+Then to run the program (without installing it) you could type
+something like:
+<pre>
+
+  src/exposer
+
+</pre>
+The program will prompt you to enter a 3D model file - the
+ones in data with the extension '.ac' will do for starters.
+<p>
+Exposer can read any format that the PLIB library supports
+that can contain both line and polygon objects.
+
+<H2>So What Does It Do.</H2>
+Well, right now, not a lot.  The idea is that you can take an
+arbitary polygonal model (typically of a person or animal of
+some kind) and with minimal additional modelling effort be able
+to animate it in your game or other interactive application.
+<p>
+The technique that exposer uses is 'skin and bones' animation
+where the polygons of the model form the creatures 'skin' and
+you model a set of line primitives inside the creature to make
+a crude skeleton (the 'bones') much like the armature that a
+sculptor would use.
+<p>
+Exposer therefore separates out the polygons and the lines in the
+model you load (because your game will only be using the polygons)
+and uses the lines to form a hierarchical structure of matrix
+transformations.  Exposer then assigns each vertex in the
+skin to one of the bones (possibly more than one in the future)
+according to distance - and then moves each vertex in accordance
+with the matrix of the bone to which it's attached.
+<p>
+Exposer can optionally display each bone as a coloured cuboid and
+provides a Heading/Pitch/Roll dial for each of them - but typically,
+you'll only want to view the 'skin' - and that's the default.
+By playing
+with the coloured dials, you can move the bones in any way you like and
+the skin will try to follow that movement as smoothly as possible.
+<p>
+One important issue is how the lines are assembled into a bone
+heirarchy.  Firstly, exactly ONE of the lines in the original
+model must be painted RED.  This bone is special because it's
+the root of the bone hierarchy.  Typically, this will be a
+bone in the spine of a human or other mammal - but you might
+choose it to be something else.  You can "Make the Tail Wag
+the Dog" by making the tailbone be the red one!
+<p>
+Once the program has found that red 'root' bone, it looks
+for other lines that have one or other of their vertices
+touching the root bone.  Other lines can connect to the
+root somewhere other than at the ends of that red line,
+but your non-root bones MUST connect to it at their ends.
+<p>
+The program allows a 1% tolerance on this positioning so
+bones don't have to be EXACTLY touching - but they do have
+to be VERY close.
+<p>
+So, now we have the root bone and some other bones connected
+to it - and now the program proceeds to expand out the
+skeleton by treating all of the newly connected bones as
+'root' and proceeding recursively from there.
+<p>
+In a sense, it's like reading the lines of the song at
+the top of this page backwards:
+<pre>
+   The back bone's...the RED bone,
+   The thigh bone's connected to the back bone,
+   The knee bone's connected to the thigh bone,
+   The leg bone's connected to the knee bone,
+   The foot bone's connected to the leg bone
+</pre>
+...although if it were me, I'd want a pelvis-bone and for
+the sake of graphics, there wouldn't need to be a knee bone.
+<p>
+So, that's more or less it.
+
+<H2>Controls.</H2>
+Having loaded your first model, you'll see something like this:
+<br>
+<IMG SRC="exposer.png">
+<br>
+The rather nice shade of green is my favorite colour. If
+you prefer shock-pink...bad luck - that's what source code
+is for!  The 3D model sits in the middle of the screen with
+the GUI widgets floating in front of it.
+<p>
+Let's go through the GUI controls piece by piece:
+
+<H3>The Menu Bar.</H3>
+In the top-left, there is a pretty standard menu bar,
+<br>
+<IMG SRC="menu.png">
+<br>
+The 'File' menu allows you to replace the model you are
+working on with another, it also allows you to load
+and save 'bone' files - which contain everything you
+create in Exposer.  Generally, these Bone files have
+the same filename as the 3D model but with the extension
+".bones".  Exposer will fill that filename into the
+file selector box - so you probably only have to hit "OK"
+to load and save.
+<p>
+The 'View' menu lets you zoom into and out of the 'timeline'
+which we'll come to later.  The 'Time' menu has other
+'timeline' operations.
+
+<H3>The Bone Dials</H3>
+To the left of the window are the bone dials - each coloured
+row of GUI widgets represents one of the bones in your model.
+<br>
+<IMG SRC="bone.png">
+<br>
+The button marked 'X' resets all of the angles of the bone
+to zero - which will always be how your model was posed when
+you created it. The 'H', 'P' and 'R' buttons let you freeze
+and hide any of the three dials that you don't want to use
+for that particular bone.  This is useful for joints like
+your elbow that can only flex in one degree of freedom.
+<p>
+The three dials represent the heading, pitch and roll
+angles of the joint at the end of that bone nearest the
+top of the bone connection hierarchy.
+<p>
+The rectangular area above the 'X/H/P/R' buttons can
+be used to enter a short text string to identify the
+bone.  These strings are saved when you write out the
+bone data and your application program might want to
+read them to help identify what's what.
+<p>
+If you have more bones than will conveniently fit on the
+screen, the scroll-bar to the left of the bone widgets
+will allow you to scroll them up and down.
+
+<H3>View Control</H3>
+In the bottom-left corner of the screen are some
+view controls.  These can be used anytime to change
+the view you have of the model - but they don't change
+any actual data in the model or it's bones.
+<br>
+<IMG SRC="viewer.png">
+<br>
+You can also use the 'Zoom' slider to move the model
+closer or further away, and there are buttons marked
+'Skin' and 'Bones' that let you toggle the display of
+each of those things - so you can see just the skin,
+just the bones or both. (Or neither if you are
+particularly perverse!).  The initial default is to
+show just the skin.
+<p>
+The 'Pan' and 'Tilt' dials allow you to move your
+eyepoint around the model to view it from all sides
+as it animates.
+
+<H3>VCR Controls</H3>
+In the bottom-right corner of the screen, there
+are some VCR-like controls to play the animation,
+pause it, play in reverse and to play at triple-speed
+in forward or reverse.
+<br>
+<IMG SRC="vcr.png">
+<br>
+You cannot adjust any joint angles in the model when
+the animation is playing - so be sure to press the
+downward arrow (STOP!) when you want to do editing.
+
+<H3>The TimeLine</H3>
+This is a large rectangle taking up most of the bottom
+edge of the screen:
+<br>
+<IMG SRC="timeline.png">
+<br>
+It has a number of functions, it starts up as a view
+of a 10 second animation.  Seconds are indicated by
+the long tickmarks, tenth seconds by the short ones.
+You can zoom into or out of the view or reset to seeing
+the entire timeline using the 'View' menu in the menubar.
+<p>
+If you are zoomed into the timeline, a slider will appear
+to allow you to scroll it left and right.
+<p>
+Magenta lines that extend across the full height of
+the timeline indicate "events" - each event is a point
+in time at which you have set the bone joint angles.
+You can add an event by selecting 'Add an Event' in
+the 'Time' menu and then clicking somewhere onto the
+timeline to position it.  One they are positioned, you
+can click and drag events up and down the timeline to
+change when they happen.
+<p>
+To change an event, click on it and it'll flash to
+indicate that you have it selected.  Then you can
+adjust it using the bone dials.
+<p>
+Various operations on the 'selected' event are
+available from the 'Time' menu.
+<p>
+You can also select a 'region' by left-clicking
+on one end and right-clicking on the other. The
+current region is highlighted in yellow.  There
+are operations that operate on the current region
+in the 'Time' menu.
+<p>
+Wherever you click the left button on the timeline,
+the model will move to that position - and the bone
+dials will follow.  You can drag the mouse up and
+down the timeline to replay the animation at whatever
+speed you move the mouse.  However, to get a 'realistic'
+playback speed, use the single arrows on the VCR
+menu.
+<p>
+Remember though that you can only EDIT the position
+of the model on a selected event.
+
+<H3>Menu Operations on the Timeline.</H3>
+The 'Time' menu allows you to add an event,
+delete the selected event, delete ALL the events
+in the 'region' that you have highlighted,
+or delete the section of time in the 'region' -
+compressing up the rest of the timeline to fit.
+Finally, you can add more time to the timeline
+so that you can create animations that are longer
+than the ten seconds initially provided.
+
+<H2>The Exposer ".bones" file format.</H2>
+This is a very simple ASCII text file - however
+the parser for it is VERY crude at this stage.
+<p>
+The first line of the file is:
+<pre>
+
+  NUMBONES=17 NUMEVENTS=7 MAXTIME=10.0000
+
+</pre>
+So there are 17 bones, 7 events - and the maximum
+duration of the animation is ten seconds.
+<p>
+Then follows the bones - one per line:
+<pre>
+
+  BONE "bone-name" HPR
+
+</pre>
+The 'bone-name' is the string you entered beside the
+bone dials. The 'HPR' part sets which axes are frozen.
+(in this case, none of them...the frozen axis letters
+are replaced by dots).
+<p>
+After all the bones come the events.  For each event
+there is a header line:
+<pre>
+
+  EVENT 3.0000 17
+
+</pre>
+The first number is the time (in seconds) at which the
+event occurred, the second number is the number of bones
+that are affected by this event.  Currently this must be
+the same as 'NUMBONES'.
+<p>
+After the event header, there is one line per bone
+containing the three joint angles in degrees for
+that bone at that time:
+<pre>
+
+  (90,45,37)
+
+</pre>
+That's it!  However, as I said - the parser is 'brittle'
+and very intolerant of errors - edit the file at your
+own peril!
+
+<H2>Some Advice</H2>
+Bones don't necessarily have to be placed where the
+bones would be in an anatomically correct version of
+the critter.  In the example 'dog.ac' file, there is
+a tongue-bone and two ear-bones - and there are no ribs,
+spinal vertibrae, etc.
+<p>
+You'll also probably need to hop back and forth between
+your modeller and exposer to position the bones how you
+want them.  You'll find on occasions that the algorithm
+that causes exposer to attach a skin vertex to the nearest
+bone will sometimes result in part of a character's stomach
+being attached to their hand or something.  If that happens
+then you might try splitting up some of the longer bones
+in the arm into shorter ones - or adding some lateral bones
+in the stomach to ensure that there is always one attached
+to the spine that's closer to the skin than the hand is.
+<p>
+Artists should be encouraged to model the character in
+a position with their legs wide apart and their arms
+fully outstretched to minimise this kind of problem.
+<p>
+Using the axis freeze buttons to isolate only those
+axes through which a real joint can rotate is very
+useful.  A human elbow joint can really only
+rotate through one axis and turning off the other two is
+helpful.
+<p>
+You can also use Exposer for things other than animals.
+You could model plants bending in a heavy wind - or
+even flexible things like flags or clothing.
+
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>

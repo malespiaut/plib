@@ -1,0 +1,54 @@
+
+TicTacToe 3D.
+~~~~~~~~~~~~~
+                           by Steve Baker
+                           <sjbaker1@airmail.net>
+
+INSTALLATION:
+
+Installation instructions are pretty basic,
+and are covered in the documentation directory 'doc'.
+
+   OpenGL (or Mesa)
+   GLUT (the GL Utility Toolkit)
+   PLIB (which can be obtained from one of:
+     http://plib.sourceforge.net
+
+Once that is done, it should be a simple matter of changing
+to the directory where all this stuff is unpacked and type:
+
+ ./configure
+ make
+ make install
+
+However, you might want to check the full documentation -
+especially if you need to install Mesa/GLIDE/GLUT before
+you can start.
+
+All documents are in HTML - so view them with your web browser.
+
+LICENSE:
+
+This software is released under the provisions of
+the GNU General Public License (GPL) which can be
+found in the file 'LICENSE' in the current directory.
+
+DIRECTORY STRUCTURE:
+
+src     -- Where the source code lives.
+
+data    -- This contains all kinds of miscellaneous data
+           files. Right now, this is limited to the level
+           description files.
+
+doc     -- Documentation - all in HTML
+
+images  -- Texture maps and other images needed by the
+           game. These are currently all in 'SGI' image
+           format.
+
+wavs    -- Sound files - mostly sound effects.
+
+mods    -- Music files.
+
+
