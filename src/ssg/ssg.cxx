@@ -201,7 +201,7 @@ void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
 
   ssgForceBasicState () ;
 
-  int vp [ 4 ] ;
+  GLint vp [ 4 ] ;
   sgVec4 viewport ;
   sgMat4 mat ;
 
