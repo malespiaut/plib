@@ -103,6 +103,17 @@ void ssgNormalArray::print ( FILE *fd, char *indent, int how_much )
  
 
 
+void ssgIndexArray::print ( FILE *fd, char *indent, int how_much )
+{
+  ssgSimpleList::print ( fd, indent, how_much ) ;
+
+  if ( how_much < 4 )
+    return;
+
+  for ( unsigned int i = 0 ; i < total ; i++ )
+    fprintf ( fd, "%s  I%d) { %d }\n", indent, i,
+                     (int) (*get(i)) ) ;
+}
  
 void ssgTexCoordArray::print ( FILE *fd, char *indent, int how_much )
 {
