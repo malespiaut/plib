@@ -246,6 +246,10 @@ SOURCE=.\ssgLoadOFF.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadPCX.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadPNG.cxx
 # End Source File
 # Begin Source File
