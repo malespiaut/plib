@@ -1086,7 +1086,7 @@ int VRMLdo_shape      ( char *s )
 int VRMLdo_texture      ( char *s )
 {
   
-  char tmp[1024];
+  char file_and_path[1024], tmp[1024];
   char dummy[16],filename[256];
   char *t = filename;
   fgets(tmp,1024,loader_fd);
@@ -1094,7 +1094,10 @@ int VRMLdo_texture      ( char *s )
   //fprintf(VRMLlog,"\nfound texture %s\n",filename);
   VRMLskip_quotes(&t);
 
-  tex_list[texCnt] = new ssgTexture (t);
+	ulFindFile( file_and_path, _ssgTexturePath, t, _ssgAPOM ) ;
+
+  tex_list[texCnt] = new ssgTexture ( file_and_path );
+	tex_list[texCnt]->setFilenameFromModel ( t );
   //fprintf(VRMLlog,"\nMADE texture %s\n",t);
   texCnt++;
 
