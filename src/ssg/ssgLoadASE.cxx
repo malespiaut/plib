@@ -169,7 +169,7 @@ static u32 first_frame ;
 static u32 last_frame ;
 static u32 frame_speed ;
 static u32 ticks_per_frame ;
-static u32 num_frames ;
+static u32 num_frames=0 ;
 
 static _ssgParserSpec parser_spec =
 {
@@ -1144,10 +1144,13 @@ static aseTransform* get_tkey( aseObject* obj, u32 time )
   return( &obj->tkeys[ frame ] );
 }
 
+#define MAX_TKEY_PER_MESH 256
 
 static int parse_tkeys( aseObject* obj )
 {
   bool match = false ;
+  void *tkeys[MAX_TKEY_PER_MESH];
+  int num_tkeys=0;
   char* token;
   int startLevel = parser.level;
   while ((token = parser.getLine( startLevel )) != NULL)
@@ -1209,6 +1212,40 @@ static int parse_tkeys( aseObject* obj )
         if (! parser.parseFloat(tkey->angle, "angle"))
           return FALSE;
       }
+      else if (!strcmp(token,"*CONTROL_TCB_ROT_KEY"))
+      {
+        u32 time;
+        if (!parser.parseUInt(time, "time"))
+          return FALSE;
+        aseTransform* tkey = new aseTransform;
+        tkeys[num_tkeys++] = tkey;
+        assert(num_tkeys < MAX_TKEY_PER_MESH);
+        sgSetVec3 ( tkey->pos, 0, 0, 0 ) ; // "TCB": only rotation allowed :-/
+        sgSetVec3 ( tkey->axis, 0, 0, 1 ) ;
+        tkey->angle = 0.0f ;
+        sgSetVec3 ( tkey->scale, 1, 1, 1 ) ;
+          
+// *CONTROL_TCB_ROT_KEY 160	-0.9949	-0.0914	0.0434	3.1336	0.0000	0.0000	0.0000	0.0000	0.0000
+        if (! parser.parseFloat(tkey->axis[0], "axis.x"))
+          return FALSE;
+        if (! parser.parseFloat(tkey->axis[1], "axis.y"))
+          return FALSE;
+        if (! parser.parseFloat(tkey->axis[2], "axis.z"))
+          return FALSE;
+        if (! parser.parseFloat(tkey->angle, "angle"))
+          return FALSE;
+        float dummy;
+        if (! parser.parseFloat(dummy, "tens"))
+          return FALSE;
+        if (! parser.parseFloat(dummy, "cont"))
+          return FALSE;
+        if (! parser.parseFloat(dummy, "bias"))
+          return FALSE;
+        if (! parser.parseFloat(dummy, "easeIn"))
+          return FALSE;
+        if (! parser.parseFloat(dummy, "easeOut"))
+          return FALSE;
+      }
       else if (!strcmp(token,"*CONTROL_SCALE_SAMPLE"))
       {
         u32 time;
@@ -1224,6 +1261,13 @@ static int parse_tkeys( aseObject* obj )
           return FALSE;
       }
     }
+  }
+  if(num_tkeys)
+  {
+    obj->num_tkeys = num_tkeys;
+    obj->tkeys = new aseTransform [ num_tkeys ] ;
+    for(int i=0; i<num_tkeys; i++)
+      obj->tkeys[i] = *((aseTransform *)tkeys[i]);
   }
 	return TRUE;
 }
@@ -1469,14 +1513,15 @@ static int parse_object( aseObject::Type type )
     
     if ( obj->num_tkeys > 0 )
     {
-      ssgTransformArray* ta = new ssgTransformArray ( obj->num_tkeys ) ;
+      ssgAnimTransform * at = new ssgAnimTransform;
+      at->setNum( obj->num_tkeys );
 
       /*
       Build the transforms
       */
       sgMat4 rmat;
       sgMakeIdentMat4 ( rmat ) ;
-      ta -> add ( rmat ) ;
+      at->setATransform ( rmat, 0);
 
       for ( u32 i = 1 ; i < obj->num_tkeys ; i++ )
       {
@@ -1514,13 +1559,11 @@ static int parse_object( aseObject::Type type )
         sgMakeTransMat4 ( tmp, pos ) ;
         sgPostMultMat4 ( mat, tmp ) ;
         
-        ta -> add ( mat ) ;
+        at->setATransform ( mat, i);
       }
-      
-      ssgTransform* tr = new ssgTransform ;
-      tr = current_options -> createTransform ( tr, ta ) ;
-      tr -> addKid ( mesh_entity ) ;
-      mesh_entity = tr ;
+      // insert the ssgAnimTransform into the scene graph:
+      at-> addKid ( mesh_entity ) ; 
+      mesh_entity = at;
     }
 
     parent_branch -> addKid ( mesh_entity ) ;
