@@ -252,6 +252,7 @@ puComboBox::puComboBox ( int minx, int miny, int maxx, int maxy,
   arrow_btn = new puArrowButton ( maxx-minx - arrow_width, 0,
                                   maxx-minx, maxy-miny,
                                   PUARROW_DOWN ) ;
+  arrow_btn -> setStyle ( PUSTYLE_SMALL_SHADED ) ;
   arrow_btn -> setUserData ( this ) ;
   arrow_btn -> setCallback ( handle_arrow ) ;
 
