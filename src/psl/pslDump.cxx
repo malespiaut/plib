@@ -59,6 +59,7 @@ static const OpcodeDecode opcodeDecode [] =
   { "CALL",            OPCODE_CALL        , 3 },
   { "RETURN",          OPCODE_RETURN      , 0 },
   { "JUMP_FALSE",      OPCODE_JUMP_FALSE  , 2 },
+  { "JUMP_TRUE",       OPCODE_JUMP_TRUE   , 2 },
   { "JUMP",            OPCODE_JUMP        , 2 },
   { "PAUSE",           OPCODE_PAUSE       , 0 },
   { "HALT",            OPCODE_HALT        , 0 },
@@ -218,6 +219,7 @@ int pslCompiler::printInstruction ( FILE *fd, int addr ) const
       break ;
 
     case OPCODE_JUMP_FALSE :
+    case OPCODE_JUMP_TRUE  :
       fprintf ( fd, "\t%d", code[addr+1] + ( code[addr+2] << 8 ) ) ;
       break ;
 

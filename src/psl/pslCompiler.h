@@ -76,6 +76,7 @@ class pslCompiler
   void pushNotEqual     () ;
   void pushEqual        () ;
   int  pushJumpIfFalse  ( int l ) ;
+  int  pushJumpIfTrue   ( int l ) ;
   int  pushJump         ( int l ) ;
 
   void makeIntVariable   ( const char *s ) ;
@@ -107,6 +108,8 @@ class pslCompiler
   int  pushReturnStatement     () ;
   int  pushPauseStatement      () ;
   int  pushWhileStatement      () ;
+  int  pushDoWhileStatement    () ;
+  int  pushForStatement        () ;
   int  pushIfStatement         () ;
   int  pushFunctionCall        ( const char *s ) ;
   int  pushAssignmentStatement ( const char *s ) ;

@@ -170,6 +170,17 @@ void pslCompiler::pushGreaterEqual () { pushCodeByte ( OPCODE_GREATEREQUAL ) ; }
 void pslCompiler::pushNotEqual     () { pushCodeByte ( OPCODE_NOTEQUAL ) ; } 
 void pslCompiler::pushEqual        () { pushCodeByte ( OPCODE_EQUAL ) ; } 
 
+int pslCompiler::pushJumpIfTrue  ( int l )
+{
+  pushCodeByte ( OPCODE_JUMP_TRUE ) ;
+
+  int res = next_code ;
+
+  pushCodeAddr ( l ) ;
+
+  return res ;
+}
+
 int pslCompiler::pushJumpIfFalse  ( int l )
 {
   pushCodeByte ( OPCODE_JUMP_FALSE ) ;

@@ -42,15 +42,16 @@
 #define OPCODE_NOTEQUAL              0x0F
 #define OPCODE_EQUAL                 0x10
 #define OPCODE_JUMP_FALSE            0x11
-#define OPCODE_JUMP                  0x12
-#define OPCODE_POP                   0x13
-#define OPCODE_HALT                  0x14
-#define OPCODE_CALLEXT               0x15
-#define OPCODE_PAUSE                 0x16
-#define OPCODE_RETURN                0x17
-#define OPCODE_PUSH_VARIABLE         0x18
-#define OPCODE_POP_VARIABLE          0x19
-#define OPCODE_SET_INT_VARIABLE      0x1A
-#define OPCODE_SET_FLOAT_VARIABLE    0x1B
-#define OPCODE_SET_STRING_VARIABLE   0x1C
+#define OPCODE_JUMP_TRUE             0x12
+#define OPCODE_JUMP                  0x13
+#define OPCODE_POP                   0x14
+#define OPCODE_HALT                  0x15
+#define OPCODE_CALLEXT               0x16
+#define OPCODE_PAUSE                 0x17
+#define OPCODE_RETURN                0x18
+#define OPCODE_PUSH_VARIABLE         0x19
+#define OPCODE_POP_VARIABLE          0x1A
+#define OPCODE_SET_INT_VARIABLE      0x1B
+#define OPCODE_SET_FLOAT_VARIABLE    0x1C
+#define OPCODE_SET_STRING_VARIABLE   0x1D
 
