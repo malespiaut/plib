@@ -581,8 +581,8 @@ public:
   puObject *prev ; /* Instead, use the setNextObject and setPrevObject
                       methods. */
  
-  puBox *getBBox ( void ) const { return (puBox *) (& bbox) ; }
-  puBox *getABox ( void ) const { return (puBox *) (& abox) ; }
+  puBox *getBBox ( void ) const { return (puBox *) &bbox ; }
+  puBox *getABox ( void ) const { return (puBox *) &abox ; }
 
   void getAbsolutePosition ( int *x, int *y ) const ;
 
@@ -863,7 +863,7 @@ public:
   }
 
   void setFloating ( int value ) { floating = value ; }
-  int getFloating ( void ) const { return floating ;  }
+  int getFloating ( void ) const { return floating ; }
 
   void setChildStyle ( int childs, int which, int recursive = FALSE ) ;
   void setChildBorderThickness ( int childs, int t, int recursive = FALSE ) ;
@@ -1043,7 +1043,7 @@ public:
   {
     type |= PUCLASS_SLIDER ;
     slider_fraction = 0.1f ;
-    getValue ( & last_cb_value ) ;
+    getValue ( & last_cb_value ) ;  // was last_cb_value = -1.0f ;
     vert = vertical ;
     cb_delta = 0.1f ;
     cb_mode = PUSLIDER_ALWAYS ;
@@ -1061,7 +1061,7 @@ public:
   {
     type |= PUCLASS_SLIDER ;
     slider_fraction = 0.1f ;
-    getValue ( & last_cb_value ) ;
+    getValue ( & last_cb_value ) ;  // was last_cb_value = -1.0f ;
     vert = vertical ;
     cb_delta = 0.1f ;
     cb_mode = PUSLIDER_ALWAYS ;
@@ -1171,8 +1171,8 @@ public:
     freeze_ends = TRUE ;
   }
 
-  int getFreezeEnds ( void ) const {  return freeze_ends ;  }
-  void setFreezeEnds ( int val )   {  freeze_ends = val ; puPostRefresh () ;  }
+  int getFreezeEnds ( void ) const { return freeze_ends ; }
+  void setFreezeEnds ( int val )   { freeze_ends = val ; puPostRefresh () ; }
 } ;
 
 
@@ -1396,9 +1396,9 @@ public:
     if ( down_cb ) (*down_cb)(this) ;
   }
 
-  void enableInput ( void )  {  input_disabled = FALSE ;  }
-  void disableInput ( void ) {  input_disabled = TRUE ;   }
-  int  inputDisabled ( void ) const {  return input_disabled ;  }
+  void enableInput ( void )  { input_disabled = FALSE ; }
+  void disableInput ( void ) { input_disabled = TRUE  ; }
+  int  inputDisabled ( void ) const { return input_disabled ; }
 } ;
 
 
@@ -1653,9 +1653,9 @@ public:
     if ( down_cb ) (*down_cb)(this) ;
   }
 
-  void enableInput ( void )  {  input_disabled = FALSE ;  }
-  void disableInput ( void ) {  input_disabled = TRUE  ;  }
-  int  inputDisabled ( void ) const {  return input_disabled ;  }
+  void enableInput ( void )  { input_disabled = FALSE ; }
+  void disableInput ( void ) { input_disabled = TRUE  ; }
+  int  inputDisabled ( void ) const { return input_disabled ; }
 
   void  setText ( const char *l ) ;
   char *getText ( void ) const { return text ; }
