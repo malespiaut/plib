@@ -1,0 +1,296 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "PointPicker"=.\src\pui\PointPicker.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "WavingFlag"=.\src\ssg\tux\WavingFlag.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "complex"=.\src\pui\complex.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "example"=.\src\sl\example.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "fnt_test"=.\src\fnt\fnt_test.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "js_demo"=.\src\js\js_demo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "load"=.\src\ssg\load_save\load.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "majik_demo"=.\src\ssg\majik\majik_demo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "mod_demo"=.\src\sl\mod_demo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "net_http_get"=.\src\net\net_http_get.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plib_examples"=.\plib_examples.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name complex
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name example
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name fnt_test
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name js_demo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name load
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name majik_demo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mod_demo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name save
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sg_quat_test
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name simple
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slideshow
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tux_example
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name viewer
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name net_http_get
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PointPicker
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name test_dir
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name WavingFlag
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "save"=.\src\ssg\load_save\save.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sg_quat_test"=.\src\sg\sg_quat_test.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "simple"=.\src\pui\simple.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "slideshow"=.\src\fnt\slideshow.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "stest"=.\src\ssg\state_test\stest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "test_dir"=.\src\util\test_dir.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "tux_example"=.\src\ssg\tux\tux_example.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "viewer"=.\src\ssg\viewer\viewer.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
