@@ -16,7 +16,7 @@ static int total_texels_loaded = 0 ;
 static void loadTextureDummy () ;
 
 
-static void make_mip_maps ( GLubyte *image, int xsize, int ysize, int zsize )
+void make_mip_maps ( GLubyte *image, int xsize, int ysize, int zsize )
 {
   if ( ! ((xsize & (xsize-1))==0) ||
        ! ((ysize & (ysize-1))==0) )
