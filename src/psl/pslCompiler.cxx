@@ -595,6 +595,9 @@ int pslCompiler::pushStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
+  if ( generate_line_numbers )
+    pushLineNumber ( _pslGetLineNo () ) ;
+
   getToken ( c ) ;
 
   if ( strcmp ( c, "static"   ) == 0 ) return pushStaticVarDecl      () ;

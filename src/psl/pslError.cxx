@@ -48,12 +48,11 @@ int pslCompiler::warning ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( program, PSL_COMPILETIME_WARNING, _pslGetFname(), _pslGetLineNo(), 
-                                                            _pslErrorBuffer ) ;
+    (*_pslErrorCB)( program, PSL_COMPILETIME_WARNING,
+                       _pslGetFname(), _pslGetLineNo(), _pslErrorBuffer ) ;
   else
     fprintf ( stderr, "PSL: \"%s\" line %3d: WARNING - %s\n",
-                                             _pslGetFname(), _pslGetLineNo(), 
-                                                           _pslErrorBuffer ) ;
+                       _pslGetFname(), _pslGetLineNo(), _pslErrorBuffer ) ;
 
   bumpWarnings () ;
   return FALSE ;
@@ -69,12 +68,11 @@ int pslCompiler::error ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( program, PSL_COMPILETIME_ERROR, _pslGetFname(), _pslGetLineNo(), 
-                                                           _pslErrorBuffer ) ;
+    (*_pslErrorCB)( program, PSL_COMPILETIME_ERROR,
+                       _pslGetFname(), _pslGetLineNo(), _pslErrorBuffer ) ;
   else
     fprintf ( stderr, "PSL: \"%s\" line %3d: *ERROR* - %s\n",
-                                           _pslGetFname(), _pslGetLineNo(), 
-                                                           _pslErrorBuffer ) ;
+                       _pslGetFname(), _pslGetLineNo(), _pslErrorBuffer ) ;
 
   bumpErrors () ;
   return FALSE ;
@@ -90,10 +88,15 @@ void pslContext::warning ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( program, PSL_RUNTIME_WARNING, getProgName(), pc, _pslErrorBuffer ) ;
+    (*_pslErrorCB)( program, PSL_RUNTIME_WARNING,
+                       getProgName(), getLineNo(), _pslErrorBuffer ) ;
   else
-    fprintf ( stderr, "PSL: \"%s\" PC=%d: WARNING - %s\n",
-                                         getProgName(), pc, _pslErrorBuffer ) ;
+  if ( getLineNo () >= 0 )
+    fprintf ( stderr, "PSL: \"%s\" Line %d: WARNING - %s\n",
+                       getProgName(), getLineNo(), _pslErrorBuffer ) ;
+  else
+    fprintf ( stderr, "PSL: \"%s\": WARNING - %s\n",
+                       getProgName(), _pslErrorBuffer ) ;
 
   bumpWarnings () ;
 }
@@ -108,10 +111,15 @@ void pslContext::error ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( program, PSL_RUNTIME_ERROR, getProgName(), pc, _pslErrorBuffer ) ;
+    (*_pslErrorCB)( program, PSL_RUNTIME_ERROR,
+                       getProgName(), getLineNo(), _pslErrorBuffer ) ;
   else
-    fprintf ( stderr, "PSL: \"%s\" PC=%d: *ERROR* - %s\n",
-                                       getProgName(), pc, _pslErrorBuffer ) ;
+  if ( getLineNo () >= 0 )
+    fprintf ( stderr, "PSL: \"%s\" Line %d: *ERROR* - %s\n",
+                       getProgName(), getLineNo(), _pslErrorBuffer ) ;
+  else
+    fprintf ( stderr, "PSL: \"%s\": *ERROR* - %s\n",
+                       getProgName(), _pslErrorBuffer ) ;
 
   bumpErrors () ;
 }

@@ -38,6 +38,8 @@ static const OpcodeDecode opcodeDecode [] =
 {
   { "NO_OP"              , OPCODE_NOOP    , 0 },
 
+  { "SOURCE LINE NUMBER:", OPCODE_LINE_NUMBER, 2 },
+
   /* Stack operations */
 
   { "PUSH_INT_CONSTANT"  , OPCODE_PUSH_INT_CONSTANT  , sizeof(int)   },
@@ -96,6 +98,7 @@ static const OpcodeDecode opcodeDecode [] =
 
   { "SHIFT_LEFT",      OPCODE_SHIFTLEFT   , 0 },
   { "SHIFT_RIGHT",     OPCODE_SHIFTRIGHT  , 0 },
+
   /* Boolean operators */
 
   { "LESS",            OPCODE_LESS        , 0 },
@@ -205,6 +208,11 @@ int pslCompiler::printInstruction ( FILE *fd, int addr ) const
 
   switch ( code [ addr ] )
   {
+    case OPCODE_LINE_NUMBER :
+      fprintf ( fd, "%d =====================",
+                              code[addr+1] + ( code[addr+2] << 8 ) ) ;
+      break ;
+
     case OPCODE_SET_INT_VARIABLE :
     case OPCODE_SET_FLOAT_VARIABLE :
     case OPCODE_SET_STRING_VARIABLE :

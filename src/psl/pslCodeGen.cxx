@@ -41,6 +41,14 @@ void pslCompiler::pushCodeAddr ( pslAddress a )
 }
 
 
+void pslCompiler::pushLineNumber ( int l )
+{
+  pushCodeByte ( OPCODE_LINE_NUMBER ) ;
+  pushCodeByte ( l & 0xFF ) ;
+  pushCodeByte ( ( l >> 8 ) & 0xFF ) ;
+}
+
+
 void pslCompiler::pushConstant ( const char *c )
 {
   int isInteger = TRUE ;

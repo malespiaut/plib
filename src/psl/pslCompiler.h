@@ -73,6 +73,8 @@ class pslCompiler
   void pushCodeAddr ( pslAddress a ) ;
   int  printOpcode  ( FILE *fd, int addr ) const ;
 
+  void pushLineNumber ( int l ) ;
+
   /* Write single byte-coded instructions into code space.  */
 
   void pushStackDup     () ;
@@ -179,6 +181,8 @@ class pslCompiler
   int next_label ;
   int next_code_symbol ;
   int next_define ;
+
+  int generate_line_numbers ;
 
   char *define_token       [ MAX_SYMBOL ] ;
   char *define_replacement [ MAX_SYMBOL ] ;
@@ -297,6 +301,7 @@ public:
     program  = prog ;
     progName = ulStrDup ( _progName ) ;
 
+    generate_line_numbers = FALSE ;
     code       = _code ;
     extensions = _extn ;
 
@@ -327,6 +332,13 @@ public:
   const pslExtension *getExtensions () const { return extensions ; }
 
   int printInstruction ( FILE *fd, int addr ) const ;
+
+
+  void generateLineNumbers ()
+  {
+    generate_line_numbers = TRUE ;
+  }
+
 
   void init () 
   {
