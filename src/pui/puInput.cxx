@@ -269,9 +269,9 @@ void puInput::doHit ( int button, int updown, int x, int y )
 }
 
 
-int puInput::checkKey ( int key, int /* updown */ )
+int puInput::checkKey ( int key, int updown )
 {
-  if ( ! isAcceptingInput() || ! isActive () || ! isVisible () || ( window != puGetWindow () ) )
+  if ( updown == PU_UP || ! isAcceptingInput() || ! isActive () || ! isVisible () || ( window != puGetWindow () ) )
     return FALSE ;
 
   if ( puActiveWidget() && ( this != puActiveWidget() ) )
