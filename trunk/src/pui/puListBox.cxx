@@ -137,7 +137,7 @@ void puListBox::doHit ( int button, int updown, int x, int y )
     
       setValue ( index ) ;
     
-      puSetActiveWidget ( this ) ;
+      puSetActiveWidget ( this, x, y ) ;
       invokeCallback () ;
     }
     else

@@ -371,7 +371,7 @@ void  puDeleteObject   ( puObject *ob ) ;
 // Active widget functions
 
 void puDeactivateWidget () ;
-void puSetActiveWidget ( puObject *w ) ;
+void puSetActiveWidget ( puObject *w, int x, int y ) ;
 puObject *puActiveWidget () ;
 
 /*

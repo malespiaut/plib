@@ -242,7 +242,7 @@ int puObject::checkKey ( int key, int updown )
 }
 
 
-void puObject::doHit ( int button, int updown, int /* x */, int /* y */ )
+void puObject::doHit ( int button, int updown, int x, int y )
 {
   if ( puActiveWidget() && ( this != puActiveWidget() ) )
   {
@@ -258,7 +258,7 @@ void puObject::doHit ( int button, int updown, int /* x */, int /* y */ )
     if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )
     {
       lowlight () ;
-      puSetActiveWidget ( this ) ;
+      puSetActiveWidget ( this, x, y ) ;
       invokeCallback () ;
     }
     else
