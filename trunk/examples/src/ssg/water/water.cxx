@@ -523,13 +523,6 @@ static void droplet_create ( SPS *, int, ssgaParticle *p )
 }
 
 
-static void droplet_update ( float dt, SPS *, int, ssgaParticle *p )
-{
-  sgAddScaledVec3 ( p->vel, p->acc, dt ) ;
-  sgAddScaledVec3 ( p->pos, p->vel, dt ) ;
-}
-
-
 void init_states ()
 {
   plinth_state = new ssgSimpleState () ;
@@ -603,8 +596,7 @@ void load_database ()
 
   fountain = new ssgaParticleSystem ( 1000, 100, 500, TRUE,
                                       0.2, 1000,
-                                      droplet_create,
-                                      droplet_update, NULL ) ;
+                                      droplet_create ) ;
   fountain -> setState ( splash_state ) ;
 
   /* Set up some interesting defaults. */
