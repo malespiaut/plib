@@ -137,7 +137,6 @@ AC_DEFINE(socklen_t,int)])])
 
 AC_OUTPUT( \
 	Makefile \
-	data/Makefile \
 	src/Makefile \
 	src/js/Makefile \
 	src/pui/Makefile \
