@@ -398,9 +398,12 @@ int ssgStateSelector::load ( FILE *fd )
 
 int ssgStateSelector::save ( FILE *fd )
 {
+#ifdef WRITE_SSG_VERSION_ZERO
+	ulSetError ( UL_WARNING, "I doubt that ssgStateSelectors can be saved in File format 0. Proceed at your own risc" ) ;
+#endif  
+
   _ssgWriteInt ( fd, nstates   ) ;
   _ssgWriteInt ( fd, selection ) ;
-  
   for ( int i = 0 ; i < nstates ; i++ )
   {
     if ( statelist[i] == NULL )
@@ -409,12 +412,14 @@ int ssgStateSelector::save ( FILE *fd )
       _ssgWriteInt ( fd, 0 ) ;
     }
     else
+#ifndef WRITE_SSG_VERSION_ZERO
     if ( statelist[i] -> getSpare () > 0 )
     {
       _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
       _ssgWriteInt ( fd, statelist[i] -> getSpare () ) ;
     }
     else
+#endif
     {
       _ssgWriteInt ( fd, statelist[i]->getType() ) ;
   

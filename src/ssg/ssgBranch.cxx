@@ -344,21 +344,59 @@ int ssgBranch::save ( FILE *fd )
 
     /* Has this child node already been written out? */
 
+ 
+#ifdef WRITE_SSG_VERSION_ZERO
+    // Pfusch, kludge, fix me: use index array
+		if(kid ->isAKindOf(ssgTypeVtxArray()))
+		{
+      _ssgWriteInt ( fd, ssgTypeVtxTable() ) ;
+
+			ssgVtxArray *svt=(ssgVtxArray *)kid;
+			if ( ! svt -> ssgVtxTable::save ( fd ) )
+			{
+				ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
+				return FALSE ;
+			}
+		}
+		else if(kid ->isAKindOf(ssgTypeSelector()))
+		{
+      _ssgWriteInt ( fd, ssgTypeBranch() ) ;
+
+			ssgSelector *sel=(ssgSelector *)kid;
+			if ( ! sel -> ssgBranch::save ( fd ) )
+			{
+				ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
+				return FALSE ;
+			}
+		}
+		else
+		{ if ( (unsigned long)kid->getType() < (unsigned long)0x01000000 ) // don't save ssgAux stuff
+			{
+				_ssgWriteInt ( fd, kid->getType() ) ;
+
+				if ( ! kid -> save ( fd ) )
+				{
+					ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
+					return FALSE ;
+				}
+			}
+		}
+#else
     if ( kid -> getSpare () > 0 )
     {
       _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
       _ssgWriteInt ( fd, kid -> getSpare () ) ;
     }
     else
-    {
-      _ssgWriteInt ( fd, kid->getType() ) ;
+    { _ssgWriteInt ( fd, kid->getType() ) ;
 
-      if ( ! kid -> save ( fd ) )
-      {
-        ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
-        return FALSE ;
-      }
+			if ( ! kid -> save ( fd ) )
+			{
+				ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
+				return FALSE ;
+			}
     }
+#endif
   }
 
   return TRUE ;
