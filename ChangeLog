@@ -8,11 +8,24 @@ PLIB v1.8.4 (Jan 2005)
   * Added a way to get SSG intersection tests to work with
     backfacing polygons.
 
-  * Added ssgaScreenDepthDump into ssgAux
+  * Added ssgaScreenDepthDump into ssgAux.
 
   * Several fixes for FreeBSD included.
 
-  * Added exporter for OpenInventor
+  * Added exporter for OpenInventor.
+
+  * Implemented im- and exporter for ASC files.
+
+  * Optimisations.
+
+  * Various (minor) improvements to ASE, MDL, PCX and X loading and ASE saving.
+
+  * Implemented ssgAnimTransforms.
+
+  * AC loader now reads "crease" lines and creates much smaller and 
+    cleaner scene graphs.
+
+  * Joystick code adapted to current OS versions (especially Linux).
 
 
 PLIB v1.8.3 (April 8th 2004)
