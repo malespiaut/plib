@@ -261,6 +261,9 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
   if ( _ssgStrNEqual ( extn, ".dxf", 4 ) )
     return ssgLoadDXF ( fname, hookfunc ) ;
 
+  if ( _ssgStrNEqual ( extn, ".tri", 4 ) )
+    return ssgLoadTRI ( fname, hookfunc ) ;
+
   return NULL ;
 }
 
@@ -286,6 +289,9 @@ int ssgSave ( char *fname, ssgEntity *ent )
 
   if ( _ssgStrNEqual ( extn, ".dxf", 4 ) )
     return ssgSaveDXF ( fname, ent ) ;
+
+  if ( _ssgStrNEqual ( extn, ".tri", 4 ) )
+    return ssgSaveTRI ( fname, ent ) ;
 
   return FALSE ;
 }
