@@ -60,8 +60,8 @@ void puButton::doHit ( int button, int updown, int, int )
     {
       lowlight () ;
       setValue ( (int) ! getValue () ) ;
-      invokeCallback () ;
       puSetActiveWidget ( this ) ;
+      invokeCallback () ;
     }
     else
       highlight () ;

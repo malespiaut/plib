@@ -96,8 +96,8 @@ void puListBox::doHit ( int button, int updown, int x, int y )
     
     setValue ( index ) ;
     
-    invokeCallback () ;
     puSetActiveWidget ( this ) ;
+    invokeCallback () ;
   }
   else
     lowlight () ;
