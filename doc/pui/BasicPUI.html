@@ -1,0 +1,610 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="John F. Fay">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Win98; U) [Netscape]">
+   <title>BasicPUI</title>
+</head>
+<body>
+
+<center>
+<h1>
+Introduction to Using the Picoscopic User Interface</h1></center>
+
+<center>
+<h1>
+John F. Fay</h1></center>
+
+<center>
+<h1>
+October 18, 2000</h1></center>
+
+<h2>
+Contents</h2>
+1.&nbsp; <a href="#Introduction:  Graphical User Interfaces and">Introduction:&nbsp;
+Graphical User Interfaces and Windowed Programs</a>
+<br>2.&nbsp; <a href="#Elementary PUI">Elementary PUI</a>
+<br>2.1&nbsp; <a href="#Creating User Interface Widgets">Creating User
+Interface Widgets</a>
+<br>2.2&nbsp; <a href="#Invoking PUI">Invoking PUI</a>
+<br>2.3&nbsp; <a href="#Widget Callbacks">Widget Callbacks</a>
+<br>3.&nbsp; <a href="#Conclusion">Conclusion</a>
+<h2>
+<a NAME="Introduction:  Graphical User Interfaces and"></a>1.&nbsp; Introduction:&nbsp;
+Graphical User Interfaces and Windowed Programs</h2>
+The Picoscopic User Interface (PUI) is designed to be a simple, easy-to-use
+graphical user interface.&nbsp; It is based on the OpenGL graphics language
+and requires a windowing system, either the OpenGL Utility Toolkit (GLUT)
+or another similar one.&nbsp; The gentle reader is assumed either to be
+familiar with OpenGL and his windowing system or at least to have their
+manuals at hand.
+<p>Basic to a GUI is the idea of a widget.&nbsp; A widget is something
+that appears on the computer screen and which transfers data from the user
+to the program or from the program to the user.&nbsp; The user can activate
+a widget by pressing a key, clicking a mouse button, or by using some other
+input device.&nbsp; This lets the user send information to the program.&nbsp;
+A widget can also display text or a graphic, allowing the program to transfer
+information to the user.
+<p>A windowing system requires a specific style of program which differs
+from a text-based program in several fundamental ways.&nbsp; First, instead
+of starting at the beginning of a problem and stopping at the end, a windowed
+program starts by creating the windows and then enters an infinite loop
+in which it responds to user inputs.&nbsp; Second, instead of having a
+self-contained hierarchy of functions which call each other, a windowed
+program is controlled by the windowing system which calls functions as
+it sees fit.&nbsp; The following diagram shows the structure of a typical
+windowed program.
+<br>&nbsp;
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +------------------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; Main Program&nbsp;&nbsp;
+|&nbsp; The application developer</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Set up window(s) |&nbsp;
+supplies this.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; and widget(s)&nbsp;
+|</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +------------------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +----------------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Window Manager
+|&nbsp;&nbsp; The window manager library</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; (like
+GLUT)&nbsp;&nbsp; |&nbsp;&nbsp; supplies this.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +----------------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +------+--------+---------------+---------------+---->
+etc.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;
++----------+&nbsp;&nbsp;&nbsp; +----------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; Window&nbsp; |&nbsp;&nbsp;&nbsp;
+|&nbsp; Window&nbsp; |&nbsp;&nbsp;&nbsp; |&nbsp; Window&nbsp; |&nbsp;&nbsp;&nbsp;
+|&nbsp; Window&nbsp; |&nbsp; The application</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; Mouse&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
+| Keyboard |&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; Idle&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
+| Display&nbsp; |&nbsp; developer</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; | Callback |&nbsp;&nbsp;&nbsp; | Callback
+|&nbsp;&nbsp;&nbsp; | Callback |&nbsp;&nbsp;&nbsp; | Callback |&nbsp; supplies
+these.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;
++----------+&nbsp;&nbsp;&nbsp; +----------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;&nbsp;
+May call&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +----------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; PUI&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
+|&nbsp;&nbsp; PUI&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp; PUI functions&nbsp;&nbsp;&nbsp;
+|&nbsp;&nbsp; PUI&nbsp;&nbsp;&nbsp; |&nbsp; PUI</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; Mouse&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;
+| Keyboard |&nbsp;&nbsp;&nbsp; for default&nbsp;&nbsp;&nbsp;&nbsp; | Display&nbsp;
+|&nbsp; supplies</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; | Function |&nbsp;&nbsp;&nbsp; | Function
+|&nbsp;&nbsp;&nbsp;&nbsp; behaviors&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Function
+|&nbsp; these.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++----------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +-------+-------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +-------+-------+---------------+------>
+etc.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+|</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;
++----------+</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; | Widget 1 |&nbsp;&nbsp;&nbsp; | Widget
+2 |&nbsp;&nbsp;&nbsp; | Widget 3 |&nbsp; The application developer</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; | Callback |&nbsp;&nbsp;&nbsp; | Callback
+|&nbsp;&nbsp;&nbsp; | Callback |&nbsp; supplies these.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp; +----------+&nbsp;&nbsp;&nbsp;
++----------+</tt>
+<p>The functions that the application developer supplies are called "callbacks"
+because the windowing system or user interface system "calls back" into
+the application.
+<p>A windowed program with a user interface, then, consists of a main program
+and a set of callbacks.&nbsp; The callbacks may invoke other function in
+turn, but these are all arranged in hierarchical trees underneath the callbacks.
+<p>A windowed program executes differently from a typical hierarchical
+program as well.&nbsp; It begins with the main program setting up the window(s)
+and the user interface.&nbsp; The main program then calls the window manager,
+which contains an infinite loop and never returns control to the main program.&nbsp;
+(GLUT in particular has this behavior; I cannot speak for all window managers.)&nbsp;
+When the window manager needs to redraw the display that is shown on the
+screen, it calls the application's Window Display Callback.&nbsp; When
+the user moves the mouse or clicks a mouse button, the window manager calls
+the application's Window Mouse Callback.&nbsp; When the user presses a
+key on the keyboard, the window manager calls the application's Window
+Keyboard Callback.&nbsp; Other input devices cause the window manager to
+call other callbacks in the application.&nbsp; Finally, if the user hasn't
+done anything for a while, the window manager will call the application's
+Window Idle Callback.
+<p>In building a window callback, the application developer must be sure
+to call the appropriate PUI functions.&nbsp; The applications's Window
+Mouse Callback, for example, must call the PUI mouse function "puMouse"
+if the user interface is to process a mouse click.&nbsp; The application's
+Window Display Callback, besides rendering any graphics in the window,
+must also call the PUI display function "puDisplay" in order to display
+the widgets in the user interface.
+<p>When the application developer's window callback calls the appropriate
+PUI function, PUI determines which (if any) widget the user has just activated
+with his mouse, keyboard, or other input device.&nbsp; PUI then calls that
+widget's callback function which the application developer must supply
+and which provides the actual heart of the interface.&nbsp; The callback
+for an input widget will probably read the text that the user has typed
+there and pass it on to the application.&nbsp; The callback for a button
+widget may turn something in the program on or off.&nbsp; What a callback
+does is limited only by the application developer's imagination.
+<h2>
+<a NAME="Elementary PUI"></a>2.&nbsp; Elementary PUI</h2>
+Using the Picoscopic User Interface on an elementary level requires three
+things:&nbsp; setting up the user interface widgets, invoking PUI from
+the window callbacks, and supplying the widget callbacks.
+<p>PUI was written in C++, designed to be invoked from C++ programs.&nbsp;
+The following text and examples will assume a program written in C++.
+<h3>
+<a NAME="Creating User Interface Widgets"></a>2.1&nbsp; Creating User Interface
+Widgets</h3>
+Most (or all) widgets have certain properties in common.&nbsp; These are:
+<ul>
+<li>
+position - the x- and y-coordinates, in pixels, of the lower left-hand
+corner of the widget relative to the lower left-hand corner of the window</li>
+
+<li>
+size - the width and height of the widget, in pixels</li>
+
+<li>
+callback - the application program's function which is called when the
+widget is activated</li>
+
+<li>
+value - a number or character string that is associated with the widget</li>
+
+<li>
+label - text that is printed next to the widget</li>
+
+<li>
+legend - text that is printed inside the widget (some widgets only)</li>
+</ul>
+PUI supports other widget properties, but these are enough to allow the
+application developer to create a simple user interface.
+<p>Each widget in the Picoscopic User Interface is an object in C++.&nbsp;
+The application developer creates a widget by defining a variable to point
+to the object and creating a new object:
+<p><tt>&nbsp; puButton *button = new puButton ( 10, 10, 100, 30 ) ;</tt>
+<p>To set the properties of a widget, the application developer calls methods
+in the object:
+<p><tt>&nbsp; button->setPosition ( x, y ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Sets the position of the widget to</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//&nbsp;&nbsp;&nbsp;&nbsp; (x, y)</tt>
+<br><tt>&nbsp; button->setSize ( w, h ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Sets the size of the widget to (w, h)</tt>
+<br><tt>&nbsp; button->setCallback ( widget_cb ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Sets the callback to</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//&nbsp;&nbsp;&nbsp;&nbsp; "void widget_cb ( puObject *ob )"</tt>
+<br><tt>&nbsp; button->setLegend ( "Press Me" ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Sets the legend</tt>
+<br><tt>&nbsp; button->setLabel ( "A Button:" ) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Sets the label</tt>
+<br><tt>&nbsp; button->setLabelPlace ( PUPLACE_LEFT ) ;&nbsp; // Makes
+the label print on the button's</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//&nbsp;&nbsp;&nbsp;&nbsp; left</tt>
+<p>Other allowed values for the label position are PUPLACE_RIGHT, PUPLACE_ABOVE,
+PUPLACE_BELOW, PUPLACE_TOP_CENTER, PUPLACE_BOTTOM_CENTER, PUPLACE_LEFT_CENTER,
+and PUPLACE_RIGHT_CENTER.&nbsp; Their meanings should be obvious.
+<p>All of these calls are optional.&nbsp; If the application developer
+does not want to label a widget, he simply does not call "setLabel" or
+"setLabelPlace".&nbsp; Similarly, if he has set the widget's position and
+size while creating the widget, there is no need to call "setPosition"
+or "setSize".
+<p>The following subsections describe some of the widget types that PUI
+supports.
+<h4>
+2.1.1&nbsp; Button</h4>
+The button ("puButton") is a rectangle, usually containing a legend, which
+is activated when the user clicks the mouse on it.&nbsp; It has two possible
+values, off and on; its actual value changes each time the user clicks
+on it.
+<p>The button has two possible methods of construction:
+<ul>
+<li>
+puButton ( x1, y1, x2, y2 ) - creates a button with lower left-hand coordinates
+of (x1, y1) and with upper right-hand coordinates of (x2, y2)</li>
+
+<li>
+puButton ( x1, y1, "text" ) - creates a button with lower left-hand coordinates
+of (x1, y1) and containing the text "text".&nbsp; The size is set by the
+size of the text.</li>
+</ul>
+
+<h4>
+2.1.2&nbsp; Button Box</h4>
+The button box ("puButtonBox") is a large rectangle containing a set of
+buttons, each with text next to it, which the user can select.&nbsp; It
+is sometimes called a radio button.&nbsp; It is created by creating a null-terminated
+list of labels and then by calling the constructor function:
+<p><tt>&nbsp; char **labels = { "Label1", "Label2", "This is Label3", "Four",
+NULL } ;</tt>
+<br><tt>&nbsp; puButtonBox my_box = new puButtonBox ( x1, x2, y1, y2, labels,
+&lt;0|1> ) ;</tt>
+<p>This creates a button box with lower left-hand coordinates of (x1, y1)
+and upper right-hand coordinates (x2, y2).&nbsp; The number of buttons
+is specified by the number of entries in the "labels" array; each string
+before the NULL gets a button.&nbsp; The final argument in the constructor
+specifies whether the user can select multiple buttons (0) or whether selecting
+a new button will deactivate the previously-selected button (1).
+<p>The button box should not be given a legend.
+<h4>
+2.1.3&nbsp; Frame</h4>
+The frame ("puFrame") is a rectangular area that provides a background
+for other widgets.&nbsp; It should be defined before any other widgets
+that go inside it or else it will cover them up.&nbsp; It is constructed
+by the following function call:
+<ul>
+<li>
+puFrame ( x1, y1, x2, y2 ) - creates a frame with lower left-hand coordinates
+of (x1, y1) and with upper right-hand coordinates of (x2, y2)</li>
+</ul>
+The frame should not be given a legend.&nbsp; It does not support a callback
+either.
+<h4>
+2.1.4&nbsp; Input Box</h4>
+The input box ("puInput") is a rectangular area into which the user can
+type text.&nbsp; The user must first click the mouse inside the area and
+then type the text.&nbsp; He concludes by pressing &lt;Enter> or &lt;Tab>
+or by clicking the mouse outside the input box.
+<p>An input box is constructed by the following function call:
+<ul>
+<li>
+puInput ( x1, y1, x2, y2 ) - creates an input box with lower left-hand
+coordinates of (x1, y1) and with upper right-hand coordinates of (x2, y2)</li>
+</ul>
+The input box should not be given a legend.
+<h4>
+2.1.5&nbsp; Menu Bar</h4>
+The menu bar ("puMenuBar") is easily the most complicated widget written
+up here.&nbsp; It consists of a horizontal bar containing buttons which
+the user can click on.&nbsp; The bar is always situated on the left-hand
+edge of the window and is usually in the upper left-hand corner.&nbsp;
+It is constructed by the following function call:
+<br>&nbsp;
+<ul>
+<li>
+puMenuBar *menu = puMenuBar ( y ) - creates a menu bar with the lower left-hand
+corner "y" pixels above the lower left-hand corner of the window.&nbsp;
+A value of -1 for "y" will put the menu bar in the upper left-hand corner
+of the window.</li>
+</ul>
+
+<p><br>Once the menu bar has been constructed, it must be loaded with its
+entries and submenus.&nbsp; A submenu is the list that drops down when
+the user clicks on an entry in the menu.&nbsp; A typical menu bar will
+have the entries "File", "Edit", "Search", and "Help".&nbsp; Under the
+"File" entry is a submenu with entries "New", "Open", "Save", "Save As",
+a separator, "Page Setup", "Print", another separator, and "Exit".&nbsp;
+Each entry in the submenu has its own widget callback function.&nbsp; To
+create a submenu, the application developer must first create two null-terminated
+lists of character strings and callback functions:
+<p><tt>&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *file_submenu&nbsp;&nbsp;
+[] = {&nbsp; "Exit", "-----",&nbsp; "Print",&nbsp; "Page Setup", "-----",</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Save As",&nbsp; "Save",&nbsp; "Open",&nbsp; "New", NULL } ;</tt>
+<br><tt>&nbsp; puCallback file_submenu_cb[] = { exit_cb,&nbsp;&nbsp;&nbsp;
+NULL, print_cb, page_setup_cb,&nbsp;&nbsp;&nbsp; NULL,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+save_as_cb, save_cb, open_cb, new_cb, NULL } ;</tt>
+<p>Notice here that the submenu entries are placed in the list from bottom
+to top.&nbsp; After the last character string is a NULL entry; this tells
+PUI that there aren't any more entries in the submenu.&nbsp; The callbacks
+for the separators are also null, indicating that there is no callback
+for the separator.&nbsp; The submenu is added to the menu bar with a call
+to the "add_submenu" function:
+<p><tt>&nbsp; menu->add_submenu ( "File", file_submenu, file_submenu_cb
+) ;</tt>
+<p>Further calls to "add_submenu" add the other submenus:
+<p><tt>&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *edit_submenu&nbsp;&nbsp;
+[] = {&nbsp; "Select All", "-----",&nbsp; "Paste",&nbsp; "Copy",&nbsp;
+"Cut",</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"-----",&nbsp; "Undo", NULL } ;</tt>
+<br><tt>&nbsp; puCallback edit_submenu_cb[] = { select_all_cb,&nbsp;&nbsp;&nbsp;
+NULL, paste_cb, copy_cb, cut_cb,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NULL, undo_cb, NULL } ;</tt>
+<br><tt>&nbsp; menu->add_submenu ( "Edit", edit_submenu, edit_submenu_cb
+) ;</tt><tt></tt>
+<p><tt>&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *search_submenu&nbsp;&nbsp;
+[] = {&nbsp; "Find Next",&nbsp; "Find", NULL } ;</tt>
+<br><tt>&nbsp; puCallback search_submenu_cb[] = { find_next_cb, find_cb,
+NULL } ;</tt>
+<br><tt>&nbsp; menu->add_submenu ( "Search", search_submenu, search_submenu_cb
+) ;</tt><tt></tt>
+<p><tt>&nbsp; char&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *help_submenu&nbsp;&nbsp;
+[] = {&nbsp; "About",&nbsp; "Help", NULL } ;</tt>
+<br><tt>&nbsp; puCallback help_submenu_cb[] = { about_cb, help_cb, NULL
+} ;</tt>
+<br><tt>&nbsp; menu->add_submenu ( "Help", help_submenu, help_submenu_cb
+) ;</tt>
+<p>When the last submenu has been added, the application developer must
+close the menu bar:
+<p><tt>&nbsp; menu->close() ;</tt>
+<p>This is absolutely necessary or else PUI will think that any widgets
+the application defines later are supposed to go into the menu bar.
+<p>The menu bar does not support a legend.&nbsp; It does not support a
+callback itself, although all the entries in the submenus certainly do
+support callbacks.&nbsp; Repositioning and resizing a menu bar will be
+problematic as well.&nbsp; There may be an occasion when a menu bar can
+take a label, but this would be rare.
+<h4>
+2.1.6&nbsp; One-Shot Button</h4>
+The one-shot button ("puOneShot") is a button whose value is always reset
+immediately to zero after it has been activated.&nbsp; In all other respects
+it is the same as the regular button.&nbsp; It is created in the same way
+as the button:
+<ul>
+<li>
+puOneShot ( x1, y1, x2, y2 ) - creates a one-shot button with lower left-hand
+coordinates of (x1, y1) and with upper right-hand coordinates of (x2, y2)</li>
+
+<li>
+puOneShot ( x1, y1, "text" ) - creates a one-shot button with lower left-hand
+coordinates of (x1, y1) and containing the text "text".&nbsp; The size
+is set by the size of the text.</li>
+</ul>
+
+<h4>
+2.1.7&nbsp; Text Box</h4>
+The text box ("puText") is an output-only widget which displays a character
+string.&nbsp; It is created by the following constructor:
+<ul>
+<li>
+puText ( x, y ) - creates a text box at the point (x, y) in the window</li>
+</ul>
+The application actually adds the text by assigning a label and a label
+place to the text box.&nbsp; The label place will determine where relative
+to the position of the text box the text itself will appear.
+<h3>
+<a NAME="Invoking PUI"></a>2.2&nbsp; Invoking PUI</h3>
+The summary of invoking PUI is very simple:
+<ul>
+<li>
+At the beginning of the program, before creating any widgets, the application
+must call the function "puInit ()".</li>
+
+<li>
+If the application developer wants PUI to process a mouse click, he must
+have the application call the function "puMouse ( button, updown, x, y
+)".</li>
+
+<li>
+If the application developer wants PUI to process a mouse motion, he must
+have the application call the function "puMouse ( x, y )".</li>
+
+<li>
+If the application developer wants PUI to process a key from the keyboard,
+he must have the application call the function "puKeyboard ( key, updown
+)".</li>
+
+<li>
+If the application developer wants PUI to display the user interface, he
+must have the application call the function "puDisplay ()".</li>
+</ul>
+The application developer must create window callbacks for the window manager
+to call when the user interacts with the computer.&nbsp; The following
+are taken from GLUT, but another window manager will have similar callback
+requirements.
+<h4>
+2.2.1&nbsp; Main Program Code</h4>
+In the main program, the application developer usually places the following
+or similar statements:
+<p><tt>&nbsp; // Create the GLUT window and the OpenGL context</tt>
+<p><tt>&nbsp; glutCreateWindow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( "PUI
+Application"&nbsp; ) ;</tt>
+<p><tt>&nbsp; // Set up the GLUT window callbacks</tt>
+<p><tt>&nbsp; glutDisplayFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+( displayfn&nbsp; ) ;&nbsp; // display the window</tt>
+<br><tt>&nbsp; glutMouseFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+( mousefn&nbsp;&nbsp;&nbsp; ) ;&nbsp; // process mouse clicks</tt>
+<br><tt>&nbsp; glutMotionFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+( motionfn&nbsp;&nbsp; ) ;&nbsp; // process mouse moves</tt>
+<br><tt>&nbsp; glutPassiveMotionFunc&nbsp; ( motionfn&nbsp;&nbsp; ) ;</tt>
+<br><tt>&nbsp; glutKeyboardFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( keyboardfn
+) ;&nbsp; // process key presses</tt>
+<br><tt>&nbsp; glutIdleFunc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+( displayfn&nbsp; ) ;&nbsp; // what to do when nothing's happening</tt>
+<p><tt>&nbsp; // Initialize PUI</tt>
+<p><tt>&nbsp; puInit () ;</tt>
+<p><tt>&nbsp; // Set up the widgets here</tt>
+<h4>
+2.2.2&nbsp; Window Callbacks</h4>
+The application's window callbacks should generally look like this.&nbsp;
+Again, these are written assuming GLUT; other window managers should be
+similar.
+<p><tt>&nbsp; void displayfn ( void )</tt>
+<br><tt>&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; // stuff to display any non-PUI drawings</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; // update any PUI widgets that update by themselves
+... like a timer display</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; // redisplay PUI</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; puDisplay () ;</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; // Finish up</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; glutSwapBuffers () ;</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; glutPostRedisplay () ;</tt>
+<br><tt>&nbsp; }</tt>
+<p><tt>&nbsp; void mousefn ( int button, int updown, int x, int y )</tt>
+<br><tt>&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; // Invoke the PUI mouse function</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; puMouse ( button, updown, x, y ) ;</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; glutPostRedisplay () ;</tt>
+<br><tt>&nbsp; }</tt>
+<p><tt>&nbsp; void motionfn ( int x, int y )</tt>
+<br><tt>&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; // Invoke the PUI mouse motion function</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; puMouse ( x, y ) ;</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; glutPostRedisplay () ;</tt>
+<br><tt>&nbsp; }</tt>
+<p><tt>&nbsp; void keyboardfn ( unsigned char key, int, int )</tt>
+<br><tt>&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; // Invoke the PUI keyboard function</tt>
+<p><tt>&nbsp;&nbsp;&nbsp; puKeyboard ( key, PU_DOWN ) ;</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; glutPostRedisplay () ;</tt>
+<br><tt>&nbsp; }</tt>
+<h4>
+2.2.3&nbsp; Miscellaneous Other Tidbits</h4>
+If the application developer wishes to delete a widget, he should not delete
+the object directly.&nbsp; Instead he should call the PUI function "puDeleteObject
+( ob )" with his widget pointer as the argument.
+<h3>
+<a NAME="Widget Callbacks"></a>2.3&nbsp; Widget Callbacks</h3>
+The final pieces to the puzzle are the widget callbacks.&nbsp; These are
+of the form
+<p><tt>&nbsp; void widget_cb ( puObject *ob )</tt>
+<br><tt>&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; // code goes here</tt>
+<br><tt>&nbsp; }</tt>
+<p>where "puObject" is the C++ type for a generic widget.&nbsp; When PUI
+calls a widget callback, it passes to it the address of the widget whose
+activation caused the callback.&nbsp; This is useful because it allows
+a single callback for multiple widgets:
+<p><tt>&nbsp; void widget_cb ( puObject *ob )</tt>
+<br><tt>&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; if ( ob == button )&nbsp; // the button from
+section 2.1</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; }</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; else if ( ob == my_box )&nbsp; // the button
+box from section 2.1.2</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; }</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; else</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; {</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf ( "Error - unknown widget"
+) ;</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; }</tt>
+<br><tt>&nbsp; }</tt>
+<p>&nbsp;A widget callback needs to be either a regular function (global
+or defined in the same file that contains the widget's definition) or a
+static member function of a class.&nbsp; It cannot be a regular member
+function of a class.
+<h4>
+2.3.1&nbsp; Widget Values</h4>
+It is frequently very useful in a callback to know the value of a widget.&nbsp;
+A PUI widget has an integer value, a floating-point value, and a character
+string value.&nbsp; These values are kept synchronized as much as possible.&nbsp;
+For example, if the application assigns an integer value to a widget, the
+floating-point value is set equal to the integer and the integer is printed
+into the character string.
+<p>An application program can use the following function to retrieve the
+value of a PUI widget ("ob" is the pointer to the object):
+<p><tt>&nbsp;int ivalue1 = ob->getValue () ;&nbsp; // No argument, return
+the integer value</tt>
+<p><tt>&nbsp;int ivalue2 ;</tt>
+<br><tt>&nbsp;ob->getValue ( &amp;ivalue2 ) ;&nbsp; // Place the integer
+value in the argument</tt>
+<p><tt>&nbsp;float fvalue ;</tt>
+<br><tt>&nbsp;ob->getValue ( &amp;fvalue ) ;&nbsp; // Place the floating-point
+value in the argument</tt>
+<p><tt>&nbsp;char svalue[PUSTRING_MAX] ;&nbsp; // Create a string</tt>
+<br><tt>&nbsp;ob->getValue ( svalue ) ;&nbsp;&nbsp;&nbsp; // Copy the string
+value into the argument</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Note that the argument is of type "char *"</tt>
+<p><tt>&nbsp;char *sptr ;</tt>
+<br><tt>&nbsp;ob->getValue ( &amp;sptr ) ;&nbsp; // Have the pointer point
+to the string value</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Note that the argument is of type "char **"</tt>
+<p>The values of the various widgets have the following meanings:
+<ul>
+<li>
+Button:&nbsp; 0 - turned off; 1 - turned on</li>
+
+<li>
+Button Box:&nbsp; If only one button can be activated at a time, the value
+is the number of the button which is activated.&nbsp; If multiple buttons
+can be activated at once, then the bits in the integer value corresponding
+to the activated buttons are one and the bits corresponding to the inactive
+buttons are zero.</li>
+
+<li>
+Frame:&nbsp; no value</li>
+
+<li>
+Input:&nbsp; the string value is the character string that the user has
+typed in</li>
+
+<li>
+Menu Bar:&nbsp; no value</li>
+
+<li>
+One Shot Button:&nbsp; value is always zero</li>
+
+<li>
+Text:&nbsp; no value</li>
+</ul>
+
+<h2>
+<a NAME="Conclusion"></a>3.&nbsp; Conclusion</h2>
+This has been offered as an introduction to the Picoscopic User Interface.&nbsp;
+It makes no warranty as to its accuracy although efforts have been made
+to make it correct.&nbsp; It is offered in the hope that the gentle reader
+will find it useful.
+<p>The PUI has considerably greater capabilities than have been listed
+here.&nbsp; There are well over a dozen additional types of widgets.&nbsp;
+Additionally, the application developer can do many more things with this
+widgets than have been described here.
+<p>"As to more than these, my son, beware.&nbsp; Of the making of many
+books there is no end, and in much study there is weariness for the flesh."&nbsp;
+- Ecclesiastes 12:12
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>
