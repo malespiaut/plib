@@ -757,9 +757,9 @@ static void safe_replace_kid ( ssgBranch *parent, ssgEntity *old_kid, ssgEntity 
 
   if ( parent == NULL )
   {
-    for ( ssgBranch *p = old_kid -> getParent ( 0 ) ; p != NULL ;
-	             p = old_kid -> getNextParent () )
-      safe_replace_kid ( p, old_kid, new_kid ) ;
+    int num_parents = old_kid -> getNumParents () ;
+    for ( int i = 0 ; i < num_parents ; i++ )
+      safe_replace_kid ( old_kid -> getParent ( i ), old_kid, new_kid ) ;
     return ;
   }
 
