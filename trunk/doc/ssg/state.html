@@ -111,6 +111,10 @@ a texture environment that is GL_LINEAR_MIPMAP_LINEAR and GL_MODULATE.
 If you need something fancier, then declare an 'ssgTexture' class and
 pass that to the setTexture function. You can also load your own
 texture and pass the OpenGL glBindTexture handle to setTexture.
+<p> If you need the texture file name, first check that 
+isEnabled ( GL_TEXTURE_2D ) returns true, then you may call
+getTextureFilename(). But you should still check the return value for NULL and for "".
+
 <H3>Materials.</H3>
 These calls are all very similar to OpenGL calls - and take the same
 parameters:
