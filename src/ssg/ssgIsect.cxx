@@ -69,7 +69,7 @@ void _ssgAddHit ( ssgLeaf *l, int trinum, sgMat4 mat, sgVec4 pl )
 }
 
 
-int ssgIsect ( ssgRoot *root, sgSphere *s, sgMat4 mat, ssgHit **results )
+int ssgIsect ( ssgBranch *root, sgSphere *s, sgMat4 mat, ssgHit **results )
 {
   _ssgIsHotTest = FALSE ;
   _ssgIsLosTest = FALSE ;
@@ -81,7 +81,7 @@ int ssgIsect ( ssgRoot *root, sgSphere *s, sgMat4 mat, ssgHit **results )
 }
 
 
-int ssgHOT ( ssgRoot *root, sgVec3 s, sgMat4 mat, ssgHit **results )
+int ssgHOT ( ssgBranch *root, sgVec3 s, sgMat4 mat, ssgHit **results )
 {
   _ssgIsHotTest = TRUE ;
   _ssgIsLosTest = FALSE ;
@@ -93,7 +93,7 @@ int ssgHOT ( ssgRoot *root, sgVec3 s, sgMat4 mat, ssgHit **results )
 }
 
 
-int ssgLOS ( ssgRoot *root, sgVec3 s, sgMat4 mat, ssgHit **results )
+int ssgLOS ( ssgBranch *root, sgVec3 s, sgMat4 mat, ssgHit **results )
 {
   _ssgIsHotTest = FALSE ;
   _ssgIsLosTest = TRUE ;

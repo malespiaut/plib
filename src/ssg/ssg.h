@@ -2341,7 +2341,7 @@ public:
   int  isOrtho () { return frustum -> isOrtho () ; } // is orthographic
 
   ssgSimpleState *getState () { return currentState ; }
-  void cull ( ssgRoot *r ) ;
+  void cull ( ssgBranch *r ) ;
 
   void getCameraPosition ( sgVec3 pos ) ;
   void setCamera ( sgMat4 mat ) ;
@@ -2487,11 +2487,11 @@ inline  sgFrustum *ssgGetFrustum ()
 
 void ssgInit () ;
 
-void ssgCullAndDraw ( ssgRoot *root ) ;
-void ssgCullAndPick ( ssgRoot *root, sgVec2 botleft, sgVec2 topright ) ;
-int  ssgIsect       ( ssgRoot *root, sgSphere *s, sgMat4 m, ssgHit **results ) ;
-int  ssgHOT         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
-int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
+void ssgCullAndDraw ( ssgBranch *root ) ;
+void ssgCullAndPick ( ssgBranch *root, sgVec2 botleft, sgVec2 topright ) ;
+int  ssgIsect       ( ssgBranch *root, sgSphere*s,sgMat4 m, ssgHit **results ) ;
+int  ssgHOT         ( ssgBranch *root, sgVec3  s, sgMat4 m, ssgHit **results ) ;
+int  ssgLOS         ( ssgBranch *root, sgVec3  s, sgMat4 m, ssgHit **results ) ;
 
 /* Load/Save functions */
 
