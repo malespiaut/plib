@@ -2291,8 +2291,6 @@ public:
       return (*create_state_cb)(tfname) ;
     return NULL ;
   }
-  virtual void begin () const {}
-  virtual void end () const {}
 } ;
 
 int        ssgSave     ( const char *fname, ssgEntity *ent ) ;
@@ -2334,16 +2332,17 @@ void ssgAddModelFormat ( const char* extension,
 
 /* current loader options */
 
-extern ssgLoaderOptions *_ssgCurrentOptions ;
+extern ssgLoaderOptions* _ssgCurrentOptions ;
 
-inline ssgLoaderOptions *ssgGetCurrentOptions ()
+inline ssgLoaderOptions* ssgGetCurrentOptions ()
 {
   return _ssgCurrentOptions ;
 }
 
-inline void ssgSetCurrentOptions ( ssgLoaderOptions * options )
+inline void ssgSetCurrentOptions ( ssgLoaderOptions* options )
 {
-  _ssgCurrentOptions = options ;
+  if ( options != NULL )
+    _ssgCurrentOptions = options ;
 }
 
 /* For backwards compatibility */

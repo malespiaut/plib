@@ -142,10 +142,9 @@ int _ssgSaveObject ( FILE *f, ssgBase *obj )
 
 ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
 {
-  const ssgLoaderOptions* current_options =
-    options? options: ssgGetCurrentOptions () ;
-  current_options -> begin () ;
- 
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  const ssgLoaderOptions* current_options = ssgGetCurrentOptions () ;
+
   char filename [ 1024 ] ;
   current_options -> makeModelPath ( filename, fname ) ;
 
@@ -216,8 +215,6 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
   _ssgFileVersionNumber = oldFileVersion ;
 
   fclose ( fd ) ;
-
-  current_options -> end () ;
 
   return kid ;
 }

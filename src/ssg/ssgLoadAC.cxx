@@ -593,8 +593,8 @@ ssgEntity *ssgLoadAC3D ( const char *fname, const ssgLoaderOptions* options )
 
 ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
 {
-  current_options = options? options: ssgGetCurrentOptions () ;
-  current_options -> begin () ;
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  current_options = ssgGetCurrentOptions () ;
 
   char filename [ 1024 ] ;
   current_options -> makeModelPath ( filename, fname ) ;
@@ -650,8 +650,6 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
     else
       search ( top_tags, s ) ;
   }
-
-  current_options -> end () ;
 
   delete current_tfname ;
   current_tfname = NULL ;

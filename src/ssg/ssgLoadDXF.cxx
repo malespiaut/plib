@@ -430,8 +430,8 @@ initialize lists
 
 ssgEntity *ssgLoadDXF ( const char *fname, const ssgLoaderOptions* options )
 {
-  current_options = options? options: ssgGetCurrentOptions () ;
-  current_options -> begin () ;
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  current_options = ssgGetCurrentOptions () ;
 
   current_branch   = NULL ;
 
@@ -451,8 +451,6 @@ ssgEntity *ssgLoadDXF ( const char *fname, const ssgLoaderOptions* options )
   dxf_read ( loader_fd ) ;
 
   fclose ( loader_fd ) ;
-
-  current_options -> end () ;
 
   return current_branch ;
 }

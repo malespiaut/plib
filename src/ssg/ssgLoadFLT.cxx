@@ -2954,15 +2954,11 @@ ssgEntity *ssgLoadFLT(const char *filename,
    NotImplementedFlag = 0;
 
 #ifndef NO_LOADER_OPTIONS
-   LoaderOptions = options ? options : ssgGetCurrentOptions () ;
-   LoaderOptions->begin();
+   ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+   LoaderOptions = ssgGetCurrentOptions () ;
 #endif
 
    node = LoadFLT(filename);
-
-#ifndef NO_LOADER_OPTIONS
-   LoaderOptions->end();
-#endif
 
    sfree(TexCache, S_KEY | S_DATA);
    TexCache = 0;

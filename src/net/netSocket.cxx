@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <fcntl.h>
-#include <netinet/in.h>
 
 #else
 

@@ -3,9 +3,9 @@
 static const ssgLoaderOptions* current_options;
 
 ssgEntity* ssgLoadStrip( const char* fname, const ssgLoaderOptions* options ) {
-  current_options = options? options: ssgGetCurrentOptions () ;
-  current_options -> begin () ;
-  
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  current_options = ssgGetCurrentOptions () ;
+
   char filename [ 1024 ] ;
   current_options -> makeModelPath ( filename, fname ) ;
   
@@ -92,6 +92,5 @@ ssgEntity* ssgLoadStrip( const char* fname, const ssgLoaderOptions* options ) {
   ssgLeaf* leaf = current_options->createLeaf(varr, NULL);
   model->addKid(leaf);
 
-  current_options->end();
   return model;
 }

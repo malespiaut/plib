@@ -19,7 +19,9 @@
 
 #include "netBuffer.h"
 
+#if defined(__CYGWIN__) || !defined (WIN32)
 #include <netinet/in.h> // ntohs() etc prototypes
+#endif
 
 
 class netGuid //Globally Unique IDentifier
