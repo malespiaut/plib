@@ -636,8 +636,8 @@ static ssgLeaf* add_points( aseObject* obj, aseMesh* mesh )
   for ( u32 i=0; i < num_verts; i++, vert++ )
     vl -> add ( *vert ) ;
   
-  ssgVtxArray* leaf = new ssgVtxArray ( GL_POINTS,
-    vl, NULL, NULL, NULL, NULL ) ;
+  ssgVtxTable* leaf = new ssgVtxTable ( GL_POINTS,
+    vl, NULL, NULL, NULL ) ;
 
   if ( leaf != NULL )
   {
@@ -724,8 +724,8 @@ static ssgLeaf* add_mesh( aseObject* obj, aseMesh* mesh, u32 sub_index )
       }
     }
 
-    ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES,
-      vl, nl, tl, cl, NULL ) ;
+    ssgVtxTable* leaf = new ssgVtxTable ( GL_TRIANGLES,
+      vl, nl, tl, cl ) ;
     leaf -> setCullFace ( TRUE ) ;
     leaf -> setState ( st ) ;
     return current_options -> createLeaf ( leaf, obj->name ) ;
