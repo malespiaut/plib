@@ -519,7 +519,7 @@ void ssgVtxTable::draw_geometry ()
 
     glVertex3fv ( vx [ i ] ) ;
   }
- 
+
   glEnd () ;
 }
 
@@ -565,20 +565,20 @@ void ssgVtxTable::hot_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
         continue ;
 
       /* Find the point vertically below the text point
-	as it crosses the plane of the polygon */
+      as it crosses the plane of the polygon */
 
       float z = sgHeightOfPlaneVec2 ( plane, s ) ;
 
       /* No HOT from below the triangle */
 
       if ( z > s[2] )
-	continue ;
+         continue ;
 
       /* Outside the vertical extent of the triangle? */
 
       if ( ( z < vv1[2] && z < vv2[2] && z < vv3[2] ) ||
-	   ( z > vv1[2] && z > vv2[2] && z > vv3[2] ) )
-	continue ;
+         ( z > vv1[2] && z > vv2[2] && z > vv3[2] ) )
+         continue ;
     }
 
     /*
@@ -602,6 +602,72 @@ void ssgVtxTable::hot_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
     if ( ai > ap * 1.01 )
       continue ;
 
+    _ssgAddHit ( this, i, m, plane ) ;
+  }
+}
+
+void ssgVtxTable::los_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
+{
+  int nt = getNumTriangles () ;
+
+  stats_los_triangles += nt ;
+
+  for ( int i = 0 ; i < nt ; i++ )
+  {
+    short   v1,  v2,  v3 ;
+    sgVec3 vv1, vv2, vv3 ;
+    sgVec4 plane ;
+
+    SGfloat edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
+    SGfloat det,inv_det;
+    SGfloat t,u,v;
+
+    getTriangle ( i, &v1, &v2, &v3 ) ;
+
+    sgXformPnt3 ( vv1, getVertex(v1), m ) ;
+    sgXformPnt3 ( vv2, getVertex(v2), m ) ;
+    sgXformPnt3 ( vv3, getVertex(v3), m ) ;
+    sgVec3 cam;
+    cam[0] = m[0][3];
+    cam[1] = m[1][3];
+    cam[2] = m[2][3];
+    //if ( _ssgIsLosTest )
+    //{
+
+      /* find vectors for two edges sharing vert0 */
+      sgSubVec3(edge1, vv2, vv1);
+      sgSubVec3(edge2, vv3, vv1);
+
+      /* begin calculating determinant - also used to calculate U parameter */
+      sgVectorProductVec3(pvec, s, edge2);
+
+      /* if determinant is near zero, ray lies in plane of triangle */
+      det = sgScalarProductVec3(edge1, pvec);
+
+      if (det > -0.0000001 && det < 0.0000001) continue;
+      inv_det = 1.0 / det;
+
+      /* calculate distance from vert0 to ray origin */
+      sgSubVec3(tvec, cam, vv1);
+
+      /* calculate U parameter and test bounds */
+      u = sgScalarProductVec3(tvec, pvec) * inv_det;
+      if (u < 0.0 || u > 1.0)
+         continue;
+
+      /* prepare to test V parameter */
+      sgVectorProductVec3(qvec, tvec, edge1);
+
+      /* calculate V parameter and test bounds */
+      v = sgScalarProductVec3(s, qvec) * inv_det;
+      if (v < 0.0 || u + v > 1.0)
+         continue;
+
+      /* calculate t, ray intersects triangle */
+      //t = sgScalarProductVec3(edge2, qvec) * inv_det;
+    //}
+
+    sgMakePlane ( plane, vv1, vv2, vv3 ) ;
     _ssgAddHit ( this, i, m, plane ) ;
   }
 }

@@ -183,17 +183,20 @@ int ssgEntity::preTravTests ( int *test_needed, int which )
   {
     if ( which & SSGTRAV_HOT )
       stats_hot_no_trav ++ ;
+    /*
+    if ( which & SSGTRAV_LOS )
+      stats_hot_no_trav ++ ;*/
     return FALSE ;
   }
 
   if ( preTravCB != NULL )
   {
     int result = (*preTravCB)(this,which) ;
-    
+
     if ( result == 0 ) return FALSE ;
     if ( result == 2 ) *test_needed = 0 ;
   }
-  
+
   return TRUE ;
 }
 
@@ -295,7 +298,7 @@ int ssgEntity::bindEntities ( ssgEntityBinding *bind )
 
     ++bind ;
   }
- 
+
   return success ;
 }
 
@@ -309,7 +312,7 @@ ssgCullResult ssgEntity::hot_test ( sgVec3 s, sgMat4 m, int test_needed )
 stats_hot_triv_accept++ ;
     return SSG_INSIDE ;
 }
-   
+
   sgSphere tmp = *(getBSphere()) ;
 
   if ( tmp.isEmpty () )
@@ -327,6 +330,38 @@ stats_hot_radius_reject++ ;
 }
 
 stats_hot_straddle++ ;
+  return SSG_STRADDLE ;
+}
+
+
+
+ssgCullResult ssgEntity::los_test ( sgVec3 s, sgMat4 m, int test_needed )
+{
+  stats_los_test++ ;
+
+  if ( !test_needed )
+{
+stats_los_triv_accept++ ;
+    return SSG_INSIDE ;
+}
+
+  sgSphere tmp = *(getBSphere()) ;
+
+  if ( tmp.isEmpty () )
+    return SSG_OUTSIDE ;
+
+  tmp . orthoXform ( m ) ;
+
+  float d = sgSquare ( s[0] - tmp.getCenter()[0] ) +
+            sgSquare ( s[1] - tmp.getCenter()[1] ) ;
+
+  if ( d > sgSquare ( tmp.getRadius() ) )
+{
+stats_los_radius_reject++ ;
+    return SSG_OUTSIDE ;
+}
+
+stats_los_straddle++ ;
   return SSG_STRADDLE ;
 }
 

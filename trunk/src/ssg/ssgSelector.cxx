@@ -95,7 +95,31 @@ void ssgSelector::hot ( sgVec3 sp, sgMat4 m, int test_needed )
 
   _ssgPopPath () ;
 
-  postTravTests ( SSGTRAV_HOT ) ; 
+  postTravTests ( SSGTRAV_HOT ) ;
+}
+
+
+void ssgSelector::los ( sgVec3 sp, sgMat4 m, int test_needed )
+{
+  if ( ! preTravTests ( &test_needed, SSGTRAV_LOS ) )
+    return ;
+
+  int los_result = los_test ( sp, m, test_needed ) ;
+
+  if ( los_result == SSG_OUTSIDE )
+    return ;
+
+  int s = 0 ;
+
+  _ssgPushPath ( this ) ;
+
+  for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid(), s++ )
+    if ( selection [s] )
+      e -> los ( sp, m, los_result != SSG_INSIDE ) ;
+
+  _ssgPopPath () ;
+
+  postTravTests ( SSGTRAV_LOS ) ;
 }
 
 

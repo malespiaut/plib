@@ -489,6 +489,71 @@ void ssgVTable::hot_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
   }
 }
 
+void ssgVTable::los_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
+{
+  int nt = getNumTriangles () ;
+
+  stats_los_triangles += nt ;
+
+  for ( int i = 0 ; i < nt ; i++ )
+  {
+    short   v1,  v2,  v3 ;
+    sgVec3 vv1, vv2, vv3 ;
+    sgVec4 plane ;
+
+    SGfloat edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
+    SGfloat det,inv_det;
+    SGfloat t,u,v;
+
+    getTriangle ( i, &v1, &v2, &v3 ) ;
+
+    sgXformPnt3 ( vv1, getVertex(v1), m ) ;
+    sgXformPnt3 ( vv2, getVertex(v2), m ) ;
+    sgXformPnt3 ( vv3, getVertex(v3), m ) ;
+    sgVec3 cam;
+    cam[0] = m[0][3];
+    cam[1] = m[1][3];
+    cam[2] = m[2][3];
+    //if ( _ssgIsLosTest )
+    //{
+
+      /* find vectors for two edges sharing vert0 */
+      sgSubVec3(edge1, vv2, vv1);
+      sgSubVec3(edge2, vv3, vv1);
+
+      /* begin calculating determinant - also used to calculate U parameter */
+      sgVectorProductVec3(pvec, s, edge2);
+
+      /* if determinant is near zero, ray lies in plane of triangle */
+      det = sgScalarProductVec3(edge1, pvec);
+
+      if (det > -0.0000001 && det < 0.0000001) continue;
+      inv_det = 1.0 / det;
+
+      /* calculate distance from vert0 to ray origin */
+      sgSubVec3(tvec, cam, vv1);
+
+      /* calculate U parameter and test bounds */
+      u = sgScalarProductVec3(tvec, pvec) * inv_det;
+      if (u < 0.0 || u > 1.0)
+         continue;
+
+      /* prepare to test V parameter */
+      sgVectorProductVec3(qvec, tvec, edge1);
+
+      /* calculate V parameter and test bounds */
+      v = sgScalarProductVec3(s, qvec) * inv_det;
+      if (v < 0.0 || u + v > 1.0)
+         continue;
+
+      /* calculate t, ray intersects triangle */
+      //t = sgScalarProductVec3(edge2, qvec) * inv_det;
+    //}
+
+    sgMakePlane ( plane, vv1, vv2, vv3 ) ;
+    _ssgAddHit ( this, i, m, plane ) ;
+  }
+}
 
 void ssgVTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
 {
@@ -541,21 +606,21 @@ void ssgVTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
     sgAddVec3 ( vvX, plane, vv1 ) ;
     sgMakePlane ( planeX, vv1, vv2, vvX ) ;
     float dp1 = sgDistToPlaneVec3 ( planeX, s->getCenter() ) ;
-    
+
     if ( dp1 > s->getRadius() )
       continue ;
 
     sgAddVec3 ( vvX, plane, vv2 ) ;
     sgMakePlane ( planeX, vv2, vv3, vvX ) ;
     float dp2 = sgDistToPlaneVec3 ( planeX, s->getCenter() ) ;
-    
+
     if ( dp2 > s->getRadius() )
       continue ;
 
     sgAddVec3 ( vvX, plane, vv3 ) ;
     sgMakePlane ( planeX, vv3, vv1, vvX ) ;
     float dp3 = sgDistToPlaneVec3 ( planeX, s->getCenter() ) ;
-    
+
     if ( dp3 > s->getRadius() )
       continue ;
 
@@ -572,7 +637,7 @@ void ssgVTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
       triangle then we don't need that
       costly test.
     */
- 
+
     if ( dp1 <= 0 && dp2 <= 0 && dp3 <= 0 )
     {
       _ssgAddHit ( this, i, m, plane ) ;

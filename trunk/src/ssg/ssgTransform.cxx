@@ -110,9 +110,33 @@ void ssgTransform::hot ( sgVec3 s, sgMat4 m, int test_needed )
 
   _ssgPopPath () ;
 
-  postTravTests ( SSGTRAV_HOT ) ; 
+  postTravTests ( SSGTRAV_HOT ) ;
 }
 
+void ssgTransform::los ( sgVec3 s, sgMat4 m, int test_needed )
+{
+  if ( ! preTravTests ( &test_needed, SSGTRAV_LOS ) )
+    return ;
+
+  int los_result = los_test ( s, m, test_needed ) ;
+
+  if ( los_result == SSG_OUTSIDE )
+    return ;
+
+  sgMat4 tmp ;
+
+  sgCopyMat4 ( tmp, m ) ;
+  sgPreMultMat4 ( tmp, transform ) ;
+
+  _ssgPushPath ( this ) ;
+
+  for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid() )
+    e -> los ( s, tmp, los_result != SSG_INSIDE ) ;
+
+  _ssgPopPath () ;
+
+  postTravTests ( SSGTRAV_LOS ) ;
+}
 
 void ssgTransform::isect ( sgSphere *s, sgMat4 m, int test_needed )
 {

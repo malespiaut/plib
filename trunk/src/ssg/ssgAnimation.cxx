@@ -85,6 +85,11 @@ void ssgTimedSelector::hot ( sgVec3 sp, sgMat4 m, int test_needed )
   ssgSelector::hot ( sp, m, test_needed ) ;
 }
 
+void ssgTimedSelector::los ( sgVec3 sp, sgMat4 m, int test_needed )
+{
+  selectStep ( getStep () ) ;
+  ssgSelector::los ( sp, m, test_needed ) ;
+}
 
 void ssgTimedSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 {

@@ -129,6 +129,18 @@ void ssgLeaf::hot ( sgVec3 s, sgMat4 m, int test_needed )
   hot_triangles ( s, m, hot_result != SSG_INSIDE ) ;
 }
 
+void ssgLeaf::los ( sgVec3 s, sgMat4 m, int test_needed )
+{
+  int los_result = los_test ( s, m, test_needed ) ;
+
+  if ( los_result == SSG_OUTSIDE )
+    return ;
+
+  /* Add polygons to hit list! */
+
+  los_triangles ( s, m, los_result != SSG_INSIDE ) ;
+}
+
 
 
 void ssgLeaf::isect ( sgSphere *s, sgMat4 m, int test_needed )
