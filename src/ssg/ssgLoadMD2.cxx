@@ -104,7 +104,7 @@ int seq_sizes[][2] = {
 	
 */
 
-int seq_frames[] = {
+static int seq_frames[] = {
 	40,
 	6,
 	8,
@@ -197,12 +197,12 @@ static char skins[32][1024];
 static t_model header;
 
 
-void read_header()
+static void read_header()
 {
 	fread(&header, sizeof(t_model), 1, loader_fd);	
 }
 	
-void read_frames(int offset)
+static void read_frames(int offset)
 {
 	fseek(loader_fd, offset, SEEK_SET);	
 		
@@ -217,7 +217,7 @@ void read_frames(int offset)
 	}
 }
 
-void read_uvcoords(int offset)
+static void read_uvcoords(int offset)
 {
 	fseek(loader_fd, offset, SEEK_SET);
 	
@@ -225,7 +225,7 @@ void read_uvcoords(int offset)
 	fread(uvs, sizeof(t_tcoord), header.numTexCoords, loader_fd);
 }
 
-void read_triangles(int offset)
+static void read_triangles(int offset)
 {
 	fseek(loader_fd, offset, SEEK_SET);
 
@@ -233,7 +233,7 @@ void read_triangles(int offset)
 	fread(triangles, sizeof(t_triangle), header.numTriangles, loader_fd);
 }
 
-void read_skins(int offset)
+static void read_skins(int offset)
 {
 	fseek(loader_fd, offset, SEEK_SET);
 	char buffer[64];
@@ -251,7 +251,7 @@ void read_skins(int offset)
 			strcpy(skins[i], start);
 	}
 }
-void read_glcommands(int offset)
+static void read_glcommands(int offset)
 {
 	fseek(loader_fd, offset, SEEK_SET);
 }
@@ -261,7 +261,7 @@ void read_glcommands(int offset)
  * they can share UVs properly
  * Right now, it does this really naively, (it dups them all)
  */
-ssgEntity * convert_to_ssg()
+static ssgEntity * convert_to_ssg()
 {
 	sgVec3 vert;
 	sgVec2 uv;

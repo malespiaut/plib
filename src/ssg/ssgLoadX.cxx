@@ -36,7 +36,7 @@
 typedef int HandlerFunctionType(const char *sName, const char *firstToken);
 
 
-char *globEmpty="";
+static char *globEmpty="";
 
 static ssgBranch *curr_branch_;
 
@@ -105,7 +105,7 @@ static int Ascii2Float(SGfloat &retVal, const char *token, const char* name )
 	}
 }
 
-int HandleHeader(const char * /* sName */, const char *firstToken)
+static int HandleHeader(const char * /* sName */, const char *firstToken)
 {
 	//parser.expectNextToken("{");
 	int Dummy;
@@ -123,7 +123,7 @@ int HandleHeader(const char * /* sName */, const char *firstToken)
 	return TRUE;
 }
 
-void IgnoreEntity(int startLevel)
+static void IgnoreEntity(int startLevel)
 // startLevel should be 0 when you are "in front of the {" (normally)
 // or 1 when you have already parsed the "{"
 { 
@@ -149,14 +149,14 @@ void IgnoreEntity(int startLevel)
 	}      
 }
 
-int HandleMesh(const char *sName, const char *firstToken);
-int HandleMeshMaterialList(const char *sName, const char *firstToken);
-int HandleTextureCoords(const char *sName, const char *firstToken);
-int HandleMaterial(const char *sName, const char *firstToken);
-int HandleTextureFileName(const char *sName, const char *firstToken);
+static int HandleMesh(const char *sName, const char *firstToken);
+static int HandleMeshMaterialList(const char *sName, const char *firstToken);
+static int HandleTextureCoords(const char *sName, const char *firstToken);
+static int HandleMaterial(const char *sName, const char *firstToken);
+static int HandleTextureFileName(const char *sName, const char *firstToken);
 
 
-EntityType aEntities[] =
+static EntityType aEntities[] =
 {
 	{ "Header", HandleHeader, FALSE}, 
 	{ "Vector", NULL, FALSE}, 
@@ -190,7 +190,7 @@ EntityType aEntities[] =
 };
 
 
-int ParseEntity(char *token)
+static int ParseEntity(char *token)
 // called recursively
 { int i=0;
 
@@ -247,12 +247,12 @@ int ParseEntity(char *token)
 
 #define MAX_NO_VERTICES_PER_FACE 1000
 
-class ssgLoaderWriterMesh currentMesh;
+static class ssgLoaderWriterMesh currentMesh;
 
-ssgSimpleState *currentState;
+static ssgSimpleState *currentState;
 extern sgVec4 currentDiffuse;
 
-int HandleTextureFileName(const char *sName, const char *firstToken)
+static int HandleTextureFileName(const char *sName, const char *firstToken)
 {/*
 	  TextureFilename {
     "../image/box_top.gif";
@@ -277,7 +277,7 @@ int HandleTextureFileName(const char *sName, const char *firstToken)
 	return TRUE;
 }
 
-int HandleMaterial(const char *sName, const char *firstToken)
+static int HandleMaterial(const char *sName, const char *firstToken)
 // return TRUE on success
 { SGfloat power;
   int bFoundTextureFileName = FALSE;
@@ -371,7 +371,7 @@ int HandleMaterial(const char *sName, const char *firstToken)
 	return TRUE; //lint !e527
 }
 
-int HandleTextureCoords(const char * /* sName */, const char *firstToken)
+static int HandleTextureCoords(const char * /* sName */, const char *firstToken)
 {
 	u32 nNoOfVertices, i;
 
@@ -411,7 +411,7 @@ int HandleTextureCoords(const char * /* sName */, const char *firstToken)
 	return TRUE;
 }
 
-int HandleMeshMaterialList(const char * /* sName */, const char *firstToken)
+static int HandleMeshMaterialList(const char * /* sName */, const char *firstToken)
 {
 	u32 i, nFaceIndexes, nMaterialsRead = 0, nMaterials;
 	  
@@ -481,7 +481,7 @@ int HandleMeshMaterialList(const char * /* sName */, const char *firstToken)
 }
 
 
-int HandleMesh(const char * /* sName */, const char *firstToken)
+static int HandleMesh(const char * /* sName */, const char *firstToken)
 { u32 i, j, nNoOfVertices, nNoOfVerticesForThisFace, nNoOfFaces;
 	int iVertex, aiVertices[MAX_NO_VERTICES_PER_FACE];
 	
@@ -580,7 +580,7 @@ int HandleMesh(const char * /* sName */, const char *firstToken)
 	return TRUE;
 }
 
-static int TwoCharsToInt(char char1, char char2)
+inline int TwoCharsToInt(char char1, char char2)
 {
   return ((int)(char1-'0'))*256+char2-'0';
 }

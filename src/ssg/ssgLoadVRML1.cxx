@@ -59,7 +59,7 @@ static bool vrml1_parseSwitch( ssgBranch *parentBranch, _traversalState *parentD
 static bool vrml1_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 static bool vrml1_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 
-_parseTag vrmlTags [] =
+static _parseTag vrmlTags [] =
 {
      { "Separator", vrml1_parseSeparator },
      { "Switch", vrml1_parseSwitch },

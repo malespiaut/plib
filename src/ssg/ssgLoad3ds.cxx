@@ -75,7 +75,7 @@
 #endif
 
 #ifdef DEBUG
-char debug_indent[256];
+static char debug_indent[256];
 #endif
 
 /* this is the minimum value of the dot product for
