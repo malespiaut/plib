@@ -205,3 +205,13 @@ char *ssgTransform    ::getTypeName (void) { return "ssgTransform"     ; }
 char *ssgTexTrans     ::getTypeName (void) { return "ssgTexTrans"      ; }
 char *ssgCutout       ::getTypeName (void) { return "ssgCutout"        ; }
 char *ssgRoot         ::getTypeName (void) { return "ssgRoot"          ; }
+
+char *ssgSimpleList   ::getTypeName (void) { return "ssgSimpleList"    ; }
+char *ssgColourArray  ::getTypeName (void) { return "ssgColourArray"   ; }
+char *ssgIndexArray   ::getTypeName (void) { return "ssgIndexArray"    ; }
+char *ssgTransformArray::getTypeName (void) { return "ssgTransformArray" ; }
+char *ssgTexCoordArray::getTypeName (void) { return "ssgTexCoordArray" ; }
+char *ssgVertexArray  ::getTypeName (void) { return "ssgVertexArray"   ; }
+char *ssgNormalArray  ::getTypeName (void) { return "ssgNormalArray"   ; }
+char *ssgInterleavedArray::getTypeName (void) { return "ssgInterleavedArray"; }
+
