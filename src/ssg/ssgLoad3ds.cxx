@@ -39,7 +39,7 @@
 /* Define DEBUG if you want debug output
    (this might be a nice way of looking at the
    structure of a 3DS file). */
-// #define DEBUG 1
+/*#define DEBUG 1*/
 
 
 #ifdef DEBUG
@@ -766,21 +766,19 @@ static int parse_tra_matrix( unsigned int length ) {
   /* Strange things seems to be going on with the
      local coordinate system in 3ds - I have commented
      this out, but things seems to work better without
-     it (which is odd).
+     it (which is odd).*/
   
-     int i, j;
-     
-     for (i = 0; i < 4; i++) {
-     for (j = 0; j < 3; j++) {
-     m[j][i] = get_float();
-     }
-     }
-     
-     m[3][3] = 1.0f;
-     sgTransposeNegateMat4( m );
-     
-  */
+  int i, j;
   
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < 3; j++) {
+      m[j][i] = get_float();
+    }
+  }
+  
+  m[3][3] = 1.0f;
+  sgTransposeNegateMat4( m );
+    
 #ifdef DEBUG
   for (int a = 0; a < 4; a++) {
     DEBUGPRINT("%s%s%s%s", "","","");
@@ -791,7 +789,7 @@ static int parse_tra_matrix( unsigned int length ) {
   }
 #endif  
 
-  current_transform -> setTransform( m );
+  //current_transform -> setTransform( m );
   
   return PARSE_OK;
 }
