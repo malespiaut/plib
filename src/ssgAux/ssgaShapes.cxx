@@ -270,7 +270,10 @@ void ssgaSphere::regenerate ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b)/2.0f,
                        center[1] + size[1]*cos(a)*sin(b)/2.0f,
                        center[2] - size[2]*       cos(b)/2.0f ) ;
-	sgSetVec3 ( n, -sin(a)*sin(b), -cos(a)*sin(b), -cos(b) ) ;
+	sgSetVec3 ( n, -sin(a)*sin(b)*size[0],
+                       -cos(a)*sin(b)*size[1],
+                       -cos(b)*size[2] ) ;
+        sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices, (float) i /(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
         
@@ -294,8 +297,12 @@ void ssgaSphere::regenerate ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b)/2.0f,
                        center[1] + size[1]*cos(a)*sin(b)/2.0f,
                        center[2] - size[2]*       cos(b)/2.0f ) ;
-	sgSetVec3 ( n, -sin(a)*sin(b), -cos(a)*sin(b), -cos(b) ) ;
-	sgSetVec2 ( t, (float)j/(float)slices, (float)(i+1)/(float)stacks ) ;
+	sgSetVec3 ( n, -sin(a)*sin(b)*size[0],
+                       -cos(a)*sin(b)*size[1],
+                       -cos(b)*size[2] ) ;
+        sgNormalizeVec3 ( n ) ;
+	sgSetVec2 ( t, (float)j/(float)slices,
+                       (float)(i+1)/(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
       }
     }
@@ -312,15 +319,23 @@ void ssgaSphere::regenerate ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b0)/2.0f,
                        center[1] + size[1]*cos(a)*sin(b0)/2.0f,
                        center[2] - size[2]*       cos(b0)/2.0f ) ;
-	sgSetVec3 ( n, -sin(a)*sin(b0), -cos(a)*sin(b0), -cos(b0) ) ;
-	sgSetVec2 ( t, (float)j/(float)slices, (float)i/(float)stacks ) ;
+	sgSetVec3 ( n, -sin(a)*sin(b0)*size[0],
+                       -cos(a)*sin(b0)*size[1],
+                       -cos(b0)*size[2] ) ;
+        sgNormalizeVec3 ( n ) ;
+	sgSetVec2 ( t, (float)j/(float)slices,
+                       (float)i/(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
 
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b1)/2.0f,
                        center[1] + size[1]*cos(a)*sin(b1)/2.0f,
                        center[2] - size[2]*       cos(b1)/2.0f ) ;
-	sgSetVec3 ( n, -sin(a)*sin(b1), -cos(a)*sin(b1), -cos(b1) ) ;
-	sgSetVec2 ( t, (float)j/(float)slices, (float)(i+1)/(float)stacks ) ;
+	sgSetVec3 ( n, -sin(a)*sin(b1)*size[0],
+                       -cos(a)*sin(b1)*size[1],
+                       -cos(b1)*size[2] ) ;
+        sgNormalizeVec3 ( n ) ;
+	sgSetVec2 ( t, (float)j/(float)slices,
+                       (float)(i+1)/(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
         
       }
@@ -373,14 +388,16 @@ void ssgaCylinder::regenerate ()
     sgSetVec3 ( v, center[0] + size[0]*sin(a)/2.0f,
 		   center[1] + size[1]*cos(a)/2.0f,
 		   center[2] - size[2] / 2.0f ) ;
-    sgSetVec3 ( n, -sin(a), -cos(a), 0 ) ;
+    sgSetVec3 ( n, -sin(a) * size[0], -cos(a) * size[1], 0 ) ;
+    sgNormalizeVec3 ( n ) ;
     sgSetVec2 ( t, (float)j/(float)slices, 0 ) ;
     vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
 
     sgSetVec3 ( v, center[0] + size[0]*sin(a)/2.0f,
 		   center[1] + size[1]*cos(a)/2.0f,
 		   center[2] + size[2] / 2.0f ) ;
-    sgSetVec3 ( n, -sin(a), -cos(a), 0 ) ;
+    sgSetVec3 ( n, -sin(a) * size[0], -cos(a) * size[1], 0 ) ;
+    sgNormalizeVec3 ( n ) ;
     sgSetVec2 ( t, (float)j/(float)slices, 1 ) ;
     vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
     
