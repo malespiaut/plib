@@ -26,8 +26,8 @@
 
 class pslFile ;
 
-pslFile *defaultFileStack [ MAX_INCLUDE_DEPTH ] ;
-int      fileStackPointer = 0 ;
+static pslFile *defaultFileStack [ MAX_INCLUDE_DEPTH ] ;
+static int      fileStackPointer = 0 ;
 
 class pslFile
 {
@@ -107,20 +107,20 @@ public:
     return c ;
   }
 
-  int   getLineNo () { return line_no ; }
-  char *getFname  () { return fname   ; }
+  int   getLineNo () const { return line_no ; }
+  char *getFname  () const { return fname   ; }
 } ;
 
 
-char *getFname ()
+char *_pslGetFname ()
         { return defaultFileStack [ fileStackPointer - 1 ] -> getFname () ; } 
-int  getLineNo ()
+int  _pslGetLineNo ()
         { return defaultFileStack [ fileStackPointer - 1 ] -> getLineNo () ; } 
 
-void popDefaultFile  () { delete defaultFileStack [ fileStackPointer - 1 ] ; } 
-void pushDefaultFile ( FILE *fd, const char *fname ) { new pslFile ( fd, fname ) ; }
+void _pslPopDefaultFile  () { delete defaultFileStack [ fileStackPointer - 1 ] ; } 
+void _pslPushDefaultFile ( FILE *fd, const char *fname ) { new pslFile ( fd, fname ) ; }
 
-void pushDefaultFile ( const char *fname )
+void _pslPushDefaultFile ( const char *fname )
 {
   FILE *fd = fopen ( fname, "ra" ) ;
 
@@ -130,12 +130,12 @@ void pushDefaultFile ( const char *fname )
     return ;
   }
 
-  pushDefaultFile ( fd, fname ) ;
+  _pslPushDefaultFile ( fd, fname ) ;
 }
 
 
 
-int getChar ()
+int _pslGetChar ()
 {
   /* WARNING -- RECURSIVE -- WARNING -- RECURSIVE -- WARNING -- RECURSIVE */
 
@@ -151,8 +151,8 @@ int getChar ()
   {
     if ( fileStackPointer > 1 )
     {
-      popDefaultFile () ;
-      return getChar () ;
+      _pslPopDefaultFile () ;
+      return _pslGetChar () ;
     }
 
     return -1 ;
@@ -162,7 +162,7 @@ int getChar ()
 }
 
 
-void unGetChar ( int c )
+void _pslUnGetChar ( int c )
 {
   defaultFileStack [ fileStackPointer-1 ] -> unGetChar ( c ) ;
 }
