@@ -98,7 +98,15 @@ SOURCE=.\pslCodeGen.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\pslCompiler.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\psl.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\pslDump.cxx
 # End Source File
 # Begin Source File
 
@@ -110,11 +118,15 @@ SOURCE=.\psl.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\pslRun.cxx
+SOURCE=.\pslLocal.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\pslStatement.cxx
+SOURCE=.\pslProgram.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\pslRun.cxx
 # End Source File
 # Begin Source File
 
