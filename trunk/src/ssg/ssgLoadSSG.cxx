@@ -6,6 +6,7 @@ static int _ssgInstanceListLength = 0 ;
 static ssgBase **_ssgInstanceList = NULL ;
 static int _ssgNextInstanceKey = 0 ;
 
+// used for reading only:
 int _ssgFileVersionNumber = 0 ;
 
 int _ssgGetNextInstanceKey ()
@@ -80,7 +81,7 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
   if ( fd == NULL )
   {
     perror ( filename ) ;
-    fprintf ( stderr,
+    ulSetError ( UL_WARNING, 
       "ssgLoadSSG: Failed to open '%s' for reading\n", filename ) ;
     return NULL ;
   }
@@ -96,9 +97,9 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
     if (((magic & 0x0000FF)>> 0)==((SSG_FILE_MAGIC_NUMBER & 0xFF000000)>>24) &&
         ((magic & 0x00FF00)>> 8)==((SSG_FILE_MAGIC_NUMBER & 0x00FF0000)>>16) &&
         ((magic & 0xFF0000)>>16)==((SSG_FILE_MAGIC_NUMBER & 0x0000FF00)>> 8) ) 
-      fprintf ( stderr, "ssgLoadSSG: File appears to be byte swapped!\n" ) ;
+    	ulSetError ( UL_WARNING, "ssgLoadSSG: File appears to be byte swapped!\n" ) ;
     else
-      fprintf ( stderr, "ssgLoadSSG: File has incorrect magic number!\n" ) ;
+    	ulSetError ( UL_WARNING, "ssgLoadSSG: File has incorrect magic number!\n" ) ;
 
     return NULL ;
   }
@@ -111,10 +112,18 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
 
   _ssgFileVersionNumber = ( magic & 0xFF ) ;
 
-  if ( _ssgFileVersionNumber > SSG_FILE_VERSION )
+
+  if ( _ssgFileVersionNumber == 0 )
   {
-    fprintf ( stderr,
-            "ssgLoadSSG: This version of SSG is to old to load this file!\n" ) ;
+    ulSetError ( UL_WARNING, 
+            "ssgLoadSSG: SSG file format version zero is no longer supported, sorry! For more, see the docs.\n" ) ;
+    _ssgFileVersionNumber = oldFileVersion ;
+    return NULL ;
+  }
+	if ( _ssgFileVersionNumber > SSG_FILE_VERSION )
+  {
+    ulSetError ( UL_WARNING, 
+            "ssgLoadSSG: This version of SSG is too old to load this file!\n" ) ;
     _ssgFileVersionNumber = oldFileVersion ;
     return NULL ;
   }
@@ -134,7 +143,7 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
   if ( t == ssgTypeInvisible    () ) kid = new ssgInvisible    () ; else
   if ( t == ssgTypeRoot         () ) kid = new ssgRoot         () ; else
   {
-    fprintf ( stderr,
+    ulSetError ( UL_WARNING, 
       "loadSSG: Unrecognised Entity type 0x%08x\n", t ) ;
     _ssgFileVersionNumber = oldFileVersion ;
     return NULL ;
@@ -142,7 +151,7 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
 
   if ( ! kid -> load ( fd ) )
   {
-    fprintf ( stderr,
+    ulSetError ( UL_WARNING, 
       "loadSSG: Failed to read child object.\n" ) ;
     _ssgFileVersionNumber = oldFileVersion ;
     return NULL ;
@@ -182,7 +191,7 @@ int ssgSaveSSG ( const char *fname, ssgEntity *ent )
   if ( fd == NULL )
   {
     perror ( filename ) ;
-    fprintf ( stderr,
+    ulSetError ( UL_WARNING, 
       "ssgSaveSSG: Failed to open '%s' for writing\n", filename ) ;
     return FALSE ;
   }
@@ -196,8 +205,8 @@ int ssgSaveSSG ( const char *fname, ssgEntity *ent )
 
 	if ( ! ent -> save ( fd ) )
 	{
-		fprintf ( stderr,
-			"ssgSaveSSG: Failed to write child object.\n" ) ;
+		ulSetError ( UL_WARNING, 
+    	"ssgSaveSSG: Failed to write child object.\n" ) ;
 		return FALSE ;
 	}
   fclose ( fd ) ;
