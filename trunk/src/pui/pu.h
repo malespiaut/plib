@@ -380,10 +380,12 @@ protected:
   int   integer ;
   float floater ;
   char  *string ;
+  bool  boolean ;
 
   int   *res_integer  ;
   float *res_floater  ;
   char  *res_string   ;
+  bool  *res_bool     ;
 
   int   string_size ;
   int   res_string_sz ;
@@ -398,6 +400,7 @@ protected:
   int *   getIntegerp ( void ) { return res_integer != NULL ? res_integer : &integer ; }
   float * getFloaterp ( void ) { return res_floater != NULL ? res_floater : &floater ; }
   char *  getStringp  ( void ) { return res_string != NULL ? res_string : string ; }
+  bool *  getBooleanp ( void ) { return res_bool != NULL ? res_bool : &boolean ; }
 
   void enableConversion  ( void ) { convert = TRUE  ; }
   void disableConversion ( void ) { convert = FALSE ; }
@@ -415,6 +418,7 @@ public:
     res_integer = NULL ;
     res_floater = NULL ;
     res_string  = NULL ;
+    res_bool  = NULL ;
     clrValue () ;
   }
 
@@ -429,6 +433,7 @@ public:
     *getIntegerp () = pv -> getIntegerValue () ;
     *getFloaterp () = pv -> getFloatValue () ;
     copy_stringval ( pv -> getStringValue () ) ;
+    *getBooleanp () = pv -> getBooleanValue () ;
     puPostRefresh () ;
   }
 
@@ -438,7 +443,7 @@ public:
 
     if ( convert == TRUE )
     {
-      res_floater = NULL ; res_string = NULL ;
+      res_floater = NULL ; res_string = NULL ; res_bool = NULL ;
       re_eval () ;
     }
   }
@@ -449,7 +454,7 @@ public:
 
     if ( convert == TRUE )
     {
-      res_integer = NULL ; res_string = NULL ;
+      res_integer = NULL ; res_string = NULL ; res_bool = NULL ;
       re_eval () ;
     }
   }
@@ -461,7 +466,18 @@ public:
 
     if ( convert == TRUE )
     {
-      res_integer = NULL ; res_floater = NULL ;
+      res_integer = NULL ; res_floater = NULL ; res_bool = NULL ;
+      re_eval () ;
+    }
+  }
+
+  void setValuator ( bool *b )
+  {
+    res_bool = b ;
+
+    if ( convert == TRUE )
+    {
+      res_integer = NULL ; res_floater = NULL ; res_string = NULL ;
       re_eval () ;
     }
   }
@@ -475,7 +491,7 @@ public:
 
     if ( convert == TRUE )
     {
-      *getFloaterp () = (float) i ; sprintf ( getStringp (), "%d", i ) ;
+      *getFloaterp () = (float) i ; sprintf ( getStringp (), "%d", i ) ; *getBooleanp () = ( i != 0 ) ;
     }
 
     puPostRefresh () ;
@@ -487,13 +503,25 @@ public:
 
     if ( convert == TRUE )
     {
-      *getIntegerp () = (int) f ; sprintf ( getStringp (), "%g", f ) ;
+      *getIntegerp () = (int) f ; sprintf ( getStringp (), "%g", f ) ; *getBooleanp () = ( f != 0.0 ) ;
     }
 
     puPostRefresh () ;
   }
 
   virtual void setValue ( const char *s ) ;
+
+  virtual void setValue ( bool b )
+  {
+    *getBooleanp () = b ;
+
+    if ( convert == TRUE )
+    {
+      *getIntegerp () = b ? 1 : 0 ; *getFloaterp () = b ? 1.0f : 0.0f ; sprintf ( getStringp (), "%s", b ? "1" : "0" ) ;
+    }
+
+    puPostRefresh () ;
+  }
 
   void getValue ( int   *i ) { re_eval () ; *i = *getIntegerp () ; }
   void getValue ( float *f ) { re_eval () ; *f = *getFloaterp () ; }
@@ -509,6 +537,7 @@ public:
   }
 
   void getValue ( char  *s ) { getValue ( s, PUSTRING_MAX ) ; } /* Obsolete ! */
+  void getValue ( bool  *b ) { re_eval () ; *b = *getBooleanp () ; }
 
   int  getValue ( void ) { return getIntegerValue () ; } /* Obsolete ! */
 
@@ -516,6 +545,7 @@ public:
   float getFloatValue ( void )   { re_eval () ; return *getFloaterp () ; }
   char  getCharValue ( void )    { re_eval () ; return getStringp ()[0]; }
   char *getStringValue ( void )  { re_eval () ; return getStringp   () ; }
+  bool  getBooleanValue ( void ) { re_eval () ; return *getBooleanp () ; }
 
   /* RTTI */
   ulRTTItypeid getTypeInfo ( void ) const { return RTTI_vinfo () ; }

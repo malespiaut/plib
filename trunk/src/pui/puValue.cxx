@@ -84,6 +84,8 @@ void puValue::re_eval ( void )
     if ( *res_integer != strtoint ( string ) )
       sprintf ( string, "%d", *res_integer ) ;
 
+    boolean = ( *res_integer != 0 ) ;
+
     puPostRefresh () ;
   }
   else if ( res_floater != NULL )
@@ -97,12 +99,29 @@ void puValue::re_eval ( void )
     if ( *res_floater != strtod ( string, NULL ) )
       sprintf ( string, "%g", *res_floater ) ;
 
+    boolean = ( *res_floater != 0.0f ) ;
+
     puPostRefresh () ;
   }
   else if ( res_string  != NULL )
   {
     integer = strtoint ( res_string ) ;
     floater = (float) strtod ( res_string, NULL ) ;
+    boolean = ( strcmp ( res_string, "0" ) != 0 ) ;
+    puPostRefresh () ;
+  }
+  else if ( res_bool != NULL )
+  {
+    integer = *res_bool ? 1 : 0 ;
+    floater = *res_bool ? 1.0f : 0.0f ;
+
+    /*
+      Needed for puInput / puLargeInput:
+      Do not modify the string value unless necessary
+    */
+    if ( *res_bool != ( strcmp ( string, "0" ) != 0 ) )
+      sprintf ( string, "%d", *res_bool ? "1" : "0" ) ;
+
     puPostRefresh () ;
   }
 }
@@ -152,6 +171,7 @@ void puValue::setValue ( const char *s )
   {
     *getIntegerp () = strtoint ( s ) ;
     *getFloaterp () = (float) strtod ( s, NULL ) ;
+    *getBooleanp () = ( strcmp ( s, "0" ) != 0 ) ;
   }
 
   puPostRefresh () ;
