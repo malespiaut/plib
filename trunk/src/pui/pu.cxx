@@ -412,7 +412,8 @@ int puMouse ( int button, int updown, int x, int y )
   
   if ( ( last_buttons == 0 ) && puActiveWidget () )
   {
-    if ( puActiveWidget ()->deactivateWhenLeaving () )
+    if ( ! ( ( puActiveWidget ()->getType () | PUCLASS_INPUT ) &&
+             ( puActiveWidget ()->getType () | PUCLASS_LARGEINPUT ) ) )
       puDeactivateWidget () ;
   }
 
@@ -500,4 +501,5 @@ void puSetPasteBuffer ( char *ch )
 }
 
 char *puGetPasteBuffer ()  {  return input_paste_buffer ;  }
+
 
