@@ -75,11 +75,12 @@ void ssgEntity::visualiseBSphere ()
 }
 
 
-void ssgEntity::print ( FILE *fd, char *indent )
+void ssgEntity::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgBase::print ( fd, indent ) ;
+  ssgBase::print ( fd, indent, how_much ) ;
 
-  fprintf ( fd, "%s  Num Parents=%d\n", indent, parents . getNumEntities () ) ;
+	if ( how_much > 1 )
+		fprintf ( fd, "%s  Num Parents=%d\n", indent, parents . getNumEntities () ) ;
 }
 
 

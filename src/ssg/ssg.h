@@ -262,7 +262,7 @@ public:
   int   isA        ( int ty ) { return getType() == ty ; }
   int   isAKindOf  ( int ty ) { return ( getType() & ty ) == ty ; }
 
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
@@ -366,9 +366,10 @@ public:
   int getSizeOf (void) { return size_of ; }
   int getNum (void) { return total ; }
 
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
+  virtual char *getTypeName(void) ;
 } ;
 
 
@@ -381,7 +382,8 @@ public:
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual char *getTypeName(void) ;
 } ;
 
 
@@ -394,7 +396,8 @@ public:
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual char *getTypeName(void) ;
 } ;
 
 
@@ -407,7 +410,8 @@ public:
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec2   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec2   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual char *getTypeName(void) ;
 } ;
 
 
@@ -420,7 +424,8 @@ public:
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec4   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual char *getTypeName(void) ;
 } ;
 
 
@@ -432,6 +437,7 @@ public:
   short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
   void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
   void   set ( short    thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
+  virtual char *getTypeName(void) ;
 } ;
 
 
@@ -447,6 +453,7 @@ public:
   } 
   sgMat4 *get ( unsigned int n ) { return (sgMat4 *) raw_get ( n ) ; }
   void   add ( sgMat4  thing ) { raw_add ( (char *) thing ) ; } ;
+  virtual char *getTypeName(void) ;
 } ;
 
 
@@ -469,6 +476,7 @@ public:
   void add ( ssgInterleavedArrayElement *thing ) { raw_add ( (char *)  thing ) ; } ;
   void set ( ssgInterleavedArrayElement  thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
   void set ( ssgInterleavedArrayElement *thing, unsigned int n ) { raw_set ( (char *)  thing, n ) ; } ;
+  virtual char *getTypeName(void) ;
 } ;
 
 
@@ -553,7 +561,7 @@ public:
     }
   }
 
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual char *getTypeName(void) ;
@@ -584,7 +592,7 @@ public:
   virtual void force (void) = 0 ;
   virtual void apply (void) = 0 ;
 
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -741,7 +749,7 @@ public:
     alpha_clamp = clamp ;
   }
  
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -809,7 +817,7 @@ public:
   void   setShininess ( float sh ) ; 
   void   setShadeModel ( GLenum model ) ; 
   void   setAlphaClamp ( float clamp ) ; 
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -910,7 +918,7 @@ public:
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) = 0 ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) = 0 ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) = 0 ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -992,7 +1000,7 @@ public:
 
   virtual void recalcBSphere () = 0 ;
   virtual char *getTypeName(void) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
@@ -1105,7 +1113,7 @@ public:
 
   virtual void isect_triangles ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1187,7 +1195,7 @@ public:
 
   virtual void isect_triangles ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1233,7 +1241,7 @@ public:
 
   virtual char *getTypeName(void) ;
 
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1276,7 +1284,7 @@ public:
   virtual void cull          ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect         ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot           ( sgVec3     s, sgMat4 m, int test_needed ) ;
-  virtual void print         ( FILE *fd = stderr, char *indent = "" ) ;
+  virtual void print         ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual void recalcBSphere () ;
