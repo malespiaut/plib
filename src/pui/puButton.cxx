@@ -31,7 +31,7 @@ void puButton::draw ( int dx, int dy )
 
   /* If button is pushed or highlighted - use inverse style for button itself */
 
-  if ( getValue() ^ highlighted )
+  if ( getIntegerValue() ^ highlighted )
   {
     if ( parent && ( ( parent->getType() & PUCLASS_POPUPMENU ) ||
                      ( parent->getType() & PUCLASS_MENUBAR   ) ) )
@@ -67,7 +67,7 @@ void puButton::doHit ( int button, int updown, int x, int y )
     if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )
     {
       lowlight () ;
-      setValue ( (int) ! getValue () ) ;
+      setValue ( (int) ! getIntegerValue () ) ;
       puSetActiveWidget ( this, x, y ) ;
       invokeCallback () ;
     }

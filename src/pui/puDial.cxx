@@ -141,9 +141,9 @@ void puDial::doHit ( int button, int updown, int x, int y )
     // of the widget)
     if ( !wrap )
     {
-      if ( ( angle > 0.75 ) && ( getValue () < 0.25 ) )
+      if ( ( angle > 0.75 ) && ( getIntegerValue () < 0.25 ) )
         angle = 0.0 ;
-      else if ( ( angle < 0.25 ) && ( getValue () > 0.75 ) )
+      else if ( ( angle < 0.25 ) && ( getIntegerValue () > 0.75 ) )
         angle = 1.0 ;
     }
 

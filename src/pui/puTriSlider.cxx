@@ -43,12 +43,12 @@ void puTriSlider::draw ( int dx, int dy )
 
     float val;
     if ( getMaxValue() > getMinValue() )
-      val = (float)(getValue () - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
+      val = (float)(getIntegerValue () - getMinValue()) / (float)(getMaxValue() - getMinValue()) ;
     else
       val = 0.5f ;
 
     char str_value[10] ;
-    sprintf (str_value, "%d", getValue () ) ;
+    sprintf (str_value, "%d", getIntegerValue () ) ;
 
     draw_slider_box ( dx, dy, val, str_value ) ;
 
@@ -131,12 +131,12 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
     {
       if ( getActiveButton() == 0 )  // No currently-active slider, set whichever is closest
       {
-        if ( (new_value-getCurrentMin()) < (getValue()-new_value) ) // Closest to current_min
+        if ( (new_value-getCurrentMin()) < (getIntegerValue()-new_value) ) // Closest to current_min
         {
           setCurrentMin ( new_value ) ;
           setActiveButton ( 1 ) ;
         }
-        else if ( (new_value-getValue()) > (getCurrentMax()-new_value) ) // Closest to current_max
+        else if ( (new_value-getIntegerValue()) > (getCurrentMax()-new_value) ) // Closest to current_max
         {
           setCurrentMax ( new_value ) ;
           setActiveButton ( 3 ) ;
@@ -150,7 +150,7 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
       else if ( getActiveButton() == 1 )  // Currently moving current_min
       {
         setCurrentMin ( new_value ) ;
-        if ( getValue() < getCurrentMin() ) setValue ( getCurrentMin() ) ;
+        if ( getIntegerValue() < getCurrentMin() ) setValue ( getCurrentMin() ) ;
         if ( getCurrentMax() < getCurrentMin() ) setCurrentMax ( getCurrentMin() ) ;
       }
       else if ( getActiveButton() == 2 )  // Currently moving central value
@@ -162,7 +162,7 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
       else if ( getActiveButton() == 3 )  // Currently moving current_max
       {
         setCurrentMax ( new_value ) ;
-        if ( getValue() > getCurrentMax() ) setValue ( getCurrentMax() ) ;
+        if ( getIntegerValue() > getCurrentMax() ) setValue ( getCurrentMax() ) ;
         if ( getCurrentMax() < getCurrentMin() ) setCurrentMin ( getCurrentMax() ) ;
       }
     }
