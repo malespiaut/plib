@@ -462,7 +462,7 @@ public:
 } ;
 
 typedef void (*puCallback)(class puObject *) ;
-typedef void (*puRenderCallback)(class puObject *, void *) ;
+typedef void (*puRenderCallback)(class puObject *, int dx, int dy, void *) ;
 
 void puSetDefaultStyle ( int  style ) ;
 int  puGetDefaultStyle ( void ) ;
@@ -600,7 +600,7 @@ public:
   void       setRenderCallback ( puRenderCallback c, void *d = NULL ) { r_cb = c ; render_data = d ; }
   puRenderCallback getRenderCallback ( void ) { return r_cb ; }
   void      *getRenderCallbackData ( void ) { return render_data ; }
-  void       invokeRenderCallback ( void ) { if ( r_cb ) (*r_cb)(this,render_data) ; }
+  void       invokeRenderCallback ( int dx, int dy ) { if ( r_cb ) (*r_cb)(this, dx, dy, render_data) ; }
 
   void  makeReturnDefault ( int def ) { am_default = def ; }
   int   isReturnDefault   ( void )          { return am_default ; }

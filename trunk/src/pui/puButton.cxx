@@ -29,7 +29,7 @@ void puButton::draw ( int dx, int dy )
                 colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
 
   if ( r_cb )
-    r_cb ( this, render_data ) ;
+    r_cb ( this, dx, dy, render_data ) ;
   else
   {
     int xx, yy ;
