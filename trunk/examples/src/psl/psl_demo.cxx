@@ -32,18 +32,18 @@
 #include <plib/psl.h>
 
 
-PSL_Variable hello ( int argc, PSL_Variable *argv, PSL_Program *p )
+pslVariable hello ( int argc, pslVariable *argv, pslProgram *p )
 {
   printf ( "I am %s.\n", (char *)( p->getUserData ()) ) ;
 
-  PSL_Variable ret ;
+  pslVariable ret ;
   ret.f = 0.0f ;
 
   return ret ;
 }
 
 
-PSL_Extension extensions [] =
+pslExtension extensions [] =
 {
   { "hello", 0, hello },
   { NULL, 0, NULL }
@@ -54,14 +54,14 @@ int main ()
 {
   /* Create program 1 and compile it. */
 
-  PSL_Program *prog_1 = new PSL_Program ( extensions ) ;
+  pslProgram *prog_1 = new pslProgram ( extensions ) ;
 
   prog_1 -> parse ( "data/test.psl" ) ;
   prog_1 -> dump () ;
 
   /* Clone program 2 from program 1 */
 
-  PSL_Program *prog_2 = new PSL_Program ( prog_1 ) ;
+  pslProgram *prog_2 = new pslProgram ( prog_1 ) ;
 
   /* Make them unique by assigning user data to them */
 

@@ -24,7 +24,7 @@
 
 #include "pslLocal.h"
 
-int PSL_Parser::parse ( const char *fname )
+int pslParser::parse ( const char *fname )
 {
   init () ;
 
@@ -44,28 +44,28 @@ int PSL_Parser::parse ( const char *fname )
 }
 
 
-int PSL_Parser::parse ( FILE *fd )
+int pslParser::parse ( FILE *fd )
 {
-  PSL_SetDefaultFile ( fd ) ;
+  pslSetDefaultFile ( fd ) ;
   pushProgram () ;
   return TRUE ;
 }
 
 
-void PSL_Parser::pushCodeByte ( PSL_Opcode op )
+void pslParser::pushCodeByte ( pslOpcode op )
 {
   code [ next_code++ ] = op ;
 }
 
 
-void PSL_Parser::pushCodeAddr ( PSL_Address a )
+void pslParser::pushCodeAddr ( pslAddress a )
 {
   pushCodeByte ( a & 0xFF ) ;
   pushCodeByte ( ( a >> 8 ) & 0xFF ) ;
 }
 
 
-void PSL_Parser::pushConstant ( const char *c )
+void pslParser::pushConstant ( const char *c )
 {
   float f = atof ( c ) ; 
   char *ff = (char *) & f ;
@@ -77,14 +77,14 @@ void PSL_Parser::pushConstant ( const char *c )
   pushCodeByte ( ff [ 3 ] ) ;
 }
 
-void PSL_Parser::pushVariable ( const char *c )
+void pslParser::pushVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
   pushCodeByte ( OPCODE_PUSH_VARIABLE | a ) ;
 } 
 
-void PSL_Parser::pushAssignment ( const char *c )
+void pslParser::pushAssignment ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
@@ -92,15 +92,16 @@ void PSL_Parser::pushAssignment ( const char *c )
 } 
 
 
-void PSL_Parser::pushCall ( const char *c, int argc )
+void pslParser::pushCall ( const char *c, int argc )
 {
   int ext = getExtensionSymbol ( c ) ;
 
   if ( ext < 0 )
   {
-    int a = getCodeSymbol ( c ) ;
-
     pushCodeByte ( OPCODE_CALL ) ;
+
+    int a = getCodeSymbol ( c, next_code ) ;
+
     pushCodeAddr ( a ) ;
     pushCodeByte ( argc ) ;
   }
@@ -113,22 +114,22 @@ void PSL_Parser::pushCall ( const char *c, int argc )
 } 
 
 
-void PSL_Parser::pushReturn       () { pushCodeByte ( OPCODE_RETURN) ; } 
-void PSL_Parser::pushPop          () { pushCodeByte ( OPCODE_POP   ) ; } 
-void PSL_Parser::pushSubtract     () { pushCodeByte ( OPCODE_SUB   ) ; } 
-void PSL_Parser::pushAdd          () { pushCodeByte ( OPCODE_ADD   ) ; } 
-void PSL_Parser::pushDivide       () { pushCodeByte ( OPCODE_DIV   ) ; } 
-void PSL_Parser::pushMultiply     () { pushCodeByte ( OPCODE_MULT  ) ; } 
-void PSL_Parser::pushNegate       () { pushCodeByte ( OPCODE_NEG   ) ; } 
+void pslParser::pushReturn       () { pushCodeByte ( OPCODE_RETURN) ; } 
+void pslParser::pushPop          () { pushCodeByte ( OPCODE_POP   ) ; } 
+void pslParser::pushSubtract     () { pushCodeByte ( OPCODE_SUB   ) ; } 
+void pslParser::pushAdd          () { pushCodeByte ( OPCODE_ADD   ) ; } 
+void pslParser::pushDivide       () { pushCodeByte ( OPCODE_DIV   ) ; } 
+void pslParser::pushMultiply     () { pushCodeByte ( OPCODE_MULT  ) ; } 
+void pslParser::pushNegate       () { pushCodeByte ( OPCODE_NEG   ) ; } 
 
-void PSL_Parser::pushLess         () { pushCodeByte ( OPCODE_LESS ) ; } 
-void PSL_Parser::pushLessEqual    () { pushCodeByte ( OPCODE_LESSEQUAL ) ; } 
-void PSL_Parser::pushGreater      () { pushCodeByte ( OPCODE_GREATER ) ; } 
-void PSL_Parser::pushGreaterEqual () { pushCodeByte ( OPCODE_GREATEREQUAL ) ; } 
-void PSL_Parser::pushNotEqual     () { pushCodeByte ( OPCODE_NOTEQUAL ) ; } 
-void PSL_Parser::pushEqual        () { pushCodeByte ( OPCODE_EQUAL ) ; } 
+void pslParser::pushLess         () { pushCodeByte ( OPCODE_LESS ) ; } 
+void pslParser::pushLessEqual    () { pushCodeByte ( OPCODE_LESSEQUAL ) ; } 
+void pslParser::pushGreater      () { pushCodeByte ( OPCODE_GREATER ) ; } 
+void pslParser::pushGreaterEqual () { pushCodeByte ( OPCODE_GREATEREQUAL ) ; } 
+void pslParser::pushNotEqual     () { pushCodeByte ( OPCODE_NOTEQUAL ) ; } 
+void pslParser::pushEqual        () { pushCodeByte ( OPCODE_EQUAL ) ; } 
 
-int PSL_Parser::pushJumpIfFalse  ( int l )
+int pslParser::pushJumpIfFalse  ( int l )
 {
   pushCodeByte ( OPCODE_JUMP_FALSE ) ;
 
@@ -139,7 +140,7 @@ int PSL_Parser::pushJumpIfFalse  ( int l )
   return res ;
 }
 
-int PSL_Parser::pushJump ( int l )
+int pslParser::pushJump ( int l )
 {
   pushCodeByte ( OPCODE_JUMP ) ;
 
@@ -151,7 +152,7 @@ int PSL_Parser::pushJump ( int l )
 }
 
 
-int PSL_Parser::pushPauseStatement()
+int pslParser::pushPauseStatement()
 { 
   pushCodeByte ( OPCODE_PAUSE ) ;
   return TRUE ;

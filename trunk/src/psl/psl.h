@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 
-enum PSL_Result
+enum pslResult
 {
   PSL_PROGRAM_END,
   PSL_PROGRAM_PAUSE,
@@ -32,49 +32,49 @@ enum PSL_Result
 } ;
 
 
-typedef unsigned char PSL_Opcode ;
-class PSL_Context ;
-class PSL_Parser  ;
-class PSL_Program ;
+typedef unsigned char pslOpcode ;
+class pslContext ;
+class pslParser  ;
+class pslProgram ;
 
  
-union PSL_Variable
+union pslVariable
 {
   float f ;
   int   i ;
 } ;                                                                             
 
 
-class PSL_Extension
+class pslExtension
 {
 public:
   const char *symbol ;
   int   argc ;
-  PSL_Variable (*func) ( int, PSL_Variable *, PSL_Program *p ) ;
+  pslVariable (*func) ( int, pslVariable *, pslProgram *p ) ;
 } ;
 
 
 
-class PSL_Program
+class pslProgram
 {
-  PSL_Opcode     *code       ;
-  PSL_Context    *context    ;
-  PSL_Parser     *parser     ;
-  PSL_Extension  *extensions ;
+  pslOpcode     *code       ;
+  pslContext    *context    ;
+  pslParser     *parser     ;
+  pslExtension  *extensions ;
 
   void *userData ;
 
 public:
 
-   PSL_Program ( PSL_Extension *ext ) ;
-   PSL_Program ( PSL_Program *src ) ;
+   pslProgram ( pslExtension *ext ) ;
+   pslProgram ( pslProgram *src ) ;
 
-  ~PSL_Program () ;
+  ~pslProgram () ;
 
-  PSL_Context   *getContext     () const { return context    ; }
-  PSL_Opcode    *getCode        () const { return code       ; }
-  PSL_Parser    *getParser      () const { return parser     ; }
-  PSL_Extension *getExtensions  () const { return extensions ; }
+  pslContext   *getContext     () const { return context    ; }
+  pslOpcode    *getCode        () const { return code       ; }
+  pslParser    *getParser      () const { return parser     ; }
+  pslExtension *getExtensions  () const { return extensions ; }
 
   void      *getUserData () const     { return userData ; }
   void       setUserData ( void *ud ) { userData = ud ; }
@@ -83,7 +83,7 @@ public:
   int        parse ( const char *fname ) ;
   int        parse ( FILE *fd ) ;
   void       reset () ;
-  PSL_Result step  () ;
+  pslResult step  () ;
 } ;
 
 

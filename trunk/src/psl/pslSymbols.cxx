@@ -25,7 +25,7 @@
 #include "pslLocal.h"
 
 
-PSL_Address PSL_Parser::setVarSymbol ( const char *s )
+pslAddress pslParser::setVarSymbol ( const char *s )
 {
   for ( int i = 0 ; i < next_var ; i++ )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
@@ -47,7 +47,7 @@ PSL_Address PSL_Parser::setVarSymbol ( const char *s )
 
 
 
-PSL_Address PSL_Parser::getVarSymbol ( const char *s )
+pslAddress pslParser::getVarSymbol ( const char *s )
 {
   for ( int i = 0 ; i < next_var ; i++ )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
@@ -59,7 +59,7 @@ PSL_Address PSL_Parser::getVarSymbol ( const char *s )
 }
 
 
-int PSL_Parser::getExtensionSymbol ( const char *s )
+int pslParser::getExtensionSymbol ( const char *s )
 {
   for ( int i = 0 ; extensions [ i ] . symbol != NULL ; i++ )
     if ( strcmp ( s, extensions [ i ] . symbol ) == 0 )
@@ -69,28 +69,86 @@ int PSL_Parser::getExtensionSymbol ( const char *s )
 }
 
 
-PSL_Address PSL_Parser::getCodeSymbol ( const char *s )
+void pslParser::addFwdRef ( const char *s, pslAddress where )
+{
+  for ( int i = 0 ; i < next_fwdref ; i++ )
+  {
+    if ( forward_ref [ i ] . symbol == NULL )
+    {
+      forward_ref [ i ] . set ( s, where ) ;
+      return ;
+    }
+  }
+
+  if ( next_fwdref >= MAX_SYMBOL )
+  {
+    ulSetError ( UL_WARNING, "PSL: Too many unresolved forward references." ) ;
+    return ;
+  }
+
+  forward_ref [ next_fwdref++ ] . set ( s, where ) ;
+}
+
+
+
+void pslParser::fixup ( const char *s, pslAddress v )
+{
+  for ( int i = 0 ; i < next_fwdref ; i++ )
+  {
+    if ( forward_ref [ i ] . matches ( s ) )
+    {
+      pslAddress p = forward_ref [ i ] . getWhere () ;
+
+      code [  p  ] = v & 0xFF ;
+      code [ p+1 ] = (v >> 8) & 0xFF ;
+
+      delete [] forward_ref[i].symbol ;
+      forward_ref[i].symbol = NULL ;
+    }
+  }
+}                                                                             
+
+
+
+void pslParser::checkUnresolvedSymbols ()
+{
+  for ( int i = 0 ; i < next_fwdref ; i++ )
+  {
+    if ( forward_ref [ i ] . symbol != NULL )
+    {
+      ulSetError ( UL_WARNING, "PSL: '%s' does not exist.",
+                                   forward_ref [ i ] . symbol ) ;
+
+      /* Prevent multiple errors for same symbol */
+
+      fixup ( forward_ref [ i ] . symbol, 0 ) ;
+    }
+  }
+}
+
+
+
+pslAddress pslParser::getCodeSymbol ( const char *s, pslAddress where )
 {
   for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
       return code_symtab [ i ] . address ;
 
-  ulSetError ( UL_WARNING, "PSL: Undefined Function '%s'.", s ) ;
+  /* Symbol is undefined - so make a forward reference to it */
 
-  setCodeSymbol ( s, 0 ) ;
+  addFwdRef ( s, where ) ;
 
   return 0 ;
 }
 
 
 
-void PSL_Parser::setCodeSymbol ( const char *s, PSL_Address v )
+void pslParser::setCodeSymbol ( const char *s, pslAddress v )
 {
   for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
     {
       ulSetError ( UL_WARNING, "PSL: Multiple definition of '%s'.", s ) ;
-      code_symtab [ i ] . address = v ;
       return ;
     }
 
@@ -101,6 +159,8 @@ void PSL_Parser::setCodeSymbol ( const char *s, PSL_Address v )
   }
 
   code_symtab [ next_code_symbol++ ] . set ( s, v ) ;
+
+  fixup ( s, v ) ;
 }
 
 
