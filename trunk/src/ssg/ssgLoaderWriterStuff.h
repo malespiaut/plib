@@ -6,6 +6,18 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname ) ;
 void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray* vertices,
 																ssgIndexArray*  indices, SGfloat epsilon);
 
+/*
+  ssgTriangulate -
+  Triangulate a simple polygon (possibly concave, but not self-intersecting).
+  The number of triangles written to 'triangles' is returned, which is always
+  less than or equal to num - 2. The polygon index array 'indices' may be null,
+  in which case an identity mapping is assumed.
+  Note that the implementation is optimized for small polygons, and since 
+  the algorithm is O(num^2) it is not efficient on large polygons.
+*/
+int _ssgTriangulate( sgVec3 *vertices, int *indices, int num, int *triangles );
+
+
 // ******************** class ssgLoaderWriterMesh ************************
 
 class ssgListOfLists : public ssgSimpleList

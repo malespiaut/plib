@@ -11,6 +11,24 @@
 
 #include  "ssgLocal.h"
 #include "ssgLoaderWriterStuff.h"
+
+// need a prototype for alloca:
+#if defined(__sgi) || defined(__MWERKS__)
+#include <alloca.h>
+#endif
+#if defined(_MSC_VER)
+#include <malloc.h>
+#endif
+
+#undef ABS
+#undef MIN
+#undef MAX
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define MIN(a,b) ((a) <= (b) ? (a) : (b))
+#define MAX(a,b) ((a) >= (b) ? (a) : (b))
+#define MIN3(a,b,c) ((a) <= (b) ? MIN(a,c) : MIN(b,c))
+#define MAX3(a,b,c) ((a) >= (b) ? MAX(a,c) : MAX(b,c))
+
 sgVec4 currentDiffuse;
 
 
@@ -139,6 +157,209 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname )
 	strcpy( filepath, tmp );
 }
 
+
+/*
+  ssgTriangulate - triangulate a simple polygon.
+*/
+
+static int triangulate_concave(sgVec3 *coords, int *w, int n, int x, int y, int *tris)
+{
+   struct Vtx {
+      int index;
+      float x, y;
+      Vtx *next;
+   };
+
+   Vtx *p0, *p1, *p2, *m0, *m1, *m2, *t;
+   int i, chk, num_tris;
+   float a0, a1, a2, b0, b1, b2, c0, c1, c2;
+
+   /* construct a circular linked list of the vertices */
+   p0 = (Vtx *) alloca(sizeof(Vtx));
+   p0->index = w ? w[0] : 0;
+   p0->x = coords[p0->index][x];
+   p0->y = coords[p0->index][y];
+   p1 = p0;
+   p2 = 0;
+   for (i = 1; i < n; i++) {
+      p2 = (Vtx *) alloca(sizeof(Vtx));
+      p2->index = w ? w[i] : i;
+      p2->x = coords[p2->index][x];
+      p2->y = coords[p2->index][y];
+      p1->next = p2;
+      p1 = p2;
+   }
+   p2->next = p0;
+
+   m0 = p0;
+   m1 = p1 = p0->next;
+   m2 = p2 = p1->next;
+   chk = 0;
+   num_tris = 0;
+
+   while (p0 != p2->next) {
+      if (chk && m0 == p0 && m1 == p1 && m2 == p2) {
+	 /* no suitable vertex found.. */
+         ulSetError(UL_WARNING, "ssgTriangulate: Self-intersecting polygon.");	 
+         return 0;
+      }
+      chk = 1;
+
+      a0 = p1->y - p2->y;
+      a1 = p2->y - p0->y;
+      a2 = p0->y - p1->y;
+      b0 = p2->x - p1->x;
+      b1 = p0->x - p2->x;
+      b2 = p1->x - p0->x;
+      
+      if (b0 * a2 - b2 * a0 < 0) {
+	 /* current angle is concave */
+         p0 = p1;
+         p1 = p2;
+         p2 = p2->next;
+      }
+      else {
+	 /* current angle is convex */
+         float xmin = MIN3(p0->x, p1->x, p2->x);
+         float xmax = MAX3(p0->x, p1->x, p2->x);
+         float ymin = MIN3(p0->y, p1->y, p2->y);
+         float ymax = MAX3(p0->y, p1->y, p2->y);
+         
+	 c0 = p1->x * p2->y - p2->x * p1->y;
+	 c1 = p2->x * p0->y - p0->x * p2->y;
+	 c2 = p0->x * p1->y - p1->x * p0->y;
+
+         for (t = p2->next; t != p0; t = t->next) {
+	    /* see if the triangle contains this vertex */
+            if (xmin <= t->x && t->x <= xmax && 
+                ymin <= t->y && t->y <= ymax &&
+		a0 * t->x + b0 * t->y + c0 > 0 &&
+		a1 * t->x + b1 * t->y + c1 > 0 &&		   
+		a2 * t->x + b2 * t->y + c2 > 0)
+	       break;
+	 }
+
+         if (t != p0) {
+            p0 = p1;
+            p1 = p2;
+            p2 = p2->next;
+         }
+         else {
+	    /* extract this triangle */
+	    tris[3 * num_tris + 0] = p0->index;
+	    tris[3 * num_tris + 1] = p1->index;
+	    tris[3 * num_tris + 2] = p2->index;
+	    num_tris++;
+            
+	    p0->next = p1 = p2;
+	    p2 = p2->next;
+            
+            m0 = p0;
+            m1 = p1;
+            m2 = p2;
+            chk = 0;
+         }
+      }
+   }
+
+   tris[3 * num_tris + 0] = p0->index;
+   tris[3 * num_tris + 1] = p1->index;
+   tris[3 * num_tris + 2] = p2->index;
+   num_tris++;
+
+   return num_tris;
+}
+
+int _ssgTriangulate(sgVec3 *coords, int *w, int n, int *tris)
+{
+   float *a, *b;
+   int i, x, y;
+
+   /* trivial case */
+   if (n <= 3) {
+      if (n == 3) {
+	 tris[0] = w ? w[0] : 0;
+	 tris[1] = w ? w[1] : 1;
+	 tris[2] = w ? w[2] : 2;
+	 return 1;
+      }
+      ulSetError(UL_WARNING, "ssgTriangulate: Invalid number of vertices (%d).", n);
+      return 0;
+   }
+
+   /* compute areas */
+   {
+      float s[3], t[3];
+      int swap;
+
+      s[0] = s[1] = s[2] = 0;
+      b = coords[w ? w[n - 1] : n - 1];
+
+      for (i = 0; i < n; i++) {
+	 a = b;
+	 b = coords[w ? w[i] : i];
+	 s[0] += a[1] * b[2] - a[2] * b[1];
+	 s[1] += a[2] * b[0] - a[0] * b[2];
+	 s[2] += a[0] * b[1] - a[1] * b[0];
+      }
+   
+      /* select largest area */
+      t[0] = ABS(s[0]);
+      t[1] = ABS(s[1]);
+      t[2] = ABS(s[2]);
+      i = t[0] > t[1] ? t[0] > t[2] ? 0 : 2 : t[1] > t[2] ? 1 : 2;
+      swap = (s[i] < 0); /* swap coordinates if clockwise */
+      x = (i + 1 + swap) % 3;
+      y = (i + 2 - swap) % 3;
+   }
+
+   /* concave check */
+   {
+      float x0, y0, x1, y1;
+
+      a = coords[w ? w[n - 2] : n - 2];
+      b = coords[w ? w[n - 1] : n - 1];
+      x1 = b[x] - a[x];
+      y1 = b[y] - a[y];
+
+      for (i = 0; i < n; i++) {
+	 a = b;
+	 b = coords[w ? w[i] : i];
+	 x0 = x1;
+	 y0 = y1;
+	 x1 = b[x] - a[x];
+	 y1 = b[y] - a[y];
+	 if (x0 * y1 - x1 * y0 < 0)
+	    return triangulate_concave(coords, w, n, x, y, tris);
+      }
+   }
+
+   /* convert to triangles */
+   {
+      int v0 = 0, v1 = 1, v = n - 1; 
+      int even = 1;
+      for (i = 0; i < n - 2; i++) {
+	 if (even) {
+	    tris[3 * i + 0] = w ? w[v0] : v0;
+	    tris[3 * i + 1] = w ? w[v1] : v1;
+	    tris[3 * i + 2] = w ? w[v] : v;
+	    v0 = v1;
+	    v1 = v;
+	    v = v0 + 1;
+	 }
+	 else {
+	    tris[3 * i + 0] = w ? w[v1] : v1;
+	    tris[3 * i + 1] = w ? w[v0] : v0;
+	    tris[3 * i + 2] = w ? w[v] : v;
+	    v0 = v1;
+	    v1 = v;
+	    v = v0 - 1;
+	 }
+	 even = !even;
+      }
+   }
+   return n - 2;
+}
 
 
 
