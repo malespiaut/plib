@@ -135,7 +135,7 @@ static void save_vtx_table ( ssgVtxTable *vt )
     fprintf ( save_fd, "Face list:\n"); 
   for ( j = 0; j < num_face; j++ )
   {
-    WKSHORT i1,i2,i3;
+    short i1,i2,i3;
     vt -> getTriangle ( j, &i1, &i2, &i3 ) ;
 
     fprintf ( save_fd, "Face %d: A:%d B:%d C:%d AB:1 BC:1 CA:1\n", j, i1, i2, i3 ); 
@@ -166,17 +166,7 @@ static void save_geom ( ssgEntity *e )
   if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
     ssgBranch *br = (ssgBranch *) e ;
-    int i, j;
-    for ( i = 0 ; i < br -> getNumKids () ; i++ )
-      if(br -> getKid ( i )-> isAKindOf ( ssgTypeVtxTable() ))
-        for ( j = i+1 ; j < br -> getNumKids () ; j++ )
-          if(br -> getKid ( j )-> isAKindOf ( ssgTypeVtxTable() ))
-            if(0 == stricmp(br -> getKid ( i )-> getPrintableName(), 
-                            br -> getKid ( j )-> getPrintableName())
-            {
-            }
-
-    for ( i = 0 ; i < br -> getNumKids () ; i++ )
+    for (int i = 0 ; i < br -> getNumKids () ; i++ )
       save_geom ( br -> getKid ( i ) ) ;
   }
   else
