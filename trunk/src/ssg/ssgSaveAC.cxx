@@ -184,14 +184,47 @@ int ssgSaveAC ( const char *filename, ssgEntity *ent )
 
   gSSL.collect( ent );
 
+  /*
+    There is a *huge* problem here.
+
+    The AC3D format doesn't support per-vertex or even
+    per-polygon colours.
+
+    You *must* use materials.
+
+    Hence what we really should do is to collect together
+    all the per-vertex colours in the SSG model and make
+    a material from each one (possibly more if that colour
+    is on many polygons which have different ssgSimpleState's.
+
+    For now, I'll cheat and set the GL_COLORMATERIAL colours
+    to white - which works *reasonably* well for most heavily
+    textured models...well, at least you don't get uninitialised
+    colours coming from SSG.
+  */
+
   for (i = 0 ; i < gSSL.getNum(); i++)
   {
+    sgVec4 white = { 1, 1, 1, 1 } ;
+
     ssgSimpleState * ss = gSSL.get(i);
 
     float *em = ss->getMaterial (GL_EMISSION );
     float *sp = ss->getMaterial (GL_SPECULAR );
     float *am = ss->getMaterial (GL_AMBIENT  );
     float *di = ss->getMaterial (GL_DIFFUSE  );
+
+    if ( ss->isEnabled ( GL_COLOR_MATERIAL ) )
+    {
+      switch ( ss->getColourMaterial () )
+      {
+        case GL_AMBIENT_AND_DIFFUSE : am = di = white ; break ;
+        case GL_EMISSION : em = white ; break ;
+        case GL_SPECULAR : sp = white ; break ;
+        case GL_AMBIENT  : am = white ; break ;
+        case GL_DIFFUSE  : di = white ; break ;
+      }
+    }
 
     int shiny = (int) ss->getShininess ();
 

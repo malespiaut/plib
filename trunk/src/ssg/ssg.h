@@ -863,6 +863,11 @@ public:
     texture -> setFilename ( fname ) ;
   }
 
+  virtual GLenum getColourMaterial ()
+  {
+    return colour_material_mode ;
+  }
+
   virtual void setColourMaterial ( GLenum which )
   {
     colour_material_mode = which ;
