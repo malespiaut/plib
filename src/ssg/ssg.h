@@ -443,6 +443,11 @@ public:
   int getSizeOf (void) { return size_of ; }
   int getNum (void) { return total ; }
 
+  void rawSetNum ( unsigned int n ) /* Better know what you're doing!! */
+  {
+    total = n ;
+  }
+
   void setNum ( unsigned int n )
   {
     if ( total < n )
@@ -1413,6 +1418,9 @@ public:
   int getNumNormals   () { return normals   -> getNum () ; }
   int getNumColours   () { return colours   -> getNum () ; }
   int getNumTexCoords () { return texcoords -> getNum () ; }
+
+  /* Don't call this unless you know what you are doing!! */
+  void rawSetNumVertices ( unsigned int n ) { vertices -> rawSetNum ( n ) ; }
 
   int  getNumTriangles () ;
   void getTriangle ( int n, short *v1, short *v2, short *v3 ) ;

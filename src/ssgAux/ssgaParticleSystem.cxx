@@ -7,12 +7,11 @@ ssgaParticleSystem::ssgaParticleSystem ( int num, int initial_num,
                                  ssgaParticleCreateFunc _particle_create,
                                  ssgaParticleUpdateFunc _particle_update,
                                  ssgaParticleDeleteFunc _particle_delete ) :
-         ssgVtxArray ( GL_QUADS, 
+         ssgVtxTable ( GL_QUADS, 
               new ssgVertexArray   ( num * 4, new sgVec3 [ num * 4 ] ), 
               new ssgNormalArray   ( num * 4, new sgVec3 [ num * 4 ] ), 
               new ssgTexCoordArray ( num * 4, new sgVec2 [ num * 4 ] ), 
-              new ssgColourArray   ( num * 4, new sgVec4 [ num * 4 ] ), 
-              new ssgIndexArray    ( num * 4, new short  [ num * 4 ] ) )
+              new ssgColourArray   ( num * 4, new sgVec4 [ num * 4 ] ) )
 {
   turn_to_face = _ttf ;
   create_error = 0 ;
@@ -38,7 +37,6 @@ ssgaParticleSystem::ssgaParticleSystem ( int num, int initial_num,
     sgSetVec3  ( getNormal ( i ), 0, -1, 0 ) ;
     sgSetVec4  ( getColour ( i ), 1, 1, 1, 1 ) ;
     sgZeroVec3 ( getVertex ( i ) ) ;
-    *(getIndex( i )) = i ;
   }
 
   for ( i = 0 ; i < num_particles ; i++ )
@@ -49,11 +47,11 @@ ssgaParticleSystem::ssgaParticleSystem ( int num, int initial_num,
     sgSetVec2 ( getTexCoord ( i*4+3 ), 0, 1 ) ;
   }
 
+  num_active = 0 ;
+
   if ( particle_create )
     for ( i = 0 ; i < initial_num ; i++ )
       (*particle_create) ( this, i, & particle [ i ] ) ;
-
-  update ( 0.1f ) ;
 }
 
 
@@ -89,8 +87,13 @@ void ssgaParticleSystem::draw_geometry ()
 
   int j = 0 ;
 
-  for ( int i = 0 ; i < num_particles ; i++, j += 4 )
+  for ( int i = 0 ; i < num_particles ; i++ )
   {
+    /* Make them disappear if not needed */
+
+    if ( particle[i].time_to_live <= 0.0f )
+      continue ;
+
     sgCopyVec4 ( getColour ( j + 0 ), particle[i].col ) ;
     sgCopyVec4 ( getColour ( j + 1 ), particle[i].col ) ;
     sgCopyVec4 ( getColour ( j + 2 ), particle[i].col ) ;
@@ -104,15 +107,22 @@ void ssgaParticleSystem::draw_geometry ()
                                      xxyy, particle[i].size ) ;
     sgAddScaledVec3 ( getVertex ( j + 3 ), particle[i].pos,
                                      nxyy, particle[i].size ) ;
+
+    j += 4 ;
   }
 
-  glDisable   ( GL_CULL_FACE ) ;
-  glDepthMask ( 0 ) ;
- 
-  ssgVtxArray::draw_geometry () ;
+//  rawSetNumVertices ( j ) ; /* Avoid drawing more than 'j' vertices. */
 
-  glDepthMask ( 1 ) ;
-  glEnable ( GL_CULL_FACE ) ;
+  if ( j > 0 )
+  {
+    glDisable   ( GL_CULL_FACE ) ;
+    glDepthMask ( 0 ) ;
+ 
+    ssgVtxTable::draw_geometry () ;
+
+    glDepthMask ( 1 ) ;
+    glEnable ( GL_CULL_FACE ) ;
+  }
 }
 
 
@@ -135,21 +145,26 @@ void ssgaParticleSystem::update ( float t )
 
   num_active = 0 ;
 
-  /* Update all the particles */
-
-  for ( i = 0 ; i < num_particles ; i++ )
-    particle [ i ] . update ( t ) ;
-
   /* Call the update routine for all the particles */
 
   if ( particle_update )
+  {
     for ( i = 0 ; i < num_particles ; i++ )
-      (*particle_update) ( t, this, i, & particle [ i ] ) ;
+      if ( particle [ i ] . time_to_live > 0.0f )
+      {
+        particle [ i ] . update ( t ) ;
+        (*particle_update) ( t, this, i, & particle [ i ] ) ;
+      }
+  }
+  else
+    for ( i = 0 ; i < num_particles ; i++ )
+      if ( particle [ i ] . time_to_live > 0.0f )
+        particle [ i ] . update ( t ) ;
 
   /* Check for death of particles */
 
   for ( i = 0 ; i < num_particles ; i++ )
-    if ( particle [ i ] . time_to_live < 0.0 )
+    if ( particle [ i ] . time_to_live <= 0.0 )
     {
       if ( particle_delete )
 	(*particle_delete) ( this, i, & particle [ i ] ) ;
