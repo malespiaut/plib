@@ -1,17 +1,17 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
@@ -49,24 +49,34 @@
 //           - branch support on IFMSK (0x39), IFIN1 (0x24), IFIN3 (0x21)
 //           - color handling corrected
 //           - HAZE (0x1e) support
-//           - support for transparent and transluctent textures added
+//           - support for transparent and translucent textures added
 //           - support for lines (06,07) added
-//           - partial support for 0xa0 and 0x70 added, actally these are ignored
-//             at the momnet but at least they are paresed correctly ;)
-//           - ssgLoadMDLTexture removed from here. It's now a seperate file.
+//           - partial support for 0xa0 and 0x70 added, actually these are ignored
+//             at the moment but at least they are parsed correctly ;)
+//           - ssgLoadMDLTexture removed from here. It's now a separate file.
 //           - FACET may now contain textures. Usually used for the ground areas
 //           - Fixed normal calculation for concave polygons; culfacing is
 //             working now for them
-//           - transluctant textures are now drawn in the correct order
+//           - translucent textures are now drawn in the correct order
 //           - clean ups: + DEBUGPRINT removed
 //                        + use <iostream> / stl only when JMDEBUG is defined
 //                        + M_PI replaced by SGD_PI
 //                        + Major clean up for MSVC
 //           - Fixed a bug in line drawing
-//           - handle PointTo, DrawTo, start/end surface combinations correctly
+//           - handle PointTo, st refpoint will be taken as reference point for the scenery, start/end surface combinations correctly
 //           - support for light maps added
 //           - support for concave polygons added
 //           - Fixed a bug for object positioning with negative longitude
+//           - Emission improved for colored shaded polygons
+//           - Layer Call & Layer Call 32 added
+//           - Layering for ground textures added
+//           - Single line drawing changed again to support one dot in
+//             start / end surface context
+//           - fixed texture size for polygons with no texture coordinates
+//           - reworked building generation (4 different shapes are generated)
+//           - support background textures with correct layering
+//           - checked re-usage of loaded vertices more carfully (i.e. condsider
+//             its normal before re-using them).
 //
 //===========================================================================
 // Copyright (c) 2000 Thomas E. Sevaldrud <tse@math.sintef.no>
@@ -81,41 +91,10 @@
 
 #ifdef SSG_LOAD_BGL_SUPPORTED
 
+//#define JMDEBUG
+#include "ssgLoadBGL.h"
 #include "ssgLoadMDL.h"
 
-#define DEF_SHININESS 50
-
-//#define JMDEBUG
-//#define EXPERIMENTAL_CULL_FACE_CODE
-
-#ifdef JMDEBUG
-#include <iostream>
-#define JMPRINT(x,y) cout.flags(x); cout << y << "\n"
-#else
-#define JMPRINT(x,y)
-#endif
-
-#ifdef PRINT_JOHN
-#define PRINT_JOHN(x) PRINT_JOHN(x)
-#define PRINT_JOHN2(x,y) PRINT_JOHN2(x,y)
-#define PRINT_JOHN3(x,y,z) PRINT_JOHN3(x,y,z)
-#else
-#define PRINT_JOHN(x)
-#define PRINT_JOHN2(x,y)
-#define PRINT_JOHN3(x,y,z)
-#endif
-
-#define EARTH_RADIUS 6367311.808
-#define MAX_PATH_LENGTH 1024
-
-#undef ABS
-#undef MIN
-#undef MAX
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
-#define MIN(a,b) ((a) <= (b) ? (a) : (b))
-#define MAX(a,b) ((a) >= (b) ? (a) : (b))
-#define MIN3(a,b,c) ((a) <= (b) ? MIN(a,c) : MIN(b,c))
-#define MAX3(a,b,c) ((a) >= (b) ? MAX(a,c) : MAX(b,c))
 
 static ssgLoaderOptions         *current_options;
 
@@ -129,57 +108,50 @@ static ssgNormalArray           *normal_array_;
 static ssgTexCoordArray         *tex_coords_;
 
 // Current part (index array)
-static ssgLeaf                  *curr_part_;
+static ssgLayeredVtxArray       *curr_part_;
 static ssgBranch                *model_;
+static ssgBranch                *models_;
 static ssgTransform             *curr_branch_;
 
-// Moving parts
-static ssgBranch                *ailerons_grp_, *elevator_grp_, *rudder_grp_;
-static ssgBranch                *gear_grp_, *spoilers_grp_, *flaps_grp_;
-static ssgBranch                *prop_grp_;
-
 static sgMat4                   curr_matrix_;
-static sgVec3                   curr_rot_pt_;
-static sgVec4                   curr_col_;
-static sgVec4                   curr_emission_;
 static char                     *curr_tex_name_;
 static int                      curr_tex_type_;
-static ssgAxisTransform         *curr_xfm_;
-
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-static bool                     curr_cull_face_;
-#endif
+static int                      curr_tex_wrap_;
 
 // File Address Stack
-static const int                MAX_STACK_DEPTH = 64; // wk: 32 is too small
+static const int                MAX_STACK_DEPTH = 128;
 static long                     stack_[MAX_STACK_DEPTH];
 static int                      stack_depth_;
-
-
-static bool                     has_normals_;
 
 // john ....
 static bool                     poly_from_line;
 static unsigned short           poly_from_line_numverts;
 
-//john ........
-static ssgTransform             *building = NULL;
-
 static long                     object_end;
 static long                     object_end_offset;
 
-static int                      building_count = 0; // temp test
-
-
 // jm's variables
+static int                      nr_strip_branches_ = 0;
+static bool                     has_background_;
+static ssgBranch                *background_[64];
+static bool                     perspective_;
+static GLboolean                depth_mask_;
+static bool                     for_scenery_center;
+static sgVec4                   GColor;
+static sgVec4                   LColor;
+static sgVec4                   SColor;
 static long                     scenery_center_lat;
 static long                     scenery_center_lon;
 static bool                     has_color;
 static bool                     has_texture;
 static bool                     has_emission;
+static int                      layer_;
 
 static double                   ref_scale;
 static short                    haze_;
+static SGfloat                  alpha_;
+static SGfloat                  shininess_;
+
 static char                     tex_filename[128];
 static struct {
   sgVec3 point;
@@ -189,20 +161,97 @@ static struct {
 static bool                     blending;
 
 // This struct contains variable definitions of MS Flightsimulator
-// upt to now only season, complexity and day time are supported
-// unfortunately we have to set these varibales befor loading the bgl file
-// thus we can't chnage them on the fly
+// up to now only season, complexity and day time are supported
+// unfortunately we have to set these variables before loading the bgl file
+// thus we can't change them on the fly
 static struct {
   int var;
   int val;
   }                             vardef[100] = { {0x346,4},      // complexity: 0 lowest; 4 most
                                                 {0x6f8,2},      // season: 0=winter; 1=spring;
                                                                 //         2=summer; 3=autumn;
-                                                {0x28c,0x06},   // Day time: 0=Day, 1=Dusk,
+                                                {0x28c,0x01},   // Day time: 0=Day, 1=Dusk,
                                                                 //           2=Night, bit2=light on/off
                                                 {0x000,0}       // END of table
                                               };
 
+//===========================================================================
+static int PreDrawSubface(ssgEntity *entity)
+{
+   glGetBooleanv(GL_DEPTH_WRITEMASK, &depth_mask_);
+   if (depth_mask_ != GL_FALSE)
+     glDepthMask(GL_FALSE);
+   return 1;
+}
+
+//===========================================================================
+
+static int PostDrawSubface(ssgEntity *)
+{
+   if (depth_mask_ != GL_FALSE)
+     glDepthMask(GL_TRUE);
+   return 1;
+}
+
+//===========================================================================
+// ssgLayeredVtxArray Class definition
+//===========================================================================
+
+ssgLayeredVtxArray::ssgLayeredVtxArray ( unsigned int ty,
+                       ssgVertexArray   *vl,
+                       ssgNormalArray   *nl,
+                       ssgTexCoordArray *tl,
+                       ssgColourArray   *cl,
+                       ssgIndexArray    *il ) : ssgVtxArray( ty, vl, nl, tl, cl, il )
+{
+}
+
+bool ssgLayeredVtxArray::isOnGround()
+{
+  int i;
+  for (i=0; i < getNumIndices (); i++) {
+    if ( getVertex(*getIndex(i))[2] > .1f )
+      return (false);
+  }
+  return (true);
+}
+
+void ssgLayeredVtxArray::moveToBackground()
+{
+  setCallback(SSG_CALLBACK_PREDRAW, PreDrawSubface);
+  setCallback(SSG_CALLBACK_POSTDRAW, PostDrawSubface);
+}
+
+
+//===========================================================================
+
+static int stripEmptyBranches( ssgBranch *branch )
+{
+  int NrLeafs = 0;
+  ssgEntity *entity;
+  entity = branch->getKid(0);
+  while ( entity != 0 ) {
+    if ( entity -> isAKindOf( ssgTypeLeaf() ) ) {
+      if ( ( ( (ssgLeaf *) entity ) -> getNumTriangles() == 0) && 
+           ( ( (ssgLeaf *) entity ) -> getNumLines() == 0) ) {
+        JMPRINT(ios::dec,">>>>>>>>>>>>>>>>> num of tris or lines == 0!");
+      }
+      NrLeafs++;
+    }
+    if ( entity -> isAKindOf( ssgTypeBranch() ) ) {
+      int n = stripEmptyBranches( (ssgBranch *) entity );
+      if ( n == 0) {
+        branch -> removeKid( entity );
+        nr_strip_branches_++;
+      }
+      else {
+        NrLeafs += n;
+      }
+    }
+    entity = branch->getNextKid();
+  }
+ return (NrLeafs); 
+}
 
 //===========================================================================
 
@@ -219,23 +268,10 @@ for (int i=0; vardef[i].var != 0; i++){
 
 //===========================================================================
 
-/*static void initLoader()
-{
-  join_children_    = true;
-  override_normals_ = true;
-  tex_fmt_          = "tif";
-  stack_depth_      = 0;
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-  curr_cull_face_   = false ;
-#endif
-}*/
-
-//===========================================================================
-
 static void newPart()
 {
   has_color = false;
-  has_texture = false;
+//  has_texture = false;
 
 }
 
@@ -253,29 +289,6 @@ static long pop_stack() {
   assert( stack_depth_ > 0 );
   
   return stack_[--stack_depth_];
-}
-
-//===========================================================================
-
-static void recalcNormals() {
-  
-  sgVec3 n;
-
-  for (int i = 0; i < curr_index_->getNum() - 2; i++) {
-
-    unsigned short ix0 = *curr_index_->get(i    );
-    unsigned short ix1 = *curr_index_->get(i + 1);
-    unsigned short ix2 = *curr_index_->get(i + 2);
-
-    sgMakeNormal( n,
-      vertex_array_->get(ix0),
-      vertex_array_->get(ix1),
-      vertex_array_->get(ix2) );
-
-    sgCopyVec3( normal_array_->get(ix0), n );
-    sgCopyVec3( normal_array_->get(ix1), n );
-    sgCopyVec3( normal_array_->get(ix2), n );
-  }
 }
 
 //===========================================================================
@@ -618,9 +631,9 @@ static GLenum createTriangIndices(ssgIndexArray *ixarr,
     unsigned short ix0 = *ixarr->get(0);
     unsigned short ix1 = *ixarr->get(1);
     unsigned short ix2 = *ixarr->get(2);
-    if ( ix0 >= vertex_array_->getNum() ||
-      ix1 >= vertex_array_->getNum() ||
-      ix2 >= vertex_array_->getNum() ) {
+    if ( ( ix0 >= vertex_array_->getNum() ) ||
+         ( ix1 >= vertex_array_->getNum() ) ||
+         ( ix2 >= vertex_array_->getNum() ) ) {
       ulSetError(UL_WARNING, "[ssgLoadBGL] Index out of bounds. " \
         "(%d,%d,%d / %d)", ix0, ix1, ix2, vertex_array_->getNum());
       return(GL_TRIANGLE_FAN);
@@ -632,18 +645,18 @@ static GLenum createTriangIndices(ssgIndexArray *ixarr,
     int up = 0;
     int down = 0;
     bool dir[100];
+    sgVec3 cross;
     sgVec3 v0, v1;
     sgVec3 p0, p1, p2;
     sgCopyVec3( p0, vertex_array_->get(*ixarr->get(numverts-2)));
     sgCopyVec3( p1, vertex_array_->get(*ixarr->get(numverts-1)));
-    v0[0] = p1[0]-p0[0];
-    v0[1] = p1[1]-p0[1];
-    v0[2] = p1[2]-p0[2];
+    v0[0] = p0[0]-p1[0];
+    v0[1] = p0[1]-p1[1];
+    v0[2] = p0[2]-p1[2];
 
     int i;
     for(i = 0; i < numverts; i++)
     {
-      sgVec3 cross;
       sgCopyVec3( p2, vertex_array_->get(*ixarr->get(i)));
       v1[0] = p2[0]-p1[0];
       v1[1] = p2[1]-p1[1];
@@ -654,6 +667,7 @@ static GLenum createTriangIndices(ssgIndexArray *ixarr,
       if ( dir[i] == true) up++; else down++;
       sgCopyVec3( p1, p2);
       sgCopyVec3( v0, v1);
+      sgNegateVec3( v0 );
     }
 #ifdef JMDEBUG
     if ( (up != 0 ) && (down != 0)) {
@@ -673,8 +687,23 @@ static GLenum createTriangIndices(ssgIndexArray *ixarr,
     GLenum ret;
     if ( (up != 0 ) && (down != 0)) {
       numverts = _ssgTriangulate(vertex_array_, ixarr, numverts, strips);
-      numverts *= 3;
       idx_array = strips;
+      // polygon was concave: we have to get the direction again
+      for ( i = 0; i < numverts; i++) {
+        sgCopyVec3( p0, vertex_array_->get(*idx_array->get(i*3+0)));
+        sgCopyVec3( p1, vertex_array_->get(*idx_array->get(i*3+1)));
+        sgCopyVec3( p2, vertex_array_->get(*idx_array->get(i*3+2)));
+        v0[0] = p0[0]-p1[0];
+        v0[1] = p0[1]-p1[1];
+        v0[2] = p0[2]-p1[2];
+        v1[0] = p2[0]-p1[0];
+        v1[1] = p2[1]-p1[1];
+        v1[2] = p2[2]-p1[2];
+        sgVectorProductVec3 ( poly_dir, v0, v1 );
+        sgZeroVec3(v0);
+        if (sgCompareVec3(poly_dir, v0, 0.1f ) == false) break; // we have a result: break
+      }
+      numverts *= 3;
       ret = GL_TRIANGLES;
     }
     else {
@@ -684,7 +713,7 @@ static GLenum createTriangIndices(ssgIndexArray *ixarr,
 
     // Ensure counter-clockwise ordering
     // and write to curr_index_
-    bool flip = (sgScalarProductVec3(poly_dir, s_norm) < 0.0);
+    bool flip = (sgScalarProductVec3(poly_dir, s_norm) > 0.0);
 
     for(i = 0; i < numverts; i++)
     {
@@ -704,13 +733,14 @@ static GLenum createTriangIndices(ssgIndexArray *ixarr,
 
 //===========================================================================
 
-static GLenum readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool flip_y)
+static GLenum readTexIndices(FILE *fp, int numverts, sgVec3 s_norm, bool flip_y)
 {
   if(numverts <= 0)
     return GL_FALSE;
 
   ssgIndexArray *curr_index_ = new ssgIndexArray();
 
+  // add dummy texture coordinates if necessary
   if(tex_coords_->getNum() < vertex_array_->getNum())
   {
     sgVec2 dummy_pt;
@@ -719,6 +749,12 @@ static GLenum readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool f
       tex_coords_->add(dummy_pt);
   }
 
+  // add dummy normal vectors if necessary
+  while (normal_array_->getNum() < vertex_array_->getNum())
+    normal_array_->add(s_norm);
+
+  sgVec3 zeroVec3;
+  sgZeroVec3(zeroVec3);
   // Read index values and texture coordinates
   for(int v = 0; v < numverts; v++)
   {
@@ -739,12 +775,30 @@ static GLenum readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool f
       sgVec2 dummy_pt;
       tex_idx = vertex_array_->getNum();
       vertex_array_->add(tmp_vtx[ix].point);
-      normal_array_->add(tmp_vtx[ix].norm);
+      normal_array_->add(sgEqualVec3(tmp_vtx[ix].norm, zeroVec3)==TRUE ? s_norm : tmp_vtx[ix].norm);
       tex_coords_->add(dummy_pt);
       tmp_vtx[ix].index = tex_idx;
     }
     else {
-      tex_idx = tmp_vtx[ix].index;
+      // vertex is already in use
+      // we can reuse this vertex if normals match
+      sgVec3 v1, v2;
+      sgCopyVec3(v1, normal_array_->get(tmp_vtx[ix].index));
+      sgCopyVec3(v2, sgEqualVec3(tmp_vtx[ix].norm, zeroVec3)==TRUE ? s_norm : tmp_vtx[ix].norm);
+      // if angle between normals < 10 degrees ..
+      if (sgScalarProductVec3(v1, v2) / (sgLengthVec3(v1)*sgLengthVec3(v2) ) < 0.9848f ) {
+
+        // normals don't match we have to add a new vertex
+        sgVec2 dummy_pt;
+        tex_idx = vertex_array_->getNum();
+        vertex_array_->add(tmp_vtx[ix].point);
+        normal_array_->add(v2);
+        tex_coords_->add(dummy_pt);
+        tmp_vtx[ix].index = tex_idx;
+      }
+      else {
+        tex_idx = tmp_vtx[ix].index;
+      }
     }
 
     sgVec2 tc;
@@ -773,7 +827,7 @@ static GLenum readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool f
       // to get the correct texture mapping.
       tex_idx = vertex_array_->getNum();
       vertex_array_->add(tmp_vtx[ix].point);
-      normal_array_->add(tmp_vtx[ix].norm);
+      normal_array_->add(sgEqualVec3(tmp_vtx[ix].norm, zeroVec3)==TRUE ? s_norm : tmp_vtx[ix].norm);
 
       tex_coords_->add(tc);
 
@@ -795,7 +849,7 @@ static GLenum readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool f
 
 //===========================================================================
 
-static GLenum readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
+static GLenum readIndices(FILE* fp, int numverts, sgVec3 s_norm)
 {
   if(numverts <= 0)
     return GL_FALSE;
@@ -803,7 +857,7 @@ static GLenum readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
   ssgIndexArray *curr_index_ = new ssgIndexArray();
 
   if (has_texture == true) {
-  // add dummy texture coordinates if necessairy
+  // add dummy texture coordinates if necessary
     if(tex_coords_->getNum() < vertex_array_->getNum())
     {
       sgVec2 dummy_pt;
@@ -813,15 +867,22 @@ static GLenum readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
     }
   }
 
+  // add dummy normal vectors if necessary
+  while (normal_array_->getNum() < vertex_array_->getNum())
+    normal_array_->add(s_norm);
+
+  sgVec3 zeroVec3;
+  sgZeroVec3(zeroVec3);
   // Read index values
   for(int v = 0; v < numverts; v++)
   {
     unsigned short ix;
     ix = ulEndianReadLittle16(fp);
-    if (tmp_vtx[ix].index == -1) { // add vertex
+    // is Vertex already used ?
+    if (tmp_vtx[ix].index == -1) { // no: add vertex
       int last_idx = vertex_array_->getNum();
       vertex_array_->add(tmp_vtx[ix].point);
-      normal_array_->add(tmp_vtx[ix].norm);
+      normal_array_->add(sgEqualVec3(tmp_vtx[ix].norm, zeroVec3)==TRUE ? s_norm : tmp_vtx[ix].norm);
       tmp_vtx[ix].index = last_idx;
       if (has_texture == true) {
         sgVec2 tc;
@@ -829,28 +890,36 @@ static GLenum readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
         tex_coords_->add(tc);
       }
     }
+    else {
+      // vertex is already in use
+      // we can reuse this vertex if normals match
+      sgVec3 v1, v2;
+      sgCopyVec3(v1, normal_array_->get(tmp_vtx[ix].index));
+      sgCopyVec3(v2, sgEqualVec3(tmp_vtx[ix].norm, zeroVec3)==TRUE ? s_norm : tmp_vtx[ix].norm);
+      // if angle between normals < 10 degrees ..
+      if (sgScalarProductVec3(v1, v2) / (sgLengthVec3(v1)*sgLengthVec3(v2) ) < 0.9848f ) {
 
+        // normals don't match we have to add a new vertex
+        int last_idx = vertex_array_->getNum();
+        vertex_array_->add(tmp_vtx[ix].point);
+        normal_array_->add(v2);
+        tmp_vtx[ix].index = last_idx;
+        if (has_texture == true) {
+          sgVec2 tc;
+          sgSetVec2(tc, FLT_MAX, FLT_MAX);
+          tex_coords_->add(tc);
+        }
+      }
+    }
     int tex_idx = tmp_vtx[ix].index;
     if (has_texture == true) {
       sgVec2 tc;
-      sgVec3 point;
-      sgMat4 rot_norm;
-      
-      // rotate the point according to the normal vector
-      // to ensure the correct texture coordinates
-      // parallel projection to plane spaned by normal vector
-      sgCopyVec3(point, tmp_vtx[ix].point);
-      JMPRINT( ios::dec|ios::scientific|ios::floatfield, "Before rotation point[0]" << \
-               point[0] << " point[1]" << point[1] << " point[2]" << point[2]);
-      JMPRINT( ios::dec|ios::scientific|ios::floatfield, "              norm[0]" << \
-               s_norm[0] << " norm[1]" << s_norm[1] << " norm[2]" << s_norm[2]);
-      sgMakeRotMat4 ( rot_norm, s_norm );
-      sgXformPnt3 ( point, rot_norm ) ;
-      JMPRINT( ios::dec|ios::scientific|ios::floatfield, "After rotation point[0]" << \
-               point[0] << " point[1]" << point[1] << " point[2]" << point[2]);
+      sgVec3 x,y;
+      sgSetVec3(x, 1.0f, 0.0f, 0.0f);
+      sgVectorProductVec3(y, s_norm, x );
 
-      tc[0] = point[0];
-      tc[1] = point[1];
+      tc[0] = sgScalarProductVec3(x, tmp_vtx[ix].point)*ref_scale/256.0f;  // texture coordinates are given in delta units
+      tc[1] = sgScalarProductVec3(y, tmp_vtx[ix].point)*ref_scale/256.0f;  // texture coordinates are given in delta units
 
       sgVec2 curr_tc;
       if ( tex_idx >= 0 && tex_idx < tex_coords_->getNum() ) {
@@ -873,7 +942,7 @@ static GLenum readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
         // to get the correct texture mapping.
         tex_idx = vertex_array_->getNum();
         vertex_array_->add(tmp_vtx[ix].point);
-        normal_array_->add(tmp_vtx[ix].norm);
+        normal_array_->add(sgEqualVec3(tmp_vtx[ix].norm, zeroVec3)==TRUE ? s_norm : tmp_vtx[ix].norm);
 
         tex_coords_->add(tc);
 
@@ -889,53 +958,32 @@ static GLenum readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
 
 //===========================================================================
 
-static void setEmission(int color, int pal_id)
+static void setColor(sgVec4 color, int cindex, int pal_id)
 {
   if(pal_id == 0x68)
   {
-    curr_emission_[0] = fsAltPalette[color].r / 255.0f;
-    curr_emission_[1] = fsAltPalette[color].g / 255.0f;
-    curr_emission_[2] = fsAltPalette[color].b / 255.0f;
-    curr_emission_[3] = 0.0f;
+    color[0] = fsAltPalette[cindex].r / 255.0f;
+    color[1] = fsAltPalette[cindex].g / 255.0f;
+    color[2] = fsAltPalette[cindex].b / 255.0f;
+    color[3] = 0.2f;
   }
   else
   {
-
-    curr_emission_[0] = fsAcPalette[color].r / 255.0f;
-    curr_emission_[1] = fsAcPalette[color].g / 255.0f;
-    curr_emission_[2] = fsAcPalette[color].b / 255.0f;
-    curr_emission_[3] = 0.0f;
-  }
-}
-
-//===========================================================================
-
-static void setColor(int color, int pal_id)
-{
-  if(pal_id == 0x68)
-  {
-    curr_col_[0] = fsAltPalette[color].r / 255.0f;
-    curr_col_[1] = fsAltPalette[color].g / 255.0f;
-    curr_col_[2] = fsAltPalette[color].b / 255.0f;
-    curr_col_[3] = 0.2f;
-  }
-  else
-  {
-    curr_col_[0] = fsAcPalette[color].r / 255.0f;
-    curr_col_[1] = fsAcPalette[color].g / 255.0f;
-    curr_col_[2] = fsAcPalette[color].b / 255.0f;
-    curr_col_[3] = 1.0f;
+    color[0] = fsAcPalette[cindex].r / 255.0f;
+    color[1] = fsAcPalette[cindex].g / 255.0f;
+    color[2] = fsAcPalette[cindex].b / 255.0f;
+    color[3] = 1.0f;
   }
   has_texture = false;
 }
 
 //===========================================================================
 
-static void setColor(int r, int g, int b, int attr)
+static void setColor(sgVec4 color, int r, int g, int b, int attr)
 {
   switch (attr) {
   
-  case 0xf0: setColor( r, 0xf0); break;
+  case 0xf0: setColor( color, r, 0xf0); break;
   
   case 0xe0:
   case 0xe1:
@@ -953,23 +1001,45 @@ static void setColor(int r, int g, int b, int attr)
   case 0xed:
   case 0xee:
   case 0xef: {
-               curr_col_[0] = r / 255.0f;
-               curr_col_[1] = g / 255.0f;
-               curr_col_[2] = b / 255.0f;
-               curr_col_[3] = (attr & 0xf) / 15.0;
+               color[0] = r / 255.0f;
+               color[1] = g / 255.0f;
+               color[2] = b / 255.0f;
+               color[3] = (attr & 0xf) / 15.0;
                if (attr == 0xef) blending = false; else blending = true;
              } break;
    default: {
-               curr_col_[0] = r / 255.0f;
-               curr_col_[1] = g / 255.0f;
-               curr_col_[2] = b / 255.0f;
-               curr_col_[3] = 1.0f;
+               color[0] = r / 255.0f;
+               color[1] = g / 255.0f;
+               color[2] = b / 255.0f;
+               color[3] = 1.0f;
                blending = false;
-               JMPRINT( ios::hex, "HINT: Unknown color Attribut: " << (short)attr );
+               ulSetError( UL_WARNING, "[ssgLoadBGL] Set Color unknown color attribut: %x", (short)attr);
              } break;
 
   }
   has_texture = false;
+}
+
+//===========================================================================
+
+static void setColor(FILE *fp, sgVec4 color)
+{
+  unsigned char cindex, param;
+  fread(&cindex, 1, 1, fp);
+  fread(&param, 1, 1, fp);
+  JMPRINT( ios::hex, "Set Color = " << (int)cindex << " Para = " << (int)param );
+  setColor(color, (int)cindex, (int)param);
+}
+
+//===========================================================================
+
+static void setTrueColor(FILE *fp, sgVec4 color)
+{
+  unsigned char rgba[4];
+  fread(rgba, 1, 4, fp);
+  JMPRINT( ios::hex, "Set Color24 = " << (int)rgba[0] << ", " << (int)rgba[2] <<
+                     ", " << (int)rgba[3] << ", " << (int)rgba[1] );
+  setColor(color, rgba[0], rgba[2], rgba[3], rgba[1]);
 }
 
 //===========================================================================
@@ -984,34 +1054,33 @@ static bool setTexture(char* name, int type)
 
 //===========================================================================
 
-static ssgSimpleState *createState(bool use_texture)
+static ssgSimpleState *createState(bool use_texture, sgVec4 &color)
 {
-  JMPRINT(ios::dec,"new State: col = " << curr_col_[0] << ", " \
-                                       << curr_col_[1] << ", " \
-                                       << curr_col_[2] << ", " \
-                                       << curr_col_[3]);
+  JMPRINT(ios::dec,"new State: col = " << color[0] << ", " \
+                                       << color[1] << ", " \
+                                       << color[2] << ", " \
+                                       << color[3]);
 
   ssgSimpleState *state = new ssgSimpleState();
 
-  state->setShininess(DEF_SHININESS);
   state->setShadeModel(GL_SMOOTH);
 
   state->enable   (GL_LIGHTING);
   state->enable   (GL_CULL_FACE);
   state->disable  (GL_COLOR_MATERIAL);
-  
+
   if(curr_tex_name_ != NULL && use_texture)
   {
     // Handle light maps.
     // For the moment light maps are applied only when the light flag is selected in
-    // variable (0x28c). If so we check whether there an equivalent light map  exists
+    // variable (0x28c). If so we check whether there an equivalent light map exists
     // <texture name>+"_lm"+<extension>
     int day_time;
     bool enable_emission = false;
     char tex_name[MAX_PATH_LENGTH];
     strcpy(tex_name, curr_tex_name_);
     if(getVariableValue(0x28c, &day_time) == 0 ){  // get daytime
-      if ((day_time&0x04) == 0x04) {               // light enabled
+      if ((day_time&0x04) == 0x4) {                // light enabled
         char *p =strrchr(tex_name,'.');
         if ( p != NULL ) {
           char tname[MAX_PATH_LENGTH];
@@ -1019,7 +1088,7 @@ static ssgSimpleState *createState(bool use_texture)
           strcat(tex_name, "_lm");
           strcat(tex_name, strrchr(curr_tex_name_,'.'));
           current_options->makeTexturePath(tname, tex_name);
-          if ( ulFileExists ( tname ) == true) {    // look if light map exists
+          if ( ulFileExists ( tname ) == true) {       // look if light map exists
             enable_emission = true;
           }
           else {
@@ -1036,11 +1105,14 @@ static ssgSimpleState *createState(bool use_texture)
     else {
       sprintf(tname,"%s",tex_name);
     }
-    ssgTexture* tex = current_options ->createTexture(tname, TRUE, TRUE) ;
+    JMPRINT(ios::dec,".. using Texture:" << tname);
+    ssgTexture* tex = current_options ->createTexture(tname, curr_tex_wrap_, curr_tex_wrap_ );
     state->setTexture( tex ) ;
-    state->setOpaque();
+    
+    // handle opaque/translucent textures
     if ( ( (curr_tex_type_ == 0x18)&&(haze_ > 0) ) ||
-             ( blending == true ) || 
+         ( alpha_ != 1.0f ) ||
+         ( blending == true ) ||
          ( (curr_tex_type_ == 0x43)&&(tex->hasAlpha() == true) ) ){
       state->enable(GL_BLEND);
       state->enable(GL_ALPHA_TEST);
@@ -1049,15 +1121,16 @@ static ssgSimpleState *createState(bool use_texture)
     } else {
       state->disable(GL_BLEND);
       state->disable(GL_ALPHA_TEST);
+      state->setOpaque();
     }
-    state->setMaterial( GL_AMBIENT, 1.0f, 1.0f, 1.0f, curr_col_[3]);
-    state->setMaterial( GL_DIFFUSE, 1.0f, 1.0f, 1.0f, curr_col_[3]);
+    state->setMaterial( GL_AMBIENT, 1.0f, 1.0f, 1.0f, alpha_ );
+    state->setMaterial( GL_DIFFUSE, 1.0f, 1.0f, 1.0f, alpha_ );
     if (enable_emission == true) {
-      state->setMaterial( GL_EMISSION, 1.0f, 1.0f, 1.0f, 0.0f );
+      state->setMaterial( GL_EMISSION, 1.0f, 1.0f, 1.0f, 1.0f );
     }
     else {
-      if (has_emission == true) {
-        state->setMaterial( GL_EMISSION, curr_emission_ );
+      if  ( (has_emission == true) && ((day_time&0x06) != 0x0) ) {
+        state->setMaterial( GL_EMISSION, color[0], color[1], color[2], 1.0 );
       }
       else {
         state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
@@ -1067,7 +1140,7 @@ static ssgSimpleState *createState(bool use_texture)
   }
   else
   {
-    if(curr_col_[3] < 0.99f)
+    if(color[3] < 0.99f)
     {
       state->setTranslucent();
       state->enable(GL_BLEND);
@@ -1082,213 +1155,230 @@ static ssgSimpleState *createState(bool use_texture)
     if (has_emission == true) {
       int day_time;
       if(getVariableValue(0x28c, &day_time) == 0 ){  // get daytime
-        if ((day_time&0x04) == 0x04) {               // light enabled
-          state->setMaterial( GL_EMISSION, curr_emission_ );
+        if ((day_time&0x04) == 0x4) {               // light enabled
+          JMPRINT(ios::dec, " 2a: color: " << SColor[0] << "; " << SColor[1] << "; " << SColor[2] << "; " << SColor[3]);
+          JMPRINT(ios::dec, " 2a: emission: " << color[0] << "; " << color[1] << "; " << color[2] << "; " << color[3]);
+          state->setMaterial( GL_AMBIENT, 0.0f, 0.0f, 0.0f, 1.0f );
+          state->setMaterial( GL_DIFFUSE, 0.0f, 0.0f, 0.0f, 1.0f );
+          state->setMaterial( GL_EMISSION, color[0] * GColor[0],
+                                           color[1] * GColor[1],
+                                           color[2] * GColor[2],
+                                           color[3] );
         }
         else {
-          state->setMaterial( GL_AMBIENT, curr_emission_ );
-          state->setMaterial( GL_DIFFUSE, curr_emission_ );
+
+          state->setMaterial( GL_AMBIENT,  color[0] * GColor[0],
+                                           color[1] * GColor[1],
+                                           color[2] * GColor[2],
+                                           color[3] );
+          state->setMaterial( GL_DIFFUSE,  color[0] * GColor[0],
+                                           color[1] * GColor[1],
+                                           color[2] * GColor[2],
+                                           color[3] );
+
           state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f  );
         }
       }
     }
     else {
-      state->setMaterial( GL_AMBIENT, curr_col_ );
-      state->setMaterial( GL_DIFFUSE, curr_col_ );
+      state->setMaterial( GL_AMBIENT, color );
+      state->setMaterial( GL_DIFFUSE, color );
       state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
     }
     state->disable(GL_TEXTURE_2D);
   }
+  
+  state->setShininess(shininess_);
+  state->setMaterial( GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f );
+  state->enable (GL_CULL_FACE);
 
-  state->setMaterial( GL_SPECULAR, 1.0f, 1.0f, 1.0f, curr_col_[3] );
-  state->enable   (GL_CULL_FACE);
   has_emission = false;
   return state;
 }
 
 //===========================================================================
 
+static ssgBranch *getCurrBranch() {
+  if(perspective_ == true)
+    return model_;
+  else
+  {
+    return background_[layer_];
+  }
+}
+//===========================================================================
+
 static ssgBranch *getCurrGroup() {
-  //Find the correct parent for the new group
-  if(curr_xfm_)
-    return curr_xfm_;
-  else if(curr_branch_)
+// Find the correct parent for the new group
+  if(curr_branch_)
     return curr_branch_;
   else
   {
-    return model_;
+    return getCurrBranch();
   }
 }
 
 //===========================================================================
 
-static ssgBranch *getMPGroup(int var)
+static void readFacet(FILE *fp, sgVec4 &color)
 {
+  curr_index_ = new ssgIndexArray();
+  unsigned short numverts = ulEndianReadLittle16(fp);
+
+  // Surface normal
+  sgVec3 v;
+  readVector(fp, v);
+  JMPRINT(ios::dec, "surface normal:" << v[0] << "; " << v[1] << "; " << v[2] );
+
+  // dot-ref
+  ulEndianReadLittle32(fp);
   
-  switch(var)
-  {
-  case 0x4c:            // Rudder
-    if(!rudder_grp_)
-    {
-      rudder_grp_ = new ssgBranch();
-      rudder_grp_->setName("rudder");
-      model_->addKid(rudder_grp_);
-    }
-    return rudder_grp_;
-    break;
-    
-  case 0x4e:            // Elevator
-    if(!elevator_grp_)
-    {
-      elevator_grp_ = new ssgBranch();
-      elevator_grp_->setName("elevator");
-      model_->addKid(elevator_grp_);
-    }
-    return elevator_grp_;
-    break;
-    
-  case 0x6a:            // Ailerons
-    if(!ailerons_grp_)
-    {
-      ailerons_grp_ = new ssgBranch();
-      ailerons_grp_->setName("ailerons");
-      model_->addKid(ailerons_grp_);
-    }
-    return ailerons_grp_;
-    break;
-    
-  case 0x6c:            // Flaps
-    if(!flaps_grp_)
-    {
-      flaps_grp_ = new ssgBranch();
-      flaps_grp_->setName("flaps");
-      model_->addKid(flaps_grp_);
-    }
-    return flaps_grp_;
-    break;
-    
-  case 0x6e:            // Gear
-    if(!gear_grp_)
-    {
-      gear_grp_ = new ssgBranch();
-      gear_grp_->setName("gear");
-      model_->addKid(gear_grp_);
-    }
-    return gear_grp_;
-    break;
-    
-  case 0x7c:            // Spoilers
-    if(!spoilers_grp_)
-    {
-      spoilers_grp_ = new ssgBranch();
-      spoilers_grp_->setName("spoilers");
-      model_->addKid(spoilers_grp_);
-    }
-    return spoilers_grp_;
-    break;
-    
-  case 0x58:
-  case 0x7a:            // Propeller
-    if(!prop_grp_)
-    {
-      prop_grp_ = new ssgBranch();
-      prop_grp_->setName("propeller");
-      model_->addKid(prop_grp_);
-    }
-    return prop_grp_;
-    break;
-    
-  default:
-    return model_;
+  // Read vertex indices
+  GLenum type = readIndices(fp, numverts, v);
+  
+  curr_part_ = new ssgLayeredVtxArray(type,
+          vertex_array_,
+          normal_array_,
+          has_texture==true?tex_coords_:NULL,
+          NULL,
+          curr_index_);
+
+  if ((perspective_ == false) && (curr_part_->isOnGround() == true)) {
+    // we have a background texture
+    curr_part_->moveToBackground();
+    shininess_ = 0;        // background does not shine
+    curr_part_->setState( createState(has_texture, color) );
+    shininess_ = DEF_SHININESS;
   }
-  return NULL;
-} 
+  else {
+    curr_part_->setState( createState(has_texture, color) );
+  }
+  ssgBranch* grp = getCurrGroup();
+  grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+}
 
 //===========================================================================
 
-static void getMPLimits(int var, float *min, float *max)
+static void readTMapFacet(FILE *fp, sgVec4 &color)
 {
-  switch(var)
+  curr_index_ = new ssgIndexArray();
+  unsigned short numverts = ulEndianReadLittle16(fp);
+
+  // Normal vector
+  sgVec3 v;
+  readVector(fp, v);
+
+  JMPRINT(ios::dec, "surface normal:" << v[0] << "; " << v[1] << "; " << v[2] );
+  // Dot product reference
+  ulEndianReadLittle32(fp);
+
+  // Read vertex inidices and texture coordinates
+  bool flip_y = FALSE;
+  if(curr_tex_name_!=NULL)
   {
-  case 0x4c:            // Rudder
-    *min = -30.0;
-    *max =  30.0;
-    break;
-    
-  case 0x4e:            // Elevator
-    *min = -30.0;
-    *max =  30.0;
-    break;
-    
-  case 0x6a:            // Ailerons
-    *min = -30.0;
-    *max =  30.0;
-    break;
-    
-  case 0x6c:            // Flaps
-    *min = 0.0;
-    *max = 70.0;
-    break;
-    
-  case 0x6e:            // Gear
-    *min = 0.0;
-    *max = -90.0;
-    break;
-    
-  case 0x7c:            // Spoilers
-    *min = 0.0;
-    *max = 90.0;
-    break;
-    
-  case 0x58:
-  case 0x7a:            // Propeller
-    *min = 0.0;
-    *max = 360.0;
-    break;
+    char *texture_extension = curr_tex_name_ + strlen(curr_tex_name_) - 3;
+    flip_y = ulStrEqual( texture_extension, "BMP" ) != 0 ;
   }
-} 
+
+  GLenum type = readTexIndices(fp, numverts, v, flip_y);
+  
+  curr_part_ = new ssgLayeredVtxArray( type,
+          vertex_array_,
+          normal_array_,
+          tex_coords_,
+          NULL,
+          curr_index_ );
+  curr_part_->setState( createState(true, color) );
+
+  ssgBranch* grp = getCurrGroup();
+  grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+}
 
 //===========================================================================
+
+ssgEntity *ssgLoadBGLBatch(const char *fname, const ssgLoaderOptions *options)
+{
+
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  current_options = ssgGetCurrentOptions () ;
+  for_scenery_center = true;
+  char filename [ 1024 ] ;
+  current_options -> makeModelPath ( filename, fname ) ;
+
+  FILE *fp = fopen(filename, "rb");
+  if(!fp)
+  {
+    ulSetError( UL_WARNING, "[ssgLoadBGL] Couldn't open BGL batch file '%s'!",
+      filename );
+    return NULL;
+  }
+  // check for path in batch file name
+  strcpy(filename, fname);
+  char *p = strrchr(filename,'/');
+  if ( p != 0) {
+    p++;
+  }
+  else {
+    p = filename;
+  }
+  *p = '\0';
+  models_ = new ssgBranch();
+  char* model_name = new char[128];
+  char *ptr = (char*)&fname[strlen(fname) - 1];
+  while(ptr != &fname[0] && *ptr != '/') ptr--;
+  if(*ptr == '/') ptr++;
+  strcpy(model_name, ptr);
+  ptr = &model_name[strlen(model_name)];
+  while(*ptr != '.' && ptr != &model_name[0]) ptr--;
+  *ptr = '\0';
+  models_->setName(model_name);
+
+  int i;
+  for (i = 0; i < 64; i++) {
+    background_[i] = new ssgBranch();
+    sprintf(model_name,"background (Layer %d)",i);
+    background_[i]->setName(model_name);
+    models_->addKid(background_[i]);
+  }
+  has_background_ = true;
+  nr_strip_branches_ = 0;
+  while (feof(fp) == 0 ) {
+    fscanf(fp, "%s", p);
+    models_->addKid(ssgLoadBGLFile( filename )) ;
+  }
+  int leafs = stripEmptyBranches (models_);
+  JMPRINT(ios::dec,"Leafs:" << leafs << "; stripped Branches:" << nr_strip_branches_);
+  return(models_);
+}
 
 ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
 {
-  // john ....
-  poly_from_line = false;
-  //// 
+
   ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
   current_options = ssgGetCurrentOptions () ;
+  for_scenery_center = true;
+  has_background_ = false;
+  nr_strip_branches_ = 0;
+  models_ = ssgLoadBGLFile( fname );
+  int leafs = stripEmptyBranches (models_);
+  JMPRINT(ios::dec,"Leafs:" << leafs << "; stripped Branches:" << nr_strip_branches_);
+  return (models_) ;
+}
 
-  sgSetVec4(curr_emission_, 1.0f, 1.0f, 1.0f, 0.0f);      // set Emission value to default
-
-  ailerons_grp_ = NULL;
-  elevator_grp_ = NULL;
-  rudder_grp_ = NULL;
-  gear_grp_ = NULL;
-  spoilers_grp_ = NULL;
-  flaps_grp_ = NULL;
-  prop_grp_ = NULL;
-  
+static ssgBranch *ssgLoadBGLFile(const char *fname )
+{
   char filename [ 1024 ] ;
   current_options -> makeModelPath ( filename, fname ) ;
-  
+
   FILE *fp = fopen(filename, "rb");
-  if(!fp) 
+  if(!fp)
   {
-    ulSetError( UL_WARNING, "[ssgLoadBGL] Couldn't open MDL file '%s'!",
+    ulSetError( UL_WARNING, "[ssgLoadBGL] Couldn't open BGL file '%s'!",
       filename );
     return NULL;
   }
-  
-  // Find beginning of BGL Code segment
-  if(feof(fp))
-  {
-    ulSetError( UL_WARNING, "[ssgLoadBGL] No BGL Code found in file '%s'!",
-      filename );
-    return NULL;
-  }
-  
+
   // Initialize object graph
-  glDepthFunc(GL_LEQUAL);
   model_ = new ssgBranch();
   char* model_name = new char[128];
   char *ptr = (char*)&fname[strlen(fname) - 1];
@@ -1296,9 +1386,45 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
   if(*ptr == '/') ptr++;
   strcpy(model_name, ptr);
   ptr = &model_name[strlen(model_name)];
-  while(*ptr != '.' && ptr != &model_name[0]) ptr--; 
+  while(*ptr != '.' && ptr != &model_name[0]) ptr--;
   *ptr = '\0';
   model_->setName(model_name);
+  if ( has_background_ == false) {         // add layer branches only once
+    int i;
+    for (i = 0; i < 64; i++) {
+      background_[i] = new ssgBranch();
+      sprintf(model_name,"background (Layer %d)",i);
+      background_[i]->setName(model_name);
+      model_->addKid(background_[i]);
+    }
+    has_background_ = true;
+  }
+
+  short object_data;
+  long band_addr;
+  fseek(fp, 0x3a, SEEK_SET);
+  fread(&object_data, 2, 1, fp);        // get adress of procedural scenery section
+  fseek(fp, object_data, SEEK_SET);     // seek to procedural scenery section
+  while ( getc(fp) != 0) {              // end of table ?
+    fseek(fp, 4, SEEK_CUR);
+    band_addr = ulEndianReadLittle32(fp);
+    int obj_adr =ftell(fp);
+    JMPRINT(ios::hex," Band adr:" << band_addr);
+    fseek(fp, band_addr+object_data, SEEK_SET);   // seek to object header
+    parse_proc_scenery(fp);
+    fseek(fp, obj_adr, SEEK_SET);
+  }
+  fclose(fp);
+  return model_;
+}
+
+static void parse_proc_scenery(FILE* fp)
+{
+  sgSetVec4(GColor, 1.0f, 1.0f, 1.0f, 0.0f);      // set Emission value to default
+  alpha_ = 1.0f;                                  // set aplpha value to default: opaque
+  shininess_ = DEF_SHININESS;                     // set aplpha shininess to default value
+
+  poly_from_line = false;
   
   // Create group nodes for textured and non-textured objects
   vertex_array_ = new ssgVertexArray();
@@ -1308,34 +1434,20 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
 
   curr_branch_=0;
   stack_depth_ = 0;
+  layer_ = ZERO_LAYER; // default layer
   sgMakeIdentMat4(curr_matrix_);
 
   // Parse opcodes
   bool done = false;
-  bool for_scenery_center = true;
-  long band_addr;
   long object_position_lat;
   long object_position_lon;
-  short object_data;
 
-  fseek(fp, 0x3a, SEEK_SET);
-  fread(&object_data, 2, 1, fp);
-  PRINT_JOHN2("Ok, now object data is in %x\n", object_data);
-  fseek(fp, object_data, SEEK_SET);
-  PRINT_JOHN2("Ok, now I am in addr %x\n", ftell(fp));
-  fseek(fp, 5, SEEK_CUR);
-  PRINT_JOHN("Ok, now in offset\n");
-  band_addr = ulEndianReadLittle32(fp);  
-  fseek(fp, band_addr-9, SEEK_CUR);
-  PRINT_JOHN2("Now I should be in object header, addr is %x\n", ftell(fp));
-
-// john ... we now consider BGL "object header opcode"
+  // john ... we now consider BGL "object header opcode"
   while(!feof(fp)) {
     char header_opcode;
     char image_power;
     fread (&header_opcode, 1, 1, fp);
-    PRINT_JOHN2("Header Opcode is %x\n", header_opcode);
-    JMPRINT( ios::hex, ftell(fp)-2 << ":  " << (short)header_opcode << "  " << opcodes[header_opcode].name );
+    JMPRINT(ios::hex,"Header Opcode is " << (int)header_opcode);
     if (header_opcode == 0)
       break;
     object_position_lat = ulEndianReadLittle32(fp);
@@ -1347,22 +1459,22 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
       ulSetError ( UL_DEBUG, "[ssgLoadBGL] Reference Lat: %f; Reference Lon: %f \n", object_position_lat*90.0/10001750.0, object_position_lon*90.0/(256.0* 4194304.0)) ;
       for_scenery_center = false;
     }
-    JMPRINT(ios::hex, ftell(fp)-2 << "obj lat:" << object_position_lat << "  obj lon" << object_position_lon);
+//    JMPRINT(ios::hex, ftell(fp)-2 << "obj lat:" << object_position_lat << "  obj lon" << object_position_lon);
     fread (&image_power, 1, 1, fp);
     object_end_offset = ulEndianReadLittle16(fp);
     object_end = object_end_offset + ftell(fp) - 12;
-    PRINT_JOHN2("Now I am in %x\n", ftell(fp));
-    PRINT_JOHN3("Object end offset, end is %x, %x\n", object_end_offset, object_end);
+    JMPRINT( ios::hex, "Sector start:" << ftell(fp) << "; Object end offset:" << object_end_offset << "; Object end:" << object_end );
     done = false;
+    perspective_ = false;
 
-    while(!feof(fp) && !done && (ftell(fp) < object_end) ) 
+    while(!feof(fp) && !done && (ftell(fp) < object_end) )
     {
       unsigned int   skip_offset = 0;
       unsigned short opcode;
-      
+
       fread(&opcode, 2, 1, fp);
       JMPRINT(ios::hex, ftell(fp)-2 << ":    " << opcode << "  " << (opcode<=255?opcodes[opcode].name:"error: opcode out of range"));
-      
+
       switch(opcode)
       {
       case 0x23:        // BGL_CALL
@@ -1371,6 +1483,8 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           offset = ulEndianReadLittle16(fp);
           long addr = ftell(fp);
           ssgBranch* grp = getCurrGroup();
+          push_stack(perspective_);
+          push_stack(layer_);
           push_stack((long int)grp);
           push_stack(addr);
           long dst = addr + offset - 4;
@@ -1384,13 +1498,49 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           offset = ulEndianReadLittle32(fp);
           long addr = ftell(fp);
           ssgBranch* grp = getCurrGroup();
+          push_stack(perspective_);
+          push_stack(layer_);
           push_stack((long int)grp);
           push_stack(addr);
           long dst = addr + offset - 6;
           fseek(fp, dst, SEEK_SET);
         }
         break;
-      
+
+      case 0x74:        // Layer call
+        {
+          short offset;
+          offset = ulEndianReadLittle16(fp);
+          push_stack(perspective_);
+          push_stack(layer_);
+          layer_ = ulEndianReadLittle16(fp)&0x3f;
+          JMPRINT(ios::dec, "layer:" << layer_);
+          long addr = ftell(fp);
+          ssgBranch* grp = getCurrGroup();
+          push_stack((long int)grp);
+          push_stack(addr);
+          long dst = addr + offset - 6;
+          fseek(fp, dst, SEEK_SET);
+        }
+        break;
+
+      case 0x8b:        // Layer call 32
+        {
+          int offset;
+          offset = ulEndianReadLittle32(fp);
+          push_stack(perspective_);
+          push_stack(layer_);
+          layer_ = ulEndianReadLittle32(fp)&0x3f;
+          JMPRINT(ios::dec, "layer:" << layer_);
+          long addr = ftell(fp);
+          ssgBranch* grp = getCurrGroup();
+          push_stack((long int)grp);
+          push_stack(addr);
+          long dst = addr + offset - 10;
+          fseek(fp, dst, SEEK_SET);
+        }
+        break;
+
       case 0x0d:        // BGL_JUMP
         {
           short offset;
@@ -1418,712 +1568,670 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           break;
         }
 
-    case 0x39:  // BGL_IFMSK
-      {
-        short offset, var, mask;
-        int val;
-        offset = ulEndianReadLittle16(fp);
-        var    = ulEndianReadLittle16(fp);
-        mask   = ulEndianReadLittle16(fp);
-
-        JMPRINT(ios::dec, "IFMSK: Offset" << offset << ", var: 0x" << std::hex << var <<
-          ", mask:" << mask << "\n" );
-        int stat = getVariableValue(var, &val);
-        if ( (stat == 0) && ((val & mask) == 0) ) { // value out of range: jump
-          long addr = ftell(fp);
-          long dst = addr + offset - 8;
-          fseek(fp, dst, SEEK_SET);
+      case 0x76:        // Perspectve
+      case 0x7d:        // Perspectve32
+        {
+          perspective_ = true;
+          break;
         }
-      }
-      break;
 
-    case 0x1e:  // BGL_HAZE
-      {
-        haze_ = ulEndianReadLittle16(fp);
-        JMPRINT(ios::hex, "Haze:" << haze_);
-      }
-      break;
+      case 0x39:  // BGL_IFMSK
+        {
+          short offset, var, mask;
+          int val;
+          offset = ulEndianReadLittle16(fp);
+          var    = ulEndianReadLittle16(fp);
+          mask   = ulEndianReadLittle16(fp);
 
-    case 0x21:  // BGL_IFIN3
-      {
-        short offset, lo, hi;
-        int val;
-        int stat; 
-        bool s = false;
-        unsigned short var;
-        offset = ulEndianReadLittle16(fp);
-        JMPRINT(ios::dec, "Jump on 3 vars: Offset" << offset);
-        long addr = ftell(fp);
-        for (int i=0; i<3; i++) {
+          JMPRINT(ios::dec, "IFMSK: Offset" << offset << ", var: 0x" << std::hex << var <<
+            ", mask:" << mask << "\n" );
+          int stat = getVariableValue(var, &val);
+          if ( (stat == 0) && ((val & mask) == 0) ) { // value out of range: jump
+            long addr = ftell(fp);
+            long dst = addr + offset - 8;
+            fseek(fp, dst, SEEK_SET);
+          }
+        }
+        break;
+
+      case 0x1e:  // BGL_HAZE
+        {
+          haze_ = ulEndianReadLittle16(fp);
+          JMPRINT(ios::hex, "Haze:" << haze_);
+        }
+        break;
+
+      case 0x25:  // BGL_SEPARATION_PLANE
+        {
+          int offset = ulEndianReadLittle16(fp);
+          long addr = ftell(fp);
+          long dst = addr + offset - 4;
+          int east = ulEndianReadLittle16(fp);
+          int alt = ulEndianReadLittle16(fp);
+          int north = ulEndianReadLittle16(fp);
+          int distance = ulEndianReadLittle32(fp);
+          JMPRINT(ios::hex, "BGL_SEPARATION_PLANE: offset:" << offset <<
+                            ", east " << east << ", alt " << alt <<
+                            ", north " << north << ", distance " << distance * ref_scale );
+//          fseek(fp, dst, SEEK_SET);
+        }
+        break;
+
+      case 0x21:  // BGL_IFIN3
+        {
+          short offset, lo, hi;
+          int val;
+          int stat;
+          bool s = false;
+          unsigned short var;
+          offset = ulEndianReadLittle16(fp);
+          JMPRINT(ios::dec, "BGL_IFIN3: Jump on 3 vars: Offset" << offset);
+          long addr = ftell(fp);
+          for (int i=0; i<3; i++) {
+            var    = ulEndianReadLittle16(fp);
+            lo     = ulEndianReadLittle16(fp);
+            hi     = ulEndianReadLittle16(fp);
+            stat   = getVariableValue(var, &val);
+            JMPRINT(ios::dec, "BGL_IFIN3: var: 0x" << std::hex << var <<", lo:" << std::dec << lo << ", hi:" << hi );
+            if ( (stat == 0) && ((val > hi) || (val < lo)) ) {
+              s = true;
+              }
+            }
+          if ( s == true ) { // value out of range: jump
+            long dst = addr + offset - 4;
+            fseek(fp, dst, SEEK_SET);
+          }
+        }
+        break;
+
+      case 0x1c:  // BGL_IFIN2
+        {
+          short offset, lo, hi;
+          int val;
+          int stat;
+          bool s = false;
+          unsigned short var;
+          offset = ulEndianReadLittle16(fp);
+          JMPRINT(ios::dec, "BGL_IFIN2: Jump on 2 vars: Offset" << offset);
+          long addr = ftell(fp);
+          for (int i=0; i<2; i++) {
+            var    = ulEndianReadLittle16(fp);
+            lo     = ulEndianReadLittle16(fp);
+            hi     = ulEndianReadLittle16(fp);
+            stat   = getVariableValue(var, &val);
+            JMPRINT(ios::dec, "BGL_IFIN2: var: 0x" << std::hex << var <<", lo:" << std::dec << lo << ", hi:" << hi );
+            if ( (stat == 0) && ((val > hi) || (val < lo)) ) {
+              s = true;
+              }
+            }
+          if ( s == true ) { // value out of range: jump
+            long dst = addr + offset - 4;
+            fseek(fp, dst, SEEK_SET);
+          }
+        }
+        break;
+
+      case 0x24:  // BGL_IFIN1
+        {
+          short offset, lo, hi;
+          int val;
+          unsigned short var;
+          offset = ulEndianReadLittle16(fp);
           var    = ulEndianReadLittle16(fp);
           lo     = ulEndianReadLittle16(fp);
           hi     = ulEndianReadLittle16(fp);
-          stat   = getVariableValue(var, &val);
-          JMPRINT(ios::dec, "var: 0x" << std::hex << var <<", lo:" << std::dec << lo << ", hi:" << hi );
-          if ( (stat == 0) && ((val > hi) || (val < lo)) ) {
-            s = true;
-            }
+          JMPRINT(ios::dec, "BGL_IFIN1: Jump on var: Offset" << offset << ", var: 0x" << std::hex << var <<
+            ", lo:" << std::dec << lo << ", hi:" << hi << ")\n" );
+          int stat = getVariableValue(var, &val);
+          if ( (stat == 0) && ((val > hi) || (val < lo)) ) { // value out of range: jump
+            long addr = ftell(fp);
+            long dst = addr + offset - 10;
+            fseek(fp, dst, SEEK_SET);
           }
-        if ( s == true ) { // value out of range: jump
-          long dst = addr + offset - 4;
-          fseek(fp, dst, SEEK_SET);
         }
-      }
-      break;
-
-    case 0x24:  // BGL_IFIN1
-      {
-        short offset, lo, hi;
-        int val;
-        unsigned short var;
-        offset = ulEndianReadLittle16(fp);
-        var    = ulEndianReadLittle16(fp);
-        lo     = ulEndianReadLittle16(fp);
-        hi     = ulEndianReadLittle16(fp);
-        JMPRINT(ios::dec, "Jump on var: Offset" << offset << ", var: 0x" << std::hex << var <<
-          ", lo:" << std::dec << lo << ", hi:" << hi << ")\n" );
-        int stat = getVariableValue(var, &val);
-        if ( (stat == 0) && ((val > hi) || (val < lo)) ) { // value out of range: jump
-          long addr = ftell(fp);
-          long dst = addr + offset - 10;
-          fseek(fp, dst, SEEK_SET);
-        }
-      }
-      break;
+        break;
     
-    case 0x26:  // BGL_SETWRD
-      {
-        int val;
-        unsigned short var;
-        var    = ulEndianReadLittle16(fp);
-        val    = ulEndianReadLittle16(fp);
-        JMPRINT(ios::dec, "var: 0x" << std::hex << var <<", val:" << std::dec << val);
-      }
-      break;
-
-    case 0x46:  // BGL_POINT_VICALL
-      {
-        short offset, var_rot_x, var_rot_y, var_rot_z;
-        unsigned short int_rot_x, int_rot_y, int_rot_z;
-        offset = ulEndianReadLittle16(fp);
-        sgVec3 ctr;
-        readPoint(fp, ctr);
-        
-        int_rot_x = ulEndianReadLittle16(fp);
-        var_rot_x = ulEndianReadLittle16(fp);
-        int_rot_z = ulEndianReadLittle16(fp);
-        var_rot_z = ulEndianReadLittle16(fp);
-        int_rot_y = ulEndianReadLittle16(fp);
-        var_rot_y = ulEndianReadLittle16(fp);
-
-
-        float rx =  360.0f*(float)int_rot_x/0xffff;
-        float ry =  360.0f*(float)int_rot_y/0xffff;
-        float rz =  360.0f*(float)int_rot_z/0xffff;
-
-        // We build a rotation matrix by adding all constant
-        // rotations (int_rot_*) to current_matrix_. As soon as we reach
-        // the actual variable rotation, we multiply
-        // the axis of the variable rotation with our current matrix.
-        // This will be the axis of rotation in the original coordinate
-        // system. This can now be inserted into a GngLinearControl
-        // transform.
-//        if(var_rot_x > 0 || var_rot_y > 0 || var_rot_z > 0)
-        ssgAxisTransform* tmp = NULL;
-        if(var_rot_x != 0 || var_rot_y != 0 || var_rot_z != 0)
+      case 0x26:  // BGL_SETWRD
         {
-          if(curr_xfm_)
-            tmp = curr_xfm_;
-          curr_xfm_ = new ssgAxisTransform();
-          curr_xfm_->setCenter(curr_rot_pt_);
+          int val;
+          unsigned short var;
+          var    = ulEndianReadLittle16(fp);
+          val    = ulEndianReadLittle16(fp);
+          JMPRINT(ios::dec, "var: 0x" << std::hex << var <<", val:" << std::dec << val);
+        }
+        break;
 
-          int var = 0;
-//          if(var_rot_x > 0)
-          if(var_rot_x != 0)
-            var = var_rot_x;
-//          else if(var_rot_y > 0)
-          else if(var_rot_y != 0)
-            var = var_rot_y;
-//          else if(var_rot_z > 0)
-          else if(var_rot_z != 0)
-            var = var_rot_z;
+      case 0x46:  // BGL_POINT_VICALL
+        {
+          short offset, var_rot_x, var_rot_y, var_rot_z;
+          unsigned short int_rot_x, int_rot_y, int_rot_z;
+          offset = ulEndianReadLittle16(fp);
+          sgVec3 ctr;
+          readPoint(fp, ctr);
 
-          float min_limit, max_limit;
-          getMPLimits(var, & min_limit, & max_limit);
+          int_rot_x = ulEndianReadLittle16(fp);
+          var_rot_x = ulEndianReadLittle16(fp);
+          int_rot_z = ulEndianReadLittle16(fp);
+          var_rot_z = ulEndianReadLittle16(fp);
+          int_rot_y = ulEndianReadLittle16(fp);
+          var_rot_y = ulEndianReadLittle16(fp);
 
-          sgVec3 axis = { (float)var_rot_y, (float)var_rot_z,
-            (float)var_rot_x };
-          sgNormaliseVec3( axis ) ;
-          sgXformVec3( axis, curr_matrix_ ) ;
-          sgNegateVec3(axis);
-          curr_xfm_->setAxis(axis);
-          curr_xfm_->setRotationLimits(min_limit, max_limit);
 
-          char name[256];
-          sprintf(name, "ssgAxisRotation(%x)", var);
-          curr_xfm_->setName(name);
-          if(tmp)
-            tmp->addKid(curr_xfm_);
+          float rx =  360.0f*(float)int_rot_x/0xffff;
+          float ry =  360.0f*(float)int_rot_y/0xffff;
+          float rz =  360.0f*(float)int_rot_z/0xffff;
+
+          // We build a rotation matrix by adding all constant
+          // rotations (int_rot_*) to current_matrix_. As soon as we reach
+          // the actual variable rotation, we multiply
+          // the axis of the variable rotation with our current matrix.
+          // This will be the axis of rotation in the original coordinate
+          // system. This can now be inserted into a GngLinearControl
+          // transform.
+          ssgAxisTransform* tmp = NULL;
+          // Build up the constant rotations
+          sgCoord *rottrans = new sgCoord;
+          sgSetCoord  ( rottrans, ctr[0], ctr[1], ctr[2], -ry+360, -rz, -rx ) ;
+          long addr = ftell(fp);
+          long dst = addr + offset - 22;
+          fseek(fp, dst, SEEK_SET);
+          // push current Branch
+          ssgBranch* grp;
+          if (tmp !=NULL) {
+            grp = tmp;
+          }
+          else {
+            grp = getCurrGroup();
+          }
+          curr_branch_ = new ssgTransform();
+          curr_branch_->setName("RotoCallInd");
+          curr_branch_->setTransform(rottrans);
+
+          grp->addKid(curr_branch_);
+          push_stack(perspective_);
+          push_stack(layer_);
+          push_stack((long int)grp);
+          push_stack(addr);
+
+          break;
+        }
+
+      case 0x5f:  // BGL_IFSIZEV
+        {
+          short offset;
+          unsigned short real_size, pixels_ref;
+          offset     = ulEndianReadLittle16(fp);
+          real_size  = ulEndianReadLittle16(fp);
+          pixels_ref = ulEndianReadLittle16(fp);
+         break;
+        }
+
+      case 0x3b:  // BGL_VINSTANCE
+        {
+          short offset, var;
+          offset = ulEndianReadLittle16(fp);
+          var    = ulEndianReadLittle16(fp);
+          JMPRINT(ios::hex,"Call3b var:" << var );
+
+          long addr = ftell(fp);
+          long dst = addr + offset - 6;
+          // push current branch
+          ssgBranch* grp = getCurrGroup();
+          push_stack(perspective_);
+          push_stack(layer_);
+          push_stack((long int)grp);
+          push_stack(addr);
+          fseek(fp, dst, SEEK_SET);
+        }
+        break;
+
+      case 0x0:   // EOF
+        {
+        }
+        break;
+      case 0x34:  // BGL_SUPER_SCALE
+        {
+          unsigned short offset, var1, var2, var3;
+          offset = ulEndianReadLittle16(fp);
+          var1   = ulEndianReadLittle16(fp);
+          var2   = ulEndianReadLittle16(fp);
+          var3   = ulEndianReadLittle16(fp);
+
+          ref_scale = 65536.0/double(1<<var3);
+
+          JMPRINT( ios::dec, "SUPER_SCALE: Offset:" << offset << " var1:" << var1 << " var2:" << var2 << " var3:" << var3  );
+          JMPRINT( ios::dec, "-> Scale:" << ref_scale );
+        }
+        break;
+
+      case 0x22:  // BGL return
+        {
+          if(stack_depth_ == 0) {
+          }
           else
           {
-            ssgBranch* grp = getMPGroup(var);
-            grp->addKid(curr_xfm_);
+            long addr = pop_stack();
+            curr_branch_ = (ssgTransform *)pop_stack();
+            layer_ = pop_stack();
+            perspective_ = pop_stack();
+            fseek(fp, addr, SEEK_SET);
           }
         }
-
-        // Build up the constant rotations
-        sgCoord *rottrans = new sgCoord;
-        sgSetCoord  ( rottrans, ctr[0], ctr[1], ctr[2], -ry+360, -rz, -rx ) ;
-        long addr = ftell(fp);
-        long dst = addr + offset - 22;
-        fseek(fp, dst, SEEK_SET);
-        // push current Branch
-        ssgBranch* grp;
-        if (tmp !=NULL) {
-          grp = tmp;
-        }
-        else {
-          grp = getCurrGroup();
-        }
-        curr_branch_ = new ssgTransform();
-        curr_branch_->setName("RotoCallInd");
-        curr_branch_->setTransform(rottrans);
-
-        grp->addKid(curr_branch_);
-        push_stack((long int)grp);
-        push_stack(addr);
-
         break;
-      }
 
-    case 0x5f:  // BGL_IFSIZEV
-      {
-        short offset;
-        unsigned short real_size, pixels_ref;
-        offset     = ulEndianReadLittle16(fp);
-        real_size  = ulEndianReadLittle16(fp);
-        pixels_ref = ulEndianReadLittle16(fp);
-       break;
-      }
-
-    case 0x3b:  // BGL_VINSTANCE
-      {
-        short offset, var;
-        offset = ulEndianReadLittle16(fp);
-        var    = ulEndianReadLittle16(fp);
-        
-        float p = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
-        float r = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
-        float h = 360.0f * (float)ulEndianReadLittle32(fp) / 0xffffffff;
-        sgMat4 rot_mat;
-//        sgMakeRotMat4(rot_mat, -h+360, r, p);
-        sgMakeRotMat4(rot_mat, -h+360, -r, -p);
-        sgPostMultMat4(curr_matrix_, rot_mat);
-       
-        long addr = ftell(fp);
-        long dst = addr + offset - 18;
-        // push current branch
-        ssgBranch* grp = getCurrGroup();
-        push_stack((long int)grp);
-        push_stack(addr);
-
-        fseek(fp, dst, SEEK_SET);
-      }
-      break;
-
-    case 0x0:   // EOF
-      {
-      }
-      break;
-    case 0x34:  // BGL_SUPER_SCALE
-      {
-        unsigned short offset, var1, var2, var3;
-        offset = ulEndianReadLittle16(fp);
-        var1   = ulEndianReadLittle16(fp);
-        var2   = ulEndianReadLittle16(fp);
-        var3   = ulEndianReadLittle16(fp);
-
-        ref_scale = 65536.0/double(1<<var3);
-        
-        JMPRINT( ios::dec, "SUPER_SCALE: Offset:" << offset << " var1:" << var1 << " var2:" << var2 << " var3:" << var3  );
-        JMPRINT( ios::dec, "-> Scale:" << ref_scale );
-      }
-      break;
-    
-    case 0x22:  // BGL return
-      {
-//        curr_xfm_    = NULL;
-        sgMakeIdentMat4( curr_matrix_ );
-        sgZeroVec3( curr_rot_pt_ );
-        if(stack_depth_ == 0) {
-//        done = true;
-        }
-        else
+      case 0x1a:  // RESLIST (point list with no normals)
         {
-          long addr = pop_stack();
-          curr_branch_ = (ssgTransform *)pop_stack();
-          fseek(fp, addr, SEEK_SET);
+          newPart();
+
+          int start_idx            = ulEndianReadLittle16(fp);
+          unsigned short numpoints = ulEndianReadLittle16(fp);
+
+          JMPRINT( ios::dec, "RESLIST: First:" << start_idx << " Nr:" << numpoints);
+          for(int i = 0; i < numpoints; i++)
+          {
+            readPoint(fp, tmp_vtx[start_idx+i].point);
+            sgZeroVec3( tmp_vtx[start_idx+i].norm );
+            tmp_vtx[start_idx+i].index=-1; // mark as dirty
+            JMPRINT( ios::dec, "RESLIST: 0:" << tmp_vtx[start_idx+i].point[0] << \
+                                       " 1:" << tmp_vtx[start_idx+i].point[1] << \
+                                       " 2:" << tmp_vtx[start_idx+i].point[2]);
+          }
         }
-      }
-      break;
+        break;
 
-    case 0x1a:  // RESLIST (point list with no normals)
-      {
-        newPart();
-        has_normals_ = false;
-
-        int start_idx            = ulEndianReadLittle16(fp);
-        unsigned short numpoints = ulEndianReadLittle16(fp);
-
-        JMPRINT( ios::dec, "RESLIST: First:" << start_idx << " Nr:" << numpoints);
-        for(int i = 0; i < numpoints; i++)
+      case 0x29:  // GORAUD RESLIST (point list with normals)
         {
-          readPoint(fp, tmp_vtx[start_idx+i].point);
-          sgZeroVec3( tmp_vtx[start_idx+i].norm );
-          tmp_vtx[start_idx+i].index=-1; // mark as dirty
-          JMPRINT( ios::dec, "RESLIST: 0:" << tmp_vtx[start_idx+i].point[0] << \
-                                     " 1:" << tmp_vtx[start_idx+i].point[1] << \
-                                     " 2:" << tmp_vtx[start_idx+i].point[2]);
+          newPart();
+
+          int start_idx            = ulEndianReadLittle16(fp);
+          unsigned short numpoints = ulEndianReadLittle16(fp);
+
+          JMPRINT( ios::dec, "GORAUD RESLIST: First:" << start_idx << " Nr:" << numpoints);
+          for(int i = 0; i < numpoints; i++)
+          {
+            readPoint(fp, tmp_vtx[start_idx+i].point);
+            readVector(fp, tmp_vtx[start_idx+i].norm);
+            JMPRINT( ios::dec, "GORAUD RESLIST: 0:" << tmp_vtx[start_idx+i].point[0] << \
+                                              " 1:" << tmp_vtx[start_idx+i].point[1] << \
+                                              " 2:" << tmp_vtx[start_idx+i].point[2]);
+            tmp_vtx[start_idx+i].index=-1; // mark as dirty
+          }
         }
-      }
-      break;
-
-    case 0x29:  // GORAUD RESLIST (point list with normals)
-      {
-        newPart();
-        has_normals_ = true;
-
-        int start_idx            = ulEndianReadLittle16(fp);
-        unsigned short numpoints = ulEndianReadLittle16(fp);
-
-        JMPRINT( ios::dec, "GORAUD RESLIST: First:" << start_idx << " Nr:" << numpoints);
-        for(int i = 0; i < numpoints; i++) 
+        break;
+      case 0x06:  // STRRES: Start line definition
         {
-          readPoint(fp, tmp_vtx[start_idx+i].point);
-          readVector(fp, tmp_vtx[start_idx+i].norm);
-          JMPRINT( ios::dec, "GORAUD RESLIST: 0:" << tmp_vtx[start_idx+i].point[0] << \
-                                            " 1:" << tmp_vtx[start_idx+i].point[1] << \
-                                            " 2:" << tmp_vtx[start_idx+i].point[2]);
-          tmp_vtx[start_idx+i].index=-1; // mark as dirty
-        }
-      }
-      break;
-    case 0x06:  // STRRES: Start line definition
-      {
-        readPoint(fp, tmp_vtx[0].point);
-        tmp_vtx[0].index=-1; // mark as dirty
-       }
-       break;
-    case 0x07:  // STRRES: Ends line definition
-      {
-        readPoint(fp, tmp_vtx[1].point);
-        tmp_vtx[1].index=-1; // mark as dirty
-        if (tmp_vtx[0].index == -1) { // add vertex
-          int ix = vertex_array_->getNum();
           curr_index_ = new ssgIndexArray();
+          draw_point_index_ = new ssgIndexArray();
+          readPoint(fp, tmp_vtx[0].point);
+          int ix = vertex_array_->getNum();
           vertex_array_->add(tmp_vtx[0].point);
+          tmp_vtx[0].index=ix;                      // mark as used
+          draw_point_index_->add(tmp_vtx[0].index);
+          poly_from_line_numverts = 1;
+         }
+         break;
+      case 0x07:  // STRRES: Ends line definition
+        {
+          if ( poly_from_line_numverts == 0) {      // do we have to continue a poly ? YES
+            curr_index_ = new ssgIndexArray();
+            vertex_array_->add(tmp_vtx[1].point);
+          }
+          else {
+            delete draw_point_index_;
+          }
+          readPoint(fp, tmp_vtx[1].point);
+          int ix = vertex_array_->getNum();
           vertex_array_->add(tmp_vtx[1].point);
+          curr_index_->add(ix-1);
           curr_index_->add(ix);
-          curr_index_->add(ix+1);
-          curr_part_ = new ssgVtxArray( GL_LINES,
+          tmp_vtx[1].index=ix; // mark as dirty
+          curr_part_ = new ssgLayeredVtxArray( GL_LINES,
             vertex_array_,
             NULL,
             NULL,
             NULL,
             curr_index_ );
-          curr_part_->setState( createState(false) );
+          curr_part_->setState( createState(false, LColor) );
+          ssgBranch* grp = getCurrGroup();
+          grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          poly_from_line_numverts = 0;
+        }
+        break;
+      case 0x0f:  // STRRES: Start poly line definition
+        {
+          unsigned short idx = ulEndianReadLittle16(fp);
+
+          curr_index_ = new ssgIndexArray();
+          draw_point_index_ = new ssgIndexArray();
+
+          if (tmp_vtx[idx].index == -1) { // add vertex
+            int ix = vertex_array_->getNum();
+            vertex_array_->add(tmp_vtx[idx].point);
+            normal_array_->add(tmp_vtx[idx].norm);
+            tmp_vtx[idx].index = ix;
+          }
+          draw_point_index_->add(tmp_vtx[idx].index);
+
+          poly_from_line_numverts = 1;
+
+          // john .....
+          if ( !poly_from_line ) {  // don't add this kid right now
+
+            curr_part_ = new ssgLayeredVtxArray( GL_LINE_STRIP,
+              vertex_array_,
+              normal_array_,
+              NULL,
+              NULL,
+              draw_point_index_ );
+
+            if ( has_texture ) {
+              curr_part_->setState( createState(true, LColor) );
+            }
+            else {
+              curr_part_->setState( createState(false, LColor) );
+            }
+            ssgBranch *grp = getCurrGroup();
+            grp->addKid(curr_part_);
+
+          }
+        }
+        break;
+
+      case 0x10:  // CNTRES: Continue poly line definition
+        {
+          unsigned short idx = ulEndianReadLittle16(fp);
+          if (tmp_vtx[idx].index == -1) { // add vertex
+            int ix = vertex_array_->getNum();
+            vertex_array_->add(tmp_vtx[idx].point);
+            normal_array_->add(tmp_vtx[idx].norm);
+            tmp_vtx[idx].index = ix;
+          }
+          draw_point_index_->add(tmp_vtx[idx].index);
+          poly_from_line_numverts++;
+        }
+        break;
+
+      case 0x7a:  // Goraud shaded Texture-mapped ABCD Facet with night emission
+        {
+          curr_tex_wrap_ = FALSE;
+          has_emission=true;
+          readTMapFacet(fp, GColor);
+        }
+        break;
+
+      case 0x20:  // Goraud shaded Texture-mapped ABCD Facet
+        {
+          curr_tex_wrap_ = FALSE;
+          has_emission=false;
+          readTMapFacet(fp, SColor);
+        }
+        break;
+
+      case 0x60:  // BGL_FACE_TMAP
+        {
+          curr_index_ = new ssgIndexArray();
+
+          unsigned short numverts = ulEndianReadLittle16(fp);
+
+          // Point in polygon
+          sgVec3 p;
+          readPoint(fp, p);
+
+          // Normal vector
+          sgVec3 v;
+          readVector(fp, v);
+
+          // Read vertex inidices and texture coordinates
+          bool flip_y = FALSE;
+          if(curr_tex_name_!=NULL)
+          { char *texture_extension =
+          curr_tex_name_ + strlen(curr_tex_name_) - 3;
+          flip_y = ulStrEqual( texture_extension, "BMP" ) != 0 ;
+          }
+
+          GLenum type = readTexIndices(fp, numverts, v, flip_y);
+
+          curr_part_  = new ssgLayeredVtxArray( type,
+            vertex_array_,
+            normal_array_,
+            tex_coords_,
+            NULL,
+            curr_index_ );
+          
+          curr_tex_wrap_ = FALSE;
+
+          curr_part_->setState( createState(true, GColor) );
           ssgBranch* grp = getCurrGroup();
           grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
         }
-      }
-      break;
-    case 0x0f:  // STRRES: Start poly line definition
-      {
-        unsigned short idx = ulEndianReadLittle16(fp);
+        break;
 
-        curr_index_ = new ssgIndexArray();
-        draw_point_index_ = new ssgIndexArray();
+      case 0x1d:  // BGL_FACE
+        {
+          curr_index_ = new ssgIndexArray();
 
-        if (tmp_vtx[idx].index == -1) { // add vertex
-          int ix = vertex_array_->getNum();
-          vertex_array_->add(tmp_vtx[idx].point);
-          normal_array_->add(tmp_vtx[idx].norm);
-          tmp_vtx[idx].index = ix;
-        }
-        draw_point_index_->add(tmp_vtx[idx].index);
-        
-        poly_from_line_numverts = 1;
+          unsigned short numverts = ulEndianReadLittle16(fp);
 
-        // john .....
-        if ( !poly_from_line ) {  // don't add this kid right now
+          sgVec3 p;
+          readPoint(fp, p);
+          // Surface normal
+          sgVec3 v;
+          readVector(fp, v);
 
-          curr_part_ = new ssgVtxArray( GL_LINES,
+          // Read vertex indices
+          GLenum type = readIndices(fp, numverts, v);
+
+          curr_part_ = new ssgLayeredVtxArray(type,
             vertex_array_,
             normal_array_,
             NULL,
             NULL,
-            draw_point_index_ );
+            curr_index_);
 
-          if ( has_texture ) {
-            curr_part_->setState( createState(true) );
-          }
-          else {
-            curr_part_->setState( createState(false) );
-          }
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-          curr_part_->setCullFace ( curr_cull_face_ ) ;
-#endif
-
-          ssgBranch *grp = getCurrGroup();
-          grp->addKid(curr_part_);
-
+          curr_tex_wrap_ = TRUE;
+          curr_part_->setState( createState(false, SColor) );
+          ssgBranch* grp = getCurrGroup();
+          grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
         }
-      }
-      break;
-
-    case 0x10:  // CNTRES: Continue poly line definition
-      {
-        unsigned short idx = ulEndianReadLittle16(fp);
-        if (tmp_vtx[idx].index == -1) { // add vertex
-          int ix = vertex_array_->getNum();
-          vertex_array_->add(tmp_vtx[idx].point);
-          normal_array_->add(tmp_vtx[idx].norm);
-          tmp_vtx[idx].index = ix;
-        }
-        draw_point_index_->add(tmp_vtx[idx].index);
-        poly_from_line_numverts++;
-      }
-      break;
-
-    case 0x7a:  // Goraud shaded Texture-mapped ABCD Facet with night emission
-                has_emission=true;
-    case 0x20:  // Goraud shaded Texture-mapped ABCD Facet
-      {
-        curr_index_ = new ssgIndexArray();
-        
-        unsigned short numverts = ulEndianReadLittle16(fp);
-
-        // Normal vector
-        sgVec3 v;
-        readVector(fp, v);
-
-        // Dot product reference
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-        curr_cull_face_ = ulEndianReadLittle32(fp) >= 0;
-#else
-        ulEndianReadLittle32(fp);
-#endif
-
-        // Read vertex inidices and texture coordinates
-        bool flip_y = FALSE;
-        if(curr_tex_name_!=NULL)
-        {
-          char *texture_extension = curr_tex_name_ + strlen(curr_tex_name_) - 3;
-          flip_y = ulStrEqual( texture_extension, "BMP" ) != 0 ;
-        }
-
-        GLenum type = readTexIndices(fp, numverts, v, flip_y);
-
-        if(!has_normals_)
-        {
-          while (normal_array_->getNum() < vertex_array_->getNum())
-            normal_array_->add(v);
-          recalcNormals();
-        }
-
-        curr_part_ = new ssgVtxArray( type, 
-          vertex_array_,
-          normal_array_,
-          tex_coords_,
-          NULL,
-          curr_index_ );
-        curr_part_->setState( createState(true) );
-
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-        curr_part_->setCullFace ( curr_cull_face_ ) ;
-#endif
-
-        ssgBranch* grp = getCurrGroup();
-        grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
-      }
-      break;
-
-    case 0x60:  // BGL_FACE_TMAP
-      {
-        curr_index_ = new ssgIndexArray();
-
-        unsigned short numverts = ulEndianReadLittle16(fp);
-
-        // Point in polygon
-        sgVec3 p;
-        readPoint(fp, p);
-
-        // Normal vector
-        sgVec3 v;
-        readVector(fp, v);
-
-        // Read vertex inidices and texture coordinates
-        bool flip_y = FALSE;
-        if(curr_tex_name_!=NULL)
-        { char *texture_extension =
-        curr_tex_name_ + strlen(curr_tex_name_) - 3;
-        flip_y = ulStrEqual( texture_extension, "BMP" ) != 0 ;
-        }
-
-        GLenum type = readTexIndices(fp, numverts, v, flip_y);
-
-        if(!has_normals_)
-        {
-          while (normal_array_->getNum() < vertex_array_->getNum())
-            normal_array_->add(v);
-          recalcNormals();
-        }
-
-        curr_part_  = new ssgVtxArray( type,
-          vertex_array_,
-          normal_array_,
-          tex_coords_,
-          NULL,
-          curr_index_ );
-        curr_part_->setState( createState(true) );
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-        curr_part_->setCullFace ( curr_cull_face_ ) ;
-#endif
-
-
-        ssgBranch* grp = getCurrGroup();
-        grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
-      }
-      break;
-
-    case 0x1d:  // BGL_FACE
-      {
-        curr_index_ = new ssgIndexArray();
-
-        unsigned short numverts = ulEndianReadLittle16(fp);
-
-        sgVec3 p;
-        readPoint(fp, p);
-        // Surface normal
-        sgVec3 v;
-        readVector(fp, v);
-
-        // Read vertex indices
-        GLenum type = readIndices(fp, numverts, v);
-
-        if(!has_normals_)
-        {
-          while (normal_array_->getNum() < vertex_array_->getNum())
-            normal_array_->add(v);
-          recalcNormals();
-        }
-
-        curr_part_ = new ssgVtxArray(type,
-          vertex_array_,
-          normal_array_,
-          NULL,
-          NULL,
-          curr_index_);
-        curr_part_->setState( createState(false) );
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-        curr_part_->setCullFace ( curr_cull_face_ ) ;
-#endif
-
-        ssgBranch* grp = getCurrGroup();
-        grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
-      }
-      break;
-
-    case 0x2a:  // Goraud shaded ABCD Facet
-                has_emission=true;
-    case 0x3e:  // FACETN (no texture)
-      {
-        curr_index_ = new ssgIndexArray();
-        unsigned short numverts = ulEndianReadLittle16(fp);
-
-        // Surface normal
-        sgVec3 v;
-        readVector(fp, v);
-
-        // dot-ref
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-        curr_cull_face_ = ulEndianReadLittle32(fp) >= 0;
-#else
-        ulEndianReadLittle32(fp);
-#endif
-        // Read vertex indices
-        GLenum type = readIndices(fp, numverts, v);
-
-        if(!has_normals_)
-        {
-          while (normal_array_->getNum() < vertex_array_->getNum())
-            normal_array_->add(v);
-          recalcNormals();
-        }
-
-        curr_part_ = new ssgVtxArray(type,
-          vertex_array_,
-          normal_array_,
-          has_texture==true?tex_coords_:NULL,
-          NULL,
-          curr_index_);
-        curr_part_->setState( createState(has_texture) );
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-        curr_part_->setCullFace ( curr_cull_face_ ) ;
-#endif
-
-        ssgBranch* grp = getCurrGroup();
-        grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
-      }
-      has_texture = false;
-      break;
-
-    case 0x18:  // Set texture
-      {
-        unsigned short id, dx, scale, dy;
-        id    = ulEndianReadLittle16(fp);
-        dx    = ulEndianReadLittle16(fp);
-        scale = ulEndianReadLittle16(fp);
-        dy    = ulEndianReadLittle16(fp);
-        char tex_name[14];
-        fread(tex_name, 1, 14, fp);
-        
-        int j = 0;
-        for(int i = 0; i < 14; i++)
-        {
-          if(!isspace(tex_name[i]))
-            tex_filename[j++] = tolower(tex_name[i]);
-        }
-        tex_filename[j] = '\0';
-        JMPRINT( ios::dec, "Set texture: name = " << tex_filename << ", id = " << id
-          << ", dx = " << dx << ", dy = " << dy << ", scale = " << scale);
-        setTexture(tex_filename, 0x18);
-        has_texture = true;
-      }
-      break;
-
-    case 0x43:  // TEXTURE2
-      {
-        unsigned short length, idx;
-        unsigned char  flags, chksum;
-        unsigned int   color;
-
-        length = ulEndianReadLittle16(fp);
-        idx    = ulEndianReadLittle16(fp);
-        fread(&flags, 1, 1, fp);
-        fread(&chksum, 1, 1, fp);
-        color = ulEndianReadLittle32(fp);
-        if(chksum != 0)
-        {
-          ulSetError( UL_WARNING, "[ssgLoadBGL] TEXTURE2 Checksum != 0" );
-        }
-
-        char c;
-        int i = 0;
-        while((c = getc(fp)) != 0)
-        {
-          if(!isspace(c))
-            tex_filename[i++] = tolower(c);
-        }
-        tex_filename[i] = '\0';
-
-        // Padding byte
-        if((strlen(tex_filename) + 1) % 2)
-          c = getc(fp);
-
-        JMPRINT( ios::hex, "Set texture2: name = " << tex_filename << ", length = 0x" << length
-          << ", idx = 0x" << idx << ", flags = 0x" << (short)flags << ", color = 0x" << color);
-
-        setTexture(tex_filename, 0x43);
         break;
-      }
 
-    case 0x50:  // GCOLOR (Goraud shaded color)
-      {
-        unsigned char color, param;
-        fread(&color, 1, 1, fp);
-        fread(&param, 1, 1, fp);
-        JMPRINT( ios::hex, "Set color = " << (int)color << " Para = " << (int)param );
-        setEmission((int)color, (int)param);
-      }
-      break;
-    case 0x51:  // LCOLOR (Line color)
-    case 0x52:  // SCOLOR (Light source shaded surface color)
-      {
-        unsigned char color, param;
-        fread(&color, 1, 1, fp);
-        fread(&param, 1, 1, fp);
-        JMPRINT( ios::hex, "Set color = " << (int)color << " Para = " << (int)param );
-        setColor((int)color, (int)param);
-      }
-      break;
-
-    case 0x2D:  // BGL_SCOLOR24
-    case 0x2E:  // BGL_LCOLOR24
-      {
-        unsigned char col[4];
-        fread(col, 1, 4, fp);
-        JMPRINT( ios::hex, "Set color24 = " << (int)col[0] << ", " << (int)col[2] <<
-          ", " << (int)col[3] << ", " << (int)col[1] );
-        setColor(col[0], col[2], col[3], col[1]);
+      case 0x2a:  // Goraud shaded ABCD Facet
+        {
+          curr_tex_wrap_ = TRUE;
+          has_emission=true;
+          has_texture=false;
+          readFacet(fp, SColor);
+        }
         break;
-      }
 
-    case 0x03:
-      {
-        unsigned short number_cases;
-        fread(&number_cases, 2, 1, fp);
-        skip_offset = 6 + 2 * number_cases;
-      }
-      break;
+      case 0x3e:  // FACETN (no texture)
+        {
+          curr_tex_wrap_ = TRUE;
+          has_emission=false;
+          readFacet(fp, SColor);
+        }
+        break;
 
-    case 0x05:    // SURFACE
-      {
-         poly_from_line = true;
-      }
-      break;
+      case 0x18:  // Set texture
+        {
+          unsigned short id, dx, scale, dy;
+          id    = ulEndianReadLittle16(fp);
+          dx    = ulEndianReadLittle16(fp);
+          scale = ulEndianReadLittle16(fp);
+          dy    = ulEndianReadLittle16(fp);
+          char tex_name[14];
+          fread(tex_name, 1, 14, fp);
 
-    case 0x08:    // CLOSE
-      {
-
-        if ( poly_from_line ) {  // closed surface
-          sgVec3 v;
-          if(!has_normals_)
+          int j = 0;
+          for(int i = 0; i < 14; i++)
           {
+            if(!isspace(tex_name[i]))
+              tex_filename[j++] = tolower(tex_name[i]);
+          }
+          tex_filename[j] = '\0';
+          JMPRINT( ios::dec, "Set texture: name = " << tex_filename << ", id = " << id
+            << ", dx = " << dx << ", dy = " << dy << ", scale = " << scale);
+          setTexture(tex_filename, 0x18);
+          has_texture = true;
+        }
+        break;
+
+      case 0x43:  // TEXTURE2
+        {
+          unsigned short length, idx;
+          unsigned char  flags, chksum;
+          unsigned int   color;
+
+          length = ulEndianReadLittle16(fp);
+          idx    = ulEndianReadLittle16(fp);
+          fread(&flags, 1, 1, fp);
+          fread(&chksum, 1, 1, fp);
+          color = ulEndianReadLittle32(fp);
+          if(chksum != 0)
+          {
+            ulSetError( UL_WARNING, "[ssgLoadBGL] TEXTURE2 Checksum != 0" );
+          }
+
+          char c;
+          int i = 0;
+          while((c = getc(fp)) != 0)
+          {
+            if(!isspace(c))
+              tex_filename[i++] = tolower(c);
+          }
+          tex_filename[i] = '\0';
+
+          // Padding byte
+          if((strlen(tex_filename) + 1) % 2)
+            c = getc(fp);
+
+          JMPRINT( ios::hex, "Set texture2: name = " << tex_filename << ", length = 0x" << length
+            << ", idx = 0x" << idx << ", flags = 0x" << (short)flags << ", color = 0x" << color);
+
+          setTexture(tex_filename, 0x43);
+          has_texture = true;
+          break;
+        }
+
+      case 0x50:  // GCOLOR (Goraud shaded color)
+        {
+          setColor(fp, GColor);
+        }
+        break;
+
+      case 0x51:  // LCOLOR (Line color)
+        {
+          setColor(fp, LColor);
+        }
+        break;
+
+      case 0x52:  // SCOLOR (Light source shaded surface color)
+        {
+          setColor(fp, SColor);
+        }
+        break;
+
+      case 0x2D:  // BGL_SCOLOR24
+        {
+          setTrueColor(fp, SColor);
+        }
+        break;
+
+      case 0x2E:  // BGL_LCOLOR24
+        {
+          setTrueColor(fp, LColor);
+        }
+        break;
+
+      case 0x03:
+        {
+          unsigned short number_cases;
+          fread(&number_cases, 2, 1, fp);
+          skip_offset = 6 + 2 * number_cases;
+        }
+        break;
+
+      case 0x05:    // SURFACE
+        {
+           poly_from_line = true;
+        }
+        break;
+
+      case 0x08:    // CLOSE
+        {
+
+          if ( poly_from_line ) {  // closed surface
+
+            sgVec3 v;
+            sgSetVec3(v, 0.0f, 0.0f, 1.0f);
+
+            if(has_texture == true) {
+              sgVec2 tc;
+              while (tex_coords_->getNum() < vertex_array_->getNum())
+                tex_coords_->add(tc);
+
+
+              sgVec3 s_norm;
+              sgSetVec3(s_norm, 0.0f, 0.0f, 1.0f);
+              JMPRINT( ios::dec|ios::scientific|ios::floatfield, "              norm[0]" << \
+                       s_norm[0] << " norm[1]" << s_norm[1] << " norm[2]" << s_norm[2]);
+              sgMat4 rot_norm;
+              sgMakeRotMat4 ( rot_norm, s_norm );
+              int i;
+              for( i=0; i<poly_from_line_numverts; i++) {
+                sgVec3 point;
+
+                // rotate the point according to the normal vector
+                // to ensure the correct texture coordinates
+                // parallel projection to plane given by normal vector
+                sgCopyVec3(point, vertex_array_->get(*draw_point_index_->get(i)));
+                JMPRINT( ios::dec|ios::scientific|ios::floatfield, "Before rotation point[0]" << \
+                 point[0] << " point[1]" << point[1] << " point[2]" << point[2]);
+                sgXformPnt3 ( point, rot_norm ) ;
+                JMPRINT( ios::dec|ios::scientific|ios::floatfield, "After rotation point[0]" << \
+                         point[0] << " point[1]" << point[1] << " point[2]" << point[2]);
+
+                tc[0] = point[0]*ref_scale/256.0f;  // texture coordinates are given in delta units
+                tc[1] = point[1]*ref_scale/256.0f;  // texture coordinates are given in delta units
+                sgCopyVec2(tex_coords_->get(*draw_point_index_->get(i)), tc);
+              }
+            }
+            int type = createTriangIndices(draw_point_index_, poly_from_line_numverts, v);
+
             while (normal_array_->getNum() < vertex_array_->getNum())
               normal_array_->add(v);
-            recalcNormals();
+
+            curr_part_ = new ssgLayeredVtxArray(
+              type,
+              vertex_array_,
+              normal_array_,
+              has_texture==true?tex_coords_:NULL,
+              NULL,
+              curr_index_ );
+
+            delete draw_point_index_;
+            curr_part_->moveToBackground();
+            shininess_ = 0;        // background does not shine
+            curr_tex_wrap_ = TRUE;
+            curr_part_->setState( createState(true, SColor) );
+            shininess_ = DEF_SHININESS;
           }
-          curr_part_ = new ssgVtxArray(
-            createTriangIndices(draw_point_index_, poly_from_line_numverts, v),
-            vertex_array_,
-            normal_array_,
-            NULL,
-            NULL,
-            curr_index_ );
-          delete draw_point_index_;
-          curr_part_->setState( createState(true) );
-        }
-        else {                   // open surface draw a ployline
-          curr_part_ = new ssgVtxArray(
-            GL_LINES,
-            vertex_array_,
-            NULL,
-            NULL,
-            NULL,
-            draw_point_index_ );
-          curr_part_->setState( createState(false) );
-        }
-#ifdef EXPERIMENTAL_CULL_FACE_CODE
-        curr_part_->setCullFace ( curr_cull_face_ ) ;
-#endif
+          else {                   // open surface draw a ployline
+            curr_part_ = new ssgLayeredVtxArray(
+              GL_LINES,
+              vertex_array_,
+              NULL,
+              NULL,
+              NULL,
+              draw_point_index_ );
+            curr_part_->setState( createState(false, LColor) );
+          }
+          ssgBranch* grp = getCurrGroup();
+          grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
 
-        ssgBranch* grp = getCurrGroup();
-        grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
-
-        poly_from_line = false;
-      }
-      break;
+          poly_from_line = false;
+        }
+        break;
 
       case 0x81:  // OBSOLETE
         {
@@ -2131,7 +2239,8 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         }
         break;
 
-      case 0x32:   // ADDOBJ  john: do nothing more than BGL_CALL right now
+      case 0x32:   // Perspective
+      case 0x2b:   // Perspective call 32
         {
           short offset;
           offset = ulEndianReadLittle16(fp);
@@ -2139,16 +2248,12 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
 
           // push current Branch
           ssgBranch* grp = getCurrGroup();
+          push_stack(perspective_);
+          push_stack(layer_);
           push_stack((long int)grp);
           push_stack(addr);
           long dst = addr + offset - 4;
           fseek(fp, dst, SEEK_SET);
-        }
-        break;
-      case 0x76:  // BGL_BGL JM: do nothing
-        {
-          sgMakeIdentMat4( curr_matrix_ );
-          sgZeroVec3( curr_rot_pt_ );
         }
         break;
 
@@ -2165,8 +2270,6 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
 
           sgVec3 v;
           // Create group nodes for textured and non-textured objects
-          if (curr_part_!=NULL)
-            curr_part_->recalcBSphere();
           vertex_array_ = new ssgVertexArray();
           normal_array_ = new ssgNormalArray();
           tex_coords_ = new ssgTexCoordArray();
@@ -2177,16 +2280,15 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           ulEndianReadLittle16(fp);           // ?
           readRefPointTranslation(fp,v);
           v[2] = (double) 0.0;                // set altitude to zero (for now)
-          ref_scale = 1.0;                    // scaling alway 1.0
+          ref_scale = 1.0;                    // scaling is 1.0
           JMPRINT( ios::dec, " Scale:" << ref_scale << " Delta Latitude:" << v[0] << "m; Delta Longitude:" << v[1] << "m; Delta Altitude:" << v[2] << "m");
 
           // push current Branch
           curr_branch_ = new ssgTransform();
           curr_branch_->setName("Refpoint3c");
-          model_->addKid(curr_branch_);
-          curr_xfm_    = NULL;
           if (curr_branch_ !=0)
              curr_branch_->setTransform(v);
+          getCurrBranch()->addKid(curr_branch_);
         }
         break;
 
@@ -2197,8 +2299,6 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           sgVec3 v;
 
           // Create group nodes for textured and non-textured objects
-          if (curr_part_!=NULL)
-            curr_part_->recalcBSphere();
           vertex_array_ = new ssgVertexArray();
           normal_array_ = new ssgNormalArray();
           tex_coords_ = new ssgTexCoordArray();
@@ -2207,19 +2307,18 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           ulEndianReadLittle16(fp);           // visibility related
           ulEndianReadLittle16(fp);           // invisibility cone
           ulEndianReadLittle16(fp);           // ?
-          scale = ulEndianReadLittle32(fp);   // scaling
+          scale = ulEndianReadLittle32(fp);   // get scale
           ref_scale = (double)scale /65536.0;
           readRefPointTranslation(fp,v);
-          v[2] = (double) 0.0;                // altitude is always zero
+          v[2] = (double) 0.0;                // altitude is zero
           JMPRINT( ios::dec, " Scale:" << ref_scale << " Delta Latitude:" << v[0] << "m; Delta Longitude:" << v[1] << "m; Delta Altitude:" << v[2] << "m");
 
           // push current Branch
           curr_branch_ = new ssgTransform();
           curr_branch_->setName("Refpoint & Scale");
-          model_->addKid(curr_branch_);
-          curr_xfm_    = NULL;
           if (curr_branch_ !=0)
              curr_branch_->setTransform(v);
+          getCurrBranch()->addKid(curr_branch_);
         }
         break;
 
@@ -2230,8 +2329,6 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           sgVec3 v;
 
           // Create group nodes for textured and non-textured objects
-          if (curr_part_!=NULL)
-            curr_part_->recalcBSphere();
           vertex_array_ = new ssgVertexArray();
           normal_array_ = new ssgNormalArray();
           tex_coords_ = new ssgTexCoordArray();
@@ -2240,7 +2337,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           ulEndianReadLittle16(fp);           // visibility related
           ulEndianReadLittle16(fp);           // invisibility cone
           ulEndianReadLittle16(fp);           // ?
-          scale = ulEndianReadLittle32(fp);   // scaling
+          scale = ulEndianReadLittle32(fp);   // get scale
           ref_scale = (double)scale /65536.0;
           readRefPointTranslation(fp,v);
           v[2] = (double) 0.0;                // set altitude to zero for now
@@ -2249,10 +2346,9 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           // push current Branch
           curr_branch_ = new ssgTransform();
           curr_branch_->setName("Refpoint2f");
-          curr_xfm_    = NULL;
-          model_->addKid(curr_branch_);
           if (curr_branch_ !=0)
              curr_branch_->setTransform(v);
+          getCurrBranch()->addKid(curr_branch_);
         }
         break;
 
@@ -2273,9 +2369,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
 
           // Build up the constant rotations
           sgMat4 rot_mat;
-//        sgMakeRotMat4( rot_mat, -ry+360.0, rz, rx );
           sgMakeRotMat4( rot_mat, -ry+360.0, -rz, -rx );
-          sgPostMultMat4( curr_matrix_, rot_mat );
           
           // push current Branch
           ssgBranch* grp = getCurrGroup();
@@ -2283,6 +2377,8 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           curr_branch_->setName("RotoCall");
           curr_branch_->setTransform(rot_mat);
           grp->addKid(curr_branch_);
+          push_stack(perspective_);
+          push_stack(layer_);
           push_stack((long int)grp);
           push_stack(addr+6);  //john: for now I haven't parse the whole command
           long dst = addr + offset - 4;
@@ -2290,35 +2386,112 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         }
         break;
 
-    case 0x49:  // BGL_BUILDING
-      {
-      int info, type;
-      double stories, size_x, size_y, size_z;
-      double ox,oy,oz;
-      ssgSimpleState *state = new ssgSimpleState();
-      building = new ssgTransform ;
 
-      sgVec3 pos;
-      sgVec2 btexcoor;
+#define ROOF 0x8000
+#define FLOOR 0x4000
+    case 0x49: {  // BGL_BUILDING
+
+      static char *textures[8] = { {"sandstone.rgb"},
+                                   {"white.rgb"},
+                                   {"black.rgb"},
+                                   {"darkgray.rgb"},
+                                   {"gray.rgb"},
+                                   {"whitehorizon.rgb"},
+                                   {"sandstonehorizon.rgb"},
+                                   {"gray.rgb"} };
+
+      static sgVec3 block_points[8] = { { -.5, -.5, 0 },
+                                        {  .5, -.5, 0 },
+                                        {  .5,  .5, 0 },
+                                        { -.5,  .5, 0 },
+                                        { -.5, -.5, 1 },
+                                        {  .5, -.5, 1 },
+                                        {  .5,  .5, 1 },
+                                        { -.5,  .5, 1 } };
+
+      static int block_faces[] = { {4|FLOOR}, {3}, {2}, {1}, {0},
+                                         {4}, {0}, {1}, {5}, {4},
+                                         {4}, {1}, {2}, {6}, {5},
+                                         {4}, {2}, {3}, {7}, {6},
+                                         {4}, {3}, {0}, {4}, {7},
+                                    {4|ROOF}, {4}, {5}, {6}, {7} };
+
+      static sgVec3 iroof_points[8] = { { -.5, -.5, 0 },
+                                        {  .5, -.5, 0 },
+                                        {  .5,  .5, 0 },
+                                        { -.5,  .5, 0 },
+                                        { -.5, -.5, .75 },
+                                        {  .5, -.5, .75 },
+                                        {  .5,  .5, 1 },
+                                        { -.5,  .5, 1 } };
+      
+      static sgVec3 pyramid_points[8]={ { -.5, -.5, 0 },
+                                        {  .5, -.5, 0 },
+                                        {  .5,  .5, 0 },
+                                        { -.5,  .5, 0 },
+                                        { -.3, -.3, 1 },
+                                        {  .3, -.3, 1 },
+                                        {  .3,  .3, 1 },
+                                        { -.3,  .3, 1 } };
+      
+      static sgVec3 oct_points[16] =  { { -.25, -.5, 0 },
+                                        {  .25, -.5, 0 },
+                                        {  .5, -.25, 0 },
+                                        {  .5,  .25, 0 },
+                                        {  .25,  .5, 0 },
+                                        { -.25,  .5, 0 },
+                                        { -.5,  .25, 0 },
+                                        { -.5, -.25, 0 },
+                                        { -.25, -.5, 1 },
+                                        {  .25, -.5, 1 },
+                                        {  .5, -.25, 1 },
+                                        {  .5,  .25, 1 },
+                                        {  .25,  .5, 1 },
+                                        { -.25,  .5, 1 },
+                                        { -.5,  .25, 1 },
+                                        { -.5, -.25, 1 } };
+
+      static int oct_faces[] =  { {8|FLOOR}, {7}, {6}, {5},  {4}, {3}, {2}, {1}, {0},
+                                        {4}, {0}, {1}, {9},  {8},
+                                        {4}, {1}, {2}, {10}, {9},
+                                        {4}, {2}, {3}, {11}, {10},
+                                        {4}, {3}, {4}, {12}, {11},
+                                        {4}, {4}, {5}, {13}, {12},
+                                        {4}, {5}, {6}, {14}, {13},
+                                        {4}, {6}, {7}, {15}, {14},
+                                        {4}, {7}, {0}, {8},  {15},
+                                   {8|ROOF}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15} };
+      struct {
+         int    face_nr;
+         int    *face;
+         sgVec3 *point;
+         sgVec3 *tcoord;
+         } build_type[] = { { 6, block_faces, block_points, block_points },
+                            { 6, block_faces, iroof_points, iroof_points },
+                            { 6, block_faces, pyramid_points, pyramid_points },
+                            { 10, oct_faces, oct_points, oct_points }
+                             };
+
+      int info, type;
+      double stories;
+      sgVec3 offset, scale;
+      ssgSimpleState *state = new ssgSimpleState();
+//      building = new ssgTransform ;
+      ssgBranch* building = getCurrGroup();
+
       info = ulEndianReadLittle16(fp); //info
       ulEndianReadLittle16(fp);        //codes
-      oy = (ulEndianReadLittle16(fp) * ref_scale) ;   //offset x
-      oz = (ulEndianReadLittle16(fp) * ref_scale) ;   //offset y
-      ox = (ulEndianReadLittle16(fp) * ref_scale) ;   //offset z
-      stories = ulEndianReadLittle16(fp) * ref_scale; //stories
-      size_z = ulEndianReadLittle16(fp) * ref_scale;  //size_x
-      size_x = ulEndianReadLittle16(fp) * ref_scale;  //size_z
-      size_y = stories * 4;
-      ox -= size_x/2;
-      oy -= size_z/2;
-
-      JMPRINT(ios::dec, " info:" << info << " stories:" << stories << " size_x:" << size_x << " size_z:" << size_z);
-
-      type = info%8;
+      offset[2] = (ulEndianReadLittle16(fp) * ref_scale) ;   //offset x
+      offset[1] = (ulEndianReadLittle16(fp) * ref_scale) ;   //offset y
+      offset[0] = (ulEndianReadLittle16(fp) * ref_scale) ;   //offset z
+      stories = ulEndianReadLittle16(fp) * ref_scale;   //stories
+      scale[1] = ulEndianReadLittle16(fp) * ref_scale;  //size_x
+      scale[0] = ulEndianReadLittle16(fp) * ref_scale;  //size_z
+      scale[2] = stories * 4;
 
       state->setShininess(DEF_SHININESS);
       state->setShadeModel(GL_SMOOTH);
-      
+
       state->disable(GL_BLEND);
       state->disable(GL_ALPHA_TEST);
 
@@ -2326,191 +2499,270 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
       state->enable   (GL_CULL_FACE);
       state->disable  (GL_COLOR_MATERIAL);
 
-      state->setMaterial( GL_DIFFUSE, 1.0f, 1.0f, 1.0f, curr_col_[3]);
-      state->setMaterial( GL_AMBIENT, 1.0f, 1.0f, 1.0f, curr_col_[3]);
-      state->setMaterial( GL_SPECULAR, 1.0f, 1.0f, 1.0f, curr_col_[3] );
+      state->setMaterial( GL_DIFFUSE, 1.0f, 1.0f, 1.0f, 0.0f);
+      state->setMaterial( GL_AMBIENT, 1.0f, 1.0f, 1.0f, 0.0f);
+      state->setMaterial( GL_SPECULAR, 1.0f, 1.0f, 1.0f, 0.0f );
       state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
       state->enable     ( GL_TEXTURE_2D ) ;
-//     state -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
 
-      switch(type)
-        {
-          case 0x00: //sandstone skyscraper
-            {
-            state->setTexture("sandstone.rgb");
-            }
-            break;
-          case 0x01: //white skyscraper
-            {
-            state->setTexture("white.rgb");
-            }
-            break;
-          case 0x02: //black skyscraper
-            {
-            state->setTexture("black.rgb");
-            }
-            break;
-          case 0x03: //dark gray skyscraper
-            {
-            state->setTexture("darkgray.rgb");
-            }
-            break;
-          case 0x04: //gray skyscraper
-            {
-            state->setTexture("gray.rgb");
-            }
-            break;
-          case 0x05: //white horizontal lined skyscraper
-            {
-            state->setTexture("whitehorizon.rgb");
-            }
-            break;
-          case 0x06: //sandstone horizontal lined skyscraper
-            {
-            state->setTexture("sandstonehorizon.rgb");
-            }
-            break;
-          case 0x07: //gray skyscraper
-            {
-            state->setTexture("gray.rgb");
-            }
-            break;
-          default:
-            break;
+      if ((info & 0x8000) == 0x8000) {
+        state->setTexture(curr_tex_name_);
+      }
+      else {
+        state->setTexture(textures[info&7]);
+      }
+
+      type = (info >> 3) & 3;
+
+      int i,j;
+      sgVec3 norm;
+      sgVec3 vert;
+      float toffset = 0.0f;
+      float ntoffset = 0.0f;
+      for (i=0, j=0; i < build_type[type].face_nr; i++) {
+        int n = build_type[type].face[j++];
+        ssgVertexArray *vertices = new ssgVertexArray(4);
+        ssgNormalArray *normals  = new ssgNormalArray(4);
+        ssgTexCoordArray *texcoords = NULL;
+
+        if ( (n & (ROOF|FLOOR)) == 0 ) {
+          texcoords = new ssgTexCoordArray(4);
         }
 
-// john temp test
-        building_count++;
+        // normal for wall
+        sgMakeNormal(norm, build_type[type].point[build_type[type].face[j+0]],
+                           build_type[type].point[build_type[type].face[j+1]],
+                           build_type[type].point[build_type[type].face[j+2]]);
 
-        ssgVertexArray   *vertices_walls = new ssgVertexArray(3);
-        ssgNormalArray   *normals_walls = new ssgNormalArray(3);
-        ssgVertexArray   *vertices_roof = new ssgVertexArray(3);
-        ssgNormalArray   *normals_roof = new ssgNormalArray(3);
-        ssgVertexArray   *vertices_base = new ssgVertexArray(3);
-        ssgNormalArray   *normals_base = new ssgNormalArray(3);
+        sgVec3 x,y,p;
+        sgSubVec3(x, build_type[type].point[build_type[type].face[j+1]],
+                     build_type[type].point[build_type[type].face[j+0]]);
+        sgNormalizeVec3(x);
+        sgVectorProductVec3(y, norm, x );
+        sgCopyVec3(p, build_type[type].point[build_type[type].face[j+0]]);
+        JMPRINT(ios::dec, "x0:" << x[0] << " x1:" << x[1] << " x2:" << x[2]);
+        JMPRINT(ios::dec, "y0:" << y[0] << " y1:" << y[1] << " y2:" << y[2]);
+        JMPRINT(ios::dec, "norm0:" << norm[0] << " norm1:" << norm[1] << " norm2:" << norm[2]);
+        int k;
+        for (k=1; k <= (n&0x3fff); k++, j++ ) {
+          // add normal
+          normals->add(norm);
+          // add vertice
+          sgCopyVec3(vert, build_type[type].point[build_type[type].face[j]]);
+          vert[0]*=scale[0]; vert[1]*=scale[1]; vert[2]*=scale[2];
+          sgAddVec3(vert, offset);
+          vertices->add(vert);
+          // add texture coordinate
+          if (texcoords != NULL) {
+            sgVec2 tc;
+            sgCopyVec3(vert, build_type[type].tcoord[build_type[type].face[j]]);
+            sgSubVec3(vert,p);
+            vert[0]*=scale[0]; vert[1]*=scale[1]; vert[2]*=scale[2];
+            JMPRINT(ios::dec, "vert0:" << vert[0] << " vert1:" << vert[1] << " vert2:" << vert[2]);
 
-        ssgTexCoordArray *texcoor_walls = new ssgTexCoordArray(10);
+            tc[0] = sgScalarProductVec3(x, vert)*ref_scale/256.0f;  // texture coordinates are given in delta units
+            if (k == 2) ntoffset = tc[0];
+            tc[0] += toffset;
+            tc[1] = sgScalarProductVec3(y, vert)*ref_scale/256.0f;  // texture coordinates are given in delta units
+            texcoords->add(tc);
+            JMPRINT(ios::dec, "tc0:" << tc[0] << " tc1:" << tc[1]);
+          }
+        }
+        ssgVtxTable *Vtx = new ssgVtxTable(GL_TRIANGLE_FAN, vertices, normals, texcoords, NULL);
+        Vtx->setState(state);
+        building -> addKid (Vtx);
+        toffset += ntoffset;
+      }
+    }
+    break;
 
-        sgSetVec3(pos, 0 + ox, 0 + oy, size_y + oz);   // defining positon
-        vertices_walls->add(pos);
-        sgSetVec3(pos, 0 + ox, 0 + oy, 0 + oz);
-        vertices_walls->add(pos);
-        sgSetVec3(pos, size_x + ox, 0 + oy, size_y + oz);
-        vertices_walls->add(pos);
-        sgSetVec3(pos, size_x + ox, 0 + oy, 0 + oz);
-        vertices_walls->add(pos);
-        sgSetVec3(pos, size_x + ox, size_z + oy, size_y + oz);
-        vertices_walls->add(pos);
-        sgSetVec3(pos, size_x + ox, size_z + oy, 0 + oz);
-        vertices_walls->add(pos);
-        sgSetVec3(pos, 0 + ox, size_z + oy, size_y + oz);
-        vertices_walls->add(pos);
-        sgSetVec3(pos, 0 + ox, size_z + oy, 0 + oz);
-        vertices_walls->add(pos);
-        sgSetVec3(pos, 0 + ox, 0 + oy, size_y + oz);
-        vertices_walls->add(pos);
-        sgSetVec3(pos, 0 + ox, 0 + oy, 0 + oz);
-        vertices_walls->add(pos);
+      case 0x15: {  //elevation map
+        int ny = ulEndianReadLittle16(fp)+1;                     // number of points in x dir
+        int nx = ulEndianReadLittle16(fp)+1;                     // number of points in y dir
+        double wy = ulEndianReadLittle16(fp) / ref_scale;        // width in x dir
+        double wx = -ulEndianReadLittle16(fp) / ref_scale;       // width in y dir
+        double dy = (short)ulEndianReadLittle16(fp) / ref_scale; // offset in x dir
+        double dx = -(short)ulEndianReadLittle16(fp) / ref_scale;// offset in y dir
+        ulEndianReadLittle16(fp);                                // minalt
+        ulEndianReadLittle16(fp);                                // maxalt
+        JMPRINT(ios::dec,"nx: " << nx << " ny:" << ny <<
+                         "wx: " << wx << " wy:" << wy <<
+                         "dx: " << dx << " dy:" << dy );
 
-        sgSetVec3(pos, 0, -3, 0);                          //defining normal
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
-        sgSetVec3(pos, 0, -3, 0);
-        normals_walls->add(pos);
+        int offset = vertex_array_->getNum();
 
-        sgSetVec2(btexcoor, 0.1f, 0.1f);               //defining texture coor
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.1f, 0.9f);
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.9f, 0.1f);
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.9f, 0.9f);
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.1f, 0.1f);
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.1f, 0.9f);
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.9f, 0.1f);
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.9f, 0.9f);
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.1f, 0.1f);
-        texcoor_walls->add(btexcoor);
-        sgSetVec2(btexcoor, 0.1f, 0.9f);
-        texcoor_walls->add(btexcoor);
+        // create Vertices
+        int x,y;
+        double z;
+        sgVec3 v;
+        sgVec2 tc;
+        for (x = 0; x < nx; x++) {
+          for (y = 0; y < ny; y++) {
+            tc[0] = (float)getc(fp)/255.0f; // Texture coordinate X
+            tc[1] = (float)getc(fp)/255.0f; // Texture coordinate Y
+            z = ulEndianReadLittle16(fp) / ref_scale;  // altitude
+//            JMPRINT(ios::dec,"z: " << z << " tx:" << tc[0] << " ty:" << tc[1] );
+            v[0]=dx+x*wx;                   // x coordinate
+            v[1]=dy+y*wy;                   // y coordinate
+            v[2]=z;                         // z coordinate
+            vertex_array_->add(v);
+            tex_coords_->add(tc);
+          }
+        }
+        // create normals
+        int short stat = 0;
+        sgVec3 p0, p1, p2, cross, norm;
+        int o[7] = {0,-1,0,1,0,-1,0};
+        for (x = 0; x < nx; x++) {
+          stat&=0x0c;
+          stat|=((x==0)?1:0);
+          stat|=((x==nx-1)?2:0);
+          JMPRINT(ios::hex,"stat:" << stat);
+          for (y = 0; y < ny; y++) {
+            stat&=0x03;
+            stat|=((y==0)?4:0);
+            stat|=((y==ny-1)?8:0);
+            sgCopyVec3( p0, vertex_array_->get(offset+x*ny+y));
+            switch (stat) {
 
+            case 0: // 4 connecting points
+            {
+              sgZeroVec3(norm);
+              sgCopyVec3( p1, vertex_array_->get(offset+(x+1)*ny+y));
+              int i;
+              for(i = 0; i < 4 ; i++) {
+                sgCopyVec3( p2, vertex_array_->get(offset+(x+o[i])*ny+y+o[i+1]));
+                sgMakeNormal(cross, p0, p1, p2);
+                sgAddVec3(norm, cross);
+                sgCopyVec3( p1, p2);
+              }
+            }
+            break;
+            case 5: // x == 0 && y == 0
+            {
+              sgCopyVec3( p1, vertex_array_->get(offset+(x)*ny+y+1));
+              sgCopyVec3( p2, vertex_array_->get(offset+(x+1)*ny+y));
+              sgMakeNormal(norm, p0, p1, p2);
+            }
+            break;
+            case 9: // x == 0 && y == max
+            {
+              sgCopyVec3( p1, vertex_array_->get(offset+(x+1)*ny+y));
+              sgCopyVec3( p2, vertex_array_->get(offset+(x)*ny+y-1));
+              sgMakeNormal(norm, p0, p1, p2);
+            }
+            break;
+            case 10: // x == max && y == max
+            {
+              sgCopyVec3( p1, vertex_array_->get(offset+(x)*ny+y-1));
+              sgCopyVec3( p2, vertex_array_->get(offset+(x-1)*ny+y));
+              sgMakeNormal(norm, p0, p1, p2);
+            }
+            break;
+            case 6: // x == max && y == 0
+            {
+              sgCopyVec3( p1, vertex_array_->get(offset+(x-1)*ny+y));
+              sgCopyVec3( p2, vertex_array_->get(offset+(x)*ny+y+1));
+              sgMakeNormal(norm, p0, p1, p2);
+            }
+            break;
+            case 1: // x==0
+            {
+              sgZeroVec3(norm);
+              sgCopyVec3( p1, vertex_array_->get(offset+(x)*ny+y+1));
+              int i;
+              for(i = 3; i < 5 ; i++) {
+                sgCopyVec3( p2, vertex_array_->get(offset+(x+o[i])*ny+y+o[i+1]));
+                sgMakeNormal(cross, p0, p1, p2);
+                sgAddVec3(norm, cross);
+                sgCopyVec3( p1, p2);
+              }
+            }
+            break;
+            case 2: // x==max
+            {
+              sgZeroVec3(norm);
+              sgCopyVec3( p1, vertex_array_->get(offset+(x)*ny+y-1));
+              int i;
+              for(i = 1; i < 3 ; i++) {
+                sgCopyVec3( p2, vertex_array_->get(offset+(x+o[i])*ny+y+o[i+1]));
+                sgMakeNormal(cross, p0, p1, p2);
+                sgAddVec3(norm, cross);
+                sgCopyVec3( p1, p2);
+              }
+            }
+            break;
+            case 4: // y==0
+            {
+              sgZeroVec3(norm);
+              sgCopyVec3( p1, vertex_array_->get(offset+(x-1)*ny+y));
+              int i;
+              for(i = 2; i < 4 ; i++) {
+                sgCopyVec3( p2, vertex_array_->get(offset+(x+o[i])*ny+y+o[i+1]));
+                sgMakeNormal(cross, p0, p1, p2);
+                sgAddVec3(norm, cross);
+                sgCopyVec3( p1, p2);
+              }
+            }
+            break;
+            case 8: // y==max
+            {
+              sgZeroVec3(norm);
+              sgCopyVec3( p1, vertex_array_->get(offset+(x+1)*ny+y));
+              int i;
+              for(i = 4; i < 6 ; i++) {
+                sgCopyVec3( p2, vertex_array_->get(offset+(x+o[i])*ny+y+o[i+1]));
+                sgMakeNormal(cross, p0, p1, p2);
+                sgAddVec3(norm, cross);
+                sgCopyVec3( p1, p2);
+              }
+            }
+            break;
 
-        sgSetVec3(pos, 0 + ox, 0 + oy, size_y + oz);
-        vertices_roof->add(pos);
-        sgSetVec3(pos, size_x + ox, 0 + oy, size_y + oz);
-        vertices_roof->add(pos);
-        sgSetVec3(pos, 0 + ox, size_z + oy, size_y + oz);
-        vertices_roof->add(pos);
-        sgSetVec3(pos, size_x + ox, size_z + oy, size_y + oz);
-        vertices_roof->add(pos);
-
-        sgSetVec3(pos, 0, 0, 0);
-        normals_roof->add(pos);
-        sgSetVec3(pos, 0, 0, 0);
-        normals_roof->add(pos);
-        sgSetVec3(pos, 0, 0, 0);
-        normals_roof->add(pos);
-        sgSetVec3(pos, 0, 0, 0);
-        normals_roof->add(pos);
-
-        sgSetVec3(pos, 0 + ox, 0 + oy, 0 + oz);
-        vertices_base->add(pos);
-        sgSetVec3(pos, 0 + ox, size_z + oy, 0 + oz);
-        vertices_base->add(pos);
-        sgSetVec3(pos, size_x + ox, 0 + oy, 0 + oz);
-        vertices_base->add(pos);
-        sgSetVec3(pos, size_x + ox, size_z + oy, 0 + oz);
-        vertices_base->add(pos);
-
-        sgSetVec3(pos, 0, 0, 0);
-        normals_base->add(pos);
-        sgSetVec3(pos, 0, 0, 0);
-        normals_base->add(pos);
-        sgSetVec3(pos, 0, 0, 0);
-        normals_base->add(pos);
-        sgSetVec3(pos, 0, 0, 0);
-        normals_base->add(pos);
-
-        ssgVtxTable *pVtx_walls = new ssgVtxTable(GL_QUAD_STRIP, vertices_walls,
-          normals_walls, texcoor_walls, NULL);
-        ssgVtxTable *pVtx_roof = new ssgVtxTable(GL_QUAD_STRIP, vertices_roof,
-          normals_roof, NULL, NULL);
-        ssgVtxTable *pVtx_base = new ssgVtxTable(GL_QUAD_STRIP, vertices_base,
-          normals_base, NULL, NULL);
-
-        pVtx_walls->setState(state);
-        pVtx_roof ->setState(state);
-        pVtx_base ->setState(state);
-        building -> addKid (pVtx_walls);
-        building -> addKid (pVtx_roof);
-        building -> addKid (pVtx_base);
-
-        ssgBranch* grp = getCurrGroup();
-        grp    -> addKid (building);
+            break;
+            }
+            sgNormaliseVec3(norm);
+            normal_array_->add(norm);
+//            JMPRINT(ios::dec, " Normal: " << norm[0] << "; " << norm[1] << "; " << norm[2]);
+          }
+        }
+        // create faces & leafs
+        for ( x = 0; x < nx-1; x++ ) {
+          for ( y = 0; y < ny-1; y++ ) {
+            ssgIndexArray *strips = new ssgIndexArray(4);
+            strips->add(offset+x*ny+y);	           // 1st point
+            strips->add(offset+x*ny+y+1);          // 2nd point
+            strips->add(offset+(x+1)*ny+y+1);      // 3rd point
+            strips->add(offset+(x+1)*ny+y);        // 4th point
+            curr_part_ = new ssgLayeredVtxArray( GL_TRIANGLE_FAN,
+                                          vertex_array_,
+                                          normal_array_,
+                                          tex_coords_,
+                                          NULL,
+                                          strips );
+            curr_part_->setState( createState(true, SColor) );
+            ssgBranch* grp = getCurrGroup();
+            grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
+          }
+        }
       }
       break;
 
-      case 0xa0: {
+      case 0x8f: { // alpha color
+        int alpha = ulEndianReadLittle32(fp);
+        if ( alpha == 0) {
+          alpha_ = 1.0;
+        }
+        else if (alpha < 16) {
+          alpha_ = (double)alpha/15.0;
+        }
+        else {
+             ulSetError( UL_WARNING, "[ssgLoadBGL] Alpha Color(x8f) unknown value: %x", alpha);
+        }
+      }
+      break;
+
+      case 0xa0: { // new building
         short offset = ulEndianReadLittle16(fp);
         long addr = ftell(fp);
         ulEndianReadLittle16(fp); //type
@@ -2521,6 +2773,16 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
       break;
 
       case 0x70: { // BGL_AREA_SENSE
+        short offset = ulEndianReadLittle16(fp);
+        long addr = ftell(fp);
+        ulEndianReadLittle16(fp); //type
+        long dst = addr + offset - 4;
+        fseek(fp, dst, SEEK_SET);
+        //ignore the rest for now ;) JM
+      }
+      break;
+
+      case 0xaa: { // New Runaway
         short offset = ulEndianReadLittle16(fp);
         long addr = ftell(fp);
         ulEndianReadLittle16(fp); //type
@@ -2554,18 +2816,14 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         }
         break;
 
-      }  //end of bgl parse switch 
+      } // end of bgl parse switch 
        
       if (skip_offset > 0) 
         fseek( fp, skip_offset, SEEK_CUR );
-       
-    } //end of bgl parse while loop
+
+    } // end of bgl parse while loop
 
   } // end of bgl "object header opcode" while loop
-    
-  fclose(fp);
-
-  return model_;
 }
 
 #else

@@ -2628,6 +2628,7 @@ ssgEntity *ssgLoadOBJ  ( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadMD2  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadMDL  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadBGL  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadBGLBatch  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadX    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadFLT  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadM    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
