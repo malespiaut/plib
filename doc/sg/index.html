@@ -904,12 +904,18 @@ class sgParticle
   void   setPos      ( sgVec3 p ) ;
   void   setVel      ( sgVec3 v ) ;
   void   setForce    ( sgVec3 f ) ;
+
+  void   setPos      ( float x, float y, float z ) ;
+  void   setVel      ( float x, float y, float z ) ;
+  void   setForce    ( float x, float y, float z ) ;
+
   void   setMass     ( float  m ) ;
  
   void zeroForce   ()           ;
   void addForce    ( sgVec3 f ) ;
   void gravityOnly ()           ;
- 
+
+  void bounce ( sgVec3 normal, float coefRestitution ) ; 
   void update ( float dt ) ;
 } ;
 
@@ -983,6 +989,12 @@ Each frame...
 
    <li> For each particle: Update it's velocity and position: <code>particle -> update ( dt )</code>
       (where 'dt' is the elapsed time since the previous frame).
+   <li> If the particle collided with something, then you can adjust
+        it's velocity using:
+        <code>sgParticle::bounce ( sgVec3 normal, float coefRestitution )</code>
+        (Where 'normal' is the surface normal of the plane we hit and
+         'coefRestitution' is 1.0 for perfectly elastic surfaces, 0.0 for
+         ultra-sticky surfaces...or somewhere in between).
 </ul>
 As always with these systems, if you set the spring stiffness too high, or the
 damping coefficient too low, these equations will tend to <b>explode</b> - generating
