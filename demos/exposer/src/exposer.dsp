@@ -113,7 +113,7 @@ SOURCE=.\exposer.cxx
 
 SOURCE=.\exposer.h
 # End Source File
-# End Target
+# Begin Source File
 
 SOURCE=.\floor.cxx
 # End Source File
@@ -153,6 +153,5 @@ SOURCE=.\vertices.cxx
 
 SOURCE=.\vertices.h
 # End Source File
-# Begin Source File
-
+# End Target
 # End Project
