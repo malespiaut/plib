@@ -2,50 +2,69 @@
 
 #define MODE_ADD      0
 #define MODE_SELECT   1
- 
-int    event_mode = MODE_SELECT ;                                               
-
-#define TIMEBOX_INITIAL_DURATION   10.0f   /* Seconds */
-
-float timebox_maxtime = TIMEBOX_INITIAL_DURATION ;
-float timebox_scale   = 1.0f ;
-float timebox_start   = 0.0f ;
 
 #define TIMEBOX_LEFT   230.0f
 #define TIMEBOX_RIGHT  790.0f
 #define TIMEBOX_TOP    100.0f
 #define TIMEBOX_BOTTOM  10.0f
 #define TIMEBOX_WIDTH  (TIMEBOX_RIGHT-TIMEBOX_LEFT)
-#define TIMEBOX_SECOND (timebox_scale * TIMEBOX_WIDTH / timebox_maxtime)
+#define TIMEBOX_INITIAL_DURATION   10.0f   /* Seconds */
 
-float lcursor = 0.0f ;
-float rcursor = 0.0f ;
+/* GUI callback functions. */
 
-puSlider *timescroller ;
-puGroup  *vcr          ;
-puInput  *ground_speed ;
+void vcr_fastReverse ( puObject *ob )
+{
+  TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
+  timebox -> setVCRReplaySpeed (-3.0f);
+}
 
-float vcr_replay_speed    = 0.0f ;
-float vcr_ground_speed    = 0.0f ;
-float vcr_ground_position = 0.0f ;
+void vcr_reverse ( puObject *ob )
+{
+  TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
+  timebox -> setVCRReplaySpeed (-1.0f);
+}
 
-float getCursor () { return lcursor ; }
-float getMaxTime () { return timebox_maxtime ; }
-void  setMaxTime ( float t ) { timebox_maxtime = t ; }
-float getVCRGroundSpeed () { return vcr_ground_speed ; }
-void  setVCRGroundSpeed ( float t ) { vcr_ground_speed = t ; ground_speed -> setValue ( vcr_ground_speed ) ; }
+void vcr_stop ( puObject *ob )
+{
+  TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
+  timebox -> setVCRReplaySpeed ( 0.0f);
+}
 
-float getVCRGroundPosition () { return vcr_ground_position ; }
-void  setVCRGroundPosition ( float t ) { vcr_ground_position = t ; }
+void vcr_play ( puObject *ob )
+{
+  TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
+  timebox -> setVCRReplaySpeed ( 1.0f);
+}
 
-void vcr_fastReverse ( puObject * ) { vcr_replay_speed = -3.0f ; setCurrentEvent(NULL);}
-void vcr_reverse     ( puObject * ) { vcr_replay_speed = -1.0f ; setCurrentEvent(NULL);}
-void vcr_stop        ( puObject * ) { vcr_replay_speed =  0.0f ; }
-void vcr_play        ( puObject * ) { vcr_replay_speed =  1.0f ; setCurrentEvent(NULL);}
-void vcr_fastPlay    ( puObject * ) { vcr_replay_speed =  3.0f ; setCurrentEvent(NULL);}
-void vcr_groundSpeed ( puObject *me ) { vcr_ground_speed = me->getFloatValue() ; }
+void vcr_fastPlay ( puObject *ob )
+{
+  TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
+  timebox -> setVCRReplaySpeed ( 3.0f);
+}
 
-void reverseRegionCB (puObject *)
+void vcr_groundSpeed ( puObject *ob )
+{
+  TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
+  timebox -> setVCRGroundSpeed ( ob -> getFloatValue () ) ;
+}                                                              
+
+void timescrollerCB ( puObject *ob )
+{
+  TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
+
+  timebox -> setScroll ( ob -> getFloatValue () *
+                        ( timebox -> getMaxTime() -
+                        TIMEBOX_WIDTH / timebox -> second () ) ) ;
+}
+
+
+float TimeBox::second ()
+{
+  return timebox_scale * TIMEBOX_WIDTH / timebox_maxtime ;
+}
+
+
+void TimeBox::reverseRegion ()
 {
   int nevents = 0 ;
   int i ;
@@ -109,7 +128,7 @@ void reverseRegionCB (puObject *)
 }
 
 
-void deleteAll ()
+void TimeBox::deleteAll ()
 {
   while ( getNumEvents() > 0 )
   {
@@ -123,7 +142,8 @@ void deleteAll ()
 }
 
 
-void deleteRegionCB (puObject *)
+
+void TimeBox::deleteRegion ()
 {
   int found_one = FALSE ;
 
@@ -152,40 +172,9 @@ void deleteRegionCB (puObject *)
 }
 
 
-void zoom_nrm_CB ( puObject * )
+void TimeBox::deleteRegionAndCompress ()
 {
-  timebox_scale  = 1.0 ;
-  timescroller -> hide () ;
-}
-
-void zoom_in_CB  ( puObject * )
-{
-  timebox_scale *= 1.5 ;
-  timescroller -> reveal () ;
-}
-
-void zoom_out_CB ( puObject * )
-{
-  timebox_scale /= 1.5 ;
-
-  if ( timebox_scale <= 1.0f )
-  {
-    timebox_scale = 1.0f ;
-    timescroller -> hide () ;
-  }
-  else
-    timescroller -> reveal () ;
-}
-
-
-void add_1_CB ( puObject * ) { timebox_maxtime += 1.0f ; }
-void add_2_CB ( puObject * ) { timebox_maxtime += 2.0f ; }
-void add_5_CB ( puObject * ) { timebox_maxtime += 5.0f ; }
-
-
-void deleteRegionAndCompressCB ( puObject *me )
-{
-  deleteRegionCB ( me ) ;
+  deleteRegion () ;
 
   for ( int i = 0 ; i < getNumEvents() ; i++ )
   {
@@ -208,7 +197,8 @@ void deleteRegionAndCompressCB ( puObject *me )
 }
 
 
-void deleteEventCB (puObject *)
+
+void TimeBox::deleteEvent ()
 {
   if ( getCurrentEvent() == NULL )
     return ;
@@ -221,7 +211,8 @@ void deleteEventCB (puObject *)
 }
 
 
-void addNewEventCB (puObject *)
+
+void TimeBox::addNewEvent ()
 {
   if ( getNumBones() <= 0 )
     return ;
@@ -231,14 +222,7 @@ void addNewEventCB (puObject *)
 }
 
 
-void timescrollerCB ( puObject *ob )
-{
-  timebox_start = ob -> getFloatValue () *
-                     ( timebox_maxtime - TIMEBOX_WIDTH / TIMEBOX_SECOND ) ;
-}
-
-
-void updateVCR ()
+void TimeBox::updateVCR ()
 {
   static ulClock timer ;
 
@@ -260,7 +244,7 @@ void updateVCR ()
   vcr_ground_position = lcursor * vcr_ground_speed ;
 }
 
-void drawTimeBox ()
+void TimeBox::draw ()
 {
   int w = puGetWindowWidth  () ;
   int h = puGetWindowHeight () ;
@@ -290,14 +274,14 @@ void drawTimeBox ()
   glVertex2f ( TIMEBOX_LEFT , TIMEBOX_TOP    ) ;
   glEnd   () ;
 
-  int nseconds = (int)floor(TIMEBOX_WIDTH / TIMEBOX_SECOND) ;
-  int ntenthseconds = (int)floor(TIMEBOX_WIDTH*10.0f / TIMEBOX_SECOND) ;
+  int nseconds = (int)floor(TIMEBOX_WIDTH / second () ) ;
+  int ntenthseconds = (int)floor(TIMEBOX_WIDTH*10.0f / second () ) ;
   int tenthsecondoffset = (int)( (timebox_start*10.0f -
                                   floor(timebox_start*10.0f)) 
-                                     * TIMEBOX_SECOND / 10.0f ) ;
+                                     * second ()  / 10.0f ) ;
   int secondoffset = (int)( (timebox_start -
                              floor(timebox_start))
-                                     * TIMEBOX_SECOND ) ;
+                                     * second ()  ) ;
   int i ;
 
   glBegin ( GL_LINES ) ;
@@ -305,7 +289,7 @@ void drawTimeBox ()
   for ( i = 0 ; i < ntenthseconds ; i++ )
   {
     float x = TIMEBOX_LEFT + tenthsecondoffset +
-                                 (float) i * TIMEBOX_SECOND / 10.0f ;
+                                 (float) i * second ()  / 10.0f ;
 
     glVertex2f ( x, TIMEBOX_BOTTOM ) ;
     glVertex2f ( x, TIMEBOX_TOP/3.0f ) ;
@@ -314,7 +298,7 @@ void drawTimeBox ()
   for ( i = 0 ; i < nseconds ; i++ )
   {
     float x = TIMEBOX_LEFT + secondoffset +
-                                 (float) i * TIMEBOX_SECOND ;
+                                 (float) i * second ()  ;
 
     glVertex2f ( x, TIMEBOX_BOTTOM ) ;
     glVertex2f ( x, TIMEBOX_TOP/2.0f ) ;
@@ -322,8 +306,8 @@ void drawTimeBox ()
 
   glEnd () ;
 
-  float tlcursor = ( lcursor - timebox_start ) * TIMEBOX_SECOND ;
-  float trcursor = ( rcursor - timebox_start ) * TIMEBOX_SECOND ;
+  float tlcursor = ( lcursor - timebox_start ) * second ()  ;
+  float trcursor = ( rcursor - timebox_start ) * second ()  ;
 
   tlcursor = (tlcursor <      0.0f    ) ? 0.0f :
              (tlcursor > TIMEBOX_WIDTH) ? TIMEBOX_WIDTH : tlcursor ;
@@ -366,7 +350,7 @@ void drawTimeBox ()
   {
     t = getEvent(i) -> getTime () ;
 
-    t = ( t - timebox_start ) * TIMEBOX_SECOND ;
+    t = ( t - timebox_start ) * second ()  ;
 
     if ( t >= 0.0f && t <= TIMEBOX_WIDTH )
     {
@@ -380,7 +364,7 @@ void drawTimeBox ()
   {
     t = getCurrentEvent() -> getTime () ;
 
-    t = ( t - timebox_start ) * TIMEBOX_SECOND ;
+    t = ( t - timebox_start ) * second ()  ;
 
     if ( t >= 0.0f && t <= TIMEBOX_WIDTH )
     {
@@ -408,7 +392,7 @@ void drawTimeBox ()
 
 
  
-void updateEventQueue ( int button, int x, int y, int new_click )
+void TimeBox::updateEventQueue ( int button, int x, int y, int new_click )
 {
   y = puGetWindowHeight () - y ;  
 
@@ -425,7 +409,7 @@ void updateEventQueue ( int button, int x, int y, int new_click )
     if ( c < 0.0f ) c = 0.0f ;
     if ( c > TIMEBOX_WIDTH ) c = TIMEBOX_WIDTH ;
 
-    c /= TIMEBOX_SECOND ;
+    c /= second ()  ;
     c += timebox_start ;
 
     if ( button == PU_RIGHT_BUTTON )
@@ -437,7 +421,7 @@ void updateEventQueue ( int button, int x, int y, int new_click )
 
       if ( new_click )
       {
-        Event *ev = findNearestEvent ( lcursor, 10.0f / TIMEBOX_SECOND ) ;
+        Event *ev = findNearestEvent ( lcursor, 10.0f / second () ) ;
    
         if ( event_mode == MODE_ADD && getNumBones() > 0 )
         {
@@ -460,39 +444,59 @@ void updateEventQueue ( int button, int x, int y, int new_click )
 }
 
 
-void initTimeBox ()
+void TimeBox::init ()
 {
+  event_mode = MODE_SELECT ;                                               
+
+  timebox_maxtime = TIMEBOX_INITIAL_DURATION ;
+  timebox_scale   = 1.0f ;
+  timebox_start   = 0.0f ;
+
+  lcursor = 0.0f ;
+  rcursor = 0.0f ;
+
+  vcr_replay_speed    = 0.0f ;
+  vcr_ground_speed    = 0.0f ;
+  vcr_ground_position = 0.0f ;
+
   timescroller =  new puSlider  ( TIMEBOX_LEFT, TIMEBOX_TOP+5,
                                   570-TIMEBOX_LEFT, FALSE ) ;
   timescroller -> setCBMode     ( PUSLIDER_DELTA   ) ;
   timescroller -> setDelta      ( 0.01             ) ;
   timescroller -> setCallback   ( timescrollerCB   ) ;
+  timescroller -> setUserData   ( this             ) ;
   timescroller -> hide () ; 
 
-  vcr = new puGroup ( 579, TIMEBOX_TOP + 5 ) ;
- 
+  puText    *message ;
   puOneShot *oneshot ;
+  puGroup   *vcr = new puGroup ( 579, TIMEBOX_TOP + 5 ) ;
  
   oneshot = new puArrowButton (  0, 0, 30, 30, PUARROW_FASTLEFT  ) ;
   oneshot -> setCallback ( vcr_fastReverse ) ;
+  oneshot -> setUserData ( this ) ;
   oneshot = new puArrowButton ( 30, 0, 60, 30, PUARROW_LEFT      ) ;
   oneshot -> setCallback ( vcr_reverse ) ;
+  oneshot -> setUserData ( this ) ;
   oneshot = new puArrowButton ( 60, 0, 90, 30, PUARROW_DOWN      ) ;
   oneshot -> setCallback ( vcr_stop ) ;
+  oneshot -> setUserData ( this ) ;
   oneshot = new puArrowButton ( 90, 0,120, 30, PUARROW_RIGHT     ) ;
   oneshot -> setCallback ( vcr_play ) ;
+  oneshot -> setUserData ( this ) ;
   oneshot = new puArrowButton (120, 0,150, 30, PUARROW_FASTRIGHT ) ;
   oneshot -> setCallback ( vcr_fastPlay ) ;
+  oneshot -> setUserData ( this ) ;
  
   ground_speed = new puInput ( 150, 0, 200, 20 ) ;
   ground_speed -> setCallback ( vcr_groundSpeed ) ;
   ground_speed -> setValue ( "0.0" ) ;
+  oneshot -> setUserData ( this ) ;
  
-  puText *message ;
   message = new puText ( 150, 20 ) ;
   message -> setColour ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
   message -> setLabel  ( "GrndSpeed"  ) ;
 
   vcr -> close () ;
 }
+
 
