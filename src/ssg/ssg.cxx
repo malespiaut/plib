@@ -148,7 +148,7 @@ void ssgInit ()
   ssgAddModelFormat ( ".iv",    ssgLoadIV   , ssgSaveIV  ) ;
   ssgAddModelFormat ( ".asc",   ssgLoadASC  , ssgSaveASC ) ;
 //ssgAddModelFormat ( ".pov",   NULL        , ssgSavePOV ) ;
-	
+  
 
 #ifdef SSG_LOAD_MDL_SUPPORTED
   ssgAddModelFormat ( ".mdl",   ssgLoadMDL  , NULL       ) ;
@@ -357,7 +357,8 @@ static ssgBase *createBranch ()            { return new ssgBranch           ; }
 //static ssgBase *createBaseTransform ()     { return new ssgBaseTransform    ; }
 static ssgBase *createTransform ()         { return new ssgTransform        ; }
 static ssgBase *createTexTrans ()          { return new ssgTexTrans         ; }
-static ssgBase *createAxisTransform()      { return new ssgAxisTransform; }
+static ssgBase *createAnimTransform()      { return new ssgAnimTransform    ; }
+static ssgBase *createAxisTransform()      { return new ssgAxisTransform    ; }
 static ssgBase *createSelector ()          { return new ssgSelector         ; }
 static ssgBase *createRangeSelector ()     { return new ssgRangeSelector    ; }
 static ssgBase *createTimedSelector ()     { return new ssgTimedSelector    ; }
@@ -400,9 +401,10 @@ static struct {
   { ssgTypeBranch ()            , createBranch            },
 //{ ssgTypeBaseTransform ()     , createBaseTransform     },
   { ssgTypeTransform ()         , createTransform         },
+  { ssgTypeAnimTransform ()     , createAnimTransform     },
   { ssgTypeTexTrans ()          , createTexTrans          },
-	{ ssgTypeAxisTransform ()     , createAxisTransform     },
-	{ ssgTypeSelector ()          , createSelector          },
+  { ssgTypeAxisTransform ()     , createAxisTransform     },
+  { ssgTypeSelector ()          , createSelector          },
   { ssgTypeRangeSelector ()     , createRangeSelector     },
   { ssgTypeTimedSelector ()     , createTimedSelector     },
   { ssgTypeTweenController ()   , createTweenController   },
@@ -434,7 +436,7 @@ void ssgRegisterType ( int type, ssgBase * ( *func ) () )
   if ( type == 0 || func == NULL ) 
   {
     ulSetError ( UL_WARNING, "ssgRegisterType: Bad arguments (type %#x, func %p).",
-		 type, func ) ;
+     type, func ) ;
     return ;
   }
 
@@ -469,8 +471,8 @@ ssgBase *ssgCreateOfType ( int type )
     ulSetError ( UL_WARNING, "ssgCreateOfType: Got null object for type %#x.", type ) ;
   else if ( obj -> getType () != type )
     ulSetError ( UL_WARNING,
-		 "ssgCreateOfType: Created object has wrong type %#x (%s), expected %#x.",
-		 obj -> getType (), obj -> getTypeName (), type ) ;
+     "ssgCreateOfType: Created object has wrong type %#x (%s), expected %#x.",
+     obj -> getType (), obj -> getTypeName (), type ) ;
 
   return obj ;
 }

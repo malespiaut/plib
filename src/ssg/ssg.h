@@ -99,6 +99,7 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 #define _SSG_TYPE_TRANSFORM        0x00001000
 #define _SSG_TYPE_TEXTRANS         0x00002000
 #define _SSG_TYPE_AXISTRANSFORM    0x00004000
+#define _SSG_TYPE_ANIMTRANSFORM    0x00008000
 #define _SSG_TYPE_SELECTOR         0x00000100
 #define _SSG_TYPE_RANGESELECTOR    0x00001000
 #define _SSG_TYPE_TIMEDSELECTOR    0x00002000
@@ -142,6 +143,7 @@ inline int ssgTypeBranch       () { return _SSG_TYPE_BRANCH    | ssgTypeEntity  
 inline int ssgTypeTweenController(){ return _SSG_TYPE_TWEENCONTROLLER | ssgTypeBranch() ; }
 inline int ssgTypeBaseTransform() { return _SSG_TYPE_BASETRANSFORM | ssgTypeBranch () ; }
 inline int ssgTypeTransform    () { return _SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
+inline int ssgTypeAnimTransform() { return _SSG_TYPE_ANIMTRANSFORM  | ssgTypeTransform () ; }
 inline int ssgTypeTexTrans     () { return _SSG_TYPE_TEXTRANS  | ssgTypeBaseTransform () ; }
 inline int ssgTypeAxisTransform() { return _SSG_TYPE_AXISTRANSFORM  | ssgTypeTransform () ; }
 inline int ssgTypeSelector     () { return _SSG_TYPE_SELECTOR  | ssgTypeBranch  () ; }
@@ -1302,6 +1304,7 @@ extern sgVec4 _ssgColourWhite ;
 extern sgVec3 _ssgNormalUp    ;
 extern sgVec2 _ssgTexCoord00  ;
 extern short  _ssgIndex0      ;
+extern float _ssgGlobTime     ; // used by ssgAnimTransform. Has to be set by the appliation!
 
 
 class ssgVTable : public ssgLeaf
@@ -2045,6 +2048,39 @@ public:
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void recalcBSphere () ;
+} ;
+
+class ssgAnimTransform  : public ssgTransform 
+{
+  float curr_bank ;
+  int   mode ;  /* SSGTWEEN_STOP_AT_END or SSGTWEEN_REPEAT */
+  class ssgTransformArray transformations;
+
+protected:
+
+  virtual void copy_from ( ssgAnimTransform *src, int clone_flags ) ;
+
+public:
+
+  void setNum ( unsigned int n ) { transformations.setNum( n ); }
+  void setATransform ( sgMat4 thing, unsigned int n ) { transformations.raw_set ( (char *) thing, n ) ; } ;
+  
+
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
+  ssgAnimTransform (void) ;
+  virtual ~ssgAnimTransform (void) ;
+
+  void  setMode ( int _mode ) { mode = _mode ; }
+  int   getMode ()            { return mode ; }
+
+  void  selectBank ( float f ) { curr_bank = f ; }
+  float getCurrBank () { return curr_bank ; }
+
+  virtual void cull ( sgFrustum *f, sgMat4 m, int test_needed ) ;
+  virtual const char *getTypeName(void) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual int load ( FILE *fd ) ;
+  virtual int save ( FILE *fd ) ;
 } ;
 
 
