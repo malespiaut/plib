@@ -4,6 +4,8 @@ void wibble ()
   hello () ;
 }
 
+float x ;
+
 void main ()
 {
   x = 0 ;

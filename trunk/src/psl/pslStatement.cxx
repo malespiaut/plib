@@ -230,6 +230,12 @@ int PSL_Parser::pushStatement ()
 
   getToken ( c ) ;
 
+  if ( strcmp ( c, "static" ) == 0 )
+    return pushStaticVariableDeclaration () ;
+
+  if ( strcmp ( c, "float" ) == 0 )
+    return pushLocalVariableDeclaration () ;
+
   if ( strcmp ( c, "return" ) == 0 )
     return pushReturnStatement () ;
 
@@ -278,7 +284,7 @@ void PSL_Parser::pushProgram ()
 
     ungetToken ( c ) ;
 
-    pushFunction () ;
+    pushGlobalDeclaration () ;
   }
 
   int main_addr = getCodeSymbol ( "main" ) ;
@@ -289,13 +295,64 @@ void PSL_Parser::pushProgram ()
 
 
 
+int PSL_Parser::pushLocalVariableDeclaration ()
+{
+  ulSetError ( UL_WARNING,
+       "PSL: Local Variables are Not Supported Yet." ) ;
+  return FALSE ;
+}
 
-int PSL_Parser::pushFunction ()
+
+
+int PSL_Parser::pushStaticVariableDeclaration ()
+{
+  ulSetError ( UL_WARNING,
+       "PSL: Local Variables are Not Supported Yet." ) ;
+  return FALSE ;
+}
+
+
+
+int PSL_Parser::pushGlobalVariableDeclaration ( char *s )
+{
+  char c  [ MAX_TOKEN ] ;
+
+  setVarSymbol ( s ) ;
+
+  getToken ( c ) ;
+
+  if ( c[0] == '=' )
+  {
+    ungetToken ( c ) ;
+    pushAssignmentStatement ( s ) ;
+    getToken ( c ) ;
+  }
+ 
+  if ( c[0] != ';' )
+  {
+    ulSetError ( UL_WARNING,
+         "PSL: Missing ';' after declaration of '%s'", s ) ;
+    return FALSE ;
+  }
+
+  return TRUE ;
+}
+
+
+
+int PSL_Parser::pushGlobalDeclaration ()
 {
   char c  [ MAX_TOKEN ] ;
   char fn [ MAX_TOKEN ] ;
 
   getToken ( c ) ;
+
+  if ( strcmp ( c, "static" ) == 0 ||
+       strcmp ( c, "extern" ) == 0 )
+  {
+    /* Something complicated should probably happen here! */
+    getToken ( c ) ;
+  }
 
   if ( ! (strcmp ( c, "void"  ) == 0) &&
        ! (strcmp ( c, "float" ) == 0) )
@@ -306,6 +363,30 @@ int PSL_Parser::pushFunction ()
   }
 
   getToken ( fn ) ;
+
+  getToken ( c ) ;
+
+  if ( c[0] == '(' )
+  {
+    ungetToken ( c ) ;
+    return pushFunctionDeclaration ( fn ) ;
+  }
+
+  if ( c[0] == '=' || c[0] == ';' )
+  {
+    ungetToken ( c ) ;
+    return pushGlobalVariableDeclaration ( fn ) ;
+  }
+
+  ulSetError ( UL_WARNING,
+     "PSL: Expected a declaration of a variable or function - but got '%s'", c);
+  return FALSE ;
+}
+
+
+int PSL_Parser::pushFunctionDeclaration ( char *fn )
+{
+  char c  [ MAX_TOKEN ] ;
 
   setCodeSymbol ( fn, next_code ) ;
 
@@ -343,6 +424,7 @@ int PSL_Parser::pushFunction ()
 
   pushConstant ( "0.0" ) ;
   pushReturn   () ;
+  return TRUE ;
 }
 
 
