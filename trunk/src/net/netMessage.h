@@ -19,6 +19,8 @@
 
 #include "netBuffer.h"
 
+#include <netinet/in.h> // ntohs() etc prototypes
+
 
 class netGuid //Globally Unique IDentifier
 {
