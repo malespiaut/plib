@@ -12,41 +12,37 @@ cd /home/groups/plib/htdocs
 
 echo handling "sg"
 rm -R sg
-cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d sg plib/doc/sg 
-#>/dev/null 2>&1 
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d sg plib/doc/sg >/dev/null 2>&1 
 
 echo handling "ssg"
 rm -R ssg
-cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d ssg plib/doc/ssg 
-#>/dev/null 2>&1 
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d ssg plib/doc/ssg >/dev/null 2>&1 
 
 echo handling "sl"
 rm -R sl
-cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d sl plib/doc/sl 
-#>/dev/null 2>&1 
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d sl plib/doc/sl >/dev/null 2>&1 
 
 echo handling "js"
 rm -R js
-cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d js plib/doc/js 
-#>/dev/null 2>&1 
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d js plib/doc/js >/dev/null 2>&1 
 
 echo handling "fnt"
 rm -R fnt
-cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d fnt plib/doc/fnt 
-#>/dev/null 2>&1 
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d fnt plib/doc/fnt >/dev/null 2>&1 
 
-echo handling "ssgaux"
-rm -R ssgaux
-cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d ssgaux plib/doc/ssgaux 
-#>/dev/null 2>&1 
+echo handling "ssgAux"
+rm -R ssgAux
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d ssgAux plib/doc/ssgAux >/dev/null 2>&1 
 
 echo handling "util"
 rm -R util
-cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/util 
-#>/dev/null 2>&1 
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/util >/dev/null 2>&1 
 
 echo done.
 
  
 
  
+
+
+
