@@ -48,3 +48,67 @@ int ssgTexture::save ( FILE *fd )
   return ssgBase::save ( fd ) ;
 }
 
+extern void make_mip_maps ( GLubyte *image, int xsize, int ysize, int zsize );
+
+void ssgTexture::setDefaultGlParams(int wrapu, int wrapv, int mipmap)
+{
+	  glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ) ;
+
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+		    mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapu ? GL_REPEAT : GL_CLAMP ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapv ? GL_REPEAT : GL_CLAMP ) ;
+#ifdef GL_VERSION_1_1
+  glBindTexture ( GL_TEXTURE_2D, 0 ) ;
+#else
+  glBindTextureEXT ( GL_TEXTURE_2D, 0 ) ;
+#endif
+}
+
+
+ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize, int zsize, 
+		     int wrapu, int wrapv )
+// fname is used when saving the ssgSimpleState to disc.
+// If there is no associated file, you can use a dummy name.
+{
+#ifdef GL_VERSION_1_1
+  glGenTextures ( 1, & handle ) ;
+  glBindTexture ( GL_TEXTURE_2D, handle ) ;
+#else
+  /* This is only useful on some ancient SGI hardware */
+  glGenTexturesEXT ( 1, & handle ) ;
+  glBindTextureEXT ( GL_TEXTURE_2D, handle ) ;
+#endif
+
+  filename = NULL ;
+	filename_from_model = NULL;
+  setFilename ( fname ) ;
+	
+  //ssgLoadTexture( getFilename() ) ;
+	make_mip_maps ( image, xsize, ysize, zsize );
+	setDefaultGlParams(wrapu, wrapv, TRUE);
+}
+
+
+
+
+ssgTexture::ssgTexture ( const char *fname, int wrapu, int wrapv,
+	     int mipmap )
+{
+#ifdef GL_VERSION_1_1
+  glGenTextures ( 1, & handle ) ;
+  glBindTexture ( GL_TEXTURE_2D, handle ) ;
+#else
+  /* This is only useful on some ancient SGI hardware */
+  glGenTexturesEXT ( 1, & handle ) ;
+  glBindTextureEXT ( GL_TEXTURE_2D, handle ) ;
+#endif
+
+  filename = NULL ;
+	filename_from_model = NULL;
+  setFilename ( fname ) ;
+	
+  ssgLoadTexture( getFilename() ) ;
+	setDefaultGlParams(wrapu, wrapv, mipmap);
+}
