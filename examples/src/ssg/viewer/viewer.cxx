@@ -252,7 +252,7 @@ void display(void)
   increment the frame counter
   */
   static int last_time = 0;
-  int curr_time = glutGet(GLUT_ELAPSED_TIME);
+  int curr_time = glutGet((GLenum)GLUT_ELAPSED_TIME);
   while (curr_time >= last_time + 1000/60)
   {
     last_time += 1000/60;

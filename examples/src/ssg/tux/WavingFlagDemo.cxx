@@ -37,7 +37,7 @@ void keyboard ( unsigned char, int, int )
 void idle ()
 {
   static int lastTime = 0;
-  int time = glutGet(GLUT_ELAPSED_TIME);
+  int time = glutGet((GLenum)GLUT_ELAPSED_TIME);
   if (time != lastTime) {
     lastTime = time;
     flagTime += 0.02f ;
