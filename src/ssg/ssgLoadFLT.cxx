@@ -1313,7 +1313,7 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
 	    t = 0;
 	    if (index != -1) {
 	       state->texs = t = splay(state->texs, (void *)index, ptrcmp);
-	       if (t == 0 || (int)t->key != index) {
+	       if (t == 0 || t->key != (void *)index) {
 		  /*fprintf(stderr, "[flt] undefined texture %d\n", index);*/
 		  t = 0;
 	       }
@@ -1386,7 +1386,7 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
 	       else {
 		  index = get16i(ptr + 30); /* material index */
 		  state->mtls = t = splay(state->mtls, (void *)index, ptrcmp);
-		  if (t && (int)t->key == index) {
+		  if (t && t->key == (void *)index) {
 		     info.mtl = (float *)t->data;
 		  }
 		  else {
@@ -2167,7 +2167,7 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
          PostLink(stack + sp - 1, attr + sp - 1);	 
          if (state->refs) {
 	    state->refs = splay(state->refs, (void *)k, ptrcmp);
-	    if ((int)state->refs->key == k)
+	    if (state->refs->key == (void *)k)
 	       stack[sp] = (ssgEntity *)state->refs->data;
 	 }
          ptr += len;
