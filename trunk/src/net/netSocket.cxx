@@ -45,6 +45,10 @@
 
 #endif
 
+#if !defined(STDC_HEADERS) && !defined(socklen_t)
+#define socklen_t int
+#endif
+
 /* Paul Wiltsey says we need this for Solaris 2.8 */
  
 #ifndef INADDR_NONE
