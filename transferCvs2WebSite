@@ -38,6 +38,14 @@ echo handling "util"
 rm -R util
 cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/util >/dev/null 2>&1 
 
+chmod -R u=rwX,g=rwX,o=rX /home/groups/plib/htdocs/sg
+chmod -R u=rwX,g=rwX,o=rX /home/groups/plib/htdocs/ssg
+chmod -R u=rwX,g=rwX,o=rX /home/groups/plib/htdocs/sl
+chmod -R u=rwX,g=rwX,o=rX /home/groups/plib/htdocs/js
+chmod -R u=rwX,g=rwX,o=rX /home/groups/plib/htdocs/fnt
+chmod -R u=rwX,g=rwX,o=rX /home/groups/plib/htdocs/ssgAux
+chmod -R u=rwX,g=rwX,o=rX /home/groups/plib/htdocs/util
+
 echo done.
 
  
