@@ -411,7 +411,7 @@ void AddLeafToTriangles(ssgVtxArray *pSrc , ssgVtxArray *pDest)
 		{ float * pfDest = pDest->getVertex(iDest);
 #define MYABS(x) ((x>0)?(x):(-(x)))
 			if (MYABS(pfSrc[0]-pfDest[0])+MYABS(pfSrc[1]-pfDest[1])+
-				  MYABS(pfSrc[2]-pfDest[2]) < 0.0001 /* kludge * /)
+				  MYABS(pfSrc[2]-pfDest[2]) < 0.0001)
 			{ bFound = TRUE;
 			  aiOld2NewIndex[iSrc] = iDest;
 			}
@@ -424,17 +424,14 @@ void AddLeafToTriangles(ssgVtxArray *pSrc , ssgVtxArray *pDest)
 				pDest->normals->add(f);
 			else
 			{	
-				float *f = new sgVec3();
-			  f[0] = 0; f[1] = 0; f[2]=0;
-				pDest->normals->add(f);
+				pDest->normals->add(_ssgNormalUp);
 			}
 			f = pSrc->getTexCoord(iSrc);
 			if (f)
 				pDest->texcoords->add(f);
 			else
-			{	float *f = new sgVec2();
-			  f[0] = 0; f[1] = 0;
-				pDest->texcoords->add(f);
+			{
+				pDest->texcoords->add(_ssgTexCoord00);
 			}
 	//	assert(pSrc->colours->getNum()==0);
 		}
@@ -622,7 +619,7 @@ int deltas[] = { 1 ,2 ,1 ,3 ,2 ,1 ,2 ,4 ,2 ,1 ,5 ,1 ,2 ,6 ,2 ,1 ,2 ,7 ,2 ,1 ,2 ,
               10 ,1 ,2 ,1 ,2 ,11 ,1 ,12 ,1 ,2 ,13 ,1 ,2 ,14 ,2 ,1 ,1 ,15 ,1 ,16 ,1 ,17 ,2 ,1 ,18 ,1 ,22 ,2 ,25 ,
 							2 ,1 ,30 ,2 ,1 ,2 ,1 ,13 ,2 ,1 ,2 ,1 };
 	noOfMergedNodes = 0;
-	for(int i=0; i < sizeof(deltas)/sizeof(int); i++)
+	for(unsigned i=0; i < sizeof(deltas)/sizeof(int); i++)
 	{
 		recursiveMergeHNodes ( this, deltas[i] );
 #ifdef VERBOSE
