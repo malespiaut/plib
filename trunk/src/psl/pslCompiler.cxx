@@ -207,22 +207,29 @@ int pslParser::pushCompoundStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
+  pushLocality () ;
+
   while ( pushStatement () )
   {
     pslGetToken ( c ) ;
 
     if ( c[0] != ';' )
+    {
+      popLocality () ;
       return FALSE ;
+    }
   }
 
   pslGetToken ( c ) ;
 
   if ( c[0] == '}' )
   {
+    popLocality () ;
     pslUngetToken ( ";" ) ;
     return TRUE ;
   }
 
+  popLocality () ;
   pslUngetToken ( c ) ;
   return FALSE ;
 }
@@ -295,9 +302,24 @@ void pslParser::pushProgram ()
 
 int pslParser::pushLocalVariableDeclaration ()
 {
-  ulSetError ( UL_WARNING,
-       "PSL: Local Variables are Not Supported Yet." ) ;
-  return FALSE ;
+  char c  [ MAX_TOKEN ] ;
+  char s  [ MAX_TOKEN ] ;
+
+  pslGetToken ( s ) ;
+
+  setVarSymbol ( s ) ;
+
+  pslGetToken ( c ) ;
+
+  if ( c[0] == '=' )
+  {
+    pslUngetToken ( c ) ;
+    pushAssignmentStatement ( s ) ;
+    return TRUE ;
+  }
+ 
+  pslUngetToken ( c ) ;
+  return TRUE ;
 }
 
 

@@ -147,7 +147,7 @@ void pslParser::dump () const
   }
 
   printf ( "\n" ) ;
-  printf ( "Variables:\n" ) ;
+  printf ( "Global Variables:\n" ) ;
 
   for ( i = 0 ; i < MAX_SYMBOL ; i++ )
     if ( symtab [ i ] . symbol != NULL )
@@ -162,7 +162,7 @@ void pslParser::dump () const
     }
 
   printf ( "\n" ) ;
-  printf ( "Labels:\n" ) ;
+  printf ( "Functions:\n" ) ;
 
   for ( i = 0 ; i < MAX_SYMBOL ; i++ )
     if ( code_symtab [ i ] . symbol != NULL )

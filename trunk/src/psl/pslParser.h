@@ -80,12 +80,12 @@ class pslParser
 
   void print_opcode ( FILE *fd, unsigned char op ) const ;
 
-  pslAddress    getVarSymbol       ( const char *s ) ;
-  pslAddress    setVarSymbol       ( const char *s ) ;
+  pslAddress getVarSymbol       ( const char *s ) ;
+  pslAddress setVarSymbol       ( const char *s ) ;
 
-  pslAddress    getCodeSymbol      ( const char *s, pslAddress fixupLoc ) ;
-  void           setCodeSymbol      ( const char *s, pslAddress v ) ;
-  int            getExtensionSymbol ( const char *s ) ;
+  pslAddress getCodeSymbol      ( const char *s, pslAddress fixupLoc ) ;
+  void       setCodeSymbol      ( const char *s, pslAddress v ) ;
+  int        getExtensionSymbol ( const char *s ) ;
 
 private:
 
@@ -99,6 +99,9 @@ private:
   pslSymbol    code_symtab [ MAX_SYMBOL ] ;
   pslFwdRef    forward_ref [ MAX_SYMBOL ] ;
 
+  int locality_stack [ MAX_NESTING ] ;
+  int locality_sp ;
+
   pslOpcode    *code       ;
   pslContext   *context    ;
   pslExtension *extensions ;
@@ -106,6 +109,33 @@ private:
   void fixup ( const char *s, pslAddress v ) ;
   void addFwdRef ( const char *s, pslAddress where ) ;
   void checkUnresolvedSymbols () ;
+
+  void pushLocality ()
+  {
+    if ( locality_sp >= MAX_NESTING-1 )
+      ulSetError ( UL_WARNING, "PSL: Too many nested {}'s" ) ;
+    else
+      locality_stack [ locality_sp++ ] = next_var ;
+  }
+
+  void popLocality  ()
+  {
+    if ( locality_sp <= 0 )
+      ulSetError ( UL_FATAL, "PSL: Locality stack underflow !!" ) ;
+
+    /* Delete any local symbols */
+
+    for ( int i = locality_stack [ locality_sp-1 ] ;
+              i < next_var ; i++ )
+    {
+      delete symtab [ i ] . symbol ;
+      symtab [ i ] . symbol = NULL ;
+    }
+
+    /* Put the next_var pointer back where it belongs */
+
+    next_var = locality_stack [ --locality_sp ] ;
+  }
 
 public:
 
@@ -149,6 +179,7 @@ public:
       delete forward_ref [ i ] . symbol ; forward_ref [ i ] . symbol = NULL ;
     }
 
+    locality_sp = 0 ;
     next_fwdref = 0 ;
     next_label = 0 ;
     next_code_symbol = 0 ;

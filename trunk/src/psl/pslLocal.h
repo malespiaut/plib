@@ -37,12 +37,13 @@
 
 /* Limits */
 
-#define MAX_ARGS     16
-#define MAX_VARIABLE 16
-#define MAX_LABEL    16
-#define MAX_TOKEN   256 
-#define MAX_CODE    512
-#define MAX_STACK    32 
+#define MAX_ARGS      64
+#define MAX_VARIABLE 256
+#define MAX_LABEL    256
+#define MAX_TOKEN    256 
+#define MAX_CODE     512
+#define MAX_STACK    256 
+#define MAX_NESTING   32 
 #define MAX_SYMBOL  (MAX_VARIABLE + MAX_LABEL)
 
 /* Code Opcodes */
