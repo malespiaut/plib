@@ -120,7 +120,7 @@ void puValue::re_eval ( void )
       Do not modify the string value unless necessary
     */
     if ( *res_bool != ( strcmp ( string, "0" ) != 0 ) )
-      sprintf ( string, "%d", *res_bool ? "1" : "0" ) ;
+      sprintf ( string, "%d", *res_bool ? 1 : 0 ) ;
 
     puPostRefresh () ;
   }
