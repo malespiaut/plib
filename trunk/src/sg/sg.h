@@ -915,10 +915,11 @@ SGfloat sgAngleBetweenVec3 ( sgVec3 v1, sgVec3 v2, sgVec3 normal );
 
 class sgSphere
 {
+public:
   sgVec3  center ;
   SGfloat radius ;
   
-public:
+
   sgSphere () { empty () ; }
 
   const SGfloat *getCenter (void) const { return center ; }
@@ -966,10 +967,11 @@ public:
 
 class sgBox
 {
+public:
   sgVec3 min ;
   sgVec3 max ;
 
-public:
+
   sgBox () { empty () ; }
 
   const SGfloat *getMin (void) const { return min ; }
@@ -2248,10 +2250,10 @@ SGDfloat sgdAngleBetweenVec3 ( sgdVec3 v1, sgdVec3 v2, sgdVec3 normal );
 
 class sgdSphere
 {
+public:
   sgdVec3  center ;
   SGDfloat radius ;
 
-public:
 
   const SGDfloat *getCenter (void) const { return center ; }
 
@@ -2298,10 +2300,10 @@ public:
 
 class sgdBox
 {
+public:
   sgdVec3 min ;
   sgdVec3 max ;
 
-public:
 
   const SGDfloat *getMin (void) const { return min ; }
   const SGDfloat *getMax (void) const { return max ; }
