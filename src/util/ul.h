@@ -59,7 +59,7 @@ public:
 } ;
 
 
-void ulSleep ( int seconds )
+inline void ulSleep ( int seconds )
 {
 #ifdef WIN32
   Sleep ( 1000 * seconds ) ;
@@ -69,7 +69,7 @@ void ulSleep ( int seconds )
 }
 
 
-void ulMilliSecondSleep ( int milliseconds )
+inline void ulMilliSecondSleep ( int milliseconds )
 {
 #ifdef WIN32
   Sleep ( milliseconds ) ;
@@ -79,7 +79,12 @@ void ulMilliSecondSleep ( int milliseconds )
 }
 
 
-void ulInit ( void ) ;
+/*
+  This is extern C to enable 'configure.in' to
+  find it with a C-coded probe.
+*/
+
+extern "C" void ulInit () ;
 
 /*
   Error handler.

@@ -1,5 +1,5 @@
 
-#include "plib/js.h"
+#include <plib/js.h>
 
 int main ( int, char ** )
 {

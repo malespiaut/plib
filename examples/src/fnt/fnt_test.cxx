@@ -9,7 +9,7 @@
 #endif
 #include <math.h>
 #include <GL/glut.h>
-#include "plib/fnt.h"
+#include <plib/fnt.h>
 
 fntRenderer *text ;
 

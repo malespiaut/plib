@@ -9,7 +9,7 @@
 #endif
 #include <math.h>
 #include <GL/glut.h>
-#include "plib/pu.h"
+#include <plib/pu.h>
 
 #define VOODOO 1
 
