@@ -494,40 +494,18 @@ protected:
 
   virtual void copy_from ( ssgTexture *src, int clone_flags ) ;
   ssgTexture () ;
+	void setDefaultGlParams(int wrapu, int wrapv, int mipmap);
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
+
+	// This constructor loads the texture from file for you:
   ssgTexture ( const char *fname, int wrapu = TRUE, int wrapv = TRUE,
-	       int mipmap = TRUE )
-  {
-#ifdef GL_VERSION_1_1
-    glGenTextures ( 1, & handle ) ;
-    glBindTexture ( GL_TEXTURE_2D, handle ) ;
-#else
-    /* This is only useful on some ancient SGI hardware */
-    glGenTexturesEXT ( 1, & handle ) ;
-    glBindTextureEXT ( GL_TEXTURE_2D, handle ) ;
-#endif
+	       int mipmap = TRUE );
 
-    filename = NULL ;
-		filename_from_model = NULL;
-    setFilename ( fname ) ;
-		
-    ssgLoadTexture( getFilename() ) ;
-
-    glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ) ;
-
-    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ) ;
-    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-		      mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR ) ;
-    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapu ? GL_REPEAT : GL_CLAMP ) ;
-    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapv ? GL_REPEAT : GL_CLAMP ) ;
-#ifdef GL_VERSION_1_1
-    glBindTexture ( GL_TEXTURE_2D, 0 ) ;
-#else
-    glBindTextureEXT ( GL_TEXTURE_2D, 0 ) ;
-#endif
-  }
+  // use this constructor if you already have the texture in memory
+	ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize, int zsize, 
+		     int wrapu = TRUE, int wrapv = TRUE);
 
   GLuint getHandle () { return handle ; }
 
@@ -575,9 +553,9 @@ class ssgState : public ssgBase
   int external_property_index ;
 
 protected:
-  virtual void copy_from ( ssgState *src, int clone_flags ) ;
 
 public:
+  virtual void copy_from ( ssgState *src, int clone_flags ) ;
   ssgState (void) ;
   virtual ~ssgState (void) ;
 
@@ -606,8 +584,6 @@ _SSG_PUBLIC:
   int    enables   ; 
   GLuint texture_handle ;
   char  *filename  ;
-  int    wrapu ;
-  int    wrapv ;
   int    mipmap;
 
   int colour_material_mode ;
@@ -624,10 +600,10 @@ _SSG_PUBLIC:
   ssgSimpleState ( int I_am_current_state ) ;
 
 protected:
-  virtual void copy_from ( ssgSimpleState *src, int clone_flags ) ;
 
 public:
 
+  virtual void copy_from ( ssgSimpleState *src, int clone_flags ) ;
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgSimpleState (void) ;
   virtual ~ssgSimpleState (void) ;
@@ -749,8 +725,8 @@ public:
     alpha_clamp = clamp ;
   }
  
-  int  getWrapU(void) { return wrapu ; };
-  int  getWrapV(void) { return wrapv ; };
+	/*int getWrapU();
+  int getWrapV();*/
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
