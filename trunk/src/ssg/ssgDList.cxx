@@ -125,7 +125,8 @@ public:
 } ;
 
 
-#define MAX_DLIST   4096
+#define MAX_DLIST 8192  
+//4096
 //2048
 
 static int next_dlist = 0 ;
