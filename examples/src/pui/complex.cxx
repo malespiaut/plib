@@ -453,8 +453,10 @@ int main ( int argc, char **argv )
   tim = new fntTexFont ;
   hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
   tim -> load ( "../fnt/data/times_medium.txf" ) ;
-  puFont helvetica ( hel, 15 ) ;
-  puFont times_medium ( tim, 13 ) ;
+  
+#define ITALIC .3
+  puFont helvetica ( hel, 15, ITALIC ) ;
+  puFont times_medium ( tim, 13, ITALIC ) ;
   puSetDefaultFonts        ( helvetica, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
   puSetDefaultColourScheme ( 0.3, 0.4, 0.6, 1.0) ;
