@@ -532,6 +532,14 @@ static int parse_doublesided( unsigned int length ) {
 }
 
 static ssgSimpleState *get_state( _3dsMat *mat ) {
+
+  if ( mat -> name != NULL )
+  {
+    ssgSimpleState *st = current_options -> createSimpleState ( mat -> name ) ;
+    if ( st != NULL )
+      return st ;
+  }
+
   ssgSimpleState *st = new ssgSimpleState () ;
 
   st -> setName( mat -> name );

@@ -2399,6 +2399,22 @@ public:
       return (*create_state_cb)(tfname) ;
     return NULL ;
   }
+  virtual ssgSimpleState* createSimpleState ( char* tfname ) const
+  {
+    ssgState *st = createState ( tfname ) ;
+    if ( st != NULL )
+    {
+      if ( st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+      {
+        return (ssgSimpleState*) st ;
+      }
+      else
+      {
+        ulSetError(UL_WARNING, "createState() did not return simple state");
+      }
+    }
+    return NULL ;
+  }
 
   virtual void endLoad ()
   {

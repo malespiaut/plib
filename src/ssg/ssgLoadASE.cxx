@@ -250,6 +250,13 @@ static aseMaterial* find_material( u32 mat_index, u32 sub_index )
 
 static ssgSimpleState* make_state( aseMaterial* mat, bool prelit )
 {
+  if ( mat -> tfname  != NULL)
+  {
+    ssgSimpleState *st = current_options -> createSimpleState ( mat -> tfname ) ;
+    if ( st != NULL )
+      return st ;
+  }
+
   ssgSimpleState *st = new ssgSimpleState () ;
 
   bool has_alpha = false ;
