@@ -1,3 +1,5 @@
+include_HEADERS = plibconfig.h
+
 SUBDIRS = src
 
 EXTRA_DIST = KNOWN_BUGS NOTICE README README.win32 \
