@@ -1,4 +1,9 @@
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -57,6 +62,8 @@ int main ( int, char ** )
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
     pwSwapBuffers () ;
   }
+
+  return 0;
 }
 
 
