@@ -652,11 +652,12 @@ public:
     replaceEntity ( searchForEntity ( old_entity ), new_entity ) ;
   }
  
-  int   getNumEntities  (void) { return total ; }
   void *getNextEntity   (void) { return getEntity ( next+1 ) ; }
-  int   searchForEntity ( void *entity ) ;
+
+  int   getNumEntities  (void) const { return total ; }
+  int   searchForEntity ( void *entity ) const ;
 } ;
-                                                                                
+
 
 extern int ulStrNEqual ( const char *s1, const char *s2, int len );
 extern int ulStrEqual ( const char *s1, const char *s2 );
