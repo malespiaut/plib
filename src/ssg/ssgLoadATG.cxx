@@ -28,6 +28,43 @@
 
 */
 
+/*
+General info on working with FG scenery files:
+
+If you want to add stuff to the scenery think about adding it via the *.ind files.
+Editing the scenery manually is always "dangerous", since your effort is lost the 
+next time the scenery is re-generated.
+
+ssgLoadATG and ssgSaveATG are not finished at all and there are some known bugs:
+- texture coordinate reading doesn't work 100%, writing is not implemented yet.
+- Only faces with "f". TriStrips ("ts") and TriFans ("tf") not yet supported.
+
+
+As an example, say you want to add a tower to the airport KLVK.
+It goes something like this:
+
+1. Unzip KLVK.gz, you get a file KLVK.
+2. delete KLVK.gz or move it away so that it isn't used anymore.
+3. Rename KLVK to KLV.atg. PLIB finds out the fileformat via the extension,
+   so PLIB can't handle files without extension.
+4. Go into PPE (or another PLIB based program :-)) and load KLVK.atg.
+5. Say "make everything visible". You can look at it from all sides via 
+    the middle mouse button and move the camery via the numKeyPad. For more, see the PPE docu.
+6. Now, using some magic like a future PPE-version, add whatever you want to add.
+   I tried this and by coding a few small functions, have succeeded partly. Some hints:
+	 Pressing "w" gets you into a mode where you can get the 3D coordinates of stuff.
+	 What I want to add is centred around 0,0,0, so writing a small, but non-trivial :-(
+	 translateAllVertices, moved the other object that I load via "merge". The next problem 
+	 is that the tile is not axisparalell, so you have to rotate what you loaded a certain way.
+7. Save the tile as KLVK.atg 
+8. From the original KLVK, get the line with "# gbs..." and copy it to KLVK.atg
+9. Rename KLVK.atg to KLVK. You can now view it in FG by going to 
+   this airport. The texture coords will be broken (see above).
+
+
+
+	*/
+
 #include  "ssgLocal.h"
 #include "ssgLoaderWriterStuff.h" 
 #include "ssgParser.h"
