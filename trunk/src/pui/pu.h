@@ -814,6 +814,18 @@ public:
   int  checkKey    ( int key   , int updown ) ;
 
   puObject *getFirstChild ( void ) { return dlist ; }
+  puObject *getLastChild  ( void )
+  {
+    puObject *bo = dlist ;
+
+    if ( bo != NULL )
+    {
+      while ( bo -> getNextObject() != NULL )
+        bo = bo -> getNextObject() ;
+    }
+
+    return bo ;
+  }
   int getNumChildren ( void ) { return num_children ; }
 
   virtual void close ( void )

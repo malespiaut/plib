@@ -99,12 +99,7 @@ puInterface *puGetBaseLiveInterface ( void )
 
 puInterface::~puInterface ()
 {
-  puObject *bo ;
-
-  for ( bo = dlist ;
-        bo -> getNextObject() != NULL ;
-        bo = bo -> getNextObject() )
-    /* Find the last object in our list. */ ;
+  puObject *bo = getLastChild () ;
 
   while ( bo != NULL )
   {
@@ -112,6 +107,8 @@ puInterface::~puInterface ()
     bo = bo -> getPrevObject() ;
     delete dlist  ;
   }
+
+  dlist = NULL ;
 
   puPopLiveInterface ( this ) ;
 

@@ -157,10 +157,7 @@ int puGroup::checkKey ( int key, int updown )
     the click order is the same as the DRAW order.
   */
 
-  for ( bo = dlist ;
-        bo -> getNextObject() != NULL ;
-        bo = bo -> getNextObject() )
-    /* Find the last object in our list. */ ;
+  bo = getLastChild () ;
 
   for ( ; bo != NULL ; bo = bo -> getPrevObject() )
     if ( bo -> checkKey ( key, updown ) )
@@ -194,11 +191,7 @@ int puGroup::checkHit ( int button, int updown, int x, int y )
 
   if ( !mouse_active )
   {
-    /* Find the last object in our list. */
-
-    for ( bo = dlist ;
-          bo -> getNextObject() != NULL ;
-          bo = bo -> getNextObject() ) ;
+    bo = getLastChild () ;
 
     for ( ; bo != NULL ; bo = bo -> getPrevObject() )
       if ( bo -> checkHit ( button, updown, x, y ) )
@@ -313,10 +306,12 @@ void puGroup::doHit ( int, int, int, int )
 
 puGroup::~puGroup ()
 {
-  for ( puObject *bo = dlist ; bo != NULL ; /* Nothing */ )
+  puObject *bo = getLastChild () ;
+
+  while ( bo != NULL )
   {
     dlist = bo    ;
-    bo = bo -> getNextObject() ;
+    bo = bo -> getPrevObject() ;
     delete dlist  ;
   }
 
