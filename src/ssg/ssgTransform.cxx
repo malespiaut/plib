@@ -39,13 +39,13 @@ ssgBase *ssgTransform::clone ( int clone_flags )
 
 ssgTransform::ssgTransform ( sgCoord *c )
 {
-  type |= SSG_TYPE_TRANSFORM ;
+  type = ssgTypeTransform () ;
   setTransform ( c ) ;
 }
 
 ssgTransform::ssgTransform (void)
 {
-  type |= SSG_TYPE_TRANSFORM ;
+  type = ssgTypeTransform () ;
 }
 
 ssgTransform::~ssgTransform (void)

@@ -40,7 +40,7 @@ ssgBase *ssgInvisible::clone ( int clone_flags )
 
 ssgInvisible::ssgInvisible (void)
 {
-  type |= SSG_TYPE_INVISIBLE ;
+  type = ssgTypeInvisible () ;
 }
 
 

@@ -50,7 +50,7 @@ ssgBase *ssgBranch::clone ( int clone_flags )
 
 ssgBranch::ssgBranch (void)
 {
-  type |= SSG_TYPE_BRANCH ;
+  type = ssgTypeBranch () ;
 }
 
 

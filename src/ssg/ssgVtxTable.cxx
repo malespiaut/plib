@@ -70,7 +70,7 @@ ssgBase *ssgVtxTable::clone ( int clone_flags )
 
 ssgVtxTable::ssgVtxTable ()
 {
-  type |= SSG_TYPE_VTXTABLE ;
+  type = ssgTypeVtxTable () ;
   gltype = GL_POINTS ;
   vertices  = NULL ;
   normals   = NULL ;
@@ -86,7 +86,7 @@ ssgVtxTable::ssgVtxTable ( GLenum ty,
                 ssgColourArray   *cl )
 {
   gltype = ty ;
-  type |= SSG_TYPE_VTXTABLE ;
+  type = ssgTypeVtxTable () ;
 
   vertices  = (vl!=NULL) ? vl : new ssgVertexArray   () ;
   normals   = (nl!=NULL) ? nl : new ssgNormalArray   () ;

@@ -41,7 +41,7 @@ static saveTriangle *tlist ;
 
 int ssgSaveLeaf ( ssgEntity *ent )
 { int i;
-  assert ( ent -> isAKindOf ( SSG_TYPE_LEAF ) ) ;
+  assert ( ent -> isAKindOf ( ssgTypeLeaf() ) ) ;
 
   ssgLeaf *vt = (ssgLeaf *) ent ;
 
@@ -74,7 +74,7 @@ int ssgSaveLeaf ( ssgEntity *ent )
 
   ssgState* st = vt -> getState () ;
 
-  if ( st && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+  if ( st && st -> isAKindOf ( ssgTypeSimpleState() ) )
   {
     ssgSimpleState* ss = (ssgSimpleState*) vt -> getState () ;
 
@@ -117,7 +117,7 @@ int ssgSaveLeaf ( ssgEntity *ent )
     int istate = 0;
 
     if ( s != NULL )
-      if ( s -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+      if ( s -> isAKindOf ( ssgTypeSimpleState() ) )
       {
         istate = gSSL.findIndex ( (ssgSimpleState *) s ) ;
         assert ( istate >= 0 ) ;
@@ -147,7 +147,7 @@ int ssgSaveACInner ( ssgEntity *ent )
 {
   /* WARNING - RECURSIVE! */
 
-  if ( ent -> isAKindOf ( SSG_TYPE_BRANCH ) )
+  if ( ent -> isAKindOf ( ssgTypeBranch() ) )
   {
     ssgBranch *br = (ssgBranch *) ent ;
 

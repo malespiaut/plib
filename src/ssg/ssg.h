@@ -74,83 +74,83 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
   Perhaps some kind of automatic assignment would be good?
  */
 
-#define SSG_BACKWARDS_REFERENCE 0x0000000  /* For SSG format files */
+#define _SSG_BACKWARDS_REFERENCE 0x0000000  /* For SSG format files */
 
-#define SSG_TYPE_BASE          0x00000001
+#define _SSG_TYPE_BASE          0x00000001
 
 /* ssgEntities */
-#define SSG_TYPE_ENTITY        0x00000002
-#define SSG_TYPE_LEAF          0x00000020
-#define SSG_TYPE_VTABLE        0x00000080
-#define SSG_TYPE_VTXTABLE      0x00000100
-#define SSG_TYPE_VTXARRAY      0x00000200
-#define SSG_TYPE_BRANCH        0x00000040
-#define SSG_TYPE_BASETRANSFORM 0x00000080
-#define SSG_TYPE_TRANSFORM     0x00001000
-#define SSG_TYPE_TEXTRANS      0x00002000
-#define SSG_TYPE_AXISTRANSFORM 0x00004000
-#define SSG_TYPE_SELECTOR      0x00000100
-#define SSG_TYPE_RANGESELECTOR 0x00001000
-#define SSG_TYPE_TIMEDSELECTOR 0x00002000
-#define SSG_TYPE_ROOT          0x00000200
-#define SSG_TYPE_CUTOUT        0x00000400
-#define SSG_TYPE_INVISIBLE     0x00000800
+#define _SSG_TYPE_ENTITY        0x00000002
+#define _SSG_TYPE_LEAF          0x00000020
+#define _SSG_TYPE_VTABLE        0x00000080
+#define _SSG_TYPE_VTXTABLE      0x00000100
+#define _SSG_TYPE_VTXARRAY      0x00000200
+#define _SSG_TYPE_BRANCH        0x00000040
+#define _SSG_TYPE_BASETRANSFORM 0x00000080
+#define _SSG_TYPE_TRANSFORM     0x00001000
+#define _SSG_TYPE_TEXTRANS      0x00002000
+#define _SSG_TYPE_AXISTRANSFORM 0x00004000
+#define _SSG_TYPE_SELECTOR      0x00000100
+#define _SSG_TYPE_RANGESELECTOR 0x00001000
+#define _SSG_TYPE_TIMEDSELECTOR 0x00002000
+#define _SSG_TYPE_ROOT          0x00000200
+#define _SSG_TYPE_CUTOUT        0x00000400
+#define _SSG_TYPE_INVISIBLE     0x00000800
 
 /* ssgStates */
-#define SSG_TYPE_STATE         0x00000004
-#define SSG_TYPE_SIMPLESTATE   0x00000020
-#define SSG_TYPE_STATESELECTOR 0x00000040
+#define _SSG_TYPE_STATE         0x00000004
+#define _SSG_TYPE_SIMPLESTATE   0x00000020
+#define _SSG_TYPE_STATESELECTOR 0x00000040
 
 /* ssgSimpleLists */
-#define SSG_TYPE_SIMPLELIST    0x00000008
-#define SSG_TYPE_VERTEXARRAY   0x00000020
-#define SSG_TYPE_NORMALARRAY   0x00000040
-#define SSG_TYPE_TEXCOORDARRAY 0x00000080
-#define SSG_TYPE_COLOURARRAY   0x00000100
-#define SSG_TYPE_INDEXARRAY    0x00000200
-#define SSG_TYPE_TRANSFORMARRAY 0x0000400
-#define SSG_TYPE_INTERLEAVEDARRAY 0x00800
+#define _SSG_TYPE_SIMPLELIST    0x00000008
+#define _SSG_TYPE_VERTEXARRAY   0x00000020
+#define _SSG_TYPE_NORMALARRAY   0x00000040
+#define _SSG_TYPE_TEXCOORDARRAY 0x00000080
+#define _SSG_TYPE_COLOURARRAY   0x00000100
+#define _SSG_TYPE_INDEXARRAY    0x00000200
+#define _SSG_TYPE_TRANSFORMARRAY 0x0000400
+#define _SSG_TYPE_INTERLEAVEDARRAY 0x00800
 
 /* ssgTextures */
-#define SSG_TYPE_TEXTURE       0x00000010
+#define _SSG_TYPE_TEXTURE       0x00000010
 
 #define SSG_FILE_VERSION       0x01
 #define SSG_FILE_MAGIC_NUMBER  (('S'<<24)+('S'<<16)+('G'<<8)+SSG_FILE_VERSION)
 
 
-inline int ssgTypeBase         () { return SSG_TYPE_BASE ; }
+inline int ssgTypeBase         () { return _SSG_TYPE_BASE ; }
 
-inline int ssgTypeEntity       () { return SSG_TYPE_ENTITY    | ssgTypeBase    () ; }
-inline int ssgTypeLeaf         () { return SSG_TYPE_LEAF      | ssgTypeEntity  () ; }
-inline int ssgTypeVTable       () { return SSG_TYPE_VTABLE    | ssgTypeLeaf    () ; }
-inline int ssgTypeVtxTable     () { return SSG_TYPE_VTXTABLE  | ssgTypeLeaf    () ; }
-inline int ssgTypeVtxArray     () { return SSG_TYPE_VTXARRAY  | ssgTypeVtxTable() ; }
-inline int ssgTypeBranch       () { return SSG_TYPE_BRANCH    | ssgTypeEntity  () ; }
-inline int ssgTypeBaseTransform() { return SSG_TYPE_BASETRANSFORM | ssgTypeBranch () ; }
-inline int ssgTypeTransform    () { return SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
-inline int ssgTypeTexTrans     () { return SSG_TYPE_TEXTRANS  | ssgTypeBaseTransform () ; }
-inline int ssgTypeAxisTransform() { return SSG_TYPE_AXISTRANSFORM  | ssgTypeBaseTransform () ; }
-inline int ssgTypeSelector     () { return SSG_TYPE_SELECTOR  | ssgTypeBranch  () ; }
-inline int ssgTypeRangeSelector() { return SSG_TYPE_RANGESELECTOR | ssgTypeSelector () ; }
-inline int ssgTypeTimedSelector() { return SSG_TYPE_TIMEDSELECTOR | ssgTypeSelector () ; }
-inline int ssgTypeRoot         () { return SSG_TYPE_ROOT      | ssgTypeBranch  () ; }
-inline int ssgTypeCutout       () { return SSG_TYPE_CUTOUT    | ssgTypeBranch  () ; }
-inline int ssgTypeInvisible    () { return SSG_TYPE_INVISIBLE | ssgTypeBranch  () ; }
+inline int ssgTypeEntity       () { return _SSG_TYPE_ENTITY    | ssgTypeBase    () ; }
+inline int ssgTypeLeaf         () { return _SSG_TYPE_LEAF      | ssgTypeEntity  () ; }
+inline int ssgTypeVTable       () { return _SSG_TYPE_VTABLE    | ssgTypeLeaf    () ; }
+inline int ssgTypeVtxTable     () { return _SSG_TYPE_VTXTABLE  | ssgTypeLeaf    () ; }
+inline int ssgTypeVtxArray     () { return _SSG_TYPE_VTXARRAY  | ssgTypeVtxTable() ; }
+inline int ssgTypeBranch       () { return _SSG_TYPE_BRANCH    | ssgTypeEntity  () ; }
+inline int ssgTypeBaseTransform() { return _SSG_TYPE_BASETRANSFORM | ssgTypeBranch () ; }
+inline int ssgTypeTransform    () { return _SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
+inline int ssgTypeTexTrans     () { return _SSG_TYPE_TEXTRANS  | ssgTypeBaseTransform () ; }
+inline int ssgTypeAxisTransform() { return _SSG_TYPE_AXISTRANSFORM  | ssgTypeBaseTransform () ; }
+inline int ssgTypeSelector     () { return _SSG_TYPE_SELECTOR  | ssgTypeBranch  () ; }
+inline int ssgTypeRangeSelector() { return _SSG_TYPE_RANGESELECTOR | ssgTypeSelector () ; }
+inline int ssgTypeTimedSelector() { return _SSG_TYPE_TIMEDSELECTOR | ssgTypeSelector () ; }
+inline int ssgTypeRoot         () { return _SSG_TYPE_ROOT      | ssgTypeBranch  () ; }
+inline int ssgTypeCutout       () { return _SSG_TYPE_CUTOUT    | ssgTypeBranch  () ; }
+inline int ssgTypeInvisible    () { return _SSG_TYPE_INVISIBLE | ssgTypeBranch  () ; }
 
-inline int ssgTypeState        () { return SSG_TYPE_STATE     | ssgTypeBase    () ; }
-inline int ssgTypeSimpleState  () { return SSG_TYPE_SIMPLESTATE | ssgTypeState () ; }
-inline int ssgTypeStateSelector() { return SSG_TYPE_STATESELECTOR | ssgTypeSimpleState () ; }
+inline int ssgTypeState        () { return _SSG_TYPE_STATE     | ssgTypeBase    () ; }
+inline int ssgTypeSimpleState  () { return _SSG_TYPE_SIMPLESTATE | ssgTypeState () ; }
+inline int ssgTypeStateSelector() { return _SSG_TYPE_STATESELECTOR | ssgTypeSimpleState () ; }
 
-inline int ssgTypeSimpleList   () { return SSG_TYPE_SIMPLELIST | ssgTypeBase   () ; }
-inline int ssgTypeVertexArray  () { return SSG_TYPE_VERTEXARRAY | ssgTypeSimpleList () ; }
-inline int ssgTypeNormalArray  () { return SSG_TYPE_NORMALARRAY | ssgTypeSimpleList () ; }
-inline int ssgTypeTexCoordArray() { return SSG_TYPE_TEXCOORDARRAY | ssgTypeSimpleList () ; }
-inline int ssgTypeColourArray  () { return SSG_TYPE_COLOURARRAY | ssgTypeSimpleList () ; }
-inline int ssgTypeIndexArray   () { return SSG_TYPE_INDEXARRAY | ssgTypeSimpleList () ; }
-inline int ssgTypeTransformArray() { return SSG_TYPE_TRANSFORMARRAY | ssgTypeSimpleList () ; }
-inline int ssgTypeInterleavedArray() { return SSG_TYPE_INTERLEAVEDARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeSimpleList   () { return _SSG_TYPE_SIMPLELIST | ssgTypeBase   () ; }
+inline int ssgTypeVertexArray  () { return _SSG_TYPE_VERTEXARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeNormalArray  () { return _SSG_TYPE_NORMALARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeTexCoordArray() { return _SSG_TYPE_TEXCOORDARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeColourArray  () { return _SSG_TYPE_COLOURARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeIndexArray   () { return _SSG_TYPE_INDEXARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeTransformArray() { return _SSG_TYPE_TRANSFORMARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeInterleavedArray() { return _SSG_TYPE_INTERLEAVEDARRAY | ssgTypeSimpleList () ; }
 
-inline int ssgTypeTexture      () { return SSG_TYPE_TEXTURE   | ssgTypeBase    () ; }
+inline int ssgTypeTexture      () { return _SSG_TYPE_TEXTURE   | ssgTypeBase    () ; }
 
 /*
   It's critical that these numbers don't change without
@@ -361,7 +361,7 @@ _SSG_PUBLIC:
 
   ssgSimpleList ()
   {
-    type |= SSG_TYPE_SIMPLELIST ;
+    type = ssgTypeSimpleList () ;
     limit = 0 ;
     size_of = 0 ;
     total = 0 ;
@@ -373,7 +373,7 @@ public:
 
   ssgSimpleList ( int sz, int init = 3, char* things = 0 )
   {
-    type |= SSG_TYPE_SIMPLELIST ;
+    type = ssgTypeSimpleList () ;
     limit = init ;
     size_of = sz ;
     if ( things )
@@ -463,7 +463,7 @@ public:
   ssgVertexArray ( int init = 3, sgVec3* things = 0 )
     : ssgSimpleList ( sizeof(sgVec3), init, (char*)things )
   {
-    type |= SSG_TYPE_VERTEXARRAY ;
+    type = ssgTypeVertexArray () ;
   } 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
@@ -481,7 +481,7 @@ public:
   ssgNormalArray ( int init = 3, sgVec3* things = 0 )
     : ssgSimpleList ( sizeof(sgVec3), init, (char*)things )
   {
-    type |= SSG_TYPE_NORMALARRAY ;
+    type = ssgTypeNormalArray () ;
   }
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
@@ -499,7 +499,7 @@ public:
   ssgTexCoordArray ( int init = 3, sgVec2* things = 0 )
     : ssgSimpleList ( sizeof(sgVec2), init, (char*)things )
   {
-    type |= SSG_TYPE_TEXCOORDARRAY ;
+    type = ssgTypeTexCoordArray () ;
   }
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec2   thing ) { raw_add ( (char *) thing ) ; } ;
@@ -517,7 +517,7 @@ public:
   ssgColourArray ( int init = 3, sgVec4* things = 0 )
     : ssgSimpleList ( sizeof(sgVec4), init, (char*)things )
   {
-    type |= SSG_TYPE_COLOURARRAY ;
+    type = ssgTypeColourArray () ;
   }
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
@@ -534,7 +534,7 @@ public:
   ssgIndexArray ( int init = 3, short* things = 0 )
     : ssgSimpleList ( sizeof(short), init, (char*)things )
   {
-    type |= SSG_TYPE_INDEXARRAY ;
+    type = ssgTypeIndexArray () ;
   }
   short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
   void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
@@ -551,7 +551,7 @@ public:
   ssgTransformArray ( int init = 3, sgMat4* things = 0 )
     : ssgSimpleList ( sizeof(sgMat4), init, (char*)things )
   {
-    type |= SSG_TYPE_TRANSFORMARRAY ;
+    type = ssgTypeTransformArray () ;
     selection = 0 ;
   } 
   sgMat4 *get ( unsigned int n ) { return (sgMat4 *) raw_get ( n ) ; }
@@ -568,7 +568,7 @@ public:
   ssgTextureArray ( int init = 3 )
     : ssgSimpleList ( sizeof(ssgTexture*), init )
   {
-    //type |= SSG_TYPE_TEXTUREARRAY ;
+    //type = ssgTypeTextureArray () ;
   }
 
   int getNum (void) { return total ; }
@@ -590,7 +590,7 @@ public:
   ssgSimpleStateArray ( int init = 3 )
     : ssgSimpleList ( sizeof(ssgSimpleState*), init )
   {
-    //type |= SSG_TYPE_SIMPLESTATEARRAY ;
+    //type = ssgTypeSimpleStateArray () ;
   }
 
   int getNum (void) { return total ; }
@@ -624,7 +624,7 @@ public:
   ssgInterleavedArray ( int init = 3, ssgInterleavedArrayElement* things = 0 )
     : ssgSimpleList ( sizeof(ssgInterleavedArrayElement), init, (char*)things )
   {
-    type |= SSG_TYPE_INTERLEAVEDARRAY ;
+    type = ssgTypeInterleavedArray () ;
   }
   ssgInterleavedArrayElement *get ( unsigned int n ) { return (ssgInterleavedArrayElement *) raw_get ( n ) ; }
   void add ( ssgInterleavedArrayElement  thing ) { raw_add ( (char *) &thing ) ; } ;
@@ -2435,7 +2435,7 @@ public:
     ssgState *st = createState ( tfname ) ;
     if ( st != NULL )
     {
-      if ( st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+      if ( st -> isAKindOf ( ssgTypeSimpleState() ) )
       {
         return (ssgSimpleState*) st ;
       }

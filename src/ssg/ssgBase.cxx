@@ -64,7 +64,7 @@ ssgBase *ssgBase::clone ( int /* clone_flags */ )
 ssgBase:: ssgBase (void)
 {
   spare = refc = 0 ;
-  type      = SSG_TYPE_BASE ;
+  type      = ssgTypeBase () ;
   unique    = next_unique_id++ ;
   user_data = NULL ;
   name      = NULL ;

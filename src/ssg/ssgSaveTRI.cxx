@@ -59,7 +59,7 @@ static void save_vtx_table ( ssgVtxTable *vt )
 
 static void save_entities ( ssgEntity *e )
 {
-  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
+  if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
     ssgBranch *br = (ssgBranch *) e ;
 
@@ -67,7 +67,7 @@ static void save_entities ( ssgEntity *e )
       save_entities ( br -> getKid ( i ) ) ;
   }
   else
-  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
+  if ( e -> isAKindOf ( ssgTypeVtxTable() ) )
   {
     ssgVtxTable *vt = (ssgVtxTable *) e ;
     save_vtx_table ( vt ) ;

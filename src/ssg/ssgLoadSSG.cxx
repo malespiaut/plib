@@ -69,7 +69,7 @@ int _ssgLoadObject ( FILE *f, ssgBase **objp, int type_mask )
   
   _ssgReadInt ( f, &type ) ;
   
-  if ( type == SSG_BACKWARDS_REFERENCE ) 
+  if ( type == _SSG_BACKWARDS_REFERENCE ) 
   {
     _ssgReadInt ( f, &key ) ;
     
@@ -136,7 +136,7 @@ int _ssgSaveObject ( FILE *f, ssgBase *obj )
 
   if ( key >= 0 )
   {
-    _ssgWriteInt ( f, SSG_BACKWARDS_REFERENCE ) ;
+    _ssgWriteInt ( f, _SSG_BACKWARDS_REFERENCE ) ;
     _ssgWriteInt ( f, key ) ;
   }
   else

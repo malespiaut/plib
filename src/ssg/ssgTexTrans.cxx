@@ -39,13 +39,13 @@ ssgBase *ssgTexTrans::clone ( int clone_flags )
 
 ssgTexTrans::ssgTexTrans ( sgCoord *c )
 {
-  type |= SSG_TYPE_TEXTRANS ;
+  type = ssgTypeTexTrans () ;
   setTransform ( c ) ;
 }
 
 ssgTexTrans::ssgTexTrans (void)
 {
-  type |= SSG_TYPE_TEXTRANS ;
+  type = ssgTypeTexTrans () ;
 }
 
 ssgTexTrans::~ssgTexTrans (void)
