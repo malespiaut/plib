@@ -1,6 +1,6 @@
 SUBDIRS = src
 
-EXTRA_DIST = autogen.sh README NOTICE tools.dsw
+EXTRA_DIST = autogen.sh README tools.dsw
 
 dist-hook:
 	tar cf - doc \

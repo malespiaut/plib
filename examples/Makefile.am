@@ -1,7 +1,6 @@
 SUBDIRS = src
 
-EXTRA_DIST = autogen.sh README CHANGES NOTICE plib_examples.dsp \
-	plib_examples.dsw
+EXTRA_DIST = README COPYING.DATA plib_examples.dsp plib_examples.dsw
 
 dist-hook:
 	tar cf - doc \

@@ -16,7 +16,5 @@ INCLUDES = -I$(top_srcdir)/src/util
 
 endif
 
-EXTRA_DIST = README.freebsd README.linux \
-	README.openbsd README.sgi README.unix README.win \
-        sl.dsp
+EXTRA_DIST = sl.dsp
 
