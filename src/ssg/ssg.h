@@ -1472,6 +1472,8 @@ public:
 			     return (getNumColours()<=0) ?
 				    _ssgColourWhite : colours->get(i);}
 
+	ssgVtxArray *getAs_ssgVtxArray ();
+
   virtual ~ssgVtxTable (void) ;
 
   virtual const char *getTypeName(void) ;
@@ -1562,6 +1564,7 @@ public:
   virtual void pick ( int baseName ) ;
 
   void setIndices ( ssgIndexArray *il ) ;
+	void addIndex ( short i) { indices->add(i); }
 
   int getNumIndices () { return indices -> getNum () ; }
 
@@ -1617,6 +1620,8 @@ public:
   void removeAllKids (void) ;
   void replaceKid    ( int n, ssgEntity *new_entity ) ;
   void replaceKid    ( ssgEntity *old_entity, ssgEntity *new_entity ) ;
+
+	void mergeHNodes();
 
   virtual ssgEntity *getByName ( char *match ) ;
   virtual ssgEntity *getByPath ( char *path  ) ;
