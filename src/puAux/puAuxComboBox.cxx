@@ -269,3 +269,11 @@ puaComboBox::puaComboBox ( int minx, int miny, int maxx, int maxy,
   newList ( entries ) ;
 }
 
+void puaComboBox::setSize ( int w, int h )
+{
+  int arrow_width = (int) ( float(h) / 1.5f ) ;
+  input->setSize ( w - arrow_width, h ) ;
+  arrow_btn->setPosition ( w - arrow_width, 0 ) ;
+  arrow_btn->setSize ( arrow_width, h ) ;
+}
+
