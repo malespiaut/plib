@@ -25,7 +25,14 @@ void puFilePicker::handle_select ( puObject* list_box )
     file_picker -> setValue ( "" ) ;
 }
 
-static void handle_button ( puObject* b )
+static void handle_cancel ( puObject* b )
+{
+  puFilePicker* file_picker = (puFilePicker*) b -> getUserData () ;
+  file_picker -> setValue ( "" ) ;
+  file_picker -> invokeCallback () ;
+}
+
+static void handle_ok ( puObject* b )
 {
   puFilePicker* file_picker = (puFilePicker*) b -> getUserData () ;
   file_picker -> invokeCallback () ;
@@ -62,12 +69,12 @@ puFilePicker::puFilePicker ( int x, int y, const char* dir ) : puDialogBox ( x, 
   puOneShot* cancel_button = new puOneShot ( 20, 10, 90, 30 ) ;
   cancel_button -> setLegend ( "Cancel" ) ;
   cancel_button -> setUserData ( this ) ;
-  cancel_button -> setCallback ( handle_button ) ;
+  cancel_button -> setCallback ( handle_cancel ) ;
   
   puOneShot* ok_button = new puOneShot ( 100, 10, 170, 30 ) ;
   ok_button -> setLegend ( "Ok" ) ;
   ok_button -> setUserData ( this ) ;
-  ok_button -> setCallback ( handle_button ) ;
+  ok_button -> setCallback ( handle_ok ) ;
 //  ok_button->makeReturnDefault ( TRUE ) ;
 
   close  () ;
