@@ -81,14 +81,14 @@ int main ()
 
   /* Create program 1 and compile it. */
 
-  pslProgram *prog_1 = new pslProgram ( extensions ) ;
+  pslProgram *prog_1 = new pslProgram ( extensions, "code1" ) ;
 
   prog_1 -> compile ( "data/test.psl" ) ;
   prog_1 -> dump () ;
 
   /* Clone program 2 from program 1 */
 
-  pslProgram *prog_2 = new pslProgram ( prog_1 ) ;
+  pslProgram *prog_2 = new pslProgram ( prog_1, "code2" ) ;
 
   /* Make them unique by assigning user data to them */
 
@@ -100,7 +100,7 @@ int main ()
   while ( 1 )
   {
     if ( prog_1 -> step () == PSL_PROGRAM_END ) break ;
-//    if ( prog_2 -> step () == PSL_PROGRAM_END ) break ;
+    if ( prog_2 -> step () == PSL_PROGRAM_END ) break ;
   }
 
   exit ( 0 ) ;

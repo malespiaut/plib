@@ -24,7 +24,7 @@ void main ()
   printf ( "X,Y=", x, y ) ;
 
   {
-    int x = wibble();
+    int x = wibble() ;
 
     printf ( "X=", x ) ;
 

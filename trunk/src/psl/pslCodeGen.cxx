@@ -24,33 +24,6 @@
 
 #include "pslLocal.h"
 
-int pslCompiler::compile ( const char *fname )
-{
-  init () ;
-
-  FILE *fd = fopen ( fname, "ra" ) ;
-
-  if ( fd == NULL )
-  {
-    perror ( "PSL:" ) ;
-    ulSetError ( UL_WARNING, "PSL: Failed while opening '%s' for reading.",
-                                                                  fname );
-    return FALSE ;
-  }
-
-  compile ( fd ) ;
-  fclose ( fd ) ;
-  return TRUE ;
-}
-
-
-int pslCompiler::compile ( FILE *fd )
-{
-  pslSetDefaultFile ( fd ) ;
-  pushProgram () ;
-  return TRUE ;
-}
-
 
 void pslCompiler::pushCodeByte ( pslOpcode op )
 {

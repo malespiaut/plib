@@ -8,7 +8,8 @@ include_HEADERS = psl.h pslContext.h pslLocal.h \
 
 libplibpsl_a_SOURCES = psl.cxx pslCodeGen.cxx pslContext.cxx \
                        pslCompiler.cxx pslSymbols.cxx pslToken.cxx \
-                       pslExpression.cxx pslProgram.cxx pslDump.cxx
+                       pslExpression.cxx pslProgram.cxx pslDump.cxx \
+                       pslError.cxx
 
 INCLUDES = -I$(top_srcdir)/src/util
 

@@ -28,23 +28,23 @@
 int pslCompiler::pushPrimitive ()
 {
   char c [ MAX_TOKEN ] ;
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c [ 0 ] == '(' )
   {
     if ( ! pushExpression () )
     {
-      ulSetError ( UL_WARNING, "PSL: Missing expression after '('" ) ;
-      pslUngetToken ( c ) ;
+      error ( "Missing expression after '('" ) ;
+      ungetToken ( c ) ;
       return FALSE ;
     }
 
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
 
     if ( c [ 0 ] != ')' )
     {
-      ulSetError ( UL_WARNING, "PSL: Missing ')' (found '%s')", c );
-      pslUngetToken ( c ) ;
+      error ( "Missing ')' (found '%s')", c );
+      ungetToken ( c ) ;
       return FALSE ;
     }
 
@@ -57,7 +57,7 @@ int pslCompiler::pushPrimitive ()
       return TRUE ;
     else
     {
-      pslUngetToken ( c ) ;
+      ungetToken ( c ) ;
       return FALSE ;
     }
   }
@@ -71,7 +71,7 @@ int pslCompiler::pushPrimitive ()
     }
     else
     {
-      pslUngetToken ( c ) ;
+      ungetToken ( c ) ;
       return FALSE ;
     }
   }
@@ -91,8 +91,8 @@ int pslCompiler::pushPrimitive ()
   if ( isalpha ( c [ 0 ] ) || c [ 0 ] == '_' )
   {
     char n [ MAX_TOKEN ] ;
-    pslGetToken ( n ) ;
-    pslUngetToken ( n ) ;
+    getToken ( n ) ;
+    ungetToken ( n ) ;
 
     if ( n[0] == '(' )
       pushFunctionCall ( c ) ;
@@ -102,7 +102,7 @@ int pslCompiler::pushPrimitive ()
     return TRUE ;
   }
 
-  pslUngetToken ( c ) ;
+  ungetToken ( c ) ;
   return FALSE ;
 }
 
@@ -117,11 +117,11 @@ int pslCompiler::pushMultExpression ()
   {
     char c [ MAX_TOKEN ] ;
 
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
 
     if ( c [ 0 ] != '*' && c [ 0 ] != '/' && c [ 0 ] != '%' )
     {
-      pslUngetToken ( c ) ;
+      ungetToken ( c ) ;
       return TRUE ;
     }
 
@@ -150,11 +150,11 @@ int pslCompiler::pushAddExpression ()
   {
     char c [ MAX_TOKEN ] ;
 
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
 
     if ( c [ 0 ] != '+' && c [ 0 ] != '-' )
     {
-      pslUngetToken ( c ) ;
+      ungetToken ( c ) ;
       return TRUE ;
     }
 
@@ -180,20 +180,20 @@ int pslCompiler::pushRelExpression ()
   {
     char c [ MAX_TOKEN ] ;
 
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
 
     if ( c [ 0 ] != '<' &&
          c [ 0 ] != '>' &&
          c [ 0 ] != '!' &&
          c [ 0 ] != '=' )
     {
-      pslUngetToken ( c ) ;
+      ungetToken ( c ) ;
       return TRUE ;
     }
 
     char c2 [ MAX_TOKEN ] ;
 
-    pslGetToken ( c2 ) ;
+    getToken ( c2 ) ;
 
     if ( c2 [ 0 ] == '=' )
     {
@@ -201,11 +201,11 @@ int pslCompiler::pushRelExpression ()
       c[2] = '\0' ;
     }
     else
-      pslUngetToken ( c2 ) ;
+      ungetToken ( c2 ) ;
 
     if (( c [ 0 ] == '!' || c [ 0 ] == '=' ) && c [ 1 ] != '=' )
     {
-      pslUngetToken ( c2 ) ;
+      ungetToken ( c2 ) ;
       return TRUE ;
     }
 

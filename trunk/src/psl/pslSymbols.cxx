@@ -31,13 +31,13 @@ pslAddress pslCompiler::setVarSymbol ( const char *s )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 &&
          symtab [ i ] . locality >= locality_sp )
     {
-      ulSetError ( UL_WARNING, "PSL: Multiple definition of '%s'.", s ) ;
+      error ( "Multiple definition of '%s'.", s ) ;
       return symtab [ i ] . address ;
     }
 
   if ( next_var >= MAX_VARIABLE-1 )
   {
-    ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
+    error ( "Too many variables." ) ;
     next_var-- ;
   }
 
@@ -56,7 +56,7 @@ pslAddress pslCompiler::getVarSymbol ( const char *s )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
       return symtab [ i ] . address ;
 
-  ulSetError ( UL_WARNING, "PSL: Undefined symbol '%s'.", s ) ;
+  error ( "Undefined symbol '%s'.", s ) ;
 
   return setVarSymbol ( s ) ;
 }
@@ -85,7 +85,7 @@ void pslCompiler::addFwdRef ( const char *s, pslAddress where )
 
   if ( next_fwdref >= MAX_SYMBOL )
   {
-    ulSetError ( UL_WARNING, "PSL: Too many unresolved forward references." ) ;
+    error ( "Too many unresolved forward references." ) ;
     return ;
   }
 
@@ -119,8 +119,7 @@ void pslCompiler::checkUnresolvedSymbols ()
   {
     if ( forward_ref [ i ] . symbol != NULL )
     {
-      ulSetError ( UL_WARNING, "PSL: '%s' does not exist.",
-                                   forward_ref [ i ] . symbol ) ;
+      error ( "'%s' does not exist.", forward_ref [ i ] . symbol ) ;
 
       /* Prevent multiple errors for same symbol */
 
@@ -151,13 +150,13 @@ void pslCompiler::setCodeSymbol ( const char *s, pslAddress v )
   for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
     {
-      ulSetError ( UL_WARNING, "PSL: Multiple definition of '%s'.", s ) ;
+      error ( "Multiple definition of '%s'.", s ) ;
       return ;
     }
 
   if ( next_code_symbol >= MAX_VARIABLE-1 )
   {
-    ulSetError ( UL_WARNING, "PSL: Too many labels." ) ;
+    error ( "Too many labels." ) ;
     next_code_symbol-- ;
   }
 

@@ -150,6 +150,17 @@ void pslCompiler::dump () const
     }
 
   printf ( "\n" ) ;
+
+  if ( num_errors > 0 )
+    printf ( "PROGRAM FAILED TO COMPILE WITH %d WARNINGS AND %d ERRORS\n", 
+                                 num_warnings, num_errors ) ;
+  else
+  if ( num_warnings > 0 )
+    printf ( "PROGRAM COMPILED WITH %d WARNINGS\n", num_warnings ) ;
+  else
+    printf ( "PROGRAM COMPILED OK\n" ) ;
+
+  printf ( "\n" ) ;
 }
 
 

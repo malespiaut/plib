@@ -46,14 +46,6 @@
 #define MAX_NESTING   32 
 #define MAX_SYMBOL  (MAX_VARIABLE + MAX_LABEL)
 
-
-/* Token Parser */
-
-void  pslUngetToken     ( const char *c ) ;
-void  pslGetToken       ( char *c, FILE *fd = NULL ) ;
-void  pslSetDefaultFile ( FILE *fd ) ;
-
-
 typedef unsigned short pslAddress  ;
 
 extern int _pslInitialised ;
