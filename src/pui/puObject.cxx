@@ -239,7 +239,7 @@ void puObject::recalc_bbox ( void )
     case PUPLACE_BOTTOM_CENTERED :
     case PUPLACE_BOTTOM_RIGHT    :
     case PUPLACE_BELOW_RIGHT     :
-      bbox.min[1] -= labelFont.getStringHeight () + labelFont.getStringDescender () +
+      bbox.min[1] -= labelFont.getStringHeight ( label ) + labelFont.getStringDescender () +
                      PUSTR_BGAP ;
       break ;
     }

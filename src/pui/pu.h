@@ -969,7 +969,7 @@ public:
   puButton   ( int minx, int miny, const char *l ) :
                  puObject ( minx, miny,
                             minx + puGetDefaultLegendFont().getStringWidth ( l ) + PUSTR_LGAP + PUSTR_RGAP,
-                            miny + puGetDefaultLegendFont().getStringHeight () + puGetDefaultLegendFont().getStringDescender () + PUSTR_TGAP + PUSTR_BGAP )
+                            miny + puGetDefaultLegendFont().getStringHeight ( l ) + puGetDefaultLegendFont().getStringDescender () + PUSTR_TGAP + PUSTR_BGAP )
   {
     type |= PUCLASS_BUTTON ;
     button_type = PUBUTTON_NORMAL ;

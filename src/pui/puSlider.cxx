@@ -52,7 +52,7 @@ void puSlider::draw_slider_box ( int dx, int dy, float val, const char *box_labe
     if ( isVertical () )  // Vertical slider, text goes to the right of it
     {
       xx = bx.max[0] + PUSTR_LGAP ;
-      yy = ( bx.max[1] + bx.min[1] - legendFont.getStringHeight () ) / 2 ;
+      yy = ( bx.max[1] + bx.min[1] - legendFont.getStringHeight ( box_label ) ) / 2 ;
     }
     else  // Horizontal slider, text goes above it
     {
