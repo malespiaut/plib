@@ -15,9 +15,9 @@ void ssgBase::operator delete ( void *ptr )
 
 void ssgBase::copy_from ( ssgBase *src, int clone_flags )
 {
-  type  = src -> getType () ;
+  // type  = src -> getType () ; - cannot change the virtual function table...
   spare = src -> getSpare () ;
-  refc  = 0 ;
+  // refc  = 0 ; - okay?
 
   if ( clone_flags & SSG_CLONE_USERDATA )
     setUserData ( src -> getUserData () ) ;
