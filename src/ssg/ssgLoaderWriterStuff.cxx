@@ -9,6 +9,7 @@
 // in Nov of 2000
 // Distributed with Steve Bakers plib under the LGPL licence
 
+#include  "ssgLocal.h"
 #include "ssgLoaderWriterStuff.h"
 sgVec4 currentDiffuse;
 
@@ -76,28 +77,6 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname )
 // ***********************************************************************
  
 
-/*
-ssgBase *ssgColourArray::clone ( int clone_flags )
-{
-  ssgColourArray *b = new ssgColourArray () ;
-  b -> copy_from ( this, clone_flags ) ;
-  return b ;
-}
-
-
-
- 
-void ssgVertexArray::print ( FILE *fd, char *indent )
-{
-  ssgSimpleList::print ( fd, indent ) ;
-
-  for ( unsigned int i = 0 ; i < total ; i++ )
-    fprintf ( fd, "%s  V%d) { %f, %f, %f }\n", indent, i,
-                     get(i)[0], get(i)[1], get(i)[2] ) ;
-}
-*/
-// class ssgTexCoordArray // array of Vec2s
-//class ssgIndexArray // array of shorts
 
 void ssgLoaderWriterMesh::ReInit(void)
 {
