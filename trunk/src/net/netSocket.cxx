@@ -153,6 +153,10 @@ cchar* netAddress::getLocalHost ()
   return "127.0.0.1" ;
 }
 
+bool netAddress::getBroadcast () const {
+    return sin_addr == INADDR_BROADCAST;
+}
+
 netSocket::netSocket ()
 {
   handle = -1 ;
@@ -199,6 +203,27 @@ netSocket::setBlocking ( bool blocking )
 #endif
 }
 
+void
+netSocket::setBroadcast ( bool broadcast )
+{
+  assert ( handle != -1 ) ;
+  int result;
+  if ( broadcast ) {
+      int one = 1;
+#ifdef WIN32
+      result = ::setsockopt( handle, SOL_SOCKET, SO_BROADCAST, (char*)&one, sizeof(one) );
+#else
+      result = ::setsockopt( handle, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one) );
+#endif
+  } else {
+      result = ::setsockopt( handle, SOL_SOCKET, SO_BROADCAST, NULL, 0 );
+  }
+  if ( result < 0 ) {
+      perror("set broadcast:");
+  }
+  assert ( result != -1 );
+}
+
 int
 netSocket::bind ( cchar* host, int port )
 {
@@ -227,6 +252,9 @@ netSocket::connect ( cchar* host, int port )
 {
   assert ( handle != -1 ) ;
   netAddress addr ( host, port ) ;
+  if ( addr.getBroadcast() ) {
+      setBroadcast( true );
+  }
   return ::connect(handle,(const sockaddr*)&addr,sizeof(netAddress));
 }
 

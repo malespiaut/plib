@@ -83,6 +83,8 @@ public:
   int getPort() const ;
 
   static cchar* getLocalHost () ;
+
+  bool getBroadcast () const ;
 };
 
 
@@ -113,6 +115,7 @@ public:
   int   recvfrom    ( void * buffer, int size, int flags, netAddress* from ) ;
 
   void setBlocking ( bool blocking ) ;
+  void setBroadcast ( bool broadcast ) ;
 
   static bool isNonBlockingError () ;
   static int select ( netSocket** reads, netSocket** writes, int timeout ) ;
