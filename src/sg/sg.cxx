@@ -900,10 +900,11 @@ void sgSetCoord ( sgCoord *dst, const sgMat4 src )
   }
   else
   {
-    SGfloat sr = _sgClampToUnity ( -mat[0][2] / cp ) ;
-    SGfloat cr = _sgClampToUnity (  mat[2][2] / cp ) ;
-    SGfloat sh = _sgClampToUnity ( -mat[1][0] / cp ) ;
-    SGfloat ch = _sgClampToUnity (  mat[1][1] / cp ) ;
+    cp = SG_ONE / cp ;
+    SGfloat sr = _sgClampToUnity ( -mat[0][2] * cp ) ;
+    SGfloat cr = _sgClampToUnity (  mat[2][2] * cp ) ;
+    SGfloat sh = _sgClampToUnity ( -mat[1][0] * cp ) ;
+    SGfloat ch = _sgClampToUnity (  mat[1][1] * cp ) ;
 	
     if ( (sh == SG_ZERO && ch == SG_ZERO) || (sr == SG_ZERO && cr == SG_ZERO) )
     {
