@@ -134,7 +134,7 @@ static void convolute ( int mag, char *dp )
 		    if (sis.loopBeg) sp = sis.loopBeg;
 		    else break;
 		}		
-		sum += *hp * (char)(*sp ^ sis.x_or);
+		sum += *hp * (signed char)(*sp ^ sis.x_or);
 	    }
 	    sum /= 256;
 	    if (sum > 127) sum = 127;
