@@ -25,7 +25,7 @@ void mousefn ( int button, int updown, int x, int y )
   glutPostRedisplay () ;
 }
 
-void displayfn (void)
+void displayfn ( void )
 {
   glClearColor ( 0.1f, 0.4f, 0.1f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT ) ;
@@ -64,8 +64,8 @@ int main ( int argc, char **argv )
      However, most applications using PUI do some more things than rendering
      PUI widgets. In every "real" program, you usually do need a depth
      buffer - we are requesting one in the next line so that PLIB programmers
-     can write their applications upon the example code without running
-     in problems. */
+     can write their applications upon this example code without running
+     into problems. */
 
   glutInitDisplayMode    ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
 
@@ -93,6 +93,4 @@ int main ( int argc, char **argv )
 
   return 0 ;
 }
-
-
 
