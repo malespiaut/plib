@@ -81,7 +81,7 @@ void pslCompiler::pushIntConstant ( const char *c )
 
 void pslCompiler::pushFloatConstant ( const char *c )
 {
-  float f = atof ( c ) ; 
+  float f = (float) atof ( c ) ; 
   char *ff = (char *) & f ;
 
   pushCodeByte ( OPCODE_PUSH_FLOAT_CONSTANT ) ;

@@ -99,7 +99,7 @@ public:
     {
       case PSL_INT    : return (float) i ;
       case PSL_FLOAT  : return         f ;
-      case PSL_STRING : return atof( s ) ;
+      case PSL_STRING : return (float) atof( s ) ;
       case PSL_VOID   : return      0.0f ;
     }
     return 0.0f ;
@@ -186,7 +186,7 @@ public:
     switch ( t )
     {
       case PSL_INT    : i = atoi ( v ) ; return ;
-      case PSL_FLOAT  : f = atof ( v ) ; return ;
+      case PSL_FLOAT  : f = (float) atof ( v ) ; return ;
       case PSL_STRING : delete [] s ;
                         s = ulStrDup ( v ) ;
                         return ;
