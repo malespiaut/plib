@@ -749,11 +749,11 @@ protected:
   int mouse_x ;    // Coordinates of mouse when right button pressed for
   int mouse_y ;    // drag and drop
 
-  short mouse_active;  // Flag telling whether interface is presently being dragged
+  int mouse_active;  // Flag telling whether interface is presently being dragged
 
   void doHit       ( int button, int updown, int x, int y ) ;
 
-  short floating;   // Flag telling whether the interface floats in the window or stays put
+  int floating;   // Flag telling whether the interface floats in the window or stays put
 
 public:
 
@@ -791,8 +791,8 @@ public:
       puPopGroup () ;
   }
 
-  void setFloating (short value) { floating = value; }
-  short getFloating () { return floating; }
+  void setFloating ( int value ) { floating = value; }
+  int getFloating () { return floating; }
 
   void setChildStyle ( int childs, int style, int recursive = FALSE ) ;
   void setChildBorderThickness ( int childs, int t, int recursive = FALSE ) ;
@@ -1462,7 +1462,7 @@ protected:
   char *text ;                 // Pointer to text in large input box
   char *wrapped_text ;         // Pointer to word-wrapped text in the box
 
-  short arrow_count ;          // Number of up/down arrows above and below the right slider
+  int arrow_count ;          // Number of up/down arrows above and below the right slider
 
   int input_disabled ;
 
