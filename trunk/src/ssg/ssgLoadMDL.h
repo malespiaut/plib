@@ -308,7 +308,7 @@ static const _ssgBGLOpCode opcodes[] = {
   { 0x41, "BGL_SHADOW_VICALL"                   , 6  },
   { 0x42, "BGL_POLYGON_RUNWAY"                  , 40 },
   { 0x43, "BGL_TEXTURE2"                        , -1 },
-  { 0x44, "BGL_TEXTURE_RUNWAY"                  , 40 },
+  { 0x44, "BGL_TEXTURE_RUNWAY"                  , 64 }, // 40
   { 0x45, "OBSOLETE 0x45"                       , 16 },
   { 0x46, "BGL_POINT_VICALL"                    , 22 },
   { 0x47, "RESERVED"                            , 4  },
