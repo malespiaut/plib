@@ -1904,6 +1904,7 @@ ssgLight *ssgGetLight ( int i ) ;
 
 int   ssgGetNumTexelsLoaded () ;
 void  ssgSetAppStateCallback ( ssgState *(*cb)(char *) ) ;
+
 char *ssgShowStats () ;
 void  ssgDelete ( ssgBranch *br ) ;
 char *ssgGetVersion () ;
