@@ -14,7 +14,7 @@ static void save_vtx_table ( ssgVtxTable *vt )
   float w = 1.0f ;
 	short iv1, iv2;
 
-  GLenum mode = vt -> getGLtype () ;
+  GLenum mode = vt -> getPrimitiveType () ;
 	//fprintf ( fileout, "g test\n" ); wk: Pfusch fixme: is this necessary?
   
   if (( mode == GL_LINES ) || ( mode == GL_LINE_LOOP) || ( mode == GL_LINE_STRIP))

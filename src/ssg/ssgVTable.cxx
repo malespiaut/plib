@@ -5,7 +5,7 @@ void ssgVTable::copy_from ( ssgVTable *src, int clone_flags )
 {
   ssgLeaf::copy_from ( src, clone_flags ) ;
 
-  gltype  = src -> getGLtype () ;
+  gltype  = src -> getPrimitiveType () ;
   indexed = src -> isIndexed () ;
 
   num_vertices  = src -> getNumVertices  () ;
@@ -95,7 +95,7 @@ ssgVTable::~ssgVTable ()
 
 void ssgVTable::getTriangle ( int n, short *v1, short *v2, short *v3 )
 {
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :
@@ -139,7 +139,7 @@ void ssgVTable::getTriangle ( int n, short *v1, short *v2, short *v3 )
 
 int ssgVTable::getNumTriangles ()
 {
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :
@@ -165,7 +165,7 @@ int ssgVTable::getNumTriangles ()
 
 int ssgVTable::getNumLines ()
 {
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :
@@ -191,7 +191,7 @@ int ssgVTable::getNumLines ()
 void ssgVTable::getLine ( int n, short *v1, short *v2 )
 { 
 	assert( n>=0 );
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :

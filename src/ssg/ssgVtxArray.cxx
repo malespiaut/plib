@@ -207,7 +207,7 @@ void ssgVtxArray::getTriangle ( int n, short *v1, short *v2, short *v3 )
 
 int ssgVtxArray::getNumTriangles ()
 {
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :
@@ -233,7 +233,7 @@ int ssgVtxArray::getNumTriangles ()
 
 int  ssgVtxArray::getNumLines ()
 {
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :
@@ -259,7 +259,7 @@ int  ssgVtxArray::getNumLines ()
 void ssgVtxArray::getLine ( int n, short *v1, short *v2 )
 { 
 	assert( n>=0 );
-  switch ( getGLtype () )
+  switch ( getPrimitiveType () )
   {
     case GL_POLYGON :
     case GL_TRIANGLE_FAN :

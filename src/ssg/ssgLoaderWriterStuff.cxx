@@ -89,7 +89,7 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
 void ssgFindOptConvertTexture( char * filepath, char * tfname ) 
 // Find and optionally (= if necessary) convert texture
 {
-	char tmp[1024], command [1024], *extension ;
+	char tmp[1024], *extension ;
 
 	strcpy( tmp, tfname);
 	extension = strrchr(tmp, '.');
@@ -123,6 +123,7 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname )
 	extension[4] = 0;
 
 #ifdef WIN32
+        char command [ 1024 ] ;
 	sprintf(command, "convert -verbose %s sgi:%s", filepath, tmp);
 	unsigned int ui = WinExec(command, SW_HIDE );	
 	if ( ui < 32 )
