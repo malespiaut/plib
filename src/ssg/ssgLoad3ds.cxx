@@ -1002,6 +1002,7 @@ static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length )
 ssgEntity *ssgLoad3ds( const char *filename, ssgHookFunc hookfunc ) {
   int i = 1 ;
   is_little_endian = *((char *) &i );
+  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
 
   char *filepath;
 
@@ -1058,6 +1059,7 @@ ssgEntity *ssgLoad3ds( const char *filename, ssgHookFunc hookfunc ) {
 
   free_trimesh();
 
+  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
   return top_object; 
 }
 
