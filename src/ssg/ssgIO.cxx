@@ -451,9 +451,9 @@ void ssgTexturePath ( const char *s )
 }
 
 
-static char *file_extension ( char *fname )
+static const char *file_extension ( const char *fname )
 {
-  char *p = & ( fname [ strlen(fname) ] ) ;
+  const char *p = & ( fname [ strlen(fname) ] ) ;
 
   while ( p != fname && *p != '/' && *p != '.' )
     p-- ;
@@ -467,7 +467,7 @@ typedef int         _ssgSaver ( const char *, ssgEntity * ) ;
 
 struct _ssgFileFormat
 {
-  char *extension ;
+  const char *extension ;
   _ssgLoader *loadfunc ;
   _ssgSaver  *savefunc ;
 } ;
@@ -487,12 +487,12 @@ static _ssgFileFormat formats[] =
 } ;
 
   
-ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoad ( const char *fname, ssgHookFunc hookfunc )
 {
   if ( fname == NULL || *fname == '\0' )
     return NULL ;
 
-  char *extn = file_extension ( fname ) ;
+  const char *extn = file_extension ( fname ) ;
 
   if ( *extn != '.' )
   {
@@ -510,12 +510,12 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
 }
 
 
-int ssgSave ( char *fname, ssgEntity *ent )
+int ssgSave ( const char *fname, ssgEntity *ent )
 {
   if ( fname == NULL || ent == NULL || *fname == '\0' )
     return FALSE ;
 
-  char *extn = file_extension ( fname ) ;
+  const char *extn = file_extension ( fname ) ;
 
   if ( *extn != '.' )
   {
