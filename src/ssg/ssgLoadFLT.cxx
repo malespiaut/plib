@@ -730,20 +730,20 @@ static ssgSimpleState *ConstructState(StateInfo *key)
 	 if (key->cm) {
 	    s->enable(GL_COLOR_MATERIAL);
 	    s->setColourMaterial(GL_AMBIENT_AND_DIFFUSE);
-	    /*printf("  color material\n");*/
+	    //printf("  color material\n");
 	 }
 	 else {
 	    s->disable(GL_COLOR_MATERIAL);
 	    sgSetVec4(c, m[0], m[1], m[2], key->alpha); s->setMaterial(GL_AMBIENT, c);
 	    sgSetVec4(c, m[3], m[4], m[5], key->alpha); s->setMaterial(GL_DIFFUSE, c);
-	    /*printf("  ambient   %.2f %.2f %.2f\n", m[0], m[1], m[2]);*/
-	    /*printf("  diffuse   %.2f %.2f %.2f\n", m[3], m[4], m[5]);*/
+	    //printf("  ambient   %.2f %.2f %.2f\n", m[0], m[1], m[2]);
+	    //printf("  diffuse   %.2f %.2f %.2f\n", m[3], m[4], m[5]);
 	 }
 	 sgSetVec4(c, m[6], m[7], m[8], key->alpha); s->setMaterial(GL_SPECULAR, c);
 	 sgSetVec4(c, m[9], m[10], m[11], key->alpha); s->setMaterial(GL_EMISSION, c);
-	 /*printf("  specular  %.2f %.2f %.2f\n", m[6], m[7], m[8]);*/
-	 /*printf("  emission  %.2f %.2f %.2f\n", m[9], m[10], m[11]);*/
-	 /*printf("  alpha %.2f\n", key->alpha);*/
+	 //printf("  specular  %.2f %.2f %.2f\n", m[6], m[7], m[8]);
+	 //printf("  emission  %.2f %.2f %.2f\n", m[9], m[10], m[11]);
+	 //printf("  alpha %.2f\n", key->alpha);
 	 s->setShininess(m[12]);
 	 s->enable(GL_LIGHTING);
       }
@@ -972,15 +972,17 @@ static ssgEntity *Build(fltState *state)
 		     ulSetError(UL_DEBUG, "[flt] More than 65536 vertices, split forced.");
 		     n = save;
 		     j = k;
-		     goto hopp;
+		     //goto hopp;
+		     break;
 		  }
 		  vertex[n] = tri[m];
 		  index[tri[m]] = n++;
 	       }
 	       ia->add((short)index[tri[m]]);
 	    }
+	    if (m < 3) break;
 	 }
-      hopp:
+	 //hopp:
 	 
 	 va = new ssgVertexArray(n);
 	 for (k = 0; k < n; k++)
@@ -1325,6 +1327,8 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
 	       int lmode = len >= 49 ? ptr[48] : 3;
 	       int trans = get16u(ptr + 40);
 
+	       //printf("light mode %d\n", lmode);
+
 	       /*lmode = 0;*/
 	    
 	       /* wireframe */
@@ -1352,7 +1356,7 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
 	       info.mtl = 0;
 #else
 	       /* material */
-	       if (/* (objflags & (1 << 3)) || */ white) {
+	       if (lmode < 2 || /* (objflags & (1 << 3)) || */ white) {
 		  info.mtl = 0;
 	       }
 	       else {
@@ -1417,6 +1421,14 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
 		  tri.color[3] = info.alpha;
 	       }
 #endif
+
+	       /*
+		 if (tri.bind & BIND_COLOR) 
+		   printf("use vertex colors\n");
+		 if (tri.bind & BIND_FLAT_COLOR)
+		   printf("face color %.2f %.2f %.2f\n", 
+			  tri.color[0], tri.color[1], tri.color[2]);
+	        */
 
 	       /* billboard */
 	       if (template == 4)
@@ -2252,6 +2264,7 @@ static int VertexTable(ubyte *ptr0, ubyte *end, fltState *state)
       if (!(flags & 4)) {
 	 if ((flags & 8) && p + 4 <= ptr + len) {
 	    UNPACK_ABGR(state->color[i], p);
+	    //printf("packed ABGR: %d %d %d %d\n", p[0], p[1], p[2], p[3]);
 	    bind |= BIND_COLOR;
 	 }
 	 else if (state->revision > 1400) {
@@ -2267,11 +2280,19 @@ static int VertexTable(ubyte *ptr0, ubyte *end, fltState *state)
 	    int index = color / 128;
 	    int intensity = color % 128;
 	    if (color >= 0 && state->ctab && index < state->cnum) {
+	       //printf("colour %d: index %d, intensity %d\n", color, index, intensity);
 	       UNPACK_ABGR2(state->color[i], state->ctab[index], intensity);
 	       bind |= BIND_COLOR;
 	    }
 	 }
       }
+      /*
+       if (bind & BIND_COLOR)
+	 printf("vertex #%d color %.2f %.2f %.2f\n", i,
+		state->color[i][0],
+		state->color[i][1],
+		state->color[i][2]);
+      */
       state->bind[i] = bind;
       ptr += len;      
    }
