@@ -761,11 +761,6 @@ struct ssgEntityBinding
 } ;
 
 
-typedef int (*ssgCallback)( ssgEntity * ) ;
-#define SSG_CALLBACK_PREDRAW   1
-#define SSG_CALLBACK_POSTDRAW  2
-
-
 class ssgEntity : public ssgBase
 {
   ssgList parents ;
@@ -773,9 +768,6 @@ class ssgEntity : public ssgBase
   int traversal_mask ;
 
 protected:
-  ssgCallback  preDrawCB ;
-  ssgCallback postDrawCB ;
-
   sgSphere bsphere ;
   int bsphere_is_invalid ;
 
@@ -803,20 +795,6 @@ public:
   virtual ssgEntity* getByName  ( char *nm ) ;
   virtual ssgEntity* getByPath  ( char *path ) ;
   int  bindEntities ( ssgEntityBinding *bind ) ;
-
-  ssgCallback getCallback ( int cb_type )
-  {
-    return ( cb_type == SSG_CALLBACK_PREDRAW ) ? preDrawCB : postDrawCB ;
-  }
-
-  void setCallback ( int cb_type, ssgCallback cb )
-  {
-    if ( cb_type == SSG_CALLBACK_PREDRAW )
-      preDrawCB = cb ;
-    else
-      postDrawCB = cb ;
-  }
-
 
   virtual void recalcBSphere (void) = 0 ;
   int  isDirtyBSphere (void) { return bsphere_is_invalid ; }
@@ -849,12 +827,18 @@ public:
 
 
 
+typedef int (*ssgCallback)( ssgEntity * ) ;
+#define SSG_CALLBACK_PREDRAW   1
+#define SSG_CALLBACK_POSTDRAW  2
+
 class ssgLeaf : public ssgEntity
 {
   int cull_face ;
   ssgState *state ;
 
 protected:
+  ssgCallback  preDrawCB ;
+  ssgCallback postDrawCB ;
 
 #ifdef _SSG_USE_DLIST
   GLuint dlist ;
@@ -890,6 +874,19 @@ public:
   ssgState *getState () { return state ; }
   void      setState ( ssgState *st ); //~~ T.G. Body extended & moved into CXX file
  
+  ssgCallback getCallback ( int cb_type )
+  {
+    return ( cb_type == SSG_CALLBACK_PREDRAW ) ? preDrawCB : postDrawCB ;
+  }
+
+  void setCallback ( int cb_type, ssgCallback cb )
+  {
+    if ( cb_type == SSG_CALLBACK_PREDRAW )
+      preDrawCB = cb ;
+    else
+      postDrawCB = cb ;
+  }
+
   virtual int getNumVertices  () { return 0 ; }
   virtual int getNumNormals   () { return 0 ; }
   virtual int getNumColours   () { return 0 ; }
@@ -1159,11 +1156,18 @@ public:
 // class ssgVtxInterleavedArray
 
 
+typedef int (*ssgTravCallback)( ssgBranch *branch, int traversal_mask ) ;
+#define SSG_CALLBACK_PRETRAV   1
+#define SSG_CALLBACK_POSTTRAV  2
+
 class ssgBranch : public ssgEntity
 {
   ssgKidList kids ;
 
 protected:
+  ssgTravCallback  preTravCB ;
+  ssgTravCallback postTravCB ;
+
   virtual void copy_from ( ssgBranch *src, int clone_flags ) ;
 
 public:
@@ -1183,6 +1187,19 @@ public:
   void removeKid     ( int n ) ;
   void removeKid     ( ssgEntity *entity ) ;
   void removeAllKids (void) ;
+
+  ssgTravCallback getCallback ( int cb_type )
+  {
+    return ( cb_type == SSG_CALLBACK_PRETRAV ) ? preTravCB : postTravCB ;
+  }
+
+  void setCallback ( int cb_type, ssgTravCallback cb )
+  {
+    if ( cb_type == SSG_CALLBACK_PRETRAV )
+      preTravCB = cb ;
+    else
+      postTravCB = cb ;
+  }
 
   virtual ssgEntity *getByName ( char *match ) ;
   virtual ssgEntity *getByPath ( char *path  ) ;
@@ -1251,27 +1268,27 @@ public:
     return s ;
   }
 
-  int isSelected ( unsigned int i )
+  int isSelected ( unsigned int i ) const
   {
     return (i<(unsigned int)max_kids) ? selection [ i ] : FALSE ;
   }
-
+  
   int getFirstSelection ()
   {
     int res ;
-
+    
     for ( res = 0 ; res < max_kids && ! selection[res] ; res++ )
       /* Look for first selection */ ;
-
+      
     return ( res < max_kids ) ? res : -1 ;
   }
-
+  
   ssgEntity *getFirstSelectedKid ()
   {
     int k = getFirstSelection () ;
     return (k >= 0) ? getKid ( k ) : NULL ;
   }
-
+  
   int getMaxKids (void) const { return max_kids ; }
 
   virtual char *getTypeName(void) ;
