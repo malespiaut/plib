@@ -574,6 +574,10 @@ inline SGfloat sgScalarProductVec4 ( const sgVec4 a, const sgVec4 b )
 
 extern void sgVectorProductVec3 ( sgVec3 dst, const sgVec3 a, const sgVec3 b ) ;
 
+inline SGfloat sgLerp ( const SGfloat a, const SGfloat b, const SGfloat f )
+{
+  return a + f * ( b - a ) ;
+}
 
 inline void sgLerpVec4 ( sgVec4 dst, const sgVec4 a, const sgVec4 b, const SGfloat f )
 {
@@ -2795,6 +2799,86 @@ public:
   }
 
 } ;
+
+
+/*
+  It must be true that (x % NOISE_WRAP_INDEX) == (x & NOISE_MOD_MASK)
+  so NOISE_WRAP_INDEX must be a power of two, and NOISE_MOD_MASK must be
+  that power of 2 - 1.  as indices are implemented, as unsigned chars,
+  NOISE_WRAP_INDEX shoud be less than or equal to 256.
+  There's no good reason to change it from 256, really.
+
+  NOISE_LARGE_PWR2 is a large power of 2, we'll go for 4096, to add to
+  negative numbers in order to make them positive
+*/
+
+#define SG_PERLIN_NOISE_WRAP_INDEX    256
+#define SG_PERLIN_NOISE_MOD_MASK      255
+#define SG_PERLIN_NOISE_LARGE_PWR2   4096
+
+
+
+class sgPerlinNoise_1D
+{
+private:
+
+  SGfloat gradTable [ SG_PERLIN_NOISE_WRAP_INDEX * 2 + 2 ] ;
+
+public:
+
+  sgPerlinNoise_1D () ;
+
+  void regenerate () ;
+
+  SGfloat getNoise ( SGfloat x ) ;
+} ;
+
+
+
+class sgPerlinNoise_2D
+{
+private:
+
+  sgVec2 gradTable [ SG_PERLIN_NOISE_WRAP_INDEX * 2 + 2 ] ;
+
+public:
+
+  sgPerlinNoise_2D () ;
+
+  void regenerate () ;
+
+  SGfloat getNoise ( sgVec2 pos ) ;
+  SGfloat getNoise ( SGfloat x, SGfloat y )
+  {
+    sgVec2 p ;
+    sgSetVec2 ( p, x, y ) ;
+    return getNoise ( p ) ;
+  }
+} ;
+
+
+
+class sgPerlinNoise_3D
+{
+private:
+
+  sgVec3 gradTable [ SG_PERLIN_NOISE_WRAP_INDEX * 2 + 2 ] ;
+
+public:
+
+  sgPerlinNoise_3D () ;
+
+  void regenerate () ;
+
+  SGfloat getNoise ( sgVec3 pos ) ;
+  SGfloat getNoise ( SGfloat x, SGfloat y, SGfloat z )
+  {
+    sgVec3 p ;
+    sgSetVec3 ( p, x, y, z ) ;
+    return getNoise ( p ) ;
+  }
+} ;
+
 
 
 #endif

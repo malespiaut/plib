@@ -870,6 +870,45 @@ The following routines interconvert between double precision
   void sgSetMat4 ( sgMat4 dst, sgdMat4 src ) ;
   void sgSetCoord ( sgCoord *dst, sgdCoord *src ) ;
 </pre>
+<H3>Perlin Noise.</H3>
+There are three classes that implement Perlin Noise functions
+(in one, two and three dimensions).
+<pre>
+
+class sgPerlinNoise_1D
+{
+  sgPerlinNoise_1D () ;
+  void regenerate  () ;
+  SGfloat getNoise ( SGfloat x ) ;
+} ;
+ 
+class sgPerlinNoise_2D
+{
+  sgPerlinNoise_2D () ;
+  void regenerate  () ;
+  SGfloat getNoise ( sgVec2 pos ) ;
+  SGfloat getNoise ( SGfloat x, SGfloat y ) ;
+} ;
+ 
+class sgPerlinNoise_3D
+{
+  sgPerlinNoise_3D () ;
+  void regenerate  () ;
+  SGfloat getNoise ( sgVec3 pos ) ;
+  SGfloat getNoise ( SGfloat x, SGfloat y, SGfloat z ) ;
+} ;
+
+</pre>
+In each case, you simply construct the class, then call 'getNoise'
+with the coordinate (either one, two or three-dimensional) at which
+you need the value for the noise function.  Perlin noise is both
+repeatable (if you make the same request twice, you get the same
+result) and continuous (there are no large jumps between results
+for points that are close to one-another).
+<p>
+Calling 'regenerate' will cause the function to subsequently
+generate a different noise pattern (presuming you didn't re-seed
+the 'rand()' function to the same value before each call).
 <H3>Spring/Mass/Damper model.</H3>
 Many applications can greatly benefit from some simple dynamics
 modelling.  SG includes two classes that taken together implement
