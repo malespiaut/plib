@@ -112,7 +112,7 @@ puColour _puDefaultColourTable[] =
   { 1.0f, 1.0f, 1.0f, 1.0f }, /* PUCOL_LEGEND     */
   { 0.0f, 0.0f, 0.0f, 1.0f }  /* PUCOL_MISC       */
 } ;
- 
+
 
 static int glIsValidContext ()
 {
@@ -274,17 +274,17 @@ static void puSetOpenGLState ( void )
   if ( ! openGLSize )
     glPushAttrib   ( GL_ENABLE_BIT | GL_TRANSFORM_BIT | GL_LIGHTING_BIT ) ;
   else
-  glPushAttrib   ( GL_ENABLE_BIT | GL_VIEWPORT_BIT | GL_TRANSFORM_BIT | GL_LIGHTING_BIT ) ;
+    glPushAttrib   ( GL_ENABLE_BIT | GL_VIEWPORT_BIT | GL_TRANSFORM_BIT | GL_LIGHTING_BIT ) ;
 
   glDisable      ( GL_LIGHTING   ) ;
   glDisable      ( GL_FOG        ) ;
   glDisable      ( GL_TEXTURE_2D ) ;
   glDisable      ( GL_DEPTH_TEST ) ;
   glDisable      ( GL_CULL_FACE  ) ;
- 
+
   if ( ! openGLSize )
   glViewport     ( 0, 0, w, h ) ;
- 
+
   glMatrixMode   ( GL_PROJECTION ) ;
   glPushMatrix   () ;
   glLoadIdentity () ;
@@ -333,9 +333,9 @@ void  puDisplay ( int window_number )  /* Deprecated */
 int puKeyboard ( int key, int updown )
 {
   int return_value = puGetBaseLiveInterface () -> checkKey ( key, updown ) ;
-  
+
   puCleanUpJunk () ;
-  
+
   return return_value ;
 }
 
@@ -349,9 +349,9 @@ static int pu_mouse_offset_y = 0 ;
 int puMouse ( int button, int updown, int x, int y )
 {
   puCursor ( x, y ) ;
-  
+
   int h = puGetWindowHeight () ;
-  
+
   if ( updown == PU_DOWN )
     last_buttons |=  ( 1 << button ) ;
   else
@@ -361,11 +361,25 @@ int puMouse ( int button, int updown, int x, int y )
   pu_mouse_y = h - y ;
   int return_value =  puGetBaseLiveInterface () -> checkHit ( button,
     updown, pu_mouse_x, pu_mouse_y ) ;
-  
+
   puCleanUpJunk () ;
-  
-  if ( last_buttons == 0 )
-    puDeactivateWidget () ;
+
+  puObject *active = puActiveWidget () ;
+
+  if ( ( last_buttons == 0 ) && ( active != NULL ) )
+  {
+    int x_offset, y_offset ;
+    active -> getAbsolutePosition ( &x_offset, &y_offset ) ;
+
+    x_offset -= active -> getABox () -> min[0] ;
+    y_offset -= active -> getABox () -> min[1] ;
+
+    if ( ! active -> isHit ( pu_mouse_x - x_offset, pu_mouse_y - y_offset ) )
+    {
+      active -> invokeDownCallback () ;
+      puDeactivateWidget () ;
+    }
+  }
 
   return return_value ;
 }
@@ -374,7 +388,7 @@ int puMouse ( int button, int updown, int x, int y )
 int puMouse ( int x, int y )
 {
   puCursor ( x, y ) ;
-  
+
   if ( last_buttons == 0 )
     return FALSE ;
 
@@ -402,10 +416,10 @@ int puMouse ( int x, int y )
   }
 
   int return_value = puGetBaseLiveInterface () -> checkHit ( button,
-    PU_DRAG, x, h - y ) ;
-  
+    PU_DRAG, pu_mouse_x, pu_mouse_y ) ;
+
   puCleanUpJunk () ;
-  
+
   return return_value ;
 }
 

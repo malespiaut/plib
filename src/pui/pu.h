@@ -584,6 +584,8 @@ public:
   puBox *getBBox ( void ) { return & bbox ; }
   puBox *getABox ( void ) { return & abox ; }
 
+  void getAbsolutePosition ( int *x, int *y ) ;
+
   virtual void setPosition ( int x, int y )
   {
     if ( abox.isEmpty() )
