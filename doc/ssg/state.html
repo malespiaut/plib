@@ -1,0 +1,232 @@
+
+<HTML>
+<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+
+
+
+<H2><code>class ssgState</code> - OpenGL state representation.</H2>
+Each leaf node will have some kind of ssgState node associated
+with it that contains all relevent OpenGL state information.
+<p>
+There can (in principal) be a number of different ways to represent
+OpenGL state - but all must be derived from an ssgState:
+<pre>
+
+  class ssgState : public ssgBase
+  {
+    int  getExternalPropertyIndex () ;
+    void setExternalPropertyIndex ( int i ) ;
+
+    virtual void force () ;
+    virtual void apply () ;
+  } ;
+
+</pre>
+<H3>External Properties.</H3>
+Each state entity can have an external property - which is a simple
+integer that can be set using <code>ssgState::setExternalPropertyIndex(i)</code>
+or queried using <code>ssgState::getExternalPropertyIndex()</code>.
+External properties are of use to certain sorts of applications programs,
+for example, a game might want to encode the set of OpenGL state information
+that represents Lava as something that is hot and Ice as something that
+is cold by encoding the temperature of the material in the External
+property field. Most applications will probably use this field as an
+index into a table of material properties inside the application itself.
+<H3>Applying a State.</H3>
+Whilst it's rare for an application to need to deal with an ssgState
+once it has been defined, there may be occasions when the application
+wishes to draw objects of it's own without using SSG's scene graph.
+This often is the case with on-screeen symbology.
+<p>
+In such cases, it is important to bear in mind that SSG changes the
+OpenGL state as little as possible - in order to save time.  Hence,
+when a leaf node has just been drawn with one set of state information,
+and another leaf node is about to be drawn using another, SSG carefully
+compares the two states to see how they differ and arranges to make
+only the fewest possible OpenGL state change calls. If the application
+goes in "behind SSG's back" and changes state then SSG will be confused.
+<p>
+There are two ways to achive this. One is to use SSG state classes to
+change the state by calling <code>ssgState::apply()</code>. That call
+will ensure that OpenGL's state matches the desired state using the
+minimum of calls. However, if your application absolutely MUST make
+it's own state calls then you should call <code>ssgState::force()</code>
+to force all aspects of a specified state to be set in OpenGL so that
+SSG can be certain about how things are set up.
+<H2><code>class ssgSimpleState</code> - Simple State class.</H2>
+ssgSimpleState is currently the only concrete class derived from
+ssgState. It has so far proved adequate for all state management.
+<pre>
+  class ssgSimpleState : ssgState
+  {
+    void disable ( GLenum mode ) ;
+    void enable  ( GLenum mode ) ;
+    void set ( GLenum mode, int val ) { val ? enable(mode) : disable(mode) ; }
+  
+    void setTexture ( char *fname, int wrapu = TRUE, int wrapv = TRUE )
+    void setTexture ( ssgTexture *tex )
+    void setTexture ( GLuint tex )
+    void setColourMaterial ( GLenum which )
+    void setMaterial ( GLenum which, float r, float g, float b, float a = 1.0f )
+    void setMaterial   ( GLenum which, sgVec4 rgba )
+    void setShininess ( float sh )
+    void setShadeModel ( GLenum model )
+    void setAlphaClamp ( float clamp )
+  } ;
+</pre>
+These calls mostly correspond to similarly named OpenGL functions.
+<H3>Enable and Disable calls:</H3>
+<code>ssgSimpleState:: disable ( mode )</code>,
+<code>ssgSimpleState:: enable  ( mode )</code> and
+<code>ssgSimpleState:: set ( mode, val )</code> provide
+the same services as glEnable and glDisable ('set' is a convenience function
+that is a 'disable' if 'val' is FALSE, 'enable' otherwise). The 'mode'
+parameter uses tokens that are similarly named to those in OpenGL:
+<pre>
+
+  SSG_GL_TEXTURE_EN
+  SSG_GL_CULL_FACE_EN
+  SSG_GL_COLOR_MATERIAL_EN
+  SSG_GL_BLEND_EN
+  SSG_GL_ALPHA_TEST_EN
+  SSG_GL_LIGHTING_EN
+ 
+</pre>
+<H3>Texture states.</H3>
+There are three ways to attach a texture to an ssgSimpleState:
+<code>ssgSimpleState::setTexture ( fname, wrapu, wrapv )</code>,
+<code>ssgSimpleState::setTexture ( ssgtexture )</code>, and
+<code>ssgSimpleState::setTexture ( texture_handle )</code>.
+In the form that takes a filename, U-axis wrap and V-axis wrap flags, the
+texture is loaded from a texture file on disk (see ssgTexture
+below for details on how this is done).  The map will be MIPmapped and set with
+a texture environment that is GL_LINEAR_MIPMAP_LINEAR and GL_MODULATE.
+<p>
+If you need something fancier, then declare an 'ssgTexture' class and
+pass that to the setTexture function. You can also load your own
+texture and pass the OpenGL glBindTexture handle to setTexture.
+<H3>Materials.</H3>
+These calls are all very similar to OpenGL calls - and take the same
+parameters:
+<code>ssgSimpleState::setColourMaterial(which)</code>
+<code>ssgSimpleState::setMaterial(which,r,g,b,a)</code>
+<code>ssgSimpleState::setMaterial(which,rgba)</code>
+<code>ssgSimpleState::setShininess(sh)</code>
+<code>ssgSimpleState::setShadeModel(model)</code>
+<code>ssgSimpleState::setAlphaClamp(clamp)</code>
+<H2><code>class ssgTexture</code> - Storing texture maps.</H2>
+An ssgTexture loads a texture map for you with the minimum possible
+fuss - but offers less flexibility than if you did so yourself.
+<p>
+The ssgTexture constructor function
+<code>ssgTexture::ssgTexture( char *fname,
+int wrapu = TRUE, int wrapv = TRUE )</code> does all the work,
+presuming that you require GL_LINEAR_MIPMAP_LINEAR filtering and a
+GL_MODULATE texture environment.
+<p>
+You can obtain the OpenGL glBindTexture handle for the texture
+using <code>ssgTexture::getHandle()</code>.
+<p>
+When ssgTexture loads a map from disk, it uses the filename
+extension to determine which image format the file is in.
+<p>
+Currently, only SGI format and <strong>uncompressed</strong>
+8 or 24 bit BMP images are supported - but more
+formats are planned for the future. Filenames ending with
+'.rgb', '.rgba', '.int', '.inta', '.bw' are assumed to be
+SGI formatted files, '.bmp' are in Microsoft's BMP format
+and '.png' are in Portable Network Graphics format.
+<p>
+If for any reason ssgTexture cannot load the requested file,
+it creates a 2x2 texel red and white chequerboard map to
+enable the program to continue running. This is often very
+useful for debugging and to enable program development to
+continue when texture maps are not yet painted.
+<H2><code>class ssgStateSelector</code> - Switchable State class.</H2>
+There are cases where you would like to be able to switch between a
+number of different states for a given leaf node.
+<pre>
+  class ssgStateSelector : ssgSimpleState
+  {
+    ssgStateSelector ( int nstates ) ;
+
+    void            selectStep ( unsigned int s ) ;
+    int             getSelectStep  (void) ;
+    ssgSimpleState *getCurrentStep (void) ;
+    void            setStep ( int i, ssgSimpleState *step ) ;
+    ssgSimpleState *getStep ( int i ) ;
+  } ;
+</pre>
+This class is used to switch between some number of <code>ssgSimpleStates</code>.
+You could (for example) draw the ground for your game as either
+grass or snow - depending on the season. Construct objects of this
+class with the number of alternative representations you will require
+as it's parameter, then create a number of <code>ssgSimpleState</code>s - passing
+them to <code>ssgStateSelector::setStep()</code>.  You can then select which
+step you wish to render using <code>ssgStateSelector::selectStep()</code>.
+<p>
+<code>ssgStateSelector::getSelectStep()</code> returns the number of the currently
+selected step.  <code>ssgStateSelector::getCurrentStep()</code> returns a pointer to
+the currently selected <code>ssgSimpleState</code>.  <code>ssgStateSelector::getStep()</code>
+returns a pointer to the i'th <code>ssgSimpleState</code>.
+<p>
+Since <code>ssgStateSelector</code> is derived from <code>ssgSimpleState</code>,
+all the other <code>ssgSimpleState</code> calls work - and the effect is to
+operate on the currently selected <code>ssgSimpleState</code>.
+<p>
+Example:
+<pre>
+
+     ssgStateSelector *s = new ssgStateSelector ( 2 ) ;
+     ssgSimpleState *grass = new ssgSimpleState () ;
+     ssgSimpleState *snow  = new ssgSimpleState () ;
+
+     ...set up grass and snow states appropriately...
+
+     s -> setStep ( 0, grass ) ;
+     s -> setStep ( 1, snow  ) ;
+
+     leafnode1 -> setState ( s ) ;
+     leafnode2 -> setState ( s ) ;
+     leafnode3 -> setState ( s ) ;
+
+     ...choose grass or snow...
+
+     if ( ! winter )
+       s -> selectStep ( 0 ) ;
+     else
+       s -> selectStep ( 1 ) ;
+
+     ...render the scene...
+
+</pre>
+Notice that one selectStep call changes the material on all
+leaf nodes that use that ssgStateSelector.
+
+
+
+
+
+<hr>
+<table width="100%">
+   	<tr>
+   		<td width="33%" align="left"><a href="branches.html">&lt;= previous =</a></td>
+   		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
+   		<td width="33%" align="right"><a href="ssgContext.html">= next =&gt;</a></td>
+   	</tr>
+</table>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+

@@ -1,0 +1,231 @@
+
+<HTML>
+<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+<H2><code>class ssgLeaf</code> - Leaf nodes.</h2>
+Leaf nodes are those that actually make OpenGL calls
+or take other 'rendering' actions - they contain
+all of the geometric information in the scene.
+<pre>
+
+class ssgLeaf : public ssgEntity
+{
+public:
+  int  getExternalPropertyIndex ()
+  int  isTranslucent ()
+  int       hasState ()
+  ssgState *getState ()
+  void      setState ( ssgState *st )
+
+  virtual float *getVertex   ( int i )
+  virtual float *getNormal   ( int i )
+  virtual float *getColour   ( int i )
+  virtual float *getTexCoord ( int i )
+
+  virtual int  getNumTriangles() ;
+  virtual void getTriangle ( int n, short *v1, short *v2, short *v3 )
+
+  virtual void transform ( sgMat4 m )
+
+  void setCullFace ( int cf )
+  int  getCullFace ()
+
+  void makeDList () ;
+  void deleteDList () ;
+  GLuint getDListIndex () ;
+} ;
+
+</pre>
+
+<H3>Pre- and Post-Draw Callbacks.</H3>
+It's frequently useful to have an application function called
+just before and/or just after a leaf node is rendered.
+<pre>
+
+  typedef int (*ssgCallback)( ssgEntity * ) ;
+  ssgCallback getCallback ( int which ) ;
+  void setCallback ( int which, ssgCallback cb ) ;
+
+</pre>
+(Where 'which' is either SSG_CALLBACK_PREDRAW for a function that's
+to be called before the node is drawn or SSG_CALLBACK_POSTDRAW for
+one that's called after rendering.) In both cases, the function will
+be passed a pointer to the leaf node that's about to be drawn, and
+(in the case of PREDRAW callbacks), may return FALSE to prevent the
+node from being drawn, or TRUE to have it draw normally.
+<H3>Display Lists</H3>
+A leaf node is normally rendered in 'immediate' mode in OpenGL,
+so that changes you make to the leaf will be reflected on the
+screen on the next occasion that it's drawn. However, on some
+graphics hardware, it's more efficient to create an OpenGL
+display list for each leaf node. This can be managed by
+calling <code>ssgLeaf::makeDList()</code>. If you want to
+make changes to the Leaf, you'll have to call makeDList again
+since OpenGL does not support the editing of display lists.
+<p>
+You can call <code>ssgLeaf::deleteDList()</code> to stop
+this leaf from being display listed from now on and to
+free up the display list memory.
+<code>ssgLeaf::getDListIndex()</code> returns the OpenGL
+display list handle - or zero if no display list exists
+for this leaf.
+<p>
+If you change a leaf node's geometry when it has an
+active display list without calling either deleteDList
+or makeDList again, then any subsequent operation
+involving rendering this node could fail.
+
+<H3>Face Culling.</H3>
+By default, ssgLeaf nodes are back-face culled, you can change
+that for any given node using <code>ssgLeaf::setCullFace(cf)</code>
+where <code>cf</code> is TRUE to enable backface culling,
+FALSE to disable it. You can test the state of face culling
+using <code>ssgLeaf::getCullFace()</code>.
+<H3>State Management.</H3>
+OpenGL supports a wide selection of state information - things like
+texture, materials and such. All of this information is held in a
+separate SSG class hierarchy: 'ssgState'.  Each leaf has a state
+which it sets up before drawing the geometry that the leaf contains.
+<p>
+Nodes may also be stateless - but that isn't useful for any
+of the existing SSG leaf node types.
+<p>
+You can set the state for a node using <code>ssgLeaf::setState(state)</code>
+and query it using <code>ssgLeaf::getState()</code>. You can ask if
+a node has state information attached using <code>ssgLeaf::hasState()</code>.
+<p>
+Since OpenGL does not render translucent object well when Z-buffering
+is enabled, it's often useful to know if an object is translucent.
+<code>ssgLeaf::isTranslucent()</code> handles that test.
+<p>
+It is often useful to tag ssgState's with external properties - and
+you can retrieve the property of a leaf's state using
+<code>ssgLeaf::getExternalPropertyIndex()</code>.
+<H3>Querying Geometry</H3>
+The actual storage format for geometry in classes derived from
+ssgLeaf varies from class to class. However, it's very useful
+to be able to query the geometry in an implementation-independent
+manner.
+<p>
+Although classes derived from ssgLeaf are entitled to store their
+geometry in any form, all of them are required to respond to
+queries about basic triangle primitives.
+<p>
+Firstly, you can get a count of the number of triangles in this
+leaf using <code>ssgLeaf::getNumTriangles()</code>. Each triangle
+has an index number for each vertex which can be queried using
+<code>ssgLeaf::getTriangle(n,&v1,&v2,&v3)</code> which copies
+the 'short' indices for the n'th triangle's three vertices into
+v1, v2 and v3.
+<p>
+Once you know the indices of a triangle's vertices, you can ask for
+more information about that vertex using
+<code>ssgLeaf::getVertex(i)</code>,
+<code>ssgLeaf::getNormal(i)</code>,
+<code>ssgLeaf::getColour(i)</code>, and
+<code>ssgLeaf::getTexCoord(i)</code>. These calls allow you to
+retrieve the i'th vertex, normal, colour or texture coordinate as
+a short floating point array. (3 elements for Vertex and Normal,
+4 elements for Colour (RGBA) and two elements for a texture coordinate.
+<p>
+You can transform all the vertices of a leaf each frame by placing
+an ssgTransform node above the leaf in the scene graph - but for
+transformations that never change, it's more efficient to pre-transform
+the vertices in the leaf node.
+<code>ssgLeaf::transform(matrix)</code> permenantly transforms all
+the vertices and normals of this leaf by multiplying them by the
+matrix. (In the case of the normals, the translation part of the
+matrix is ignored).
+<p>
+It's inadvisable to repeatedly transform a leaf using <code>transform</code>
+since roundoff error will be accumulated with bad consequences (eventually).
+In those cases, use an ssgTransform node.
+
+<H2><code>class ssgVtxTable</code> - A Vertex-table leaf node.</H2>
+This class allows one to represent leaf geometry as arrays of vertex,
+normal, texture coordinate and colour data.  As a derived class of
+ssgLeaf, Vertex Tables add a constructor function to take the
+pre-computed vertex data:
+<pre>
+
+  ssgVtxTable ( GLenum ty, ssgVertexArray   *vl,
+                           ssgNormalArray   *nl,
+                           ssgTexCoordArray *tl,
+                           ssgColourArray   *cl ) ;
+
+</pre>
+'ty' is an OpenGL primitive type (such as one might pass to glBegin):
+<pre>
+
+    GL_POLYGON
+    GL_TRIANGLE_FAN
+    GL_TRIANGLES
+    GL_TRIANGLE_STRIP
+    GL_QUAD_STRIP
+    GL_QUADS
+
+</pre>
+the remaining arguments are lists of (x,y,z) vertices, (nx,ny,nz)
+normals, (s,t) texture coordinates and (r,g,b,a) colours.
+<H2><code>class ssgVertexArray/ssgNormalArray/ssgTexCoordArray/ssgColourArray</code> - Vertex data storage classes.</H2>
+These four classes are used for storing vertex data for ssgVtxTable nodes.
+Each class implements an extensible array that grows as you add data to
+it.
+<pre>
+
+  ssg*Array::ssg*Array ( int init = 3 ) ;
+
+</pre>
+When you construct the array, you may specify an initial size for it,
+the default is three elements.  If you don't know how big the array
+is, don't worry about it - but if you do know, there are time and
+storage space advantages to telling the class the exact number.
+<pre>
+
+  void ssgVertexArray  ::add ( sgVec3 data ) ;
+  void ssgNormalArray  ::add ( sgVec3 data ) ;
+  void ssgTexCoordArray::add ( sgVec2 data ) ;
+  void ssgColourArray  ::add ( sgVec4 data ) ;
+
+</pre>
+These functions tack another data element onto the end of the array.
+<pre>
+
+  float *ssg*Array::get ( int i ) ;
+
+</pre>
+Returns the address of the i'th element of the array.
+<pre>
+
+  int ssg*Array::getNum () ;
+
+</pre>
+Returns the number of data elements currently stored in the array.
+<pre>
+
+  void ssg*Array::removeAll () ;
+
+</pre>
+Empties the array.
+
+<hr>
+<table width="100%">
+   	<tr>
+   		<td width="33%" align="left"><a href="ssgEntity.html">&lt;= previous =</a></td>
+   		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
+   		<td width="33%" align="right"><a href="branches.html">= next =&gt;</a></td>
+   	</tr>
+</table>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+
