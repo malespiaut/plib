@@ -114,7 +114,7 @@ ulDirEnt* ulReadDir ( ulDir* dir )
   strcpy( dir->curr.d_name, direntp->d_name );
 #endif
 
-  char path[ UL_NAME_MAX+1 ];
+  char path[ 1000 + UL_NAME_MAX+1 ];
   sprintf( path, "%s/%s", dir->dirname, dir->curr.d_name );
 
   //determine if this entry is a directory
@@ -145,9 +145,9 @@ void ulCloseDir ( ulDir* dir )
 #if defined(WIN32) && !defined(__CYGWIN__)
     FindClose(dir->hFind);
 #else
-    closedir(dir->dirp);
+    closedir ( dir->dirp ) ;
 #endif
-    delete dir;
+    delete dir ;
   }
 }
 

@@ -111,7 +111,7 @@ void puListBox::draw ( int dx, int dy )
         glColor4f ( 0.0, 0.0, 0.0, 1.0 ) ;
 
       int x = PUSTR_LGAP ;
-      int y = PUSTR_BGAP + yinc * ((i-top)+1) ;
+      int y = yinc * ((i-top)+1) ;
 
       int xx = dx + abox.min[0] + x ;
       int yy = dy + abox.max[1] - y ;

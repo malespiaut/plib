@@ -362,7 +362,7 @@ void display(void)
   }
   else if ( fps > 0 )
   {
-    char buffer [ 80 ] ;
+    char buffer [ PUSTRING_MAX ] ;
     text -> begin () ;
     glColor3f ( 0, 0, 0 ) ;
     text -> start2f ( (float)4, (float)(h-16) ) ;
@@ -528,7 +528,7 @@ void pick_cb ( puObject * )
   char* str ;
   file_picker -> getValue ( &str ) ;
   
-  char fname [80];
+  char fname [PUSTRING_MAX];
   strcpy ( fname, str ) ;
   
   puDeleteObject ( file_picker ) ;

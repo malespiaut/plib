@@ -1285,9 +1285,9 @@ public:
 
 class puFilePicker : public puDialogBox
 {
-  char** files;
-  char*  dflag;
-  int num_files;
+  char** files ;
+  char*  dflag ;
+  int num_files   ;
   int arrow_count ;
 
   char startDir [ PUSTRING_MAX ] ;
@@ -1295,20 +1295,27 @@ class puFilePicker : public puDialogBox
   void find_files () ;
   static void handle_select ( puObject* ) ;
 
-  puListBox *list_box ;
-  puSlider  *slider ;
+  puFrame   *frame         ;
+  puListBox *list_box      ;
+  puSlider  *slider        ;
   puOneShot *cancel_button ;
-  puOneShot *ok_button ;
+  puOneShot *ok_button     ;
 
 protected:
-  void puFilePickerInit ( int x, int y, int w, int h, int arrows, const char *dir, const char *title ) ;
+  void puFilePickerInit ( int x, int y, int w, int h,
+                          int arrows, const char *dir, const char *title ) ;
 
 public:
 
-  puFilePicker ( int x, int y, int w, int h, int arrows, const char *dir, const char *title = "Pick a file" ) ;
-  puFilePicker ( int x, int y, int w, int h,const char *dir, const char *title = "Pick a file" ) ;
-  puFilePicker ( int x, int y, int arrows, const char* dir, const char *title = "Pick a file" ) ;
-  puFilePicker ( int x, int y, const char* dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, int w, int h, int arrows,
+                 const char *dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, int w, int h,
+                 const char *dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, int arrows,
+                 const char* dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y,
+                 const char* dir, const char *title = "Pick a file" ) ;
+
   ~puFilePicker () ;
 
   void setSize ( int w, int h ) ;
