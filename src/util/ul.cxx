@@ -162,14 +162,19 @@ void ulCloseDir ( ulDir* dir )
 
 bool ulFileExists ( const char *fileName )
 {
+#ifdef UL_MSVC
+  struct _stat buf ;
+
+  if ( _stat ( fileName, &buf ) < 0 )
+    return false ;
+
+  return ((S_IFREG & buf.st_mode ) !=0) ;
+#else
   struct stat buf ;
 
   if ( stat ( fileName, &buf ) < 0 )
     return false ;
 
-#ifdef UL_MSVC
-  return ((S_IFREG & buf.st_mode ) !=0) ;
-#else
   return ((S_ISREG ( buf.st_mode )) != 0) ;
 #endif
 }
@@ -195,24 +200,24 @@ char* ulMakePath( char* path, const char* dir, const char* fname )
 
 
 static int recursiveFindFileInSubDirs ( char * filenameOutput, 
-            const char * tPath,  const char * tfnameInput ) 
+						const char * tPath,  const char * tfnameInput ) 
 {
   int bFound = FALSE;
   char tempString [ 1024 ];
 
-  ulMakePath ( filenameOutput, tPath, tfnameInput ) ;
+	ulMakePath ( filenameOutput, tPath, tfnameInput ) ;
 
-  if ( ulFileExists ( filenameOutput ) )
-    return TRUE;
+	if ( ulFileExists ( filenameOutput ) )
+		return TRUE;
 
-  ulDir* dirp = ulOpenDir(tPath);
+	ulDir* dirp = ulOpenDir(tPath);
 
-  if ( dirp != NULL )
-  {
-    ulDirEnt* dp;
+	if ( dirp != NULL )
+	{
+		ulDirEnt* dp;
 
-    while ( ! bFound && ((dp = ulReadDir(dirp)) != NULL ) )
-    {
+		while ( ! bFound && ((dp = ulReadDir(dirp)) != NULL ) )
+		{
       // I am doing recursive ulOpenDir/ulReadDirs here.
       // I know this works under Windo$.
       if ( dp->d_isdir &&
@@ -224,17 +229,17 @@ static int recursiveFindFileInSubDirs ( char * filenameOutput,
                                               tempString, tfnameInput );
       }
       
-    }
-    ulCloseDir ( dirp ) ;
-  }
+		}
+		ulCloseDir ( dirp ) ;
+	}
 
-  return bFound ;
+	return bFound;
 }
     
 
 
 void ulFindFile( char *filenameOutput, const char *path, 
-                        const char * tfnameInput, const char *sAPOM ) 
+											  const char * tfnameInput, const char *sAPOM ) 
 /*
   adds tfnameInput to the path and puts this into the buffer filenameOutput.
   sAPOM is used iff path contains "$(APOM)"
