@@ -106,6 +106,8 @@ puInterface *puGetBaseLiveInterface ( void )
 
 puInterface::~puInterface ()
 {
+  void puCleanUpJunk ( void ) ;
+
   puObject *bo = getLastChild () ;
 
   while ( bo != NULL )
@@ -114,6 +116,9 @@ puInterface::~puInterface ()
     bo = bo -> getPrevObject() ;
     puDeleteObject ( dlist )  ;
   }
+
+  // Since this is an object destructor, it should be okay to delete the child objects as well.
+  puCleanUpJunk () ;
 
   dlist = NULL ;
 

@@ -348,6 +348,8 @@ void puGroup::doHit ( int, int, int, int )
 
 puGroup::~puGroup ()
 {
+  void puCleanUpJunk ( void ) ;
+
   puObject *bo = getLastChild () ;
 
   while ( bo != NULL )
@@ -356,6 +358,9 @@ puGroup::~puGroup ()
     bo = bo -> getPrevObject() ;
     puDeleteObject ( dlist )  ;
   }
+
+  // Since this is an object destructor, it should be okay to delete the child objects as well.
+  puCleanUpJunk () ;
 }
 
 

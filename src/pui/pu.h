@@ -344,8 +344,9 @@ inline void puSetColor ( puColour c, float r, float g, float b, float a = 1.0f )
 
 
 void  puInit           ( void ) ;
+void  puExit           ( void ) ;
 void  puDisplay        ( void ) ;
-void  puDisplay        ( int window_number ) ;
+void  puDisplay        ( int window_number ) ;  /* Deprecated */
 int   puMouse          ( int button, int updown, int x, int y ) ;
 int   puMouse          ( int x, int y ) ;
 int   puKeyboard       ( int key, int updown ) ;
