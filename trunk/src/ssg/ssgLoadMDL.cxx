@@ -375,24 +375,18 @@ static void readVector(FILE* fp, sgVec3 v)
 
 static void recalcNormals( _MDLPart *part ) {
   DEBUGPRINT( "Calculating normals." << std::endl);
-  sgVec3 v1, v2, n;
+  sgVec3 n;
 
   for (int i = 0; i < part->idx->getNum() / 3; i++) {
     short ix0 = *part->idx->get(i*3    );
     short ix1 = *part->idx->get(i*3 + 1);
     short ix2 = *part->idx->get(i*3 + 2);
 
-    sgSubVec3(v1, 
-	      curr_part_->vtx->get(ix1),
-	      curr_part_->vtx->get(ix0));
-    sgSubVec3(v2,
-	      curr_part_->vtx->get(ix2),
-	      curr_part_->vtx->get(ix0));
+    sgMakeNormal( n, 
+		  curr_part_->vtx->get(ix0),
+		  curr_part_->vtx->get(ix1),
+		  curr_part_->vtx->get(ix2) );
     
-    sgVectorProductVec3(n, v1, v2);
-
-		sgNormaliseVec3(n);
-
     sgCopyVec3( part->nrm->get(ix0), n );
     sgCopyVec3( part->nrm->get(ix1), n );
     sgCopyVec3( part->nrm->get(ix2), n );
@@ -620,8 +614,10 @@ static ssgSimpleState* createMaterialState(int color, int pal_id)
   if(pal_id == 0x68) 
     {
       state->setTranslucent();
-      state->enable(GL_BLEND);
-      state->enable(GL_ALPHA_TEST);
+
+      state->enable    (GL_BLEND);
+      state->enable    (GL_ALPHA_TEST);
+
       r = (float)(fsAltPalette[color].r)/255.0;
       g = (float)(fsAltPalette[color].g)/255.0;
       b = (float)(fsAltPalette[color].b)/255.0;
@@ -629,26 +625,32 @@ static ssgSimpleState* createMaterialState(int color, int pal_id)
     }
   else 
     {
-      state->disable(GL_BLEND);
-      state->disable(GL_ALPHA_TEST);
+      state->setOpaque();
+
+      state->disable   (GL_BLEND);
+      state->disable   (GL_ALPHA_TEST);
+
       r = (float)(fsAcPalette[color].r)/255.0;
       g = (float)(fsAcPalette[color].g)/255.0;
       b = (float)(fsAcPalette[color].b)/255.0;
       a = 1.0;
     }
-    
+     
+  state->setShadeModel (GL_SMOOTH);
+
+  state->enable        (GL_LIGHTING);
+
+  state->disable       (GL_TEXTURE_2D);
+  state->disable       (GL_COLOR_MATERIAL);
+
+  state->setShininess  (DEF_SHININESS);
+  state->setMaterial   (GL_AMBIENT , r   , g   , b   , a   );
+  state->setMaterial   (GL_DIFFUSE , r   , g   , b   , a   );
+  state->setMaterial   (GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
+  state->setMaterial   (GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
+
   DEBUGPRINT( "  Creating non-textured state: color = (" << r << ", " << g <<
 	      ", " << b << ")" << std::endl);
- 
-  state->setMaterial(GL_AMBIENT , r   , g   , b   , a   );
-  state->setMaterial(GL_DIFFUSE , r   , g   , b   , a   );
-  state->setMaterial(GL_SPECULAR, 0.0f, 0.0f, 0.0f, 1.0f);
-  state->setMaterial(GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
-  state->setShininess(DEF_SHININESS);
-  state->disable(GL_TEXTURE_2D);
-  state->enable(GL_LIGHTING);
-  state->setShadeModel(GL_SMOOTH);
-  state->disable(GL_COLOR_MATERIAL);
 
   return state;
 }
@@ -662,17 +664,23 @@ static ssgSimpleState* createTextureState(char *name)
 
   strcpy(curr_tex_name_, name);
  
-  state->setMaterial(GL_AMBIENT , 1.0f, 1.0f, 1.0f, 1.0f);
-  state->setMaterial(GL_DIFFUSE , 1.0f, 1.0f, 1.0f, 1.0f);
-  state->setMaterial(GL_SPECULAR, 0.0f, 0.0f, 0.0f, 1.0f);
-  state->setMaterial(GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
-  state->setShadeModel(GL_SMOOTH);
-  state->setShininess(DEF_SHININESS);
-  state->enable(GL_LIGHTING);
-  state->disable(GL_COLOR_MATERIAL);
+  state->setOpaque();
+  state->setShadeModel (GL_SMOOTH);
+
+  state->enable        (GL_LIGHTING);
+  state->enable        (GL_TEXTURE_2D);
+
+  state->disable       (GL_COLOR_MATERIAL);
+  state->disable       (GL_BLEND);
+  state->disable       (GL_ALPHA_TEST);
+
+  state->setShininess  (DEF_SHININESS);
+  state->setMaterial   (GL_AMBIENT , 1.0f, 1.0f, 1.0f, 1.0f);
+  state->setMaterial   (GL_DIFFUSE , 1.0f, 1.0f, 1.0f, 1.0f);
+  state->setMaterial   (GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
+  state->setMaterial   (GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
 
   state->setTexture( current_options -> createTexture(name, FALSE, FALSE) ) ;
-  state->enable( GL_TEXTURE_2D );
 
   DEBUGPRINT( "  Creating texture state: name = " << name << std::endl);
 
