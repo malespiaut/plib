@@ -5,6 +5,7 @@ void ssgTexture::copy_from ( ssgTexture *src, int clone_flags )
 {
   ssgBase::copy_from ( src, clone_flags ) ;
   setFilename ( src -> getFilename () ) ;
+  setFilenameFromModel ( src -> getFilenameFromModel () ) ;
   handle = src -> getHandle () ;
 
   /*
