@@ -257,6 +257,7 @@ void ssgCullAndDraw ( ssgRoot *r )
       _ssgLights [ i ] . setup () ;
 
   _ssgCurrentContext->loadModelviewMatrix () ;
+  _ssgCurrentContext->applyClipPlanes () ;
 
   for ( i = 0 ; i < 8 ; i++ )
     if ( ! _ssgLights [ i ] . isHeadlight () )
@@ -264,6 +265,8 @@ void ssgCullAndDraw ( ssgRoot *r )
 
   _ssgCurrentContext->cull(r) ;
   _ssgDrawDList () ;
+
+  _ssgCurrentContext->removeClipPlanes () ;
 
   glMatrixMode ( GL_MODELVIEW ) ;
   glLoadIdentity () ;

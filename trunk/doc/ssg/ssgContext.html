@@ -48,6 +48,11 @@ default state information.
 
     void getProjectionMatrix  ( sgMat4 dst ) ;
     void getModelviewMatrix   ( sgMat4 dst ) ;
+
+    void  clrClipPlane   ( int i ) ;
+    void  setClipPlane   ( int i, sgVec4 plane ) ;
+    int   isSetClipPlane ( int i ) ;
+    float *getClipPlane  ( int i ) ;
   } ;
 
 </pre>
@@ -92,6 +97,23 @@ or backface culling:
   void ssgContext::overrideCullface ( int on_off ) ;
 
 </pre>
+The six standard OpenGL user-defined clipping planes
+can be setup and managed automatically using these
+calls:
+<pre>
+
+    void  clrClipPlane   ( int i ) ;
+    void  setClipPlane   ( int i, sgVec4 plane ) ;
+    int   isSetClipPlane ( int i ) ;
+    float *getClipPlane  ( int i ) ;
+
+</pre>
+setClipPlane takes the number of the plane (0 through 5) and
+a plane equation which will be applied at the next cull/draw
+cycle. clrClipPlane removes a clip plane. isSetClipPlane inquires
+about whether the i'th plane is turned on and getClipPlane returns
+the plane that's currently set as the i'th plane.
+<p>
 Once you have your context set up as you'd like, you have to
 make it become the 'current' context.
 <pre>

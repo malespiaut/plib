@@ -65,3 +65,15 @@ int ssgBaseTransform::save ( FILE *fd )
 }
 
 
+void ssgBaseTransform::print ( FILE *fd, char *indent, int how_much )
+{
+  ssgBranch::print ( fd, indent, how_much ) ;
+
+  if ( how_much >= 2 )
+    for ( int row = 0 ; row < 4 ; row++ )
+      fprintf ( fd, "%s  Transform[%d]= %f,%f,%f,%f\n", indent, row,
+        transform[row][0], transform[row][1],
+        transform[row][2], transform[row][3] ) ;
+}
+
+

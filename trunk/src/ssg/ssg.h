@@ -1807,6 +1807,7 @@ public:
   virtual int save ( FILE *fd ) ;
 
   virtual char *getTypeName(void) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
 } ;
 
 
@@ -2035,6 +2036,8 @@ public:
 
 class ssgContext
 {
+  int enabledClipPlanes ;
+  sgVec4 clipPlane [ 6 ] ;
   ssgSimpleState *currentState ;
   ssgSimpleState *basicState   ;
   sgFrustum      *frustum      ;
@@ -2053,8 +2056,32 @@ public:
 
   void forceBasicState () ;
 
+  void applyClipPlanes () ;
+  void removeClipPlanes () ;
+
   void makeCurrent () ;
   int    isCurrent () ;
+
+  void clrClipPlane ( int i )
+  {
+    if ( i >= 0 && i < 6 )
+      enabledClipPlanes &= ~(1<<i) ;
+  }
+
+  void setClipPlane ( int i, sgVec4 plane )
+  {
+    if ( i >= 0 && i < 6 )
+    {
+      sgCopyVec4 ( clipPlane [ i ], plane ) ;
+      enabledClipPlanes |= (1<<i) ;
+    }
+  }
+
+  int  isSetClipPlane ( int i ) { return enabledClipPlanes & (1<<i) ; }
+  float *getClipPlane ( int i )
+  {
+    return ((i<0)||(i>=6)) ? NULL : clipPlane [i] ;
+  }
 
   void overrideTexture   ( int on_off ) ;
   void overrideCullface  ( int on_off ) ;
