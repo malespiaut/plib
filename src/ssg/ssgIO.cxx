@@ -465,6 +465,8 @@ static _ssgFileFormat formats[] =
   { ".flt",   ssgLoadFLT  , NULL       },
   { ".strip", ssgLoadStrip, NULL       },
   { ".m"  ,   ssgLoadM    , ssgSaveM   },
+  { ".off"  , ssgLoadOFF  , ssgSaveOFF },
+	{ ".qhi"  , NULL        , ssgSaveQHI },
   { NULL  , NULL       , NULL       }
 } ;
 
