@@ -878,7 +878,7 @@ public:
     }
   }
 
-  virtual void  setTexture ( char *fname,
+  virtual void  setTexture ( const char *fname,
     int _wrapu = TRUE, int _wrapv = TRUE, int _mipmap = TRUE )
   {
     mipmap = _mipmap ;

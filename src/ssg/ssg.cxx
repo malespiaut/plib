@@ -172,7 +172,7 @@ void ssgInit ()
   ssgAddTextureFormat ( ".bw" ,    ssgLoadSGI ) ;
 #endif
 
-#ifdef SSG_LOAD_MDL_SUPPORTED || SSG_LOAD_BGL_SUPPORTED || SSG_LOAD_MDL_BGL_TEXTURE_SUPPORTED
+#if defined(SSG_LOAD_MDL_SUPPORTED) || defined(SSG_LOAD_BGL_SUPPORTED) || defined(SSG_LOAD_MDL_BGL_TEXTURE_SUPPORTED)
   ssgAddTextureFormat ( ".0af" ,   ssgLoadMDLTexture ) ;
   ssgAddTextureFormat ( ".1af" ,   ssgLoadMDLTexture ) ;
   ssgAddTextureFormat ( ".2af" ,   ssgLoadMDLTexture ) ;

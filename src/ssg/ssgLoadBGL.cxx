@@ -113,9 +113,9 @@ static ssgNormalArray           *normal_array_;
 static ssgTexCoordArray         *tex_coords_;
 
 // Current part (index array)
-static ssgLeaf                  *curr_part_=0;
+static ssgLeaf                  *curr_part_;
 static ssgBranch                *model_;
-static ssgTransform             *curr_branch_=0;
+static ssgTransform             *curr_branch_;
 
 // Moving parts
 static ssgBranch                *ailerons_grp_, *elevator_grp_, *rudder_grp_;
@@ -140,12 +140,12 @@ static int                      stack_depth_;
 
 
 static bool                     has_normals_;
-static bool                     join_children_, override_normals_;
+//static bool                   join_children_, override_normals_;
 
-static char                     *tex_fmt_;
+//static char                   *tex_fmt_;
 // john ....
 static bool                     poly_from_line;
-unsigned short                  poly_from_line_numverts;
+static unsigned short           poly_from_line_numverts;
 
 //john ........
 static ssgTransform             *building = NULL;
@@ -190,7 +190,7 @@ static struct {
 
 //===========================================================================
 
-int getVariableValue(int var, int *val)
+static int getVariableValue(int var, int *val)
 {
 for (int i=0; vardef[i].var != 0; i++){
   if (vardef[i].var == var ) {
@@ -203,7 +203,7 @@ for (int i=0; vardef[i].var != 0; i++){
 
 //===========================================================================
 
-static void initLoader()
+/*static void initLoader()
 {
   join_children_    = true;
   override_normals_ = true;
@@ -212,7 +212,7 @@ static void initLoader()
 #ifdef EXPERIMENTAL_CULL_FACE_CODE
   curr_cull_face_   = false ;
 #endif
-}
+}*/
 
 //===========================================================================
 
