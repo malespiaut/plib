@@ -53,7 +53,7 @@ puDial     *  panSlider ;
 puDial     * tiltSlider ;
 
 
-char floorTexture0 [] =
+unsigned char floorTexture0 [] =
 {
   0, 0, 0, 0, 255, 255, 255, 255,
   0, 0, 0, 0, 255, 255, 255, 255,
@@ -65,7 +65,7 @@ char floorTexture0 [] =
   255, 255, 255, 255, 0, 0, 0, 0
 } ;
 
-char floorTexture1 [] =
+unsigned char floorTexture1 [] =
 {
   0, 0, 255, 255,
   0, 0, 255, 255,
@@ -73,13 +73,13 @@ char floorTexture1 [] =
   255, 255, 0, 0
 } ;
 
-char floorTexture2 [] =
+unsigned char floorTexture2 [] =
 {
   0, 255,
   255, 0
 } ;
 
-char floorTexture3 [] =
+unsigned char floorTexture3 [] =
 {
   127
 } ;
@@ -105,10 +105,11 @@ void vcr_groundSpeed ( puObject *me ) { vcr_ground_speed = me->getFloatValue() ;
 void reverseRegionCB (puObject *)
 {
   int nevents = 0 ;
+  int i ;
 
   /* Count the events... */
 
-  for ( int i = 0 ; i < getNumEvents() ; i++ )
+  for ( i = 0 ; i < getNumEvents() ; i++ )
   {
     Event *ev = getEvent ( i ) ;
 
@@ -126,11 +127,11 @@ void reverseRegionCB (puObject *)
 
   /* Make a list of them */
 
-  Event **elist = new (Event*) [ nevents ] ;
+  Event **elist = new Event* [ nevents ] ;
 
   nevents = 0 ;
 
-  for ( int i = 0 ; i < getNumEvents() ; i++ )
+  for ( i = 0 ; i < getNumEvents() ; i++ )
   {
     Event *ev = getEvent ( i ) ;
 
@@ -144,7 +145,7 @@ void reverseRegionCB (puObject *)
     }
   }
 
-  for ( int i = 0 ; i < nevents ; i++ )
+  for ( i = 0 ; i < nevents ; i++ )
   {
     Event *ev = elist [ i ] ;
 
@@ -416,8 +417,9 @@ void bnsavepickfn ( puObject * )
   }
 
   char *p = NULL ;
+  int i ;
 
-  for ( int i = strlen(path) ; i >= 0 ; i-- )
+  for ( i = strlen(path) ; i >= 0 ; i-- )
     if ( path[i] == '/' || path[i] == '\\' )
     {
       p = & ( path[i+1] ) ;
@@ -452,10 +454,10 @@ void bnsavepickfn ( puObject * )
                         getNumBones(), getNumEvents(), timebox_maxtime,
                         -floor_z_coord, vcr_ground_speed ) ;
 
-  for ( int i = 0 ; i < getNumBones () ; i++ )
+  for ( i = 0 ; i < getNumBones () ; i++ )
     getBone ( i ) -> write ( fd ) ;
 
-  for ( int i = 0 ; i < getNumEvents () ; i++ )
+  for ( i = 0 ; i < getNumEvents () ; i++ )
     getEvent ( i ) -> write ( fd ) ;
 
   fclose ( fd ) ;
@@ -481,8 +483,9 @@ void bnpickfn ( puObject * )
   }
 
   char *p = NULL ;
+  int i ;
 
-  for ( int i = strlen(path) ; i >= 0 ; i-- )
+  for ( i = strlen(path) ; i >= 0 ; i-- )
     if ( path[i] == '/' || path[i] == '\\' )
     {
       p = & ( path[i+1] ) ;
@@ -541,10 +544,10 @@ void bnpickfn ( puObject * )
     exit ( 1 ) ;
   }
 
-  for ( int i = 0 ; i < getNumBones () ; i++ )
+  for ( i = 0 ; i < getNumBones () ; i++ )
     getBone ( i ) -> read ( fd ) ;
 
-  for ( int i = 0 ; i < numevents ; i++ )
+  for ( i = 0 ; i < numevents ; i++ )
   {
     Event *e = new Event ( numbones, (float) i ) ;
     e -> read ( fd ) ;
@@ -847,7 +850,7 @@ void redraw ()
 
   glBegin ( GL_LINES ) ;
 
-  for ( int i = 0 ; i < ntenthseconds ; i++ )
+  for ( i = 0 ; i < ntenthseconds ; i++ )
   {
     float x = TIMEBOX_LEFT + tenthsecondoffset +
                                  (float) i * TIMEBOX_SECOND / 10.0f ;
@@ -856,7 +859,7 @@ void redraw ()
     glVertex2f ( x, TIMEBOX_TOP/3.0f ) ;
   }
 
-  for ( int i = 0 ; i < nseconds ; i++ )
+  for ( i = 0 ; i < nseconds ; i++ )
   {
     float x = TIMEBOX_LEFT + secondoffset +
                                  (float) i * TIMEBOX_SECOND ;
@@ -907,7 +910,7 @@ void redraw ()
 
   glBegin ( GL_LINES ) ;
 
-  for ( int i = 0 ; i < getNumEvents() ; i++ )
+  for ( i = 0 ; i < getNumEvents() ; i++ )
   {
     t = getEvent(i) -> getTime () ;
 
