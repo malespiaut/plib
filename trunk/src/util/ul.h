@@ -20,13 +20,19 @@
 #include <assert.h>
 
 #ifdef WIN32
-#include <windows.h>
- #ifdef __CYGWIN__
- #include <unistd.h>
- #endif
+#  include <windows.h>
+#  ifdef __CYGWIN__
+#    include <unistd.h>
+#  endif
 #else
-#include <unistd.h>
+#  ifdef __BEOS__
+#    include <be/kernel/image.h>
+#  else
+#    include <unistd.h>
+#    include <dlfcn.h>
+#  endif
 #endif
+
 
 #include <assert.h>
 
@@ -257,5 +263,125 @@ class ulTCPConnection
   int recvMessage  ( char *mesg, int length ) ;
 } ;
 
+
+/*
+  Windoze/BEOS code based on contribution from Sean L. Palmer 
+*/
+
+
+#ifdef __WIN32__
+
+class ulDynamicLibrary
+{
+  MMODULE handle ;
+
+public:
+
+  ulDynamicLibrary ( const char *libname )
+  {
+    char dllname[1024];
+    strcpy ( dllname, libname ) ;
+    strcat ( dllname, ".dll"  ) ;
+    handle = (MMODULE) LoadLibrary ( dllname ) ;
+  }
+
+  void *getFuncAddress ( const char *funcname )
+  {
+    return (void *) GetProcAddress ( handle, funcname ) ;
+  }
+
+  ~ulDynamicLibrary ()
+  {
+    if ( handle != NULL )
+      FreeLibrary ( handle ) ;
+  }
+} ;
+
+#else
+#  ifdef __BEOS__
+
+class ulDynamicLibrary
+{
+  image_id *handle ;
+
+public:
+
+  ulDynamicLibrary ( const char *libname )
+  {
+    char addonname[1024] ;
+    strcpy ( addonname, libname ) ;
+    strcat ( addonname, ".so" ) ;
+    handle = new image_id ;
+
+    *handle = load_add_on ( addonname ) ;
+
+    if ( *handle == B_ERROR )
+    {
+      delete handle ;
+      handle = NULL ;
+    }
+  }
+
+  void *getFuncAddress ( const char *funcname )
+  {
+    void *sym = NULL ;
+
+    if ( handle &&
+         get_image_symbol ( handle, "funcname",
+                            B_SYMBOL_TYPE_TEXT, &sym ) == B_NO_ERROR )
+      return sym ;
+
+    return NULL ;
+  }
+
+  ~ulDynamicLibrary ()
+  {
+    if ( handle != NULL )
+      unload_add_on ( handle ) ;
+
+    delete handle ;
+  }
+} ;
+
+#  else
+
+/*
+  Linux/UNIX
+*/
+
+class ulDynamicLibrary
+{
+  void *handle ;
+
+public:
+
+  ulDynamicLibrary ( const char *libname )
+  {
+    char dsoname [ 1024 ] ;
+    strcpy ( dsoname, libname ) ;
+    strcat ( dsoname, ".so"  ) ;
+    handle = (void *) dlopen ( dsoname, RTLD_NOW | RTLD_GLOBAL ) ;
+
+    if ( handle == NULL )
+      ulSetError ( UL_WARNING, "ulDynamicLibrary: %s\n", dlerror() ) ;
+  }
+
+  void *getFuncAddress ( const char *funcname )
+  {
+    return (handle==NULL) ? NULL : dlsym ( handle, funcname ) ;
+  }
+
+  ~ulDynamicLibrary ()
+  {
+    if ( handle != NULL )
+      dlclose ( handle ) ;
+  }
+} ;
+
+#  endif
 #endif
+
+
+#endif
+
 
