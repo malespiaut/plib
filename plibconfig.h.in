@@ -1,74 +1,15 @@
-/* plibconfig.h.in.  Generated automatically from configure.in by autoheader.  */
-
-/* Define if you have the ANSI C header files.  */
-#undef STDC_HEADERS
-
-/* Define if the X Window System is missing or not being used.  */
-#undef X_DISPLAY_MISSING
-
-/* Define if you have the GL library (-lGL).  */
-#undef HAVE_LIBGL
-
-/* Define if you have the GLU library (-lGLU).  */
-#undef HAVE_LIBGLU
-
-/* Define if you have the MesaGL library (-lMesaGL).  */
-#undef HAVE_LIBMESAGL
-
-/* Define if you have the MesaGLU library (-lMesaGLU).  */
-#undef HAVE_LIBMESAGLU
-
-/* Define if you have the audio library (-laudio).  */
-#undef HAVE_LIBAUDIO
-
-/* Define if you have the dl library (-ldl).  */
-#undef HAVE_LIBDL
-
-/* Define if you have the freeglut library (-lfreeglut).  */
-#undef HAVE_LIBFREEGLUT
-
-/* Define if you have the glut library (-lglut).  */
-#undef HAVE_LIBGLUT
-
-/* Name of package */
-#undef PACKAGE
-
-/* Version number of package */
-#undef VERSION
 
 /* If defined, PUI does not use GLUT (highly experimental) */
 #undef PU_NOT_USING_GLUT
 
+/* If defined, PUI uses the freeglut library */
+#undef PU_USING_FREEGLUT
+
+/* If defined, PUI uses the GLUT library */
+#undef PU_USING_GLUT
+
 /* Define if build system is a Windows box */
 #undef WIN32
 
-/* If defined
-else
-  echo no 1>&6
-PUI uses the GLUT library */
-#undef PU_USING_GLUT
-
-/* If defined
-else
-  echo no 1>&6
-PUI uses the GLUT library */
-#undef PU_USING_GLUT
-
-/* If defined
-else
-  echo no 1>&6
-PUI uses the freeglut library */
-#undef PU_USING_FREEGLUT
-
-/* If defined
-else
-  echo no 1>&6
-PUI uses the GLUT library */
-#undef PU_USING_GLUT
-
 /* socklen_t definition (if not defined by OS) */
 #undef socklen_t
-
-/* socklen_t definition (if not defined by OS) */
-#undef socklen_t
-
