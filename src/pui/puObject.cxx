@@ -400,7 +400,7 @@ void puObject::draw_label ( int dx, int dy )
   case PUPLACE_TOP_CENTERED :
   case PUPLACE_TOP_RIGHT    :
   case PUPLACE_ABOVE_RIGHT  :
-    yy = bbox.max[1] - bbox.min[1] - labelFont.getStringHeight ( label ) -
+    yy = bbox.max[1] - bbox.min[1] - labelFont.getStringHeight () -
          labelFont.getStringDescender () ;
     break ;
 
@@ -430,7 +430,6 @@ void puObject::draw_label ( int dx, int dy )
     yy = labelFont.getStringDescender () ;
     break ;
   }
-
 
   labelFont.drawString ( label, dx + bbox.min[0] + xx,
                                 dy + bbox.min[1] + yy ) ;
