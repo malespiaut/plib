@@ -65,7 +65,7 @@ puGroup *puGetCurrGroup ( void )
 
 void puGroup::remove ( puObject *obj )
 {
-  if ( dlist == NULL )
+  if ( obj -> getParent () != this )
     return ;
 
   /* Are we the first object in the list */
@@ -82,6 +82,7 @@ void puGroup::remove ( puObject *obj )
 
   obj -> setNextObject ( NULL ) ;
   obj -> setPrevObject ( NULL ) ;
+  obj -> setParent ( NULL ) ;
 
   num_children-- ;
   recalc_bbox () ;
@@ -115,6 +116,11 @@ void puGroup::empty ( void )
 
 void puGroup::add ( puObject *new_obj )
 {
+  if ( new_obj -> getParent () != NULL )
+    new_obj -> getParent () -> remove ( new_obj ) ;
+
+  new_obj -> setParent ( this ) ;
+
   if ( dlist == NULL )
   {
     dlist = new_obj ;
