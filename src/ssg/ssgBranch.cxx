@@ -300,30 +300,33 @@ int ssgBranch::load ( FILE *fd )
       kid = (ssgEntity *) _ssgGetFromList ( key ) ; 
     }
     else
-    if ( t == ssgTypeVTable       () ) kid = new ssgVTable       () ; else
-    if ( t == ssgTypeVtxTable     () ) kid = new ssgVtxTable     () ; else
-    if ( t == ssgTypeVtxArray     () ) kid = new ssgVtxArray     () ; else
-    if ( t == ssgTypeBranch       () ) kid = new ssgBranch       () ; else
-    if ( t == ssgTypeTransform    () ) kid = new ssgTransform    () ; else
-    if ( t == ssgTypeTexTrans     () ) kid = new ssgTexTrans     () ; else
-    if ( t == ssgTypeSelector     () ) kid = new ssgSelector     () ; else
-    if ( t == ssgTypeRangeSelector() ) kid = new ssgRangeSelector() ; else
-    if ( t == ssgTypeTimedSelector() ) kid = new ssgTimedSelector() ; else
-    if ( t == ssgTypeCutout       () ) kid = new ssgCutout       () ; else
-    if ( t == ssgTypeInvisible    () ) kid = new ssgInvisible    () ; else
-    if ( t == ssgTypeRoot         () ) kid = new ssgRoot         () ; else
     {
-      ulSetError ( UL_WARNING, "loadSSG: Unrecognised Entity type 0x%08x", t ) ;
-      return FALSE ;
+      if ( t == ssgTypeVTable       () ) kid = new ssgVTable       () ; else
+      if ( t == ssgTypeVtxTable     () ) kid = new ssgVtxTable     () ; else
+      if ( t == ssgTypeVtxArray     () ) kid = new ssgVtxArray     () ; else
+      if ( t == ssgTypeBranch       () ) kid = new ssgBranch       () ; else
+      if ( t == ssgTypeTransform    () ) kid = new ssgTransform    () ; else
+      if ( t == ssgTypeTexTrans     () ) kid = new ssgTexTrans     () ; else
+      if ( t == ssgTypeSelector     () ) kid = new ssgSelector     () ; else
+      if ( t == ssgTypeRangeSelector() ) kid = new ssgRangeSelector() ; else
+      if ( t == ssgTypeTimedSelector() ) kid = new ssgTimedSelector() ; else
+      if ( t == ssgTypeCutout       () ) kid = new ssgCutout       () ; else
+      if ( t == ssgTypeInvisible    () ) kid = new ssgInvisible    () ; else
+      if ( t == ssgTypeRoot         () ) kid = new ssgRoot         () ; else
+      {
+        ulSetError ( UL_WARNING, "loadSSG: Unrecognised Entity type 0x%08x", t ) ;
+        return FALSE ;
+      }
+
+      if ( ! kid -> load ( fd ) )
+      {
+        ulSetError ( UL_WARNING, "loadSSG: Failed to read child object." ) ;
+        return FALSE ;
+      }
+
+      kid -> recalcBSphere () ;
     }
 
-    if ( ! kid -> load ( fd ) )
-    {
-      ulSetError ( UL_WARNING, "loadSSG: Failed to read child object." ) ;
-      return FALSE ;
-    }
-
-    kid -> recalcBSphere () ;
     addKid ( kid ) ;
   }
 
