@@ -82,7 +82,7 @@ int ssgSaveLeaf ( ssgEntity *ent )
     {
       const char* tfname = ss -> getTextureFilename () ;
 
-      if ( tfname[0] != 0 )
+      if (( tfname != NULL ) && ( tfname[0] != 0 ))
       {
         if ( writeTextureWithoutPath )
         {
