@@ -198,7 +198,7 @@ static char* get_material_name( ssgSimpleState *state ) {
 }
 
 static _ssgSave3dsChunk* create_vertex_chunk( ssgLeaf* leaf, 
-					     sgMat4 transform ) {
+					      sgMat4 transform ) {
   _ssgSave3dsChunk* vertexlist = new _ssgSave3dsChunk( CHUNK_VERTLIST );
  
   unsigned short *num_verts;
@@ -208,10 +208,10 @@ static _ssgSave3dsChunk* create_vertex_chunk( ssgLeaf* leaf,
   num_verts = new unsigned short;
   *num_verts = leaf->getNumVertices();
   nverts = new _ssgSave3dsData(num_verts, 2, 1);
-  
+
   vdata = new float[ *num_verts * 3];
   for (int i = 0; i < *num_verts; i++) {
-    sgXformVec3(&vdata[i*3], leaf->getVertex(i), transform);
+    sgXformPnt3(&vdata[i*3], leaf->getVertex(i), transform);
   }
   _ssgSave3dsData *vertices = new _ssgSave3dsData(vdata, 4, 
 						*num_verts * 3);
@@ -304,7 +304,7 @@ static _ssgSave3dsChunk* create_facelist_chunk( ssgLeaf* leaf ) {
 }
 
 static _ssgSave3dsChunk* create_transform_chunk() {
-  // creates and identity transform
+  // creates an identity transform
   _ssgSave3dsChunk* transform = new _ssgSave3dsChunk( CHUNK_TRMATRIX );
   
   float* matrix = new float[12];
@@ -434,7 +434,7 @@ static _ssgSave3dsChunk *create_material_chunk( ssgSimpleState *state ) {
     sprintf(matname, "Material #%d", mat_count);
   }
   _ssgSave3dsData *matname_data = new _ssgSave3dsData(matname, 1, 
-						    strlen(matname) + 1);
+						      strlen(matname) + 1);
   matname_chunk->addData(matname_data);
   mat->addKid(matname_chunk);
 
@@ -445,6 +445,13 @@ static _ssgSave3dsChunk *create_material_chunk( ssgSimpleState *state ) {
   mat->addKid( create_colour_chunk( CHUNK_SPECULAR, 
 				    state->getMaterial(GL_SPECULAR) ) );
   mat->addKid( create_shininess_chunk( state->getShininess() ) );
+
+  if (state->isEnabled(GL_COLOR_MATERIAL)) {
+    ulSetError(UL_WARNING, 
+	       "State \"%s\" has GL_COLOR_MATERIAL enabled, which " \
+	       "is not supported by 3DS format. Data will be lost.",
+	       matname);
+  }
 
   if (state->getTextureFilename() != NULL) {
     mat->addKid( create_map_chunk(state) );
@@ -468,6 +475,8 @@ static void traverse_materials( ssgEntity* node, _ssgSave3dsChunk* parent ) {
       if (state == mat[i])
 	return;
     }
+
+    assert(mat_count < MAX_MATERIALS);
 
     mat[mat_count++] = state;
     parent->addKid( create_material_chunk(state) );
