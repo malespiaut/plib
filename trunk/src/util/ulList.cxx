@@ -76,7 +76,7 @@ void ulList::sizeChk (void)
 }
  
  
-int ulList::searchForEntity ( void *entity )
+int ulList::searchForEntity ( void *entity ) const
 {
   for ( unsigned int i = 0 ; i < total ; i++ )
     if ( entity_list [ i ] == entity )
