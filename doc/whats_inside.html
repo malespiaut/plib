@@ -70,9 +70,9 @@ as little PLIB as you need.  The components libraries are:
 <TABLE>
 <TR>
   <TD><A HREF="pui/index.html">Picoscopic User Interface Library (PUI)</A></TD>
-  <TD>A fully portable set of GUI widgets that need only GLUT, OpenGL and C++
+  <TD>A fully portable set of GUI widgets that need OpenGL and C++
       to operate.  Useful for games because rendering these widgets is
-      performed very quicly by your 3D hardware.</TD>
+      performed very quickly by your 3D hardware.</TD>
 </TR>
 <TR>
   <TD><A HREF="sl/index.html">Sound Library (SL)</A></TD>
@@ -91,6 +91,11 @@ as little PLIB as you need.  The components libraries are:
 <TR>
   <TD><A HREF="ssg/index.html">Simple Scene Graph Library (SSG)</A></TD>
   <TD>A scene graph library layered on top of OpenGL. Also contains code to load and save lots of 3D file formats.</TD>
+</TR>
+<TR>
+  <TD><A HREF="puAux/index.html">PUI Auxiliary Library (PUAUX)</A></TD>
+  <TD>Additional functionality layered onto PUI - not every PUI program
+      will need these but they can perhaps save you some effort.</TD>
 </TR>
 <TR>
   <TD><A HREF="ssgAux/index.html">SSG Auxiliary Library (SSGA)</A></TD>
@@ -120,6 +125,14 @@ as little PLIB as you need.  The components libraries are:
   <TD><A HREF="psl/index.html">PLIB Scripting Language (PSL)</A></TD>
   <TD>A very lightweight, stackless C-like scripting language.</TD>
 </TR>
+<TR>
+  <TD><A HREF="pw/index.html">PLIB Windowing Library (PW)</A></TD>
+  <TD>A lightweight windowing library.  This is a very basic
+     library - it only supports a single, double-buffered RGB
+     OpenGL window - with support for keyboard and mouse.
+     Simple though it is, it's usually plenty for OpenGL games
+     and other simple OpenGL applications.</TD>
+</TR>
 </TABLE>
 <p>
 <H2> Goodies: Samples and Demo's </H2>
@@ -140,6 +153,7 @@ library for matix operations:
 <TR>
 <TD>
 <ul>
+<li>PW is independent
 <li>UL is independent
 <li>JS depends only on UL
 <li>SL depends only on UL
@@ -153,6 +167,7 @@ library for matix operations:
 <li>SSG depends on UL and SG
 <li>SSGAUX depends on UL, SG and SSG
 <li>PUI depends on UL, SG and FNT
+<li>PUAUX depends on UL, SG, FNT and PUI
 <li>PSL depends on UL, SG and SSG
 </ul>
 </TD>
