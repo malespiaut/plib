@@ -1,5 +1,11 @@
 
 #include "ssgLocal.h"
+#include "ssgLoaderWriterStuff.h"
+
+static class CGlobalSimpleStateList gSSL;
+
+
+static const int writeTextureWithoutPath=TRUE; // TODO / FIXME make this optional so the user can decide
 
 struct saveTriangle
 {
@@ -10,149 +16,71 @@ struct saveTriangle
 static FILE *save_fd ;
 static sgVec3       *vlist ;
 static saveTriangle *tlist ;
-static int tcount ;
-static int vcount ;
 
-static void getStuff ( ssgEntity *e, sgVec3 *vtab, saveTriangle *ttab )
+
+int ssgSaveLeaf ( ssgEntity *ent )
 {
-  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
-  {
-    ssgBranch *br = (ssgBranch *) e ;
-
-    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      getStuff ( br -> getKid ( i ), vtab, ttab ) ;
-  }
-  else
-  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
-  {
-    ssgVtxTable *vt = (ssgVtxTable *) e ;
-    int nv = vt -> getNumVertices () ;
-    int nt = vt -> getNumTriangles () ;
-    int sv = vcount ;
-
-    int i ;
-
-    for ( i = 0 ; i < nv ; i++ )
-    {
-      sgCopyVec3 ( vtab[vcount], vt->getVertex ( i ) ) ;
-      vcount++ ;
-    }
-
-    for ( i = 0 ; i < nt ; i++ )
-    {
-      short vv0, vv1, vv2 ;
-
-      vt -> getTriangle ( i, &vv0, &vv1, &vv2 ) ;
-
-      ttab[tcount].v[0]=vv0+sv;
-      ttab[tcount].v[1]=vv1+sv;
-      ttab[tcount].v[2]=vv2+sv;
-
-      sgCopyVec2 ( ttab[tcount].t[0], vt->getTexCoord ( vv0 ) ) ;
-      sgCopyVec2 ( ttab[tcount].t[1], vt->getTexCoord ( vv1 ) ) ;
-      sgCopyVec2 ( ttab[tcount].t[2], vt->getTexCoord ( vv2 ) ) ;
-      tcount++ ;
-    }
-  }
-}
+  
+  assert( ent -> isAKindOf ( SSG_TYPE_VTXTABLE ) );
+  ssgVtxTable *vt = (ssgVtxTable *) ent ;
+  int i, num_verts = vt -> getNumVertices () ;
+  int num_tris  = vt -> getNumTriangles () ;
 
 
-static int countTriangles ( ssgEntity *e )
-{
-  int count = 0 ;
-
-  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
-  {
-    ssgBranch *br = (ssgBranch *) e ;
-
-    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      count += countTriangles ( br -> getKid ( i ) ) ;
-  }
-  else
-  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
-  {
-    ssgVTable *vt = (ssgVTable *) e ;
-    count += vt -> getNumTriangles () ;
-  }
-
-  return count ;
-}
-
-
-
-static int countVertices ( ssgEntity *e )
-{
-  int count = 0 ;
-
-  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
-  {
-    ssgBranch *br = (ssgBranch *) e ;
-
-    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      count += countVertices ( br -> getKid ( i ) ) ;
-  }
-  else
-  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
-  {
-    ssgVTable *vt = (ssgVTable *) e ;
-    count += vt -> getNumVertices () ;
-  }
-
-  return count ;
-}
-
-
-int ssgSaveAC ( const char *filename, ssgEntity *ent )
-{
-  save_fd = fopen ( filename, "wa" ) ;
-
-  if ( save_fd == NULL )
-  {
-    ulSetError ( UL_WARNING, "ssgSaveAC: Failed to open '%s' for writing", filename ) ;
-    return FALSE ;
-  }
-
-  int num_verts = countVertices  ( ent ) ;
-  int num_tris  = countTriangles ( ent ) ;
   vlist = new sgVec3 [ num_verts ] ;
   tlist = new saveTriangle [ num_tris ] ;
-  tcount = vcount = 0 ;
-  getStuff  ( ent, vlist, tlist ) ;
 
-  fprintf ( save_fd, "AC3Db\n" ) ;
-  fprintf ( save_fd, "MATERIAL \"\" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0 0 0  shi 0  trans 0\n" ) ;
-  fprintf ( save_fd, "OBJECT world\n" ) ;
-  fprintf ( save_fd, "kids 1\n" ) ;
+  for ( i = 0 ; i < num_verts; i++ )
+  {
+    sgCopyVec3 ( vlist[i], vt->getVertex ( i ) ) ;
+  }
+
+  for ( i = 0 ; i < num_tris ; i++ )
+  {
+    short vv0, vv1, vv2 ;
+
+    vt -> getTriangle ( i, &vv0, &vv1, &vv2 ) ;
+
+    tlist[i].v[0]=vv0;
+    tlist[i].v[1]=vv1;
+    tlist[i].v[2]=vv2;
+
+    sgCopyVec2 ( tlist[i].t[0], vt->getTexCoord ( vv0 ) ) ;
+    sgCopyVec2 ( tlist[i].t[1], vt->getTexCoord ( vv1 ) ) ;
+    sgCopyVec2 ( tlist[i].t[2], vt->getTexCoord ( vv2 ) ) ;
+  
+  }
+
+
   fprintf ( save_fd, "OBJECT poly\n" ) ;
   fprintf ( save_fd, "name \"%s\"\n", ent->getPrintableName() ) ;
-	/* wk:
-	Currently, the AC writer saves all triangles in one big lump, without a hierarchie.
-	Therefore, there is no point in saving textures, since normally you have several
-	textures for one model.
-	Once the AC writer saves a hierarchie, the following lines should hopefully 
-	save texture names.
-
-  if ( ent -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
+  ssgState* st = vt -> getState () ;
+  if ( st && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
   {
-    ssgVtxTable* vt = (ssgVtxTable *) ent ;
-    ssgState* st = vt -> getState () ;
-    if ( st && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
-    {
-      ssgSimpleState* ss = (ssgSimpleState*) vt -> getState () ;
-			if ( ss -> isEnabled ( GL_TEXTURE_2D ) )
-			{
-				const char* tfname = ss -> getTextureFilename() ;
-				if ( tfname[0] != 0 )
+    ssgSimpleState* ss = (ssgSimpleState*) vt -> getState () ;
+		if ( ss -> isEnabled ( GL_TEXTURE_2D ) )
+		{
+			const char* tfname = ss -> getTextureFilename() ;
+			if ( tfname[0] != 0 )
+			{ if ( writeTextureWithoutPath )
+				{ char *s;
+					s=strrchr(tfname, '\\');
+					if (s==NULL)
+						s=strrchr(tfname, '/');
+					if (s==NULL)
+				    fprintf ( save_fd, "texture \"%s\"\n", tfname);	
+					else
+						fprintf ( save_fd, "texture \"%s\"\n", ++s);		
+				}
+				else
 				  fprintf ( save_fd, "texture \"%s\"\n", tfname);
 			}
-      
-    }
+		}
+    
   }
-	*/
   fprintf ( save_fd, "numvert %d\n", num_verts ) ;
 
-  int i ;
-
+  
   for ( i = 0 ; i < num_verts ; i++ )
     fprintf ( save_fd, "%g %g %g\n", vlist[i][0],vlist[i][2],-vlist[i][1] ) ;
 
@@ -161,18 +89,90 @@ int ssgSaveAC ( const char *filename, ssgEntity *ent )
   for ( i = 0 ; i < num_tris ; i++ )
   {
     fprintf ( save_fd, "SURF 0x0\n" ) ;
-    fprintf ( save_fd, "mat 0\n" ) ;
+		ssgState *s = vt->getState ();
+		int istate = 0;
+		if( s != NULL )
+			if (s->isAKindOf(SSG_TYPE_SIMPLESTATE ))
+			{ istate = gSSL.find_state ( (ssgSimpleState *)s );
+				assert(istate>=0);
+			}
+    fprintf ( save_fd, "mat %d\n", istate ) ;
     fprintf ( save_fd, "refs 3\n" ) ;
     fprintf ( save_fd, "%d %g %g\n", tlist[i].v[0],tlist[i].t[0][0],tlist[i].t[0][1] ) ;
     fprintf ( save_fd, "%d %g %g\n", tlist[i].v[1],tlist[i].t[1][0],tlist[i].t[1][1] ) ;
     fprintf ( save_fd, "%d %g %g\n", tlist[i].v[2],tlist[i].t[2][0],tlist[i].t[2][1] ) ;
   } 
   fprintf ( save_fd, "kids 0\n" ) ;
-  fclose ( save_fd ) ;
   delete[] vlist ;
   delete tlist ;
 
   return TRUE ;
+}
+
+
+
+int	ssgSaveACInner(	ssgEntity *ent)
+{
+  if ( ent -> isAKindOf ( SSG_TYPE_BRANCH ) )
+  {
+    ssgBranch *br = (ssgBranch *) ent ;
+
+		fprintf ( save_fd, "OBJECT group\n" ) ;
+		fprintf ( save_fd, "kids %d\n", ent->getNumKids() ) ;
+
+    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
+      if (! ssgSaveACInner( br -> getKid ( i ) ) )
+				return FALSE;
+  }
+  else if ( ent -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
+  {
+		return ssgSaveLeaf ( ent );
+	}
+	else
+	{ assert(FALSE);
+	}
+	return TRUE;
+}
+
+int ssgSaveAC ( const char *filename, ssgEntity *ent )
+{ 
+	int i;
+  
+	save_fd = fopen ( filename, "wa" ) ;
+
+  if ( save_fd == NULL )
+  {
+    ulSetError ( UL_WARNING, "ssgSaveAC: Failed to open '%s' for writing", filename ) ;
+    return FALSE ;
+  }
+
+  
+  fprintf ( save_fd, "AC3Db\n" ) ;
+
+	gSSL.get_states( ent );
+	for (i = 0 ; i < gSSL.get_num_states(); i++)
+	{ ssgSimpleState * ss = gSSL.get_state(i);
+	  float *em = ss->getMaterial (GL_EMISSION );
+    float *sp = ss->getMaterial (GL_SPECULAR );
+    float *am = ss->getMaterial (GL_AMBIENT  );
+    float *di = ss->getMaterial (GL_DIFFUSE  );
+		int shiny = (int) ss->getShininess ();
+
+		fprintf ( save_fd, "MATERIAL \"%s\" rgb %f %f %f  amb %f %f %f  emis %f %f %f  spec %f %f %f  shi %d  trans %f\n",
+			       ss->getPrintableName(), di[0], di[1], di[2], am[0], am[1], am[2], em[0], em[1], em[2],
+						 sp[0], sp[1], sp[2], shiny, 1.0-di[3] ) ;
+	}
+  fprintf ( save_fd, "OBJECT world\n" ) ;
+  fprintf ( save_fd, "kids %d\n", ent->getNumKids() ) ;
+
+
+	int bReturn = ssgSaveACInner(	ent);
+
+  
+	gSSL.dealloc();
+	fclose ( save_fd ) ;
+
+  return bReturn;
 }
 
 
