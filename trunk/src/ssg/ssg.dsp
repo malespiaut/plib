@@ -94,6 +94,10 @@ SOURCE=.\ssgAnimation.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgAxisTransform.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgBase.cxx
 # End Source File
 # Begin Source File
@@ -107,6 +111,10 @@ SOURCE=.\ssgBranch.cxx
 # Begin Source File
 
 SOURCE=.\ssgContext.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgConvex.cxx
 # End Source File
 # Begin Source File
 
