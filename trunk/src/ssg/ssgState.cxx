@@ -24,6 +24,42 @@
 
 #include "ssgLocal.h"
 
+static ssgStateCallback  _ssgPendingPostDrawCB = NULL ;
+static ssgState         *_ssgPreviousState = NULL ;
+
+void ssgState::preApply ()
+{
+  if ( _ssgPendingPostDrawCB )
+    (*_ssgPendingPostDrawCB)(_ssgPreviousState) ;
+
+  if ( preApplyCB ) (*preApplyCB)(this) ;
+}
+
+
+void ssgState::preDraw ()
+{
+  if ( preDrawCB )
+  {
+    (*preDrawCB)(this) ;
+    _ssgPendingPostDrawCB = postDrawCB ;
+    _ssgPreviousState = this ;
+  }
+}
+
+void _ssgStartOfFrameInit ()
+{
+  _ssgPendingPostDrawCB = NULL ;
+  _ssgPreviousState     = NULL ;
+}
+
+void _ssgEndOfFrameCleanup ()
+{
+  if ( _ssgPendingPostDrawCB ) (*_ssgPendingPostDrawCB)(_ssgPreviousState) ;
+
+  _ssgPendingPostDrawCB = NULL ;
+  _ssgPreviousState     = NULL ;
+}
+
 void ssgState::copy_from ( ssgState *src, int clone_flags )
 {
   ssgBase::copy_from ( src, clone_flags ) ;
@@ -40,19 +76,32 @@ void ssgState::copy_from ( ssgState *src, int clone_flags )
 ssgState::ssgState (void)
 {
   type = ssgTypeState () ;
+
+  preApplyCB = NULL ;
+  preDrawCB  = NULL ;
+  postDrawCB = NULL ;
+
   setOpaque () ;
   setExternalPropertyIndex ( 0 ) ;
 }
 
-ssgState::~ssgState (void) {}
+ssgState::~ssgState (void)
+{
+  if ( _ssgPreviousState == this )
+  {
+    _ssgPendingPostDrawCB = NULL ;
+    _ssgPreviousState     = NULL ;
+  }
+}
 
 
 void ssgState::print ( FILE *fd, char *indent, int how_much )
 {
-	ssgBase::print ( fd, indent, how_much ) ;
+  ssgBase::print ( fd, indent, how_much ) ;
 
-	if ( how_much < 2 )
-		return;
+  if ( how_much < 2 )
+    return;
+
   fprintf ( fd, "%s  Translucent  = %s\n", indent, translucent?"True":"False");
   fprintf ( fd, "%s  ExternalProp = %d\n", indent, external_property_index ) ;
 }
@@ -62,6 +111,11 @@ int ssgState::load ( FILE *fd )
 {
   _ssgReadInt ( fd, & translucent ) ;
   _ssgReadInt ( fd, & external_property_index ) ;
+
+  preApplyCB = NULL ;
+  preDrawCB  = NULL ;
+  postDrawCB = NULL ;
+
   return ssgBase::load ( fd ) ;
 }
 
