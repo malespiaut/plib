@@ -98,6 +98,6 @@ extern int _pslInitialised ;
 
 #include "pslSymbol.h"
 #include "pslContext.h"
-#include "pslParser.h"
+#include "pslCompiler.h"
 
 

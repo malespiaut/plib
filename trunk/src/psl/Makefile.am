@@ -4,7 +4,7 @@ if BUILD_PSL
 lib_LIBRARIES = libplibpsl.a
 
 include_HEADERS = psl.h pslContext.h pslLocal.h \
-                  pslParser.h pslSymbol.h
+                  pslCompiler.h pslSymbol.h
 
 libplibpsl_a_SOURCES = psl.cxx pslCodeGen.cxx pslContext.cxx \
                        pslCompiler.cxx pslSymbols.cxx pslToken.cxx \

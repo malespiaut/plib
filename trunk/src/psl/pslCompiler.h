@@ -23,7 +23,7 @@ struct pslFwdRef
 
 
 
-class pslParser
+class pslCompiler
 {
   void pushCodeByte ( unsigned char b ) ;
   void pushCodeAddr ( pslAddress a ) ;
@@ -139,7 +139,7 @@ private:
 
 public:
 
-  pslParser ( pslOpcode *_code, pslExtension *_extn )
+  pslCompiler ( pslOpcode *_code, pslExtension *_extn )
   {
     code       = _code ;
     extensions = _extn ;
@@ -154,7 +154,7 @@ public:
     init () ;
   }
 
-  ~pslParser ()
+  ~pslCompiler ()
   {
     for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
     {
@@ -188,8 +188,8 @@ public:
   }
 
   void dump () const ;
-  int  parse ( const char *fname ) ;
-  int  parse ( FILE *fd ) ;
+  int  compile ( const char *fname ) ;
+  int  compile ( FILE *fd ) ;
 } ;
 
 

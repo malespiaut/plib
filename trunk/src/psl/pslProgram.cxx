@@ -34,10 +34,10 @@ pslProgram::pslProgram ( pslExtension *ext )
 
   extensions = ext ;
 
-  parser  = new pslParser  ( code, ext ) ;
+  compiler  = new pslCompiler ( code, ext ) ;
   context = new pslContext ( this ) ;
 
-  parser  -> init  () ;
+  compiler  -> init  () ;
   context -> reset () ;
 }
  
@@ -45,7 +45,7 @@ pslProgram::pslProgram ( pslExtension *ext )
 pslProgram::pslProgram ( pslProgram *src )
 {
   code       = src -> getCode       () ;
-  parser     = src -> getParser     () ;
+  compiler     = src -> getCompiler     () ;
   extensions = src -> getExtensions () ;
   userData   = src -> getUserData   () ;
 
@@ -56,23 +56,23 @@ pslProgram::pslProgram ( pslProgram *src )
 
 pslProgram::~pslProgram ()
 {
-  delete parser ;
+  delete compiler ;
   delete context ;
   delete [] code ;
 }
 
 
-void       pslProgram::dump  () const {        parser  -> dump  () ; }
+void       pslProgram::dump  () const {        compiler  -> dump  () ; }
 void       pslProgram::reset ()       {        context -> reset () ; }
 pslResult  pslProgram::step  ()       { return context -> step  () ; }
 
-int        pslProgram::parse ( const char *fname )
+int        pslProgram::compile ( const char *fname )
 {
-  return parser -> parse(fname) ;
+  return compiler -> compile (fname) ;
 }
 
-int        pslProgram::parse ( FILE *fd )
+int        pslProgram::compile ( FILE *fd )
 {
-  return parser -> parse( fd  ) ;
+  return compiler -> compile( fd  ) ;
 }
 

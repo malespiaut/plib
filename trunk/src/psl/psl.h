@@ -34,7 +34,7 @@ enum pslResult
 
 typedef unsigned char pslOpcode ;
 class pslContext ;
-class pslParser  ;
+class pslCompiler  ;
 class pslProgram ;
 
  
@@ -59,7 +59,7 @@ class pslProgram
 {
   pslOpcode     *code       ;
   pslContext    *context    ;
-  pslParser     *parser     ;
+  pslCompiler     *compiler     ;
   pslExtension  *extensions ;
 
   void *userData ;
@@ -73,15 +73,15 @@ public:
 
   pslContext   *getContext     () const { return context    ; }
   pslOpcode    *getCode        () const { return code       ; }
-  pslParser    *getParser      () const { return parser     ; }
+  pslCompiler  *getCompiler    () const { return compiler     ; }
   pslExtension *getExtensions  () const { return extensions ; }
 
   void      *getUserData () const     { return userData ; }
   void       setUserData ( void *ud ) { userData = ud ; }
 
   void       dump  () const ;
-  int        parse ( const char *fname ) ;
-  int        parse ( FILE *fd ) ;
+  int        compile ( const char *fname ) ;
+  int        compile ( FILE *fd ) ;
   void       reset () ;
   pslResult step  () ;
 } ;
