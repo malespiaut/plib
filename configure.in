@@ -65,17 +65,8 @@ case "${host}" in
 *-*-cygwin* | *-*-mingw32*)
   dnl CygWin under Windoze.
 
-  AC_CHECK_LIB(winmm, joyGetNumDevs)
-
   dnl OpenGL libraries
-  AC_CHECK_LIB(opengl32, glNewList,,
-  AC_MSG_ERROR([could not find working GL library]))
-
-  AC_CHECK_LIB(glu32, gluLookAt,,
-  AC_MSG_ERROR([could not find working GLU library]))
-
-  AC_CHECK_LIB(glut32, glutGetModifiers,,
-  AC_MSG_ERROR([could not find working GLUT library]))
+  LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32"
 	;;
 *-apple-darwin*)
    dnl Mac OS X
