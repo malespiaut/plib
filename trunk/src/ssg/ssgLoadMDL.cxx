@@ -153,9 +153,9 @@ static void recalcNormals() {
   sgVec3 n;
   
   for (int i = 0; i < curr_index_->getNum() - 2; i++) {
-    short ix0 = *curr_index_->get(i    );
-    short ix1 = *curr_index_->get(i + 1);
-    short ix2 = *curr_index_->get(i + 2);
+    unsigned short ix0 = *curr_index_->get(i    );
+    unsigned short ix1 = *curr_index_->get(i + 1);
+    unsigned short ix2 = *curr_index_->get(i + 2);
     
     sgMakeNormal( n, 
       vertex_array_->get(ix0),
