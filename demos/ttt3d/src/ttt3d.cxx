@@ -11,17 +11,17 @@
 #  define F_OK 04
 #endif
 
-char   *ttt3d_datadir = NULL ;
+static const char *ttt3d_datadir = NULL ;
 GFX              *gfx = NULL ;
 GUI              *gui = NULL ;
 SoundSystem    *sound = NULL ;
 ssgRoot        *scene = NULL ;
-ssgTransform    *spin = NULL ;
+static ssgTransform *spin = NULL ;
 Puzzle        *puzzle = NULL ;
-float        spin_rot = 0.0f ;
-float        spin_alt = 0.0f ;
-float        spin_pit = 0.0f ;
-float        zoom = 60.0f ;
+static float  spin_rot = 0.0f ;
+static float  spin_alt = 0.0f ;
+static float  spin_pit = 0.0f ;
+static float     zoom = 60.0f ;
 int        game_state = GAME_START_OF_DAY ;
 
 Level level ;
@@ -133,7 +133,7 @@ int main ( int argc, char **argv )
 
 
 
-void spinPuzzle ()
+static void spinPuzzle ()
 {
   sgMat4 rot, pit, final ;
 

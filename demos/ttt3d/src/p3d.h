@@ -43,7 +43,7 @@ extern Level        level      ;
 extern int      game_state ;
 
 extern ssgRoot *scene            ;
-extern char    *ttt3d_datadir ;
+//extern const char *ttt3d_datadir ;
 
 void startLevel () ;
 void makeMove   () ;
