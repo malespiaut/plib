@@ -326,6 +326,8 @@ extern int puRefresh ; /* Should not be used directly by applications any
 #define PUCLASS_LARGEINPUT       0x00400000
 #define PUCLASS_COMBOBOX         0x00800000
 #define PUCLASS_SELECTBOX        0x01000000
+#define PUCLASS_RANGE            0x02000000
+#define PUCLASS_SPINBOX          0x04000000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -349,6 +351,8 @@ class puPopup            ;
 class puPopupMenu        ;
 class puMenuBar          ;
 class puInput            ;
+class puRange            ;
+class puSpinBox          ;
 class puSlider           ;
 class puListBox          ;
 class puArrowButton      ;
@@ -1096,32 +1100,99 @@ public:
   }
 } ;
 
-
-class puSlider : public puObject
+class puRange : public puObject
 {
+
+
 protected:
-  int vert ;
+  float minimum_value ;
+  float maximum_value ;
+  float step_size ;
   float last_cb_value ;
   float cb_delta ;
   int   cb_mode ;
-  float slider_fraction ;
-  void draw_slider_box ( int dx, int dy, float val, const char *box_label = NULL ) ;
 
-  void puSliderInit ( int vertical )
+  void puRange_init ( float minval, float maxval, float step )
+  {
+    if ( maxval == minval )
+    {
+      maxval = 1.0 ;
+      minval = 0.0 ;
+    }
+
+    minimum_value = minval ;
+    maximum_value = maxval ;
+    step_size = step ;
+    getValue ( & last_cb_value ) ;  // was last_cb_value = -1.0f ;
+    cb_delta = 0.1f ;
+    cb_mode = PUSLIDER_ALWAYS ;
+  }
+
+public:
+    puRange ( int minx, int miny, int maxx, int maxy ) :
+     puObject ( minx, miny, maxx, maxy )
+               {
+                type |= PUCLASS_RANGE ;
+
+                puRange_init ( 0.0, 1.0, 0.0 ) ;
+               }
+
+    puRange ( int minx, int miny, int maxx, int maxy, float minval, float maxval, float step = 0.0 ) :
+     puObject ( minx, miny, maxx, maxy )
+               {
+                type |= PUCLASS_RANGE ;
+
+                puRange_init ( minval, maxval, step ) ;
+               }
+
+  float getMaxValue ( void ) const { return maximum_value ; }
+  virtual void setMaxValue ( float f ) { maximum_value = f ; }
+
+  float getMinValue ( void ) const { return minimum_value ; }
+  virtual void setMinValue ( float f ) { minimum_value = f ; }
+
+  float getStepSize ( void ) { return step_size ; }
+  void setStepSize ( float f ) { step_size = f ; }
+
+  float checkStep ( float val_to_check )
+  {
+    float step = val_to_check ;
+
+    if ( getStepSize() > 0.0 )
+    {
+      step = val_to_check - fmod ( val_to_check, getStepSize() ) ;
+      if ( ( val_to_check - step ) > ( step + getStepSize() - val_to_check ) ) step += getStepSize() ;
+    }
+      
+    return step ;
+  }
+  
+  void setCBMode ( int m ) { cb_mode = m ; }
+  int getCBMode ( void ) const { return cb_mode ; }
+
+  void setDelta ( float f ) { cb_delta = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; }
+  float getDelta ( void ) const { return cb_delta ; }
+} ;
+
+class puSlider : public puRange
+{
+protected:
+  int vert ;
+  float slider_fraction ;
+  void draw_slider_box ( int dx, int dy, const puBox &box, float val, const char *box_label = NULL ) ;
+
+  void puSlider_init ( int vertical )
   {
     type |= PUCLASS_SLIDER ;
     slider_fraction = 0.1f ;
-    getValue ( & last_cb_value ) ;  // was last_cb_value = -1.0f ;
     vert = vertical ;
-    cb_delta = 0.1f ;
-    cb_mode = PUSLIDER_ALWAYS ;
   }
 
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
   puSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
-     puObject ( minx, miny, vertical ?
+     puRange  ( minx, miny, vertical ?
                ( minx + puGetDefaultLegendFont().getStringWidth ( "W" ) +
                         PUSTR_LGAP + PUSTR_RGAP ) :
                ( minx + sz ),
@@ -1132,29 +1203,24 @@ public:
                         PUSTR_TGAP + PUSTR_BGAP )
              )
   {
-    puSliderInit ( vertical ) ;
+    puSlider_init ( vertical ) ;
   }
 
   /* Blake Friesen - alternate constructor which lets you explicitly set width */
   puSlider ( int minx, int miny, int sz, int vertical, int width ) :
-     puObject ( minx, miny, vertical ?
+     puRange  ( minx, miny, vertical ?
                              ( minx + width ) :
                              ( minx + sz ),
                             vertical ?
                              ( miny + sz ) :
                              ( miny + width ) 
-                           )
-  {
-    puSliderInit ( vertical ) ;
+                            )
+     { 
+    puSlider_init ( vertical ) ;
   }
 
-  void setCBMode ( int m ) { cb_mode = m ; }
-  float getCBMode ( void ) const { return (float)cb_mode ; }
 
   int  isVertical ( void ) const { return vert ; }
-
-  void setDelta ( float f ) { cb_delta = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; }
-  float getDelta ( void ) const { return cb_delta ; }
 
   void setSliderFraction ( float f ) { slider_fraction = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; puPostRefresh () ; }
   float getSliderFraction ( void ) const { return slider_fraction ; }
@@ -1163,31 +1229,25 @@ public:
 
 class puBiSlider : public puSlider
 {
-protected:
-  int max_value ;
-  int min_value ;
+  
 
+protected:
   int current_max ;
   int current_min ;
 
   int active_button ;  // Zero for none, one for min, two for max
-
-  void puBiSliderInit ( void )
-  {
-    type |= PUCLASS_BISLIDER ;
-    max_value = 1 ;
-    min_value = 0 ;
-    current_max = 1 ;
-    current_min = 0 ;
-    active_button = 0 ;
-  }
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
   puBiSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
      puSlider ( minx, miny, sz, vertical )
   {
-    puBiSliderInit () ;
+    type |= PUCLASS_BISLIDER ;
+    setMaxValue(1.0f) ;
+    setMinValue(0.0f) ;
+    current_max = 1 ;
+    current_min = 0 ;
+    active_button = 0 ;
   }
 
   /* Alternate constructor which lets you explicitly set width */
@@ -1195,26 +1255,28 @@ public:
   puBiSlider ( int minx, int miny, int sz, int vertical, int width ) :
      puSlider ( minx, miny, sz, vertical, width )
   {
-    puBiSliderInit () ;
+    type |= PUCLASS_BISLIDER ;
+    setMaxValue(1.0f) ;
+    setMinValue(0.0f) ;
+    current_max = 1 ;
+    current_min = 0 ;
+    active_button = 0 ;
   }
 
-  void setMaxValue ( int i )
+  void setMaxValue ( float i )
   {
-    max_value = i ;
-    slider_fraction = 1.0f / (float)( max_value-min_value+1 ) ;
+    maximum_value = i ;
+    slider_fraction = 1.0f / (float)( getMaxValue()-getMinValue()+1 ) ;
     puPostRefresh () ;
   }
 
-  int getMaxValue ( void ) const { return max_value ; }
 
-  void setMinValue ( int i )
+  void setMinValue ( float i )
   {
-    min_value = i ;
-    slider_fraction = 1.0f / (float)( max_value-min_value+1 ) ;
+    minimum_value = i ;
+    slider_fraction = 1.0f / (float)( getMaxValue()-getMinValue()+1 ) ;
     puPostRefresh () ;
   }
-
-  int getMinValue ( void ) const { return min_value ; }
 
   void setCurrentMax ( int i ) { current_max = i ; puPostRefresh () ; }
   int getCurrentMax ( void ) const { return current_max ; }
@@ -1226,10 +1288,10 @@ public:
   int getActiveButton ( void ) const { return active_button ; }
 } ;
 
-
-
 class puTriSlider : public puBiSlider
 {
+  
+
 protected:
   // "active_button" is now zero for none, one for min, two for middle, three for max
   int freeze_ends ;  // true to make end sliders unmovable
@@ -1255,7 +1317,6 @@ public:
   int getFreezeEnds ( void ) const { return freeze_ends ; }
   void setFreezeEnds ( int val )   { freeze_ends = val ; puPostRefresh () ; }
 } ;
-
 
 
 class puListBox : public puButton
@@ -1284,27 +1345,33 @@ public:
 } ;
 
 
-class puDial : public puSlider
+class puDial : public puRange
 {
 protected:
   int wrap ;  // Flag telling whether you can wrap around the bottom of the dial
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
+
   puDial ( int minx, int miny, int sz ) :
-     puSlider ( minx, miny, sz )
+     puRange ( minx, miny, minx+sz, miny+sz )
   {
     type |= PUCLASS_DIAL ;
     setValue ( 0.0f ) ;
     wrap = TRUE ;
-    setSize ( sz, sz ) ; /* Override the funky math that the base slider did! */
+  }
+
+  puDial ( int minx, int miny, int sz, float minval, float maxval, float step = 0.0 ) :
+     puRange ( minx, miny, minx+sz, miny+sz, minval, maxval, step )
+  {
+    type |= PUCLASS_DIAL ;
+    setValue ( 0.0f ) ;
+    wrap = TRUE ;
   }
 
   void setWrap ( int in )    {  wrap = in ;  }
   int getWrap ( void ) const {  return wrap ;  }
 } ;
-
-
 
 class puPopup : public puInterface
 {
@@ -1497,6 +1564,65 @@ public:
   int  inputDisabled ( void ) const { return input_disabled ; }
 } ;
 
+class puSpinBox : public puRange
+{
+protected :
+  puInput *input_box ;
+
+  int up_arrow_active, down_arrow_active, arrow_position, inbox_height ;
+  float arrow_height ;
+
+public :
+  int checkKey ( int key, int updown ) ;
+  void doHit ( int button, int updown, int x, int y ) ;
+  void draw ( int dx, int dy ) ;
+  /* Whether the arrows are on the LEFT of the input box (0) or RIGHT (1 DEFAULT) */
+  int getArrowPosition ( void ) { return arrow_position ; }
+  /* Offered as a proportion of the input box height. Default = 0.5 */
+  void setArrowHeight (float height ) { 
+      puBox *ibox = input_box->getABox() ;
+      abox.min[1] = ibox->min[1] ;
+      abox.max[1] = ibox->max[1] ;
+      abox.max[0] = ibox->max[0] ;
+      arrow_height = height ; 
+      abox.min[1] -= (int)(inbox_height * (getArrowHeight() - 0.5)) ;
+      abox.max[1] += (int)(inbox_height * (getArrowHeight() - 0.5)) ;
+      /* Push the right side out by scalar to ensure all the arrow area can be clicked */
+      if (arrow_position == 0)
+      {
+        int size = (int)(( inbox_height ) * ( arrow_height ));
+        //int iw = ibox->max[0]-ibox->min[0]
+	int ih = ibox->max[1]-ibox->min[1] , ix = 0, iy = 0 ;
+        input_box->getPosition(&ix, &iy);
+        input_box->setPosition(abox.min[0] + size, iy) ;
+        input_box->setSize(abox.max[0]-abox.min[0] - size, ih) ;
+      } else {
+        abox.max[0] += (int)(inbox_height * (getArrowHeight() - 0.5) + inbox_height/2) ;
+      }
+      recalc_bbox() ;
+  }
+
+  float getArrowHeight ( void ) { return arrow_height ; }
+
+  puSpinBox ( int minx, int miny, int maxx, int maxy, int arrow_pos = 1 ) :
+       puRange ( minx, miny, maxx, maxy, 1.0f, 10.0f, 1.0f )
+  {
+    type |= PUCLASS_SPINBOX ;
+    if (arrow_pos==1)
+        input_box = new puInput ( minx, miny, maxx - (maxy-miny)/2, maxy ) ;
+    else
+        input_box = new puInput ( minx + (maxy-miny)/2, miny, maxx, maxy ) ;
+    up_arrow_active = down_arrow_active = 0 ;
+    arrow_position = arrow_pos ;
+    arrow_height = 0.5f ;
+    inbox_height = maxy - miny ;
+  }
+
+  ~puSpinBox ()
+  {
+    puDeleteObject ( (puObject *)input_box ) ;  // THIS MAY NEED TO CHANGE !!!
+  }
+} ;
 
 class puButtonBox : public puObject
 {

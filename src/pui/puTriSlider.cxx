@@ -50,7 +50,7 @@ void puTriSlider::draw ( int dx, int dy )
     char str_value[10] ;
     sprintf (str_value, "%d", getIntegerValue () ) ;
 
-    draw_slider_box ( dx, dy, val, str_value ) ;
+    draw_slider_box ( dx, dy, abox, val, str_value ) ;
 
     if ( val < 0.0f ) val = 0.0f ;
     if ( val > 1.0f ) val = 1.0f ;
@@ -64,7 +64,7 @@ void puTriSlider::draw ( int dx, int dy )
 
     sprintf (str_value, "%d", getCurrentMax() ) ;
 
-    draw_slider_box ( dx, dy, val, str_value ) ;
+    draw_slider_box ( dx, dy, abox, val, str_value ) ;
 
     // Draw the current_min slider and label it
 
@@ -75,7 +75,7 @@ void puTriSlider::draw ( int dx, int dy )
 
     sprintf (str_value, "%d", getCurrentMin() ) ;
 
-    draw_slider_box ( dx, dy, val, str_value ) ;
+    draw_slider_box ( dx, dy, abox, val, str_value ) ;
 
     draw_legend ( dx, dy ) ;
   }
@@ -93,7 +93,13 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
   }
 
   if ( updown != PU_DRAG )
+  {
     puMoveToLast ( this );
+  /* Bug Fixed: If you moved a slider while dragging the mouse (click and drag), then move   */
+  /* the cursor outside of the widget and released the mouse button, the active_button would */
+  /* be locked to the last slider you moved, and unable to release. - JCJ 11 June 2002       */
+    setActiveButton ( 0 ) ;
+  }
 
   if ( button == PU_LEFT_BUTTON && updown == PU_UP )
   {
@@ -125,7 +131,7 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
     if ( getFreezeEnds() )  // Cannot move end sliders, must move middle one
     {
       setActiveButton ( 2 ) ;  
-      setValue ( new_value ) ; /* Ensure that the middle slider can't move beyond the barriers - JCJ 10 Jun 2002 */
+      setValue ( checkStep(new_value) ) ; /* Ensure that the middle slider can't move beyond the barriers - JCJ 10 Jun 2002 */
       if ( new_value < getCurrentMin() ) setValue ( getCurrentMin() ) ;
       if ( new_value > getCurrentMax() ) setValue ( getCurrentMax() ) ;
     }
@@ -135,35 +141,35 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
       {
         if ( (new_value-getCurrentMin()) < (getIntegerValue()-new_value) ) // Closest to current_min
         {
-          setCurrentMin ( new_value ) ;
+          setCurrentMin ( checkStep(new_value) ) ;
           setActiveButton ( 1 ) ;
         }
         else if ( (new_value-getIntegerValue()) > (getCurrentMax()-new_value) ) // Closest to current_max
         {
-          setCurrentMax ( new_value ) ;
+          setCurrentMax ( checkStep(new_value) ) ;
           setActiveButton ( 3 ) ;
         }
         else  // closest to the center slider -- ties go to the center slider
         {
-          setValue ( new_value ) ;
+          setValue ( checkStep(new_value) ) ;
           setActiveButton ( 2 ) ;
         }
       }
       else if ( getActiveButton() == 1 )  // Currently moving current_min
       {
-        setCurrentMin ( new_value ) ;
+        setCurrentMin ( checkStep(new_value) ) ;
         if ( getIntegerValue() < getCurrentMin() ) setValue ( getCurrentMin() ) ;
         if ( getCurrentMax() < getCurrentMin() ) setCurrentMax ( getCurrentMin() ) ;
       }
       else if ( getActiveButton() == 2 )  // Currently moving central value
       {
-        setValue ( new_value ) ;
+        setValue ( checkStep(new_value) ) ;
         if ( getCurrentMin() > new_value ) setCurrentMin ( new_value ) ;
         if ( getCurrentMax() < new_value ) setCurrentMax ( new_value ) ;
       }
       else if ( getActiveButton() == 3 )  // Currently moving current_max
       {
-        setCurrentMax ( new_value ) ;
+        setCurrentMax ( checkStep(new_value) ) ;
         if ( getIntegerValue() > getCurrentMax() ) setValue ( getCurrentMax() ) ;
         if ( getCurrentMax() < getCurrentMin() ) setCurrentMin ( getCurrentMax() ) ;
       }
@@ -180,7 +186,7 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
         }
         break ;
 
-      case PUSLIDER_DELTA :
+      case PUSLIDER_DELTA :/* Deprecated! */
         if ( fabs ( last_cb_value - next_value ) >= cb_delta )
         {
           last_cb_value = next_value ;
@@ -198,4 +204,3 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
     }
   }
 }
-
