@@ -58,6 +58,48 @@ void pslGetToken ( char *res, FILE *fd )
       res [ 0 ] = '\0' ;
       return ;
     }
+
+    if ( c == '/' )
+    {
+      int d = getc ( fd ) ;
+
+      if ( d == '/' ) /* C++ style comment */
+      {
+        do
+        {
+          d = getc ( fd ) ;
+        } while ( d != '\n' && d != -1 ) ;
+
+        c = ' ' ;
+      }
+      else
+      if ( d == '*' ) /* C style comment */
+      {
+        /*
+          YUK! This is *so* horrible to get right.
+          Just think about this case! ==> **/
+
+        do
+        {
+          /* Search for a star or an EOF */
+
+          do
+          {
+            d = getc ( fd ) ;
+          } while ( d != '*' && d != -1 ) ;
+
+          c = getc ( fd ) ;
+
+          /* If you get two stars in a row - unget the second one */
+
+          if ( c == '*' )
+            ungetc ( '*', fd ) ;
+
+        } while ( c != '/' ) ;
+
+        c = ' ' ;
+      }
+    }
   } while ( isspace ( c ) ) ;
 
   int tp = 0 ;

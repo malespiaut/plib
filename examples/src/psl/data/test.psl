@@ -22,7 +22,7 @@ void main ()
     print ( x ) ;
 
     {
-      float x = 456 ;
+/*    float x = 456 ; //**/
       print ( x ) ;
     }
 
