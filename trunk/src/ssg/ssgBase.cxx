@@ -1,6 +1,16 @@
 
 #include "ssgLocal.h"
 
+void *ssgBase::operator new ( size_t sz )
+{
+  return malloc ( sz ) ;
+}
+
+void ssgBase::operator delete ( void *ptr )
+{
+  free ( ptr ) ;
+}
+
 void ssgBase::copy_from ( ssgBase *src, int /* clone_flags */ )
 {
   type  = src -> getType () ;
@@ -24,6 +34,15 @@ ssgBase:: ssgBase (void)
 
 ssgBase::~ssgBase (void)
 {
+  deadBeefCheck () ;
+  assert ( refc == 0 ) ;
+
+  /*
+    Set the type of deleted nodes to 0xDeadBeef so we'll
+    stand a chance of detecting re-use of deleted nodes.
+  */
+
+  type = (int) 0xDeadBeef ;
 }
 
 void ssgBase::zeroSpareRecursive (){ zeroSpare () ; }
@@ -36,6 +55,7 @@ int  ssgBase::getSpare  ()         { return spare ; }
 void ssgBase::print ( FILE *fd, char *indent )
 {
   fprintf ( fd, "%s%s: Ref Count=%d\n", indent, getTypeName(), getRef () ) ;
+  deadBeefCheck () ;
 }
 
 int ssgBase::load ( FILE *fd )

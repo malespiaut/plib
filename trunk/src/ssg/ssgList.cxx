@@ -27,12 +27,14 @@ ssgKidList::~ssgKidList (void)
 
 void ssgList::addEntity ( ssgEntity *entity )
 {
+entity->deadBeefCheck() ;
   sizeChk () ;
   entity_list [ total++ ] = entity ;
 }
 
 void ssgKidList::addEntity ( ssgEntity *entity )
 {
+entity->deadBeefCheck() ;
   entity -> ref () ;
   ssgList::addEntity ( entity ) ;
 }
@@ -70,6 +72,7 @@ void ssgList::removeAllEntities ()
 
 void ssgList::removeEntity ( unsigned int n )
 {
+entity_list[n]->deadBeefCheck();
   memmove ( &(entity_list[n]), &(entity_list[n+1]), sizeof(ssgEntity *) * (total-n-1) ) ;
   total-- ;
 
@@ -80,10 +83,12 @@ void ssgList::removeEntity ( unsigned int n )
 
 void ssgKidList::removeEntity ( unsigned int n )
 {
+entity_list[n]->deadBeefCheck();
   ssgEntity *e = entity_list [ n ] ;
 
   ssgList::removeEntity ( n ) ;
 
+  e -> deadBeefCheck () ;
   ssgDeRefDelete ( e ) ;
 }
 

@@ -32,6 +32,16 @@ char *ssgGetVersion ()
 #endif
 }
 
+void ssgDeRefDelete ( ssgBase *s )
+{
+  if ( s == NULL ) return ;
+
+  s -> deRef () ;
+
+  if ( s -> getRef () <= 0 )
+    delete s ;
+}
+
 void ssgDelete ( ssgBranch *br )
 {
   if ( br == NULL )
@@ -182,16 +192,6 @@ char *ssgTransform    ::getTypeName (void) { return "ssgTransform"     ; }
 char *ssgTexTrans     ::getTypeName (void) { return "ssgTexTrans"      ; }
 char *ssgCutout       ::getTypeName (void) { return "ssgCutout"        ; }
 char *ssgRoot         ::getTypeName (void) { return "ssgRoot"          ; }
-
-void ssgDeRefDelete ( ssgBase *s )
-{
-  if ( s == NULL ) return ;
-
-  s -> deRef () ;
-
-  if ( s -> getRef () <= 0 )
-    delete s ;
-}
 
 
 static char *file_extension ( char *fname )

@@ -29,8 +29,6 @@ ssgContext::ssgContext ()
   frustum -> setNearFar ( 1.0, 10000.0 ) ;
   frustum -> setFOV     ( 60.0, 45.0 ) ;
 
-  glEnable ( GL_CULL_FACE ) ;
-
   currentState = new ssgSimpleState ( 1 ) ;
   basicState   = new ssgSimpleState ( 0 ) ;
 
@@ -53,6 +51,16 @@ int ssgContext::isCurrent ()
 {
   return _ssgCurrentContext == this ;
 }
+
+void ssgContext::forceBasicState ()
+{
+  if ( ! ovCullface )
+    glEnable ( GL_CULL_FACE ) ;
+
+  cullFace = TRUE ;
+  basicState -> force () ;
+}
+
 
 void ssgContext::makeCurrent ()
 {
