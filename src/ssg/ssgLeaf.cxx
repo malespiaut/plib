@@ -158,8 +158,6 @@ void ssgLeaf::isect ( sgSphere *s, sgMat4 m, int test_needed )
 
 void ssgLeaf::getStats ( int *num_branches, int *num_leaves, int *num_tris, int *num_verts )
 {
-  int nb, nl, nt, nv ;
-
   *num_branches = 0 ;
   *num_leaves   = 1 ;   /* this! */
   *num_tris     = getNumTriangles () ;
