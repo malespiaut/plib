@@ -82,40 +82,11 @@ Bugs:
           #define new DEBUG_NEW
       #endif
   #endif
-- MDL loader stuff: 
-
-  It has a problem to correctly determine frontface/backface. 
-  Thomas Sevaldrud has the problem as well and wants to look into it
-  if/when he has time.
-
-  The MDL loader doesn't/wrongly tesselates non-convex polys.
-
-  The rudder-etc-is-in-false-position is still there, see 
-  for example spimk2mp.zip. Obviously, the rotation axis of the 
-  rudder goes through the origin (CoG).
-
-  We don't quite know how to get the alpha. For example, many
-  planes get opaque propeller discs
-
-  It would be great to have the old gear-etc code back *optionally*.
-  Themie Gouthas might do this.
-
-  For the well known B17 model, three of the engines are
-  missing, there is only one pilot etc. Is there a OpCode in BGL that
-  says "place a copy of that part over here"? 
-
-  Culling seems to be disabled
 - Not all loaders use ssgLoaderOptions::begin. Don't all have to?
-  See also the Thread:
-   "num_shared_textures, was Crash in new .MDL loader fixed."
+
+- Search for todo, fix, fixme, kludge.
 
 
-
-Working with ssg, especially the file loaders and writers leads
-to problems very quickly, therefore the above list might just be a
-part of the real number of bugs still in the code. Probably the real 
-test will be whether one can work for an hour with plib and not find 
-a new bug.
   
 Misc:
 =====
