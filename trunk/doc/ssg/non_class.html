@@ -235,26 +235,8 @@ to all model or texture file names.
   void ssgTexturePath ( char *path ) ;
 
 </pre>
-The texturepath may contain several command characters. For a complete
-doc, see the util-library-doc on <code>ulFindFile</code>. Hiere are two examples:
-<BR><BR>
-$(APOM);$(APOM)/texture;$(APOM)/../texture
-<BR><BR>
-looks into three directories, seperated by ";". APOM is replaced by the 
-actual path the model is in (NOT the path from ssgModelPath!).
-If, for example, you are loading your model from /ppe/data/mdl/navion/model, and 
-the texture filename is wing.rgb, then plib would look in these places for the file and use
-the first one it finds:
-<BR><BR>
-/ppe/data/mdl/navion/model/wing.rgb
-<BR>
-/ppe/data/mdl/navion/model/texture/wing.rgb
-<BR>
-/ppe/data/mdl/navion/texture/wing.rgb
-<BR><BR>
-Another example: You have all your textures sorted into in a directory-structure 
-under /raumplan, then use "/raumplan/$(...)" as ssgTexturePath.
-
+You can only supply one path. If you need additional features, use the
+function <code>ulFindFile</code> (for more see util-library-doc). 
 <p>
 
 Some loaders for file formats that use texture formats not 
