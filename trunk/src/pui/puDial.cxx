@@ -58,10 +58,8 @@ void puDial::draw ( int dx, int dy )
 
     float dtheta = 3.0f / rad ;   // three pixels per segment
 
-    float old_line_width ;
+    glPushAttrib ( GL_LINE_BIT ) ;
 
-    glGetFloatv ( GL_LINE_WIDTH, &old_line_width ) ;
-    
     glLineWidth ( 2.0f ) ;   // set line width to two pixels
 
     glBegin ( GL_LINE_STRIP ) ;
@@ -96,7 +94,7 @@ void puDial::draw ( int dx, int dy )
 
     glEnd () ;
 
-    glLineWidth ( old_line_width ) ;  // restore the old width
+    glPopAttrib () ;
 
     draw_legend ( dx, dy ) ;
   }
