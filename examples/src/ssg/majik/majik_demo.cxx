@@ -158,6 +158,8 @@ void init_graphics ()
   fake_argv[1] = "Majik Terrain Demo - by Steve Baker" ;
   fake_argv[2] = NULL ;
 
+  jsInit () ;
+
   js = new jsJoystick ( 0 ) ;
 
   if ( js -> notWorking () || js -> getNumAxes () < 2 )
