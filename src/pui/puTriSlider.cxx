@@ -104,6 +104,13 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
   if ( updown != PU_DRAG )
     puMoveToLast ( this );
 
+  if ( button == PU_LEFT_BUTTON && updown == PU_UP )
+  {
+    setActiveButton ( 0 ) ;
+    puDeactivateWidget () ;
+    return ;
+  }                                                                             
+
   if ( button == PU_LEFT_BUTTON )
   {
     int sd = isVertical() ;
@@ -168,9 +175,6 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
         if ( getCurrentMax() < getCurrentMin() ) setCurrentMin ( getCurrentMax() ) ;
       }
     }
-
-    if ( updown == PU_UP )  // Mouse button release, reset the active button
-      setActiveButton ( 0 ) ;
 
     switch ( cb_mode )
     {

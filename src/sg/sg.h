@@ -731,11 +731,55 @@ inline SGfloat sgDistToLineVec2 ( const sgVec3 line, const sgVec2 pnt )
   return sgScalarProductVec2 ( line, pnt ) + line[2] ;
 }
  
+
+struct sgLineSegment3   /* Bounded line segment */
+{
+  sgVec3 a ;
+  sgVec3 b ;
+} ;
+
+struct sgLine3    /* Infinite line */
+{
+  sgVec3 point_on_line ;
+  sgVec3 direction_vector ;  /* Should be a unit vector */
+} ;
+
+
+inline void sgLineSegment3ToLine3 ( sgLine3 *line,
+                                   const sgLineSegment3 lineseg )
+{
+  sgCopyVec3      ( line->point_on_line   , lineseg.a ) ;
+  sgSubVec3       ( line->direction_vector, lineseg.b, lineseg.a ) ;
+  sgNormaliseVec3 ( line->direction_vector ) ;
+}
+
+
+SGfloat sgDistSquaredToLineVec3        ( const sgLine3 line,
+                                         const sgVec3 pnt ) ;
+SGfloat sgDistSquaredToLineSegmentVec3 ( const sgLineSegment3 line,
+                                         const sgVec3 pnt ) ;
+
+
+inline SGfloat sgDistToLineVec3 ( const sgLine3 line,
+                                  const sgVec3 pnt )
+{
+  return (SGfloat) sqrt ( (double) sgDistSquaredToLineVec3 ( line, pnt ) );
+}
+
+
+inline SGfloat sgDistToLineSegmentVec3 ( const sgLineSegment3 line,
+                                         const sgVec3 pnt )
+{
+  return (SGfloat) sqrt ( (double) sgDistSquaredToLineSegmentVec3(line,pnt) ) ;
+}
+
+
 inline SGfloat sgDistToPlaneVec3 ( const sgVec4 plane, const sgVec3 pnt )
 {
   return sgScalarProductVec3 ( plane, pnt ) + plane[3] ;
 }
- 
+
+
 inline SGfloat sgHeightAbovePlaneVec3 ( const sgVec4 plane, const sgVec3 pnt )
 {
   return pnt[3] - sgHeightOfPlaneVec2 ( plane, pnt ) ;

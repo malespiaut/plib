@@ -644,6 +644,43 @@ int sgFrustum::contains ( const sgSphere *s ) const
 }
 
 
+
+SGfloat sgDistSquaredToLineVec3 ( const sgLine3 line, const sgVec3 pnt )
+{
+  sgVec3 r ; sgSubVec3 ( r, pnt, line.point_on_line ) ;
+ 
+  return sgScalarProductVec3 ( r, r ) -
+         sgScalarProductVec3 ( r, line.direction_vector ) ;
+}
+
+
+
+SGfloat sgDistSquaredToLineSegmentVec3 ( const sgLineSegment3 line,
+                                         const sgVec3 pnt )
+{
+  sgLine3 l ; sgLineSegment3ToLine3 ( & l, line ) ;
+ 
+  sgVec3 r1 ; sgSubVec3 ( r1, pnt, line.a ) ;
+ 
+  SGfloat r1_dot_v = sgScalarProductVec3 ( r1, l.direction_vector ) ;
+ 
+  if ( r1_dot_v <= 0 )  /* Off the "A" end  */
+    return sgScalarProductVec3 ( r1, r1 ) ;
+ 
+  sgVec3 r2 ; sgSubVec3 ( r2, pnt, line.b ) ;
+
+  SGfloat r2_dot_v = sgScalarProductVec3 ( r2, l.direction_vector ) ;
+ 
+  if ( r2_dot_v >= 0 )  /* Off the "B" end */
+    return sgScalarProductVec3 ( r2, r2 ) ;
+ 
+  /* Closest point on line is on the line segment */
+ 
+  return sgScalarProductVec3 ( r1, r1 ) - r1_dot_v ;
+}
+
+
+
 void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat z, const SGfloat h, const SGfloat p, const SGfloat r )
 {
   SGfloat ch, sh, cp, sp, cr, sr, srsp, crsp, srcp ;
