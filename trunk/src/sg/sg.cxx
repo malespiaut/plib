@@ -1735,11 +1735,13 @@ SGfloat sgTriangleSolver_SSStoArea ( SGfloat lenA, SGfloat lenB, SGfloat lenC )
 }
 
 
-SGfloat sgTriangleSolver_ASStoArea ( SGfloat angB, SGfloat lenA, SGfloat lenB )
+SGfloat sgTriangleSolver_ASStoArea ( SGfloat angB, SGfloat lenA, SGfloat lenB,
+                                     int angA_is_obtuse )
 {
   SGfloat lenC ;
 
-  sgTriangleSolver_ASStoSAA ( angB, lenA, lenB, &lenC, NULL, NULL ) ;
+  sgTriangleSolver_ASStoSAA ( angB, lenA, lenB, angA_is_obtuse,
+                                                         &lenC, NULL, NULL ) ;
 
   return sgTriangleSolver_SAStoArea ( lenA, angB, lenC ) ;
 }
@@ -1818,7 +1820,7 @@ void sgTriangleSolver_SAStoASA ( SGfloat  lenA, SGfloat  angB, SGfloat  lenC,
 
   if ( lenB ) *lenB = lb ;
 
-  sgTriangleSolver_SSStoAAA ( lenA, lenB, lenC, angA, NULL, angC ) ;
+  sgTriangleSolver_SSStoAAA ( lenA, lb, lenC, angA, NULL, angC ) ;
 }
 
 
@@ -1847,12 +1849,17 @@ void sgTriangleSolver_ASAtoSAS ( SGfloat  angA, SGfloat  lenB, SGfloat  angC,
   }
 }
 
-void sgTriangleSolver_ASStoSAA ( SGfloat  angB, SGfloat  lenA, SGfloat  lenB,
+
+void sgTriangleSolver_ASStoSAA ( SGfloat angB, SGfloat lenA, SGfloat lenB,
+                                 int angA_is_obtuse,
                                  SGfloat *lenC, SGfloat *angA, SGfloat *angC )
 {
   /* Sine law */
 
   SGfloat aa = (lenB == SG_ZERO ) ? SG_ZERO : sgASin (lenA * sgSin(angB)/lenB) ;
+
+  if ( angA_is_obtuse )
+    aa = SG_180 - aa ;
 
   if ( angA ) *angA = aa ;
 
@@ -1866,6 +1873,7 @@ void sgTriangleSolver_ASStoSAA ( SGfloat  angB, SGfloat  lenA, SGfloat  lenB,
 
   sgTriangleSolver_SAStoASA ( lenA, cc, lenB, NULL, lenC, NULL ) ;
 }
+
 
 void sgTriangleSolver_SAAtoASS ( SGfloat  lenA, SGfloat  angB, SGfloat  angA,
                                  SGfloat *angC, SGfloat *lenB, SGfloat *lenC )
