@@ -9,7 +9,7 @@ important therefore that you direct problems and
 queries to the PLIB mailing lists.  Subscription
 information is on the PLIB homepage:
 
-   http://www.woodsoup.org/projs/plib
+   http://plib.sourceforge.net
 
 
 CygWin:
@@ -49,9 +49,9 @@ Nate says:
 
 Borland C++:
 ~~~~~~~~~~~~
-As with MSVC, I'll need someone to send me an appropriate set
-of Borland project files in order to get this going.
-
+"Heil, David G. SDX" <DavidH@HPD.Abbott.com> contributed a set of
+Borland bpg/bpr files. I know nothing more about what may be
+required in order to use them.
 
      Steve.
 
