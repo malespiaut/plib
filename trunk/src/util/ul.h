@@ -91,6 +91,18 @@
 // or mail me (w_kuss@rz-online.de)
 #include <float.h>
 
+
+/* PLIB version macros */
+
+#define PLIB_MAJOR_VERSION 1
+#define PLIB_MINOR_VERSION 6
+#define PLIB_TINY_VERSION 0
+
+#define PLIB_VERSION (PLIB_MAJOR_VERSION*100 \
+                     +PLIB_MINOR_VERSION*10 \
+                     +PLIB_TINY_VERSION)
+
+
 /* SGI machines seem to suffer from a lack of FLT_EPSILON so... */
 
 #ifndef FLT_EPSILON
