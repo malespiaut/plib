@@ -484,7 +484,7 @@ static void dxf_flush ( void )
   scale_vec[1] = 0.0f;
   scale_vec[2] = 0.0f;
   rot_angle = 0.0f;
-  color_index = 0 ;
+  color_index = 7 ;
   meshface[0] = 0;
   meshface[1] = 0;
   meshface[2] = 0;
@@ -515,9 +515,9 @@ static void dxf_init ()
 
   for ( int i=0; i<MAX_VERT; i++ )
   {
-    linevert[i].color_index = 0 ;
-    facevert[i].color_index = 0 ;
-    meshvert[i].color_index = 0 ;
+    linevert[i].color_index = 7 ;
+    facevert[i].color_index = 7 ;
+    meshvert[i].color_index = 7 ;
   }
 }
 
@@ -565,12 +565,23 @@ static void dxf_create ( ssgBranch* br )
   {
     ssgVertexArray* vlist = new ssgVertexArray ( num_facevert ) ;
     ssgColourArray* clist = new ssgColourArray ( num_facevert ) ;
+    ssgNormalArray* nlist = new ssgNormalArray ( num_facevert ) ;
+    sgVec3 normal ;
     for ( int i=0; i<num_facevert; i++ )
     {
+      if ( (i % 3) == 0 )
+      {
+        sgMakeNormal ( normal,
+          facevert[i].pos,
+          facevert[i+1].pos,
+          facevert[i+2].pos ) ;
+      }
+      
       vlist -> add ( facevert[i].pos ) ;
+      nlist -> add ( normal ) ;
       clist -> add ( get_color(facevert[i].color_index) ) ;
     }
-    ssgVtxTable *vtab = new ssgVtxTable ( GL_TRIANGLES, vlist, 0, 0, clist );
+    ssgVtxTable *vtab = new ssgVtxTable ( GL_TRIANGLES, vlist, nlist, 0, clist );
     vtab -> setState ( current_state ) ;
     br -> addKid ( vtab ) ;
   }
@@ -795,12 +806,14 @@ static int dxf_read ( FILE *filein )
   
               if ( ent_type == ENT_LINE ) {
                 if ( num_linevert + num_vert < MAX_VERT ) {
+                  linevert[num_linevert + num_vert].color_index = color_index;
                   sgCopyVec3( linevert[num_linevert + num_vert].pos, cvec );
                   num_vert ++ ;
                 }
               }
               else if ( ent_type == ENT_FACE ) {
                 if ( num_facevert + num_vert < MAX_VERT ) {
+                  facevert[num_facevert + num_vert].color_index = color_index;
                   sgCopyVec3( facevert[num_facevert + num_vert].pos, cvec );
                   num_vert ++ ;
                 }
