@@ -284,7 +284,7 @@ void drawGameRunningText ( int score )
   displayed_score = score ;
   drawInGameScore () ;
 
-  glColor4f ( 0.6, 0.0, 0.6, 1.0 ) ;
+  glColor4f ( 0.6f, 0.0f, 0.6f, 1.0f ) ;
 
   if ( help_timer++ < 400 )
     drawHelpText () ;

@@ -428,8 +428,8 @@ void display(void)
   if ( scene -> getNumKids() == 0 )
   {
     text -> begin () ;
-    glColor3f ( 0, 0, 0 ) ;
-    text -> start2f ( (float)4, (float)(h-16) ) ;
+    glColor3f ( 0.0f, 0.0f, 0.0f ) ;
+    text -> start2f ( 4.0f, (float)(h-16) ) ;
     text -> puts ( "controls\n" );
     text -> puts ( " <esc> : exit\n" ) ;
     text -> puts ( " c : clear\n" ) ;
@@ -445,8 +445,8 @@ void display(void)
   {
     char buffer [ PUSTRING_MAX ] ;
     text -> begin () ;
-    glColor3f ( 0, 0, 0 ) ;
-    text -> start2f ( (float)4, (float)(h-16) ) ;
+    glColor3f ( 0.0f, 0.0f, 0.0f ) ;
+    text -> start2f ( 4.0f, (float)(h-16) ) ;
     sprintf ( buffer, "fps : %.02f\n", fps ) ;
       text -> puts ( buffer ) ;
     sprintf ( buffer, "dist : %.02f\n", EyeDist ) ;
@@ -458,7 +458,7 @@ void display(void)
     text -> end () ;
   }
   
-  glColor3f ( 1, 1, 1 ) ;
+  glColor3f ( 1.0f, 1.0f, 1.0f ) ;
   end2d () ;
   
   frame_counter ++;
@@ -829,3 +829,4 @@ int main(int argc, char** argv)
   glutMainLoop();
   return 0;             /* ANSI C requires main to return int. */
 }
+
