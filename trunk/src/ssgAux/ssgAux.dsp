@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaLensFlare.h ..\..\ssgaLensFlare.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ssgAux - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaLensFlare.h ..\..\ssgaLensFlare.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h
 # End Special Build Tool
 
 !ENDIF 
@@ -95,6 +95,14 @@ PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssga
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\ssgaLensFlare.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaLensFlareTexture.cxx
+# End Source File
 # Begin Source File
 
 SOURCE=.\ssgaParticleSystem.cxx
@@ -123,6 +131,10 @@ SOURCE=.\ssgAux.cxx
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\ssgaLensFlare.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\ssgaParticleSystem.h
