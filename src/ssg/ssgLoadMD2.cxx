@@ -291,7 +291,7 @@ ssgEntity * convert_to_ssg()
 	if(stated)
 		states -> selectStep( 0 );
 	else {
-		printf("No skins specified in MD2 file!\n");
+		ulSetError(UL_WARNING, "ssgLoadMD2: No skins specified in MD2 file!");
 		ssgSimpleState *state = new ssgSimpleState();
 		state -> disable ( GL_TEXTURE_2D );
 		states -> setStep(0, state);
@@ -373,7 +373,7 @@ ssgEntity * ssgLoadMD2( const char *filename, const ssgLoaderOptions* options)
   loader_fd = fopen ( filepath, "rb" );
 
   if ( loader_fd == NULL ) {
-    fprintf ( stderr, "ssgLoad3ds: Failed to open '%s' for reading\n", filepath ) ;
+    ulSetError ( UL_WARNING, "ssgLoadMD2: Failed to open '%s' for reading", filepath ) ;
     return NULL ;
   } 
 
