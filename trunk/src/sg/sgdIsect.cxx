@@ -216,7 +216,7 @@ SGDfloat sgdIsectLinesegPlane ( sgdVec3 dst, sgdVec3 v1, sgdVec3 v2, sgdVec4 pla
     return FLT_MAX ;
   }
 
-  float s = - ( sgdScalarProductVec3 ( plane, v1 ) + plane[3] ) / p ;
+  float s = (float) (- ( sgdScalarProductVec3 ( plane, v1 ) + plane[3] ) / p) ;
 
   sgdScaleVec3 ( dst, delta, s ) ;
   sgdAddVec3   ( dst, dst, v1 ) ;

@@ -1786,7 +1786,7 @@ void sgTriangleSolver_SAStoASA ( SGfloat  lenA, SGfloat  angB, SGfloat  lenC,
   SGfloat s = lenC * lenC +
               lenA * lenA - SG_TWO * lenC * lenA * sgCos( angB ) ;
 
-  SGfloat lb = ( s <= SG_ZERO ) ? SG_ZERO : sqrt ( s ) ;
+  SGfloat lb = ( s <= SG_ZERO ) ? SG_ZERO : (SGfloat) sqrt ( s ) ;
 
   if ( lenB ) *lenB = lb ;
 
