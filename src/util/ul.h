@@ -57,8 +57,11 @@
 #elif defined (__BEOS__)
 #    include <be/kernel/image.h>
 #elif defined (macintosh)
-#  include <CodeFragments.h>
-#  else
+#    include <CodeFragments.h>
+#elif defined (__APPLE__)
+/* Mac OS X: Not implemented (needs to use dyld)  */
+#    include <unistd.h>
+#else
 #    include <unistd.h>
 #    include <dlfcn.h>
 #  endif
@@ -486,23 +489,23 @@ class ulDynamicLibrary
     OSStatus          error;
 
 public:
-        
+
     ulDynamicLibrary ( const char *libname )
     {
         Str63    pstr;
         int        sz;
-        
+
         sz = strlen (libname);
-     
+
         if (sz < 64) {
-        
+
             pstr[0] = sz;
             memcpy (pstr+1, libname, sz);
-            
+
             error = GetSharedLibrary (pstr, kPowerPCCFragArch, kReferenceCFrag,
-                                      &connection, NULL, NULL);                              
+                                      &connection, NULL, NULL);
         }
-        else 
+        else
             error = 1;
     }
 
@@ -510,20 +513,19 @@ public:
     {
         if ( ! error )
             CloseConnection (&connection);
-    
     }
-        
-    void* getFuncAddress (const char *funcname)
+
+    void* getFuncAddress ( const char *funcname )
     {
         if ( ! error ) {
-        
+
             char*  addr;
             Str255 sym;
             int    sz;
-            
+
             sz = strlen (funcname);
             if (sz < 256) {
-                
+
                 sym[0] = sz;
                 memcpy (sym+1, funcname, sz);
 
@@ -532,8 +534,32 @@ public:
                     return addr;
             }
         }
-        
+
         return NULL;
+    }
+};
+
+#elif defined (__APPLE__)
+
+/* Mac OS X */
+
+class ulDynamicLibrary
+{
+
+ public:
+
+    ulDynamicLibrary ( const char *libname )
+    {
+    }
+
+    ~ulDynamicLibrary ()
+    {
+    }
+
+    void* getFuncAddress ( const char *funcname )
+    {
+      ulSetError ( UL_WARNING, "ulDynamicLibrary unsuppored on Mac OS X" );
+      return NULL;
     }
 };
 
