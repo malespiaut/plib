@@ -388,6 +388,20 @@ That's it!  However, as I said - the parser is 'brittle'
 and very intolerant of errors - edit the file at your
 own peril!
 
+<H2>Support Programs.</H2>
+
+In the ExPoser directory, you'll also find a short
+program called 'merge_bones' - this takes a number
+of '.bones' files (listed in order on the command line)
+and concatenates them end-to-end - placing the results
+in the file 'out.bones'.
+<p>
+On stdout, it lists the header from each of the component
+files.  It is (of course) necessary that the '.bones'
+files originated from the same 3D model - merge_bones
+checks that things are consistant and warns of errors.
+
+
 <H2>Some Advice</H2>
 Bones don't necessarily have to be placed where the
 bones would be in an anatomically correct version of
