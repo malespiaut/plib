@@ -407,7 +407,28 @@ int ssgSimpleState::save ( FILE *fd )
 
   _ssgWriteInt   ( fd, dont_care            ) ;
   _ssgWriteInt   ( fd, enables              ) ;
+#ifdef WRITE_SSG_VERSION_ZERO
+	// change *.?af filename into *?.bmp, for example catalina.3af into catalina3.bmp
+	if ( (filename != NULL) &&
+		   (strlen(filename) > 2) && 
+		   ((filename[strlen(filename)-2] == 'a') || (filename[strlen(filename)-2] == 'A')) &&
+		   ((filename[strlen(filename)-1] == 'f') || (filename[strlen(filename)-1] == 'F')))
+	{
+		char *myfilename = new char [strlen(filename)+20];
+		strcpy(myfilename, filename);
+		char * ptr;
+		ptr = &(myfilename[strlen(myfilename)-4]); // points to the '.' 
+		ptr[0] = ptr[1];
+		*++ptr='.'; *++ptr='b'; *++ptr='m'; *++ptr='p'; *++ptr=0;
+
+		_ssgWriteString( fd, myfilename             ) ;
+		delete [] myfilename;
+	}
+	else
+		_ssgWriteString( fd, filename             ) ;
+#else
   _ssgWriteString( fd, filename             ) ;
+#endif
   _ssgWriteInt   ( fd, wrapu                ) ;
   _ssgWriteInt   ( fd, wrapv                ) ;
   _ssgWriteInt   ( fd, colour_material_mode ) ;
