@@ -154,7 +154,7 @@ static char* parser_getLine()
 				if ( 0 != usemtl[0] )
 				{
 					if ( _current_usemtl  != NULL )
-						delete _current_usemtl ;
+						delete [] _current_usemtl ;
 					_current_usemtl = new char [ strlen ( usemtl ) + 1 ] ;
 					strcpy ( _current_usemtl, usemtl ) ;
 				}
@@ -297,7 +297,7 @@ static int parse()
 		{ 
 			// bring _last_usemtl up to date
 			if ( _last_usemtl != NULL )
-				delete _last_usemtl;
+				delete [] _last_usemtl;
 			_last_usemtl= new char [ strlen ( _current_usemtl ) + 1 ] ;
 			strcpy ( _last_usemtl, _current_usemtl ) ;
 

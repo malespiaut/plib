@@ -125,7 +125,7 @@ bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
 
     if ( ww == 0 )
     {
-      delete texels [ 0 ] ;
+      delete [] texels [ 0 ] ;
       xsize >>= 1 ;
       ysize >>= 1 ;
 
@@ -159,7 +159,7 @@ bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
                                        GL_RGBA,
                             GL_UNSIGNED_BYTE, (GLvoid *) texels[i] ) ;
     map_level++ ;
-    delete texels [ i ] ;
+    delete [] texels [ i ] ;
   }
 
   return true ;

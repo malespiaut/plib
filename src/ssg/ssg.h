@@ -711,7 +711,7 @@ public:
 
   void  setFilename(const char *fname)
   {
-    delete filename ;
+    delete [] filename ;
 
     if ( fname == NULL )
       filename = NULL ;
@@ -2518,19 +2518,19 @@ public:
   {
     if (model_dir)
     {
-      delete model_dir;
+      delete [] model_dir;
       model_dir = 0;
     }
   
     if (texture_dir)
     {
-      delete texture_dir;
+      delete [] texture_dir;
       texture_dir = 0;
     }
   }
 
-  const char* getModelDir ( void ) { return model_dir ; }
-  const char* getTextureDir ( void ) { return texture_dir ; }
+  const char* getModelDir ( void ) const { return model_dir ; }
+  const char* getTextureDir ( void ) const { return texture_dir ; }
   void setModelDir ( const char *s ) ;
   void setTextureDir ( const char *s ) ;
 

@@ -459,7 +459,7 @@ puObject *puActiveWidget ( void ) {   return active_widget ; }
 
 void puSetPasteBuffer ( char *ch )
 {
-  if ( input_paste_buffer ) delete input_paste_buffer ;
+  delete [] input_paste_buffer ;
   input_paste_buffer = new char [ strlen(ch) + 1 ] ;
   strcpy ( input_paste_buffer, ch ) ;
 }

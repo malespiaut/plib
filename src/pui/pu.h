@@ -1345,7 +1345,7 @@ public:
   {
     if ( valid_data )
     {
-      delete valid_data ;
+      delete [] valid_data ;
       valid_data = NULL ;
     }
 
@@ -1365,7 +1365,7 @@ public:
     strcpy ( new_data, "\0" ) ;
     if ( valid_data ) strcat ( new_data, valid_data ) ;
     if ( data )       strcat ( new_data, data ) ;
-    delete valid_data ;
+    delete [] valid_data ;
     valid_data = new_data ;
   }
 
@@ -1394,7 +1394,7 @@ public:
 
   ~puInput ()
   {
-    if ( valid_data ) delete valid_data ;
+    delete [] valid_data ;
   }
 
   void invokeDownCallback ( void )
@@ -1625,7 +1625,7 @@ public:
   {
     if ( valid_data )
     {
-      delete valid_data ;
+      delete [] valid_data ;
       valid_data = NULL ;
     }
 
@@ -1645,7 +1645,7 @@ public:
     strcpy ( new_data, "\0" ) ;
     if ( valid_data ) strcat ( new_data, valid_data ) ;
     if ( data )       strcat ( new_data, data ) ;
-    delete valid_data ;
+    delete [] valid_data ;
     valid_data = new_data ;
   }
 

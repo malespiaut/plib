@@ -135,8 +135,8 @@ int ssgSaveLeaf ( ssgEntity *ent )
 
   fprintf ( save_fd, "kids 0\n" ) ;
 
-  delete[] vlist ;
-  delete   tlist ;
+  delete [] vlist ;
+  delete [] tlist ;
 
   return TRUE ;
 }

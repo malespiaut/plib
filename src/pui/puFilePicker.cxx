@@ -281,7 +281,7 @@ puFilePicker::~puFilePicker ()
   if ( files )
   {
     for ( int i=0; i<num_files; i++ )
-      delete files[i];
+      delete [] files[i];
 
     delete[] files;
     delete[] dflag;
@@ -477,7 +477,7 @@ void puFilePicker::find_files ( void )
   if ( files != NULL )
   {
     for ( int i = 0 ; i < num_files ; i++ )
-      delete files[i] ;
+      delete [] files[i] ;
 
     delete [] files ;
     delete [] dflag ;

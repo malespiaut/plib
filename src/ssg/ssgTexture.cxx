@@ -203,7 +203,7 @@ void ssgTexture::print ( FILE *fd, char *ident, int how_much )
 
 int ssgTexture::load ( FILE *fd )
 {
-  delete filename ;
+  delete [] filename ;
 
   _ssgReadString ( fd, & filename ) ;
   _ssgReadInt    ( fd, & wrapu    ) ;

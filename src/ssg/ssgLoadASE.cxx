@@ -1635,8 +1635,8 @@ static void parse_free()
   u32 i ;
   for ( i = 0 ; i < num_materials ; i++ )
   {
-    delete materials[ i ] -> name ;
-    delete materials[ i ] -> tfname ;
+    delete [] materials[ i ] -> name ;
+    delete [] materials[ i ] -> tfname ;
     delete materials[ i ] ;
   }
   delete[] materials ;
