@@ -81,7 +81,7 @@
 #  if defined(__FreeBSD__) || defined(__NetBSD__)
 #  define _JS_MAX_AXES 2
 #  else
-#  define _JS_MAX_AXES 6
+#  define _JS_MAX_AXES 9
 #  endif
 #endif
 
@@ -219,6 +219,9 @@ class jsJoystick
     ioctl ( fd, JSIOCGAXES   , & num_axes    ) ;
     ioctl ( fd, JSIOCGBUTTONS, & num_buttons ) ;
     fcntl ( fd, F_SETFL, O_NONBLOCK ) ;
+
+    if ( num_axes > _JS_MAX_AXES )
+      num_axes = _JS_MAX_AXES ;
 #   endif
 
     /*
@@ -446,10 +449,13 @@ public:
 	  break ;
 
 	case JS_EVENT_AXIS:
-	  tmp_axes [ js.number ] = (float) js.value ;
+          if ( js.number < num_axes )
+          {
+	    tmp_axes [ js.number ] = (float) js.value ;
 
-	  if ( axes )
-	    memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
+	    if ( axes )
+	      memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
+          }
 	  break ;
       }
 

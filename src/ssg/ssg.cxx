@@ -220,6 +220,31 @@ static char *file_extension ( char *fname )
 }
 
 
+typedef ssgEntity *_ssgLoader ( char *, ssgHookFunc ) ;
+typedef int         _ssgSaver ( char *, ssgEntity * ) ;
+
+struct _ssgFileFormat
+{
+  char *extension ;
+  _ssgLoader *loadfunc ;
+  _ssgSaver  *savefunc ;
+} ;
+
+
+static _ssgFileFormat formats[] =
+{
+  { ".3ds", ssgLoad3ds , NULL       },
+  { ".ac" , ssgLoadAC3D, ssgSaveAC  },
+  { ".ase", ssgLoadASE , ssgSaveASE },
+  { ".dxf", ssgLoadDXF , ssgSaveDXF },
+  { ".obj", ssgLoadOBJ , ssgSaveOBJ },
+  { ".ssg", ssgLoadSSG , ssgSaveSSG },
+  { ".tri", ssgLoadTRI , ssgSaveTRI },
+  { ".wrl", ssgLoadVRML, NULL       },
+  { NULL  , NULL       , NULL       }
+} ;
+
+  
 ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
 {
   if ( fname == NULL || *fname == '\0' )
@@ -230,42 +255,10 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
   if ( *extn != '.' )
     return NULL ;
 
-  if ( _ssgStrNEqual ( extn, ".ac", 3 ) )
-  { 
-    ssgEntity *obj = ssgLoadAC ( fname, hookfunc ) ;
-
-    if ( obj == NULL )
-      return NULL ;
-
-    /* Do some simple optimisations */
-
-    ssgBranch *model = new ssgBranch () ;
-    model -> addKid ( obj ) ;
-    ssgFlatten      ( obj ) ;
-    ssgStripify   ( model ) ;
-    return model ;
-  }
-
-  if ( _ssgStrNEqual ( extn, ".ase", 4 ) )
-    return ssgLoadASE ( fname, hookfunc ) ;
-
-  if ( _ssgStrNEqual ( extn, ".wrl", 4 ) )
-    return ssgLoadVRML ( fname, hookfunc ) ;
-
-  if ( _ssgStrNEqual ( extn, ".3ds", 4 ) )
-    return ssgLoad3ds  ( fname, hookfunc ) ;
-
-  if ( _ssgStrNEqual ( extn, ".ssg", 4 ) )
-    return ssgLoadSSG  ( fname, hookfunc ) ;
-
-  if ( _ssgStrNEqual ( extn, ".dxf", 4 ) )
-    return ssgLoadDXF ( fname, hookfunc ) ;
-
-  if ( _ssgStrNEqual ( extn, ".tri", 4 ) )
-    return ssgLoadTRI ( fname, hookfunc ) ;
-
-  if ( _ssgStrNEqual ( extn, ".obj", 4 ) )
-    return ssgLoadOBJ ( fname, hookfunc ) ;
+  for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
+    if ( f->loadfunc != NULL &&
+         _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
+      return f->loadfunc( fname, hookfunc ) ;
 
   return NULL ;
 }
@@ -281,23 +274,10 @@ int ssgSave ( char *fname, ssgEntity *ent )
   if ( *extn != '.' )
     return FALSE ;
 
-  if ( _ssgStrNEqual ( extn, ".ac", 3 ) )
-    return ssgSaveAC ( fname, ent ) ;
-
-  if ( _ssgStrNEqual ( extn, ".ase", 4 ) )
-    return ssgSaveASE ( fname, ent ) ;
-
-  if ( _ssgStrNEqual ( extn, ".ssg", 4 ) )
-    return ssgSaveSSG ( fname, ent ) ;
-
-  if ( _ssgStrNEqual ( extn, ".dxf", 4 ) )
-    return ssgSaveDXF ( fname, ent ) ;
-
-  if ( _ssgStrNEqual ( extn, ".tri", 4 ) )
-    return ssgSaveTRI ( fname, ent ) ;
-
-  if ( _ssgStrNEqual ( extn, ".obj", 4 ) )
-    return ssgSaveOBJ ( fname, ent ) ;
+  for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
+    if ( f->savefunc != NULL &&
+         _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
+      return f->savefunc( fname, ent ) ;
 
   return FALSE ;
 }
