@@ -188,5 +188,21 @@ void            ulClearError       ( void ) ;
 ulErrorCallback ulGetErrorCallback ( void ) ;
 void            ulSetErrorCallback ( ulErrorCallback cb ) ;
 
+/*
+  Directory Reading
+*/
+
+#define UL_NAME_MAX 256
+typedef struct _ulDir ulDir ;
+struct ulDirEnt
+{
+  char d_name [ UL_NAME_MAX+1 ];
+  bool d_isdir ;
+} ;
+
+ulDir* ulOpenDir ( const char* dirname ) ;
+ulDirEnt* ulReadDir ( ulDir* dir ) ;
+void ulCloseDir ( ulDir* dir ) ;
+
 #endif
 
