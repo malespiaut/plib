@@ -41,7 +41,7 @@ struct os_specific_s {
 // Inspired by
 // http://msdn.microsoft.com/archive/en-us/dnargame/html/msdn_sidewind3d.asp
 
-static bool getOEMProductName ( jsJoystick* joy, char *buf, int buf_sz )
+bool os_specific_s::getOEMProductName ( jsJoystick* joy, char *buf, int buf_sz )
 {
   if ( joy->error )  return false ;
 
@@ -116,7 +116,7 @@ void jsJoystick::open ()
   {
     // Device name from jsCaps is often "Microsoft PC-joystick driver",
     // at least for USB.  Try to get the real name from the registry.
-    if ( ! getOEMProductName ( this, name, sizeof(name) ) )
+    if ( ! os->getOEMProductName ( this, name, sizeof(name) ) )
     {
       ulSetError ( UL_WARNING,
                    "JS: Failed to read joystick name from registry" ) ;
