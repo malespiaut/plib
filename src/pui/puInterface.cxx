@@ -45,20 +45,21 @@ void  puPopLiveInterface ( puInterface *in )
     return;
   }
 
-  if ( in == NULL || in == liveInterfaceStack [ currLiveInterface ] )
-  {
+  if ( in == NULL )
     --currLiveInterface ;
-  }
   else
   {
-    //Houston, we have a problem...
-    for ( int i = currLiveInterface-1 ; i >= 0 ; i-- )
+    for ( int i = currLiveInterface ; i >= 0 ; i-- )
     {
       if ( in == liveInterfaceStack [ i ] )
       {
-        //error-- the interface is buried in the stack
-        //interface creation/deletion should be nested (LIFO)
-        ulSetError ( UL_FATAL, "PUI: interface stack error!\n" ) ;
+        /* Handle interfaces that are buried in the stack */
+        while ( i < currLiveInterface )
+          liveInterfaceStack [ i ] = liveInterfaceStack [ ++i ] ;
+
+        --currLiveInterface ;
+
+        break ;
       }
     }
   }
