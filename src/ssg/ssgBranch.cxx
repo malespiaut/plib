@@ -96,7 +96,7 @@ void ssgBranch::print ( FILE *fd, char *indent )
   fprintf ( fd, "%s  Num Kids=%d\n", indent, getNumKids() ) ;
 
   if ( getNumParents() != getRef() )
-    fprintf ( stderr, "****** WARNING: Ref count doesn't tally with parent count\n" ) ;
+    ulSetError ( UL_WARNING, "Ref count doesn't tally with parent count" ) ;
 
   if ( bsphere.isEmpty() )
     fprintf ( fd, "%s  BSphere is Empty.\n", indent ) ;
@@ -277,13 +277,13 @@ int ssgBranch::load ( FILE *fd )
     if ( t == ssgTypeInvisible    () ) kid = new ssgInvisible    () ; else
     if ( t == ssgTypeRoot         () ) kid = new ssgRoot         () ; else
     {
-      fprintf ( stderr, "loadSSG: Unrecognised Entity type 0x%08x\n", t ) ;
+      ulSetError ( UL_WARNING, "loadSSG: Unrecognised Entity type 0x%08x", t ) ;
       return FALSE ;
     }
 
     if ( ! kid -> load ( fd ) )
     {
-      fprintf ( stderr, "loadSSG: Failed to read child object.\n" ) ;
+      ulSetError ( UL_WARNING, "loadSSG: Failed to read child object." ) ;
       return FALSE ;
     }
 
@@ -319,7 +319,7 @@ int ssgBranch::save ( FILE *fd )
 
       if ( ! kid -> save ( fd ) )
       {
-        fprintf ( stderr, "saveSSG: Failed to write child object\n" ) ;
+        ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
         return FALSE ;
       }
     }

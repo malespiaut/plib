@@ -450,8 +450,7 @@ ssgEntity *ssgLoadDXF ( char *fname, ssgHookFunc hookfunc )
 
   if ( loader_fd == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgLoadDXF: Failed to open '%s' for reading\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgLoadDXF: Failed to open '%s' for reading", filename ) ;
     return NULL ;
   }
 

@@ -154,8 +154,7 @@ int ssgSaveOBJ ( char *filename, ssgEntity *ent )
 
   if ( fileout == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgSaveOBJ: Failed to open '%s' for writing\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgSaveOBJ: Failed to open '%s' for writing", filename ) ;
     return FALSE ;
   }
 

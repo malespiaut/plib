@@ -390,10 +390,10 @@ void ssgVTable::hot_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
     float ep2 = vv2[0] * vv3[1] - vv2[1] * vv3[0] ;
     float ep3 = vv3[0] * vv1[1] - vv3[1] * vv1[0] ;
 
-    float ap = fabs ( ep1 + ep2 + ep3 ) ;
-    float ai = fabs ( e1 + ep1 - e2 ) +
+    float ap = (float) fabs ( ep1 + ep2 + ep3 ) ;
+    float ai = (float) ( fabs ( e1 + ep1 - e2 ) +
                fabs ( e2 + ep2 - e3 ) +
-               fabs ( e3 + ep3 - e1 ) ;
+               fabs ( e3 + ep3 - e1 ) ) ;
 
     if ( ai > ap * 1.01 )
       continue ;
@@ -429,7 +429,7 @@ void ssgVTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
       continue ;
     }
 
-    float dp = fabs ( sgDistToPlaneVec3 ( plane, s->getCenter() ) ) ;
+    float dp = (float) fabs ( sgDistToPlaneVec3 ( plane, s->getCenter() ) ) ;
 
     if ( dp > s->getRadius() )
       continue ;

@@ -52,8 +52,7 @@ ssgEntity *ssgLoadTRI ( char *fname, ssgHookFunc hookfunc )
 
   if ( loader_fd == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgLoadTRI: Failed to open '%s' for reading\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgLoadTRI: Failed to open '%s' for reading", filename ) ;
     return NULL ;
   }
 
@@ -74,7 +73,7 @@ ssgEntity *ssgLoadTRI ( char *fname, ssgHookFunc hookfunc )
       &coord[6], &coord[7], &coord[8],
       &color ) != 10 )
     {
-      fprintf ( stderr, "ssgLoadTRI: Can't parse triangle: %s\n", buffer ) ;
+      ulSetError ( UL_WARNING, "ssgLoadTRI: Can't parse triangle: %s", buffer ) ;
     }
     else if ( num_tri < MAX_TRI )
     {

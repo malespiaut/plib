@@ -23,8 +23,7 @@ void ssgBase::copy_from ( ssgBase *src, int /* clone_flags */ )
 
 ssgBase *ssgBase::clone ( int /* clone_flags */ )
 {
-  fprintf ( stderr, "SSG: Can't clone abstract SSG class objects\n" ) ;
-  assert ( FALSE ) ;
+  ulSetError ( UL_FATAL, "SSG: Can't clone abstract SSG class objects" ) ;
   return NULL ;
 }
 

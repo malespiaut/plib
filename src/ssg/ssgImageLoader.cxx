@@ -245,7 +245,7 @@ void ssgSGIHeader::readHeader ()
 
   if ( dim > 255 )
   {
-    fprintf ( stderr, "%s: Bad swabbing?!?\n", curr_image_fname ) ;
+    ulSetError ( UL_WARNING, "%s: Bad swabbing?!?", curr_image_fname ) ;
     isSwapped = ! isSwapped ;
     swab_short ( & dim ) ;
     magic = SGI_IMG_MAGIC ;
@@ -543,22 +543,22 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
   bpp = bmphdr.Planes * bmphdr.BitCount ;
 
 #ifdef PRINT_BMP_HEADER_DEBUG
-  fprintf(stderr,"Filetype %04x, ",      bmphdr.FileType      ) ;
-  fprintf(stderr,"Filesize %08x\n",      bmphdr.FileSize      ) ;
-  fprintf(stderr,"R1 %04x, ",            bmphdr.Reserved1     ) ;
-  fprintf(stderr,"R2 %04x\n",            bmphdr.Reserved2     ) ;
-  fprintf(stderr,"Offbits %08x, ",       bmphdr.OffBits       ) ;
-  fprintf(stderr,"Size %08x\n",          bmphdr.Size          ) ;
-  fprintf(stderr,"Width %08x, ",         bmphdr.Width         ) ;
-  fprintf(stderr,"Height %08x, ",        bmphdr.Height        ) ;
-  fprintf(stderr,"Planes %04x\n",        bmphdr.Planes        ) ;
-  fprintf(stderr,"Bitcount %04x, ",      bmphdr.BitCount      ) ;
-  fprintf(stderr,"Compression %08x\n",   bmphdr.Compression   ) ;
-  fprintf(stderr,"SizeImage %08x\n",     bmphdr.SizeImage     ) ;
-  fprintf(stderr,"XPelsPerMeter %08x, ", bmphdr.XPelsPerMeter ) ;
-  fprintf(stderr,"YPelsPerMeter %08x\n", bmphdr.YPelsPerMeter ) ;
-  fprintf(stderr,"ClrUsed %08x, ",       bmphdr.ClrUsed       ) ;
-  fprintf(stderr,"ClrImportant %08x\n",  bmphdr.ClrImportant  ) ;
+  ulSetError ( UL_DEBUG, "Filetype %04x",      bmphdr.FileType      ) ;
+  ulSetError ( UL_DEBUG, "Filesize %08x",      bmphdr.FileSize      ) ;
+  ulSetError ( UL_DEBUG, "R1 %04x",            bmphdr.Reserved1     ) ;
+  ulSetError ( UL_DEBUG, "R2 %04x",            bmphdr.Reserved2     ) ;
+  ulSetError ( UL_DEBUG, "Offbits %08x",       bmphdr.OffBits       ) ;
+  ulSetError ( UL_DEBUG, "Size %08x",          bmphdr.Size          ) ;
+  ulSetError ( UL_DEBUG, "Width %08x",         bmphdr.Width         ) ;
+  ulSetError ( UL_DEBUG, "Height %08x",        bmphdr.Height        ) ;
+  ulSetError ( UL_DEBUG, "Planes %04x",        bmphdr.Planes        ) ;
+  ulSetError ( UL_DEBUG, "Bitcount %04x",      bmphdr.BitCount      ) ;
+  ulSetError ( UL_DEBUG, "Compression %08x",   bmphdr.Compression   ) ;
+  ulSetError ( UL_DEBUG, "SizeImage %08x",     bmphdr.SizeImage     ) ;
+  ulSetError ( UL_DEBUG, "XPelsPerMeter %08x", bmphdr.XPelsPerMeter ) ;
+  ulSetError ( UL_DEBUG, "YPelsPerMeter %08x", bmphdr.YPelsPerMeter ) ;
+  ulSetError ( UL_DEBUG, "ClrUsed %08x",       bmphdr.ClrUsed       ) ;
+  ulSetError ( UL_DEBUG, "ClrImportant %08x",  bmphdr.ClrImportant  ) ;
 #endif
 
   int isMonochrome = TRUE ;
@@ -589,7 +589,7 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
 
   if ( fread ( data, 1, bmphdr.SizeImage, curr_image_fd ) != bmphdr.SizeImage )
   {
-    fprintf ( stderr, "Premature EOF in '%s'\n", curr_image_fname ) ;
+    ulSetError ( UL_WARNING, "Premature EOF in '%s'", curr_image_fname ) ;
     return ;
   }
 
@@ -657,7 +657,7 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
   }
   else
   {
-    fprintf ( stderr, "ssgImageLoader: Can't load %d bpp BMP textures.\n", bpp ) ;
+    ulSetError ( UL_WARNING, "ssgImageLoader: Can't load %d bpp BMP textures.", bpp ) ;
     loadDummyTexture () ;
     return ;
   }
@@ -676,7 +676,7 @@ void ssgImageLoader::loadTextureSGI ( char *fname )
   if ( curr_image_fd == NULL )
   {
     perror ( "ssgImageLoader" ) ;
-    fprintf ( stderr, "ssgImageLoader: Failed to open '%s' for reading.\n", curr_image_fname ) ;
+    ulSetError ( UL_WARNING, "ssgImageLoader: Failed to open '%s' for reading.", curr_image_fname ) ;
     loadDummyTexture () ;
     return ;
   }
@@ -712,8 +712,7 @@ void ssgImageLoader::loadTextureSGI ( char *fname )
 
   if ( sgihdr->zsize <= 0 || sgihdr->zsize > 4 )
   {
-    fprintf ( stderr, "ssgImageLoader: '%s' is corrupted.\n", curr_image_fname ) ;
-    exit ( 1 ) ;
+    ulSetError ( UL_FATAL, "ssgImageLoader: '%s' is corrupted.", curr_image_fname ) ;
   }
 
   GLubyte *image = new GLubyte [ sgihdr->xsize *

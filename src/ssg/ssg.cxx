@@ -1,7 +1,5 @@
 
 #define _UL_GENERATE_CODE_
-#include "ul.h"
-
 #include "ssgLocal.h"
 
 sgMat4 _ssgOpenGLAxisSwapMatrix =
@@ -71,9 +69,7 @@ void ssgInit ()
 #endif
 #endif
   {
-    fprintf ( stderr,
-    "FATAL: ssgInit called without a valid OpenGL context.\n");
-    exit ( 1 ) ;
+    ulSetError ( UL_FATAL, "ssgInit called without a valid OpenGL context.");
   }
 
   ssgTexturePath ( "." ) ;
@@ -96,9 +92,7 @@ void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
 {
   if ( _ssgCurrentContext == NULL )
   {
-    fprintf ( stderr,
-             "ssg: No Current Context: Did you forgot to call ssgInit()?\n" ) ;
-    exit ( 1 ) ;
+    ulSetError ( UL_FATAL, "ssg: No Current Context: Did you forgot to call ssgInit()?" ) ;
   }
 
   ssgForceBasicState () ;
@@ -143,9 +137,7 @@ void ssgCullAndDraw ( ssgRoot *r )
 {
   if ( _ssgCurrentContext == NULL )
   {
-    fprintf ( stderr,
-             "ssg: No Current Context: Did you forgot to call ssgInit()?\n" ) ;
-    exit ( 1 ) ;
+    ulSetError ( UL_FATAL, "ssg: No Current Context: Did you forgot to call ssgInit()?" ) ;
   }
 
   _ssgFrameCounter++ ;
@@ -258,7 +250,7 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
 
   if ( *extn != '.' )
   {
-    fprintf ( stderr, "ssgLoad: Cannot determine file type for '%s'\n", fname );
+    ulSetError ( UL_WARNING, "ssgLoad: Cannot determine file type for '%s'", fname );
     return NULL ;
   }
 
@@ -267,7 +259,7 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
       return f->loadfunc( fname, hookfunc ) ;
 
-  fprintf ( stderr, "ssgLoad: Unrecognised file type '%s'\n", extn ) ;
+  ulSetError ( UL_WARNING, "ssgLoad: Unrecognised file type '%s'", extn ) ;
   return NULL ;
 }
 
@@ -281,7 +273,7 @@ int ssgSave ( char *fname, ssgEntity *ent )
 
   if ( *extn != '.' )
   {
-    fprintf ( stderr, "ssgSave: Cannot determine file type for '%s'\n", fname );
+    ulSetError ( UL_WARNING, "ssgSave: Cannot determine file type for '%s'", fname );
     return FALSE ;
   }
 
@@ -290,7 +282,7 @@ int ssgSave ( char *fname, ssgEntity *ent )
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
       return f->savefunc( fname, ent ) ;
 
-  fprintf ( stderr, "ssgSave: Unrecognised file type '%s'\n", extn ) ;
+  ulSetError ( UL_WARNING, "ssgSave: Unrecognised file type '%s'", extn ) ;
   return FALSE ;
 }
 

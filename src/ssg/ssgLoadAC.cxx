@@ -90,12 +90,12 @@ void skip_quotes ( char **s )
       t++ ;
 
     if ( *t != '\"' )
-      fprintf ( stderr, "ac_to_gl: Mismatched double-quote ('\"') in '%s'\n", *s ) ;
+      ulSetError ( UL_WARNING, "ac_to_gl: Mismatched double-quote ('\"') in '%s'", *s ) ;
 
     *t = '\0' ;
   }
   else
-    fprintf ( stderr, "ac_to_gl: Expected double-quote ('\"') in '%s'\n", *s ) ;
+    ulSetError ( UL_WARNING, "ac_to_gl: Expected double-quote ('\"') in '%s'", *s ) ;
 }
 
 
@@ -114,8 +114,7 @@ int search ( Tag *tags, char *s )
       return (*(tags[i].func))( s ) ;
     }
 
-  fprintf ( stderr, "ac_to_gl: Unrecognised token '%s'\n", s ) ;
-  exit ( 1 ) ;
+  ulSetError ( UL_FATAL, "ac_to_gl: Unrecognised token '%s'", s ) ;
 
   return 0 ;  /* Should never get here */
 }
@@ -262,8 +261,8 @@ int do_material ( char *s )
     &shi,
     &trans ) != 15 )
   {
-    fprintf ( stderr, "ac_to_gl: Can't parse this MATERIAL:\n" ) ;
-    fprintf ( stderr, "ac_to_gl: MATERIAL %s\n", s ) ;
+    ulSetError ( UL_WARNING, "ac_to_gl: Can't parse this MATERIAL:" ) ;
+    ulSetError ( UL_WARNING, "ac_to_gl: MATERIAL %s", s ) ;
   }
   else
   {
@@ -283,7 +282,7 @@ int do_material ( char *s )
     sgCopyVec4 ( current_material -> spec, spec ) ;
     sgCopyVec4 ( current_material -> emis, emis ) ;
     sgCopyVec4 ( current_material -> rgb , rgb  ) ;
-    current_material -> shi = shi ;
+    current_material -> shi = (float) shi ;
   }
 
   num_materials++ ;
@@ -419,7 +418,7 @@ int do_texture  ( char *s )
 int do_texrep ( char *s )
 {
   if ( sscanf ( s, "%f %f", & texrep [ 0 ], & texrep [ 1 ] ) != 2 )
-    fprintf ( stderr, "ac_to_gl: Illegal texrep record.\n" ) ;
+    ulSetError ( UL_WARNING, "ac_to_gl: Illegal texrep record." ) ;
 
   return PARSE_CONT ;
 }
@@ -428,7 +427,7 @@ int do_texrep ( char *s )
 int do_texoff ( char *s )
 {
   if ( sscanf ( s, "%f %f", & texoff [ 0 ], & texoff [ 1 ] ) != 2 )
-    fprintf ( stderr, "ac_to_gl: Illegal texoff record.\n" ) ;
+    ulSetError ( UL_WARNING, "ac_to_gl: Illegal texoff record." ) ;
 
   return PARSE_CONT ;
 }
@@ -443,7 +442,7 @@ int do_rot ( char *s )
         & current_matrix [ 0 ] [ 0 ], & current_matrix [ 0 ] [ 1 ], & current_matrix [ 0 ] [ 2 ],
         & current_matrix [ 1 ] [ 0 ], & current_matrix [ 1 ] [ 1 ], & current_matrix [ 1 ] [ 2 ],
         & current_matrix [ 2 ] [ 0 ], & current_matrix [ 2 ] [ 1 ], & current_matrix [ 2 ] [ 2 ] ) != 9 )
-    fprintf ( stderr, "ac_to_gl: Illegal rot record.\n" ) ;
+    ulSetError ( UL_WARNING, "ac_to_gl: Illegal rot record." ) ;
 
   ((ssgTransform *)current_branch) -> setTransform ( current_matrix ) ;
   return PARSE_CONT ;
@@ -452,7 +451,7 @@ int do_rot ( char *s )
 int do_loc      ( char *s )
 {
   if ( sscanf ( s, "%f %f %f", & current_matrix [ 3 ][ 0 ], & current_matrix [ 3 ][ 2 ], & current_matrix [ 3 ][ 1 ] ) != 3 )
-    fprintf ( stderr, "ac_to_gl: Illegal loc record.\n" ) ;
+    ulSetError ( UL_WARNING, "ac_to_gl: Illegal loc record." ) ;
 
   current_matrix [ 3 ][ 1 ] = - current_matrix [ 3 ][ 1 ] ;
   current_matrix [ 3 ][ 3 ] = 1.0f ;
@@ -489,8 +488,7 @@ int do_numvert  ( char *s )
     if ( sscanf ( buffer, "%f %f %f",
                           &vtab[i][0], &vtab[i][1], &vtab[i][2] ) != 3 )
     {
-      fprintf ( stderr, "ac_to_gl: Illegal vertex record.\n" ) ;
-      exit ( 1 ) ;
+      ulSetError ( UL_FATAL, "ac_to_gl: Illegal vertex record." ) ;
     }
 
     float tmp  =  vtab[i][1] ;
@@ -563,8 +561,7 @@ int do_refs     ( char *s )
                                       &tc[0],
                                       &tc[1] ) != 3 )
     {
-      fprintf ( stderr, "ac_to_gl: Illegal ref record.\n" ) ;
-      exit ( 1 ) ;
+      ulSetError ( UL_FATAL, "ac_to_gl: Illegal ref record." ) ;
     }
 
     tc[0] *= texrep[0] ;
@@ -689,8 +686,7 @@ ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc )
 
   if ( loader_fd == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgLoadAC: Failed to open '%s' for reading\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgLoadAC: Failed to open '%s' for reading", filename ) ;
     return NULL ;
   }
 
@@ -719,7 +715,7 @@ ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc )
       if ( ! _ssgStrNEqual ( s, "AC3D", 4 ) )
       {
         fclose ( loader_fd ) ;
-        fprintf ( stderr, "ssgLoadAC: '%s' is not in AC3D format.\n", filename ) ;
+        ulSetError ( UL_WARNING, "ssgLoadAC: '%s' is not in AC3D format.", filename ) ;
         return NULL ;
       }
     }
