@@ -461,8 +461,8 @@ int ulIsAbsolutePathName ( const char *pathname )
   return pathname [0] == SLASH ||
          (
            (
-             ( drive_letter >= 'a' && drive_letter <= 'z' ) ||
-             ( drive_letter >= 'A' && drive_letter <= 'Z' )
+             ( pathname[0] >= 'a' && pathname[0] <= 'z' ) ||
+             ( pathname[0] >= 'A' && pathname[0] <= 'Z' )
            ) &&
            pathname[1] == ':' &&
            ( pathname[2] == SLASH || pathname[2] == '/' )

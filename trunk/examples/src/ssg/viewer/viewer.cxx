@@ -53,7 +53,7 @@ font vars
 fntRenderer *text ;
 fntTexFont *font ;
 
-puFileSelector* file_picker = 0 ;
+puFileSelector* file_selector = 0 ;
 
 /*
 frame rate vars
@@ -415,8 +415,8 @@ void motion(int x, int y)
   
   int deltax = x - downx, deltay = y - downy;
   
-  //  if ( scene -> getNumKids() > 0 && !file_picker )
-  if ( !file_picker )
+  //  if ( scene -> getNumKids() > 0 && !file_selector )
+  if ( !file_selector )
     
     switch (downb) {
   case GLUT_LEFT_BUTTON:
@@ -466,8 +466,8 @@ void mouse(int button, int state, int x, int y)
     downy = y;
     downb = button;
     
-    //    if ( scene -> getNumKids() > 0 && !file_picker )
-    if (!file_picker )
+    //    if ( scene -> getNumKids() > 0 && !file_selector )
+    if (!file_selector )
       switch ( button )
     {
     case GLUT_LEFT_BUTTON:
@@ -488,8 +488,8 @@ void mouse(int button, int state, int x, int y)
   } else if (state == GLUT_UP && button == downb) {
     downb = -1;
     
-    //    if ( scene -> getNumKids() > 0 && !file_picker )
-    if ( !file_picker )
+    //    if ( scene -> getNumKids() > 0 && !file_selector )
+    if ( !file_selector )
       switch ( button )
     {
     case GLUT_LEFT_BUTTON:
@@ -526,13 +526,13 @@ void special(int key, int x, int y)
 void pick_cb ( puObject * )
 {
   char* str ;
-  file_picker -> getValue ( &str ) ;
+  file_selector -> getValue ( &str ) ;
   
   char fname [PUSTRING_MAX];
   strcpy ( fname, str ) ;
   
-  puDeleteObject ( file_picker ) ;
-  file_picker = 0 ;
+  puDeleteObject ( file_selector ) ;
+  file_selector = 0 ;
 
   ssgEntity *obj = ssgLoad ( (char*)fname ); //"test_Med.ase" ) ;
 
@@ -604,10 +604,10 @@ void keyboard(unsigned char key, int, int)
     Ez = 0;
     break;
   case 'l':
-    if ( !file_picker )
+    if ( !file_selector )
     {
-      file_picker = new puFileSelector ( ( 640 - 320 ) / 2, ( 480 - 270 ) / 2, 320, 270, ARROWS_USED, "data" ) ;
-      file_picker -> setCallback ( pick_cb ) ;
+      file_selector = new puFileSelector ( ( 640 - 320 ) / 2, ( 480 - 270 ) / 2, 320, 270, ARROWS_USED, "data" ) ;
+      file_selector -> setCallback ( pick_cb ) ;
     }
     break;
   case 'c':
