@@ -29,7 +29,9 @@ typedef float sgVec9 [9] ;
 
 void ssgaPatch::regenerate ()
 {
+  if ( kidState != NULL ) kidState -> ref () ;
   removeAllKids () ;
+  if ( kidState != NULL ) kidState -> deRef () ;
 
   if ( ntriangles <=       2 ) levels = -1 ; else
   if ( ntriangles <=      18 ) levels =  0 ; else

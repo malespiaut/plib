@@ -59,11 +59,12 @@ public:
   virtual ~ssgaShape (void) ;
   virtual const char *getTypeName(void) ;
 
-  void makeCorrupt () { corrupted = TRUE ; }
-  int  isCorrupt   () { return corrupted ; }
+  void makeCorrupt  () { corrupted = TRUE  ; }
+  int  isCorrupt    () { return corrupted  ; }
 
-  float *getCenter () { return center ; }
-  float *getSize   () { return size   ; }
+  float *getCenter  () { return center     ; }
+  float *getSize    () { return size       ; }
+  int    getNumTris () { return ntriangles ; }
 
   void setColour  ( sgVec4 c ) { sgCopyVec4 ( colour, c ) ; regenerate () ; }
   void setCenter  ( sgVec3 c ) { sgCopyVec3 ( center, c ) ; regenerate () ; }

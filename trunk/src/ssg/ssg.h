@@ -1399,6 +1399,11 @@ public:
   virtual void pick ( int baseName ) ;
   virtual void transform ( const sgMat4 m ) ;
 
+  ssgVertexArray   *getVertices  () { return vertices  ; }
+  ssgNormalArray   *getNormals   () { return normals   ; }
+  ssgTexCoordArray *getTexCoords () { return texcoords ; }
+  ssgColourArray   *getColours   () { return colours   ; }
+
   virtual void setVertices  ( ssgVertexArray   *vl ) ;
   virtual void setNormals   ( ssgNormalArray   *nl ) ;
   virtual void setTexCoords ( ssgTexCoordArray *tl ) ;
@@ -1409,7 +1414,7 @@ public:
   int getNumColours   () { return colours   -> getNum () ; }
   int getNumTexCoords () { return texcoords -> getNum () ; }
 
-  int getNumTriangles () ;
+  int  getNumTriangles () ;
   void getTriangle ( int n, short *v1, short *v2, short *v3 ) ;
   int  getNumLines () ;
   void getLine ( int n, short *v1, short *v2 ) ;

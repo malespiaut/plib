@@ -139,7 +139,7 @@ ssgaSphere  ::ssgaSphere   ( void ) : ssgaShape ()
  type = ssgaTypeSphere () ;
  latlong_style = TRUE ;
  regenerate () ;
-} 
+}
 
 
 ssgaSphere  ::ssgaSphere   (int nt) : ssgaShape ( nt )
@@ -147,7 +147,7 @@ ssgaSphere  ::ssgaSphere   (int nt) : ssgaShape ( nt )
  type = ssgaTypeSphere () ;
  latlong_style = TRUE ;
  regenerate () ;
-} 
+}
 
 
 ssgaCylinder::ssgaCylinder ( void ) : ssgaShape ()
@@ -183,17 +183,24 @@ const char *ssgaTeapot  ::getTypeName(void) { return "ssgaTeapot"   ; }
 
 void ssgaCube    ::regenerate ()
 {
+  if ( kidState != NULL ) kidState -> ref () ;
   removeAllKids () ;
+  if ( kidState != NULL ) kidState -> deRef () ;
 
   if ( ntriangles == 0 )
     return ;
 
-  ssgVtxTable     *vt0 = new ssgVtxTable () ;         ssgVtxTable     *vt1 = new ssgVtxTable () ;
+  ssgVtxTable     *vt0 = new ssgVtxTable () ;
+  ssgVtxTable     *vt1 = new ssgVtxTable () ;
 
-  ssgVertexArray   *v0 = new ssgVertexArray   ( 8 ) ; ssgVertexArray   *v1 = new ssgVertexArray   ( 8 ) ;
-  ssgNormalArray   *n0 = new ssgNormalArray   ( 8 ) ; ssgNormalArray   *n1 = new ssgNormalArray   ( 8 ) ;
-  ssgColourArray   *c0 = new ssgColourArray   ( 8 ) ; ssgColourArray   *c1 = new ssgColourArray   ( 8 ) ;
-  ssgTexCoordArray *t0 = new ssgTexCoordArray ( 8 ) ; ssgTexCoordArray *t1 = new ssgTexCoordArray ( 8 ) ;
+  ssgVertexArray   *v0 = new ssgVertexArray   ( 8 ) ;
+  ssgVertexArray   *v1 = new ssgVertexArray   ( 8 ) ;
+  ssgNormalArray   *n0 = new ssgNormalArray   ( 8 ) ;
+  ssgNormalArray   *n1 = new ssgNormalArray   ( 8 ) ;
+  ssgColourArray   *c0 = new ssgColourArray   ( 8 ) ;
+  ssgColourArray   *c1 = new ssgColourArray   ( 8 ) ;
+  ssgTexCoordArray *t0 = new ssgTexCoordArray ( 8 ) ;
+  ssgTexCoordArray *t1 = new ssgTexCoordArray ( 8 ) ;
 
   vt0 -> setPrimitiveType ( GL_TRIANGLE_STRIP ) ;
   vt1 -> setPrimitiveType ( GL_TRIANGLE_STRIP ) ;
@@ -629,7 +636,9 @@ void ssgaSphere::regenerateLatLong ()
 
 void ssgaSphere::regenerate ()
 {
+  if ( kidState != NULL ) kidState -> ref () ;
   removeAllKids () ;
+  if ( kidState != NULL ) kidState -> deRef () ;
 
   if ( ntriangles == 0 )
     return ;
@@ -644,7 +653,9 @@ void ssgaSphere::regenerate ()
 
 void ssgaCylinder::regenerate ()
 {
+  if ( kidState != NULL ) kidState -> ref () ;
   removeAllKids () ;
+  if ( kidState != NULL ) kidState -> deRef () ;
 
   if ( ntriangles == 0 )
     return ;
