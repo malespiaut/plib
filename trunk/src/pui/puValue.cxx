@@ -27,7 +27,7 @@
 UL_RTTI_DEF(puValue)
 
 
-inline void skip_whitespace ( const char **str )
+static inline void skip_whitespace ( const char **str )
 {
   while ( isspace ( **str ) != 0 )
     (*str)++ ;
