@@ -34,32 +34,15 @@ as far as I can tell, the "configure/make/make install" approach
 
 Microsoft Visual C++:
 ~~~~~~~~~~~~~~~~~~~~~
-I am distributing a set of MSVC project files for PLIB that
-were kindly provided by Dave McClurg. These are scattered
-down to the source directories with a workspace set up 
-in the PLIB root area.
+All you need to do is open the workspace "plib.dsw" in MSVC++,
+select the "plib" project (using Set Active Project in the Project
+menu), and build it (using "Rebuild All" in the Build menu).
 
-Dave says:
+In the examples folder, open the workspace "plib_examples.dsw".
+Each example has a seperate project in the workspace.  Select
+the one you want and build it.  Then you should be able to hit
+the Go icon on the toolbar and try it out.
 
-> I created some MSVC++ 6.0 project files for PLIB and the examples.
->
-> All you need to do is open the workspace "plib.dsw" in MSVC++,
-> select the "plib" project (using Set Active Project in the Project
-> menu), and build it (using "Rebuild All" in the Build menu).
->
-> To "install" PLIB to your system so that the examples and your
-> own projects can use them, run "INSTALL_win32.bat".  It copies
-> the includes into /usr/include/plib and the libraries into /usr/lib.
->
-> In the examples folder, open the workspace "plib_examples.dsw".
-> Each example has a seperate project in the workspace.  Select
-> the one you want and build it.  Then you should be able to hit
-> the Go icon on the toolbar and try it out.
->
-> In summary, here are the steps:
-> 1. load the plib.dsw workspace and build the plib project
-> 2. run INSTALL_win32.bat
-> 3. load the examples\plib_examples.dsw workspace and build and run the projects
 
 Borland C++:
 ~~~~~~~~~~~~
