@@ -805,25 +805,27 @@ void loadTextureMDL ( const char *fname )
     // this is not a MSFS-formatted texture, so it's probably a BMP
     fclose(tfile);
     loadTextureBMP( fname );
+    return;
   } else {
     fseek(tfile, 0, SEEK_SET);
-  }
 
-  unsigned char *texels = new unsigned char[256 * 256 * 4];
-  int c = 0;
-  for (int y = 0; y < 256; y++) {
-    for (int x = 0; x < 256; x++) {
-      unsigned char b;
-      fread(&b, 1, 1, tfile);
-      texels[c++] = fsTexPalette[b*4    ];
-      texels[c++] = fsTexPalette[b*4 + 1];
-      texels[c++] = fsTexPalette[b*4 + 2];
-      texels[c++] = fsTexPalette[b*4 + 3];
+    unsigned char *texels = new unsigned char[256 * 256 * 4];
+    int c = 0;
+    for (int y = 0; y < 256; y++) {
+      for (int x = 0; x < 256; x++) {
+	unsigned char b;
+	fread(&b, 1, 1, tfile);
+	texels[c++] = fsTexPalette[b*4    ];
+	texels[c++] = fsTexPalette[b*4 + 1];
+	texels[c++] = fsTexPalette[b*4 + 2];
+	texels[c++] = fsTexPalette[b*4 + 3];
+      }
     }
-  }
-  fclose(tfile);
 
-  make_mip_maps ( texels, 256, 256, 4 ) ;
+    fclose(tfile);
+    
+    make_mip_maps ( texels, 256, 256, 4 ) ;
+  }
 }
 
 
