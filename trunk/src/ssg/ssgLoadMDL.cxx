@@ -1644,7 +1644,7 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 //===========================================================================
 
 #define MYMAKEFOURCC(a, b, c, d) \
-		((unsigned long)(a) | ((unsigned long)(BYTE)(b) << 8) |  \
+		((unsigned long)(a) | ((unsigned long)(b) << 8) |  \
 		((unsigned long)(c) << 16) | ((unsigned long)(d) << 24 ))
 
 static unsigned long l1 = MYMAKEFOURCC('R', 'I', 'F', 'F');
