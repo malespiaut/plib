@@ -32,15 +32,16 @@ void puArrowButton::draw ( int dx, int dy )
     use inverse style for button itself
   */
 
-  int tempStyle;
-
-  if ( parent && ( ( parent->getType() & PUCLASS_POPUPMENU ) ||
-                   ( parent->getType() & PUCLASS_MENUBAR   ) ) )
-    tempStyle = ( getValue() ^ highlighted ) ? PUSTYLE_SMALL_SHADED : style ;
+  if ( getValue() ^ highlighted )
+  {
+    if ( parent && ( ( parent->getType() & PUCLASS_POPUPMENU ) ||
+                     ( parent->getType() & PUCLASS_MENUBAR   ) ) )
+      abox.draw ( dx, dy, PUSTYLE_SMALL_SHADED, colour, isReturnDefault(), 2 ) ;
+    else
+      abox.draw ( dx, dy, -style, colour, isReturnDefault(), border_thickness ) ;
+  }
   else
-    tempStyle = ( getValue() ^ highlighted ) ? -style : style ;
-
-  abox.draw ( dx, dy, tempStyle, colour, isReturnDefault(), border_thickness ) ;
+    abox.draw ( dx, dy, style, colour, isReturnDefault(), border_thickness ) ;
 
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;
