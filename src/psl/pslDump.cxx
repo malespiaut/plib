@@ -81,7 +81,7 @@ void PSL_Parser::dump ()
 
       int ext  = code[i+1] ;
       int argc = code[i+2] ;
-      printf ( "\t%s %d", extensions[ext].symbol, argc ) ;
+      printf ( "\t%s,nargs=%d", extensions[ext].symbol, argc ) ;
       i += 2 ;
     }
     else
