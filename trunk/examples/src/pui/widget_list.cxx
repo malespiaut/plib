@@ -22,70 +22,70 @@
 *                                   *
 \***********************************/
 
-int          main_window ;
+static int          main_window ;
 
-int button_box_window ;
-puButtonBox *button_box ;
+static int button_box_window ;
+static puButtonBox *button_box ;
 
-int frame_window ;
-puFrame *frame ;
+static int frame_window ;
+static puFrame *frame ;
 
-int text_window ;
-puText *text ;
+static int text_window ;
+static puText *text ;
 
-int button_window ;
-puButton *button ;
-puText *button_text ;
+static int button_window ;
+static puButton *button ;
+static puText *button_text ;
 
-int one_shot_window ;
-puOneShot *one_shot ;
+static int one_shot_window ;
+static puOneShot *one_shot ;
 
-int popup_menu_window ;
-puPopupMenu *popup_menu ;
+static int popup_menu_window ;
+static puPopupMenu *popup_menu ;
 
-int menu_bar_window ;
-puMenuBar *menu_bar ;
+static int menu_bar_window ;
+static puMenuBar *menu_bar ;
 
-int input_window ;
-puInput *input ;
+static int input_window ;
+static puInput *input ;
 
-int slider_window ;
-puSlider *slider ;
+static int slider_window ;
+static puSlider *slider ;
 
-int arrow_button_window ;
-puArrowButton *arrow_button ;
+static int arrow_button_window ;
+static puArrowButton *arrow_button ;
 
-int dial_window ;
-puDial *dial ;
+static int dial_window ;
+static puDial *dial ;
 
-int list_box_window ;
-puListBox *list_box ;
+static int list_box_window ;
+static puListBox *list_box ;
 
-int file_selector_window ;
-puFileSelector *file_selector ;
+static int file_selector_window ;
+static puFileSelector *file_selector ;
 
-int bislider_window ;
-puBiSlider *bislider ;
+static int bislider_window ;
+static puBiSlider *bislider ;
 
-int trislider_window ;
-puTriSlider *trislider ;
+static int trislider_window ;
+static puTriSlider *trislider ;
 
-int vertical_menu_window ;
-puVerticalMenu *vertical_menu ;
+static int vertical_menu_window ;
+static puVerticalMenu *vertical_menu ;
 
-int dialog_box_window ;
-puDialogBox *dialog_box ;
+static int dialog_box_window ;
+static puDialogBox *dialog_box ;
 
-int large_input_window ;
-puLargeInput *large_input ;
+static int large_input_window ;
+static puLargeInput *large_input ;
 
-int combo_box_window ;
-puComboBox *combo_box ;
+static int combo_box_window ;
+static puComboBox *combo_box ;
 
-int select_box_window ;
-puSelectBox *select_box ;
+static int select_box_window ;
+static puSelectBox *select_box ;
 
-fntTexFont *tim ;
+//static fntTexFont *tim ;
 
 
 
@@ -151,7 +151,7 @@ static void displayfn (void)
 *                                   *
 \***********************************/
 
-void exit_cb ( puObject * )
+static void exit_cb ( puObject * )
 {
   fprintf ( stderr, "Exiting PUI demo program.\n" ) ;
   exit ( 1 ) ;
@@ -159,13 +159,13 @@ void exit_cb ( puObject * )
 
 /* Menu bar entries: */
 
-char      *file_submenu    [] = {  "Exit", "Close", "========", "Print", "========", "Save", "New", NULL } ;
-puCallback file_submenu_cb [] = { exit_cb, exit_cb,       NULL, NULL  ,       NULL,  NULL, NULL, NULL } ;
+static char      *file_submenu    [] = {  "Exit", "Close", "========", "Print", "========", "Save", "New", NULL } ;
+static puCallback file_submenu_cb [] = { exit_cb, exit_cb,       NULL, NULL  ,       NULL,  NULL, NULL, NULL } ;
 
-char      *edit_submenu    [] = { "Do nothing.", NULL } ;
+static char      *edit_submenu    [] = { "Do nothing.", NULL } ;
 puCallback edit_submenu_cb [] = {     NULL, NULL } ;
 
-char      *help_submenu    [] = { "About...",  "Help", NULL } ;
+static char      *help_submenu    [] = { "About...",  "Help", NULL } ;
 puCallback help_submenu_cb [] = {   NULL, NULL, NULL } ;
 
 
@@ -191,10 +191,10 @@ int main ( int argc, char **argv )
   puShowCursor () ;
 #endif
 
-  tim = new fntTexFont ;
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
-  puFont times_medium ( tim, 12 ) ;
-  puSetDefaultFonts        ( times_medium, times_medium ) ;
+  //tim = new fntTexFont ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //puFont times_medium ( tim, 12 ) ;
+  //puSetDefaultFonts        ( times_medium, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
   puSetDefaultColourScheme ( 0.8f, 0.8f, 0.8f, 1.0f ) ;
 
@@ -213,7 +213,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   char *button_box_entries [] = { "First Entry", "Second Entry", "Third Entry", NULL } ;
   button_box = new puButtonBox ( 10, 10, 130, 80, button_box_entries, TRUE ) ;
@@ -232,7 +232,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   frame = new puFrame ( 10, 10, 130, 80 ) ;
   frame->setLabel ( "Label" ) ;
@@ -251,7 +251,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   text = new puText ( 10, 10 ) ;
   text->setLabel ( "Label" ) ;
@@ -269,7 +269,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   button_text = new puText ( 5, 6 ) ;
   button_text->setLabel ( "XCHECK:" ) ;
@@ -325,7 +325,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   one_shot = new puOneShot ( 10, 10, 90, 30 ) ;
   one_shot->setLabel ( "Label" ) ;
@@ -344,7 +344,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   popup_menu = new puPopupMenu ( 10, 10 ) ;
   popup_menu->add_item ( "Cut", NULL ) ;
@@ -367,7 +367,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   menu_bar = new puMenuBar () ;
   {
@@ -390,7 +390,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   input = new puInput ( 10, 10, 90, 30 ) ;
   input->setLabel ( "Label" ) ;
@@ -408,7 +408,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   slider = new puSlider ( 10, 10, 120, FALSE ) ;
   slider->setLabel ( "Label" ) ;
@@ -427,7 +427,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   arrow_button = new puArrowButton ( 10, 10, 50, 50, PUARROW_RIGHT ) ;
   arrow_button->setLabel ( "Label" ) ;
@@ -445,7 +445,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   dial = new puDial ( 10, 10, 60 ) ;
   dial->setLabel ( "Label" ) ;
@@ -464,7 +464,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   char *list_box_entries [] = { "First Entry", "Second Entry", "Third Entry", "Very long Entry that will get truncated", NULL } ;
   list_box = new puListBox ( 10, 10, 130, 80, list_box_entries ) ;
@@ -483,7 +483,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   file_selector = new puFileSelector ( 10, 10, 280, 200, "." ) ;
 
@@ -500,7 +500,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   bislider = new puBiSlider ( 10, 10, 120, FALSE ) ;
   bislider->setLabel ( "Label" ) ;
@@ -522,7 +522,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   trislider = new puTriSlider ( 20, 10, 180, TRUE ) ;
   trislider->setLabel ( "Label" ) ;
@@ -545,7 +545,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   vertical_menu = new puVerticalMenu () ;
   {
@@ -568,7 +568,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   dialog_box = new puDialogBox ( 10, 10 ) ;
   new puOneShot ( 20, 20, "OK" ) ;
@@ -591,7 +591,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   large_input = new puLargeInput ( 10, 10, 240, 180, 2, 20 ) ;
   large_input->setLabel ( "Label" ) ;
@@ -611,7 +611,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   char *combo_box_entries [] = { "First Entry", "Second Entry", "Third Entry", "Fourth Entry", "Sixth Entry", "Seventh Entry", NULL } ;
   combo_box = new puComboBox ( 10, 158, 250, 190,
@@ -633,7 +633,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
+  //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   glEnable ( GL_BLEND ) ;
   glAlphaFunc ( GL_GEQUAL, 0.1f ) ;

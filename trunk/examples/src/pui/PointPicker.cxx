@@ -37,17 +37,17 @@
 *                                   *
 \***********************************/
 
-int           main_window ;
-puText       *instruction ;
-puInput      *point_no    ;
-puOneShot    *move_point  ;
-puButton     *exit_button ;
-puLargeInput *input ;
+static int           main_window ;
+static puText       *instruction ;
+static puInput      *point_no    ;
+static puOneShot    *move_point  ;
+static puButton     *exit_button ;
+static puLargeInput *input ;
 
-int picked_point ;
-int mouse_x, mouse_y ;  // Mouse coordinates
+static int picked_point ;
+static int mouse_x, mouse_y ;  // Mouse coordinates
 
-fntTexFont *tim ;
+//static fntTexFont *tim ;
 
 /**********************************\
 *                                  *
@@ -61,11 +61,11 @@ typedef struct {
 
 #define NUMBER_POINTS     30
 
-node point[NUMBER_POINTS] ;
+static node point[NUMBER_POINTS] ;
 
 static int firsttime;
 
-void drawSinglePickableObject ( int i, float x, float y, float z )
+static void drawSinglePickableObject ( int i, float x, float y, float z )
 {
   // I realize that putting the point size, normal, and begin/end inside the for-loop
   // is less efficient, but for the purposes of the demo I want everything required
@@ -85,7 +85,7 @@ void drawSinglePickableObject ( int i, float x, float y, float z )
   glEnd () ;
 }
 
-void drawPoints (void)
+static void drawPoints (void)
 {
 
   if ( firsttime )
@@ -152,7 +152,7 @@ static void motionfn ( int x, int y )
   glutPostRedisplay () ;
 }
 
-puObject *active_widget = (puObject *)NULL ;
+static puObject *active_widget = (puObject *)NULL ;
 static void mousefn ( int button, int updown, int x, int y )
 {
   if ( updown == PU_UP ) active_widget = puActiveWidget () ;
@@ -216,7 +216,7 @@ static void displayfn (void)
 
 // Point Number Input Widget Up Callback
 
-void point_no_up_cb ( puObject *ob )
+static void point_no_up_cb ( puObject *ob )
 {
   printf ( "Calling the up-callback with partial data: %d\n", picked_point ) ;
   if ( input->inputDisabled () )
@@ -227,7 +227,7 @@ void point_no_up_cb ( puObject *ob )
 
 // Point Number Input Widget Active Callback
 
-void point_no_active_cb ( puObject *ob )
+static void point_no_active_cb ( puObject *ob )
 {
   GLint viewport[4] ;  // Viewport
   glGetIntegerv ( GL_VIEWPORT, viewport ) ;
@@ -271,7 +271,7 @@ void point_no_active_cb ( puObject *ob )
 
 // Point Number Input Widget Down Callback
 
-void point_no_down_cb ( puObject *ob )
+static void point_no_down_cb ( puObject *ob )
 {
   printf ( "Calling the down callback with full data: %d\n", picked_point ) ;
   if ( picked_point < 0 )
@@ -291,7 +291,7 @@ void point_no_down_cb ( puObject *ob )
 
 // Move Point Button Callback
 
-void move_point_cb ( puObject *ob )
+static void move_point_cb ( puObject *ob )
 {
   point[picked_point].x += 0.1f ;
   if ( point[picked_point].x > 1.0 )
@@ -301,7 +301,7 @@ void move_point_cb ( puObject *ob )
   }
 }
 
-void exit_cb ( puObject * )
+static void exit_cb ( puObject * )
 {
   fprintf ( stderr, "Exiting PUI demo program.\n" ) ;
   exit ( 1 ) ;
@@ -336,10 +336,10 @@ int main ( int argc, char **argv )
 
   // Set up the font
 
-  tim = new fntTexFont ;
-  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
-  puFont times_medium ( tim, 15, 0.3f ) ;
-  puSetDefaultFonts        ( times_medium, times_medium ) ;
+  //tim = new fntTexFont ;
+  //tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
+  //puFont times_medium ( tim, 15, 0.3f ) ;
+  //puSetDefaultFonts        ( times_medium, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
   puSetDefaultColourScheme ( 0.1f, 0.8f, 0.1f, 1.0f) ;
 
