@@ -182,9 +182,9 @@ void ssgVtxTable::getTriangle ( int n, short *v1, short *v2, short *v3 )
       return ;
 
     case GL_QUADS :
-      *v1 = (n/2)*4 + (n&1) + 0 ;
-      *v2 = (n/2)*4 + (n&1) + 1 ;
-      *v3 = (n/2)*4 + (n&1) + 2 ;
+      *v1 = n*2 + 0 ;
+      *v2 = n*2 + 1 ;
+      *v3 = n*2 + 2 - (n&1)*4 ;
       return ;
 
     default : return ;
@@ -294,7 +294,10 @@ void ssgVtxTable::transform ( const sgMat4 m )
     sgXformPnt3 ( vertices->get(i), vertices->get(i), m ) ;
 
   for ( i = 0 ; i < getNumNormals() ; i++ )
+  {
     sgXformVec3 ( normals->get(i), normals->get(i), m ) ;
+    sgNormaliseVec3 ( normals->get(i) ) ;
+  }
 
   recalcBSphere () ;
 }
