@@ -57,9 +57,9 @@ void jsJoystick::open ()
    */
   unsigned char u ;
   ioctl ( fd, JSIOCGAXES   , &u ) ; 
-  num_axes = u ;                   
+  num_axes = u ;
   ioctl ( fd, JSIOCGBUTTONS, &u ) ;
-  num_buttons = u ;                
+  num_buttons = u ;
   ioctl ( fd, JSIOCGNAME ( sizeof(name) ), name ) ;
   fcntl ( fd, F_SETFL      , O_NONBLOCK   ) ;
 
