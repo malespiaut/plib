@@ -99,7 +99,7 @@ else
   dnl CygWin under Windoze.
 
   dnl CygWin doesn't look in this directory
-  LIBS="$LIBS -L$/usr/local/lib"
+  LIBS="$LIBS -L/usr/local/lib"
 
   dnl OpenGL libraries
   LIBS="$LIBS -lm -lwinmm -lglut32 -lglu32 -lopengl32 -luser32 -lgdi32"
@@ -119,7 +119,7 @@ dnl Checks for header files.
 AC_HEADER_STDC
 
 dnl CygWin doesn't look in this directory
-CPPFLAGS="$CPPFLAGS -I$/usr/local/include"
+CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 
 AC_CHECK_HEADERS(GL/gl.h GL/glu.h)
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
