@@ -290,21 +290,31 @@ int pslCompiler::pushForStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
+  pushLocality        () ;
   pushBreakToLabel    () ;
   int ct_lab = pushContinueToLabel () ;
 
   getToken ( c ) ;    /* The initial '(' of the action */
 
   if ( c [ 0 ] != '(' )
+  {
+    popLocality () ;
     return error ( "Missing '(' for 'for' loop" ) ;
+  }
 
   if ( ! pushStatement () )
+  {
+    popLocality () ;
     return error ( "Missing initialiser for 'if'" ) ;
+  }
 
   getToken ( c ) ;    /* The ';' after the initialiser */
 
   if ( c [ 0 ] != ';' )
+  {
+    popLocality () ;
     return error ( "Missing ';' after 'for' loop initialisation" ) ;
+  }
 
   /* Remember place to jump back to */
 
@@ -318,7 +328,10 @@ int pslCompiler::pushForStatement ()
   getToken ( c ) ;    /* The ';' after the initialiser */
 
   if ( c [ 0 ] != ';' )
+  {
+    popLocality () ;
     return error ( "Missing ';' after 'for' loop test" ) ;
+  }
 
   char saved [ MAX_UNGET ][ MAX_TOKEN ] ;
   int next_saved    = 0 ;
@@ -332,7 +345,10 @@ int pslCompiler::pushForStatement ()
     if ( saved [ next_saved ][ 0 ] == ')' ) paren_counter-- ;
 
     if ( next_saved >= MAX_UNGET-1 )
+    {
+      popLocality () ;
       return error ( "Too many tokens in 'increment' part of 'for' loop" ) ;
+    }
 
     next_saved++ ;
 
@@ -343,7 +359,10 @@ int pslCompiler::pushForStatement ()
   int label_loc = pushJumpIfFalse ( 0 ) ;
 
   if ( ! pushStatement () )
+  {
+    popLocality () ;
     return error ( "Missing action body for 'for' loop" ) ;
+  }
  
   setContinueToLabel ( ct_lab ) ;
 
@@ -357,7 +376,10 @@ int pslCompiler::pushForStatement ()
     ungetToken ( saved[i] ) ;    
 
   if ( ! pushStatement () )
+  {
+    popLocality () ;
     return error ( "Missing 'increment' part of 'for' loop" ) ;
+  }
 
   pushJump ( start_loc ) ;
 
@@ -366,6 +388,7 @@ int pslCompiler::pushForStatement ()
 
   popBreakToLabel    () ;
   popContinueToLabel () ;
+  popLocality        () ;
   return TRUE ;
 }
 
@@ -499,7 +522,9 @@ int pslCompiler::pushAssignmentStatement ( const char *var )
        strcmp ( c, ">>=" ) != 0 )
   {
     ungetToken ( c ) ;
-    pushFunctionCall ( var ) ;
+    ungetToken ( var ) ;
+    // pushFunctionCall ( var ) ;
+    pushExpression () ;
     pushPop () ;
     return TRUE ;
   }
@@ -576,6 +601,8 @@ int pslCompiler::pushStatement ()
   if ( strcmp ( c, "switch"   ) == 0 ) return pushSwitchStatement    () ;
   if ( strcmp ( c, "while"    ) == 0 ) return pushWhileStatement     () ;
   if ( strcmp ( c, "if"       ) == 0 ) return pushIfStatement        () ;
+  if ( strcmp ( c, "++"       ) == 0 ) return pushAssignmentStatement ( c ) ;
+  if ( strcmp ( c, "--"       ) == 0 ) return pushAssignmentStatement ( c ) ;
   if ( isalnum ( c [ 0 ] )           ) return pushAssignmentStatement ( c ) ;
   if ( c [ 0 ] == '{'                ) return pushCompoundStatement  () ;
 

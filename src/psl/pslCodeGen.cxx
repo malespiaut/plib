@@ -103,6 +103,22 @@ void pslCompiler::pushGetParameter ( pslAddress var, int argpos )
   pushCodeByte ( argpos ) ;
 }
 
+void pslCompiler::pushIncrement ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_INCREMENT ) ;
+  pushCodeByte ( a ) ;
+} 
+
+void pslCompiler::pushDecrement ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_DECREMENT ) ;
+  pushCodeByte ( a ) ;
+} 
+
 void pslCompiler::makeIntVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;

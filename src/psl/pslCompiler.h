@@ -104,6 +104,9 @@ class pslCompiler
 
   void pushGetParameter  ( pslAddress var, int argpos ) ;
 
+  void pushIncrement     ( const char *s ) ;
+  void pushDecrement     ( const char *s ) ;
+
   void makeIntVariable   ( const char *s ) ;
   void makeFloatVariable ( const char *s ) ;
   void makeStringVariable( const char *s ) ;

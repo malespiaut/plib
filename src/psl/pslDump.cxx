@@ -57,6 +57,9 @@ static const OpcodeDecode opcodeDecode [] =
   { "SET_STRING_VARIABLE", OPCODE_SET_STRING_VARIABLE, 1 },
   { "GET_PARAMETER"      , OPCODE_GET_PARAMETER      , 2 },
 
+  { "INC"                , OPCODE_INCREMENT          , 1 },
+  { "DEC"                , OPCODE_DECREMENT          , 1 },
+
   /* Flow Control */
 
   { "CALLEXT",         OPCODE_CALLEXT     , 2 },
@@ -221,6 +224,8 @@ int pslCompiler::printInstruction ( FILE *fd, int addr ) const
     case OPCODE_POP_SHL_VARIABLE :
     case OPCODE_POP_SHR_VARIABLE :
     case OPCODE_POP_VARIABLE :
+    case OPCODE_INCREMENT :
+    case OPCODE_DECREMENT :
       fprintf ( fd, "\t[%d]", code [ addr+1 ] ) ;
       break ;
 

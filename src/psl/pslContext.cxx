@@ -607,6 +607,32 @@ pslResult pslContext::step ()
       return PSL_PROGRAM_CONTINUE ;
 
 
+    case OPCODE_DECREMENT :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        if ( v -> getType () == PSL_INT )
+          v -> set ( v -> getInt () - 1 ) ;
+        else
+          v -> set ( v -> getFloat () - 1 ) ;
+
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_INCREMENT :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        if ( v -> getType () == PSL_INT )
+          v -> set ( v -> getInt () + 1 ) ;
+        else
+          v -> set ( v -> getFloat () + 1 ) ;
+
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
     case OPCODE_SET_INT_VARIABLE :
       variable [ code[++pc] ] . setType ( PSL_INT ) ;
       pc++ ;
