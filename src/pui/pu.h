@@ -327,7 +327,11 @@ struct puBox
 #define PUSTRING_MAX 80
 
 /* With many memory managers, allocating powers of two is more efficient */
-#define PUSTRING_INITIAL 64
+// wk: This was 64. But in the viewer example, compiled as debug build with MSVC
+// when you choose a file with a path/file name length more than 64, there will be
+// a crash. Obviously, the right thing to do would be to find the real cause
+// for this and fix it, but I could not find it and we need to release...
+#define PUSTRING_INITIAL 128
 
 extern puColour _puDefaultColourTable[] ;
 
