@@ -60,7 +60,7 @@ ssgLight *ssgGetLight ( int i )
 
 void ssgInit ()
 {
-  if ( glGetCurrentContext () == NULL )
+  if ( ulGetCurrentContext () == NULL )
   {
     ulSetError ( UL_FATAL, "ssgInit called without a valid OpenGL context.");
   }

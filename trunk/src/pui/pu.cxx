@@ -184,7 +184,7 @@ void puInit ( void )
 
   if ( firsttime )
   {
-    if ( glGetCurrentContext () == NULL )
+    if ( ulGetCurrentContext () == NULL )
     {
       fprintf ( stderr,
       "FATAL: puInit called without a valid OpenGL context.\n");
