@@ -60,15 +60,7 @@ ssgLight *ssgGetLight ( int i )
 
 void ssgInit ()
 {
-#ifdef WIN32
-  if ( wglGetCurrentContext () == NULL )
-#else
-#if defined(macintosh)
-  if ( aglGetCurrentContext () == NULL )
-#else
-  if ( glXGetCurrentContext () == NULL )
-#endif
-#endif
+  if ( glGetCurrentContext () == NULL )
   {
     ulSetError ( UL_FATAL, "ssgInit called without a valid OpenGL context.");
   }

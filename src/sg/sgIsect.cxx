@@ -1,17 +1,5 @@
 
-#include <stdio.h>
 #include "sg.h"
-
-#ifndef TRUE
-#define TRUE  1
-#define FALSE 0
-#endif
-
-/* SGI machines seem to suffer from a lack of FLT_EPSILON so... */
-
-#ifndef FLT_EPSILON
-#define FLT_EPSILON 1.19209290e-07f        
-#endif
 
 /*
   Determine the origin and unit direction vector of a line

@@ -2,28 +2,7 @@
 #ifndef SG_H
 #define SG_H  1
 
-#include <limits.h>
-#include <math.h>
-
-/* the next lines are to define BSD */
-/* see http://www.freebsd.org/handbook/porting.html for why we do this */
-
-#if (defined(__unix__) || defined(unix)) && !defined(USG)
-#include <sys/param.h>
-#endif
- 
-#ifdef BSD
-#include <float.h>
-#endif
-#ifdef __MWERKS__
-#include <float.h>
-#endif
-#ifdef WIN32
-#include <float.h>
-#endif
-#ifdef __CYGWIN__
-#include <float.h>
-#endif
+#include "ul.h"
 
 #define sgFloat float
 #define SGfloat float

@@ -2,14 +2,7 @@
 #ifndef _FNT_H_
 #define _FNT_H_  1
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-#include <assert.h>
 #include "sg.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 #define FNTMAX_CHAR  256
 #define FNT_TRUE  1

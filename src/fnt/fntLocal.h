@@ -1,24 +1,10 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
-#include <limits.h>
-#include <math.h>
-
 #include "fnt.h"
 
-#ifndef TRUE
-#  define TRUE  1
-#  define FALSE 0
-#endif
 
 extern int   isSwapped     ;
 extern FILE *curr_image_fd ;
+
 
 inline void _fnt_swab_short ( unsigned short *x )
 {

@@ -1,11 +1,5 @@
 
-#include <stdio.h>
 #include "sg.h"
-
-#ifndef TRUE
-#define TRUE  1
-#define FALSE 0
-#endif
 
 void sgVectorProductVec3 ( sgVec3 dst, const sgVec3 a, const sgVec3 b )
 {
@@ -775,9 +769,6 @@ void sgInvertMat4 ( sgMat4 dst, const sgMat4 src )
       }
     }
 
-#ifndef FLT_EPSILON
-#define FLT_EPSILON 1.19209290e-07f
-#endif
     // if ( val == SG_ZERO)
     if ( fabs(val) <= FLT_EPSILON )
     {
