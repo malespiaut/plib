@@ -24,6 +24,24 @@
 
 #include "puLocal.h"
 
+static int strtoint ( const char *str )
+{
+  while ( isspace ( *str ) != 0 )
+    str++ ;
+
+  if ( *str == '\0')
+    return 0 ;
+  else if ( ulStrNEqual ( str, "0x", 2 ) == TRUE )
+    return (int) strtol ( str + 2, NULL, 16 ) ; /* try hexadecimal */
+  else if ( ulStrNEqual ( str, "0o", 2 ) == TRUE )
+    return (int) strtol ( str + 2, NULL, 8 ) ; /* try octal */
+  else if ( ulStrNEqual ( str, "0b", 2 ) == TRUE )
+    return (int) strtol ( str + 2, NULL, 2 ) ; /* try binary */
+  else
+    return (int) strtol ( str, NULL, 10 ) ; /* try decimal */
+}
+
+
 void puValue::re_eval ( void )
 {
   if ( convert == FALSE )
@@ -37,7 +55,7 @@ void puValue::re_eval ( void )
       Needed for puInput / puLargeInput:
       Do not modify the string value unless necessary
     */
-    if ( *res_integer != strtol ( string, NULL, 0 ) )
+    if ( *res_integer != strtoint ( string ) )
       sprintf ( string, "%d", *res_integer ) ;
 
     puPostRefresh () ;
@@ -57,7 +75,7 @@ void puValue::re_eval ( void )
   }
   else if ( res_string  != NULL )
   {
-    integer = (int) strtol ( res_string, NULL, 0 ) ;
+    integer = strtoint ( res_string ) ;
     floater = (float) strtod ( res_string, NULL ) ;
     puPostRefresh () ;
   }
@@ -95,6 +113,22 @@ void puValue::copy_stringval ( const char *str )
 
     memcpy ( string, str, str_len + 1 ) ;
   }
+}
+
+void puValue::setValue ( const char *s )
+{
+  if ( s == NULL )
+    s = "" ;
+
+  copy_stringval ( s ) ;
+
+  if ( convert == TRUE )
+  {
+    *getIntegerp () = strtoint ( s ) ;
+    *getFloaterp () = (float) strtod ( s, NULL ) ;
+  }
+
+  puPostRefresh () ;
 }
 
 
