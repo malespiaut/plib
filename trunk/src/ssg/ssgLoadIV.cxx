@@ -21,6 +21,7 @@ static _nodeIndex *definedNodes = NULL;
 static bool iv_parseSeparator( ssgBranch *parentBranch, _traversalState *parentData, char *defName );
 static bool iv_parseSwitch( ssgBranch *parentBranch, _traversalState *parentData, char *defName );
 static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *parentData, char *defName );
+static bool iv_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 
 _parseTag ivTags [] =
 {
@@ -29,7 +30,7 @@ _parseTag ivTags [] =
      { "IndexedFaceSet", iv_parseIndexedFaceSet },
      { "Coordinate3", vrml1_parseCoordinate3 },
      { "TextureCoordinate2", vrml1_parseTextureCoordinate2 },
-     { "Texture2", vrml1_parseTexture2 },
+     { "Texture2", iv_parseTexture2 },
      { "ShapeHints", vrml1_parseShapeHints },
      { "MatrixTransform", vrml1_parseMatrixTransform },
      { "Scale", vrml1_parseScale },
@@ -67,6 +68,8 @@ ssgEntity *ssgLoadIV( const char *fname, const ssgLoaderOptions* options )
    if( !iv_parseSeparator( rootBranch, NULL, NULL ) )
      {
 	ulSetError ( UL_WARNING, "ssgLoadVRML: Failed to extract valid object(s) from %s", fname ) ;
+	delete( rootBranch );
+	delete( definedNodes );
 	return NULL ;
      }
    
@@ -108,7 +111,11 @@ static bool iv_parseSeparator( ssgBranch *parentBranch, _traversalState *parentD
 	     if( !strcmp( token, ivTags[i].token ) )
 	       {
 		  if( !(ivTags[i].func( currentBranch, currentData, childDefName ) ) )
-		    return FALSE;
+		    {
+		       delete( currentBranch );
+		       delete( currentData );
+		       return FALSE;
+		    }
 		  tokenFound = TRUE;
 	       }
 	     
@@ -121,10 +128,8 @@ static bool iv_parseSeparator( ssgBranch *parentBranch, _traversalState *parentD
      }
    
    parentBranch->addKid( currentBranch );
-   // todo: if this node is def'd, add it to the use list..
    
-   // delete the currentData structure (we may use its content, but not its form)
-   delete( currentData );
+   delete( currentData ); // delete the currentData structure (we may use its content, but not its form)
    
    return TRUE;
 }
@@ -166,7 +171,12 @@ static bool iv_parseSwitch( ssgBranch *parentBranch, _traversalState *parentData
 	     if( !strcmp( token, ivTags[i].token ) )
 	       {
 		  if( !(ivTags[i].func( currentBranch, currentData, childDefName ) ) )
-		    return FALSE;
+		    {
+		       delete( currentBranch );
+		       delete( currentData );
+		       return FALSE;
+		    }
+		       
 		  tokenFound = TRUE;
 	       }
 	     i++;
@@ -179,8 +189,7 @@ static bool iv_parseSwitch( ssgBranch *parentBranch, _traversalState *parentData
 
    parentBranch->addKid( currentBranch );
    
-   // delete the currentData structure (we may use its content, but not its form)
-   delete( currentData );
+   delete( currentData ); // delete the currentData structure (we may use its content, but not its form)
    
    return TRUE;
 }
@@ -212,7 +221,10 @@ static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *cu
 	  {
 	     vrmlParser.expectNextToken("coordIndex");
 	     if( !vrml1_parseCoordIndex( loaderMesh, currentData ) )
-	       return FALSE;
+	       {
+		  delete( loaderMesh );
+		  return FALSE;
+	       }	     
 	  }
 
 	else if( !strcmp( token, "textureCoordIndex" ) )
@@ -220,7 +232,10 @@ static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *cu
 	     texCoordIndexGiven = TRUE;
 	     vrmlParser.expectNextToken("textureCoordIndex");
 	     if( !vrml1_parseTextureCoordIndex( loaderMesh, currentData ) )
-	       return FALSE;
+	       {
+		  delete( loaderMesh );
+		  return FALSE;
+	       }
 	  }
 	else
 	  token = vrmlParser.getNextToken( NULL );
@@ -274,7 +289,10 @@ static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *cu
      ss->disable( GL_CULL_FACE );
    
    if( !loaderMesh->checkMe() )
-     return FALSE; 
+     {
+	delete( loaderMesh );
+	return FALSE; 
+     }
    
    if( currentData->getTransform() != NULL ) 
      {
@@ -285,6 +303,56 @@ static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *cu
  	loaderMesh->addToSSG( ss, currentOptions, currentBranch );
    
    parentBranch->addKid( currentBranch );
+   
+   return TRUE;
+}
+
+bool iv_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName )
+{
+   char *token;
+   char *fileName = NULL; bool wrapU = FALSE, wrapV = FALSE;
+
+   vrmlParser.expectNextToken("{");
+
+   token = vrmlParser.peekAtNextToken( NULL );
+   while( strcmp( token, "}" ) )
+     {
+	if( !strcmp( token, "filename") )
+	  {
+	     vrmlParser.expectNextToken("filename");
+	     if( !vrmlParser.getNextString( token, NULL ) )
+	       return FALSE;
+	     fileName = new char[ strlen( token ) + 1 ];
+	     strcpy( fileName, token );
+	  }
+	else if( !strcmp( token, "wrapS") )
+	  {
+	     vrmlParser.expectNextToken("wrapS");
+	     token = vrmlParser.getNextToken( NULL );
+	     if( !strcmp( token, "REPEAT") )
+	       wrapU = TRUE;
+	  }
+	else if( !strcmp( token, "wrapT") ) 
+	  {
+	     vrmlParser.expectNextToken("wrapT");
+	     token = vrmlParser.getNextToken( NULL );
+	     if( !strcmp( token, "REPEAT") )
+	       wrapV = TRUE;
+	  }
+	else
+	  token = vrmlParser.getNextToken( NULL );
+	
+	token = vrmlParser.peekAtNextToken( NULL );
+     }
+      
+   if( fileName == NULL )
+     return FALSE;
+   
+   ssgTexture *currentTexture = new ssgTexture( fileName, wrapU, wrapV );
+   currentData->setTexture( currentTexture );
+   vrmlParser.expectNextToken("}");
+
+   delete [] fileName;
    
    return TRUE;
 }
