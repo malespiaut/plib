@@ -393,7 +393,7 @@ else
     glut_msg="no"
 fi
 
-AC_MSG_NOTICE(
+AC_MSG_RESULT(
 [PLIB configuration information:
 
         Build FNT library:      $enable_fnt
