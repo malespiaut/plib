@@ -140,6 +140,7 @@ ssgTexture::ssgTexture ( const char *fname, int _wrapu, int _wrapv, int _mipmap 
 
 ssgTexture::~ssgTexture (void)
 {
+  setFilename ( NULL ) ;
   free_handle () ;
 }
 
