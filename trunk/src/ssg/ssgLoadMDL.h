@@ -232,7 +232,7 @@ static const acColor fsAltPalette[113] = {
 
 struct _ssgBGLOpCode {
   unsigned short opcode;
-  char           *name;
+  const char     *name;
   int            size;   /* size includes opcode (2 bytes)
 			    -1 indicates that special treatment is needed
 			    to find the size */

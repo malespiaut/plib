@@ -104,7 +104,7 @@ static char             *tex_fmt_;
 
 //===========================================================================
 
-static void initLoader()
+/*static void initLoader()
 {
   start_idx_        = 0;
   join_children_    = true;
@@ -114,7 +114,7 @@ static void initLoader()
 #ifdef EXPERIMENTAL_CULL_FACE_CODE
   curr_cull_face_   = false ;    
 #endif
-}
+}*/
 
 //===========================================================================
 
