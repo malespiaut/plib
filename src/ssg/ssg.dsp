@@ -342,6 +342,10 @@ SOURCE=.\ssgSaveTRI.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgSaveVRML1.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgSaveX.cxx
 # End Source File
 # Begin Source File

@@ -18,7 +18,7 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgLoadOBJ.cxx ssgSaveOBJ.cxx ssgVtxArray.cxx ssgLoadMD2.cxx \
 	ssgLoadMDL.cxx ssgLoadX.cxx ssgSaveX.cxx ssgLoaderWriterStuff.cxx \
 	ssgLoadFLT.cxx ssgLoadM.cxx ssgSaveM.cxx ssgLoadStrip.cxx \
-	ssgLoadOFF.cxx ssgSaveOFF.cxx ssgSaveQHI.cxx ssgLoadVRML1.cxx \
+	ssgLoadOFF.cxx ssgSaveOFF.cxx ssgSaveQHI.cxx ssgLoadVRML1.cxx ssgSaveVRML1.cxx\
 	ssgLoaderWriterStuff.h ssgMSFSPalette.h ssg3ds.h ssgLoadMDL.h \
 	ssgSave3ds.cxx ssgAxisTransform.cxx ssgLoadATG.cxx ssgSaveATG.cxx\
 	ssgLoadIV.cxx ssgLoad.cxx ssgLoadVRML.h
