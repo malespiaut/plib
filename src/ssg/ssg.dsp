@@ -234,6 +234,10 @@ SOURCE=.\ssgLoadStrip.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadTexture.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadTGA.cxx
 # End Source File
 # Begin Source File
@@ -351,10 +355,6 @@ SOURCE=.\ssgTexTrans.cxx
 # Begin Source File
 
 SOURCE=.\ssgTexture.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\ssgTextureManager.cxx
 # End Source File
 # Begin Source File
 

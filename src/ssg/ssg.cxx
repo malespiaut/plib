@@ -101,6 +101,23 @@ void ssgInit ()
 
   new ssgContext ;  /* Sets the current context with defaults */
 
+  ssgAddModelFormat ( ".3ds",   ssgLoad3ds  , ssgSave3ds ) ;
+  ssgAddModelFormat ( ".ac" ,   ssgLoadAC3D , ssgSaveAC  ) ;
+  ssgAddModelFormat ( ".ase",   ssgLoadASE  , ssgSaveASE ) ;
+  ssgAddModelFormat ( ".dxf",   ssgLoadDXF  , ssgSaveDXF ) ;
+  ssgAddModelFormat ( ".obj",   ssgLoadOBJ  , ssgSaveOBJ ) ;
+  ssgAddModelFormat ( ".ssg",   ssgLoadSSG  , ssgSaveSSG ) ;
+  ssgAddModelFormat ( ".tri",   ssgLoadTRI  , ssgSaveTRI ) ;
+  ssgAddModelFormat ( ".wrl",   ssgLoadVRML , NULL       ) ;
+  ssgAddModelFormat ( ".md2",   ssgLoadMD2  , NULL       ) ;
+  ssgAddModelFormat ( ".mdl",   ssgLoadMDL  , NULL       ) ;
+  ssgAddModelFormat ( ".x"  ,   ssgLoadX    , ssgSaveX   ) ;
+  ssgAddModelFormat ( ".flt",   ssgLoadFLT  , NULL       ) ;
+  ssgAddModelFormat ( ".strip", ssgLoadStrip, NULL       ) ;
+  ssgAddModelFormat ( ".m"  ,   ssgLoadM    , ssgSaveM   ) ;
+  ssgAddModelFormat ( ".off"  , ssgLoadOFF  , ssgSaveOFF ) ;
+  ssgAddModelFormat ( ".qhi"  , NULL        , ssgSaveQHI ) ;
+
   ssgAddTextureFormat ( ".tga" ,   ssgLoadTGA ) ;
   ssgAddTextureFormat ( ".bmp" ,   ssgLoadBMP ) ;
   ssgAddTextureFormat ( ".png" ,   ssgLoadPNG ) ;

@@ -177,7 +177,7 @@ void ssgAddTextureFormat ( const char* extension,
   }
   else
   {
-    ulSetError ( UL_WARNING, "ssgTextureManager::addFormat: too many formats" );
+    ulSetError ( UL_WARNING, "ssgAddTextureFormat: too many formats" );
   }
 }
 
@@ -207,7 +207,9 @@ bool ssgLoadTexture ( const char *fname, ssgTextureInfo* info )
     return false ;
   }
 
-  for ( _ssgTextureFormat *f = formats; f->extension != NULL; f++ )
+  _ssgTextureFormat *f = formats ;
+  for ( int i=0; i<num_formats; i++, f++ )
+  {
     if ( f->loadfunc != NULL &&
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
     {
@@ -217,38 +219,9 @@ bool ssgLoadTexture ( const char *fname, ssgTextureInfo* info )
       ssgLoadDummyTexture ( info ) ; /* fail */
       return false ;
     }
+  }
 
   ulSetError ( UL_WARNING, "ssgLoadTexture: Unrecognised file type '%s'", extn ) ;
   ssgLoadDummyTexture ( info ) ;
   return false ;
-}
-
-
-void ssgTextureArray::add ( ssgTexture* tex )
-{
-  if ( tex )
-  {
-    tex -> ref () ;
-    raw_add ( (char *) &tex ) ;
-  }
-}
-
-
-void ssgTextureArray::removeAll ()
-{
-  for ( int i = 0; i < getNum (); i++ )
-    ssgDeRefDelete ( get (i) ) ;
-  ssgSimpleList::removeAll () ;
-}
-
-
-ssgTexture* ssgTextureArray::find ( const char* fname )
-{
-  for ( int i = 0; i < getNum (); i++ )
-  {
-    ssgTexture *tex = get (i) ;
-    if ( _ssgStrEqual ( fname, tex->getFilename() ) )
-	    return tex ;
-  }
-  return NULL ;
 }

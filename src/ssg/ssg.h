@@ -538,23 +538,50 @@ public:
 
 
 class ssgTexture ;
-
-
 class ssgTextureArray : private ssgSimpleList
 {
 public:
 
-  ssgTextureArray ( int init = 3, ssgTexture** things = 0 )
-    : ssgSimpleList ( sizeof(ssgTexture*), init, (char*)things )
+  ssgTextureArray ( int init = 3 )
+    : ssgSimpleList ( sizeof(ssgTexture*), init )
   {
     //type |= SSG_TYPE_TEXTUREARRAY ;
   }
 
   int getNum (void) { return total ; }
-  ssgTexture* get ( unsigned int n ) { return *( (ssgTexture**) raw_get ( n ) ) ; }
+  ssgTexture* get ( unsigned int n )
+    { return *( (ssgTexture**) raw_get ( n ) ) ; }
   void add ( ssgTexture* thing ) ;
   void removeAll () ;
-  ssgTexture* find ( const char* fname ) ;
+  ssgTexture* findByFilename ( const char* fname ) ;
+} ;
+
+
+class ssgSimpleState ;
+class ssgSimpleStateArray : private ssgSimpleList
+{
+  void collect_recursive ( ssgEntity *e );
+
+public:
+
+  ssgSimpleStateArray ( int init = 3 )
+    : ssgSimpleList ( sizeof(ssgSimpleState*), init )
+  {
+    //type |= SSG_TYPE_SIMPLESTATEARRAY ;
+  }
+
+  int getNum (void) { return total ; }
+  ssgSimpleState* get ( unsigned int n )
+  {
+    assert(n>=0 && n<total);
+    return *( (ssgSimpleState**) raw_get ( n ) ) ;
+  }
+  void add ( ssgSimpleState* ss ) ;
+  void removeAll () ;
+  ssgSimpleState* findMatch ( ssgSimpleState* ss ) ;
+
+  void collect ( ssgEntity *e );
+	int findIndex ( ssgSimpleState* st ) ;  //returns -1 if not found
 } ;
 
 
@@ -894,39 +921,6 @@ public:
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
-
-#define MAX_STATES 1000
-
-// This class gives you a list of the unique SimpleStates in your graph.
-// It is used for stuff besides loaders (that is why it isnt in ssgLoaderWriterStuff),
-// but its main application is if you write a writer for a file format that has a material list 
-// at the start and the objects / polys come afterwards and refence the list. 
-// Have a static global variable of type CGlobalSimpleStateList,
-// at the beginning call get_states with the root node as parameter. 
-// This will create a list with the unique ssgSimpleStates. When writing the 
-// objects and polys, use find_state to get the index of the state
-// with -1 = not found. Use get_state to get the actual state.
-// At the end do a dealloc.
-
-class CGlobalSimpleStateList 
-{
-	ssgSimpleState** states ;
-	int num_states ;
-  void get_states_recursive ( ssgEntity *e );
-
-public:
-	CGlobalSimpleStateList () { states = NULL; }
-	void dealloc() {   delete[] states ;  states = 0 ;  num_states = 0 ; }
-	~CGlobalSimpleStateList () { dealloc(); }
-	
-
-	int get_num_states() { return num_states; }
-	ssgSimpleState* get_state(int i) { assert((i>=0) && (i<num_states)); return states[i]; }
-
-	int find_state ( ssgState* st );
-	void get_states ( ssgEntity *e );
-
-};
 
 
 class ssgStateSelector : public ssgSimpleState
@@ -2363,6 +2357,12 @@ ssgEntity *ssgLoadM    ( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadStrip( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadOFF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 
+
+typedef ssgEntity *ssgLoadFunc ( const char *, const ssgLoaderOptions * ) ;
+typedef int        ssgSaveFunc ( const char *, ssgEntity * ) ;
+
+void ssgAddModelFormat ( const char* extension,
+                        ssgLoadFunc *loadfunc , ssgSaveFunc  *savefunc ) ;
 
 /* For backwards compatibility */
 
