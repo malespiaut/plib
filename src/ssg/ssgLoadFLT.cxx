@@ -112,7 +112,8 @@
 # endif
 #endif
 #ifdef USE_POSIX_MMAP
-# include <sys/time.h>
+# include <time.h>
+# include <sys/time.h>   /* Need both for Mandrake 8.0 !! */
 # include <sys/stat.h>
 # include <sys/mman.h>
 #endif

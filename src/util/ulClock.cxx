@@ -32,10 +32,10 @@
   #define LARGEINTEGER _int64
 //  #include <largeint.h>
  #endif
-#include <time.h>
 #else
 #include <sys/time.h>
 #endif
+#include <time.h>
 
 #include "ul.h"
 
