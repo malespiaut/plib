@@ -250,6 +250,22 @@ Package=<4>
 
 ###############################################################################
 
+Project: "test_dir"=.\src\util\test_dir.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    test_dir
+    .\src\util
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "tux_example"=.\src\ssg\tux\tux_example.dsp - Package Owner=<4>
 
 Package=<5>
