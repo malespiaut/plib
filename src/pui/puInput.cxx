@@ -153,8 +153,6 @@ void puInput::draw ( int dx, int dy )
                   dx + abox.min[0] + xx,
                   dy + abox.min[1] + yy ) ;
 
-    draw_label ( dx, dy ) ;
-
 
     if ( accepting )
     { 
@@ -182,6 +180,8 @@ void puInput::draw ( int dx, int dy )
       }
     }
   }
+
+  draw_label ( dx, dy ) ;
 }
 
 
