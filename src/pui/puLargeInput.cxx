@@ -785,7 +785,6 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
 
       if ( ( x - length ) < ( prev_length - x ) )
         i-- ;   // Mouse is closer to previous character than next character
-      i++ ;
     }
 
     // Now process the mouse click itself.

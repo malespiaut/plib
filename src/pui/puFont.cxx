@@ -81,7 +81,7 @@ float puFont::getFloatStringWidth ( const char *str ) const
 
     if ( res > max_res ) max_res = res;
 
-    return (float) max_res ;
+    return float(max_res) ;
   }
 #endif // #ifdef _PU_USE_GLUT_FONTS
 

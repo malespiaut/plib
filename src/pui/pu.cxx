@@ -239,7 +239,6 @@ static void puCleanUpJunk ( void )
   while ( local_objects_to_delete != NULL )
   {
     puObject *next_ob = local_objects_to_delete -> getNextObject() ;
-    //if ( !local_objects_to_delete->IsItSubWidget() )
         delete local_objects_to_delete ;
     local_objects_to_delete = next_ob ;
   }
