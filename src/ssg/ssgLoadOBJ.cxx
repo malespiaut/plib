@@ -65,7 +65,6 @@
 #define MAX_LINE 100000
 #define MAX_FACE 100000
 #define MAX_VERT 100000
-#define MAX_STATES 1000
 #define MAX_MATERIALS 1000
 
 
@@ -86,9 +85,7 @@ struct matData
   sgVec4 spec ;
   float shine ;
   float trans ;
-
   char* tfname ;
-  ssgTexture* tex ;
 } ;
 
 
@@ -108,58 +105,26 @@ static sgVec3* vert_normal ;
 static int num_mat ;
 static matData* materials ;
 
-static ssgSimpleState** states ;
-static int num_states ;
-
 static ssgBranch       *current_branch   = NULL ;
 
-
-static ssgSimpleState* find_state( matData* mat )
+static ssgState* get_state( matData* mat )
 {
-  ssgTexture* tex = mat->tex ;
-  
-  for ( int i = 0 ; i < num_states ; i++ )
+  if (mat->tfname != NULL)
   {
-    ssgSimpleState *st2 = states [ i ] ;
-
-    if ( tex == NULL && st2->isEnabled ( GL_TEXTURE_2D ) )
-      continue ;
-
-    if ( tex != NULL && ! st2->isEnabled ( GL_TEXTURE_2D ) )
-      continue ;
-
-    if ( tex != NULL && tex -> getHandle() != st2 -> getTextureHandle () )
-      continue ;
-
-    if ( ! sgEqualVec4 ( mat->amb, st2->getMaterial ( GL_AMBIENT ) ) ||
-         ! sgEqualVec4 ( mat->diff, st2->getMaterial ( GL_DIFFUSE ) ) ||
-         ! sgEqualVec4 ( mat->spec, st2->getMaterial ( GL_SPECULAR ) ) ||
-         (int)( mat->trans < 0.99 ) != st2 -> isTranslucent () ||
-         mat -> shine != st2->getShininess () )
-      continue ;
-
-    return st2 ;
+    ssgState *st = ssgGetCurrentOptions () -> createState ( mat->tfname ) ;
+    if ( st != NULL )
+      return st ;
   }
 
-  if ( num_states >= MAX_STATES )
-    return 0 ;
   ssgSimpleState *st = new ssgSimpleState () ;
-  states [ num_states++ ] = st ;
-  
-  if ( tex != NULL )
-  {
-    st -> setTexture ( tex ) ;
-    st -> enable     ( GL_TEXTURE_2D ) ;
-  }
-  else
-    st -> disable    ( GL_TEXTURE_2D ) ;
 
   st -> setMaterial ( GL_AMBIENT, mat -> amb ) ;
   st -> setMaterial ( GL_DIFFUSE, mat -> diff ) ;
   st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
   st -> setShininess ( mat -> shine ) ;
 
-  st -> disable ( GL_COLOR_MATERIAL ) ;
+  st -> enable ( GL_COLOR_MATERIAL ) ;
+  st -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
 
   st -> enable  ( GL_LIGHTING       ) ;
   st -> setShadeModel ( GL_SMOOTH ) ;
@@ -174,6 +139,16 @@ static ssgSimpleState* find_state( matData* mat )
   {
     st -> disable ( GL_BLEND ) ;
     st -> setOpaque () ;
+  }
+
+  if (mat->tfname != NULL)
+  {
+    st -> setTexture( ssgGetCurrentOptions () -> createTexture(mat->tfname) ) ;
+    st -> enable( GL_TEXTURE_2D ) ;
+  }
+  else
+  {
+    st -> disable( GL_TEXTURE_2D ) ;
   }
 
   return st ;
@@ -311,10 +286,8 @@ static void load_materials ( const char* fname )
       count = sscanf ( next, "%s%n", tfname, &width ) ;
 
       if ( count == 1 && index >= 0 ) {
-        ssgGetCurrentOptions () -> makeTexturePath ( path, tfname ) ;
-        materials[ index ].tfname = new char [ strlen( path )+1 ] ;
-        strcpy ( materials[ index ].tfname, path ) ;
-        materials[ index ].tex = new ssgTexture ( path ) ;
+        materials[ index ].tfname = new char [ strlen( tfname )+1 ] ;
+        strcpy ( materials[ index ].tfname, tfname ) ;
       }
     }
   }
@@ -364,7 +337,7 @@ static void add_mesh ( int mat_index )
     if ( mat->tfname != 0 )
       st = ssgGetCurrentOptions() -> createState ( mat->tfname ) ;
     if ( st == NULL )
-      st = find_state ( mat ) ;
+      st = get_state ( mat ) ;
   }
 
   ssgVtxTable *vtab = new ssgVtxTable ( GL_TRIANGLES,
@@ -411,9 +384,6 @@ static int obj_read ( FILE *filein )
 
   num_mat = 0 ;
   materials = new matData [ MAX_MATERIALS ] ;
-
-  num_states = 0 ;
-  states = new ssgSimpleState* [ MAX_STATES ];
 
 /* 
   Read the next line of the file into INPUT. 
@@ -743,7 +713,6 @@ static int obj_read ( FILE *filein )
   }
 
   delete[] materials ;
-  delete[] states ;
   delete[] vert ;
   delete[] vert_tex ;
   delete[] vert_normal ;
