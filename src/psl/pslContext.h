@@ -63,7 +63,7 @@ public:
 
   int getLineNo () const { return line_no ; }
 
-  void printStack ( FILE *fd ) ;
+  void printStack ( FILE *fd ) const ;
 
   void pushInt    ( int              x ) { stack [ sp++ ] . set ( x ) ; }
   void pushFloat  ( float            x ) { stack [ sp++ ] . set ( x ) ; }

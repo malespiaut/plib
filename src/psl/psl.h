@@ -307,7 +307,7 @@ public:
   pslCompiler        *getCompiler   () const { return compiler   ; }
   const pslExtension *getExtensions () const { return extensions ; }
 
-  int getStackTraceFlag () { return force_stacktrace ; }
+  int getStackTraceFlag () const { return force_stacktrace ; }
 
   char *getProgName () const { return progName ; }
 

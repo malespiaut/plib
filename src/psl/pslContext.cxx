@@ -843,7 +843,7 @@ pslResult pslContext::step ()
 }
 
 
-void pslContext::printStack ( FILE *fd )
+void pslContext::printStack ( FILE *fd ) const
 {
   fprintf ( fd, "STACK [%d deep] : ", sp ) ;
 
