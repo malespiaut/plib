@@ -3,6 +3,22 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "bend"=.\src\ssg\tux\bend.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    bend
+    .\src\ssg\tux
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "complex"=.\src\pui\complex.dsp - Package Owner=<4>
 
 Package=<5>
