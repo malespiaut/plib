@@ -404,11 +404,6 @@ int slSample::loadWavFile ( char *fname )
 
       if ( getBps () == 16 )
       {
-        Ushort *b = (Ushort*) buffer ;
-
-        for ( int i = 0 ; i < length/2 ; i++ )
-          b [ i ] = (Ushort) ( (int)((short) b [ i ]) + 32768 ) ;
-
         changeToUnsigned () ;
       }
 
@@ -416,7 +411,9 @@ int slSample::loadWavFile ( char *fname )
       return SL_TRUE ;
     }
   }
-
+  
+  ulSetError ( UL_WARNING, "slSample: Premature EOF in '%s'.", fname ) ;
+  
   fclose ( fd ) ;
   return SL_FALSE ;
 }
