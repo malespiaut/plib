@@ -194,11 +194,6 @@ void pwSetCallbacks ( pwKeybdFunc *kb, pwMouseFunc *ms,
   mpCB = mp ;
   resizeCB = rcb ;
   exitCB   = ecb ? ecb : defaultExitFunc ;
-
-  glClear ( GL_COLOR_BUFFER_BIT ) ;
-  pwSwapBuffers () ;
-  glClear ( GL_COLOR_BUFFER_BIT ) ;
-  pwSwapBuffers () ;
 }
 
 
@@ -361,6 +356,11 @@ void pwInit ( int x, int y, int w, int h, int multisample,
   exitCB   = defaultExitFunc ;
 
   initialised = 1 ;
+
+  glClear ( GL_COLOR_BUFFER_BIT ) ;
+  pwSwapBuffers () ;
+  glClear ( GL_COLOR_BUFFER_BIT ) ;
+  pwSwapBuffers () ;
 }
 
 
