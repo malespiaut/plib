@@ -19,6 +19,7 @@ else
     echo "includedir changed to" $includedir "libdir is" $libdir
 fi
 
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
@@ -36,11 +37,23 @@ GL_PREFIX=$withval, GL_PREFIX=auto)
 
 if test "x$GL_PREFIX" != "xauto"; then
     LIBS="$LIBS -L$GL_PREFIX/lib"
-    CPPFLAGS="$CPPFLAGS -I$GL_PREFIX/include"
+    CXXFLAGS="$CXXFLAGS -I$GL_PREFIX/include"
 fi
 
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
+
+if test "$HOSTTYPE" = "macintosh"; then
+
+   dnl Mac OS X
+
+   dnl OpenGL libraries
+   LIBS="$LIBS -framework OpenGL -framework GLUT"
+
+   dnl Sound libraries
+   LIBS="$LIBS -framework Carbon"
+
+else
 
 AC_CANONICAL_HOST
 
@@ -105,6 +118,7 @@ dnl =========================================================
     LIBS="$LIBS $x_suffix"
 	;;
 esac
+fi
 
 dnl AC_CHECK_HEADER uses CPPFLAGS
 
@@ -129,18 +143,7 @@ AC_CHECK_HEADER(linux/joystick.h, AC_DEFINE(LINUX_JOYSTICK_IS_PRESENT))
 AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT))
 AC_CHECK_HEADER(GL/freeglut.h, AC_DEFINE(FREEGLUT_IS_PRESENT))
 
-dnl Check for audio support
-
-AM_CONDITIONAL(ENABLE_AUDIO, \
-        test -r /usr/include/soundcard.h \
-                -o -r /usr/include/linux/soundcard.h \
-                -o -r /usr/include/machine/soundcard.h \
-                -o -r /usr/include/audio.h \
-                -o "x$ac_cv_header_windows_h" = "xyes" )
-
-AM_CONDITIONAL(ENABLE_IRIX_AUDIO, test -r /usr/include/audio.h)
-
-AM_CONDITIONAL(ENABLE_WIN32_AUDIO, test "x$ac_cv_header_windows_h" = "xyes")
+unset CPPFLAGS
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
