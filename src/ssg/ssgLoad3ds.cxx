@@ -2,7 +2,7 @@
  **  ssgLoad3ds.cxx
  **  
  **  Written by Per Liedman (liedman@home.se)
- **  Last updated: 2000-09-08
+ **  Last updated: 2001-02-09
  **
  **  This was written to be a part of Stephen J Bakers
  **  PLIB (http://plib.sourceforge.net)
@@ -40,7 +40,7 @@
 /* Define DEBUG if you want debug output
    (this might be a nice way of looking at the
    structure of a 3DS file). */
-#define DEBUG 1
+/*#define DEBUG 1*/
 
 
 #ifdef DEBUG
@@ -56,7 +56,7 @@ char debug_indent[256];
 /* this is the minimum value of the dot product for
    to faces if their normals should be smoothed, if
    they don't use smooth groups. */
-float _ssg_smooth_threshold = 0.8f;
+static const float _ssg_smooth_threshold = 0.8f;
 
 // parsing functions for chunks that need separate treatment.
 static int parse_material( unsigned int length);
@@ -90,12 +90,16 @@ static int parse_frame_objname  ( unsigned int length);
 static int parse_frame_hierarchy( unsigned int length);
 static int identify_face_materials( unsigned int length );
 
+/* _ssg3dsChunk defines how a certain chunk is handled when encountered -
+   what subchunks it might have and what parse function should be used
+   for it. */
 struct _ssg3dsChunk {
   unsigned short id;
   _ssg3dsChunk *subchunks;
   int (*parse_func) ( unsigned int );
 };
 
+// following arrays define the structure of the chunks in the 3ds file.
 static _ssg3dsChunk FaceListDataChunks[] =
 { { CHUNK_SMOOLIST, NULL, parse_smooth_list             },
   { CHUNK_FACEMAT, NULL,  identify_face_materials       },
@@ -164,6 +168,9 @@ static _ssg3dsChunk ObjMeshChunks[] =
 static _ssg3dsChunk FrameChunks[] =
 { { CHUNK_FRAME_OBJNAME  , NULL, parse_frame_objname    },
   { CHUNK_FRAME_HIERARCHY, NULL, parse_frame_hierarchy  },
+//    { CHUNK_FRAME_ROTATION , NULL, parse_frame_rotation   },
+//    { CHUNK_FRAME_POSITION , NULL, parse_frame_position   },
+//    { CHUNK_FRAME_SCALE    , NULL, parse_frame_scale      },
   { 0, NULL, NULL }
 };
 
@@ -185,6 +192,8 @@ static _ssg3dsChunk TopChunk[] =
   { 0, NULL, NULL }
 };
 
+/* The material properties are temporarily stored in this structure before
+   creating ssgSimpleStates out of them. */
 struct _3dsMat {
   char *name ;
   int flags;
@@ -195,7 +204,17 @@ struct _3dsMat {
   sgVec2 tex_scale, tex_offset;
   bool wrap_s, wrap_t;
 };
+/* 
+   These are the indices used for identifying the materials colour-properties: 
+*/   
+#define _3DSMAT_AMB 0
+#define _3DSMAT_DIF 1
+#define _3DSMAT_EMI 2
+#define _3DSMAT_SPE 3
 
+
+/* Some 3ds files does not have any materials defined. This material is
+   used in that case: */
 static _3dsMat default_material= { "ssgLoad3ds default material",
 				   0,
 				   { { 1.0f, 1.0f, 1.0f },
@@ -208,11 +227,10 @@ static _3dsMat default_material= { "ssgLoad3ds default material",
 				   {1.0f, 1.0f}, {0.0f, 0.0f},
 				   false, false };
 
-#define _3DSMAT_AMB 0
-#define _3DSMAT_DIF 1
-#define _3DSMAT_EMI 2
-#define _3DSMAT_SPE 3
-
+/* A _ssg3dsStructureNode holds a mesh or a transformation node. All
+   geometry is collected into structure nodes before actually being assembled
+   into the scene-graph, since the hierarchy information is at the end of the
+   3ds file. */
 struct _ssg3dsStructureNode {
   _ssg3dsStructureNode() {
     id     = -1;
@@ -225,17 +243,39 @@ struct _ssg3dsStructureNode {
   _ssg3dsStructureNode *next;
 };
 
-static _ssg3dsStructureNode *object_list            = NULL;
-static short current_structure_id                   = -1;
-
 static _ssg3dsStructureNode *findStructureNode( char  *name );
 static _ssg3dsStructureNode *findStructureNode( short id    );
 
-static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length);
+static int  parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length);
 static void add_leaf( _3dsMat *material, int listed_faces, 
 		      unsigned short *face_indices );
 
-FILE *model;
+/* Each vertex in a mesh has a face list associated with it, which
+   contains all faces that use this vertex. This list is used when
+   smoothing normals, since the adjacent faces of each vertex is needed. */
+struct _ssg3dsFaceList {
+  int             face_index;
+  _ssg3dsFaceList *next;
+};
+
+static _ssg3dsFaceList *addFaceListEntry( _ssg3dsFaceList *face_list, 
+					  int face_index ) {
+  _ssg3dsFaceList *new_entry = new _ssg3dsFaceList;
+  new_entry -> face_index = face_index;
+  new_entry -> next = face_list;    
+
+  return new_entry;
+}
+
+static void freeFaceList( _ssg3dsFaceList *face_list ) {
+  for (_ssg3dsFaceList *i = face_list, *temp = NULL; i != NULL; i = temp) {
+    temp = i -> next;
+    delete i;
+  }
+}
+
+// globals
+static FILE *model;
 
 static int num_objects, num_materials, num_textures;
 static int double_sided;     // is there some double sided material?
@@ -248,6 +288,7 @@ static _3dsMat **materials, *current_material;
 
 static unsigned short *vertex_index, *normal_index, num_vertices, num_faces;
 static unsigned int  *smooth_list;
+static _ssg3dsFaceList **face_lists;
 
 static ssgTransform *current_transform;
 
@@ -257,6 +298,9 @@ static sgVec2 *texcrd_list;
 static int smooth_found, facemat_found;
 
 static int colour_mode;
+
+static _ssg3dsStructureNode *object_list            = NULL;
+static short current_structure_id                   = -1;
 
 // convenient functions
 static unsigned char get_byte() {
@@ -280,6 +324,9 @@ static char* get_string() {
 
   return s;
 }
+
+//==========================================================
+// STRUCTURE NODE FUNCTIONS
 
 static _ssg3dsStructureNode *findStructureNode( char *name ) {
   for (   _ssg3dsStructureNode *n = object_list; n != NULL; n = n->next ) {
@@ -536,12 +583,21 @@ static void free_trimesh()
   if (vertex_index)
     delete [] vertex_index;
 
-  vertex_list = NULL;
-  face_normals = NULL;
+  if (face_lists) {
+    for (int i = 0; i < num_vertices; i++) {
+      freeFaceList( face_lists[i] );
+    }
+
+    delete [] face_lists;
+  }
+
+  vertex_list    = NULL;
+  face_normals   = NULL;
   vertex_normals = NULL;
-  texcrd_list = NULL;
-  smooth_list = NULL;
-  vertex_index = NULL;
+  texcrd_list    = NULL;
+  smooth_list    = NULL;
+  vertex_index   = NULL;
+  face_lists     = NULL;
 }
 
 static int parse_trimesh( unsigned int length ) {
@@ -577,6 +633,7 @@ static int parse_trimesh( unsigned int length ) {
 static int parse_vert_list( unsigned int length ) {
   num_vertices = ulEndianReadLittle16(model);
   vertex_list = new sgVec3[num_vertices];
+  face_lists = new _ssg3dsFaceList*[num_vertices];
 
   DEBUGPRINT("%sReading %d vertices.%s%s\n", num_vertices, "", "");
 
@@ -584,6 +641,8 @@ static int parse_vert_list( unsigned int length ) {
     vertex_list[i][0] = ulEndianReadLittleFloat(model);
     vertex_list[i][1] = ulEndianReadLittleFloat(model);
     vertex_list[i][2] = ulEndianReadLittleFloat(model);
+
+    face_lists [i]    = NULL;
   }
 
   return PARSE_OK;
@@ -603,44 +662,35 @@ static int parse_smooth_list( unsigned int length )
   return PARSE_OK;
 }
 
-static void smooth_normals( int use_smooth_list )
-{
-  int i, j;
+static void smooth_normals( int use_smooth_list ) {
+  for (int i = 0; i < num_faces; i++) {
+    for (int j = 0; j < 3; j++) {
+      int nindex = i * 3 +j;
+      int vindex = vertex_index[ nindex ];
+      sgCopyVec3( vertex_normals[nindex], face_normals[i] );
 
-  for (i = 0; i < num_faces; i++) {
-    int v1 = i * 3     ;
-    int v2 = i * 3 + 1 ;
-    int v3 = i * 3 + 2 ;
+      // find all faces containing vertex vindex
+      for ( _ssg3dsFaceList *l = face_lists[vindex]; l != NULL; l = l->next ) {
+	int findex = l -> face_index;
 
-    sgZeroVec3( vertex_normals[v1] );
-    sgZeroVec3( vertex_normals[v2] );
-    sgZeroVec3( vertex_normals[v3] );
-
-    for (j = 0; j < num_faces; j++) {
-      int should_smooth;
-
-      if (use_smooth_list) {
-        should_smooth = (smooth_list[i] & smooth_list[j]);
-      } else {
-	float scalar = sgScalarProductVec3( face_normals[i], face_normals[j] );
-        should_smooth = ( scalar > _ssg_smooth_threshold );
+	if ( findex != i ) {
+	  int should_smooth;	  
+	  if (use_smooth_list) {
+	    should_smooth = (smooth_list[i] & smooth_list[findex]);
+	  } else {
+	    float scalar = sgScalarProductVec3( face_normals[i], 
+						face_normals[findex] );
+	    should_smooth = ( scalar > _ssg_smooth_threshold );
+	  }
+	  
+	  if (should_smooth) {
+	    sgAddVec3( vertex_normals[nindex], face_normals[findex] );
+	  }
+	}
       }
 
-      if (should_smooth) {
-        // now we have to know if the faces shares vertices
-        for (int a = v1; a < v1 + 3; a++) {
-          for (int b = j * 3; b < j * 3 + 3; b++) {
-            if (vertex_index[a] == vertex_index[b]) {
-              sgAddVec3( vertex_normals[a], face_normals[j] );
-            }
-          }
-        }
-      }
+      sgNormaliseVec3( vertex_normals[nindex] );
     }
-
-    sgNormaliseVec3( vertex_normals[v1] );
-    sgNormaliseVec3( vertex_normals[v2] );
-    sgNormaliseVec3( vertex_normals[v3] );
   }
 }
 
@@ -665,9 +715,17 @@ static int parse_face_list( unsigned int length ) {
   vertex_normals = new sgVec3[num_faces * 3];
 
   for (i = 0; i < num_faces; i++) {
-    vertex_index[i*3    ] = ulEndianReadLittle16(model);
-    vertex_index[i*3 + 1] = ulEndianReadLittle16(model);
-    vertex_index[i*3 + 2] = ulEndianReadLittle16(model);
+    int v1 = ulEndianReadLittle16(model);
+    int v2 = ulEndianReadLittle16(model);
+    int v3 = ulEndianReadLittle16(model);
+    vertex_index[i*3    ] = v1;
+    vertex_index[i*3 + 1] = v2;
+    vertex_index[i*3 + 2] = v3;
+
+    face_lists[ v1 ] = addFaceListEntry( face_lists[ v1 ], i );
+    face_lists[ v2 ] = addFaceListEntry( face_lists[ v2 ], i );
+    face_lists[ v3 ] = addFaceListEntry( face_lists[ v3 ], i );
+
     unsigned short flags  = ulEndianReadLittle16(model);
 
     if (flags & 7 == 0) {     // Triangle vertices order should be swapped
@@ -936,6 +994,7 @@ static int parse_version( unsigned int length ) {
 // KEYFRAME CHUNK PARSER
 
 static int parse_frame( unsigned int length ) {
+  // this chunk is not used for anything right now
 #ifdef DEBUG
   DEBUGPRINT("%sFrame start: %d, end: %d%s\n",
 	     ulEndianReadLittle32(model), ulEndianReadLittle32(model), "");
@@ -948,6 +1007,13 @@ static int parse_frame( unsigned int length ) {
 }
 
 static int parse_frame_objname( unsigned int length ) {
+  /* This chunk defines a hierarchy elements name and its parent object's
+     identifier. 
+
+     This function assumes that the hierarchy is defined from
+     root to leaf, i.e. a nodes parent must have been declared before the
+     node itself is declared. */
+
   char *objname = get_string();
   ulEndianReadLittle16(model);
   ulEndianReadLittle16(model);
@@ -1083,11 +1149,12 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   unsigned long size = ftell(model);
   rewind(model);
 
-  num_objects = num_materials = num_textures = 0;
-  object_list = NULL;
-  vertex_list = NULL;
-  texcrd_list = NULL;
+  num_objects  = num_materials = num_textures = 0;
+  object_list  = NULL;
+  vertex_list  = NULL;
+  texcrd_list  = NULL;
   face_normals = NULL;
+  face_lists   = NULL;
   vertex_index = normal_index = NULL;
   top_object = new ssgBranch();
 
