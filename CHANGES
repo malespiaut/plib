@@ -2,9 +2,12 @@
 PLIB Change Log.
 ================
 
-PLIB v1.3.2 (???? 2000)
+PLIB v1.3.2 (June 13th 2001)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
+  * This CHANGES file has regrettably not been well maintained,
+    hence there a numerous changes not listed here.
+
   * File loaders now require app to pass 'ssgLoaderOptions'
     rather than other ad-hoc callback function hooks.
 
