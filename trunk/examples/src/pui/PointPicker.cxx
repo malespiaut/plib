@@ -343,7 +343,7 @@ int main ( int argc, char **argv )
   point_no = new puInput ( 150, 60, 240, 80 ) ;
   point_no->setValuator ( &picked_point ) ;
   point_no->setLabel ( "Point Number" ) ;
-  point_no->setLabelPlace ( PUPLACE_LEFT ) ;
+  point_no->setLabelPlace ( PUPLACE_LOWER_LEFT ) ;
   point_no->setCallback ( point_no_up_cb ) ;
   point_no->setActiveCallback ( point_no_active_cb ) ;
   point_no->setDownCallback ( point_no_down_cb ) ;

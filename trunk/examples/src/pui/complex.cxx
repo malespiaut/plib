@@ -505,14 +505,14 @@ int main ( int argc, char **argv )
   rspeedSlider->setCBMode( PUSLIDER_DELTA );
   rspeedSlider->setCallback(sliderCB);
   rspeedSlider->setLabel ( "Speed" ) ;
-  rspeedSlider->setLabelPlace ( PUPLACE_BELOW ) ;
+  rspeedSlider->setLabelPlace ( PUPLACE_BOTTOM_LEFT ) ;
 
   directSlider = new puSlider (80,30,150,TRUE);
   directSlider->setDelta(0.1);
   directSlider->setCBMode( PUSLIDER_DELTA );
   directSlider->setCallback(sliderCB);
   directSlider->setLabel ( "Direction" ) ;
-  directSlider->setLabelPlace ( PUPLACE_BELOW ) ;
+  directSlider->setLabelPlace ( PUPLACE_BOTTOM_LEFT ) ;
 
   slider_group -> close () ;
 
@@ -560,7 +560,7 @@ int main ( int argc, char **argv )
 //  x_coordinate->setCBMode( PUSLIDER_DELTA );
   x_coordinate->setCallback(coordCB);
   x_coordinate->setLabel ( "X-coords" ) ;
-  x_coordinate->setLabelPlace ( PUPLACE_TOP_CENTER ) ;
+  x_coordinate->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
 
   y_coordinate = new puTriSlider (200,30,350,TRUE);
   y_coordinate->setMinValue ( -20 ) ;
@@ -573,7 +573,7 @@ int main ( int argc, char **argv )
 //  y_coordinate->setCBMode( PUSLIDER_DELTA );
   y_coordinate->setCallback(coordCB);
   y_coordinate->setLabel ( "Y-coords" ) ;
-  y_coordinate->setLabelPlace ( PUPLACE_BOTTOM_CENTER ) ;
+  y_coordinate->setLabelPlace ( PUPLACE_BOTTOM_CENTERED ) ;
 
   coordinate_group -> close () ;
 
