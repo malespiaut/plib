@@ -255,7 +255,9 @@ void puGroup::draw ( int dx, int dy )
      * correctly.
      */
 
-    if ( bo->getType() & PUCLASS_MENUBAR )
+    if ( ( bo -> getType () & PUCLASS_MENUBAR ) &&
+         ( bo -> getWindow () == puGetWindow () ) )
+
     {
       int obWidth, obHeight ;
       bo -> getSize ( &obWidth, &obHeight ) ;
