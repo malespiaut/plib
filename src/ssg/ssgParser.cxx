@@ -255,6 +255,28 @@ char *mystrchr( const char *string, int c )
 		return strchr( string, c );
 }
 
+
+// gets the next line (no matter where it is), without tokenizing it
+// useful for parsing text-formatted files which are identified by
+// comments at the very beginning
+char* _ssgParser::getRawLine()
+// return NULL on eof
+{
+   tokbuf[0]=0;
+   
+   //get the next line with something on it
+   if ( fgets ( linebuf, sizeof(linebuf), fileptr ) == NULL )
+     { 
+	eol = TRUE;
+	eof = TRUE;
+	return(0) ;
+     }
+   
+   memcpy( tokbuf, linebuf, sizeof(linebuf) ) ;
+
+   return tokbuf;
+}
+
 // wk: This works and is IMHO robust.
 // However, I feel it could be smaller, more elegant and readable.
 char* _ssgParser::getLine( int startLevel )

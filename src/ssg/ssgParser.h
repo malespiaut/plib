@@ -77,8 +77,8 @@ public :
 // ************************** line-by-line API **************************
   int level;
 
-  char* getLine( int startLevel=0 ); // may return NULL
-
+   char* getLine( int startLevel=0 ); // may return NULL
+   char* getRawLine();
 	// All the name -parameters are only for error-messages
 
 	// The parse... - functions get the next token from the current line

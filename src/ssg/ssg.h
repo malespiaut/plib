@@ -2503,6 +2503,7 @@ ssgEntity *ssgLoadM    ( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadStrip( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadOFF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadATG  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadVRML( const char *fname, const ssgLoaderOptions* options = NULL ) ;
 
 
 typedef ssgEntity *ssgLoadFunc ( const char *, const ssgLoaderOptions * ) ;

@@ -92,7 +92,7 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
    } 
    else if ( node->isAKindOf( ssgTypeBranch() ) ) {
       ssgBranch *b_node = (ssgBranch*)node;
-      for (ssgEntity* kid = b_node->getKid(0); kid != NULL; 
+      for (ssgEntity* kid = b_node->getKid(0); kid != NULL;
 	   kid = b_node->getNextKid()) {
 	 ssgAccumVerticesAndFaces( kid, transform, vertices, indices, epsilon, ssa, materialIndices, texCoordArray);
       }    
@@ -463,7 +463,7 @@ void ssgLoaderWriterMesh::reInit(void) // was: ReInit
    theVertices = NULL ; 
    materialIndices = NULL ; 
    theFaces = NULL ;
-   perFaceAndVertexTextureCoordinates2 = NULL ;
+   perFaceAndVertexTextureCoordinate2Lists = NULL ;
    theMaterials	= NULL ;
    perVertexTextureCoordinates2 = NULL ;
    textureCoordinatesArePerVertex = TRUE ;
@@ -490,8 +490,20 @@ void ssgLoaderWriterMesh::createVertices( int numReservedVertices ) // was: Ther
 
 void ssgLoaderWriterMesh::addVertex( sgVec3 v ) 
 {
-	assert(theVertices!=NULL);
+	assert( theVertices!=NULL );
 	theVertices->add ( v );
+}
+
+void ssgLoaderWriterMesh::setVertices( class ssgVertexArray *vertexArray )
+{
+   assert( theVertices == NULL );
+   theVertices = vertexArray;
+}
+
+void ssgLoaderWriterMesh::setPerVertexTextureCoordinates2( class ssgTexCoordArray *texCoordArray )
+{
+   assert( perVertexTextureCoordinates2 == NULL );
+   perVertexTextureCoordinates2 = texCoordArray;
 }
 
 void ssgLoaderWriterMesh::createFaces( int numReservedFaces ) // was: ThereAreNFaces
@@ -502,7 +514,7 @@ void ssgLoaderWriterMesh::createFaces( int numReservedFaces ) // was: ThereAreNF
 
 void ssgLoaderWriterMesh::addFace( ssgIndexArray **indexArray ) 
 {
-	assert(theFaces!=NULL);
+	assert( theFaces!=NULL );
 	theFaces->add ( (ssgSimpleList **)indexArray );
 }
 
@@ -519,14 +531,14 @@ void ssgLoaderWriterMesh::addFaceFromIntegerArray( int numVertices, int *vertice
 
 void ssgLoaderWriterMesh::createPerFaceAndVertexTextureCoordinates2( int numReservedTextureCoordinateLists ) // was: ThereAreNTCPFAV
 {
-   assert( perFaceAndVertexTextureCoordinates2 == NULL );
-   perFaceAndVertexTextureCoordinates2 = new ssgListOfLists( numReservedTextureCoordinateLists );
+   assert( perFaceAndVertexTextureCoordinate2Lists == NULL );
+   perFaceAndVertexTextureCoordinate2Lists = new ssgListOfLists( numReservedTextureCoordinateLists );
 }
 
 void ssgLoaderWriterMesh::addPerFaceAndVertexTextureCoordinate2( ssgTexCoordArray **textureCoordinates2 ) // was: addTCPFAV
 {
-   assert( perFaceAndVertexTextureCoordinates2 != NULL );
-   perFaceAndVertexTextureCoordinates2->add ( (ssgSimpleList **)textureCoordinates2 );
+   assert( perFaceAndVertexTextureCoordinate2Lists != NULL );
+   perFaceAndVertexTextureCoordinate2Lists->add( (ssgSimpleList **)textureCoordinates2 );
 }
 
 void ssgLoaderWriterMesh::createPerVertexTextureCoordinates2( int numReservedTextureCoordinates )
@@ -585,7 +597,7 @@ static void recalcNormals( ssgIndexArray* indexList, ssgVertexArray* vertexList,
       sgCopyVec3( normalList->get( indices[1] ), n );
       sgCopyVec3( normalList->get( indices[2] ), n );
    }
-}
+ }
 
 // addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates: this function replicates each vertex (based on face usage) and
 // assigns the appropriate texture coordinates to them (based on the per-face texture indices)
@@ -611,7 +623,7 @@ void ssgLoaderWriterMesh::addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2
      perVertexTextureCoordinates2->add( unUsed ); 
    for( i=0; i<theFaces->getNum(); i++)
      {
-	class ssgIndexArray *oneFace = *((class ssgIndexArray **) theFaces->get( i )); 
+	class ssgIndexArray *oneFace = *((class ssgIndexArray **) theFaces->get( i ));
 	class ssgTexCoordArray *textureCoordsForOneFace = *( (ssgTexCoordArray **) thePerFaceAndVertexTextureCoordinates2->get( i ) );
 	if ( textureCoordsForOneFace != NULL ) // It is allowed that some or even all faces are untextured.
 	  {
@@ -652,7 +664,7 @@ void ssgLoaderWriterMesh::addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2
 	       }
 	  }
      }
-   addOneNodeToSSGFromPerVertexTextureCoordinates2(theVertices, perVertexTextureCoordinates2, theFaces, currentState, 
+   addOneNodeToSSGFromPerVertexTextureCoordinates2(theVertices, perVertexTextureCoordinates2, theFaces, currentState,
 						  current_options, curr_branch_);
 }
 
@@ -746,10 +758,10 @@ void ssgLoaderWriterMesh::addToSSG(
 #endif
    if ( theMaterials == NULL )
 	{ 
-	   if ( perFaceAndVertexTextureCoordinates2 == NULL )
+	   if ( perFaceAndVertexTextureCoordinate2Lists == NULL )
 	     addOneNodeToSSGFromPerVertexTextureCoordinates2( theVertices, perVertexTextureCoordinates2 /* may be NULL */, theFaces, currentState, current_options, curr_branch_);
 	   else
-	     addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2(theVertices, perFaceAndVertexTextureCoordinates2, theFaces, currentState, 
+	     addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2(theVertices, perFaceAndVertexTextureCoordinate2Lists, theFaces, currentState, 
 				     current_options, curr_branch_);
 	}
    else
@@ -763,11 +775,11 @@ void ssgLoaderWriterMesh::addToSSG(
 	     class ssgVertexArray *newVertices = new ssgVertexArray ( theVertices->getNum() );
 	     class ssgListOfLists *newFaces = new ssgListOfLists ( theFaces->getNum() );
 	     class ssgIndexArray *oldVertexIndexToNewVertexIndex = new ssgIndexArray ( theVertices->getNum() ); 
-	     class ssgListOfLists *newPerFaceAndVertexTextureCoordinates2 = NULL;
+	     class ssgListOfLists *newPerFaceAndVertexTextureCoordinate2Lists = NULL;
 	     class ssgTexCoordArray *newPerVertexTextureCoordinates2 = NULL;
 	     
-	     if(  perFaceAndVertexTextureCoordinates2 != NULL )
-	       newPerFaceAndVertexTextureCoordinates2 = new ssgListOfLists();
+	     if(  perFaceAndVertexTextureCoordinate2Lists != NULL )
+	       newPerFaceAndVertexTextureCoordinate2Lists = new ssgListOfLists();
 	     if ( perVertexTextureCoordinates2 != NULL )
 	       newPerVertexTextureCoordinates2 = new ssgTexCoordArray();
 	     
@@ -792,8 +804,8 @@ void ssgLoaderWriterMesh::addToSSG(
 		    newFaces->add( (class ssgSimpleList **)&thisFace); 
 		    //thisFace = *((class ssgIndexArray **) newFaces->get( newFaces->getNum()-1 )); 
 		    
-		    if( perFaceAndVertexTextureCoordinates2 != NULL )
-		      newPerFaceAndVertexTextureCoordinates2 ->add( perFaceAndVertexTextureCoordinates2 -> get( j ) );
+		    if( perFaceAndVertexTextureCoordinate2Lists != NULL )
+		      newPerFaceAndVertexTextureCoordinate2Lists ->add( perFaceAndVertexTextureCoordinate2Lists -> get( j ) );
 					 
 		    for( k=0; k < thisFace->getNum(); k++ )
 		      { 
@@ -835,11 +847,11 @@ void ssgLoaderWriterMesh::addToSSG(
 	     if ( newFaces->getNum() > 0 )
 	       {
 		  currentState = *theMaterials->get(i);
-		  if ( perFaceAndVertexTextureCoordinates2 == NULL )
+		  if ( perFaceAndVertexTextureCoordinate2Lists == NULL )
 		    // FixMe: textureCoordinatePerVertex-indices are not compatible to newVertices-indices?!?
 		    addOneNodeToSSGFromPerVertexTextureCoordinates2( newVertices, newPerVertexTextureCoordinates2 /* may be NULL */, newFaces, currentState, current_options, curr_branch_);
 		  else
-		    addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2(newVertices, newPerFaceAndVertexTextureCoordinates2, newFaces, currentState, 
+		    addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2(newVertices, newPerFaceAndVertexTextureCoordinate2Lists, newFaces, currentState, 
 					    current_options, curr_branch_);
 	       }
 	  }
@@ -862,7 +874,7 @@ int ssgLoaderWriterMesh::checkMe()
 	if ( theVertices == NULL )
 	{ if (( materialIndices == NULL ) &&
 	      (theFaces == NULL ) &&
-	      ( perFaceAndVertexTextureCoordinates2 == NULL ))
+	      ( perFaceAndVertexTextureCoordinate2Lists == NULL ))
        {	ulSetError( UL_DEBUG, "LoaderWriterMesh::checkMe(): The mesh is empty\n");
 	  return TRUE;
        }
@@ -916,17 +928,17 @@ int ssgLoaderWriterMesh::checkMe()
 	}
    // **** check textureCoordinates *****
    // Each sublist is of type ssgTexCoordArray and contains the texture coordinates
-	if ( perFaceAndVertexTextureCoordinates2 != NULL ) // may be NULL
-	{ if ( theFaces->getNum() != perFaceAndVertexTextureCoordinates2->getNum())
+	if ( perFaceAndVertexTextureCoordinate2Lists != NULL ) // may be NULL
+	{ if ( theFaces->getNum() != perFaceAndVertexTextureCoordinate2Lists->getNum())
 		{	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): "
 		              "There must be as many faces in theFaces as in textureCoordinates. But "
 		              "theFaces->getNum() =%d, tCPFAV->getNum() = %d!\n",
-									theFaces->getNum(), perFaceAndVertexTextureCoordinates2->getNum());
+									theFaces->getNum(), perFaceAndVertexTextureCoordinate2Lists->getNum());
 			return FALSE;
 		}
-		for(i=0;i<perFaceAndVertexTextureCoordinates2->getNum();i++)
+		for(i=0;i<perFaceAndVertexTextureCoordinate2Lists->getNum();i++)
 		{
-		   textureCoordsForOneFace = *((ssgTexCoordArray **) perFaceAndVertexTextureCoordinates2->get ( i ));
+		   textureCoordsForOneFace = *((ssgTexCoordArray **) perFaceAndVertexTextureCoordinate2Lists->get ( i ));
 		   if ( textureCoordsForOneFace  != NULL ) // It is allowed that some or even all faces are untextured.
 		     {
 			vertexIndsForOneFace = *((ssgIndexArray **) theFaces->get ( i ));
