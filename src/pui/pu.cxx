@@ -249,9 +249,9 @@ void puInit ( void )
 
     // No GLUT fonts, try some corresponding "fnt" fonts
 
-    static fntTexFont typewriter  ( "c:/plib/examples/src/fnt/data/typewriter.txf" ) ;
-    static fntTexFont times_roman ( "c:/plib/examples/src/fnt/data/times_bold.txf" ) ;
-    static fntTexFont helvetica   ( "c:/plib/examples/src/fnt/data/helvetica_bold.txf" ) ;
+    static fntTexFont typewriter  ( "typewriter.txf" ) ;
+    static fntTexFont times_roman ( "times_bold.txf" ) ;
+    static fntTexFont helvetica   ( "helvetica_bold.txf" ) ;
 
     PUFONT_8_BY_13.initialize        ( &typewriter, 13 ) ;
     PUFONT_9_BY_15.initialize        ( &typewriter, 15 ) ;
@@ -261,36 +261,6 @@ void puInit ( void )
     PUFONT_HELVETICA_12.initialize   ( &helvetica, 12 ) ;
     PUFONT_HELVETICA_18.initialize   ( &helvetica, 18 ) ;
 
-    /* Create bitmaps for the device context font's first 256 glyphs */
-
-//    fontBase = glGenLists(256);
-//    assert(fontBase);
-//    HDC hdc = wglGetCurrentDC();
-
-    /* Make the system font the device context's selected font */
-
-//    SelectObject (hdc, GetStockObject (SYSTEM_FONT)); 
-
-//    int *tempSize = &fontSize[1];
-
-//    if ( ! GetCharWidth32 ( hdc, 1, 255, tempSize ) &&
-//         ! GetCharWidth   ( hdc, 1, 255, tempSize ) )
-//    {
-//      LPVOID lpMsgBuf ;
-
-//      FormatMessage ( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-//                      FORMAT_MESSAGE_FROM_SYSTEM,
-//                      NULL,
-//                      GetLastError(),
-//                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-//                      (LPTSTR) &lpMsgBuf,
-//                      0, NULL ) ;
-
-//      ulSetError ( UL_WARNING, "PUI: Error: %s", (char *)lpMsgBuf ) ;
-//      LocalFree ( lpMsgBuf ) ;
-//    }
-
-//    wglUseFontBitmaps ( hdc, 0, 256, fontBase ) ;
 #endif
   }
 }
