@@ -1883,17 +1883,18 @@ enum {
 };
 
 typedef ssgState *(*ssgAppStateFunc)(char*) ;
-typedef ssgLeaf *(*ssgCreateLeafFunc)(ssgLeaf*,const char*,const char*) ;
+typedef ssgLeaf *(*ssgCreateLeafFunc)(ssgLeaf*,const char*) ;
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
+typedef ssgTexture *(*ssgCreateTextureFunc)(char*,int,int,int) ;
 
 class ssgLoaderOptions
 {
   ssgAppStateFunc app_state_cb ;
   ssgCreateLeafFunc create_leaf_cb ;
   ssgHookFunc hook_cb ;
+  ssgCreateTextureFunc create_texture_cb ;
 
   //NOTES: we could add more later
-  //...pointer to ssgTexture creation callback...
   //...model scale factor...
   //...create normals or read them from the file?...
   //...cutoff angle for smooth shading where there isn`t one in the file format...
@@ -1901,17 +1902,22 @@ class ssgLoaderOptions
   //...etc...
 
   ssgLeaf* defaultCreateLeaf ( ssgLeaf* leaf,
-    const char* tfname, const char* parent_name ) const ;
+			       const char* parent_name ) const ;
+  ssgTexture *defaultCreateTexture ( char *tfname, 
+				     int wrapu, int wrapv,
+				     int mipmap ) const ;
 
 public:
   ssgLoaderOptions (
-      ssgAppStateFunc   _app_state_cb,
-      ssgCreateLeafFunc _create_leaf_cb = 0,
-      ssgHookFunc       _hook_cb = 0
+      ssgAppStateFunc      _app_state_cb,
+      ssgCreateLeafFunc    _create_leaf_cb = 0,
+      ssgHookFunc          _hook_cb = 0,
+      ssgCreateTextureFunc _create_texture_cb = 0
     ) :
-    app_state_cb    ( _app_state_cb ),
-    create_leaf_cb  ( _create_leaf_cb ),
-    hook_cb         ( _hook_cb )
+    app_state_cb      ( _app_state_cb ),
+    create_leaf_cb    ( _create_leaf_cb ),
+    hook_cb           ( _hook_cb ),
+    create_texture_cb ( _create_texture_cb )
   {}
 
   void setAppStateCallback ( ssgAppStateFunc cb )
@@ -1927,13 +1933,22 @@ public:
       return NULL ;
   }
 
-  ssgLeaf* createLeaf ( ssgLeaf* leaf,
-    const char* tfname, const char* parent_name ) const
+  ssgLeaf* createLeaf ( ssgLeaf* leaf, const char* parent_name ) const
   {
     if ( create_leaf_cb )
-      return (*create_leaf_cb)(leaf,tfname,parent_name) ;
+      return (*create_leaf_cb)(leaf,parent_name) ;
     else
-      return defaultCreateLeaf(leaf,tfname,parent_name) ;
+      return defaultCreateLeaf(leaf,parent_name) ;
+  }
+
+  ssgTexture* createTexture ( char* tfname, 
+			      int wrapu  = TRUE, int wrapv = TRUE, 
+			      int mipmap = TRUE ) const
+  {
+    if ( create_texture_cb )
+      return (*create_texture_cb)(tfname, wrapu, wrapv, mipmap) ;
+    else
+      return defaultCreateTexture(tfname, wrapu, wrapv, mipmap) ;
   }
 
   ssgHookFunc getHookFunc () const
@@ -1951,12 +1966,12 @@ public:
 
   void begin () const
   {
-    createLeaf ( 0, 0, 0 ) ;
+    createLeaf ( 0, 0 ) ;
   }
 
   void end () const
   {
-    createLeaf ( 0, 0, 0 ) ;
+    createLeaf ( 0, 0 ) ;
   }
 } ;
 

@@ -174,6 +174,13 @@ static ssgSimpleState* get_state( aseMaterial* mat )
     st -> setOpaque () ;
   }
 
+  if (mat -> tfname != NULL) {
+    st -> setTexture( current_options -> createTexture(mat->tfname) ) ;
+    st -> enable( GL_TEXTURE_2D );
+  } else {
+    st -> disable( GL_TEXTURE_2D );
+  }
+
   return st ;
 }
 
@@ -712,7 +719,7 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
     vl, nl, tl, cl, il ) ;
   leaf -> setCullFace ( TRUE ) ;
   leaf -> setState ( st ) ;
-  return current_options -> createLeaf ( leaf, mat -> tfname, mesh_name ) ;
+  return current_options -> createLeaf ( leaf, mesh_name ) ;
 }
 
 

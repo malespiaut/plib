@@ -520,6 +520,15 @@ static ssgSimpleState *get_state( _3dsMat *mat ) {
     st -> setOpaque () ;
   }
 
+  if (mat -> tex_name != NULL) {
+    st -> setTexture( current_options -> createTexture(mat->tex_name,
+						       mat->wrap_s, 
+						       mat->wrap_t) ) ;
+    st -> enable( GL_TEXTURE_2D );
+  } else {
+    st -> disable( GL_TEXTURE_2D );
+  }
+
   return st ;
 }
 
@@ -861,7 +870,7 @@ static void add_leaf( _3dsMat *material, int listed_faces,
   vtab -> setState ( get_state( material ) ) ;
   vtab -> setCullFace ( TRUE ) ;
 
-  ssgLeaf* leaf = current_options -> createLeaf ( vtab, material -> tex_name, 0 ) ;
+  ssgLeaf* leaf = current_options -> createLeaf ( vtab, 0 ) ;
 
   if ( leaf )
     current_transform -> addKid( leaf );

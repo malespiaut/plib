@@ -257,26 +257,6 @@ static void _ssgShareReset ()
    num_shared_states = 0 ;
 }
 
-static GLuint _ssgShareTexture ( char* tfname )
-{
-  if ( tfname == NULL || tfname[0] == 0 )
-     return 0 ;
-
-  for ( int i = 0 ; i < num_shared_textures ; i++ )
-  {
-    ssgTexture *tex = shared_textures [ i ] ;
-    if ( _ssgStrEqual ( tfname, tex->getFilename () ) )
-      return tex -> getHandle () ;
-  }
-
-  ssgTexture* tex = new ssgTexture ( tfname ) ;
-  if ( tex && num_shared_textures < MAX_SHARED_TEXTURES )
-     shared_textures [ num_shared_textures++ ] = tex ;
-  if ( tex )
-    return tex -> getHandle () ;
-  return 0 ;
-}
-
 static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
 {
   if ( st == NULL )
@@ -335,7 +315,7 @@ static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
 }
 
 ssgLeaf* ssgLoaderOptions::defaultCreateLeaf ( ssgLeaf* leaf,
-  const char* tfname, const char* parent_name ) const
+					       const char* parent_name ) const
 {
   /* is this just a sharing 'reset' */
   if ( leaf == NULL )
@@ -344,51 +324,55 @@ ssgLeaf* ssgLoaderOptions::defaultCreateLeaf ( ssgLeaf* leaf,
      return NULL ;
   }
 
-  /* custom state create function?? */
-  if ( tfname != NULL && tfname[0] != 0 )
-  {
-    ssgState *st = createState ( (char*)tfname ) ;
-    if ( st != NULL )
-    {
-      leaf -> setState ( st ) ;
-      return leaf ;
-    }
-  }
-
   /* do we have a texture filename? */
   ssgState* st = leaf -> getState () ;
-  if ( st != NULL && tfname != NULL && tfname[0] != 0 )
+  if ( st != NULL )
   {
     assert ( st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) ) ;
     ssgSimpleState *ss = (ssgSimpleState*) st ;
 
-    char filename [ 1024 ] ;
-    _ssgMakePath ( filename, _ssgTexturePath, tfname ) ;
-
-    /*
-    load the texture
-    */
-    GLuint texture_handle = _ssgShareTexture ( filename ) ;
-    if ( texture_handle )
-    {
-      /* Don't change the order of these two statements! */
-      ss -> setTexture         ( texture_handle ) ;
-      ss -> setTextureFilename ( filename ) ;
-
-      ss -> enable ( GL_TEXTURE_2D ) ;
+    if ( ss -> getTextureFilename() != NULL ) {
+      st = createState( ss -> getTextureFilename() ) ;
+      if ( st != NULL ) {
+	leaf -> setState( st ) ;
+	ss = NULL;
+      }
     }
-    else
-      ss -> disable ( GL_TEXTURE_2D ) ;
 
-    ss = _ssgShareState ( ss ) ;
-    if ( ss != NULL )
-      leaf -> setState ( ss ) ;
+    if (ss != NULL) {
+      ss = _ssgShareState ( ss ) ;
+      if ( ss != NULL )
+	leaf -> setState ( ss ) ;
+    }
   }
 
   return leaf ;
 }
 
-ssgLoaderOptions _ssgDefaultOptions ( NULL, NULL, NULL ) ;
+ssgTexture* ssgLoaderOptions::defaultCreateTexture ( char* tfname,
+						     int wrapu,
+						     int wrapv,
+						     int mipmap ) const
+{
+  char filename [ 1024 ] ;
+  _ssgMakePath ( filename, _ssgTexturePath, tfname ) ;
+
+  for ( int i = 0 ; i < num_shared_textures ; i++ )
+  {
+    ssgTexture *tex = shared_textures [ i ] ;
+    if ( _ssgStrEqual ( filename, tex->getFilename () ) )
+      return tex ;
+  }
+
+  ssgTexture* tex = new ssgTexture ( filename, wrapu, wrapv, mipmap ) ;
+  if ( tex && num_shared_textures < MAX_SHARED_TEXTURES )
+     shared_textures [ num_shared_textures++ ] = tex ;
+  if ( tex )
+    return tex ;
+  return 0 ;
+}
+
+ssgLoaderOptions _ssgDefaultOptions ( NULL, NULL, NULL, NULL ) ;
 
 void ssgModelPath ( const char *s )
 {
