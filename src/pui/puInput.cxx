@@ -34,24 +34,32 @@ static char *chop_to_width ( puFont fnt, const char *s, int width, int cursor_po
   int n = 0 ;
   int w ;
 
-  do
+  if ( new_len == 0 )
   {
-    memcpy ( res, s + n, new_len + 1 ) ;
-    n++ ;
-    new_len -- ;
-    w = fnt.getStringWidth ( res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
-  } while ( ( w >= width ) && ( n < cursor_position - 1 ) ) ;
-
-  if ( ncut != NULL ) *ncut = n - 1 ;
-
-  n = 0 ;
-
-  while ( w >= width )
+    *res = '\0' ;
+    if ( ncut != NULL ) *ncut = 0 ;
+  }
+  else
   {
-    res[new_len] = '\0' ;
-    n++ ;
-    new_len -- ;
-    w = fnt.getStringWidth ( res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
+    do
+    {
+      memcpy ( res, s + n, new_len + 1 ) ;
+      n++ ;
+      new_len -- ;
+      w = fnt.getStringWidth ( res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
+    } while ( ( w >= width ) && ( n < cursor_position - 1 ) ) ;
+
+    if ( ncut != NULL ) *ncut = n - 1 ;
+
+    n = 0 ;
+
+    while ( w >= width )
+    {
+      res[new_len] = '\0' ;
+      n++ ;
+      new_len -- ;
+      w = fnt.getStringWidth ( res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
+    }
   }
 
   return res ;
