@@ -1,21 +1,21 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
@@ -29,6 +29,8 @@
 //  - basic types
 //  - error message routines
 //  - high performance clocks
+//  - ulList
+//  - ulLinkedList
 //  - more to come (endian support, version ID)
 //
 
@@ -612,6 +614,7 @@ public:
 
 #endif /* if defined(WIN32) */
 
+
 class ulList
 {
 protected:
@@ -659,11 +662,74 @@ public:
 } ;
 
 
+typedef bool (*ulIterateFunc)( const void *data ) ;
+typedef int  (*ulCompareFunc)( const void *data1, const void *data2 ) ;
+
+/*
+  Linked list.
+*/
+
+class ulListNode ;
+
+class ulLinkedList
+{
+protected:
+
+  ulListNode *head ;
+  ulListNode *tail ;
+
+  int nnodes ;
+  bool sorted ;
+
+  void unlinkNode ( ulListNode *prev, ulListNode *node ) ;
+
+  bool isValidPosition ( int pos ) const
+  {
+    if ( ( pos < 0 ) || ( pos >= nnodes ) )
+    {
+      ulSetError ( UL_WARNING, "ulLinkedList: Invalid 'pos' %u", pos ) ;
+      return false ;
+    }
+    return true ;
+  }
+
+public:
+
+  ulLinkedList ()
+  {
+    head = tail = NULL ;
+    nnodes = 0 ;
+    sorted = true ;
+  }
+
+  ~ulLinkedList () { empty () ; }
+
+  int  getNumNodes ( void ) const { return nnodes ; }
+  bool isSorted    ( void ) const { return sorted ; }
+
+  int  getNodePosition ( void *data ) const ;
+
+  void insertNode ( void *data, int pos ) ;
+  void prependNode ( void *data ) { insertNode ( data, 0 ) ; }
+  void appendNode ( void *data ) ;
+
+  int  insertSorted ( void *data, ulCompareFunc comparefn ) ;
+
+  void removeNode ( void *data ) ;
+  void * removeNode ( int pos ) ;
+
+  void * getNodeData ( int pos ) const ;
+
+  void forEach ( ulIterateFunc fn ) const ;
+
+  void empty ( ulIterateFunc destroyfn = NULL ) ;
+} ;
+
+
 extern int ulStrNEqual ( const char *s1, const char *s2, int len );
 extern int ulStrEqual ( const char *s1, const char *s2 );
 
 //lint -restore
 
 #endif
-
 
