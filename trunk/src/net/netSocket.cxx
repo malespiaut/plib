@@ -29,6 +29,7 @@
 #  include <netinet/in.h>
 #endif
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <time.h>
@@ -42,10 +43,6 @@
 #include <winsock.h>
 #include <stdarg.h>
 
-#endif
-
-#if !defined(STDC_HEADERS) && !defined(socklen_t)
-#define socklen_t int
 #endif
 
 /* Paul Wiltsey says we need this for Solaris 2.8 */
