@@ -102,7 +102,6 @@
                      +PLIB_MINOR_VERSION*10 \
                      +PLIB_TINY_VERSION)
 
-
 /* SGI machines seem to suffer from a lack of FLT_EPSILON so... */
 
 #ifndef FLT_EPSILON
