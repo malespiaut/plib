@@ -69,12 +69,14 @@ mechanisms.
     |    |__ class ssgNormalArray
     |    |__ class ssgTexCoordArray
     |    |__ class ssgColourArray
+    |    |__ class ssgIndexArray
     |
     |__ class ssgEntity
     |    |
     |    |__ class ssgLeaf
-    |    |    |__ class ssgVTable
+    |    |    |__ class ssgVTable (deprecated)
     |    |    |__ class ssgVtxTable
+    |    |          |__ class ssgVtxArray
     |    |
     |    |__ class ssgBranch
     |         |__ class ssgRoot
@@ -109,51 +111,56 @@ states and textures to customise SSG to their needs.
 <H2><code>class ssgBase</code> - The Universal Abstract Base Class.</H2>
 All significant SSG classes are derived from ssgBase - which offers a type testing
 mechanism and a means to print out the tree hierarchy in human-readable form,
-or to save it to disk.
+or to save/load it to/from disk.
 <pre>
 
 class ssgBase 
 {
   void  ref () ;
   void  deRef () ;
-  int   getRef () ;
+  int     getRef () ;
 
-  int   isA        ( int ty ) ;
+  int   isA ( int ty ) ;
   int   isAKindOf  ( int ty ) ;
 
-  int   getType    (void) ;
+  int   getType (void) ;
   virtual char *getTypeName(void) ;
 
-  char *getUserData () ;
+  ssgBase *getUserData () ;
   void  setUserData ( ssgBase *user_data ) ;
+
   void  setName ( char *nm ) ;
   char *getName () ;
+  const char *getPrintableName () ;
 
   virtual void print ( FILE *fd = stderr ) ;
-  virtual void save  ( FILE *fd = stderr ) ;
+  virtual int load ( FILE *fd ) ;
+  virtual int save  ( FILE *fd = stderr ) ;
 
   ssgBase *clone ( int clone_flags ) ;
-} ;
+}  ;
 
 </pre>
 
 <H3>Reference Counting.</H3>
 All SSG classes are reference counted - that means that whenever you
-connect a node into the scene graph, we increment its reference
-count and each time we remove a node from the graph, we decrement
-the count - and if it's zero, we'll delete the node to recover
-memory.
+connect a node into the scene graph with <code>ssgBranch::addKid()</code>, we
+increment its reference count and each time we remove a node from
+the graph with <code>ssgBranch::removeKid()</code>, we decrement the count -
+and if it's zero, we'll delete the node to recover memory.
 <p>
 Sometimes, you need a node to stay in memory even though it may be
 be disconnected from the scene graph. You can achieve that by
-calling <code>ssgBase::ref()</code> to increment the reference count. If you later find
-you don't need that node anymore then you may <code>ssgBase::deRef()</code> it. If you
-<code>ssgBase::deRef()</code> a node to zero, SSG won't automatically delete it - you
-still need to use <code>delete</code> to do that. The only time SSG will
-automatically delete a node when that node is removed from the scene
-graph and the ref count is decremented to zero. Since such deletions
-are recursive, you may delete an entire sub-branch with a single
-call.
+calling <code>ssgBase::ref()</code> to increment the reference count.
+If you later find you don't need that node anymore then you may
+<code>ssgBase::deRef()</code> it. If you <code>ssgBase::deRef()</code>
+a node to zero, SSG won't automatically delete it - you still need to use
+<code>delete</code> to do that.  Since such deletions are recursive,
+you may delete an entire sub-branch with a single call.
+<p>
+Instead of using <code>ssgBase::deRef()</code> directly, you should use
+<code>ssgDeRefDelete()</code> which automatically deletes the node if
+the reference count drops to zero.
 <p>
 You can read the current ref count for a node
 using <code>ssgBase::getRef()</code>.
