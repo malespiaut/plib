@@ -1253,14 +1253,14 @@ public:
 
   int isSelected ( unsigned int i )
   {
-    return (i<max_kids) ? selection [ i ] : FALSE ;
+    return (i<(unsigned int)max_kids) ? selection [ i ] : FALSE ;
   }
 
   int getFirstSelection ()
   {
     int res ;
 
-    for ( res = 0 ; res < max_kids && ! selection[i] ; res++ )
+    for ( res = 0 ; res < max_kids && ! selection[res] ; res++ )
       /* Look for first selection */ ;
 
     return ( res < max_kids ) ? res : -1 ;
