@@ -217,7 +217,7 @@ void init_graphics ()
     Set up some fog
   */
 
-  glFogf ( GL_FOG_DENSITY, 0.015 / 100.0f ) ;
+  glFogf ( GL_FOG_DENSITY, 0.015f / 100.0f ) ;
   glFogfv( GL_FOG_COLOR  , fogcol    ) ;
   glFogf ( GL_FOG_START  , 0.0       ) ;
   glFogi ( GL_FOG_MODE   , GL_EXP2   ) ;

@@ -602,13 +602,13 @@ static void droplet_create ( SPS *, int, ssgaParticle *p )
   float c = ((float)(rand()%100)/100.0f) * (256.0f-163.0f)/255.0f ;
 
   sgSetVec4 ( p -> col, 96.0f/255.0f+c, 147.0f/255.0f+c, 163.0f/255.0f+c, 0.5);
-  sgSetVec3 ( p -> pos, -2.4, -0.1, 1.9 ) ;
+  sgSetVec3 ( p -> pos, -2.4f, -0.1f, 1.9f ) ;
   sgSetVec3 ( p -> vel, 
              -(float)(rand()%1000)/200.0f,
               (float)(rand()%1000 - 500)/400.0f,
               (float)(rand()%1000)/1000.0f + 3.0f ) ;
   sgAddScaledVec3 ( p -> pos, p -> vel, (float)(rand()%1000)/20000.0f ) ;
-  sgSetVec3 ( p -> acc, 0, 0, -9.8 ) ;
+  sgSetVec3 ( p -> acc, 0, 0, -9.8f ) ;
   p -> time_to_live = 1 ;
 }
 
@@ -681,14 +681,14 @@ void load_database ()
 
   init_states () ;
 
-  sgVec4  TRANSLUCENT_WHITE  = { 1.0, 1.0, 1.0, 0.8 } ;
+  sgVec4  TRANSLUCENT_WHITE  = { 1.0f, 1.0f, 1.0f, 0.8f } ;
   sgVec3  pos    = { 0, 0, 0 } ;
   sgCoord pedpos = { { 0, 0, -1.5 }, { 0, 0, 0 } } ;
 
   /* Create a the scene content.  */
 
   fountain = new ssgaParticleSystem ( 1000, 100, 500, TRUE,
-                                      0.2, 1000,
+                                      0.2f, 1000,
                                       droplet_create ) ;
   fountain -> setState ( splash_state ) ;
 
@@ -775,7 +775,7 @@ void init_gui ()
 
   puSetDefaultFonts        ( *sorority, *sorority ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
-  puSetDefaultColourScheme ( 0.2, 0.5, 0.2, 0.5 ) ;
+  puSetDefaultColourScheme ( 0.2f, 0.5f, 0.2f, 0.5f ) ;
 
   puGroup *window_group = new puGroup ( 0, 0 ) ;
 
