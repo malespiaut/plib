@@ -213,6 +213,56 @@ to all model or texture file names.
   void ssgTexturePath ( char *path ) ;
 
 </pre>
+The texturepath may contain several command characters. For a complete
+doc, see the util-library-doc on <code>ulFindFile</code>. Hiere are two examples:
+<BR><BR>
+$(APOM);$(APOM)/texture;$(APOM)/../texture
+<BR><BR>
+looks into three directories, seperated by ";". APOM is replaced by the 
+actual path the model is in (NOT the path from ssgModelPath!).
+If, for example, you are loading your model from /ppe/data/mdl/navion/model, and 
+the texture filename is wing.rgb, then plib would look in these places for the file and use
+the first one it finds:
+<BR><BR>
+/ppe/data/mdl/navion/model/wing.rgb
+<BR>
+/ppe/data/mdl/navion/model/texture/wing.rgb
+<BR>
+/ppe/data/mdl/navion/texture/wing.rgb
+<BR><BR>
+Another example: You have all your textures sorted into in a directory-structure 
+under /raumplan, then use "/raumplan/$(...)" as ssgTexturePath.
+
+<p>
+
+Some loaders for file formats that use texture formats not 
+supported by ssg use this functions to find textures:
+<pre>
+void ssgFindOptConvertTexture( char * filepath, char * tfname ) 
+</pre>
+It finds and optionally (= if necessary) converts the texture.
+This is only really implemented for Windo$ :-(, for all others it
+should just be the two lines you will find in the comment. I didn't
+test it, that's the reason I commented it out. But it will warn you
+when you have to convert something, so even for non-Windo$-users the
+new function is already a step forward.
+For the actual conversion, at first I wanted to use GIMP. So, in Deja,
+I looked for "+gimp +convert +batch" and similar strings. I found 
+several people asking, but almost all the answer were to use
+ImageMagick instead. ImageMagick is free as in beer. Also, the docs I
+got with the newest gimp is extremely sparse :-(. Therefore, I tried
+ImageMagick and this worked straight away. You should find ImageMagick
+under
+<p>
+http://www.wizards.dupont.com/cristy/ImageMagick.html
+<p>
+Plib uses the ImageMagick application "convert". Since there are other
+convert.exe-programs on my computer, I had to copy the ImageMagick
+stuff into the directory of my plib-application, so that it uses the correct
+convert.exe.
+<p>
+
+
 Most file formats contain considerable numbers of redundant 
 nodes (because of the way people build using these tools).
 This function walks a database sub-tree multiplying
