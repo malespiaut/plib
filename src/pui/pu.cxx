@@ -105,6 +105,38 @@ static void puDrawCursor ( int x, int y )
 }
 
 
+// Pointer to linked list of objects to delete
+// as a result of keyboarding or mouse clicking
+
+static puObject *objects_to_delete = NULL;
+
+
+void puDeleteObject ( puObject *ob )
+{
+  puGroup *parent = ob->getParent () ;
+  
+  if ( parent != ob && parent != NULL )   // Remove from parent interface
+    parent -> remove ( ob ) ;
+  
+  ob -> prev = NULL ;                       // Add to linked list to be deleted
+  ob -> next = objects_to_delete ;
+  objects_to_delete = ob ;
+  ob -> setParent ( NULL ) ;
+}
+
+
+static void puCleanUpJunk ()
+{
+  // Step through the linked list of objects to delete, removing them.
+  while ( objects_to_delete != NULL )
+  {
+    puObject *next_ob = objects_to_delete ->next ;
+    delete objects_to_delete ;
+    objects_to_delete = next_ob ;
+  }
+}
+
+
 void puInit ( void )
 {
   static int firsttime = TRUE ;
@@ -192,6 +224,8 @@ static void puRestoreOpenGLState ( void )
 
 void  puDisplay ( void )
 {
+  puCleanUpJunk () ;
+
   puSetOpenGLState () ;
   puGetUltimateLiveInterface () -> draw ( 0, 0 ) ;
 
@@ -204,9 +238,14 @@ void  puDisplay ( void )
   puRestoreOpenGLState () ;
 }
 
+
 int puKeyboard ( int key, int updown )
 {
-  return puGetBaseLiveInterface () -> checkKey ( key, updown ) ;
+  int return_value = puGetBaseLiveInterface () -> checkKey ( key, updown ) ;
+  
+  puCleanUpJunk () ;
+  
+  return return_value ;
 }
 
 
@@ -214,32 +253,41 @@ static int last_buttons = 0 ;
 int puMouse ( int button, int updown, int x, int y )
 {
   puCursor ( x, y ) ;
-
+  
   int h = puGetWindowHeight () ;
-
+  
   if ( updown == PU_DOWN )
     last_buttons |=  ( 1 << button ) ;
   else
     last_buttons &= ~( 1 << button ) ;
-
-  return puGetBaseLiveInterface () -> checkHit ( button, updown, x,
-                                 h - y ) ;
+  
+  int return_value =  puGetBaseLiveInterface () -> checkHit ( button,
+    updown, x, h - y ) ;
+  
+  puCleanUpJunk () ;
+  
+  return return_value ;
 }
+
 
 int puMouse ( int x, int y )
 {
   puCursor ( x, y ) ;
-
+  
   if ( last_buttons == 0 )
     return FALSE ;
-
-  int button = (last_buttons & (1<<PU_LEFT_BUTTON  )) ?  PU_LEFT_BUTTON   :
-               (last_buttons & (1<<PU_MIDDLE_BUTTON)) ?  PU_MIDDLE_BUTTON :
-               (last_buttons & (1<<PU_RIGHT_BUTTON )) ?  PU_RIGHT_BUTTON  : 0 ;
-
+  
+  int button =
+    (last_buttons & (1<<PU_LEFT_BUTTON  )) ?  PU_LEFT_BUTTON   :
+    (last_buttons & (1<<PU_MIDDLE_BUTTON)) ?  PU_MIDDLE_BUTTON :
+    (last_buttons & (1<<PU_RIGHT_BUTTON )) ?  PU_RIGHT_BUTTON  : 0 ;
+  
   int h = puGetWindowHeight () ;
-
-  return puGetBaseLiveInterface () -> checkHit ( button, PU_DRAG, x,
-                                 h - y ) ;
+  
+  int return_value = puGetBaseLiveInterface () -> checkHit ( button,
+    PU_DRAG, x, h - y ) ;
+  
+  puCleanUpJunk () ;
+  
+  return return_value ;
 }
-

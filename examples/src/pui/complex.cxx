@@ -11,7 +11,7 @@
 #include <GL/glut.h>
 #include <plib/pu.h>
 
-#define VOODOO 1
+//#define VOODOO 1
 
 /***********************************\
 *                                   *
@@ -21,7 +21,6 @@
 
 puMenuBar   *main_menu_bar ;
 puButton    *hide_menu_button ;
-int          delete_the_dialog_box_please = FALSE ;
 puDialogBox *dialog_box ;
 puText      *dialog_box_message ;
 puOneShot   *dialog_box_ok_button ;
@@ -171,15 +170,6 @@ static void displayfn (void)
   time_t t = time ( NULL ) ;
   timer_text -> setLabel ( ctime ( & t ) ) ;
 
-  /* Can we delete the dialog box now? */
-
-  if ( delete_the_dialog_box_please )
-  {
-    delete dialog_box ;
-    dialog_box = NULL ;
-    delete_the_dialog_box_please = FALSE ;
-  }
-
   /* Make PUI redraw */
 
   puDisplay () ;
@@ -215,18 +205,10 @@ void hide_menu_cb ( puObject *cb )
 
 void go_away_cb ( puObject * )
 {
-  /*
-    Delete the dialog box when its 'OK' button is pressed.
+  // Delete the dialog box when its 'OK' button is pressed.
 
-    Doing a 'delete dialox_box' here seems to crash on MSVC
-    compilers - probably because dialog_box's member function
-    is indirectly calling this function. Hence we return to
-    something that is in a distinctly 'iffy' state.
-
-    So, we'll set a flag and delete it later when it's safe.
-  */
-
-  delete_the_dialog_box_please = TRUE ;
+  puDeleteObject( dialog_box ) ;
+  dialog_box = NULL ;
 }
 
 void mk_dialog ( char *txt )

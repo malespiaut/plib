@@ -300,6 +300,7 @@ int   puKeyboard       ( int key, int updown ) ;
 void  puHideCursor     ( void ) ;
 void  puShowCursor     ( void ) ;
 int   puCursorIsHidden ( void ) ;
+void  puDeleteObject   ( puObject *ob ) ;
 
 /*
   Some deprecated functions for backwards compatibility...
@@ -522,6 +523,7 @@ public:
   virtual void draw ( int dx, int dy ) = 0 ;
 
   puGroup     *getParent     ( void ) { return parent ; }
+  void        setParent      ( puGroup* p ) { parent = p ; }
   puObject    *getNextObject ( void ) { return next   ; }
   puObject    *getPrevObject ( void ) { return prev   ; }
 
