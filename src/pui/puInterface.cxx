@@ -55,7 +55,10 @@ void  puPopLiveInterface ( puInterface *in )
       {
         /* Handle interfaces that are buried in the stack */
         while ( i < currLiveInterface )
-          liveInterfaceStack [ i ] = liveInterfaceStack [ ++i ] ;
+        {
+          liveInterfaceStack [ i ] = liveInterfaceStack [ i+1 ] ;
+          i++ ;
+        }
 
         --currLiveInterface ;
 
