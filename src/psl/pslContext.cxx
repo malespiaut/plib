@@ -24,19 +24,19 @@
 
 #include "pslLocal.h"
 
-PSL_Result PSL_Context::step ()
+pslResult pslContext::step ()
 {
   switch ( code [ pc ] )
   {
     case OPCODE_PUSH_CONSTANT :
       {
-        PSL_Variable ff ;
+        pslVariable ff ;
 
-        memcpy ( & ff, & code [ pc+1 ], sizeof(PSL_Variable) ) ;
+        memcpy ( & ff, & code [ pc+1 ], sizeof(pslVariable) ) ;
 
         pushVariable ( ff ) ;
 
-        pc += sizeof(PSL_Variable) + 1 ;
+        pc += sizeof(pslVariable) + 1 ;
       }
       return PSL_PROGRAM_CONTINUE ;
 
@@ -58,7 +58,7 @@ PSL_Result PSL_Context::step ()
                                           extensions [ ext ] . symbol ) ;
         }
 
-        PSL_Variable argv [ MAX_ARGS ] ;
+        pslVariable argv [ MAX_ARGS ] ;
 
         /* Pop args off the stack in reverse order */
 
@@ -77,7 +77,7 @@ PSL_Result PSL_Context::step ()
 
     case OPCODE_RETURN :
       {
-        PSL_Variable result = popVariable () ;
+        pslVariable result = popVariable () ;
         pc = popInt () ;
         pushVariable ( result ) ;
       }

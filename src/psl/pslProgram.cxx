@@ -24,33 +24,33 @@
 
 #include "pslLocal.h"
 
-PSL_Program::PSL_Program ( PSL_Extension *ext )
+pslProgram::pslProgram ( pslExtension *ext )
 {
-  code = new PSL_Opcode [ MAX_CODE ] ;
+  code = new pslOpcode [ MAX_CODE ] ;
 
   extensions = ext ;
 
-  parser  = new PSL_Parser  ( code, ext ) ;
-  context = new PSL_Context ( this ) ;
+  parser  = new pslParser  ( code, ext ) ;
+  context = new pslContext ( this ) ;
 
   parser  -> init  () ;
   context -> reset () ;
 }
  
 
-PSL_Program::PSL_Program ( PSL_Program *src )
+pslProgram::pslProgram ( pslProgram *src )
 {
   code       = src -> getCode       () ;
   parser     = src -> getParser     () ;
   extensions = src -> getExtensions () ;
   userData   = src -> getUserData   () ;
 
-  context = new PSL_Context ( this ) ;
+  context = new pslContext ( this ) ;
   context -> reset () ;
 }
  
 
-PSL_Program::~PSL_Program ()
+pslProgram::~pslProgram ()
 {
   delete parser ;
   delete context ;
@@ -58,16 +58,16 @@ PSL_Program::~PSL_Program ()
 }
 
 
-void       PSL_Program::dump  () const {        parser  -> dump  () ; }
-void       PSL_Program::reset ()       {        context -> reset () ; }
-PSL_Result PSL_Program::step  ()       { return context -> step  () ; }
+void       pslProgram::dump  () const {        parser  -> dump  () ; }
+void       pslProgram::reset ()       {        context -> reset () ; }
+pslResult  pslProgram::step  ()       { return context -> step  () ; }
 
-int        PSL_Program::parse ( const char *fname )
+int        pslProgram::parse ( const char *fname )
 {
   return parser -> parse(fname) ;
 }
 
-int        PSL_Program::parse ( FILE *fd )
+int        pslProgram::parse ( FILE *fd )
 {
   return parser -> parse( fd  ) ;
 }

@@ -25,26 +25,26 @@
 #include "pslLocal.h"
 
 
-int PSL_Parser::pushPrimitive ()
+int pslParser::pushPrimitive ()
 {
   char c [ MAX_TOKEN ] ;
-  PSL_GetToken ( c ) ;
+  pslGetToken ( c ) ;
 
   if ( c [ 0 ] == '(' )
   {
     if ( ! pushExpression () )
     {
       ulSetError ( UL_WARNING, "PSL: Missing expression after '('" ) ;
-      PSL_UngetToken ( c ) ;
+      pslUngetToken ( c ) ;
       return FALSE ;
     }
 
-    PSL_GetToken ( c ) ;
+    pslGetToken ( c ) ;
 
     if ( c [ 0 ] != ')' )
     {
       ulSetError ( UL_WARNING, "PSL: Missing ')' (found '%s')", c );
-      PSL_UngetToken ( c ) ;
+      pslUngetToken ( c ) ;
       return FALSE ;
     }
 
@@ -57,7 +57,7 @@ int PSL_Parser::pushPrimitive ()
       return TRUE ;
     else
     {
-      PSL_UngetToken ( c ) ;
+      pslUngetToken ( c ) ;
       return FALSE ;
     }
   }
@@ -71,7 +71,7 @@ int PSL_Parser::pushPrimitive ()
     }
     else
     {
-      PSL_UngetToken ( c ) ;
+      pslUngetToken ( c ) ;
       return FALSE ;
     }
   }
@@ -85,8 +85,8 @@ int PSL_Parser::pushPrimitive ()
   if ( isalpha ( c [ 0 ] ) || c [ 0 ] == '_' )
   {
     char n [ MAX_TOKEN ] ;
-    PSL_GetToken ( n ) ;
-    PSL_UngetToken ( n ) ;
+    pslGetToken ( n ) ;
+    pslUngetToken ( n ) ;
 
     if ( n[0] == '(' )
       pushFunctionCall ( c ) ;
@@ -96,13 +96,13 @@ int PSL_Parser::pushPrimitive ()
     return TRUE ;
   }
 
-  PSL_UngetToken ( c ) ;
+  pslUngetToken ( c ) ;
   return FALSE ;
 }
 
 
 
-int PSL_Parser::pushMultExpression ()
+int pslParser::pushMultExpression ()
 {
   if ( ! pushPrimitive () )
     return FALSE ;
@@ -111,11 +111,11 @@ int PSL_Parser::pushMultExpression ()
   {
     char c [ MAX_TOKEN ] ;
 
-    PSL_GetToken ( c ) ;
+    pslGetToken ( c ) ;
 
     if ( c [ 0 ] != '*' && c [ 0 ] != '/' )
     {
-      PSL_UngetToken ( c ) ;
+      pslUngetToken ( c ) ;
       return TRUE ;
     }
 
@@ -132,7 +132,7 @@ int PSL_Parser::pushMultExpression ()
 
 
 
-int PSL_Parser::pushAddExpression ()
+int pslParser::pushAddExpression ()
 {
   if ( ! pushMultExpression () )
     return FALSE ;
@@ -141,11 +141,11 @@ int PSL_Parser::pushAddExpression ()
   {
     char c [ MAX_TOKEN ] ;
 
-    PSL_GetToken ( c ) ;
+    pslGetToken ( c ) ;
 
     if ( c [ 0 ] != '+' && c [ 0 ] != '-' )
     {
-      PSL_UngetToken ( c ) ;
+      pslUngetToken ( c ) ;
       return TRUE ;
     }
 
@@ -162,7 +162,7 @@ int PSL_Parser::pushAddExpression ()
 
 
 
-int PSL_Parser::pushRelExpression ()
+int pslParser::pushRelExpression ()
 {
   if ( ! pushAddExpression () )
     return FALSE ;
@@ -171,20 +171,20 @@ int PSL_Parser::pushRelExpression ()
   {
     char c [ MAX_TOKEN ] ;
 
-    PSL_GetToken ( c ) ;
+    pslGetToken ( c ) ;
 
     if ( c [ 0 ] != '<' &&
          c [ 0 ] != '>' &&
          c [ 0 ] != '!' &&
          c [ 0 ] != '=' )
     {
-      PSL_UngetToken ( c ) ;
+      pslUngetToken ( c ) ;
       return TRUE ;
     }
 
     char c2 [ MAX_TOKEN ] ;
 
-    PSL_GetToken ( c2 ) ;
+    pslGetToken ( c2 ) ;
 
     if ( c2 [ 0 ] == '=' )
     {
@@ -192,11 +192,11 @@ int PSL_Parser::pushRelExpression ()
       c[2] = '\0' ;
     }
     else
-      PSL_UngetToken ( c2 ) ;
+      pslUngetToken ( c2 ) ;
 
     if (( c [ 0 ] == '!' || c [ 0 ] == '=' ) && c [ 1 ] != '=' )
     {
-      PSL_UngetToken ( c2 ) ;
+      pslUngetToken ( c2 ) ;
       return TRUE ;
     }
 
@@ -227,7 +227,7 @@ int PSL_Parser::pushRelExpression ()
 }
 
 
-int PSL_Parser::pushExpression ()
+int pslParser::pushExpression ()
 {
   return pushRelExpression () ;
 }
