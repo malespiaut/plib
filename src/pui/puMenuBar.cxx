@@ -3,10 +3,54 @@
 
 void puMenuBar_drop_down_the_menu ( puObject *b )
 {
+  // Inputs:  b = pointer to the button on the menu which has been pushed
+  // p = pointer to the popup menu which is b's submenu
+
   puPopupMenu *p = (puPopupMenu *) b -> getUserData () ;
 
   if ( b -> getValue () )
-    p->reveal () ;
+  {
+    p->reveal () ;   // Reveal the submenu
+
+    // If the parent floats in its own window, and the submenu drops off the window,
+    // expand the window to fit.
+
+#ifndef PU_NOT_USING_GLUT
+    puGroup *parent = p -> getParent () ;
+
+    if ( ( parent != parent -> getParent () ) && parent -> getFloating () )
+    {
+      int temp_window = puGetWindow () ;
+      glutSetWindow ( parent -> getWindow () ) ;
+
+      puBox *par_box = parent -> getBBox () ;
+      puBox *cur_box = p -> getBBox () ;
+      int x_min = (cur_box->min[0] < 0) ? par_box->min[0] + cur_box->min[0] : par_box->min[0] ;
+      int x_max = (par_box->max[0] > par_box->min[0] + cur_box->max[0]) ?
+                                    par_box->max[0] : par_box->min[0] + cur_box->max[0] ;
+      int y_min = (cur_box->min[1] < 0) ? par_box->min[1] + cur_box->min[1] : par_box->min[1] ;
+      int y_max = (par_box->max[1] > par_box->min[1] + cur_box->max[1]) ?
+                                    par_box->max[1] : par_box->min[1] + cur_box->max[1] ;
+      int x_siz = glutGet ( GLUT_WINDOW_WIDTH ) ;
+      int y_siz = glutGet ( GLUT_WINDOW_HEIGHT ) ;
+      if ( x_siz < (x_max - x_min) ) x_siz = x_max - x_min ;    // Adjust the present size
+      if ( y_siz < (y_max - y_min) ) y_siz = y_max - y_min ;
+
+      int x_pos = glutGet ( GLUT_WINDOW_X ) ;
+      int y_pos = glutGet ( GLUT_WINDOW_Y ) ;
+
+      glutReshapeWindow ( x_siz, y_siz ) ;
+      glutPositionWindow ( x_pos + x_min, y_pos ) ;
+
+      x_min = par_box->min[0] - x_min ;
+      y_min = y_siz - ( par_box->max[1] - par_box->min[1] ) ;
+
+      parent -> setPosition ( x_min, y_min ) ;
+
+      glutSetWindow ( temp_window ) ;
+    }
+#endif
+  }
   else
     p->hide () ;
 
