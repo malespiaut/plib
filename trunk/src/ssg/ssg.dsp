@@ -226,15 +226,15 @@ SOURCE=.\ssgLoadMD2.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgLoadMDL_BGLTexture.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\ssgLoadMDL.cxx
 # End Source File
 # Begin Source File
 
 SOURCE=.\ssgLoadMDL.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgLoadMDL_BGLTexture.cxx
 # End Source File
 # Begin Source File
 
@@ -323,6 +323,10 @@ SOURCE=.\ssgSave3ds.cxx
 # Begin Source File
 
 SOURCE=.\ssgSaveAC.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveASC.cxx
 # End Source File
 # Begin Source File
 
