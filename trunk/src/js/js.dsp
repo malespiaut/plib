@@ -53,7 +53,8 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy  js.h ..\..\js.h
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy js.h ..\..\js.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "js - Win32 Debug"
@@ -81,7 +82,8 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:"Debug\js_d.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy  js.h ..\..\js.h
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy js.h ..\..\js.h
 # End Special Build Tool
 
 !ENDIF 
