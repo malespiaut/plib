@@ -75,13 +75,17 @@
 # endif
 #endif
 
+#define USE_ALLOCA
+
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
 #ifdef __sgi
 # include <sys/endian.h>
-//# include <alloca.h>
+# ifdef USE_ALLOCA
+#  include <alloca.h>
+# endif
 #endif
 #ifdef USE_POSIX_MMAP
 # include <sys/time.h>
@@ -90,7 +94,9 @@
 #endif
 #ifdef _MSC_VER
 # include <io.h>
-//# include <malloc.h>
+# ifdef USE_ALLOCA
+#  include <malloc.h>
+# endif
 #endif
 
 #ifndef O_BINARY
@@ -815,7 +821,11 @@ static ssgEntity *Build(fltState *state)
     */
    qsort(arr, num, sizeof(fltTriangle), tricmp);
 
+#ifdef USE_ALLOCA
+   int *index = (int *)alloca(sizeof(int) * state->vnum);
+#else
    int index[state->vnum];
+#endif
    int vertex[32768];
    //index = (int *)alloca(sizeof(index[0]) * state->vnum);
    //vertex = (int *)alloca(sizeof(vertex[0]) * 32768);
@@ -1079,7 +1089,12 @@ struct Vtx {
 /* decompose a concave polygon */
 static void Concave(int x, int y, int ccw, int *w, int n, fltState *state)
 {
-   Vtx buf[n], *p0, *p1, *p2, *m0, *m1, *m2, *t0;
+#ifdef USE_ALLOCA
+   Vtx *buf = (Vtx *)alloca(sizeof(Vtx) * n);
+#else
+   Vtx buf[n];
+#endif
+   Vtx *p0, *p1, *p2, *m0, *m1, *m2, *t0;
    int i, chk;
    float a0, a1, a2, b0, b1, b2, c0, c1, c2, s0, s1, s2;
 
@@ -2906,7 +2921,11 @@ static ssgEntity *Flatten(ssgEntity *node, float (*mat)[4])
 	    ssgBranch *grp = (ssgBranch *)node;
 	    int i, n = grp->getNumKids();
 	    if (n > 0) {
+#ifdef USE_ALLOCA
+	       ssgEntity **kids = (ssgEntity **)alloca(sizeof(ssgEntity *) * n);
+#else
 	       ssgEntity *kids[n];
+#endif
 	       for (i = n; i--;) {
 		  kids[i] = grp->getKid(i);
 		  kids[i]->ref(); grp->removeKid(i); kids[i]->deRef();
@@ -2981,7 +3000,11 @@ static ssgEntity *Flatten(ssgEntity *node, float (*mat)[4])
 	 return Flatten(kid, mat);
       }
       else {
+#ifdef USE_ALLOCA
+	 ssgEntity **kids = (ssgEntity **)alloca(sizeof(ssgEntity *) * n);
+#else
 	 ssgEntity *kids[n];
+#endif
 	 for (i = n; i--;) {
 	    kids[i] = grp->getKid(i);
 	    kids[i]->ref(); grp->removeKid(i); kids[i]->deRef();
