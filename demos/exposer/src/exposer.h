@@ -23,9 +23,10 @@
 #include "floor.h"
 #include "load_save.h"
 
-extern TimeBox *   timebox ;
-extern Floor   *    ground ;
-extern ssgRoot * skinScene ;
-extern ssgRoot * boneScene ;
-extern ssgRoot *sceneScene ;
+extern EventList * eventList ;
+extern TimeBox   *   timebox ;
+extern Floor     *    ground ;
+extern ssgRoot   * skinScene ;
+extern ssgRoot   * boneScene ;
+extern ssgRoot   *sceneScene ;
 

@@ -460,22 +460,22 @@ void walkTransforms ( ssgBranch *root, sgMat4 mat )
 
 void transformModel ( ssgBranch *boneRoot, float tim )
 {
-  if ( getNumEvents () < 1 )
+  if ( eventList->getNumEvents () < 1 )
     return ;
 
-  Event *prev = getEvent ( 0 ) ;
+  Event *prev = eventList->getEvent ( 0 ) ;
   Event *next = prev ;
 
-  if ( getCurrentEvent() != NULL )
+  if ( eventList->getCurrentEvent() != NULL )
   {
-    prev = next = getCurrentEvent() ;
-    tim = getCurrentEvent() -> getTime () ;
+    prev = next = eventList->getCurrentEvent() ;
+    tim = eventList->getCurrentEvent() -> getTime () ;
   }
   else
   {
-    for ( int i = 1 ; i < getNumEvents () ; i++ )
+    for ( int i = 1 ; i < eventList->getNumEvents () ; i++ )
     {
-      Event *ev = getEvent ( i ) ;
+      Event *ev = eventList->getEvent ( i ) ;
       float t = ev -> getTime () ;
 
       if ( t < tim )

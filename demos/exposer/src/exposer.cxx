@@ -3,11 +3,12 @@
 int curr_button = 0 ;
 int scroll_controllers = 0 ;
 
-TimeBox *   timebox = NULL ;
-Floor   *    ground = NULL ;
-ssgRoot * skinScene = NULL ;
-ssgRoot * boneScene = NULL ;
-ssgRoot *sceneScene = NULL ;
+EventList * eventList = NULL ;
+TimeBox   *   timebox = NULL ;
+Floor     *    ground = NULL ;
+ssgRoot   * skinScene = NULL ;
+ssgRoot   * boneScene = NULL ;
+ssgRoot   *sceneScene = NULL ;
 
 puText     *message     ;
 puButton   *hideBones   ;
@@ -129,9 +130,7 @@ static void add_2_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+2
 static void add_5_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+5.0f);}
 
 
-/*
-  The GLUT redraw event
-*/
+/* GLUT callbacks */
 
 static void redraw ()
 {
@@ -176,7 +175,7 @@ static void redraw ()
   {
     getBone ( i + scroll_controllers ) -> widget -> setPosition ( 24, 70+i*40);
 
-    if ( getCurrentEvent() == NULL )
+    if ( eventList -> getCurrentEvent() == NULL )
     {
       getBone ( i + scroll_controllers ) -> widget -> reveal  () ;
       getBone ( i + scroll_controllers ) -> widget -> greyOut () ;
@@ -293,7 +292,7 @@ static void init_graphics ()
 
   /* GUI setup. */
 
-  timebox = new TimeBox () ;
+  timebox = new TimeBox ( eventList ) ;
   ground  = new Floor   () ;
 
   menuBar = new puMenuBar () ;
@@ -367,10 +366,11 @@ static void help ()
 
 int main ( int argc, char **argv )
 {
+  eventList = new EventList ;
+
   init_graphics     () ;
   init_database     () ;
   init_bones        () ;
-  init_events       () ;
 
   loadCB ( NULL ) ;
 
