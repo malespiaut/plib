@@ -78,7 +78,7 @@
 
 /* Token Parser */
 
-void  ungetToken     ( char *c ) ;
+void  ungetToken     ( const char *c ) ;
 void  getToken       ( char *c, FILE *fd = NULL ) ;
 void  setDefaultFile ( FILE *fd ) ;
 
@@ -106,7 +106,7 @@ public:
     address = 0 ;
   }
 
-  void set ( char *s, PSL_Address v )
+  void set ( const char *s, PSL_Address v )
   {
     symbol = new char [ strlen ( s ) + 1 ] ;
     strcpy ( symbol, s ) ;
@@ -183,7 +183,7 @@ class PSL_Parser
   int  pushJumpIfFalse  ( int l ) ;
   int  pushJump         ( int l ) ;
 
-  void pushConstant   ( char *c ) ;
+  void pushConstant   ( const char *c ) ;
   void pushVariable   ( char *c ) ;
   void pushAssignment ( char *c ) ;
   void pushCall       ( char *c, int argc ) ;
@@ -221,8 +221,8 @@ class PSL_Parser
   PSL_Address    getVarSymbol       ( char *s ) ;
   PSL_Address    setVarSymbol       ( char *s ) ;
 
-  PSL_Address    getCodeSymbol      ( char *s ) ;
-  void           setCodeSymbol      ( char *s, PSL_Address v ) ;
+  PSL_Address    getCodeSymbol      ( const char *s ) ;
+  void           setCodeSymbol      ( const char *s, PSL_Address v ) ;
   int            getExtensionSymbol ( char *s ) ;
 
 private:

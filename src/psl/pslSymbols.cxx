@@ -69,7 +69,7 @@ int PSL_Parser::getExtensionSymbol ( char *s )
 }
 
 
-PSL_Address PSL_Parser::getCodeSymbol ( char *s )
+PSL_Address PSL_Parser::getCodeSymbol ( const char *s )
 {
   for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
@@ -84,7 +84,7 @@ PSL_Address PSL_Parser::getCodeSymbol ( char *s )
 
 
 
-void PSL_Parser::setCodeSymbol ( char *s, PSL_Address v )
+void PSL_Parser::setCodeSymbol ( const char *s, PSL_Address v )
 {
   for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
