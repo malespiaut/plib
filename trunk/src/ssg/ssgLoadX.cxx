@@ -23,7 +23,7 @@
 
 //
 // .X loader for SSG/PLIB
-// .X is the 3D file format for Micro$ofts directX retained mode.
+// .X is the 3D file format for Micro$ofts directX.
 // Written by Wolfram Kuss (Wolfram.Kuss@t-online.de) in Oct/Nov of 2000
 //
 #include  "ssgLocal.h"
@@ -55,6 +55,7 @@ static _ssgParserSpec parser_spec =
 {
    "\r\n\t ",  // delim_chars_skipable
    ",;",       // delim_chars_non_skipable
+   NULL,      // pre_processor
    "{",          // open_brace_chars
    "}",          // close_brace_chars
    '"',        // quote_char
@@ -133,7 +134,7 @@ static void IgnoreEntity(int startLevel)
 	while ( TRUE)
 	{ token = parser.getNextToken(0);
 		if ( parser.eof ) 
-		{ parser.error("unexpected end fo file\n");
+		{ parser.error("unexpected end of file\n");
 			return ; //FALSE;
 		}
         
@@ -200,9 +201,10 @@ static int ParseEntity(char *token)
 			{	char *sNextToken, *sName=globEmpty;
 				sNextToken=parser.getNextToken(0);
 				if ( parser.eof ) 
-				{ parser.error("unexpected end fo file\n");
+				{ parser.error("unexpected end of file\n");
 					return FALSE;
 				}
+        // if entity is named, read the name. skip "{":
         sName = NULL;
 				if (0 != strcmp(sNextToken, "{"))
 				{ sName = new char[ strlen(sNextToken) + 1 ];
@@ -217,7 +219,7 @@ static int ParseEntity(char *token)
 				if(sNextToken[0] == '<') // UUID
 					sNextToken = parser.getNextToken(0);
 				if ( parser.eof ) 
-				{ parser.error("unexpected end fo file\n");
+				{ parser.error("unexpected end of file\n");
 					return FALSE;
 				}
         
@@ -231,7 +233,7 @@ static int ParseEntity(char *token)
 					IgnoreEntity ( 0 );
 				else
 				{
-					parser.error("I am sorry, but Entity-typ '%s' is not yet implemented.", aEntities[i].sName);
+					parser.error("I am sorry, but Entity-type '%s' is not yet implemented.", aEntities[i].sName);
 					return FALSE ;
 				}
 				
@@ -562,7 +564,7 @@ static int HandleMesh(const char * sName, const char *firstToken)
 	while(TRUE)
 	{ char *nextToken =parser.getNextToken(0);
 	  if ( parser.eof ) 
-		{ parser.error("unexpected end fo file\n");
+		{ parser.error("unexpected end of file\n");
 			return FALSE;
 		}
     
