@@ -429,8 +429,23 @@ static void dxf_flush ( void )
         //cvec
         //scale_vec
         //rot_angle
-        sgMat4 mat ;
-        sgMakeTransMat4 ( mat, cvec ) ;
+
+        sgMat4 mat, tmp;
+        sgVec3 axis = { 0.0f, 0.0f, 1.0f };
+        sgMakeRotMat4 ( mat, rot_angle, axis ) ;
+
+        sgMakeIdentMat4 ( tmp ) ;
+        sgScaleVec4 ( tmp[0], scale_vec[0] );
+        sgScaleVec4 ( tmp[1], scale_vec[1] );
+        sgScaleVec4 ( tmp[2], scale_vec[2] );
+        sgPostMultMat4 ( mat, tmp ) ;
+
+        sgMakeTransMat4 ( tmp, cvec ) ;
+        sgPostMultMat4 ( mat, tmp ) ;
+
+        //printf("cvec(%.2f,%.2f,%.2f), scale(%.2f,%.2f,%.2f), rot(%.2f)\n",
+        //  cvec[0], cvec[1], cvec[2], cvec[0], cvec[1], cvec[2], rot_angle ) ;
+        //found -> print ( stderr, "", 99 );
 
         ssgTransform* block_tr = new ssgTransform ;
         block_tr -> setName ( block_name ) ;
@@ -497,9 +512,9 @@ static void dxf_flush ( void )
   cvec[0] = 0.0f;
   cvec[1] = 0.0f;
   cvec[2] = 0.0f;
-  scale_vec[0] = 0.0f;
-  scale_vec[1] = 0.0f;
-  scale_vec[2] = 0.0f;
+  scale_vec[0] = 1.0f;
+  scale_vec[1] = 1.0f;
+  scale_vec[2] = 1.0f;
   rot_angle = 0.0f;
   color_index = 7 ;
 
@@ -826,7 +841,7 @@ static int dxf_read ( FILE *filein )
       else if ( input1[cpos] == '5' ) {
 
         char ch = input1[cpos+1];
-        if ( ch == 0 || ch == ' ' || ch == '\n' ) {
+        if ( ch == '0' ) {
 
           count = sscanf ( input2, "%e%n", &rot_angle, &width );
         }
