@@ -178,6 +178,10 @@ SOURCE=.\ssgLoadFLT.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadM.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadmd2.cxx
 # End Source File
 # Begin Source File
@@ -195,6 +199,10 @@ SOURCE=.\ssgLoadOBJ.cxx
 # Begin Source File
 
 SOURCE=.\ssgLoadSSG.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgLoadStrip.cxx
 # End Source File
 # Begin Source File
 
@@ -247,6 +255,10 @@ SOURCE=.\ssgSaveASE.cxx
 # Begin Source File
 
 SOURCE=.\ssgSaveDXF.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveM.cxx
 # End Source File
 # Begin Source File
 
