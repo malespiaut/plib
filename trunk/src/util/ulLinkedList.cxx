@@ -240,15 +240,17 @@ void * ulLinkedList::getNodeData ( int pos ) const
 }
 
 
-void ulLinkedList::forEach ( ulIterateFunc fn ) const
+void * ulLinkedList::forEach ( ulIterateFunc fn ) const
 {
   ulListNode *curr ;
 
   for ( curr = head ; curr != NULL ; curr = curr -> getNext () )
   {
     if ( (*fn)( curr -> getData () ) == false )
-      break ;
+      return curr -> getData () ;
   }
+
+  return NULL ;
 }
 
 
