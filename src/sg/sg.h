@@ -21,6 +21,9 @@
 #ifdef WIN32
 #include <float.h>
 #endif
+#ifdef __CYGWIN__
+#include <float.h>
+#endif
 
 #define sgFloat float
 #define SGfloat float
