@@ -135,7 +135,7 @@ int puFont::getStringHeight ( const char *s ) const
   {
     float t, b ;
     fnt_font_handle -> getBBox ( s, pointsize, slant, NULL, NULL, &b, &t ) ;
-    return (int) ( t - b ) ;
+    return (int) t ;
   }
 
   return 0 ;
