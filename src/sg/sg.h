@@ -1290,8 +1290,7 @@ int sgIsectInfLineInfLine   ( sgVec3 dst,
 SGfloat sgIsectLinesegPlane ( sgVec3 dst,
                               sgVec3 v1, sgVec3 v2,
                               sgVec4 plane ) ;
-
-
+bool sgPointInTriangle      ( sgVec3 point, sgVec3 tri[3] );
 
 
 
@@ -2532,6 +2531,23 @@ inline void sgdSetQuat ( sgdQuat dst, sgQuat src )
   sgdSetVec4 ( dst, src ) ;
 }
 
+
+/*
+  Intersection testing.
+*/
+
+int sgdIsectPlanePlane        ( sgdVec3 point, sgdVec3 dir,
+							    sgdVec4 plane1, sgdVec4 plane2 ) ;
+int sgdIsectInfLinePlane      ( sgdVec3 dst,
+							    sgdVec3 l_org, sgdVec3 l_vec,
+							    sgdVec4 plane ) ;
+int sgdIsectInfLineInfLine    ( sgdVec3 dst,
+							    sgdVec3 l1_org, sgdVec3 l1_vec,
+							    sgdVec3 l2_org, sgdVec3 l2_vec ) ;
+SGDfloat sgdIsectLinesegPlane ( sgdVec3 dst,
+							    sgdVec3 v1, sgdVec3 v2,
+							    sgdVec4 plane ) ;
+bool sgdPointInTriangle       ( sgdVec3 point, sgdVec3 tri[3] );
 
 
 #endif
