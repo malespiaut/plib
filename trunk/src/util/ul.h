@@ -47,19 +47,13 @@
 #if (defined(__unix__) || defined(unix)) && !defined(USG)
 #include <sys/param.h>
 #endif
- 
-#ifdef BSD
+
+// Wk: Originally this was only included for BSD, WIN32,  __MWERKS__ (Macintosh) 
+// and __CYGWIN__. However, some Linux people couldn't compile because it was 
+// missing (see fgfs-User Mailing list). Should you, on the other hand get 
+// problems because of this line, then mail to the PLIB mailing list
+// or mail me (w_kuss@rz-online.de)
 #include <float.h>
-#endif
-#ifdef __MWERKS__
-#include <float.h>
-#endif
-#ifdef WIN32
-#include <float.h>
-#endif
-#ifdef __CYGWIN__
-#include <float.h>
-#endif
 
 #include <GL/gl.h>
 #include <GL/glu.h>
