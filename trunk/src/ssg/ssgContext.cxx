@@ -172,7 +172,7 @@ void ssgContext::setCamera ( sgMat4 mat )
   sgPreMultMat4 ( cameraMatrix, viewmat ) ;
 }
 
-void ssgContext::setCamera ( sgCoord *coord )
+void ssgContext::setCamera ( const sgCoord *coord )
 {
   sgMat4 viewmat, mat ;
 

@@ -2345,7 +2345,7 @@ public:
 
   void getCameraPosition ( sgVec3 pos ) ;
   void setCamera ( sgMat4 mat ) ;
-  void setCamera ( sgCoord *coord ) ;
+  void setCamera ( const sgCoord *coord ) ;
   void setCameraLookAt ( const sgVec3 eye, const sgVec3 center, const sgVec3 up ) ;
   void setCameraLookAt ( const sgVec3 eye, const sgVec3 center ) ;
 
