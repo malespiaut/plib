@@ -95,6 +95,13 @@ in the source code directory.  After you have installed the package for
 one architecture, use `make distclean' before reconfiguring for another
 architecture.
 
+Compiling for Windows with MSVC
+===============================
+
+You can easily compile plib with MSVC 6. First compile plib
+itself. Then open the included workspace in MSVC, choose what you 
+want to compile (build/set active configuration) and then compile (F7). 
+
 Installation Names
 ==================
 

@@ -97,6 +97,26 @@ in the source code directory.  After you have installed the package for
 one architecture, use `make distclean' before reconfiguring for another
 architecture.
 
+Compiling for Windows with MSVC
+===============================
+
+You can easily compile plib with MSVC 6. First, you have to set some paths 
+in tools\options\directories. In "include" set the plib path itself (and, 
+if needed the parent). Then, in "library paths" add the plib path itself again
+so that packages that use plib will find it. The building process will copy
+the finished *.lib files and any header files that are visible to projects
+using plib into the plib path.
+
+There is a workspace (*.dsw file) for plib, for examples, for tools 
+(including only af2rgb) and for each of the demos: exposer, p-guide 
+and ttt3d. Simply open one of them (starting with plib itself, of course) 
+in MSVC, choose what you want to compile (build/set active configuration) 
+and then compile (F7). if you want to compile or even create a project
+that uses plib, please note that the plib workspaces have "multi threading"
+enabled. Either enable this as well in your project or disable it for
+plib. A missmatch leads to errors.
+
+
 Installation Names
 ==================
 
