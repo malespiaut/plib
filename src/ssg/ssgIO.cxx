@@ -381,7 +381,15 @@ ssgTexture* ssgLoaderOptions::defaultCreateTexture ( char* tfname,
   return 0 ;
 }
 
-ssgLoaderOptions _ssgDefaultOptions ( NULL, NULL, NULL, NULL ) ;
+ssgTransform* ssgLoaderOptions::defaultCreateTransform ( ssgTransform* tr,
+      ssgTransformArray* ta ) const
+{
+  if ( ta != NULL )
+    tr -> setUserData ( ta ) ;
+  return tr ;
+}
+
+ssgLoaderOptions _ssgDefaultOptions ( NULL, NULL, NULL, NULL, NULL ) ;
 
 void ssgModelPath ( const char *s )
 {

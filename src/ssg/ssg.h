@@ -1970,6 +1970,7 @@ typedef ssgState *(*ssgAppStateFunc)(char*) ;
 typedef ssgLeaf *(*ssgCreateLeafFunc)(ssgLeaf*,const char*) ;
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
 typedef ssgTexture *(*ssgCreateTextureFunc)(char*,int,int,int) ;
+typedef ssgTransform *(*ssgCreateTransformFunc)(ssgTransform*,ssgTransformArray*) ;
 
 class ssgLoaderOptions
 {
@@ -1977,6 +1978,7 @@ class ssgLoaderOptions
   ssgCreateLeafFunc create_leaf_cb ;
   ssgHookFunc hook_cb ;
   ssgCreateTextureFunc create_texture_cb ;
+  ssgCreateTransformFunc create_transform_cb ;
 
   //NOTES: we could add more later
   //...model scale factor...
@@ -1990,18 +1992,22 @@ class ssgLoaderOptions
   ssgTexture *defaultCreateTexture ( char *tfname, 
 				     int wrapu, int wrapv,
 				     int mipmap ) const ;
+  ssgTransform *defaultCreateTransform ( ssgTransform* tr,
+      ssgTransformArray* ta ) const ;
 
 public:
   ssgLoaderOptions (
-      ssgAppStateFunc      _app_state_cb,
-      ssgCreateLeafFunc    _create_leaf_cb = 0,
-      ssgHookFunc          _hook_cb = 0,
-      ssgCreateTextureFunc _create_texture_cb = 0
+      ssgAppStateFunc        _app_state_cb,
+      ssgCreateLeafFunc      _create_leaf_cb = 0,
+      ssgHookFunc            _hook_cb = 0,
+      ssgCreateTextureFunc   _create_texture_cb = 0,
+      ssgCreateTransformFunc _create_transform_cb = 0
     ) :
-    app_state_cb      ( _app_state_cb ),
-    create_leaf_cb    ( _create_leaf_cb ),
-    hook_cb           ( _hook_cb ),
-    create_texture_cb ( _create_texture_cb )
+    app_state_cb        ( _app_state_cb ),
+    create_leaf_cb      ( _create_leaf_cb ),
+    hook_cb             ( _hook_cb ),
+    create_texture_cb   ( _create_texture_cb ),
+    create_transform_cb ( _create_transform_cb )
   {}
 
   void setAppStateCallback ( ssgAppStateFunc cb )
@@ -2033,6 +2039,15 @@ public:
       return (*create_texture_cb)(tfname, wrapu, wrapv, mipmap) ;
     else
       return defaultCreateTexture(tfname, wrapu, wrapv, mipmap) ;
+  }
+
+  ssgTransform* createTransform ( ssgTransform* tr,
+      ssgTransformArray* ta ) const
+  {
+    if ( create_transform_cb )
+      return (*create_transform_cb) (tr,ta) ;
+    else
+      return defaultCreateTransform (tr,ta) ;
   }
 
   ssgHookFunc getHookFunc () const
