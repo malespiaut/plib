@@ -536,7 +536,7 @@ static int _ssgTriangulate( ssgVertexArray *coords, ssgIndexArray *w, int n, ssg
 
 //===========================================================================
 
-static int createTriangIndices(ssgIndexArray *ixarr,
+static GLenum createTriangIndices(ssgIndexArray *ixarr,
                                 int numverts, const sgVec3 s_norm)
 {
   sgVec3 v1, v2, cross;
@@ -670,7 +670,7 @@ static int createTriangIndices(ssgIndexArray *ixarr,
 #endif
     ssgIndexArray *strips = new ssgIndexArray(3* (numverts-2));
     ssgIndexArray *idx_array;
-    int ret;
+    GLenum ret;
     if ( (up != 0 ) && (down != 0)) {
       numverts = _ssgTriangulate(vertex_array_, ixarr, numverts, strips);
       numverts *= 3;
@@ -704,10 +704,10 @@ static int createTriangIndices(ssgIndexArray *ixarr,
 
 //===========================================================================
 
-static int readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool flip_y)
+static GLenum readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool flip_y)
 {
   if(numverts <= 0)
-    return false;
+    return GL_FALSE;
 
   ssgIndexArray *curr_index_ = new ssgIndexArray();
 
@@ -795,10 +795,10 @@ static int readTexIndices(FILE *fp, int numverts, const sgVec3 s_norm, bool flip
 
 //===========================================================================
 
-static int readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
+static GLenum readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
 {
   if(numverts <= 0)
-    return false;
+    return GL_FALSE;
 
   ssgIndexArray *curr_index_ = new ssgIndexArray();
 
@@ -1822,7 +1822,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
           flip_y = ulStrEqual( texture_extension, "BMP" ) != 0 ;
         }
 
-        int type = readTexIndices(fp, numverts, v, flip_y);
+        GLenum type = readTexIndices(fp, numverts, v, flip_y);
 
         if(!has_normals_)
         {
@@ -1870,7 +1870,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         flip_y = ulStrEqual( texture_extension, "BMP" ) != 0 ;
         }
 
-        int type = readTexIndices(fp, numverts, v, flip_y);
+        GLenum type = readTexIndices(fp, numverts, v, flip_y);
 
         if(!has_normals_)
         {
@@ -1909,7 +1909,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         readVector(fp, v);
 
         // Read vertex indices
-        int type = readIndices(fp, numverts, v);
+        GLenum type = readIndices(fp, numverts, v);
 
         if(!has_normals_)
         {
@@ -1952,7 +1952,7 @@ ssgEntity *ssgLoadBGL(const char *fname, const ssgLoaderOptions *options)
         ulEndianReadLittle32(fp);
 #endif
         // Read vertex indices
-        int type = readIndices(fp, numverts, v);
+        GLenum type = readIndices(fp, numverts, v);
 
         if(!has_normals_)
         {
