@@ -92,6 +92,8 @@ void puListBox::draw ( int dx, int dy )
                 colour [ PUCOL_LEGEND ][2],
                 colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
 
+  int xsize = abox.max[0] - abox.min[0] + 1 ;
+
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;
   else
@@ -103,7 +105,7 @@ void puListBox::draw ( int dx, int dy )
     int selected ;
     getValue ( &selected ) ;
 
-    for ( int i=top; i<num && i<top+num_vis; i++ )
+    for ( int i = top ; i < num && i < top + num_vis ; i++ )
     {
       if ( i == selected )
         glColor4f ( 1.0, 1.0, 1.0, 1.0 ) ;
@@ -116,7 +118,32 @@ void puListBox::draw ( int dx, int dy )
       int xx = dx + abox.min[0] + x ;
       int yy = dy + abox.max[1] - y ;
 
-      const char* str = list [ i ] ;
+      int width ;
+      char str [ PUSTRING_MAX ] ;
+      strcpy ( str, list [ i ] ) ;
+
+      /*
+        Does the string fit into the box?
+
+        If not, chop it down one character at a time until
+        it does fit.
+      */
+
+      while ( 1 )
+      {
+        width = puGetStringWidth ( legendFont, (char *)str ) + PUSTR_LGAP ;
+
+        if ( width < xsize )
+          break ;
+
+        /*
+          Nibble off one character and try again
+          (Do that sneakily by replacing the last 4 characters with 3 dots)
+        */
+
+        strcpy ( & str [ strlen(str) - 4 ], "..." ) ;
+      }
+
       puDrawString ( legendFont, (char*)str, xx, yy ) ;
     }
   }
