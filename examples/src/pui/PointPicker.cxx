@@ -37,11 +37,12 @@
 *                                   *
 \***********************************/
 
-int          main_window ;
-puText      *instruction ;
-puInput     *point_no    ;
-puOneShot   *move_point  ;
-puButton    *exit_button ;
+int           main_window ;
+puText       *instruction ;
+puInput      *point_no    ;
+puOneShot    *move_point  ;
+puButton     *exit_button ;
+puLargeInput *input ;
 
 int picked_point ;
 int mouse_x, mouse_y ;  // Mouse coordinates
@@ -356,6 +357,37 @@ int main ( int argc, char **argv )
   exit_button->setLegend         ( "Exit"  ) ;
   exit_button->setCallback       ( exit_cb ) ;
 
+  input = new puLargeInput ( 440, 0, 200, 300, 1, 20 ) ;
+  input->setText ( "This is a large input box\n"
+                   "This is line two of a large input box\n"
+                   "Line 3\n"
+                   "Line 4\n"
+                   "This is an extremely long line in the large input box, so long it passes the box width\n"
+                   "Line 6\n"
+                   "Line 7\n"
+                   "Line 8\n"
+                   "Line 9\n"
+                   "Line 10\n"
+                   "Line 11\n"
+                   "Line 12\n"
+                   "Line 13\n"
+                   "Line 14\n"
+                   "Line 15\n"
+                   "Line 16\n"
+                   "Line 17\n"
+                   "Line 18\n"
+                   "Line 19\n"
+                   "Line 20\n"
+                   "Line 21\n"
+                   "Line 22\n"
+                   "Line 23\n"
+                   "Line 24\n"
+                   "Line 25\n"
+                   "Line 26\n"
+                   "Line 27\n"
+                   "Line 28\n"
+                   "Line 29\n"
+                   "Line 30\n" ) ;
 
   glutMainLoop () ;
   return 0 ;

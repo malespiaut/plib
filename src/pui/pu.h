@@ -268,6 +268,7 @@ extern int puRefresh ;
 #define PUCLASS_BISLIDER         0x00080000
 #define PUCLASS_TRISLIDER        0x00100000
 #define PUCLASS_VERTMENU         0x00200000
+#define PUCLASS_LARGEINPUT       0x00400000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -298,6 +299,7 @@ class puFilePicker       ;
 class puBiSlider         ;
 class puTriSlider        ;
 class puVerticalMenu     ;
+class puLargeInput       ;
 
 // Global function to move active object to the end of the "dlist"
 // so it is displayed in front of everything else
@@ -1284,5 +1286,104 @@ public:
   void setSize ( int w, int h ) ;
 } ;
 
+
+
+class puLargeInput : public puGroup
+{
+  int num_lines ;              // Number of lines of text in the box
+  int lines_in_window ;        // Number of lines showing in the window
+  int top_line_in_window ;     // Number of the first line in the window
+  int max_width ;              // Width of longest line of text in box, in pixels
+  int slider_width ;
+  int accepting ;
+  int cursor_position ;
+  int select_start_position ;
+  int select_end_position ;
+  char *valid_data ;
+
+  puSlider *bottom_slider ;    // Horizontal slider at bottom of window
+  puSlider *right_slider ;     // Vertical slider at right of window
+
+  char *text ;                 // Pointer to text in large input box
+
+  short arrow_count ;          // Number of up/down arrows above and below the right slider
+
+  void normalize_cursors ( void ) ;
+
+public:
+  puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width ) ;
+  ~puLargeInput () ;
+
+  void setSize ( int w, int h ) ;
+
+  int getNumLines () {  return num_lines ;  }
+  void setTopLineInWindow ( int val ) {  top_line_in_window = val ;  }
+
+  void draw     ( int dx, int dy ) ;
+  int  checkHit ( int button, int updown, int x, int y ) ;
+  void doHit    ( int button, int updown, int x, int y ) ;
+  int  checkKey ( int key, int updown ) ;
+
+  void setSelectRegion ( int s, int e ) ;
+
+  int  isAcceptingInput ( void ) { return accepting ; }
+  void rejectInput      ( void ) { accepting = FALSE ; }
+
+  void acceptInput ( void )
+  {
+    accepting = TRUE ;
+    cursor_position = strlen ( getStringValue() ) ;
+    select_start_position = select_end_position = -1 ;
+  }
+
+  int  getCursor ( void )  { return cursor_position ; }
+  void setCursor ( int c ) { cursor_position = c ; }
+
+  void getSelectRegion ( int *s, int *e )
+  {
+    if ( s ) *s = select_start_position ;
+    if ( e ) *e = select_end_position   ;
+  }
+
+  char *getValidData () { return valid_data ; }
+  void setValidData ( char *data )
+  {
+    if ( valid_data )
+    {
+      free ( valid_data ) ;
+      valid_data = NULL ;
+    }
+
+    if ( data )
+    {
+      valid_data = (char *)malloc ( ( strlen ( data ) + 1 ) * sizeof(char) ) ;
+      strcpy ( valid_data, data ) ;
+    }
+  }
+
+  void addValidData ( char *data )
+  {
+    int new_data_len = 1 ;
+    if ( valid_data ) new_data_len += strlen ( valid_data ) ;
+    if ( data )       new_data_len += strlen ( data ) ;
+    char *new_data = (char *)malloc ( new_data_len * sizeof(char) ) ;
+    strcpy ( new_data, "\0" ) ;
+    if ( valid_data ) strcat ( new_data, valid_data ) ;
+    if ( data )       strcat ( new_data, data ) ;
+    free ( valid_data ) ;
+    valid_data = new_data ;
+  }
+
+  int isValidCharacter ( char c )
+  {
+    return ( ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ) ;
+  }
+
+  void  setText ( char *l ) ;
+  char *getText ( void ) { return text ; }
+  void  addNewLine ( char *l ) ;
+  void  addText ( char *l ) ;
+  void  appendText ( char *l ) ;
+} ;
 
 #endif
