@@ -1,3 +1,4 @@
+
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 1998,2002  Steve Baker
@@ -21,42 +22,14 @@
      $Id$
 */
 
+char *getFname        () ;
+int   getLineNo       () ;
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+void  popDefaultFile  () ;
+void  pushDefaultFile ( FILE *fd, const char *fname ) ;
+void  pushDefaultFile ( const char *fname ) ;
 
-#include "psl.h"
-#include "ul.h"
-
-#ifndef TRUE
-#define TRUE  1
-#define FALSE 0
-#endif
-
-/* Limits */
-
-#define MAX_ARGS         64
-#define MAX_VARIABLE    256
-#define MAX_LABEL       256
-#define MAX_TOKEN      1024 
-#define MAX_CODE        512
-#define MAX_STACK       256 
-#define MAX_NESTING      32 
-#define MAX_UNGET        64
-#define MAX_UNGET_CHAR 1024
-#define MAX_SYMBOL  (MAX_VARIABLE + MAX_LABEL)
-#define MAX_INCLUDE_DEPTH  8
-
-typedef unsigned short pslAddress  ;
-
-extern int _pslInitialised ;
-
-#include "pslFileIO.h"
-#include "pslOpcodes.h"
-#include "pslSymbol.h"
-#include "pslCompiler.h"
-#include "pslContext.h"
+void  unGetChar       ( int c ) ;
+int   getChar         () ;
 
 

@@ -46,21 +46,22 @@ struct pslFwdRef
 
 class pslCompiler
 {
-  int line_no ;
+  /* File I/O and preprocessor */
 
-  int getLineNo () const { return line_no ; }
+  int  getChar               () ;
+  void doIncludeStatement    () ;
+  int  doPreProcessorCommand () ;
+  void getToken              (       char *s ) ;
+  void ungetToken            ( const char *s ) ;
 
-  int getChar ( FILE *fd ) ;
-  int unGetChar ( int c, FILE *fd ) ;
 
-  void ungetToken     ( const char *c ) ;
-  void getToken       ( char *c, FILE *fd = NULL ) ;
-  void setDefaultFile ( FILE *fd ) ;                                          
+  /* Write data into Code space */
 
   void pushCodeByte ( unsigned char b ) ;
   void pushCodeAddr ( pslAddress a ) ;
+  int  printOpcode  ( FILE *fd, int addr ) const ;
 
-  /* Basic low level code generation.  */
+  /* Write single byte-coded instructions into code space.  */
 
   void pushStackDup     () ;
   void pushPop          () ;
@@ -96,7 +97,7 @@ class pslCompiler
   void pushCall          ( const char *s, int argc ) ;
   void pushReturn        () ;
 
-  /* Higher level parsers.  */
+  /* Expression parsers & code generators.  */
 
   int pushPrimitive      () ;
   int pushMultExpression () ;
@@ -104,7 +105,7 @@ class pslCompiler
   int pushRelExpression  () ;
   int pushExpression     () ;
 
-  /* Top level parsers. */
+  /* Statement-level parsers & code generators. */
 
   int  pushBreakStatement      () ;
   int  pushContinueStatement   () ;
@@ -121,69 +122,41 @@ class pslCompiler
   int  pushCompoundStatement   () ;
   int  pushStatement           () ;
 
-  int  pushFunctionDeclaration       ( const char *fn ) ;
   int  pushLocalVarDecl  ( pslType t ) ;
   int  pushGlobalVarDecl ( const char *fn, pslType t ) ;
   int  pushStaticVarDecl () ;
 
+  /* Top level constructs */
+
+  int  pushFunctionDeclaration       ( const char *fn ) ;
   int  pushGlobalDeclaration         () ;
   void pushProgram                   () ;
 
-  int printOpcode      ( FILE *fd, int addr ) const ;
+  /* The symbol tables for variables and code */
+
+  int next_label ;
+  int next_code_symbol ;
+
+  pslSymbol         symtab [ MAX_SYMBOL ] ;
+  pslSymbol    code_symtab [ MAX_SYMBOL ] ;
 
   pslAddress getVarSymbol       ( const char *s ) ;
   pslAddress setVarSymbol       ( const char *s ) ;
-
-  int breakToAddressStack    [ MAX_LABEL ] ;
-  int continueToAddressStack [ MAX_LABEL ] ;
-  int next_break     ;
-  int next_tmp_label ;
-  int next_continue  ;
-
-  void pushBreakToLabel    () ;
-  int  pushContinueToLabel () ;
-  void  setContinueToLabel ( int which ) ;
-  void pushNoContinue      () ;
-
-  void popBreakToLabel     () ;
-  void popContinueToLabel  () ;
 
   pslAddress getCodeSymbol      ( const char *s, pslAddress fixupLoc ) ;
   void       setCodeSymbol      ( const char *s, pslAddress v ) ;
 
   int        getExtensionSymbol ( const char *s ) const ;
 
-private:
+  pslExtension *extensions ;
 
-  int num_errors   ;
-  int num_warnings ;
+  /* Forward references to code symbols that are not yet defined */
 
-  void bumpErrors   () { num_errors++   ; }
-  void bumpWarnings () { num_warnings++ ; }
-
-  char *progName ;
-
-  const char *getProgName () const { return progName ; }
-
-  int error   ( const char *fmt, ... ) ;
-  int warning ( const char *fmt, ... ) ;
-
-  int next_var   ;
-  int next_label ;
-  int next_code  ;
-  int next_code_symbol ;
   int next_fwdref ;
-
-  pslSymbol         symtab [ MAX_SYMBOL ] ;
-  pslSymbol    code_symtab [ MAX_SYMBOL ] ;
   pslFwdRef    forward_ref [ MAX_SYMBOL ] ;
 
   int locality_stack [ MAX_NESTING ] ;
   int locality_sp ;
-
-  pslOpcode    *code       ;
-  pslContext   *context    ;
-  pslExtension *extensions ;
 
   void fixup                  ( const char *s, pslAddress v ) ;
   void addFwdRef              ( const char *s, pslAddress where ) ;
@@ -215,6 +188,46 @@ private:
 
     next_var = locality_stack [ --locality_sp ] ;
   }
+
+  /* Ikky stuff to remember where break and continue should jump */
+
+  int breakToAddressStack    [ MAX_LABEL ] ;
+  int continueToAddressStack [ MAX_LABEL ] ;
+  int next_break     ;
+  int next_tmp_label ;
+  int next_continue  ;
+
+  void pushBreakToLabel    () ;
+  int  pushContinueToLabel () ;
+  void  setContinueToLabel ( int which ) ;
+  void pushNoContinue      () ;
+
+  void popBreakToLabel     () ;
+  void popContinueToLabel  () ;
+
+  /* Error and warning handlers */
+
+  int num_errors   ;
+  int num_warnings ;
+
+  void bumpErrors   () { num_errors++   ; }
+  void bumpWarnings () { num_warnings++ ; }
+
+  int error   ( const char *fmt, ... ) ;
+  int warning ( const char *fmt, ... ) ;
+
+  /* Remember the name of the program for debug purposes */
+
+  char *progName ;
+
+  const char *getProgName () const { return progName ; }
+
+  /* Major storage for symbols and byte-codes */
+
+  int next_var   ;
+  int next_code  ;
+  pslOpcode    *code       ;
+  pslContext   *context    ;
 
 public:
 
@@ -253,8 +266,6 @@ public:
   {
     int i ;
 
-    line_no = 1 ;
-
     for ( i = 0 ; i < MAX_CODE   ; i++ ) code   [ i ] = OPCODE_HALT ; 
 
     for ( i = 0 ; i < MAX_SYMBOL ; i++ )
@@ -280,7 +291,7 @@ public:
 
   void dump () const ;
   int  compile ( const char *fname ) ;
-  int  compile ( FILE *fd ) ;
+  int  compile ( FILE *fd, const char *fname = NULL ) ;
 } ;
 
 

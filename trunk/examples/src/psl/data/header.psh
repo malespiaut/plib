@@ -1,0 +1,4 @@
+
+void newline () { printf ( "\n" ) ; }
+void tab     () { printf ( "\t" ) ; }
+
