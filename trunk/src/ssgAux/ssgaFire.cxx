@@ -2,30 +2,101 @@
 #include "ssg.h"
 #include "ssgAux.h"
 
+#define EMBER_SCALE  3.0f
+
 void _ssgaFireParticleCreate ( ssgaParticleSystem *ps,
-                               int index,
-                               ssgaParticle *p )
+                               int idx, ssgaParticle *p )
 {
-  sgSetVec4 ( p -> col, 1.0f, 0.2f, 0.06f, 0.3 ) ;
-  sgSetVec3 ( p -> pos,
-             (float)(rand()%1000)/750.0f - 0.35f,
-             (float)(rand()%1000)/750.0f - 0.35f, 0.0f ) ;
-  sgSetVec3 ( p -> vel, 0, 0, 2.0f ) ;
-  sgSetVec3 ( p -> acc, 0, 0, 0 ) ;
-  p -> time_to_live = 3 ;
-  p -> size = 0.4f ;
+  ((ssgaFire *) ps) -> createParticle ( idx, p ) ;
 }
 
-void _ssgaFireParticleUpdate ( float deltaTime,
-                               ssgaParticleSystem *ps,
-                               int index,
-                               ssgaParticle *p )
+
+
+void _ssgaFireParticleUpdate ( float, ssgaParticleSystem *ps,
+                               int idx, ssgaParticle *p )
 {
-  p -> size *= 1.04f ;
- 
-  if ( p -> size >= 1.0f ) p -> size = 1.0f ;
-  sgScaleVec3 ( p -> col, 0.97f ) ;
-  // sgScaleVec3 ( p -> vel, 0.97f ) ;
+  ((ssgaFire *) ps) -> updateParticle ( idx, p ) ;
+}
+
+
+
+
+void ssgaFire::reInit ()
+{
+  setCreationRate ( (float)(getNumParticles()) / max_ttl ) ;
+
+  delete colourTable ;
+  delete sizeTable   ;
+
+  tableSize = (int)( 10.0f * max_ttl ) ;
+
+  colourTable = new float [ tableSize * 4 ] ;
+  sizeTable   = new float [ tableSize     ] ;
+
+  sgCopyVec4 ( & colourTable [ 0 ], hot_colour ) ;
+  sizeTable [ 0 ] = start_size ;
+
+  for ( int i = 1 ; i < tableSize ; i++ )
+  {
+    sizeTable [ i ] = sizeTable [ i-1 ] * 1.06f ;
+
+    if ( sizeTable [ i ] >= 1.5 ) sizeTable [ i ] = 1.5 ;
+
+    sgScaleVec3 ( & colourTable [   i  * 4 ],
+		  & colourTable [ (i-1)* 4 ], 0.90 ) ;
+
+    colourTable [ i * 4 + 3 ] = 1.0f ;
+  }
+}
+
+
+void ssgaFire::createParticle ( int idx, ssgaParticle *p )
+{
+  float xx = (float)(rand()%1000)/500.0f * radius - radius ;
+  float yy = sqrt ( radius * radius - xx * xx ) ;
+
+  yy = (float)(rand()%1000)/500.0f * yy - yy ;
+
+  p -> time_to_live = max_ttl ;
+  p -> size = sizeTable [ 0 ] ;
+
+  sgCopyVec4 ( p -> col, & colourTable [ 0 ] ) ;
+
+  if ( (idx & 3) != 0 )
+  {
+    sgSetVec3 ( p -> pos, xx, yy, -p->size ) ;
+    sgSetVec3 ( p -> vel, 0, 0, upward_speed ) ;
+  }
+  else
+  {
+    p->size *= EMBER_SCALE ;
+
+    sgSetVec3 ( p -> pos, xx, yy, 0.0f ) ;
+    sgSetVec3 ( p -> vel, 0, 0, 0 ) ;
+  }
+
+  sgSetVec3 ( p -> acc, 0, 0, 0 ) ;
+}
+
+
+
+
+void ssgaFire::updateParticle ( int idx, ssgaParticle *p )
+{
+  int tick = (int)( ( max_ttl - p->time_to_live ) * 10.0f ) ;
+
+  if ( tick >= tableSize )
+  {
+    p->time_to_live = 0.0f ;
+    return ;
+  }
+
+  if ( (idx & 3) != 0 )
+    p -> size = sizeTable [ tick ] ;
+  else
+    p -> size = sizeTable [ tick ] * EMBER_SCALE ;
+
+  sgCopyVec4 ( p -> col, & colourTable [ tick * 4 ] ) ;
 }
 
 
@@ -34,7 +105,6 @@ static ssgTexture     *fireTexture = NULL ;
 
 static int preFireDraw ( ssgEntity * )
 {
-  glDepthMask ( GL_FALSE ) ;
   glBlendFunc ( GL_ONE, GL_ONE ) ;
   return TRUE ;
 }
@@ -42,21 +112,24 @@ static int preFireDraw ( ssgEntity * )
 
 static int postFireDraw ( ssgEntity * )
 {
-  glDepthMask ( GL_TRUE ) ;
   glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
   return TRUE ;
 }                                                                              
 
 ssgaFire::ssgaFire ( int num,
-                     int initial_num,
-                     float _create_rate,
-                     float bsphere_size )
-            : ssgaParticleSystem ( num, initial_num,
-                                  _create_rate, TRUE, 1.0f,
-                                  bsphere_size,
+                     float _radius = 1.0f,
+                     float height  = 5.0f,
+                     float speed   = 2.0f )
+            : ssgaParticleSystem ( num/2,
+                                  0, 0,             // <== Don't Change this!!
+                                  TRUE, 1.0f, height * 2.0f,
                                   _ssgaFireParticleCreate,
                                   _ssgaFireParticleUpdate )
 {
+  radius = _radius ;
+  upward_speed = speed ;
+  start_size = 0.6f ;
+
   if ( fireState == NULL )
   {
     /*
@@ -78,6 +151,15 @@ ssgaFire::ssgaFire ( int num,
     fireState -> ref () ;
   }
 
+
+  tableSize   = 0 ;
+  colourTable = NULL ;
+  sizeTable   = NULL ;
+
+  sgSetVec4 ( hot_colour, 1.0f, 0.2f, 0.1f, 1.0f ) ;
+
+  setHeight ( height ) ;  /* Forces a reInit */
+
   setState    ( fireState ) ;
   setCallback ( SSG_CALLBACK_PREDRAW , preFireDraw  ) ;
   setCallback ( SSG_CALLBACK_POSTDRAW, postFireDraw ) ;
@@ -94,6 +176,9 @@ unsigned char *_ssgaGetFireTexture () ;
 
 ssgaFire::~ssgaFire ()
 {
+  tableSize   = 0 ;
+  delete [] colourTable ;
+  delete [] sizeTable   ;
 }
 
 

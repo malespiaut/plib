@@ -455,7 +455,7 @@ void update_motion ()
   sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, t * 60, 0.0f, 0.0f ) ;
   ssgSetCamera ( & campos ) ;
   teapot  -> setTransform ( & tptpos ) ;
-  sgSetCoord ( & tptpos, 0.0f,  0.0f, 2.0f, 0.0f, 0.0f, 0.0f ) ;
+  sgSetCoord ( & tptpos, 0.0f,  0.0f, 3.0f, 0.0f, 0.0f, 0.0f ) ;
   fire    -> setTransform ( & tptpos ) ;
 }
 
@@ -734,7 +734,7 @@ void load_database ()
   tpt_obj -> setKidState      ( teapot_state ) ;
   tpt_obj -> regenerate       () ;
 
-  fire_obj =  new ssgaFire ( 300, 1, 60.0f, 100000.0f ) ;
+  fire_obj =  new ssgaFire ( 200 ) ;
 
   /* Build the scene graph */
 

@@ -50,7 +50,7 @@ typedef void (* ssgaParticleDeleteFunc) ( ssgaParticleSystem *ps,
                                           int index,
                                           ssgaParticle *p ) ;
 
-class ssgaParticleSystem : public ssgVtxArray
+class ssgaParticleSystem : public ssgVtxTable
 {
   int num_particles  ;
   int num_verts      ;
@@ -84,8 +84,11 @@ public:
 
   void draw_geometry () ;
 
-  int getNumActiveParticles () { return num_active ; }
+  void  setCreationRate ( float cr ) { create_rate = cr ; }
+  float getCreationRate () { return create_rate ; }
 
+  int getNumParticles       () { return num_particles ; }
+  int getNumActiveParticles () { return num_active    ; }
 } ;
 
 
