@@ -10,7 +10,7 @@ AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_INSTALL
 
-plib_suffix="-lplibsl -lplibssgaux -lplibssg -lplibpu -lplibfnt -lplibsg -lplibul"
+plib_suffix="-lplibjs -lplibsl -lplibssgaux -lplibssg -lplibpu -lplibfnt -lplibsg -lplibul"
  
 AC_LANG_CPLUSPLUS
 
