@@ -46,9 +46,9 @@ int pslCompiler::compile ( FILE *fd, const char *fname )
 {
   init () ;
  
-  pushDefaultFile ( fd, (fname == NULL) ? progName : fname ) ;
+  _pslPushDefaultFile ( fd, (fname == NULL) ? progName : fname ) ;
   pushProgram     () ;
-  popDefaultFile  () ;
+  _pslPopDefaultFile  () ;
  
   if ( num_errors != 0 || num_warnings != 0 )
     fprintf ( stderr, "PSL: '%s' Compiled with %d Warnings, %d Fatal Errors\n",

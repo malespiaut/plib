@@ -47,11 +47,11 @@ int pslCompiler::warning ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( PSL_COMPILETIME_WARNING, getFname(), getLineNo(), 
+    (*_pslErrorCB)( PSL_COMPILETIME_WARNING, _pslGetFname(), _pslGetLineNo(), 
                                                             _pslErrorBuffer ) ;
   else
     fprintf ( stderr, "PSL: \"%s\" line %3d: WARNING - %s\n",
-                                             getFname(),getLineNo(), 
+                                             _pslGetFname(), _pslGetLineNo(), 
                                                            _pslErrorBuffer ) ;
 
   bumpWarnings () ;
@@ -68,11 +68,11 @@ int pslCompiler::error ( const char *fmt, ... )
   va_end ( argp ) ;
  
   if ( _pslErrorCB != NULL )
-    (*_pslErrorCB)( PSL_COMPILETIME_ERROR, getFname(), getLineNo(), 
+    (*_pslErrorCB)( PSL_COMPILETIME_ERROR, _pslGetFname(), _pslGetLineNo(), 
                                                            _pslErrorBuffer ) ;
   else
     fprintf ( stderr, "PSL: \"%s\" line %3d: *ERROR* - %s\n",
-                                             getFname(),getLineNo(), 
+                                           _pslGetFname(), _pslGetLineNo(), 
                                                            _pslErrorBuffer ) ;
 
   bumpErrors () ;
