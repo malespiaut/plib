@@ -32,9 +32,25 @@ void puButton::draw ( int dx, int dy )
     r_cb ( this, render_data ) ;
   else
   {
-    int xx = ( abox.max[0] -
+    int xx, yy ;
+    switch ( getLegendPlace() )
+    {
+    case PUPLACE_LEFT :
+      xx = PUSTR_LGAP ;
+      break ;
+
+    case PUPLACE_RIGHT :
+      xx = abox.max[0] - abox.min[0] - puGetStringWidth ( legendFont, legend ) - PUSTR_LGAP ;
+      break ;
+
+    case PUPLACE_CENTERED :
+    default :
+      xx = ( abox.max[0] -
                abox.min[0] - puGetStringWidth(legendFont,legend) ) / 2 ;
-    int yy = ( abox.max[1] -
+      break ;
+    }
+
+      yy = ( abox.max[1] -
                abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
 
     puDrawString ( legendFont, legend,

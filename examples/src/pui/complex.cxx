@@ -406,7 +406,7 @@ void exit_cb ( puObject * )
 
 /* Menu bar entries: */
 
-char      *file_submenu    [] = {  "Exit", "Close", "========", "Print", "========", "Save", "New", NULL } ;
+char      *file_submenu    [] = {  "Exit", "Close", "========", "Print - this is a long entry", "========", "Save", "New", NULL } ;
 puCallback file_submenu_cb [] = { exit_cb, exit_cb,       NULL, ni_cb  ,       NULL,  save_cb, ni_cb, NULL } ;
 
 char      *edit_submenu    [] = { "Do nothing.", NULL } ;
@@ -468,6 +468,7 @@ int main ( int argc, char **argv )
   hide_menu_button->setValue          (    TRUE      ) ;
   hide_menu_button->setLegend         ( "Hide\nthe Menu"  ) ;
   hide_menu_button->setCallback       ( hide_menu_cb ) ;
+  hide_menu_button->setLegendPlace    ( PUPLACE_RIGHT ) ;
   hide_menu_button->makeReturnDefault (    TRUE      ) ;
 
   /* Make the menu bar */
@@ -548,7 +549,7 @@ int main ( int argc, char **argv )
 
   puGroup *coordinate_group = new puGroup ( 0, 0 ) ;  // Necessary so that "groupdisplayfn" will draw all widgets
 
-  x_coordinate = new puBiSlider ( 10,10,350,TRUE ) ;
+  x_coordinate = new puBiSlider ( 50,10,350,TRUE ) ;
   x_coordinate->setMinValue ( -20 ) ;
   x_coordinate->setMaxValue (  20 ) ;
   x_coordinate->setCurrentMin ( -20 ) ;
@@ -557,9 +558,9 @@ int main ( int argc, char **argv )
 //  x_coordinate->setCBMode( PUSLIDER_DELTA );
   x_coordinate->setCallback(coordCB);
   x_coordinate->setLabel ( "X-coords" ) ;
-  x_coordinate->setLabelPlace ( PUPLACE_ABOVE ) ;
+  x_coordinate->setLabelPlace ( PUPLACE_TOP_CENTER ) ;
 
-  y_coordinate = new puTriSlider (120,30,350,TRUE);
+  y_coordinate = new puTriSlider (200,30,350,TRUE);
   y_coordinate->setMinValue ( -20 ) ;
   y_coordinate->setMaxValue (  20 ) ;
   y_coordinate->setCurrentMin ( -20 ) ;
@@ -570,7 +571,7 @@ int main ( int argc, char **argv )
 //  y_coordinate->setCBMode( PUSLIDER_DELTA );
   y_coordinate->setCallback(coordCB);
   y_coordinate->setLabel ( "Y-coords" ) ;
-  y_coordinate->setLabelPlace ( PUPLACE_BELOW ) ;
+  y_coordinate->setLabelPlace ( PUPLACE_BOTTOM_CENTER ) ;
 
   coordinate_group -> close () ;
 
