@@ -27,10 +27,21 @@
 UL_RTTI_DEF1(puObject,puValue)
 
 
-inline float clamp01 ( float x )
+static inline float clamp01 ( float x )
 {
   return (x >= 1.0f) ? 1.0f : x ;
 }
+
+static puColour _puDefaultColourTable[] =
+{
+  { 0.5f, 0.5f, 0.5f, 1.0f }, /* PUCOL_FOREGROUND */
+  { 0.3f, 0.3f, 0.3f, 1.0f }, /* PUCOL_BACKGROUND */
+  { 0.7f, 0.7f, 0.7f, 1.0f }, /* PUCOL_HIGHLIGHT  */
+  { 0.0f, 0.0f, 0.0f, 1.0f }, /* PUCOL_LABEL      */
+  { 1.0f, 1.0f, 1.0f, 1.0f }, /* PUCOL_LEGEND     */
+  { 0.0f, 0.0f, 0.0f, 1.0f }  /* PUCOL_MISC       */
+} ;
+
 
 static void load_colour_scheme ( float col[][4], float r, float g,
                                                  float b, float a )

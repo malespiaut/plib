@@ -289,9 +289,6 @@ void puInput::doHit ( int button, int updown, int x, int y )
 
 int puInput::checkKey ( int key, int /* updown */ )
 {
-  extern void puSetPasteBuffer  ( char *ch ) ;
-  extern char *puGetPasteBuffer ( void ) ;
-
   if ( ! isAcceptingInput() || ! isActive () || ! isVisible () || ( window != puGetWindow () ) )
     return FALSE ;
 

@@ -40,3 +40,14 @@
 #  endif
 #endif
 
+
+#ifndef _PU_USE_GLUT_FONTS
+extern fntTexFont _puCourierFont   ;
+extern fntTexFont _puTimesFont     ;
+extern fntTexFont _puHelveticaFont ;
+#endif
+
+
+void puSetPasteBuffer  ( const char *ch ) ;
+char *puGetPasteBuffer () ;
+

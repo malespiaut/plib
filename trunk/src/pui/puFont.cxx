@@ -40,17 +40,17 @@ puFont PUFONT_HELVETICA_18   ( GLUT_BITMAP_HELVETICA_18   ) ;
 
 #else  // No GLUT fonts, try some corresponding textured fonts
 
-fntTexFont PUFONT_TXF_TYPEWRITER ;
-fntTexFont PUFONT_TXF_TIMES      ;
-fntTexFont PUFONT_TXF_HELVETICA  ;
+fntTexFont _puCourierFont   ;
+fntTexFont _puTimesFont     ;
+fntTexFont _puHelveticaFont ;
 
-puFont PUFONT_8_BY_13        ( &PUFONT_TXF_TYPEWRITER, 13 ) ;
-puFont PUFONT_9_BY_15        ( &PUFONT_TXF_TYPEWRITER, 15 ) ;
-puFont PUFONT_TIMES_ROMAN_10 ( &PUFONT_TXF_TIMES, 10 )      ;
-puFont PUFONT_TIMES_ROMAN_24 ( &PUFONT_TXF_TIMES, 24 )      ;
-puFont PUFONT_HELVETICA_10   ( &PUFONT_TXF_HELVETICA, 10 )  ;
-puFont PUFONT_HELVETICA_12   ( &PUFONT_TXF_HELVETICA, 12 )  ;
-puFont PUFONT_HELVETICA_18   ( &PUFONT_TXF_HELVETICA, 18 )  ;
+puFont PUFONT_8_BY_13        ( &_puCourierFont,   13 ) ;
+puFont PUFONT_9_BY_15        ( &_puCourierFont,   15 ) ;
+puFont PUFONT_TIMES_ROMAN_10 ( &_puTimesFont,     10 ) ;
+puFont PUFONT_TIMES_ROMAN_24 ( &_puTimesFont,     24 ) ;
+puFont PUFONT_HELVETICA_10   ( &_puHelveticaFont, 10 ) ;
+puFont PUFONT_HELVETICA_12   ( &_puHelveticaFont, 12 ) ;
+puFont PUFONT_HELVETICA_18   ( &_puHelveticaFont, 18 ) ;
 
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
@@ -61,7 +61,7 @@ puFont::puFont ()
   glut_font_handle = GLUT_BITMAP_8_BY_13 ;
   fnt_font_handle  = NULL ;
 #else
-  fnt_font_handle  = &PUFONT_TXF_TYPEWRITER ;
+  fnt_font_handle  = &_puCourierFont ;
   pointsize = 13 ;
   slant = 0 ;
 #endif
