@@ -188,6 +188,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name widget_list
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name water
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dynamics
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -349,6 +355,30 @@ Package=<4>
 ###############################################################################
 
 Project: "tween_test"=.\src\ssg\tween_test\tween_test.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "water"=.\src\ssg\water\water.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "dynamics"=.\src\ssg\dynamics\dynamics.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
