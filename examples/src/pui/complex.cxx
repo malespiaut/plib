@@ -440,7 +440,11 @@ int main ( int argc, char **argv )
   glutSpecialFunc       ( specialfn ) ;
   glutMouseFunc         ( mousefn   ) ;
   glutMotionFunc        ( motionfn  ) ;
+
+#ifdef VOODOO
   glutPassiveMotionFunc ( motionfn  ) ;
+#endif
+
   glutIdleFunc          ( displayfn ) ;
 
   puInit () ;
