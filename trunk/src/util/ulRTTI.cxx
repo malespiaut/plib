@@ -36,9 +36,7 @@ ulRTTITypeinfo::ulRTTITypeinfo ( const char *name, const ulRTTITypeinfo *bb[],
                                  void* (*f1)(int,void*),void* (*f2)() )
 {
   /* Create default ulRTTITypeinfo */
-  int name_sz = strlen ( name ) + 1 ;
-  n = new char [ name_sz ] ;
-  memcpy ( n, name, name_sz ) ;
+  n = ulStrDup ( name ) ;
 
   b       = bb ; /* ns = 0 ; subtypes = 0 ; */
 
