@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h> // -dw- for memcpy
 
+#include "ul.h"
+
 #ifdef macintosh
 #  include <InputSprocket.h>
 #endif
@@ -20,6 +22,7 @@
   The next lines are to define BSD
   see http://www.freebsd.org/handbook/porting.html for why we do this
 */
+//lint -save -e620
 
 #if (defined(__unix__) || defined(unix)) && !defined(USG)
 #include <sys/param.h>
@@ -408,10 +411,10 @@ class jsJoystick
 		 ( center [ axis ] - min [ axis ] ) ;
 
       if ( xx < -saturate [ axis ] )
-	return -1.0f ;
+				return -1.0f ;
 
       if ( xx > -dead_band [ axis ] )
-	return 0.0f ;
+				return 0.0f ;
 
       xx = (        xx         + dead_band [ axis ] ) /
            ( saturate [ axis ] - dead_band [ axis ] ) ;
@@ -424,10 +427,10 @@ class jsJoystick
 		 ( max [ axis ] - center [ axis ] ) ;
 
       if ( xx > saturate [ axis ] )
-	return 1.0f ;
+				return 1.0f ;
 
       if ( xx < dead_band [ axis ] )
-	return 0.0f ;
+				return 0.0f ;
 
       xx = (        xx         - dead_band [ axis ] ) /
            ( saturate [ axis ] - dead_band [ axis ] ) ;
@@ -564,16 +567,22 @@ public:
     if ( axes )
     {
       /* WARNING - Fall through case clauses!! */
+//lint -save -e616
 
       switch ( num_axes )
       {
-	case 6: axes[5] = (float) js . dwVpos ;
-	case 5: axes[4] = (float) js . dwUpos ;
-	case 4: axes[3] = (float) js . dwRpos ;
-	case 3: axes[2] = (float) js . dwZpos ;
-	case 2: axes[1] = (float) js . dwYpos ;
-	case 1: axes[0] = (float) js . dwXpos ;
+				case 6: axes[5] = (float) js . dwVpos ;
+				case 5: axes[4] = (float) js . dwUpos ;
+				case 4: axes[3] = (float) js . dwRpos ;
+				case 3: axes[2] = (float) js . dwZpos ;
+				case 2: axes[1] = (float) js . dwYpos ;
+				case 1: axes[0] = (float) js . dwXpos ;
+					break;
+				default:
+					ulSetError ( UL_WARNING, "PLIB_JS: Wrong num_axes. Joystick input is now invalid" ) ;
+
       }
+//lint -restore
     }
 #else
 
@@ -659,5 +668,6 @@ public:
 #endif
   }
 } ;
+//lint -restore
 
 #endif
