@@ -2,7 +2,7 @@ if BUILD_PUI
 
 lib_LIBRARIES = libplibpu.a
 
-include_HEADERS = pu.h puGLUT.h puFLTK.h puSDL.h puNative.h
+include_HEADERS = pu.h puGLUT.h puFLTK.h puSDL.h puNative.h puPW.h
 
 libplibpu_a_SOURCES = \
         pu.cxx            puBox.cxx       puButton.cxx puButtonBox.cxx    \
