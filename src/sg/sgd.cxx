@@ -1678,6 +1678,104 @@ void sgdSlerpQuat( sgdQuat dst, const sgdQuat from, const sgdQuat to, const SGDf
   dst[SGD_W] = scale0 * from[SGD_W] + scale1 * to[SGD_W] ;
 }
 
+
+
+
+/* Function to rotate a vector through a given quaternion using the formula
+ * R = Q r Q-1 -- this gives the components of a ROTATED vector in a STATIONARY
+ * coordinate system.  We assume that Q is a unit quaternion.
+ */
+void sgdRotateVecQuat ( sgdVec3 vec, sgdQuat q )
+{
+  sgdVec3 rot ;
+  sgdFloat qwqw = q[SG_W] * q[SG_W] ;
+  sgdFloat qwqx = q[SG_W] * q[SG_X] ;
+  sgdFloat qwqy = q[SG_W] * q[SG_Y] ;
+  sgdFloat qwqz = q[SG_W] * q[SG_Z] ;
+  sgdFloat qxqx = q[SG_X] * q[SG_X] ;
+  sgdFloat qxqy = q[SG_X] * q[SG_Y] ;
+  sgdFloat qxqz = q[SG_X] * q[SG_Z] ;
+  sgdFloat qyqy = q[SG_Y] * q[SG_Y] ;
+  sgdFloat qyqz = q[SG_Y] * q[SG_Z] ;
+  sgdFloat qzqz = q[SG_Z] * q[SG_Z] ;
+  rot[SG_X] = ( qwqw + qxqx - qyqy - qzqz ) * vec[SG_X] + 2.0f * ( qxqy - qwqz ) * vec[SG_Y] + 2.0f * ( qxqz + qwqy ) * vec[SG_Z] ;
+  rot[SG_Y] = ( qwqw - qxqx + qyqy - qzqz ) * vec[SG_Y] + 2.0f * ( qyqz - qwqx ) * vec[SG_Z] + 2.0f * ( qxqy + qwqz ) * vec[SG_X] ;
+  rot[SG_Z] = ( qwqw - qxqx - qyqy + qzqz ) * vec[SG_Z] + 2.0f * ( qxqz - qwqy ) * vec[SG_X] + 2.0f * ( qyqz + qwqx ) * vec[SG_Y] ;
+  sgdCopyVec3 ( vec, rot ) ;
+}
+
+/* Function to rotate a vector through a given quaternion using the formula
+ * R = Q-1 r Q -- this gives the components of a STATIONARY vector in a ROTATED
+ * coordinate system.  We assume that Q is a unit quaternion.
+ */
+void sgdRotateCoordQuat ( sgdVec3 vec, sgdQuat q )
+{
+  sgdVec3 rot ;
+  sgdFloat qwqw = q[SG_W] * q[SG_W] ;
+  sgdFloat qwqx = q[SG_W] * q[SG_X] ;
+  sgdFloat qwqy = q[SG_W] * q[SG_Y] ;
+  sgdFloat qwqz = q[SG_W] * q[SG_Z] ;
+  sgdFloat qxqx = q[SG_X] * q[SG_X] ;
+  sgdFloat qxqy = q[SG_X] * q[SG_Y] ;
+  sgdFloat qxqz = q[SG_X] * q[SG_Z] ;
+  sgdFloat qyqy = q[SG_Y] * q[SG_Y] ;
+  sgdFloat qyqz = q[SG_Y] * q[SG_Z] ;
+  sgdFloat qzqz = q[SG_Z] * q[SG_Z] ;
+  rot[SG_X] = ( qwqw + qxqx - qyqy - qzqz ) * vec[SG_X] + 2.0f * ( qxqy + qwqz ) * vec[SG_Y] + 2.0f * ( qxqz - qwqy ) * vec[SG_Z] ;
+  rot[SG_Y] = ( qwqw - qxqx + qyqy - qzqz ) * vec[SG_Y] + 2.0f * ( qyqz + qwqx ) * vec[SG_Z] + 2.0f * ( qxqy - qwqz ) * vec[SG_X] ;
+  rot[SG_Z] = ( qwqw - qxqx - qyqy + qzqz ) * vec[SG_Z] + 2.0f * ( qxqz + qwqy ) * vec[SG_X] + 2.0f * ( qyqz - qwqx ) * vec[SG_Y] ;
+  sgdCopyVec3 ( vec, rot ) ;
+}
+
+
+sgdFloat sgdDistSquaredToLineLineSegment ( const sgdLineSegment3 seg, const sgdLine3 line )
+{
+  /* Convert the line segment to a line.  We will deal with the segment limits later. */
+  sgdLine3 line2 ;
+  sgdLineSegment3ToLine3 ( &line2, seg ) ;
+
+  /* Get the dot product of the two direction vectors */
+  sgdFloat t1_dot_t2 = sgdScalarProductVec3 ( line.direction_vector, line2.direction_vector ) ;
+
+  /* If the lines are parallel, distance is just the distance from a point to the other line */
+  if ( fabs ( t1_dot_t2 ) >= 1.0 )
+    return sgdDistSquaredToLineVec3 ( line, seg.a ) ;
+
+  /* Get the parametric coordinates of the closest points on the two lines.  The first line
+   * is parameterized by r = r1 + t1 u while the second is parameterized by r = r2 + t2 v.
+   * The square of the distance between them is [ ( r1 + t1 u ) - ( r2 + t2 v ) ] dot
+   * [ ( r1 + t1 u ) - ( r2 + t2 v ) ].  Differentiating this dot product with respect to
+   * u and v and setting the derivatives to zero gives a matrix equation:
+   * [ 1         -(t1 dot t2) ] [ u ] = [  ( r1 - r2 ) dot t1 ]
+   * [ -(t1 dot t2)         1 ] [ v ]   [ -( r1 - r2 ) dot t2 ]
+   * We invert the matrix to get the equations below.
+   */
+  sgdVec3 r1_minus_r2 ;
+  sgdSubVec3 ( r1_minus_r2, line.point_on_line, line2.point_on_line ) ;
+
+  /* t1_t2_t2_minus_t1 = ( t1 dot t2 ) t2 - t1
+   * t2_minus_t1_t2_t1 = t2 - ( t1 dot t2 ) t1
+   */
+  sgdVec3 t1_t2_t2_minus_t1, t2_minus_t1_t2_t1 ;
+  sgdAddScaledVec3 ( t1_t2_t2_minus_t1, line.direction_vector, line2.direction_vector, -t1_dot_t2 ) ;
+  sgdNegateVec3 ( t1_t2_t2_minus_t1 ) ;
+  sgdAddScaledVec3 ( t2_minus_t1_t2_t1, line2.direction_vector, line.direction_vector, -t1_dot_t2 ) ;
+
+  sgdFloat u = sgdScalarProductVec3 ( r1_minus_r2, t1_t2_t2_minus_t1 ) / ( 1.0f - t1_dot_t2 * t1_dot_t2 ) ;
+  sgdFloat v = sgdScalarProductVec3 ( r1_minus_r2, t2_minus_t1_t2_t1 ) / ( 1.0f - t1_dot_t2 * t1_dot_t2 ) ;
+
+  /* Since line 2 is a line segment, we limit "v" to between 0 and the distance between the points. */
+  sgdFloat length = sgdDistanceVec3 ( seg.a, seg.b ) ;
+  if ( v < 0.0 ) v = 0.0 ;
+  if ( v > length ) v = length ;
+
+  sgdVec3 point1, point2 ;
+  sgdAddScaledVec3 ( point1, line.point_on_line, line.direction_vector, u ) ;
+  sgdAddScaledVec3 ( point2, line2.point_on_line, line2.direction_vector, v ) ;
+  return sgdDistanceSquaredVec3 ( point1, point2 ) ;
+}
+
+
  
 void sgdReflectInPlaneVec3 ( sgdVec3 dst, const sgdVec3 src, const sgdVec4 plane )
 {

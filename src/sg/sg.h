@@ -1175,6 +1175,7 @@ public:
   Kevin B. Thompson <kevinbthompson@yahoo.com>
   Modified by Sylvan W. Clebsch <sylvan@stanford.edu>
   Largely rewritten by "Negative0" <negative0@earthlink.net>
+  Added to by John Fay
 */
 
 /*
@@ -1287,6 +1288,7 @@ inline void sgHPRToQuat ( sgQuat dst, const sgVec3 hpr )
 
   sgEulerToQuat ( dst, tmp ) ;
 }
+
 
 /* Multiply quaternions together (concatenate rotations) */
 
@@ -2757,6 +2759,27 @@ inline void sgdSetQuat ( sgdQuat dst, sgQuat src )
 {
   sgdSetVec4 ( dst, src ) ;
 }
+
+
+/* Function to rotate a vector through a given quaternion using the formula
+ * R = Q r Q-1 -- this gives the components of a ROTATED vector in a STATIONARY
+ * coordinate system.  We assume that Q is a unit quaternion.
+ */
+
+void sgRotateVecQuat ( sgVec3 vec, sgQuat q ) ;
+void sgdRotateVecQuat ( sgdVec3 vec, sgdQuat q ) ;
+
+/* Function to rotate a vector through a given quaternion using the formula
+ * R = Q-1 r Q -- this gives the components of a STATIONARY vector in a ROTATED
+ * coordinate system.  We assume that Q is a unit quaternion.
+ */
+
+void sgRotateCoordQuat ( sgVec3 vec, sgQuat q ) ;
+void sgdRotateCoordQuat ( sgdVec3 vec, sgdQuat q ) ;
+
+sgFloat sgDistSquaredToLineLineSegment ( const sgLineSegment3 seg, const sgLine3 line ) ;
+sgdFloat sgdDistSquaredToLineLineSegment ( const sgdLineSegment3 seg, const sgdLine3 line ) ;
+
 
 
 /*
