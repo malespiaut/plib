@@ -41,6 +41,14 @@
 
 #include "puLocal.h"
 
+#if defined(WIN32)
+#define DOTDOTSLASH "..\\"
+#define SLASH       "\\"
+#else
+#define DOTDOTSLASH "../"
+#define SLASH       "/"
+#endif
+
 static void puFilePickerHandleSlider ( puObject * slider )
 {
   float val ;
@@ -78,6 +86,54 @@ static void puFilePickerHandleArrow ( puObject *arrow )
   }
 }
 
+
+static void chop_file ( char *fname )
+{
+  /* removes everything back to the last '/' */
+
+  for ( int i = strlen(fname)-1 ; fname[i] != SLASH[0] && i >= 0 ; i-- )
+    fname[i] = '\0' ;
+}
+
+
+static void go_up_one_directory ( char *fname )
+{
+  /* removes everything back to the last but one '/' */
+
+  chop_file ( fname ) ;
+
+  if ( strlen ( fname ) == 0 )
+  {
+    /* Empty string!  The only way to go up is to append a "../" */
+
+    strcpy ( fname, DOTDOTSLASH ) ;
+    return ;
+  }
+
+  /* If the last path element is a "../" then we'll have to add another "../" */
+
+  if ( strcmp ( & fname [ strlen(fname)-3 ], DOTDOTSLASH ) == 0 )
+  {
+    if ( strlen ( fname ) + 4 >= PUSTRING_MAX )
+    {
+      ulSetError ( UL_WARNING, "PUI: puFilePicker - path is too long, max is %d.",
+                          PUSTRING_MAX ) ;
+      return ;
+    }
+
+    strcat ( fname, DOTDOTSLASH ) ;
+    return ;
+  }
+
+  /* Otherwise, just delete the last element of the path. */
+
+  /* Remove the trailing slash - then remove the rest as if it was a file name */
+
+  fname [ strlen(fname)-1 ] = '\0' ;
+  chop_file ( fname ) ;
+}
+
+
 void puFilePicker::handle_select ( puObject* list_box )
 {
   puFilePicker* file_picker = (puFilePicker*) list_box -> getUserData () ;
@@ -86,10 +142,69 @@ void puFilePicker::handle_select ( puObject* list_box )
   list_box -> getValue ( &selected ) ;
 
   if ( selected >= 0 && selected < file_picker -> num_files )
-    file_picker -> setValue ( file_picker -> files [ selected ] ) ;
+  {
+    char *dst = file_picker -> getStringValue () ;
+    char *src = file_picker -> files [ selected ] ;
+
+    chop_file ( dst ) ;
+
+    if ( strcmp ( src, "." ) == 0 )
+    {
+      /* Do nothing - but better refresh anyway. */
+
+      file_picker -> find_files () ;
+      return ;
+    } 
+
+    if ( strcmp ( src, ".." ) == 0 )
+    {
+      /* Do back up one level - so refresh. */
+
+      go_up_one_directory ( dst ) ;
+      file_picker -> find_files () ;
+      return ;
+    } 
+
+    if ( file_picker -> dflag [ selected ] )
+    {
+      /* If this is a directory - then descend into it and refresh */
+
+      if ( strlen ( dst ) + strlen ( src ) + 2 >= PUSTRING_MAX )
+      {
+	ulSetError ( UL_WARNING,
+          "PUI: puFilePicker - path is too long, max is %d.", PUSTRING_MAX ) ;
+	return ;
+      }
+
+      strcat ( dst, src ) ;
+      strcat ( dst, SLASH ) ;
+      file_picker -> find_files () ;
+      return ;
+    }
+
+    /* If this is a regular file - then just append it to the string */
+
+    if ( strlen ( dst ) + strlen ( src ) + 2 >= PUSTRING_MAX )
+    {
+      ulSetError ( UL_WARNING, 
+        "PUI: puFilePicker - path is too long, max is %d.", PUSTRING_MAX ) ;
+      return ;
+    }
+
+    strcat ( dst, src ) ;
+  }
   else
-    file_picker -> setValue ( "" ) ;
+  {
+    /*
+      The user clicked on blank screen - maybe we should
+      refresh just in case some other process created the
+      file.
+    */
+
+    file_picker -> find_files () ;
+  }
 }
+
 
 static void puFilePickerHandleCancel ( puObject* b )
 {
@@ -101,6 +216,7 @@ static void puFilePickerHandleCancel ( puObject* b )
 static void puFilePickerHandleOk ( puObject* b )
 {
   puFilePicker* file_picker = (puFilePicker*) b -> getUserData () ;
+
   file_picker -> invokeCallback () ;
 }
 
@@ -173,7 +289,9 @@ puFilePicker::~puFilePicker ()
       files[i] = 0;
     }
     delete[] files;
+    delete[] dflag;
     files = 0;
+    dflag = 0;
   }
   num_files = 0;
 
@@ -186,10 +304,10 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
 {
   type |= PUCLASS_FILEPICKER ;
   files = 0 ;
+  dflag = 0 ;
   num_files = 0 ;
-  setValue ( "" ) ;
-
-  find_files ( dir ) ;
+  strcpy ( getStringValue(), "" ) ;
+  strcpy ( startDir, dir ) ;
 
   if ( arrows > 2 ) arrows = 2 ;
   if ( arrows < 0 ) arrows = 0 ;
@@ -197,30 +315,33 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
 
   new puFrame ( 0, 0, w, h );
 
-  puSlider* slider = new puSlider (w-30,40+20*arrows,h-70-40*arrows,TRUE,20);
+  slider = new puSlider (w-30,40+20*arrows,h-70-40*arrows,TRUE,20);
   slider->setDelta(0.1f);
   slider->setValue(1.0f);
   slider->setSliderFraction (0.2f) ;
   slider->setCBMode( PUSLIDER_DELTA );
   
-  puListBox* list_box = new puListBox ( 10, 40, w-40, h-30, files ) ;
+  list_box = new puListBox ( 10, 40, w-40, h-30 ) ;
   list_box -> setLabel ( title );
   list_box -> setLabelPlace ( PUPLACE_ABOVE ) ;
   list_box -> setStyle ( -PUSTYLE_SMALL_SHADED ) ;
   list_box -> setUserData ( this ) ;
   list_box -> setCallback ( handle_select ) ;
   list_box -> setValue ( 0 ) ;
+
+  find_files () ;
+
   handle_select ( list_box ) ;
   
   slider -> setUserData ( list_box ) ;
   slider -> setCallback ( puFilePickerHandleSlider ) ;
 
-  puOneShot* cancel_button = new puOneShot ( 10, 10, (w<170)?(w/2-5):80, 30 ) ;
+  cancel_button = new puOneShot ( 10, 10, (w<170)?(w/2-5):80, 30 ) ;
   cancel_button -> setLegend ( "Cancel" ) ;
   cancel_button -> setUserData ( this ) ;
   cancel_button -> setCallback ( puFilePickerHandleCancel ) ;
   
-  puOneShot* ok_button = new puOneShot ( (w<170)?(w/2+5):90, 10, (w<170)?(w-10):160, 30 ) ;
+  ok_button = new puOneShot ( (w<170)?(w/2+5):90, 10, (w<170)?(w-10):160, 30 ) ;
   ok_button -> setLegend ( "Ok" ) ;
   ok_button -> setUserData ( this ) ;
   ok_button -> setCallback ( puFilePickerHandleOk ) ;
@@ -288,7 +409,7 @@ static int puFilePickerStringCompare ( const char *s1, const char *s2 )
   return 0 ;
 }
 
-static void puFilePickerSort ( char** list, int size )
+static void puFilePickerSort ( char** list, char *flags, int size )
 //
 //  comb sort - a modified bubble sort
 //    taken from BYTE, April 1991, ppg 315-320
@@ -316,9 +437,14 @@ static void puFilePickerSort ( char** list, int size )
       int j=i+gap;
       if (puFilePickerStringCompare(list[i],list[j]) > 0)
       {
-        char* temp = list[i];
-        list[i] = list[j];
-        list[j] = temp;
+        char* temp = list[i] ;
+        list[i] = list[j] ;
+        list[j] = temp ;
+
+        char tmp2 = flags[i] ;
+        flags[i] = flags[j] ;
+        flags[j] = tmp2 ;
+
         ++switches;
       }
     }
@@ -326,9 +452,22 @@ static void puFilePickerSort ( char** list, int size )
   while(switches || gap>1);
 }
 
-void puFilePicker::find_files ( const char* dir )
+
+void puFilePicker::find_files ()
 {
+  char dir [ PUSTRING_MAX * 2 ] ;
+
+  strcpy ( dir, startDir ) ;
+  strcat ( dir, SLASH ) ;
+  strcat ( dir, getStringValue() ) ;
+
+  if ( dir [ strlen ( dir ) - 1 ] != SLASH[0] )  /* Someone forgot a trailing '/' */
+    strcat ( dir, SLASH ) ;
+
+fprintf ( stderr, "Finding files in '%s'\n", dir ) ;
+
   num_files = 0;
+
   for ( int pass=0; pass<2; pass++ )
   {
     int ifile = 0;
@@ -339,19 +478,24 @@ void puFilePicker::find_files ( const char* dir )
       ulDirEnt* dp;
       while ( (dp = ulReadDir(dirp)) != NULL )
       {
-        if ( ! dp->d_isdir )
-        {
-          if ( pass )
-          {
-            files[ ifile ] = new char[ strlen(dp->d_name)+1 ];
-            strcpy( files[ ifile ], dp->d_name );
-          }
-          
-          ifile ++;
+	if ( pass )
+	{
+          dflag[ ifile ] = dp->d_isdir ;
+          files[ ifile ] = new char[ strlen(dp->d_name)+1 ];
+          strcpy( files[ ifile ], dp->d_name );
         }
+          
+        ifile ++;
       }
       ulCloseDir(dirp);
     }
+    else
+{
+perror ("puFilePicker") ;
+fprintf ( stderr, "puFilePicker - Can't open directory '%s'\n", dir ) ;
+
+      ulSetError ( UL_WARNING, "PUI:puFilePicker - can't open directory '%s'", dir ) ;
+}
     
     if ( pass == 0 )
     {
@@ -359,10 +503,25 @@ void puFilePicker::find_files ( const char* dir )
       if ( num_files == 0 )
         return;
       
-      files = new char* [ num_files+1 ];
+      if ( files == NULL )
+      {
+        delete [] files ;
+        delete [] dflag ;
+      }
+
+      files = new char* [ num_files+1 ] ;
+      dflag = new char  [ num_files+1 ] ;
+
       for ( int i=0; i<=num_files; i++ )
+      {
         files [i] = 0 ;
+        dflag [i] = FALSE ;
+      }
     }
   }
-  puFilePickerSort( files, num_files ) ;
+
+  puFilePickerSort( files, dflag, num_files ) ;
+
+  list_box -> newList ( files ) ;
 }
+
