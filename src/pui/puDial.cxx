@@ -147,8 +147,33 @@ void puDial::doHit ( int button, int updown, int x, int y )
 
     setValue ( angle ) ;
 
-    puSetActiveWidget ( this, x, y ) ;
-    invokeCallback () ;
+    switch ( cb_mode )
+    {
+      case PUSLIDER_CLICK :
+        if ( updown == active_mouse_edge )
+        {
+          last_cb_value = angle ;
+          puSetActiveWidget ( this, x, y ) ;
+          invokeCallback () ;
+        }
+        break ;
+
+      case PUSLIDER_DELTA :
+        if ( fabs ( last_cb_value - angle ) >= cb_delta )
+        {
+          last_cb_value = angle ;
+          puSetActiveWidget ( this, x, y ) ;
+          invokeCallback () ;
+        }
+        break ;
+
+      case PUSLIDER_ALWAYS :
+      default :
+        last_cb_value = angle ;
+        puSetActiveWidget ( this, x, y ) ;
+        invokeCallback () ;
+        break ;
+    }
   }
 }
 
