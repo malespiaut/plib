@@ -138,6 +138,8 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   }
   else
     parent = NULL ;
+
+  puPostRefresh() ;
 }
 
 

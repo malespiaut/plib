@@ -364,7 +364,7 @@ void  puLargeInput::setText ( const char *l )
   if ( bottom_slider ) bottom_slider->setSliderFraction ( 0.0 ) ;
   right_slider->setSliderFraction ( 0.0 ) ;
 
-  puRefresh = TRUE ;
+  puPostRefresh() ;
 
   if ( !l )
   {

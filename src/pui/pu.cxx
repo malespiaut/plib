@@ -308,6 +308,8 @@ void  puDisplay ( void )
                    h - _puCursor_y ) ;
 
   puRestoreOpenGLState () ;
+
+  puRefresh = FALSE ;
 }
 
 
