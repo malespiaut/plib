@@ -207,5 +207,68 @@ ulDir* ulOpenDir ( const char* dirname ) ;
 ulDirEnt* ulReadDir ( ulDir* dir ) ;
 void ulCloseDir ( ulDir* dir ) ;
 
+/*
+  UDP Networking Class NetWork Libriary
+  by Ben Woodhead
+*/
+
+#define UL_UDP_DEFAULT_PORT_NUMBER  5100
+
+class ulUDPConnection
+{
+  struct sockaddr_in  *in_addr ;
+  struct sockaddr_in *out_addr ;
+
+  int sockfd ;
+  int  port  ;
+  int iport  ;
+  int oport  ;
+
+ public:
+
+   ulUDPConnection () ;
+  ~ulUDPConnection () ;
+  
+  void disconnect  () ;
+
+  int connect      ( char *hostname = "localhost",
+                     int   _port    = UL_UDP_DEFAULT_PORT_NUMBER ) ;
+
+  int sendMessage  ( char *mesg, int length ) ;
+  int recvMessage  ( char *mesg, int length ) ;
+} ;
+
+/*
+  TCP Networking Class NetWork Library
+  by Ben Woodhead
+*/
+
+#define UL_TCP_DEFAULT_PORT_NUMBER  5100
+
+class ulTCPConnection
+{
+  struct sockaddr_in  *in_addr ;
+  struct sockaddr_in *out_addr ;
+
+  int sockfd ;
+  int c_sockfd;  /* This is questionable if I actually need this,
+			  I would love it if someone would tighten my code */
+  int  port  ;
+
+ public:
+
+  ulTCPConnection () ; 
+  ~ulTCPConnection () ;
+
+  void disconnect  () ;
+  int startServer  (int _port = UL_TCP_DEFAULT_PORT_NUMBER ) ;  
+
+  int connect      ( char *hostname = "localhost",
+                     int   _port    = UL_TCP_DEFAULT_PORT_NUMBER ) ;
+
+  int sendMessage  ( char *mesg, int length ) ;
+  int recvMessage  ( char *mesg, int length ) ;
+} ;
+
 #endif
 
