@@ -116,6 +116,14 @@ static bool			    has_normals_, vtx_dirty_, tex_vtx_dirty_;
 #endif
 }*/
 
+#ifdef DEBUG
+FILE *wkfp;
+
+#define PRINT_STRUCTURE(a, b) fprintf(wkfp, a, b);
+#define PRINT_STRUCTURE1(a ) fprintf(wkfp, a);
+    
+#endif
+
 //===========================================================================
 
 static void newPart()
@@ -781,10 +789,19 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   sgMakeIdentMat4(curr_matrix_);
   
   // Parse opcodes
+#ifdef DEBUG
+#ifdef _MSC_VER
+	wkfp=fopen("c:\\mdl_file_structure.txt", "wt");
+#else
+	wkfp=fopen("mdl_file_structure.txt", "wt");
+#endif
+#endif
   bool done = false;
   while(!feof(fp) && !done) 
   {
     unsigned int   skip_offset = 0;
+
+		PRINT_STRUCTURE( "offset %lx\n", (long)ftell(fp))
     unsigned short opcode = ulEndianReadLittle16(fp);
     
     DEBUGPRINT( "opcode = " << std::hex << opcode << std::dec << std::endl );
@@ -800,6 +817,9 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         push_stack(addr);
         long dst = addr + offset - 4;
         fseek(fp, dst, SEEK_SET);
+
+
+				PRINT_STRUCTURE( "call %lx\n", (long)offset)
       }
       break;
       
@@ -809,6 +829,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         offset = ulEndianReadLittle32(fp);
         long addr = ftell(fp);
         DEBUGPRINT( "BGL_CALL32(" << offset << ")\n" );
+				PRINT_STRUCTURE( "call32 %lx\n", (long)offset)
         push_stack(addr);
         long dst = addr + offset - 6;
         fseek(fp, dst, SEEK_SET);
@@ -819,6 +840,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 			{
         short offset;
         offset = ulEndianReadLittle16(fp);
+				PRINT_STRUCTURE( "jump %lx\n", (long)offset)
         long addr = ftell(fp);
         long dst = addr + offset - 4;
         fseek(fp, dst, SEEK_SET);
@@ -832,6 +854,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         offset = ulEndianReadLittle32(fp);
         long addr = ftell(fp);
         DEBUGPRINT( "BGL_JUMP32(" << offset << ")\n" );
+				PRINT_STRUCTURE( "jump32 %lx\n", (long)offset)
         long dst = addr + offset - 6;
         fseek(fp, dst, SEEK_SET);
       }
@@ -856,6 +879,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         DEBUGPRINT( "BGL_IFMSK(" << offset << ", 0x" << std::hex << var << 
           ", 0x" << mask << std::dec << ")\n" );
         //          if(var & mask == 0)
+				PRINT_STRUCTURE( "if msk %lx\n", (long)offset)
         switch(var)
         {
         case 0x7e:
@@ -878,6 +902,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         hi     = ulEndianReadLittle16(fp);
         DEBUGPRINT( "BGL_IFIN1(" << offset << ", 0x" << std::hex << var << 
           ", " << std::dec << lo << ", " << hi << ")\n" );
+				PRINT_STRUCTURE( "ifin1 %lx\n", (long)offset)
         curr_var_ = var;
       }
       break;
@@ -972,7 +997,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         pixels_ref = ulEndianReadLittle16(fp);
         DEBUGPRINT("BGL_IFSIZEV: jmp = " << offset << ", sz = " << 
           real_size << ", px = " << pixels_ref << std::endl);
-        
+        PRINT_STRUCTURE( "ifsizev!! %lx\n", (long)offset)
         long addr = ftell(fp);
         long dst = addr + offset - 8;
         fseek(fp, dst, SEEK_SET);
@@ -1009,6 +1034,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         sgZeroVec3( curr_rot_pt_ );
         curr_var_    = 0;
         DEBUGPRINT( "BGL return\n\n");
+				PRINT_STRUCTURE1("return\n");
         if(stack_depth_ == 0)
           done = true;
         else
@@ -1430,7 +1456,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
       
       
       //-------------------------------------------
-      // The rest of the codes are either ignored
+      // The next code is either ignored
       // or for experimental use..
       //-------------------------------------------
       
@@ -1439,9 +1465,86 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         //DEBUGPRINT( "BGL_CASE\n" );
         unsigned short number_cases = ulEndianReadLittle16(fp);
         skip_offset = 6 + 2 * number_cases;
+				PRINT_STRUCTURE1("case :-( !!\n");
       }
       break;
-      
+ 
+      //-------------------------------------------
+      // The next codes are CFS2 specific
+      //-------------------------------------------     
+
+		case 0xB5: //, VertexList,	anaVertexList, 0 ) // VERTEX_LIST_BEGIN
+			{
+        
+				int count = ulEndianReadLittle16(fp);
+				ulEndianReadLittle32(fp); // dummy
+				fseek(fp, count*4*8, SEEK_CUR);
+			}
+			break;
+
+		case 0xB6: //, MaterialList,	anaMaterialList, 0 ) // MATERIAL_LIST_BEGIN 
+			{
+
+				int count = ulEndianReadLittle16(fp);
+				ulEndianReadLittle32(fp); // dummy
+				fseek(fp, count*4*17, SEEK_CUR);
+			}
+
+			break;
+
+		case 0xB7: //, TextureList,		anaTextureList, 0 )		// TEXTURE_LIST_BEGIN/TEXTURE_DEF/TEXTURE_LIST_END 
+			{
+
+				int count = ulEndianReadLittle16(fp);
+				ulEndianReadLittle32(fp); // dummy
+				fseek(fp, count*80, SEEK_CUR);
+			}
+			break;
+
+		case 0xB9: //, DrawTriList,		anaDrawTriList,	0 )
+			{
+				fseek(fp, 4, SEEK_CUR);
+				int wkcount = ulEndianReadLittle16(fp);
+				wkcount = wkcount / 3; // tri
+				fseek(fp, 2*3*wkcount, SEEK_CUR);
+			}
+			break;
+			
+		case 0xBA: //, DrawLineList,	anaDrawLineList,	0 )
+			{
+				fseek(fp, 4, SEEK_CUR);
+				int wkcount = ulEndianReadLittle16(fp);
+				wkcount = wkcount / 2; 
+				fseek(fp, 2*2*wkcount, SEEK_CUR);
+			}
+			break;
+
+		case 0xBB: //, DrawPointList,	anaDrawPointList,	0 )
+			{
+				fseek(fp, 4, SEEK_CUR);
+				int wkcount = ulEndianReadLittle16(fp);
+				wkcount = wkcount / 1; 
+				fseek(fp, 2*1*wkcount, SEEK_CUR);
+			}
+			break;
+
+    case 0xBC: // BGL_BEGIN / BGLVersion
+			{
+        //DEBUGPRINT( "BGL_CASE\n" );
+				long v = ulEndianReadLittle32(fp);
+        
+				PRINT_STRUCTURE("BGLVersion %lx\n", v)
+      }
+      break;
+    case 0xB8: // SetMaterial
+			  ulEndianReadLittle16(fp); // word
+			break;
+    case 0xB4: // TextureSize
+			  ulEndianReadLittle32(fp); // float
+			break;
+    case 0xBD: // BGL_END / EndVersion
+			break;
+
     default: // Unknown opcode
       {
         if (opcode < 256)
@@ -1474,7 +1577,9 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
     }
     
     fclose(fp);
-    
+#ifdef DEBUG  
+		fclose(wkfp);
+#endif
     delete curr_vtx_;
     delete curr_norm_;
     
