@@ -25,6 +25,7 @@
 #ifndef _INCLUDED_SSG_H_
 #define _INCLUDED_SSG_H_
 
+#include <stdio.h>
 #include "sg.h"
 
 #ifdef UL_MAC_OSX

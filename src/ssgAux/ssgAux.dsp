@@ -126,6 +126,10 @@ SOURCE=.\ssgaPatch.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgaScreenDump.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgaShapes.cxx
 # End Source File
 # Begin Source File
@@ -171,6 +175,10 @@ SOURCE=.\ssgaLensFlare.h
 # Begin Source File
 
 SOURCE=.\ssgaParticleSystem.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaScreenDump.h
 # End Source File
 # Begin Source File
 

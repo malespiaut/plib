@@ -25,6 +25,7 @@
 #ifndef _FNT_H_
 #define _FNT_H_  1
 
+#include <stdio.h>
 #include "sg.h"
 
 #ifdef UL_MAC_OSX

@@ -24,6 +24,7 @@
 #ifndef _PU_H_
 #define _PU_H_ 1
 
+#include <stdio.h>
 #include "fnt.h"
 #include "ulRTTI.h"
 

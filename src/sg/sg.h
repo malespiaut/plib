@@ -25,6 +25,7 @@
 #ifndef SG_H
 #define SG_H  1
 
+#include <stdio.h>
 #include "ul.h"
 
 #define sgFloat float
