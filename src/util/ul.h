@@ -50,7 +50,6 @@
 #endif
 
 #if defined (WIN32)
-a
 #  include <windows.h>
 #  ifdef __CYGWIN__
 #    include <unistd.h>
