@@ -19,7 +19,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "js1"=".\src\js\js1.dsp" - Package Owner=<4>
+Project: "js"=".\src\js\js.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -97,10 +97,6 @@ Project: "psl"=".\src\psl\psl.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    psl
-    .\src\psl
-    end source code control
 }}}
 
 Package=<4>
