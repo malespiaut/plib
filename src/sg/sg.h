@@ -64,6 +64,8 @@
 inline SGfloat sgSqrt   ( const SGfloat x ) { return (SGfloat) sqrt ( x ) ; }
 inline SGfloat sgSquare ( const SGfloat x ) { return x * x ; }
 inline SGfloat sgAbs    ( const SGfloat a ) { return (a<SG_ZERO) ? -a : a ; }
+inline SGfloat sgHypot  ( const SGfloat x, const SGfloat y ) { return sgSqrt( sgSquare(x) + sgSquare(y) ); }
+
 
 /* 
   Type-casted sin/cos/tan/asin/acos/atan2 ANGLES IN DEGREES

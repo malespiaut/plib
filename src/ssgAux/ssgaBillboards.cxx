@@ -25,12 +25,6 @@
 #include "ssgaBillboards.h"
 
 
-#ifdef UL_MAC_OSX
-#define fabsf(x)      ((x) < 0 ? -(x) : (x))
-#define hypotf(x, y)  sqrtf((x)*(x) + (y)*(y))
-#endif
-
-
 int ssgaBillboards::total_drawn = 0;
 
 
@@ -254,7 +248,7 @@ void ssgaBillboards::draw(const sgMat4 m)
 
 	wx =  z_axis[1];
 	wy = -z_axis[0];
-	len = hypotf(wx, wy);
+	len = sgHypot(wx, wy);
 	
 	if (len > 1e-6f) {
 	    
@@ -359,7 +353,7 @@ float *ssgaBillboards::getVertex(int i)
 
     // pick any orientation
     sgVec3 xy, axis = { 0, 0, 0 };
-    axis[ fabsf(up[0]) > fabsf(up[1]) ] = 1;
+    axis[ sgAbs(up[0]) > sgAbs(up[1]) ] = 1;
     sgVectorProductVec3(xy, up, axis);
     sgNormaliseVec3(xy);
 
