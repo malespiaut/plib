@@ -244,7 +244,7 @@ bool ssgConvertTexture( char * fname_output, const char * fname_input )
 	}
 
 	// ****** found original file. convert it. ******
-#ifdef WIN32
+#ifdef UL_WIN32
   char command [ 1024 ] ;
 	sprintf(command, "imconvert -verbose %s sgi:%s", fname_input, fname_output);
 	unsigned int ui = WinExec(command, SW_HIDE );	

@@ -22,14 +22,8 @@
 */
  
  
-#include <stdio.h>
-#include <stdlib.h>
-#if defined(WIN32)
-#include <windows.h>
-#include <mmsystem.h>
-#endif
- 
 #include "ul.h"
+ 
                                                                                 
 ulList::ulList ( int init )
 {

@@ -45,7 +45,7 @@
 UL_RTTI_DEF1(puFilePicker,puDialogBox)
 
 
-#if defined(WIN32) && !defined(__CYGWIN__)
+#ifdef UL_MSVC
 #define DOTDOTSLASH "..\\"
 #define SLASH       "\\"
 #else
@@ -381,7 +381,7 @@ static int puFilePickerStringCompare ( const char *s1, const char *s2,
       listing.
     */
 
-#if defined(WIN32)
+#ifdef UL_WIN32
     if ( c1 >= 'a' && c1 <= 'z' )
       c1 = c1 - ('a'-'A') ;
     

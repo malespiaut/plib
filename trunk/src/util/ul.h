@@ -70,11 +70,19 @@
 
 #elif defined(__APPLE__)
 
-#define UL_MAX_OSX   1 
+#define UL_MAC_OSX   1 
 
 #elif defined(__linux__)
 
 #define UL_LINUX     1
+
+#elif defined(__sgi)
+
+#define UL_IRIX      1
+
+#elif defined(SOLARIS)
+
+#define UL_SOLARIS   1
 
 #elif (defined(__unix__) || defined(unix)) && !defined(USG)
 

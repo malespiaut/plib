@@ -23,7 +23,7 @@
 
 #include "js.h"
 
-#ifdef _JS_MACINTOSH
+#ifdef UL_MACINTOSH
 
 #define _JS_MAX_AXES 9
 

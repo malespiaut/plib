@@ -90,9 +90,9 @@
 /*#define NO_COLORS*/
 
 /* Try to figure out how to do mmap. */
-#ifdef _WIN32
+#ifdef UL_WIN32
 # define USE_WIN32_MMAP
-#elif defined(__sgi) || defined(__GNUC__) /* OK? Any Unix dialect should work. */
+#else
 # include <unistd.h>
 # ifdef _POSIX_MAPPED_FILES
 #  define USE_POSIX_MMAP
@@ -103,7 +103,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
-#ifdef __sgi
+#ifdef UL_IRIX
 # include <sys/endian.h>
 #endif
 #ifdef USE_POSIX_MMAP
@@ -112,7 +112,7 @@
 # include <sys/stat.h>
 # include <sys/mman.h>
 #endif
-#ifdef _MSC_VER
+#ifdef UL_MSVC
 # include <io.h>
 #endif
 
@@ -142,7 +142,7 @@
 
 typedef unsigned char ubyte;
 
-#ifdef _WIN32
+#ifdef UL_WIN32
 typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
@@ -157,7 +157,7 @@ typedef unsigned int uint;
 /* XXX what about PDP_ENDIAN? */
 
 /* Help! Is this correct? */
-#if (!defined(BYTE_ORDER) && defined(WIN32) && !defined(NOT_INTEL_BYTE_ORDER))
+#if (!defined(BYTE_ORDER) && defined(UL_WIN32) && !defined(NOT_INTEL_BYTE_ORDER))
 # define LITTLE_ENDIAN  1234
 # define BIG_ENDIAN     4321
 # define BYTE_ORDER     LITTLE_ENDIAN

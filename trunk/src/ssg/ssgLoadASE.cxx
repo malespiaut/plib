@@ -61,10 +61,6 @@
 #include "ssgLocal.h"
 #include "ssgParser.h"
 
-#ifndef _WIN32
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
-#endif
 
 #define u32 unsigned int
 #define f32 float
@@ -323,7 +319,11 @@ static ssgSimpleState* make_state( aseMaterial* mat, bool prelit )
 static ssgSimpleState* get_state( aseMaterial* mat, bool prelit )
 {
   // is material an ifl (image file list)
+#ifdef UL_WIN32
   if ( strnicmp ( "ifl_", mat -> name, 4 ) == 0 )
+#else
+  if ( strncasecmp ( "ifl_", mat -> name, 4 ) == 0 )
+#endif
   {
     u32 num_subs = count_sub_materials ( mat -> mat_index );
     if ( num_subs < 2 )

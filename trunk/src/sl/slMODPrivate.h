@@ -29,7 +29,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#if defined( WIN32 ) && !defined( __CYGWIN32__ )
+#ifdef UL_MSVC
 #include <windows.h>
 #include <io.h>
 #else

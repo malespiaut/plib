@@ -27,7 +27,7 @@
 
 #include "sg.h"
 
-#ifdef __APPLE__
+#ifdef UL_MAC_OSX
 #  include <OpenGL/gl.h>
 #else
 #  include <GL/gl.h>

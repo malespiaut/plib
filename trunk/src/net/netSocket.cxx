@@ -23,9 +23,9 @@
 
 #include "netSocket.h"
 
-#if defined(__CYGWIN__) || !defined (WIN32)
+#if defined(UL_CYGWIN) || !defined (UL_WIN32)
 
-#if defined(__APPLE__)
+#if defined(UL_MAC_OSX)
 #  include <netinet/in.h>
 #endif
 
@@ -45,7 +45,7 @@
 
 #endif
 
-#if defined(_MSC_VER) && !defined(socklen_t)
+#if defined(UL_MSVC) && !defined(socklen_t)
 #define socklen_t int
 #endif
 
@@ -186,7 +186,7 @@ netSocket::setBlocking ( bool blocking )
 {
   assert ( handle != -1 ) ;
 
-#if defined(__CYGWIN__) || !defined (WIN32)
+#if defined(UL_CYGWIN) || !defined (UL_WIN32)
 
 	int delay_flag = ::fcntl (handle, F_GETFL, 0);
 	if (blocking)
@@ -210,7 +210,7 @@ netSocket::setBroadcast ( bool broadcast )
   int result;
   if ( broadcast ) {
       int one = 1;
-#ifdef WIN32
+#ifdef UL_WIN32
       result = ::setsockopt( handle, SOL_SOCKET, SO_BROADCAST, (char*)&one, sizeof(one) );
 #else
       result = ::setsockopt( handle, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one) );
@@ -292,7 +292,7 @@ netSocket::close (void)
 {
   if ( handle != -1 )
   {
-#if defined(__CYGWIN__) || !defined (WIN32)
+#if defined(UL_CYGWIN) || !defined (UL_WIN32)
     ::close( handle );
 #else
     ::closesocket( handle );
@@ -304,7 +304,7 @@ netSocket::close (void)
 bool
 netSocket::isNonBlockingError ()
 {
-#if defined(__CYGWIN__) || !defined (WIN32)
+#if defined(UL_CYGWIN) || !defined (UL_WIN32)
   switch (errno) {
   case EWOULDBLOCK: // always == NET_EAGAIN?
   case EALREADY:
@@ -403,7 +403,7 @@ netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
 /* Init/Exit functions */
 static void netExit ( void )
 {
-#if defined(__CYGWIN__) || !defined (WIN32)
+#if defined(UL_CYGWIN) || !defined (UL_WIN32)
 #else
 	/* Clean up windows networking */
 	if ( WSACleanup() == SOCKET_ERROR ) {
@@ -419,7 +419,7 @@ int netInit ( int* argc, char** argv )
 {
   assert ( sizeof(sockaddr_in) == sizeof(netAddress) ) ;
 
-#if defined(__CYGWIN__) || !defined (WIN32)
+#if defined(UL_CYGWIN) || !defined (UL_WIN32)
 #else
 	/* Start up the windows networking */
 	WORD version_wanted = MAKEWORD(1,1);
@@ -444,3 +444,5 @@ cchar* netFormat ( cchar* format, ... )
   va_end(argptr);
   return( buffer );
 }
+
+
