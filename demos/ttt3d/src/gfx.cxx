@@ -77,10 +77,9 @@ void GFX::update ()
 {
   sgVec3 sunposn   ;
   sgVec4 skycol ;
-  sgVec4 black = { 0.0, 0.0, 0.0, 1.0 } ;
   sgVec4 white = { 1.0, 1.0, 1.0, 1.0 } ;
 
-  sgSetVec3 ( sunposn, 0.2, 0.5, 0.2 ) ;
+  sgSetVec3 ( sunposn, -0.2, -0.5, 0.2 ) ;
 
   sgSetVec4 ( skycol, 0.4, 0.4, 0.8, 1.0 ) ;
 
