@@ -1716,6 +1716,7 @@ public:
   void setSize ( int w, int h ) ;
 
   int getNumLines ( void ) const {  return num_lines ;  }
+  int getLinesInWindow ( void ) const { return lines_in_window ; }
   void setTopLineInWindow ( int val ) {  top_line_in_window = val ;  }
 
   void draw     ( int dx, int dy ) ;
