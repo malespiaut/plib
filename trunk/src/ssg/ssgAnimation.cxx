@@ -1,6 +1,34 @@
 
 #include "ssgLocal.h"
 
+void ssgTimedSelector::copy_from ( ssgTimedSelector *src, int clone_flags )
+{
+  ssgSelector::copy_from ( src, clone_flags ) ;
+
+  running = src -> running ;
+  mode    = src -> mode    ;
+
+  start_time    = src -> start_time ;
+  pause_time    = src -> pause_time ;
+  loop_time     = src ->  loop_time ;
+
+  for ( int i = 0 ; i < 32 ; i++ )
+    times [ i ]  = src -> times [ i ] ;
+
+  curr  = src -> curr  ;
+  start = src -> start ;
+  end   = src -> end   ;
+}
+
+
+ssgTimedSelector *ssgTimedSelector::clone ( int clone_flags )
+{
+  ssgTimedSelector *b = new ssgTimedSelector ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgTimedSelector::ssgTimedSelector (void)
 {
   type |= SSG_TYPE_TIMEDSELECTOR ;

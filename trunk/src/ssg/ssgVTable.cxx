@@ -1,6 +1,42 @@
 
 #include "ssgLocal.h"
 
+void ssgVTable::copy_from ( ssgVTable *src, int clone_flags )
+{
+  ssgLeaf::copy_from ( src, clone_flags ) ;
+
+  gltype  = src -> getGLtype () ;
+  indexed = src -> isIndexed () ;
+
+  num_vertices  = src -> getNumVertices  () ;
+  num_normals   = src -> getNumNormals   () ;
+  num_colours   = src -> getNumColours   () ;
+  num_texcoords = src -> getNumTexCoords () ;
+
+  /*
+    I should probably copy these arrays if SSG_CLONE_GEOMETRY
+    is set - but life is short and ssgVTable is obsolete -
+    and the inability to free the space that would create
+    was the main reason to obsolete ssgVTable.
+  */
+
+  src -> getVertexList   ( (void **) & vertices , & v_index ) ;
+  src -> getNormalList   ( (void **) & normals  , & n_index ) ;
+  src -> getTexCoordList ( (void **) & texcoords, & t_index ) ;
+  src -> getColourList   ( (void **) & colours  , & c_index ) ;
+
+  recalcBSphere () ;
+}
+
+
+ssgVTable *ssgVTable::clone ( int clone_flags )
+{
+  ssgVTable *b = new ssgVTable ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgVTable::ssgVTable ()
 {
   type |= SSG_TYPE_VTABLE ;

@@ -6,6 +6,19 @@
 
 #include <GL/gl.h>
 
+void ssgTransform::copy_from ( ssgTransform *src, int clone_flags )
+{
+  ssgBaseTransform::copy_from ( src, clone_flags ) ;
+}
+
+ssgTransform *ssgTransform::clone ( int clone_flags )
+{
+  ssgTransform *b = new ssgTransform ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgTransform::ssgTransform ( sgCoord *c )
 {
   type |= SSG_TYPE_TRANSFORM ;

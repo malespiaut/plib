@@ -1,6 +1,25 @@
 
 #include "ssgLocal.h"
 
+void ssgRangeSelector::copy_from ( ssgRangeSelector *src, int clone_flags )
+{
+  ssgSelector::copy_from ( src, clone_flags ) ;
+
+  additive = src -> isAdditive () ;
+
+  for ( unsigned int i = 0 ; i < 33 ; i++ )
+    rng_list [ i ] = src -> getRange ( i ) ;
+}
+
+
+ssgRangeSelector *ssgRangeSelector::clone ( int clone_flags )
+{
+  ssgRangeSelector *b = new ssgRangeSelector ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgRangeSelector::ssgRangeSelector (void)
 {
   type |= SSG_TYPE_RANGESELECTOR ;

@@ -1,6 +1,31 @@
 
 #include "ssgLocal.h" 
 
+void ssgEntity::copy_from ( ssgEntity *src, int clone_flags )
+{
+  ssgBase::copy_from ( src, clone_flags ) ;
+
+  setName ( src -> getName () ) ;
+
+  if ( clone_flags & SSG_CLONE_USERDATA )
+    setUserData ( src -> getUserData () ) ;
+  else
+    setUserData ( NULL ) ;
+
+  traversal_mask = src -> getTraversalMask () ;
+
+  dirtyBSphere () ;
+}
+
+
+ssgEntity *ssgEntity::clone ( int /* clone_flags */ )
+{
+  fprintf ( stderr, "SSG: Cannot clone an ssgEntity base class.\n" ) ;
+  assert ( FALSE ) ;
+  return NULL ;
+}
+
+
 ssgEntity::ssgEntity (void)
 {
   user_data = NULL ;

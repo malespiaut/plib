@@ -4,6 +4,8 @@ PLIB Change Log.
 
 PLIB v1.1.10 (Jan 30th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Added a 'clone' function for all SSG classes.
+
   * PLIB now managed under CVS at SourceForge.
 
       http://sourceforge.net/project/?group_id=382

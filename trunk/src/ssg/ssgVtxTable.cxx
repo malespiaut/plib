@@ -3,6 +3,43 @@
 
 #define HL_DELTA 0.04f
 
+void ssgVtxTable::copy_from ( ssgVtxTable *src, int clone_flags )
+{
+  ssgLeaf::copy_from ( src, clone_flags ) ;
+
+  gltype = src -> getPrimitiveType () ;
+
+  if ( src->vertices != NULL && ( clone_flags & SSG_CLONE_GEOMETRY ) )
+    vertices = src -> vertices -> clone ( clone_flags ) ;
+  else
+    vertices = src -> vertices ;
+
+  if ( src->normals != NULL && ( clone_flags & SSG_CLONE_GEOMETRY ) )
+    normals = src -> normals -> clone ( clone_flags ) ;
+  else
+    normals = src -> normals ;
+
+  if ( src->texcoords != NULL && ( clone_flags & SSG_CLONE_GEOMETRY ) )
+    texcoords = src -> texcoords -> clone ( clone_flags ) ;
+  else
+    texcoords = src -> texcoords ;
+
+  if ( src->colours != NULL && ( clone_flags & SSG_CLONE_GEOMETRY ) )
+    colours = src -> colours -> clone ( clone_flags ) ;
+  else
+    colours = src -> colours ;
+
+  recalcBSphere () ;
+}
+
+ssgVtxTable *ssgVtxTable::clone ( int clone_flags )
+{
+  ssgVtxTable *b = new ssgVtxTable ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgVtxTable::ssgVtxTable ()
 {
   type |= SSG_TYPE_VTXTABLE ;

@@ -1,6 +1,34 @@
 
 #include "ssgLocal.h"
 
+void ssgStateSelector::copy_from ( ssgStateSelector *src, int clone_flags )
+{
+  ssgSimpleState::copy_from ( src, clone_flags ) ;
+
+  nstates   = src -> getNumSteps   () ;
+  selection = src -> getSelectStep () ;
+  statelist = new ssgSimpleState * [ nstates ] ;
+
+  for ( int i = 0 ; i < nstates ; i++ )
+  {
+    ssgSimpleState *s = src -> getStep ( i ) ;
+
+    if ( s != NULL && (clone_flags & SSG_CLONE_STATE_RECURSIVE) )
+      statelist [ i ] = s -> clone ( clone_flags ) ;
+    else
+      statelist [ i ] = s ;
+  }
+}
+
+
+ssgStateSelector *ssgStateSelector::clone ( int clone_flags )
+{
+  ssgStateSelector *b = new ssgStateSelector ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgStateSelector::ssgStateSelector () 
 { 
   nstates = 0 ;

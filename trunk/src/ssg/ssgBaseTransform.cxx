@@ -6,6 +6,18 @@
 
 #include <GL/gl.h>
 
+void ssgBaseTransform::copy_from ( ssgBaseTransform *src, int clone_flags )
+{
+  ssgBranch::copy_from ( src, clone_flags ) ;
+
+  src -> getTransform     ( transform ) ;
+  src -> getLastTransform ( last_transform ) ;
+  last_updated = src -> last_updated ;
+  first_time   = src -> first_time   ;
+}
+
+
+
 ssgBaseTransform::ssgBaseTransform (void)
 {
   type |= SSG_TYPE_BASETRANSFORM ;

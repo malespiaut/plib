@@ -1,12 +1,19 @@
 
 #include "ssgLocal.h"
 
+void ssgBase::copy_from ( ssgBase *src, int /* clone_flags */ )
+{
+  type  = src -> getType () ;
+  spare = src -> getSpare () ;
+  refc  = 0 ;
+}
+
+
 ssgBase:: ssgBase (void)
 {
   spare = refc = 0 ;
   type = SSG_TYPE_BASE ;
 }
-
 
 ssgBase::~ssgBase (void)
 {

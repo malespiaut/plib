@@ -1,6 +1,20 @@
 
 #include "ssgLocal.h"
 
+void ssgCutout::copy_from ( ssgCutout *src, int clone_flags )
+{
+  ssgBranch::copy_from ( src, clone_flags ) ;
+  point_rotate = src -> isPointRotate () ;
+}
+
+ssgCutout *ssgCutout::clone ( int clone_flags )
+{
+  ssgCutout *b = new ssgCutout ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgCutout::ssgCutout (int pntrot)
 {
   point_rotate = pntrot ;
