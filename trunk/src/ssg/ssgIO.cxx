@@ -217,10 +217,7 @@ void _ssgReadString ( FILE *fd, char **var )
   if ( s[0] == '\0' )
     *var = NULL ;
   else
-  {
-    *var = new char [ strlen(s)+1 ] ;
-    strcpy ( *var, s ) ;
-  }
+    *var = ulStrDup ( s ) ;
 }
 
 

@@ -361,16 +361,15 @@ static int parse_map( aseMaterial* mat )
         char* fname;
 				if (! parser.parseString(fname, "bitmap filename") )
 					return FALSE;
-				
+
         //strip existing directory from fname
         char* slash = strrchr ( fname, '/' ) ;
         if ( !slash )
           slash = strrchr ( fname, '\\' ) ; //for dos
         if ( slash )
           fname = slash + 1 ;
-        
-        mat->tfname = new char [ strlen(fname)+1 ] ;
-        strcpy ( mat->tfname, fname ) ;
+
+        mat->tfname = ulStrDup ( fname ) ;
       }
     }
     else if (!strcmp(token,"*UVW_U_TILING"))
@@ -438,14 +437,10 @@ static int parse_material( u32 mat_index, u32 sub_index, cchar* mat_name )
         char buff [ 256 ] ;
         sprintf( buff, "%s, sub#%d", mat_name, sub_index );
         
-        mat->name = new char [ strlen(buff)+1 ] ;
-        strcpy ( mat->name, buff ) ;
+        mat->name = ulStrDup ( buff ) ;
       }
       else
-      {
-        mat->name = new char [ strlen(name)+1 ] ;
-        strcpy ( mat->name, name ) ;
-      }
+        mat->name = ulStrDup ( name ) ;
     }
     else if (!strcmp(token,"*MATERIAL_AMBIENT"))
     {
@@ -1250,8 +1245,7 @@ static int parse_object( aseObject::Type type )
 					return FALSE;
 				
         
-        obj->name = new char [ strlen(name)+1 ] ;
-        strcpy ( obj->name, name ) ;
+        obj->name = ulStrDup ( name ) ;
       }
     }
     else if (!strcmp(token,"*NODE_PARENT"))
@@ -1263,8 +1257,7 @@ static int parse_object( aseObject::Type type )
 					return FALSE;
 				
         
-        obj->parent = new char [ strlen(name)+1 ] ;
-        strcpy ( obj->parent, name ) ;
+        obj->parent = ulStrDup ( name ) ;
       }
     }
     else if (!strcmp(token,"*NODE_TM"))

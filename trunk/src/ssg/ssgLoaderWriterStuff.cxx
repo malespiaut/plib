@@ -677,10 +677,7 @@ void ssgLoaderWriterMesh::setName( const char *meshName )
 	if ( !meshName )
 		name = NULL;
 	else
-	{
-		name = new char [ strlen(meshName) + 1 ];
-		strcpy(name, meshName);
-	}
+		name = ulStrDup(meshName);
 }
 
 

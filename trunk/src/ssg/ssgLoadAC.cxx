@@ -382,10 +382,7 @@ static int do_texture  ( char *s )
   if ( s == NULL || s[0] == '\0' )
     current_tfname = NULL ;
   else
-  {
-    current_tfname = new char [ strlen(s)+1 ] ;
-    strcpy ( current_tfname, s ) ;
-  }
+    current_tfname = ulStrDup ( s ) ;
 
   return PARSE_CONT ;
 }

@@ -260,8 +260,7 @@ static _ssgSave3dsChunk* create_maplist_chunk( ssgLeaf* leaf ) {
 
 static _ssgSave3dsChunk* create_facemat_chunk( ssgLeaf* leaf ) {
   char* matname = get_material_name( (ssgSimpleState*)leaf->getState() );
-  char* namecopy = new char[ strlen(matname)+1 ];
-  strcpy(namecopy, matname);
+  char* namecopy = ulStrDup ( matname ) ;
 
   _ssgSave3dsData* namedata = new _ssgSave3dsData(namecopy, 1, 
 						strlen(matname) + 1);
@@ -361,8 +360,7 @@ static void create_objects_chunk( ssgEntity* ent, _ssgSave3dsChunk* parent ) {
   _ssgSave3dsChunk* objs = new _ssgSave3dsChunk(CHUNK_OBJBLOCK);
   static const char const_objname[] = "Object written by ssgSave3ds";
 
-  char *objname = new char[ strlen(const_objname) + 1 ];
-  strcpy(objname, const_objname);
+  char *objname = ulStrDup ( const_objname ) ;
   objs->addData( new _ssgSave3dsData(objname, 1, strlen(objname)+1) );
   parent->addKid(objs);
 
@@ -411,8 +409,7 @@ static _ssgSave3dsChunk *create_map_chunk( ssgSimpleState *state ) {
   _ssgSave3dsChunk *map_chunk = new _ssgSave3dsChunk(CHUNK_TEXTURE);
 
   _ssgSave3dsChunk *mapname_chunk = new _ssgSave3dsChunk(CHUNK_MAPFILENAME);
-  char *mapname = new char[ strlen(state->getTextureFilename()) + 1 ];
-  strcpy(mapname, state->getTextureFilename());
+  char *mapname = ulStrDup(state->getTextureFilename());
   mapname_chunk -> addData( new _ssgSave3dsData(mapname, 1, 
 					       strlen(mapname) + 1) );
   map_chunk -> addKid(mapname_chunk);
@@ -430,10 +427,9 @@ static _ssgSave3dsChunk *create_material_chunk( ssgSimpleState *state ) {
   
   _ssgSave3dsChunk *matname_chunk = new _ssgSave3dsChunk(CHUNK_MATNAME);
   char *matname;
-  if (state->getName() != NULL) {
-    matname = new char[ strlen(state->getName()) + 1 ];
-    strcpy(matname, state->getName());
-  } else {
+  if (state->getName() != NULL)
+    matname = ulStrDup(state->getName());
+  else {
     matname = new char[16];
     sprintf(matname, "Material #%d", mat_count);
   }

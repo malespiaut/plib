@@ -155,8 +155,7 @@ static char* parser_getLine()
 				{
 					if ( _current_usemtl  != NULL )
 						delete [] _current_usemtl ;
-					_current_usemtl = new char [ strlen ( usemtl ) + 1 ] ;
-					strcpy ( _current_usemtl, usemtl ) ;
+					_current_usemtl = ulStrDup ( usemtl ) ;
 				}
 		}
     //# gbs -2710586.16105 -4275323.15743 3867065.62925 7623.60
@@ -298,8 +297,7 @@ static int parse()
 			// bring _last_usemtl up to date
 			if ( _last_usemtl != NULL )
 				delete [] _last_usemtl;
-			_last_usemtl= new char [ strlen ( _current_usemtl ) + 1 ] ;
-			strcpy ( _last_usemtl, _current_usemtl ) ;
+			_last_usemtl= ulStrDup ( _current_usemtl ) ;
 
 
 			// create SimpleState

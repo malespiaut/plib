@@ -344,8 +344,7 @@ static bool iv_parseTexture2( ssgBranch *parentBranch, _traversalState *currentD
 	     vrmlParser.expectNextToken("filename");
 	     if( !vrmlParser.getNextString( token, NULL ) )
 	       return FALSE;
-	     fileName = new char[ strlen( token ) + 1 ];
-	     strcpy( fileName, token );
+             fileName = ulStrDup ( token ) ;
 	  }
 	else if( !strcmp( token, "wrapS") )
 	  {

@@ -728,10 +728,7 @@ public:
     if ( fname == NULL )
       filename = NULL ;
     else
-    {
-      filename = new char [ strlen(fname)+1 ] ;
-      strcpy ( filename, fname ) ;
-    }
+      filename = ulStrDup ( fname ) ;
   }
 
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;

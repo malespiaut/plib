@@ -236,8 +236,7 @@ static bool vrml1_parseSwitch( ssgBranch *parentBranch, _traversalState *parentD
 	     ulSetError(UL_DEBUG, "DEF: Found an object definition %s.", token);
 	     if( childDefName != NULL )
 	       delete [] childDefName;
-	     childDefName = new char[ strlen( token ) + 1];
-	     strcpy( childDefName, token );
+	     childDefName = ulStrDup ( token ) ;
 	  }
 	else if( !strcmp( token, "USE" ) )
 	  {
