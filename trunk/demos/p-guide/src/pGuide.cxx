@@ -343,6 +343,26 @@ static void main_window_motionfn ( int x, int yy )
                   if ( (w + dist < 5) || (h + dist < 5) ) break ;
                   active_object->setSize ( w + dist, h + dist ) ;
                   break ;
+
+                case 8 :  // Resizing top-left
+                  if (y-yo-h>x-xo-w)
+                    dist = y - yo - h ;
+                  else
+                    dist = xo - x ;
+                  if ( (w + dist < 5) || (h + dist < 5) ) break ;
+		  active_object->setPosition ( xo - dist, yo ) ;
+                  active_object->setSize ( w + dist, h + dist ) ;
+                  break ;
+
+                case 9 :  // Resizing bottom-right
+                  if (y-yo-h>x-xo-w)
+                    dist = yo - y ;
+                  else
+                    dist = x - xo - w ;
+                  if ( (w + dist < 5) || (h + dist < 5) ) break ;
+                  active_object->setPosition ( xo , yo - dist ) ;
+                  active_object->setSize ( w + dist, h + dist ) ;
+                  break ;
                 }
 
                 int a, b ;
@@ -503,13 +523,13 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
           }
           if (new_wid->object_type == PUCLASS_COMBOBOX)
           {
-               new_wid->intval1 = 1.0f;
+               new_wid->intval1 = 1;
                new_wid->boolval1 = true;
           }
 
           if (new_wid->object_type == PUCLASS_SELECTBOX)
           {
-               new_wid->intval1 = 1.0f;
+               new_wid->intval1 = 1;
           }
 
           if (new_wid->object_type == PUCLASS_BUTTONBOX)
@@ -519,7 +539,7 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
 
           if (new_wid->object_type == PUCLASS_COMBOBOX)
           {
-               new_wid->intval1 = 1.0f;
+               new_wid->intval1 = 1;
                new_wid->boolval1 = true;
           }
 
@@ -636,6 +656,8 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
                                  ( y >= box->min[1] ) && ( y <= box->max[1] ) )
             {
     #define RESIZING_BORDER_WIDTH   5
+    #define RESIZING_CORNER_BORDER_WIDTH   8
+
               active_widget = wid ;
               active_object = wid->obj ;
               if ( abs ( x - box->min[0] ) < RESIZING_BORDER_WIDTH )
@@ -649,18 +671,31 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
               else
                 activity_flag = 1 ;  // Away from edges, we're moving it
 
-              if ( (activity_flag != 0) && ( 
+	      // bottom left 6
+	      // top right 7
+	      // top left 8
+	      // bottom right 9
+
+	      int corner_resize_width = RESIZING_CORNER_BORDER_WIDTH + (((box->max[0] - box->min[0]) + (box->max[1] - box->min[1]) / 2 ) / 50 ) * 2 ;
+
+              if ( activity_flag != 1 )
+	      {
                   // Bottom Right Corner
-                  ( ( ( y - box->min[1] ) < 2*RESIZING_BORDER_WIDTH ) && (abs ( x - box->max[0] ) < 2*RESIZING_BORDER_WIDTH ) ) ||
+                  if ( ( abs( y - box->min[1] ) < corner_resize_width  ) && (abs ( x - box->max[0] ) < corner_resize_width ) )
+		    activity_flag = 9;
+
                   // Bottom Left Corner
-                  ( ( ( y - box->min[1] ) < 2*RESIZING_BORDER_WIDTH ) && (abs ( x - box->min[0] ) < 2*RESIZING_BORDER_WIDTH ) ) ||
+                  if ( ( abs( y - box->min[1] ) < corner_resize_width ) && (abs ( x - box->min[0] ) < corner_resize_width ) )
+		    activity_flag = 6;
+
                   // Top Right Corner
-                  ( ( ( y - box->max[1] ) < 2*RESIZING_BORDER_WIDTH ) && (abs ( x - box->max[0] ) < 2*RESIZING_BORDER_WIDTH ) ) ||
+                  if ( ( abs( y - box->max[1] ) < corner_resize_width ) && (abs ( x - box->max[0] ) < corner_resize_width ) )
+		    activity_flag = 7;
+
                   // Top Left Corner
-                  ( ( ( y - box->max[1] ) < 2*RESIZING_BORDER_WIDTH ) && (abs ( x - box->min[0] ) < 2*RESIZING_BORDER_WIDTH ) ) ) )
-                  resize_corner = 1 ;
-              else
-                  resize_corner = 0 ;
+                  if ( ( abs( y - box->max[1] ) < corner_resize_width ) && (abs ( x - box->min[0] ) < corner_resize_width ) )
+		    activity_flag = 8;
+	      }
 
               // TO DO:  If the user clicks on a corner, let him resize in both directions at once
               /* This basically will involve setting "resize_corner" to be 1 */
@@ -669,6 +704,8 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
 
               if (active_widget->object_type == PUCLASS_DIAL)
                   resize_corner = 1 ;
+	      else
+                  resize_corner = 0;
 
               int object_x, object_y ;
               active_object->getPosition ( &object_x, &object_y ) ;
