@@ -1,0 +1,20 @@
+[ Place tasks here that probably won't get done before PLIB 2.0 or change
+  the API in a way that could break existing applications ]
+
+PUI section
+
+*	Remove deprecated puFilePicker widget
+
+*	Remove deprecated old label and legend places
+
+*	Remove deprecated PUSTYLE_RADIO
+
+*	Remove deprecated 'int puValue::getValue ( void )' function
+
+*	Line up widget constructors (explicit size vs. max coordinates issue)
+
+*       Change function parameters taking a 0/1 FALSE/TRUE value from 'int'
+        to 'bool'
+
+*       Implement puiAUX for complex widgets [ unclear ]
+
