@@ -2122,6 +2122,7 @@ int        ssgSaveDXF  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveTRI  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveOBJ  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveX    ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveM    ( const char *fname, ssgEntity *ent ) ;
 
 ssgEntity *ssgLoad     ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadVRML ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
@@ -2136,6 +2137,8 @@ ssgEntity *ssgLoadMD2  ( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadMDL  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadX    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadFLT  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadM    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadStrip( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 
 /* For backwards compatibility */
 
