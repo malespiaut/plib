@@ -1715,6 +1715,7 @@ public:
     }
   }
 
+  void setSize ( int w, int h ) ;
   void draw ( int dx, int dy ) ;
   int  checkKey ( int key, int updown ) ;
 

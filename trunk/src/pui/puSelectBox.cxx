@@ -82,6 +82,23 @@ void puSelectBox::newList ( char ** _list )
 }
 
 
+void puSelectBox::setSize ( int w, int h )
+{
+  int arrow_size = h / 2 ;
+
+  /* Resize the puInput widget */
+
+  input -> setSize ( w - arrow_size, h ) ;
+
+  /* Resize and reposition the arrow buttons */
+
+  down_arrow -> setPosition ( w - arrow_size, 0 ) ;
+  down_arrow -> setSize ( arrow_size, arrow_size ) ;
+
+  up_arrow   -> setPosition ( w - arrow_size, arrow_size ) ;
+  up_arrow   -> setSize ( arrow_size, arrow_size ) ;
+}
+
 void puSelectBox::draw ( int dx, int dy )
 {
   if ( !visible || ( window != puGetWindow () ) ) return ;
@@ -145,7 +162,7 @@ puSelectBox::puSelectBox ( int minx, int miny, int maxx, int maxy,
   setValuator ( stringval ) ;
 
   down_arrow = new puArrowButton ( maxx-minx - arrow_size, 0,
-                                   maxx-minx, maxy-miny - arrow_size,
+                                   maxx-minx, arrow_size,
                                    PUARROW_DOWN ) ;
   down_arrow -> setUserData ( this ) ;
   down_arrow -> setCallback ( handle_arrow ) ;
