@@ -28,13 +28,16 @@
  
 int pslCompiler::compile ( const char *fname )
 {
-  FILE *fd = fopen ( fname, "ra" ) ;
+  char filename [ 1024 ] ;
+  _pslMakeScriptPath ( filename, fname ) ;                        
+
+  FILE *fd = fopen ( filename, "ra" ) ;
  
   if ( fd == NULL )
   {
     perror ( "PSL:" ) ;
     ulSetError ( UL_WARNING, "PSL: Failed while opening '%s' for reading.",
-                                                                  fname );
+                                                                  filename );
     return FALSE ;
   }
  

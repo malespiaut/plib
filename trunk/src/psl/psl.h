@@ -330,6 +330,7 @@ public:
 
 
 void pslInit () ;
+void pslScriptPath ( char *path ) ;
 void pslSetErrorCallback ( void (*CB) ( pslProgram *, int, char *, int, char * ) ) ;
 
 #endif

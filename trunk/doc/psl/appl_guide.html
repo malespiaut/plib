@@ -405,6 +405,15 @@ printed to stderr as it's executed.
 <p>
 You can also call <code>pslProgram::dump()</code> to print out
 all of the byte-code and the PSL symbol table for the program.
+<H3> Include paths. </H3>
+By default, PSL searches for files with relative pathnames in
+the current directory - but you can override this by setting:
+<pre>
+
+
+   pslScriptPath ( "directory" ) ;
+
+</pre>
 <hr>
 <address>
 <a href="http://www.sjbaker.org">Steve J. Baker.</a> &lt;<a href="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</a>&gt;</address>
