@@ -1,5 +1,33 @@
 
-#include "pslPrivate.h"
+#include "pslLocal.h"
+
+int PSL_Parser::parse ( char *fname )
+{
+  init () ;
+
+  FILE *fd = fopen ( fname, "ra" ) ;
+
+  if ( fd == NULL )
+  {
+    perror ( "PSL:" ) ;
+    ulSetError ( UL_WARNING, "PSL: Failed while opening '%s' for reading.",
+                                                                  fname );
+    return FALSE ;
+  }
+
+  parse  ( fd ) ;
+  fclose ( fd ) ;
+  return TRUE ;
+}
+
+
+int PSL_Parser::parse ( FILE *fd )
+{
+  setDefaultFile ( fd ) ;
+  pushProgram () ;
+  return TRUE ;
+}
+
 
 void PSL_Parser::pushCodeByte ( PSL_Opcode op )
 {
@@ -62,6 +90,7 @@ void PSL_Parser::pushCall ( char *c, int argc )
 } 
 
 
+void PSL_Parser::pushReturn       () { pushCodeByte ( OPCODE_RETURN) ; } 
 void PSL_Parser::pushPop          () { pushCodeByte ( OPCODE_POP   ) ; } 
 void PSL_Parser::pushSubtract     () { pushCodeByte ( OPCODE_SUB   ) ; } 
 void PSL_Parser::pushAdd          () { pushCodeByte ( OPCODE_ADD   ) ; } 

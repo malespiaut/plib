@@ -5,10 +5,14 @@
 #include <plib/psl.h>
 
 
-float hello ( int argc, float *argv, PSL_Program *p )
+PSL_Variable hello ( int argc, PSL_Variable *argv, PSL_Program *p )
 {
   printf ( "I am %s.\n", (char *)( p->getUserData ()) ) ;
-  return 0.0f ;
+
+  PSL_Variable ret ;
+  ret.f = 0.0f ;
+
+  return ret ;
 }
 
 

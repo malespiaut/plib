@@ -1,5 +1,5 @@
 
-#include "pslPrivate.h"
+#include "pslLocal.h"
 
 PSL_Result PSL_Context::step ()
 {
@@ -7,17 +7,18 @@ PSL_Result PSL_Context::step ()
   {
     case OPCODE_PUSH_CONSTANT :
       {
-        char *ff = (char *) & ( stack [ sp++ ] ) ;
-        ff[0] = code [ ++pc ] ;
-        ff[1] = code [ ++pc ] ;
-        ff[2] = code [ ++pc ] ;
-        ff[3] = code [ ++pc ] ;
-        pc++ ;
+        PSL_Variable ff ;
+
+        memcpy ( & ff, & code [ pc+1 ], sizeof(PSL_Variable) ) ;
+
+        pushVariable ( ff ) ;
+
+        pc += sizeof(PSL_Variable) + 1 ;
       }
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_POP :
-      sp-- ;
+      popVoid() ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
@@ -29,89 +30,98 @@ PSL_Result PSL_Context::step ()
 
         if ( required_argc >= 0 && argc != required_argc )
         {
-          fprintf ( stderr, "PSL: Arg count error for function %s\n",
+          ulSetError ( UL_WARNING,
+                    "PSL: Wrong number of parameters for function %s\n",
                                           extensions [ ext ] . symbol ) ;
         }
 
-        float argv [ MAX_ARGS ] ;
+        PSL_Variable argv [ MAX_ARGS ] ;
 
         /* Pop args off the stack in reverse order */
 
         for ( int i = argc-1 ; i >= 0 ; i-- )
-          argv [ i ] = stack [ --sp ] ;
+          argv [ i ] = popVariable () ;
 
-        stack [ sp++ ] = (*(extensions [ ext ] . func)) (argc,argv,program) ; 
+        pushVariable ( (*(extensions [ ext ] . func)) (argc,argv,program) ) ; 
         pc++ ;
       }
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_CALL :
-      fprintf ( stderr, "CALL not implemented!\n" ) ;
-      pc += 4 ;  /* Not implemented */
+      pushInt ( pc+4 ) ;
+      memcpy ( & pc, & code [ pc+1 ], sizeof ( int ) ) ;
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_RETURN :
+      {
+        PSL_Variable result = popVariable () ;
+        pc = popInt () ;
+        pushVariable ( result ) ;
+      }
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_SUB :
-      stack [ sp - 2 ] -= stack [ sp - 1 ] ;
-      sp-- ;
+      stack [ sp - 2 ].f -= stack [ sp - 1 ].f ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_ADD           :
-      stack [ sp - 2 ] += stack [ sp - 1 ] ;
-      sp-- ;
+      stack [ sp - 2 ].f += stack [ sp - 1 ].f ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_DIV           :
-      stack [ sp - 2 ] /= stack [ sp - 1 ] ;
-      sp-- ;
+      stack [ sp - 2 ].f /= stack [ sp - 1 ].f ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_MULT          :
-      stack [ sp - 2 ] *= stack [ sp - 1 ] ;
-      sp-- ;
+      stack [ sp - 2 ].f *= stack [ sp - 1 ].f ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_NEG           :
-      stack [ sp - 1 ] = -stack [ sp - 1 ] ;
+      stack [ sp - 1 ].f = -stack [ sp - 1 ].f ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_LESS          :
-      stack [ sp - 2 ] = ( stack [ sp - 2 ] < stack [ sp - 1 ] ) ;
-      sp-- ;
+      stack [ sp - 2 ].f = ( stack [ sp - 2 ].f < stack [ sp - 1 ].f ) ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_LESSEQUAL     :
-      stack [ sp - 2 ] = ( stack [ sp - 2 ] <= stack [ sp - 1 ] ) ;
-      sp-- ;
+      stack [ sp - 2 ].f = ( stack [ sp - 2 ].f <= stack [ sp - 1 ].f ) ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_GREATER       :
-      stack [ sp - 2 ] = ( stack [ sp - 2 ] > stack [ sp - 1 ] ) ;
-      sp-- ;
+      stack [ sp - 2 ].f = ( stack [ sp - 2 ].f > stack [ sp - 1 ].f ) ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_GREATEREQUAL  :
-      stack [ sp - 2 ] = ( stack [ sp - 2 ] >= stack [ sp - 1 ] ) ;
-      sp-- ;
+      stack [ sp - 2 ].f = ( stack [ sp - 2 ].f >= stack [ sp - 1 ].f ) ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_NOTEQUAL      :
-      stack [ sp - 2 ] = ( stack [ sp - 2 ] != stack [ sp - 1 ] ) ;
-      sp-- ;
+      stack [ sp - 2 ].f = ( stack [ sp - 2 ].f != stack [ sp - 1 ].f ) ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_EQUAL         :
-      stack [ sp - 2 ] = ( stack [ sp - 2 ] == stack [ sp - 1 ] ) ;
-      sp-- ;
+      stack [ sp - 2 ].f = ( stack [ sp - 2 ].f == stack [ sp - 1 ].f ) ;
+      popVoid () ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
@@ -123,7 +133,7 @@ PSL_Result PSL_Context::step ()
       return PSL_PROGRAM_END ;   /* Note: PC is *NOT* incremented. */
 
     case OPCODE_JUMP_FALSE    :
-      if ( stack [ --sp ] )
+      if ( popFloat () )
         pc += 3 ;
       else
         pc = code [ pc + 1 ] + ( code [ pc + 2 ] << 8 ) ;
@@ -136,13 +146,13 @@ PSL_Result PSL_Context::step ()
     default :
       if ( ( code [ pc ] & 0xF0 ) ==  OPCODE_PUSH_VARIABLE )
       {
-        stack [ sp++ ] = variable [ code[pc] & 0x0F ] ;
+        pushVariable ( variable [ code[pc] & 0x0F ] ) ;
         pc++ ;
       }
       else
       if ( ( code [ pc ] & 0xF0 ) ==  OPCODE_POP_VARIABLE )
       {
-        variable [ code[pc] & 0x0F ] = stack [ --sp ] ;
+        variable [ code[pc] & 0x0F ] = popVariable () ;
         pc++ ;
       }
       return PSL_PROGRAM_CONTINUE ;

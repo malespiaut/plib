@@ -1,5 +1,5 @@
 
-#include "pslPrivate.h"
+#include "pslLocal.h"
 
 #define MAX_UNGET   16
 
@@ -46,7 +46,8 @@ void getToken ( char *res, FILE *fd )
 
     if ( tp >= MAX_TOKEN - 1 )
     {
-      fprintf ( stderr, "token: Input string is bigger than %d characters!\n",
+      ulSetError ( UL_WARNING,
+               "PSL: Input string is bigger than %d characters!",
                                                      MAX_TOKEN - 1 ) ;
       tp-- ;
     }
@@ -69,7 +70,8 @@ void ungetToken ( char *s )
 {
   if ( unget_stack_depth >= MAX_UNGET-1 )
   {
-    fprintf ( stderr, "token: Too many ungetTokens! This must be an *UGLY* PSL program!\n" ) ;
+    ulSetError ( UL_WARNING,
+          "PSL: Too many ungetTokens! This must be an *UGLY* PSL program!" ) ;
     exit ( -1 ) ;
   }
 

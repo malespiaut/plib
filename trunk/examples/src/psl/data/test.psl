@@ -1,14 +1,19 @@
 
+void wibble ()
 {
-x = 0 ;
-y = 0 ;
-z = 0 ;
-
-while ( x < 10 )
-{
-  x = x + 1 ;
   hello () ;
-  pause ;
 }
+
+void main ()
+{
+  x = 0 ;
+
+  while ( x < 10 )
+  {
+    x = x + 1 ;
+    wibble () ;
+    pause ;
+  }
 }
+
 

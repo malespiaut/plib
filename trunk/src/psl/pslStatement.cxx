@@ -1,54 +1,26 @@
 
-#include "pslPrivate.h"
+#include "pslLocal.h"
 
 
-struct OpcodeDecode
+int PSL_Parser::pushReturnStatement ()
 {
-  char *s ;
-  unsigned char opcode ;
-} ;
+  char c [ MAX_TOKEN ] ;
 
+  getToken ( c ) ;
 
-
-OpcodeDecode opcodeDecode [] =
-{
-  { "PUSH_CONSTANT",   OPCODE_PUSH_CONSTANT },
-  { "CALL",            OPCODE_CALL          },
-  { "PAUSE",           OPCODE_PAUSE         },
-  { "JUMP_FALSE",      OPCODE_JUMP_FALSE    },
-  { "JUMP",            OPCODE_JUMP          },
-  { "CALLEXT",         OPCODE_CALLEXT       },
-  { "SUB",             OPCODE_SUB           },
-  { "ADD",             OPCODE_ADD           },
-  { "DIV",             OPCODE_DIV           },
-  { "MULT",            OPCODE_MULT          },
-  { "NEG",             OPCODE_NEG           },
-  { "LESS",            OPCODE_LESS          },
-  { "LESSEQUAL",       OPCODE_LESSEQUAL     },
-  { "GREATER",         OPCODE_GREATER       },
-  { "GREATEREQUAL",    OPCODE_GREATEREQUAL  },
-  { "NOTEQUAL",        OPCODE_NOTEQUAL      },
-  { "EQUAL",           OPCODE_EQUAL         },
-  { "POP",             OPCODE_POP           },
-  { "HALT",            OPCODE_HALT          },
-  { NULL, 0 }
-} ;
-
-
-void PSL_Parser::print_opcode ( FILE *fd, unsigned char op )
-{
-  if ( ( op & 0xF0 ) == OPCODE_PUSH_VARIABLE )
-    fprintf ( fd, "  PUSH_VAR\t%s", symtab [ op & 0x0F ] . symbol ) ;
+  if ( c [ 0 ] == ';' )   /* Return without data == "return 0" */
+  {
+    ungetToken   ( c ) ;
+    pushConstant ( "0.0" ) ;
+  }
   else
-  if ( ( op & 0xF0 ) == OPCODE_POP_VARIABLE )
-    fprintf ( fd, "  POP_VAR\t%s", symtab [ op & 0x0F ] . symbol ) ;
-  else
-  for ( int i = 0 ; opcodeDecode [ i ] . s != NULL ; i++ )
-    if ( opcodeDecode [ i ] . opcode == op )
-    {
-      fprintf ( fd, "  %s", opcodeDecode [ i ] . s ) ;
-      break ;
-    }
+  {
+    ungetToken     ( c ) ;
+    pushExpression () ;
+  }
+
+  pushReturn () ;
+  return TRUE ;
 }
 
 
@@ -64,7 +36,7 @@ int PSL_Parser::pushWhileStatement ()
 
   if ( ! pushExpression () )
   {
-    fprintf ( stderr, "PSL: Missing expression for 'while'\n" ) ;
+    ulSetError ( UL_WARNING, "PSL: Missing expression for 'while'" ) ;
     return FALSE ;
   }
 
@@ -74,7 +46,7 @@ int PSL_Parser::pushWhileStatement ()
 
   if ( ! pushStatement () )
   {
-    fprintf ( stderr, "PSL: Missing statement for 'while'\n" ) ;
+    ulSetError ( UL_WARNING, "PSL: Missing statement for 'while'" ) ;
     return FALSE ;
   }
 
@@ -95,7 +67,7 @@ int PSL_Parser::pushIfStatement ()
 
   if ( ! pushExpression () )
   {
-    fprintf ( stderr, "PSL: Missing expression for 'if'\n" ) ;
+    ulSetError ( UL_WARNING, "PSL: Missing expression for 'if'" ) ;
     return FALSE ;
   }
 
@@ -106,7 +78,7 @@ int PSL_Parser::pushIfStatement ()
 
   if ( ! pushStatement () )
   {
-    fprintf ( stderr, "PSL: Missing statement for 'if'\n" ) ;
+    ulSetError ( UL_WARNING, "PSL: Missing statement for 'if'" ) ;
     return FALSE ;
   }
 
@@ -143,7 +115,7 @@ int PSL_Parser::pushIfStatement ()
 
   if ( ! pushStatement () )
   {
-    fprintf ( stderr, "PSL: Missing statement for 'else'\n" ) ;
+    ulSetError ( UL_WARNING, "PSL: Missing statement for 'else'" ) ;
     return FALSE ;
   }
 
@@ -169,7 +141,8 @@ int PSL_Parser::pushFunctionCall ( char *var )
 
   if ( c[0] != '(' )
   {
-    fprintf ( stderr, "PSL: Missing '(' in call to '%s'\n", var ) ;
+    ulSetError ( UL_WARNING,
+                    "PSL: Missing '(' in call to '%s'", var ) ;
     return FALSE ;
   }
 
@@ -191,7 +164,8 @@ int PSL_Parser::pushFunctionCall ( char *var )
       getToken ( c ) ;
     else
     {
-      fprintf ( stderr, "Missing ')' or ',' in call to '%s'\n", var ) ;
+      ulSetError ( UL_WARNING,
+                     "PSL: Missing ')' or ',' in call to '%s'", var ) ;
       exit ( -1 ) ;
     }
   }
@@ -256,6 +230,9 @@ int PSL_Parser::pushStatement ()
 
   getToken ( c ) ;
 
+  if ( strcmp ( c, "return" ) == 0 )
+    return pushReturnStatement () ;
+
   if ( strcmp ( c, "pause" ) == 0 )
     return pushPauseStatement () ;
 
@@ -280,107 +257,93 @@ void PSL_Parser::pushProgram ()
 {
   char c [ MAX_TOKEN ] ;
 
-  while ( pushStatement () )
+  /* Have the program call 'main' and then halt */
+
+  pushCodeByte ( OPCODE_CALL ) ;
+
+  int main_fixup = next_code ;
+
+  pushCodeAddr ( 0 ) ;  /* Until we know the address of 'main' */
+  pushCodeByte ( 0 ) ;  /* Argc */
+  pushCodeByte ( OPCODE_HALT ) ;
+
+  /* Compile the program */
+
+  while ( TRUE )
   {
     getToken ( c ) ;
 
     if ( c[0] == '\0' )
       break ;
 
-    if ( c[0] != ';' )
-    {
-      fprintf ( stderr, "PSL: Premature end of program or missing ';' (\"%s\")\n", c ) ;
-      break ;
-    }
+    ungetToken ( c ) ;
+
+    pushFunction () ;
   }
 
-  pushCodeByte ( OPCODE_HALT ) ;
+  int main_addr = getCodeSymbol ( "main" ) ;
+
+  code [ main_fixup++ ] =   main_addr        & 0xFF ;
+  code [ main_fixup   ] = ( main_addr >> 8 ) & 0xFF ;
 }
 
 
-void PSL_Parser::dump ()
+
+
+int PSL_Parser::pushFunction ()
 {
-  int i ;
+  char c  [ MAX_TOKEN ] ;
+  char fn [ MAX_TOKEN ] ;
 
-  printf ( "\n" ) ;
-  printf ( "Bytecode:\n" ) ;
+  getToken ( c ) ;
 
-  for ( i = 0 ; i < MAX_CODE ; i++ )
+  if ( ! (strcmp ( c, "void"  ) == 0) &&
+       ! (strcmp ( c, "float" ) == 0) )
   {
-    if ( code [ i ] == OPCODE_HALT )
-      break ;
-
-    if ( code [ i ] == OPCODE_PUSH_CONSTANT )
-    {
-      printf ( "%3d: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x  ", i, code [ i ],
-                   code [i+1], code [i+2], code [i+3], code [i+4] ) ;
-      print_opcode ( stdout, code [ i ] ) ;
-
-      float f ;
-      memcpy ( &f, &code[i+1], sizeof(float) ) ;
-      printf ( "\t%f", f ) ;
-      i += 4 ;
-    }
-    else
-    if ( code [ i ] == OPCODE_CALLEXT )
-    {
-      printf ( "%3d: 0x%02x 0x%02x 0x%02x            ", i, code [ i ], code [i+1], code [i+2] ) ;
-      print_opcode ( stdout, code [ i ] ) ;
-
-      int ext  = code[i+1] ;
-      int argc = code[i+2] ;
-      printf ( "\t%s %d", extensions[ext].symbol, argc ) ;
-      i += 2 ;
-    }
-    else
-    if ( code [ i ] == OPCODE_CALL )
-    {
-      printf ( "%3d: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x  ", i, code [ i ],
-                   code [i+1], code [i+2], code [i+3], code [i+4] ) ;
-      print_opcode ( stdout, code [ i ] ) ;
-      i += 4 ;
-    }
-    else
-    if ( code [ i ] == OPCODE_JUMP_FALSE || code [ i ] == OPCODE_JUMP )
-    {
-      printf ( "%3d: 0x%02x 0x%02x 0x%02x            ", i, code [ i ],
-                   code [i+1], code [i+2] ) ;
-      print_opcode ( stdout, code [ i ] ) ;
-
-      unsigned short lab = code[i+1] + ( code[i+2] << 8 ) ;
-
-      if ( code [ i ] == OPCODE_JUMP )
-        printf ( "\t\t%d", lab ) ;
-      else
-        printf ( "\t%d", lab ) ;
-
-      i += 2 ;
-    }
-    else
-    {
-      printf ( "%3d: 0x%02x                      ", i, code [ i ] ) ;
-      print_opcode ( stdout, code [ i ] ) ;
-    }
-
-    printf ( "\n" ) ;
+    ulSetError ( UL_WARNING,
+           "PSL: Expected a declaration of a variable or function - but got '%s'", c ) ;
+    return FALSE ;
   }
 
-  printf ( "\n" ) ;
-  printf ( "Variables:\n" ) ;
+  getToken ( fn ) ;
 
-  for ( i = 0 ; i < MAX_SYMBOL ; i++ )
-    if ( symtab [ i ] . symbol != NULL )
-    {
-      printf ( "\t%5s => %4d", symtab[i].symbol,
-                               symtab[i].address ) ;
+  setCodeSymbol ( fn, next_code ) ;
 
-      if ( i & 1 )
-        printf ( "\n" ) ;
-      else
-        printf ( "  " ) ;
-    }
+  getToken ( c ) ;
 
-  printf ( "\n" ) ;
+  if ( c[0] != '(' )
+  {
+    ulSetError ( UL_WARNING,
+                    "PSL: Missing '(' in declaration of '%s'", fn ) ;
+    return FALSE ;
+  }
+
+  getToken ( c ) ;
+
+  if ( c[0] != ')' )
+  { 
+    ulSetError ( UL_WARNING,
+                    "PSL: Missing ')' in declaration of '%s'", fn ) ;
+    return FALSE ;
+  }
+
+  getToken ( c ) ;
+
+  if ( c [ 0 ] != '{' )
+    ulSetError ( UL_WARNING,
+       "PSL: Missing '{' in function '%s'", fn ) ;
+
+  if ( ! pushCompoundStatement () )
+    ulSetError ( UL_WARNING,
+       "PSL: Missing '}' in function '%s'", fn ) ;
+
+  getToken ( c ) ;
+
+  /* If we fall off the end of the function, we still need a return value */
+
+  pushConstant ( "0.0" ) ;
+  pushReturn   () ;
 }
+
 
 
