@@ -3,7 +3,6 @@
 #if defined(__CYGWIN__) || !defined (WIN32)
 
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -184,7 +183,7 @@ int
 netSocket::accept ( netAddress* addr )
 {
   assert ( handle != -1 ) ;
-  int addr_len = sizeof(netAddress) ;
+  socklen_t addr_len = sizeof(netAddress) ;
   return ::accept(handle,(sockaddr*)addr,&addr_len);
 }
 
@@ -221,7 +220,7 @@ int
 netSocket::recvfrom ( void * buffer, int size, int flags, netAddress* from )
 {
   assert ( handle != -1 ) ;
-  int fromlen = sizeof(netAddress) ;
+  socklen_t fromlen = sizeof(netAddress) ;
   return ::recvfrom(handle,(char*)buffer,size,flags,(sockaddr*)from,&fromlen);
 }
 
