@@ -80,7 +80,7 @@
 
 #define UL_IRIX      1
 
-#elif defined(SOLARIS)
+#elif defined(SOLARIS) || defined(sun)
 
 #define UL_SOLARIS   1
 
@@ -121,7 +121,7 @@
 #include <unistd.h>
 #endif
 
-#if defined(UL_LINUX) || defined(UL_BSD) || defined(UL_IRIX)
+#if defined(UL_LINUX) || defined(UL_BSD) || defined(UL_IRIX) || defined(UL_SOLARIS)
 #include <unistd.h>
 #include <dlfcn.h>
 #include <fcntl.h>

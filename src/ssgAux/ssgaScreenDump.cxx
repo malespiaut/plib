@@ -26,7 +26,7 @@
 #include <string.h>
 
 
-#include <plib/ul.h>
+#include "ul.h"
 
 static void writeByte ( FILE *fd, unsigned char x )
 {
