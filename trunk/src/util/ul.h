@@ -3,13 +3,8 @@
 //
 //  Contains:
 //  - error message routines
+//  - high performance clocks
 //  - more to come (basic types, endian support, version ID)
-//
-//  Note: No library is actually created.
-//  To generate code you must #define _UL_GENERATE_CODE_
-//  in exactly one place.  Currently ssg.cxx does this.
-//  If you don't use ssg then you will need to do
-//  this on the application side.
 //
 
 #ifndef _INCLUDED_UL_H_
@@ -26,6 +21,48 @@
 
 #include <assert.h>
 
+/*
+  High precision clocks.
+*/
+
+class ulClock
+{
+  double start ;
+  double now   ;
+  double delta ;
+  double last_time ;
+  double max_delta ;
+
+  double getRawTime () ;
+
+public:
+
+  ulClock () { reset () ; }
+
+  void reset ()
+  {
+    start     = getRawTime () ;
+    now       = start ;
+    max_delta = 0.2 ; 
+    delta     = 1.0 / 30.0 ;  /* Faked so stoopid programs won't div0 */
+    last_time = now - delta ;
+  }
+
+  void   setMaxDelta  ( double maxDelta ) { max_delta = maxDelta ; }
+  double getMaxDelta  () { return max_delta ; }
+  void   update       () ;
+  double getAbsTime   () { return now   ; }
+  double getDeltaTime () { return delta ; }
+  double getFrameRate () { return 1.0 / delta ; }
+} ;
+
+
+void ulInit ( void ) ;
+
+/*
+  Error handler.
+*/
+
 enum ulSeverity
 {
   UL_DEBUG,    // Messages that can safely be ignored.
@@ -34,80 +71,14 @@ enum ulSeverity
   UL_MAX_SEVERITY
 } ;
 
-void ulInit ( void ) ;
 
-void ulSetError ( int severity, const char *fmt, ... ) ;
-char* ulGetError ( void ) ;
-void ulClearError ( void ) ;
+typedef void (*ulErrorCallback) ( int severity, char* msg ) ;
 
-typedef void (*ulErrorCallback)( int severity, char* msg ) ;
+void            ulSetError         ( int severity, const char *fmt, ... ) ;
+char*           ulGetError         ( void ) ;
+void            ulClearError       ( void ) ;
 ulErrorCallback ulGetErrorCallback ( void ) ;
-void ulSetErrorCallback ( ulErrorCallback cb ) ;
+void            ulSetErrorCallback ( ulErrorCallback cb ) ;
 
-//
-//  Note: No library is actually created.
-//  To generate code you must #define _UL_GENERATE_CODE_
-//  in exactly one place.  Currently ssg.cxx does this.
-//  If you don't use ssg then you will need to do
-//  this on the application side.
-//
-
-#ifdef _UL_GENERATE_CODE_
-
-static char _ulErrorBuffer [ 256 ] ;
-static ulErrorCallback _ulErrorCB = 0 ;
-static const char* _ulSeverityText [ UL_MAX_SEVERITY ] =
-{
-  "DEBUG",
-  "WARNING",
-  "FATAL",
-};
-
-void ulInit ( void )
-{
-  _ulErrorBuffer [0] = 0 ;
-}
-
-void ulSetError ( int severity, const char *fmt, ... )
-{
-  va_list argp;
-  va_start ( argp, fmt ) ;
-  vsprintf ( _ulErrorBuffer, fmt, argp ) ;
-  va_end ( argp ) ;
-
-  if ( _ulErrorCB )
-  {
-    (*_ulErrorCB)( severity, _ulErrorBuffer ) ;
-  }
-  else
-  {
-    fprintf ( stderr, "%s: %s\n",
-       _ulSeverityText[ severity ], _ulErrorBuffer ) ;
-    if ( severity == UL_FATAL )
-      exit (1) ;
-  }
-}
-
-char* ulGetError ( void )
-{
-  return _ulErrorBuffer ;
-}
-
-void ulClearError ( void )
-{
-  _ulErrorBuffer [0] = 0 ;
-}
-
-ulErrorCallback ulGetErrorCallback ( void )
-{
-  return _ulErrorCB ;
-}
-
-void ulSetErrorCallback ( ulErrorCallback cb )
-{
-  _ulErrorCB = cb ;
-}
-
-#endif
 #endif
 
