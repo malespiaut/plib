@@ -15,6 +15,12 @@ ssgRoot      *scene   = NULL ;
 ssgTransform *object  = NULL ;
 ssgEntity    *obj_obj = NULL ;
 
+/*****************************************************\
+*                                                     *
+*  THIS PROGRAM IS BROKEN - IT DOESN'T CALL SSGINIT!! *
+*                                                     *
+\*****************************************************/
+
 void load_database ()
 {
   /*
