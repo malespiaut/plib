@@ -7,6 +7,7 @@
 - Check that all console output has been changed to ulSetError.
 - AFAIK the define PROXY_TEXTURES_ARE_NOT_BROKEN is not yet added 
   to the makefiles.
+  Fixed: Hardcoded it in the source. OK? /Marten
 - Test all the examples and all the games+apps, that they compile.
   Besides the apps/games mentioned on the PLIB homepage, there is toobular.
 - Testing on "non-standard" operating systems and hardware.
