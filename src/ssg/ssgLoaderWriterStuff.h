@@ -6,8 +6,6 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname ) ;
 void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray* vertices,
 																ssgIndexArray*  indices, SGfloat epsilon);
 
-// ***************** class CGlobalSimpleStateList  *******************
-
 // ******************** class ssgLoaderWriterMesh ************************
 
 class ssgListOfLists : public ssgSimpleList
