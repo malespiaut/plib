@@ -111,8 +111,5 @@ puInterface::~puInterface ()
   dlist = NULL ;
 
   puPopLiveInterface ( this ) ;
-
-  if ( this == puActiveWidget () )
-    puDeactivateWidget () ;
 }
 
