@@ -35,8 +35,8 @@
  * Point objects are not handled.
  */
 
-#include <cstdio>
-#include <cstring>
+#include <stdio.h>
+#include <string.h>
 
 #include "ssgLocal.h"
 
