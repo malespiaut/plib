@@ -170,6 +170,14 @@ SOURCE=.\ssgLoadmd2.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadMDL.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgLoadMDL.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadOBJ.cxx
 # End Source File
 # Begin Source File
@@ -187,6 +195,10 @@ SOURCE=.\ssgLoadVRML.cxx
 # Begin Source File
 
 SOURCE=.\ssgLocal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgMSFSPalette.h
 # End Source File
 # Begin Source File
 

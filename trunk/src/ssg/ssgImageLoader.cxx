@@ -1,5 +1,6 @@
 
 #include "ssgLocal.h"
+#include "ssgMSFSPalette.h"
 
 #ifdef _SSG_USE_GLPNG
 #include "glpng.h"
@@ -784,6 +785,45 @@ void loadTexturePNG ( const char *fname )
 }
 
 
+// This really simple (raw paletted) format is used by older MSFS for textures
+void loadTextureMDL ( const char *fname )
+{
+  FILE *tfile;
+  if ( (tfile = fopen(fname, "rb")) == NULL) {
+    ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname );
+    loadTextureDummy();
+    return;
+  }
+
+  fseek(tfile, 0, SEEK_END);
+  unsigned long file_length = ftell(tfile);
+
+  if (file_length != 65536) {
+    // this is not a MSFS-formatted texture, so it's probably a BMP
+    fclose(tfile);
+    loadTextureBMP( fname );
+  } else {
+    fseek(tfile, 0, SEEK_SET);
+  }
+
+  unsigned char *texels = new unsigned char[256 * 256 * 4];
+  int c = 0;
+  for (int y = 0; y < 256; y++) {
+    for (int x = 0; x < 256; x++) {
+      unsigned char b;
+      fread(&b, 1, 1, tfile);
+      texels[c++] = fsTexPalette[b*4    ];
+      texels[c++] = fsTexPalette[b*4 + 1];
+      texels[c++] = fsTexPalette[b*4 + 2];
+      texels[c++] = fsTexPalette[b*4 + 3];
+    }
+  }
+  fclose(tfile);
+
+  make_mip_maps ( texels, 256, 256, 4 ) ;
+}
+
+
 struct _ssgTextureFormat
 {
   char *extension ;
@@ -800,6 +840,22 @@ static _ssgTextureFormat formats[] =
   { ".int" ,   loadTextureSGI },
   { ".inta" ,  loadTextureSGI },
   { ".bw" ,    loadTextureSGI },
+  { ".0af" ,   loadTextureMDL },
+  { ".1af" ,   loadTextureMDL },
+  { ".2af" ,   loadTextureMDL },
+  { ".3af" ,   loadTextureMDL },
+  { ".4af" ,   loadTextureMDL },
+  { ".5af" ,   loadTextureMDL },
+  { ".6af" ,   loadTextureMDL },
+  { ".7af" ,   loadTextureMDL },
+  { ".8af" ,   loadTextureMDL },
+  { ".9af" ,   loadTextureMDL },
+  { ".aaf" ,   loadTextureMDL },
+  { ".baf" ,   loadTextureMDL },
+  { ".caf" ,   loadTextureMDL },
+  { ".daf" ,   loadTextureMDL },
+  { ".eaf" ,   loadTextureMDL },
+  { ".faf" ,   loadTextureMDL },
   { NULL ,     NULL           }
 } ;
 
