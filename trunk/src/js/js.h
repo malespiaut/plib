@@ -1,6 +1,8 @@
 #ifndef __INCLUDED_JS_H__
 #define __INCLUDED_JS_H__ 1
 
+#include "ul.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> // -dw- for memcpy
