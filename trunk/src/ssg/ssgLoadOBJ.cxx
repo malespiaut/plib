@@ -159,8 +159,7 @@ static ssgSimpleState* find_state( matData* mat )
   st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
   st -> setShininess ( mat -> shine ) ;
 
-  st -> enable ( GL_COLOR_MATERIAL ) ;
-  st -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
+  st -> disable ( GL_COLOR_MATERIAL ) ;
 
   st -> enable  ( GL_LIGHTING       ) ;
   st -> setShadeModel ( GL_SMOOTH ) ;
@@ -344,8 +343,8 @@ static void add_mesh ( int mat_index )
   ssgNormalArray   *nlist = 0 ;
   if ( num_vert_tex )
     tlist = new ssgTexCoordArray ( num * 3 ) ;
-//  if ( num_vert_normal )
-//    nlist = new ssgNormalArray ( num * 3 ) ;
+  if ( num_vert_normal )
+    nlist = new ssgNormalArray ( num * 3 ) ;
 
   for ( i=0; i<num_face; i++ ) {
     if ( face[i].mat_index == mat_index ) {
@@ -353,8 +352,8 @@ static void add_mesh ( int mat_index )
         vlist -> add ( vert[ face[i].vlist[j] ] ) ;
         if ( num_vert_tex )
           tlist -> add ( vert_tex[ face[i].tlist[j] ] ) ;
-//        if ( num_vert_normal )
-//          tlist -> add ( vert_normal[ face[i].nlist[j] ] ) ;
+        if ( num_vert_normal )
+          nlist -> add ( vert_normal[ face[i].nlist[j] ] ) ;
       }
     }
   }
@@ -362,7 +361,7 @@ static void add_mesh ( int mat_index )
   ssgState *st = NULL ;
   if ( mat_index < num_mat ) {
     matData* mat = &materials[ mat_index ];
-    if ( mat->tfname[0] != 0 )
+    if ( mat->tfname != 0 )
       st = ssgGetCurrentOptions() -> createState ( mat->tfname ) ;
     if ( st == NULL )
       st = find_state ( mat ) ;
