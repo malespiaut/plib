@@ -67,6 +67,14 @@ Remember, you must finish using the results array before you do
 another ssgIsect/ssgHOT/ssgLOS because all three functions share
 the same results array.
 <p>
+By default, these functions only detect collisions with the front face
+of polygons.  You can make them detect only the back faces using:
+<pre>
+
+  void ssgSetBackFaceCollisions ( bool b ) ;
+
+</pre>
+<p>
 An ssgHit looks like this:
 <pre>
 

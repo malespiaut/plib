@@ -2819,7 +2819,6 @@ ssgStatistics *ssgGetLatestStatistics () ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;
-
 void ssgArrayTool ( ssgEntity *ent, float* vtol = 0, bool make_normals = false ) ;
 void ssgTransTool ( ssgEntity *ent, const sgMat4 trans ) ;
 
@@ -2833,6 +2832,9 @@ void ssgSetLoadOFFTranslucent ( int i );
 
 void ssgRegisterType ( int type, ssgBase * ( *create_func ) () ) ;
 ssgBase *ssgCreateOfType ( int type ) ;
+
+#define SSG_BACKFACE_COLLISIONS_SUPPORTED 1
+void ssgSetBackFaceCollisions ( bool b ) ;
 
 #endif
 

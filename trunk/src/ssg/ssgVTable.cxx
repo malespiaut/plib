@@ -427,7 +427,10 @@ void ssgVTable::hot_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
     sgVec3 vv1, vv2, vv3 ;
     sgVec4 plane ;
 
-    getTriangle ( i, &v1, &v2, &v3 ) ;
+    if ( _ssgBackFaceCollisions )
+      getTriangle ( i, &v1, &v3, &v2 ) ;
+    else
+      getTriangle ( i, &v1, &v2, &v3 ) ;
 
     sgXformPnt3 ( vv1, getVertex(v1), m ) ;
     sgXformPnt3 ( vv2, getVertex(v2), m ) ;
@@ -512,7 +515,10 @@ void ssgVTable::los_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
     SGfloat det,inv_det;
     SGfloat /*t,*/u,v;
 
-    getTriangle ( i, &v1, &v2, &v3 ) ;
+    if ( _ssgBackFaceCollisions )
+      getTriangle ( i, &v1, &v3, &v2 ) ;
+    else
+      getTriangle ( i, &v1, &v2, &v3 ) ;
 
     sgXformPnt3 ( vv1, getVertex(v1), m ) ;
     sgXformPnt3 ( vv2, getVertex(v2), m ) ;
@@ -574,7 +580,10 @@ void ssgVTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
     sgVec3 vv1, vv2, vv3 ;
     sgVec4 plane ;
 
-    getTriangle ( i, &v1, &v2, &v3 ) ;
+    if ( _ssgBackFaceCollisions )
+      getTriangle ( i, &v1, &v3, &v2 ) ;
+    else
+      getTriangle ( i, &v1, &v2, &v3 ) ;
 
     sgXformPnt3 ( vv1, getVertex(v1), m ) ;
     sgXformPnt3 ( vv2, getVertex(v2), m ) ;
