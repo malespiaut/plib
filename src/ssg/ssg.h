@@ -585,20 +585,27 @@ public:
 } ;
 
 
-void ssgAddTextureFormat ( const char* extension, void (*) (const char*) ) ;
+struct ssgTextureInfo
+{
+	unsigned int width ;
+	unsigned int height ;
+	unsigned int depth ;
+	unsigned int alpha ;
+} ;
 
-int _ssgGetTextureAlphaFlag () ;
-void _ssgSetTextureAlphaFlag ( int flag ) ;
+
+bool ssgLoadTexture ( const char *fname, ssgTextureInfo* info=0 ) ;
+  bool ssgLoadPNG ( const char *fname, ssgTextureInfo* info ) ;
+  bool ssgLoadSGI ( const char *fname, ssgTextureInfo* info ) ;
+  bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info ) ;
+  bool ssgLoadTGA ( const char *fname, ssgTextureInfo* info ) ;
+  bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info ) ;
+
+void ssgAddTextureFormat ( const char* extension,
+                          bool (*) (const char*, ssgTextureInfo* info) ) ;
 
 int ssgGetNumTexelsLoaded () ;
-void ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
-void ssgLoadTexture ( const char *fname ) ;
-  void ssgLoadPNG ( const char *fname ) ;
-  void ssgLoadSGI ( const char *fname ) ;
-  void ssgLoadBMP ( const char *fname ) ;
-  void ssgLoadTGA ( const char *fname ) ;
-  void ssgLoadMDLTexture ( const char *fname ) ;
-  void ssgLoadDummyTexture () ;
+bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
 
 
 class ssgTexture : public ssgBase

@@ -5,19 +5,25 @@
 #include "glpng.h"
 #endif
 
-void ssgLoadPNG ( const char *fname )
+bool ssgLoadPNG ( const char *fname, ssgTextureInfo* info )
 {
 #ifdef SSG_LOAD_PNG_SUPPORTED
   pngInfo info;
   if (!pngLoad(fname, PNG_BUILDMIPMAP, PNG_ALPHA, &info)) {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname ) ;
-    return ;
+    return false ;
   }
-  _ssgSetTextureAlphaFlag ( info.Alpha > 0 ) ;
+  if ( info != NULL )
+  {
+    info -> width = info.Width ;
+    info -> height = info.Height ;
+    info -> depth = info.Depth ;
+    info -> alpha = info.Alpha ;
+  }
+  return true ;
 #else
   ulSetError ( UL_WARNING, "ssgLoadTexture: '%s' - you need glpng for PNG format support",
         fname ) ;
-
-  ssgLoadDummyTexture () ;
+  return false ;
 #endif
 }
