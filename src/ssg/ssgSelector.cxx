@@ -126,6 +126,8 @@ void ssgSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 int ssgSelector::load ( FILE *fd )
 {
   _ssgReadInt ( fd, & max_kids ) ;
+  delete [] selection ;
+  selection = new unsigned char [ max_kids ] ;
   for ( int i=0; i<max_kids; i++ )
   {
     int temp ;
