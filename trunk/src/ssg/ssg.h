@@ -1788,6 +1788,12 @@ enum ssgAnimDirection
   SSG_ANIM_SHUTTLE
 } ;
 
+enum ssgAnimTimeMode
+{
+    SSG_ANIM_FRAME,
+    SSG_ANIM_CLOCK
+};
+
 
 class ssgTimedSelector : public ssgSelector
 {
@@ -1803,6 +1809,9 @@ _SSG_PUBLIC:
   int   start ;
   int   end   ;
 
+  ssgAnimTimeMode time_mode ;
+  static ulClock ck ;
+
   void compute_loop_time ()
   {
     loop_time = 0 ;
@@ -1813,6 +1822,14 @@ _SSG_PUBLIC:
 
 protected:
   virtual void copy_from ( ssgTimedSelector *src, int clone_flags ) ;
+
+  float get_time() const
+  {
+    if (time_mode == SSG_ANIM_FRAME)
+      return static_cast<float>( ssgGetFrameCounter() );
+    else
+      return ck.update(), ck.getAbsTime();
+  }
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
@@ -1823,10 +1840,13 @@ public:
 
   int getStep () ;	
 
+  ssgAnimTimeMode getTimeMode() const { return time_mode; }
+
   float getDuration ( int i = 0 ) { return times [ i ] ; }
 
-  void setDuration ( float ti, int i = -1 )
+  void setDuration ( float ti, int i = -1, ssgAnimTimeMode m = SSG_ANIM_FRAME )
   {
+    time_mode = m;
     if ( i >= 0 && i < max_kids )
       times [ i ] = ti ;
     else
@@ -1842,13 +1862,13 @@ public:
 
     if ( m == SSG_ANIM_PAUSE )
     {
-      pause_time = (float) ssgGetFrameCounter () ;
+      pause_time = get_time() ;
       curr = getStep () ;
     }
     else
     if ( m == SSG_ANIM_RESUME )
     {
-      start_time += (float) ssgGetFrameCounter () - pause_time ;
+      start_time += get_time () - pause_time ;
       
       if ( running != SSG_ANIM_STOP )
         m = SSG_ANIM_START ;
@@ -1856,7 +1876,7 @@ public:
     else
     if ( m == SSG_ANIM_START )
     {
-      start_time = (float) ssgGetFrameCounter () ;
+      start_time = get_time () ;
       curr = getStep () ;
     }
 
