@@ -138,6 +138,10 @@ int ssgRangeSelector::load ( FILE *fd )
 {
   _ssgReadInt   ( fd, & additive ) ;
   _ssgReadFloat ( fd, 33, rng_list ) ;
+
+  int reserved[3];
+  _ssgReadInt ( fd, 3, reserved ) ;
+
   return ssgSelector::load(fd) ;
 }
 
@@ -145,6 +149,10 @@ int ssgRangeSelector::save ( FILE *fd )
 {
   _ssgWriteInt   ( fd, additive ) ;
   _ssgWriteFloat ( fd, 33, rng_list ) ;
+
+  int reserved[3] = { 0, 0, 0 } ;
+  _ssgWriteInt   ( fd, 3, reserved ) ;
+
   return ssgSelector::save(fd) ;
 }
 
