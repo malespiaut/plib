@@ -1355,7 +1355,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         dy    = ulEndianReadLittle16(fp);
         char tex_name[14];
         fread(tex_name, 1, 14, fp);
-        char tex_filename[14];
+        static char tex_filename[14];
         int j = 0;
         for(int i = 0; i < 14; i++) 
         {
@@ -1375,7 +1375,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         unsigned short length, idx;
         unsigned char  flags, chksum;
         unsigned int   color;
-        char tex_filename[128];
+        static char tex_filename[128];
         length = ulEndianReadLittle16(fp);
         idx    = ulEndianReadLittle16(fp);
         fread(&flags, 1, 1, fp);
