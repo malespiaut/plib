@@ -246,7 +246,8 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUCOL_HIGHLIGHT  2
 #define PUCOL_LABEL      3
 #define PUCOL_LEGEND     4
-#define PUCOL_MAX        5
+#define PUCOL_MISC       5
+#define PUCOL_MAX        6
 
 #define PUSLIDER_CLICK   0
 #define PUSLIDER_ALWAYS  1
@@ -358,8 +359,6 @@ struct puBox
 } ;
 
 #define PUSTRING_MAX 80
-
-/* If you change - or add to these, be sure to change _puDefaultColourTable */
 
 extern puColour _puDefaultColourTable[] ;
 

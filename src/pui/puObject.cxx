@@ -38,9 +38,15 @@ static void load_colour_scheme ( float col[][4], float r, float g,
                                              clamp01(b*1.3f), a ) ;
 
   if ( 4.0f * g + 3.0f * r + b > 4.0f )
+  {
     puSetColour ( col [ PUCOL_LEGEND ], 0.0f, 0.0f, 0.0f, a ) ;
+    puSetColour ( col [ PUCOL_MISC   ], 0.0f, 0.0f, 0.0f, a ) ;
+  }
   else
+  {
     puSetColour ( col [ PUCOL_LEGEND ], 1.0f, 1.0f, 1.0f, a ) ;
+    puSetColour ( col [ PUCOL_MISC   ], 1.0f, 1.0f, 1.0f, a ) ;
+  }
 }
 
 

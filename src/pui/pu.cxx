@@ -114,9 +114,8 @@ puColour _puDefaultColourTable[] =
   { 0.3f, 0.3f, 0.3f, 1.0f }, /* PUCOL_BACKGROUND */
   { 0.7f, 0.7f, 0.7f, 1.0f }, /* PUCOL_HIGHLIGHT  */
   { 0.0f, 0.0f, 0.0f, 1.0f }, /* PUCOL_LABEL      */
-  { 1.0f, 1.0f, 1.0f, 1.0f }, /* PUCOL_TEXT       */
-
-  { 0.0f, 0.0f, 0.0f, 0.0f }  /* ILLEGAL */
+  { 1.0f, 1.0f, 1.0f, 1.0f }, /* PUCOL_LEGEND     */
+  { 0.0f, 0.0f, 0.0f, 1.0f }  /* PUCOL_MISC       */
 } ;
  
 
