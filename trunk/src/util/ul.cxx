@@ -430,3 +430,43 @@ int ulStrEqual ( const char *s1, const char *s2 )
 
   return TRUE ;
 }
+
+
+#if defined(WIN32)
+#define SLASH '\\'
+#else
+#define SLASH '/'
+#endif
+
+
+int ulIsAbsolutePathName ( const char *pathname )
+{
+  /*
+    Is this an absolute pathname or a relative one?
+  */
+ 
+#if defined(WIN32)
+  char drive_letter = pathname[0] ;
+ 
+  /*
+    Under WinDOS, it's an absolute path if it starts
+    with a slash *or* if it starts with a drive letter,
+    a colon and a slash.
+  */
+
+  return pathname [0] == SLASH ||
+         (
+           (
+             ( drive_letter >= 'a' && drive_letter <= 'z' ) ||
+             ( drive_letter >= 'A' && drive_letter <= 'Z' )
+           ) &&
+           pathname[1] == ':' &&
+           pathname[2] == SLASH 
+         ) ;
+#else
+  return pathname [0] == SLASH ;
+#endif
+}
+
+
+
