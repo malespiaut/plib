@@ -1116,10 +1116,10 @@ public:
   float getMinValue ( void ) const { return minimum_value ; }
   virtual void setMinValue ( float f ) { minimum_value = f ; }
 
-  float getStepSize ( void ) { return step_size ; }
+  float getStepSize ( void ) const { return step_size ; }
   void setStepSize ( float f ) { step_size = f ; }
 
-  float checkStep ( float val_to_check )
+  float checkStep ( float val_to_check ) const
   {
     float step = val_to_check ;
 
