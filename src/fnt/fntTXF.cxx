@@ -54,7 +54,7 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
   GLubyte *texels [ 20 ] ;   /* One element per level of MIPmap */
 
   for ( int l = 0 ; l < 20 ; l++ )
-    texels [ 0 ] = NULL ;
+    texels [ l ] = NULL ;
 
   texels [ 0 ] = image ;
 
