@@ -209,7 +209,7 @@ bool ssgConvertTexture( char * fname_output, const char * fname_input )
 // returns true if the file has been converted to rgb, or already exists as rgb
 // if it returns false, then it has already output an error message
 {
-	char tmp[1024], *extension ;
+	char *extension ;
 
 	strcpy( fname_output, fname_input); // copy so that a) there is enough room for .rgb and b) we don't change the buffer of fname_input
 	extension = strrchr(fname_output, '.');
