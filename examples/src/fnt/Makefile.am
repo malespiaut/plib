@@ -4,8 +4,8 @@ fnt_test_SOURCES = fnt_test.cxx
 
 slideshow_SOURCES = slideshow.cxx
 
-fnt_test_LDADD = -lplibfnt -lplibul
-slideshow_LDADD = -lplibfnt -lplibul
+fnt_test_LDADD = -lplibfnt -lplibsg -lplibul $(GLUT_LIBS) $(OGL_LIBS)
+slideshow_LDADD = -lplibfnt -lplibsg -lplibul $(GLUT_LIBS) $(OGL_LIBS)
 
 EXTRA_DIST = fnt_test.dsp slideshow.dsp
 
