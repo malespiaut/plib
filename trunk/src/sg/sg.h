@@ -7,6 +7,7 @@
 
 /* the next lines are to define BSD */
 /* see http://www.freebsd.org/handbook/porting.html for why we do this */
+
 #if (defined(__unix__) || defined(unix)) && !defined(USG)
 #include <sys/param.h>
 #endif
