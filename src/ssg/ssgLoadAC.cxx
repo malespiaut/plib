@@ -59,6 +59,7 @@ static int do_data     ( char *s ) ;
 static int do_texture  ( char *s ) ;
 static int do_texrep   ( char *s ) ;
 static int do_texoff   ( char *s ) ;
+static int do_crease   ( char *s ) ;
 static int do_rot      ( char *s ) ;
 static int do_loc      ( char *s ) ;
 static int do_url      ( char *s ) ;
@@ -149,6 +150,7 @@ static Tag object_tags [] =
   { "texture" , do_texture  },
   { "texrep"  , do_texrep   },
   { "texoff"  , do_texoff   },
+  { "crease"  , do_crease   },
   { "rot"     , do_rot      },
   { "loc"     , do_loc      },
   { "url"     , do_url      },
@@ -408,6 +410,17 @@ static int do_texoff ( char *s )
 {
   if ( sscanf ( s, "%f %f", & texoff [ 0 ], & texoff [ 1 ] ) != 2 )
     ulSetError ( UL_WARNING, "ac_to_gl: Illegal texoff record." ) ;
+
+  return PARSE_CONT ;
+}
+
+static int do_crease ( char *s )
+{
+  // the crease angle is not yet used. However, reading the crease line correctly means 
+  // *.ac lines with "crease" can now be read.
+  float creaseAngle;
+  if ( sscanf ( s, "%f", & creaseAngle ) != 1 )
+    ulSetError ( UL_WARNING, "ac_to_gl: Illegal crease angle." ) ;
 
   return PARSE_CONT ;
 }
