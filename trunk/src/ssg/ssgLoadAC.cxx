@@ -661,7 +661,7 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
       firsttime = FALSE ;
 
       if ( ! ulStrNEqual ( s, "AC3D", 4 ) )
-      {
+      
         fclose ( loader_fd ) ;
         ulSetError ( UL_WARNING, "ssgLoadAC: '%s' is not in AC3D format.", filename ) ;
         return NULL ;
