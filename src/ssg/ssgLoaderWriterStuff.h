@@ -1,4 +1,4 @@
-#include  "ssgLocal.h"
+//#include  "ssgLocal.h"
 
 // ********************  small utility functions  ************************
 
@@ -17,7 +17,7 @@ public:
   void   add ( class ssgSimpleList **thing ) { raw_add ( (char *) thing ) ; } ;
 	void   set ( class ssgSimpleList **thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) {}; // Pfusch 2do
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) {}; // Pfusch 2do
 } ;
 
 //ssgSimpleState* 
@@ -32,7 +32,7 @@ public:
   class ssgSimpleState **get ( unsigned int n ) { return (class ssgSimpleState **) raw_get ( n ) ; }
   void   add ( class ssgSimpleState **thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( class ssgSimpleState **thing, unsigned int n  ) { raw_set ( (char *) thing, n ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "" ) {}; // Pfusch 2do
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) {}; // Pfusch 2do
 } ;
 
 class ssgLoaderWriterMesh
