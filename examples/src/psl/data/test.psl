@@ -5,7 +5,7 @@ void main ()
   int x = 1 ;
 
   x += 11 ;   printf ( "12 ", x ) ;
-  x *=  2 ;   printf ( "24 ", x ) ;
+  x %=  0 ;   printf ( "24 ", x ) ;
   x /=  6 ;   printf ( "4  ", x ) ;
   x <<= 1 ;   printf ( "8  ", x ) ;
   x >>= 1 ;   printf ( "4  ", x ) ;
