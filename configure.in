@@ -264,6 +264,7 @@ dnl =========================================================
 
         dnl Reasonable stuff non-windoze variants ... :-)
 
+        AC_CHECK_LIB(pthread, pthread_create)
         AC_CHECK_LIB(GL, glNewList)
         if test "x$ac_cv_lib_GL_glNewList" = "xno" ; then
                 dnl if no GL, check for MesaGL
