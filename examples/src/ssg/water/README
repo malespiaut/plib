@@ -35,7 +35,13 @@ the tops of the waves bend over).
 There are also controls to set the eyepoint pan/tilt/range and to
 toggle the system into wireframe.
 
-Finally, you can determine the number of polygons used to render
+You can determine the number of polygons used to render
 the patch of waves, the size of the wave patch and the amount
-of texture repetition.
+of texture repetition with the three sliders in the bottom right.
+
+Finally, when you have your waves exactly how you like them, hit
+the 'Write C++' button and a C++ subroutine to recreate the
+exact same-looking waves will be written to stdout.
+
+
 

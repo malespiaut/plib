@@ -15,6 +15,9 @@
 
 #define GUI_BASE      80
 #define VIEW_GUI_BASE 20
+#define FONT_COLOUR   1,1,1,1
+
+ulClock     *clock ;
 
 puSlider    *trainLengthSlider  = (puSlider    *) NULL ;
 puSlider    *trainSpeedSlider   = (puSlider    *) NULL ;
@@ -24,6 +27,7 @@ puButton    *trainEnableButton  = (puButton    *) NULL ;
 puOneShot   *trainDisableButton = (puOneShot   *) NULL ;
 puDial      *trainHeadingDial   = (puDial      *) NULL ;
 puSelectBox *trainSelectBox     = (puSelectBox *) NULL ;
+puText      *timeText           = (puText      *) NULL ;
 
 puDial      *viewHeadingDial    = (puDial      *) NULL ;
 puDial      *viewPitchDial      = (puDial      *) NULL ;
@@ -69,13 +73,14 @@ sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
 void writeCplusplusCode ()
 {
   printf ( "\n" ) ;
-  printf ( "ssgaWaveSystem *makeWaveSystem ()\n" ) ;
+  printf ( "ssgaWaveSystem *makeWaveSystem ( ssgState *state )\n" ) ;
   printf ( "{\n" ) ;
   printf ( "  ssgaWaveTrain  *wavetrain ;\n" ) ;
   printf ( "  ssgaWaveSystem *ocean ;\n" ) ;
   printf ( "  sgVec4 WHITE = { 1,1,1,1 } ;\n" ) ;
   printf ( "  ocean =  new ssgaWaveSystem ( %d ) ;\n", ocean->getNumTris() ) ;
   printf ( "  ocean -> setSize            ( %g ) ;\n", ocean->getSize()[0] ) ;
+  printf ( "  ocean -> setKidState        ( state ) ;\n" ) ;
   printf ( "  ocean -> setTexScale      ( %g, %g ) ;\n",
                                                      ocean->getTexScaleU (),
                                                      ocean->getTexScaleV () ) ;
@@ -270,7 +275,13 @@ void update_motion ( int frameno )
 //                     ( frameno % 200 ) / 20.0f, 0.0f ) ;
 // ocean -> setCenter ( center ) ;
 
+  clock->update () ;
   ocean -> updateAnimation ( t ) ;
+  clock->update () ;
+  double tim = clock->getDeltaTime () ;
+  static char s [ 128 ] ;
+  sprintf ( s, "CalcTime=%1.1fms", tim * 1000.0 ) ;
+  timeText->setLabel ( s ) ;
   fountain -> update ( dt ) ;
 }
 
@@ -569,9 +580,11 @@ void init_gui ()
   static puFont     *sorority ;
   static fntTexFont *fnt      ;
 
+  clock = new ulClock () ;
+
   fnt      = new fntTexFont () ;
   fnt     -> load ( "data/sorority.txf" ) ;
-  sorority = new puFont ( fnt, 10 ) ;
+  sorority = new puFont ( fnt, 12 ) ;
 
   puSetDefaultFonts        ( *sorority, *sorority ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
@@ -587,6 +600,7 @@ void init_gui ()
   trainLengthSlider->setCallback   ( trainLengthSlider_cb ) ;
   trainLengthSlider->setLabel      ( "Wave Length" ) ;
   trainLengthSlider->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
+  trainLengthSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
   trainSpeedSlider = new puSlider  ( 193, GUI_BASE+56, 90, false, 20 ) ;
   trainSpeedSlider->setMaxValue    ( 20.0f ) ;
@@ -596,6 +610,7 @@ void init_gui ()
   trainSpeedSlider->setCallback    ( trainSpeedSlider_cb ) ;
   trainSpeedSlider->setLabel       ( "Wave Speed" ) ;
   trainSpeedSlider->setLabelPlace  ( PUPLACE_CENTERED_LEFT ) ;
+  trainSpeedSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
   trainLambdaSlider = new puSlider ( 294, GUI_BASE+28, 90, false, 20 ) ;
   trainLambdaSlider->setMaxValue   ( 2.0f ) ;
@@ -605,6 +620,7 @@ void init_gui ()
   trainLambdaSlider->setCallback   ( trainLambdaSlider_cb ) ;
   trainLambdaSlider->setLabel      ( "Wave Curl" ) ;
   trainLambdaSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  trainLambdaSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
   trainHeightSlider = new puSlider ( 295, GUI_BASE+56, 90, false, 20 ) ;
   trainHeightSlider->setMaxValue   ( 5.0f ) ;
@@ -614,12 +630,14 @@ void init_gui ()
   trainHeightSlider->setCallback   ( trainHeightSlider_cb ) ;
   trainHeightSlider->setLabel      ( "Wave Height (meters)" ) ;
   trainHeightSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  trainHeightSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
   trainEnableButton = new puButton ( 194, GUI_BASE+84, " " ) ;
   trainEnableButton->setStyle      ( PUSTYLE_RADIO ) ;
   trainEnableButton->setCallback   ( trainEnableButton_cb ) ;
   trainEnableButton->setLabel      ( "Enable this Wave Train" ) ;
   trainEnableButton->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
+  trainEnableButton->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
   trainDisableButton = new puOneShot( 450, GUI_BASE+109,
                                                 "Disable All WaveTrains" ) ;
@@ -634,6 +652,7 @@ void init_gui ()
   trainHeadingDial->setCallback    ( trainHeadingDial_cb ) ;
   trainHeadingDial->setLabel       ( "Wave Direction" ) ;
   trainHeadingDial->setLabelPlace  ( PUPLACE_CENTERED_RIGHT ) ;
+  trainHeadingDial->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   trainHeadingDial->setLegendPlace ( PUPLACE_BOTTOM_CENTERED ) ;
   
   trainSelectBox = new puSelectBox ( 190, GUI_BASE+109, 280, GUI_BASE+139,
@@ -642,6 +661,7 @@ void init_gui ()
   trainSelectBox->setCurrentItem   ( 0 ) ;
   trainSelectBox->setLabel         ( "Edit Wave Train Number" ) ;
   trainSelectBox->setLabelPlace    ( PUPLACE_CENTERED_LEFT ) ;
+  trainSelectBox->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
   /* Set everything up on the first time around */
   trainSelectBox_cb ( trainSelectBox ) ;
@@ -656,6 +676,7 @@ void init_gui ()
   viewHeadingDial->setCallback    ( viewHeadingDial_cb ) ;
   viewHeadingDial->setLabel       ( "Pan" ) ;
   viewHeadingDial->setLabelPlace  ( PUPLACE_BOTTOM_CENTERED ) ;
+  viewHeadingDial->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
 
   viewPitchDial  = new puDial ( 100, VIEW_GUI_BASE, 50 ) ;
   viewPitchDial  ->setValue       ( -45.0f ) ;
@@ -667,6 +688,7 @@ void init_gui ()
   viewPitchDial  ->setCallback    ( viewPitchDial_cb ) ;
   viewPitchDial  ->setLabel       ( "Tilt" ) ;
   viewPitchDial  ->setLabelPlace  ( PUPLACE_BOTTOM_CENTERED ) ;
+  viewPitchDial  ->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
 
   viewRangeSlider = new puSlider ( 150, VIEW_GUI_BASE, 90, false, 20 ) ;
   viewRangeSlider->setValue      ( 25.0f ) ;
@@ -677,6 +699,7 @@ void init_gui ()
   viewRangeSlider->setCallback   ( viewRangeSlider_cb ) ;
   viewRangeSlider->setLabel      ( "Range" ) ;
   viewRangeSlider->setLabelPlace ( PUPLACE_BOTTOM_CENTERED ) ;
+  viewRangeSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
   viewWireframeButton= new puButton ( 400, VIEW_GUI_BASE, "Wireframe" ) ;
   viewWireframeButton->setCallback  ( viewWireframeButton_cb ) ;
@@ -695,6 +718,7 @@ void init_gui ()
   waveTextureSlider->setCallback   ( waveTextureSlider_cb ) ;
   waveTextureSlider->setLabel      ( "Texture" ) ;
   waveTextureSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  waveTextureSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
   waveSizeSlider = new puSlider ( 500, VIEW_GUI_BASE+30, 90, false, 20 ) ;
   waveSizeSlider->setValue      ( 25.0f ) ;
@@ -705,6 +729,7 @@ void init_gui ()
   waveSizeSlider->setCallback   ( waveSizeSlider_cb ) ;
   waveSizeSlider->setLabel      ( "Size" ) ;
   waveSizeSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  waveSizeSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
 
   wavePolycountSlider= new puSlider ( 500, VIEW_GUI_BASE+60, 90, false, 20 ) ;
   wavePolycountSlider->setValue      ( 10000 ) ;
@@ -715,7 +740,11 @@ void init_gui ()
   wavePolycountSlider->setCallback   ( wavePolycountSlider_cb ) ;
   wavePolycountSlider->setLabel      ( "Polygons" ) ;
   wavePolycountSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  wavePolycountSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
+  timeText = new puText ( 500, VIEW_GUI_BASE+80 ) ;
+  timeText->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
+
   window_group->close () ;
 }
 
