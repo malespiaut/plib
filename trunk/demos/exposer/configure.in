@@ -11,10 +11,9 @@ AC_PROG_CXXCPP
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
-plib_suffix="-lplibsl -lplibssgaux -lplibssg -lplibpu -lplibfnt -lplibsg"
+plib_suffix="-lplibsl -lplibssgaux -lplibssg -lplibpu -lplibfnt -lplibsg -lplibul"
  
 AC_LANG_CPLUSPLUS
-AC_CHECK_LIB(plibul, ulInit,,,)
 
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
