@@ -89,7 +89,8 @@ static _ssgParserSpec parser_spec =
    NULL,          // open_brace_chars
    NULL,          // close_brace_chars
    '"',        // quote_char. not used for scenery
-   0,          // comment_char # is handled in this module, since it may contin the name of the material
+   0,          // comment_char # is handled in this module, since it may contain 
+	             // important info like the name of the material or the gbs
 	 NULL        // comment_string
 } ;
 
@@ -123,6 +124,19 @@ static int _ssgNoFaces, _ssgNoVertices, _ssgNoVertexNormals, _ssgNoVertexTC; //l
 static char * _current_usemtl = NULL, * _last_usemtl = NULL;
 static int _current_material_index = -1;
 
+double _ssg_gbs_x = 0.0, _ssg_gbs_y = 0.0, _ssg_gbs_z = 1.0, _ssg_gbs_r = 0.0;
+
+void ssgGetValuesFromLastATGFile(double *x, double *y, double *z, double *r)
+// These values are the values from the "# gbs" line from the last loaded
+// ATG file, or 0, 0, 1, 0 if there is no ATG file with a # gbs line loaded yet
+// The values are the vector from the centre of the earth to the tile and 
+// a radius.
+{ *x = _ssg_gbs_x;
+  *y = _ssg_gbs_y;
+	*z = _ssg_gbs_z;
+	*r = _ssg_gbs_r;
+}
+
 static char* parser_getLine()
 // replaces parser.getLine, but handles '#'
 // Some "comment lines" starting with '#' have important info like material/texture name inside
@@ -133,8 +147,8 @@ static char* parser_getLine()
 		return NULL;
 
 	while ( token[0] == '#' )
-	{ 
-		if ( ulStrEqual ("usemtl" , parser.parseToken( 0 ))) // name has to be 0 
+	{ char * token0 = parser.parseToken( 0 );
+		if ( ulStrEqual ("usemtl" , token0)) // name has to be 0 
 		{ char * usemtl = parser.parseToken( 0 );
 		  if ( usemtl != NULL)
 				if ( 0 != usemtl[0] )
@@ -144,6 +158,18 @@ static char* parser_getLine()
 					_current_usemtl = new char [ strlen ( usemtl ) + 1 ] ;
 					strcpy ( _current_usemtl, usemtl ) ;
 				}
+		}
+    //# gbs -2710586.16105 -4275323.15743 3867065.62925 7623.60
+		else if ( ulStrEqual ("gbs" , token0)) // name has to be 0 
+		{ char * temp;
+			temp = parser.parseToken( 0 );
+		  _ssg_gbs_x = atof (temp);
+			temp = parser.parseToken( 0 );
+		  _ssg_gbs_y = atof (temp);
+			temp = parser.parseToken( 0 );
+		  _ssg_gbs_z = atof (temp);
+			temp = parser.parseToken( 0 );
+		  _ssg_gbs_r = atof (temp);
 		}
 		token = parser.getLine(0);
 		if ( token == NULL )
