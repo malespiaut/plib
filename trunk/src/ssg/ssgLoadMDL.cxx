@@ -6,15 +6,8 @@
 // Original code by Thomas Engh Sevaldrud, adapted to SSG by
 // Per Liedman.
 
-#include <iostream.h>
-#include "ssgLocal.h"
-#include "ssgLoadMDL.h"
-
-#define DEF_SHININESS 50
-#define MSFS_MAX_STATES 256
-
 // Define DEBUG if you want some debug info
-#define DEBUG 1
+//#define DEBUG 1
 
 #ifdef DEBUG
 #include <iostream>
@@ -22,6 +15,12 @@
 #else
 #define DEBUGPRINT(x)
 #endif
+
+#include "ssgLocal.h"
+#include "ssgLoadMDL.h"
+
+#define DEF_SHININESS 50
+#define MSFS_MAX_STATES 256
 
 struct _MDLPart {
   GLenum type;
