@@ -7,15 +7,6 @@
 
 #define VRML_MAX_TEXTURES 12    /* This *ought* to be enough! */
 
-//ssgState *( *_ssgGetAppState)( char *) = NULL ;
-
-/*
-  void ssgSetAppStateCallback ( ssgState *(*cb)(char *) )
-  {
-  _ssgGetAppState = cb ;
-  }
-*/
-
 static FILE *loader_fd ;
 //static FILE *VRMLlog;
 

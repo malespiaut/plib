@@ -194,3 +194,73 @@ void ssgDeRefDelete ( ssgBase *s )
 }
 
 
+static char *file_extension ( char *fname )
+{
+  char *p = & ( fname [ strlen(fname) ] ) ;
+
+  while ( p != fname && *p != '/' && *p != '.' )
+    p-- ;
+
+  return p ;
+}
+
+
+ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
+{
+  if ( fname == NULL || *fname == '\0' )
+    return NULL ;
+
+  char *extn = file_extension ( fname ) ;
+
+  if ( *extn != '.' )
+    return NULL ;
+
+  if ( _ssgStrNEqual ( extn, ".ac", 3 ) )
+  { 
+    ssgEntity *obj = ssgLoadAC ( fname, hookfunc ) ;
+
+    if ( obj == NULL )
+      return NULL ;
+
+    /* Do some simple optimisations */
+
+    ssgBranch *model = new ssgBranch () ;
+    model -> addKid ( obj ) ;
+    ssgFlatten      ( obj ) ;
+    ssgStripify   ( model ) ;
+    return model ;
+  }
+
+  if ( _ssgStrNEqual ( extn, ".wrl", 4 ) )
+    return ssgLoadVRML ( fname, hookfunc ) ;
+
+  if ( _ssgStrNEqual ( extn, ".3ds", 4 ) )
+    return ssgLoad3ds  ( fname, hookfunc ) ;
+
+  if ( _ssgStrNEqual ( extn, ".ssg", 4 ) )
+    return ssgLoadSSG  ( fname, hookfunc ) ;
+
+  return NULL ;
+}
+
+
+int ssgSave ( char *fname, ssgEntity *ent )
+{
+  if ( fname == NULL || ent == NULL || *fname == '\0' )
+    return FALSE ;
+
+  char *extn = file_extension ( fname ) ;
+
+  if ( *extn != '.' )
+    return FALSE ;
+
+  if ( _ssgStrNEqual ( extn, ".ac", 3 ) )
+    return ssgSaveAC ( fname, ent ) ;
+
+  if ( _ssgStrNEqual ( extn, ".ssg", 4 ) )
+    return ssgSaveSSG ( fname, ent ) ;
+
+  return FALSE ;
+}
+
+
