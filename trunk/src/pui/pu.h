@@ -532,9 +532,10 @@ protected:
                                                y <= abox.max[1] &&
                                                window == puGetWindow () ; }
 
-  virtual void doHit ( int button, int updown, int x, int y ) ;
 
 public:
+  virtual void doHit ( int button, int updown, int x, int y ) ;
+
    puObject ( int minx, int miny, int maxx, int maxy ) ;
   ~puObject () ;
 
