@@ -29,7 +29,7 @@
 /* ------------------------------------------------------------ */
 
 
-void smMixer::open ( char *device )
+void smMixer::open ( const char *device )
 {
   fd = ::open ( device, O_WRONLY ) ;
 
@@ -56,7 +56,7 @@ smMixer::smMixer ()
    open ( SMMIXER_DEFAULT_DEVICE ) ; 
 } 
 
-smMixer::smMixer ( char *device ) 
+smMixer::smMixer ( const char *device ) 
 { 
    open ( device ) ; 
 } 
@@ -66,7 +66,7 @@ smMixer::~smMixer ()
    close () ; 
 }
   
-int smMixer::notWorking () 
+int smMixer::notWorking () const
 { 
    return error ; 
 }
@@ -234,12 +234,12 @@ void smMixer::setCDVolume     ( int, int ) {}
 /* win32                                                        */
 /* ------------------------------------------------------------ */
 
-void smMixer::open ( char * ) {}
+void smMixer::open ( const char * ) {}
   
 void smMixer::close (){}
 
 smMixer::smMixer ()    {} 
-smMixer::smMixer ( char * ) {} 
+smMixer::smMixer ( const char * ) {} 
 smMixer::~smMixer ()         {}
   
 int smMixer::notWorking () 

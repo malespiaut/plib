@@ -65,7 +65,7 @@ private:
     return param ;
   }
 #endif
-  void open ( char *device ) ;
+  void open ( const char *device ) ;
   void close () ;
 
 public:
@@ -73,11 +73,11 @@ public:
   /* Tom */
 
   smMixer ();
-  smMixer ( char *device );
+  smMixer ( const char *device );
  ~smMixer ();
   
-  int notWorking ();
-  int not_working ()  { return notWorking () ; }  /* Originally a typo! */
+  int notWorking () const ;
+  int not_working () const { return notWorking () ; }  /* Originally a typo! */
 
   /* Volume controls are in integer percentages */
 

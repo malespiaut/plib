@@ -33,9 +33,9 @@
 #define u16BigEndian(x)    (((unsigned char *)(x))[0]*(unsigned short)256 + \
                             ((unsigned char *)(x))[1])
 
-static char *transTab    = "JFEGHLKRXODB.C"   ;
-static char *transTabE   = "SFESSSSSSQ..SSSS" ;
-static char transTabEX[] = { 0,0xF,0xF,1,3,2,0xB,4,8,0,0,0,0xC,0xD,0xE,0xF } ;
+static const char *transTab    = "JFEGHLKRXODB.C"   ;
+static const char *transTabE   = "SFESSSSSSQ..SSSS" ;
+static const char transTabEX[] = { 0,0xF,0xF,1,3,2,0xB,4,8,0,0,0,0xC,0xD,0xE,0xF } ;
 static int  oct[12]      = { 1712, 1616, 1524, 1440, 1356, 1280,
                              1208, 1140, 1076, 1016,  960,  907 } ;
 static int  freq[16]     = { 8363, 8413, 8463, 8529, 8581, 8651, 8723, 8757,
@@ -218,9 +218,9 @@ static int isMod15(unsigned char *p0, int size)
 
 struct MagicInfo
 {
-  char     *str  ;
-  int       off  ;
-  MagicType type ;
+  const char *str  ;
+  int         off  ;
+  MagicType   type ;
 } ;
 
 
@@ -247,7 +247,8 @@ static int magic(unsigned char *p, int size, MagicType *mtp, int *numChp)
 
   for (mip = magicInfo; mip->str != 0; mip++)
   {
-    char *ss, *sp;
+    const char *ss ;
+    char *sp ;
 
     if (mip->off + 16 >= size)
       continue ; /* Magicinfo.str must < 16 */
@@ -576,7 +577,7 @@ int MODfile::update ()
 
 
 
-unsigned char *MODfile::read_whole_file ( char *fname, int *len )
+unsigned char *MODfile::read_whole_file ( const char *fname, int *len )
 {
   struct stat statbuf ;
 
@@ -612,7 +613,7 @@ unsigned char *MODfile::read_whole_file ( char *fname, int *len )
 
 
 
-MODfile::MODfile ( char *fname, int speed, int stereo )
+MODfile::MODfile ( const char *fname, int speed, int stereo )
 {
   p0         = NULL ; songName   = NULL ; ord        = NULL ;
   smpInfop   = NULL ; smp0p      = NULL ; pat        = NULL ;

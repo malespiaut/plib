@@ -24,7 +24,7 @@
 
 #include "sl.h"
 
-float slEnvelope::getValue ( float _time )
+float slEnvelope::getValue ( float _time ) const
 {
   float delta ;
   int   step = getStepDelta ( &_time, &delta ) ;
@@ -34,7 +34,7 @@ float slEnvelope::getValue ( float _time )
 
 
 
-int slEnvelope::getStepDelta ( float *_time, float *delta )
+int slEnvelope::getStepDelta ( float *_time, float *delta ) const
 {
   float tt ;
 

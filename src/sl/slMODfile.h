@@ -66,11 +66,11 @@ class MODfile
   void makeSampleInfo ( int smp15 ) ;
   void parseMod       ( unsigned char *pp0, int smp15 ) ;
   void play_one       ( int ppat ) ;
-  unsigned char *read_whole_file ( char *fname, int *len ) ;
+  unsigned char *read_whole_file ( const char *fname, int *len ) ;
 
 public:
 
-   MODfile ( char *fname, int speed = 44100, int stereo = 0 ) ;
+   MODfile ( const char *fname, int speed = 44100, int stereo = 0 ) ;
   ~MODfile () ;
 
   int update () ;
