@@ -122,6 +122,7 @@ struct aseObject
 {
   char* name ;
   char* parent ;
+  bool inherit_pos [3] ;
   sgVec3 pos ;
   u32 mat_index ;
   u32 num_tkeys ;
@@ -1076,7 +1077,17 @@ static int parse_tkeys( aseObject* obj )
 				return FALSE;
       
       if ( obj->parent == NULL )
+      {
         sgSubVec3 ( tkey->pos, obj->pos ) ;
+      }
+      else
+      {
+        for ( int i=0; i<3; i++ )
+        {
+          if ( obj->inherit_pos[i] )
+            tkey->pos[i] -= obj->pos[i] ;
+        }
+      }
       
       //copy the position forward
       for ( u32 i=obj->num_tkeys; i<num_frames; i++ )
@@ -1151,14 +1162,47 @@ static int parse_object()
         strcpy ( obj->parent, name ) ;
       }
     }
-    else if (!strcmp(token,"*TM_POS"))
+    else if (!strcmp(token,"*NODE_TM"))
     {
-      if (! parser.parseFloat(obj->pos[0], "pos.x"))
-				return FALSE;
-      if (! parser.parseFloat(obj->pos[1], "pos.y"))
-				return FALSE;
-      if (! parser.parseFloat(obj->pos[2], "pos.z"))
-				return FALSE;
+      bool match = false ;
+      int startLevel = parser.level;
+      while ((token = parser.getLine( startLevel )) != NULL)
+      {
+        if (!strcmp(token,"*NODE_NAME"))
+        {
+          char* name;
+  				if (! parser.parseString(name, "obj name"))
+  					return FALSE;
+				
+          if ( obj->name && !strcmp(name,obj->name) )
+            match = true ;
+        }
+        else if (match)
+        {
+          if (!strcmp(token,"*TM_POS"))
+          {
+            if (! parser.parseFloat(obj->pos[0], "pos.x"))
+              return FALSE;
+            if (! parser.parseFloat(obj->pos[1], "pos.y"))
+              return FALSE;
+            if (! parser.parseFloat(obj->pos[2], "pos.z"))
+              return FALSE;
+          }
+          else if (!strcmp(token,"*INHERIT_POS"))
+          {
+            int temp ;
+            if (! parser.parseInt(temp, "inherit_pos.x"))
+              return FALSE;
+            obj->inherit_pos[0] = ( temp != 0 ) ;
+            if (! parser.parseInt(temp, "inherit_pos.y"))
+              return FALSE;
+            obj->inherit_pos[1] = ( temp != 0 ) ;
+            if (! parser.parseInt(temp, "inherit_pos.z"))
+              return FALSE;
+            obj->inherit_pos[2] = ( temp != 0 ) ;
+          }
+        }
+      }
     }
     else if (!strcmp(token,"*MESH"))
     {
