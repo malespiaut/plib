@@ -589,6 +589,11 @@ static ssgSimpleState *get_state( _3dsMat *mat ) {
     st -> disable( GL_TEXTURE_2D );
   }
 
+  // don't show specular if exponent is 0, more info at:
+  // http://sf.net/mailarchive/forum.php?thread_id=6481452&forum_id=4479
+  if ( ! mat->shi )
+    st -> setMaterial ( GL_SPECULAR, 0,0,0,1 );
+
   return st ;
 }
 
