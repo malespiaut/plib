@@ -49,9 +49,17 @@ class pslCompiler
   /* File I/O and preprocessor */
 
   int  getChar               () ;
+
   void doIncludeStatement    () ;
+  void doDefineStatement     () ;
+  void doIfdefStatement      () ;
+  void doUndefStatement      () ;
+  void doIfndefStatement     () ;
+  void doElseStatement       () ;
+  void doEndifStatement      () ;
+
   int  doPreProcessorCommand () ;
-  void getToken              (       char *s ) ;
+  void getToken              ( char *s, int define_sub = TRUE ) ;
   void ungetToken            ( const char *s ) ;
 
 
@@ -132,10 +140,16 @@ class pslCompiler
   int  pushGlobalDeclaration         () ;
   void pushProgram                   () ;
 
-  /* The symbol tables for variables and code */
+  /* The symbol tables for variables, code and define's */
 
   int next_label ;
   int next_code_symbol ;
+  int next_define ;
+
+  char *define_token       [ MAX_SYMBOL ] ;
+  char *define_replacement [ MAX_SYMBOL ] ;
+
+  int searchDefines ( char *s ) ;
 
   pslSymbol         symtab [ MAX_SYMBOL ] ;
   pslSymbol    code_symtab [ MAX_SYMBOL ] ;
@@ -240,6 +254,8 @@ public:
 
     for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
     {
+      define_token       [ i ] = NULL ;
+      define_replacement [ i ] = NULL ;
       symtab      [ i ] . symbol = NULL ;
       forward_ref [ i ] . symbol = NULL ;
       code_symtab [ i ] . symbol = NULL ;
@@ -252,6 +268,8 @@ public:
   {
     for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
     {
+      delete [] define_token       [ i ] ;
+      delete [] define_replacement [ i ] ;
       delete [] symtab      [ i ] . symbol ;
       delete [] code_symtab [ i ] . symbol ;
       delete [] forward_ref [ i ] . symbol ;
@@ -270,6 +288,8 @@ public:
 
     for ( i = 0 ; i < MAX_SYMBOL ; i++ )
     {
+      delete [] define_token       [ i ] ; define_token       [ i ] = NULL ;
+      delete [] define_replacement [ i ] ; define_replacement [ i ] = NULL ;
       delete [] symtab      [ i ] . symbol ; symtab      [ i ] . symbol = NULL ;
       delete [] code_symtab [ i ] . symbol ; code_symtab [ i ] . symbol = NULL ;
       delete [] forward_ref [ i ] . symbol ; forward_ref [ i ] . symbol = NULL ;
@@ -279,6 +299,7 @@ public:
 
     locality_sp = 0 ;
 
+    next_define   = 0 ;
     next_continue = 0 ;
     next_break    = 0 ;
     next_tmp_label= 0 ;
