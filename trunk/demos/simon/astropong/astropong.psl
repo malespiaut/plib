@@ -1,0 +1,228 @@
+
+#define ARENA_SIZE 8.0  /* meters */
+#define ARENA_LENGTH 10.0  /* meters */
+#define BALL_SIZE  2.5  /* meters */
+
+#define BOUNCE (ARENA_SIZE/2.0 - BALL_SIZE/2.0)
+#define BOUNCEY (ARENA_LENGTH/2.0 - BALL_SIZE/2.0)
+
+#define BAT_SIZE  (1.0 + BALL_SIZE/2.0) /* From the center to the sides */
+
+int arena          ;
+int shadow         ;
+int difficulty     ;
+int scoreBoardR    ;
+int scoreBoardB    ;
+int ball           ;
+int bPaddle        ;
+int rPaddle        ;
+int camera         ;
+int scoreR         ;
+int scoreB         ;
+
+float Blue_batspeed = .34;
+float scoreSpinR         ;
+float scoreSpinB         ;
+float ballSpinH          ;
+float ballSpinSH         ;
+float ballSpinP          ;
+float ballSpinSP         ;
+float ballSpinR          ;
+float ballSpinSR         ;
+float ballX              ;
+float ballY              ;
+float ballZ              ;
+float ballSX             ;
+float ballSY             ;
+float ballSZ             ;
+float bpaddleX           ;
+float bpaddleZ           ;
+float rpaddleX           ;
+float rpaddleZ           ;
+float userX              ;
+float userZ              ;
+int  frameno = 0         ;
+
+int main()
+{
+  camera      = 0     ;
+  arena       = siLoad ( "arena2.ac")     ;
+  ball        = siLoad ( "ball3.ac")      ;
+  bPaddle     = siLoad ( "bluepaddle2.ac");
+  rPaddle     = siLoad ( "redpaddle2.ac") ;
+  scoreBoardR = siLoad ( "Scoreboard.ac") ;
+  scoreBoardB = siLoad ( "Scoreboard.ac") ;
+  shadow      = siLoad ( "shadow2.ac")    ;
+
+  scoreSpinR = 0     ;
+  scoreSpinB = 0     ;
+  ballSX     = 0.166 ;
+  ballSY     = 0.155 ;
+  ballSZ     = 0.016 ;
+  ballSpinSH = 4     ;
+  ballSpinSP = 4     ;
+  ballSpinSR = 4     ;
+
+  difficulty = 1 ;
+
+  if ( difficulty == 1 ) { Blue_batspeed = .275 ; }
+  else { Blue_batspeed = .34 ; }
+
+  while ( 1 )
+  { 
+    frameno = frameno + 1 ;
+
+    /* Read the joystick */
+
+    userX = siJoystickLR();
+    userZ = siJoystickUD();
+
+    /* Move the ball */
+
+    ballX     += ballSX       ;
+    ballY     += ballSY       ;
+    ballZ     += ballSZ       ;
+    ballSpinH += ballSpinSH   ;
+    ballSpinP += ballSpinSP   ;
+    ballSpinR += ballSpinSR   ;
+
+    /* Bounce off the sides? */
+
+    if ( ballX > BOUNCE || ballX < -BOUNCE )
+    {
+      ballSX = -ballSX ;
+    }
+
+    /* Bounce off the top and bottom? */
+
+    if ( ballZ >  BOUNCE || ballZ < -BOUNCE )
+    {
+      ballSZ = -ballSZ ;
+    }
+
+
+
+    /* What happens at the ends? */
+
+    if ( ballY > BOUNCEY )  /* Passed the blue paddle? */
+    {
+     /* Is the blue bat there? */
+
+     if (ballX > bpaddleX - BAT_SIZE && ballX < bpaddleX + BAT_SIZE && 
+	 ballZ > bpaddleZ - BAT_SIZE && ballZ < bpaddleZ + BAT_SIZE )
+     {
+       float hitX = ballX - bpaddleX ;
+       float hitZ = ballZ - bpaddleZ ;
+
+       if ( ballSX > 0 )
+	 ballSX = fabs ( hitX / 2.0 ) ;
+       else
+	 ballSX = -fabs ( hitX / 2.0 ) ;
+
+       if ( ballSZ > 0 )
+	 ballSZ = fabs ( hitZ / 2.0 ) ;
+       else
+	 ballSZ = -fabs ( hitZ / 2.0 ) ;
+
+       ballSY = -ballSY ;
+  //     printf("Blue hit the planet!\n");
+     }
+     else
+     { 
+       scoreR++ ;
+
+  //     printf("The score is Red:%d Blue:%d\n", scoreR, scoreB ) ; 
+
+       ballSX = 0.1 ;
+       ballSY = 0.1 ;
+       ballSZ = 0.1;
+       ballSY = -ballSY ;
+       ballX = 0.0 ;
+       ballY = 0.0 ;
+       ballZ = 0.0;
+  //     sleep(1);
+     }
+    }
+
+   
+    if ( ballY < -BOUNCEY )  /* Passed the red paddle? */
+    {
+     /* Was the red bat there? */
+
+     if (ballX > rpaddleX - BAT_SIZE && ballX < rpaddleX + BAT_SIZE &&
+	 ballZ > rpaddleZ - BAT_SIZE && ballZ < rpaddleZ + BAT_SIZE )
+     {
+       float hitX = ballX - rpaddleX ;
+       float hitZ = ballZ - rpaddleZ ;
+
+       if ( ballSX > 0 )
+	 ballSX = fabs ( hitX / 2.0 ) ;
+       else
+	 ballSX = -fabs ( hitX / 2.0 ) ;
+
+       if ( ballSZ > 0 )
+	 ballSZ = fabs ( hitZ / 2.0 ) ;
+       else
+	 ballSZ = -fabs ( hitZ / 2.0 ) ;
+
+       ballSY = -ballSY ;
+   //    printf("Red hit the planet!\n") ;
+     }
+     else
+     { 
+       scoreB++ ;
+  //     printf("The score is Red:%d Blue:%d\n", scoreR, scoreB ) ; 
+       ballSX = .1 ;
+       ballSY = .1 ;
+       ballSZ = .1;
+       ballSY = -ballSY ;
+  //     sleep(1);
+       ballX = 0.0 ;
+       ballY = 0.0 ;
+       ballZ = 0.0;
+     }
+    }
+
+    /* Update the scoreboard */
+
+    scoreSpinR = scoreR * -36.0 ;
+    scoreSpinB = scoreB * -36.0 ;
+    
+    /* How should the computer move the paddle? */
+
+    if ( ballZ > bpaddleZ ) { bpaddleZ += Blue_batspeed ; }
+    else { bpaddleZ -= Blue_batspeed ; }
+
+    if ( ballX > bpaddleX ) { bpaddleX += Blue_batspeed ; }
+    else { bpaddleX -= Blue_batspeed ; }
+
+    /* How did the player move the paddle? */
+
+    rpaddleX += userX * -.5;
+    rpaddleZ += userZ *  .5;
+
+    /* Did the paddle move off the edge of the screen? */
+
+    if ( rpaddleX >  BOUNCE  ) rpaddleX =  BOUNCE  ;
+    if ( rpaddleX < -BOUNCE  ) rpaddleX = -BOUNCE  ;
+    if ( rpaddleZ >  BOUNCE  ) rpaddleZ =  BOUNCE  ;
+    if ( rpaddleZ < -BOUNCE  ) rpaddleZ = -BOUNCE  ;
+
+    /* Tell SIMON where to position the paddle, ball and camera */
+    
+    /*           MODEL         X, Y, Z,               H, P, R    */
+    siPosition ( scoreBoardR,  1, 0, 0,               0, scoreSpinR, 0 ) ;
+    siPosition ( scoreBoardB, -1, 0, 0,               0, scoreSpinB, 0 ) ;
+    siPosition ( bPaddle    , bpaddleX,  5, bpaddleZ, 0,     0     , 0 ) ;
+    siPosition ( rPaddle    , rpaddleX, -5, rpaddleZ, 0,     0     , 0 ) ;
+    siPosition ( ball       , ballX, ballY, ballZ,
+                              ballSpinH,ballSpinP,ballSpinR);
+    siPosition ( arena      , 0, 0, 0,                0,     0     , 0 ) ;
+    siPosition ( shadow     , ballX, ballY, -4,       0,     0     , 0 ) ;
+    siPosition ( camera     ,  0, -10, 0,             0,     0     , 0 ) ;
+
+    pause ;
+  }
+}
+
+

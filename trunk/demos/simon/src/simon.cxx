@@ -2,6 +2,70 @@
 #include <simon.h>
 #include <plib/psl.h>
 
+pslValue my_siJoystickUD ( int, pslValue *, pslProgram * )
+{
+  pslValue ret ;
+  ret . set ( siJoystickUD () ) ;
+  return ret ;
+}
+
+
+pslValue my_siJoystickLR ( int, pslValue *, pslProgram * )
+{
+  pslValue ret ;
+  ret . set ( siJoystickLR () ) ;
+  return ret ;
+}
+
+
+pslValue my_siJoystickA ( int, pslValue *, pslProgram * )
+{
+  pslValue ret ;
+  ret . set ( siJoystickA () ) ;
+  return ret ;
+}
+
+
+pslValue my_siJoystickB ( int, pslValue *, pslProgram * )
+{
+  pslValue ret ;
+  ret . set ( siJoystickB () ) ;
+  return ret ;
+}
+
+
+pslValue my_siJoystickC ( int, pslValue *, pslProgram * )
+{
+  pslValue ret ;
+  ret . set ( siJoystickC () ) ;
+  return ret ;
+}
+
+
+pslValue my_siJoystickD ( int, pslValue *, pslProgram * )
+{
+  pslValue ret ;
+  ret . set ( siJoystickD () ) ;
+  return ret ;
+}
+
+
+pslValue my_siJoystickL ( int, pslValue *, pslProgram * )
+{
+  pslValue ret ;
+  ret . set ( siJoystickL () ) ;
+  return ret ;
+}
+
+
+pslValue my_siJoystickR ( int, pslValue *, pslProgram * )
+{
+  pslValue ret ;
+  ret . set ( siJoystickR () ) ;
+  return ret ;
+}
+
+
 pslValue my_siLoad ( int argc, pslValue *argv, pslProgram *p )
 {
   if ( argc != 1 || argv[0].getType() != PSL_STRING )
@@ -9,6 +73,15 @@ pslValue my_siLoad ( int argc, pslValue *argv, pslProgram *p )
 
   pslValue ret ;
   ret . set ( siLoad ( argv[0].getString () ) ) ;
+  return ret ;
+}
+
+
+
+pslValue my_fabs ( int argc, pslValue *argv, pslProgram *p )
+{
+  pslValue ret ;
+  ret . set ( (float) fabs ( argv[0].getFloat () ) ) ;
   return ret ;
 }
 
@@ -35,13 +108,23 @@ pslValue my_siPosition ( int argc, pslValue *argv, pslProgram *p )
 
 pslExtension extensions [] =
 {
-  { "siLoad"    ,  1, my_siLoad     },
-  { "siPosition",  7, my_siPosition },
+  { "siLoad"      , 1, my_siLoad       },
+  { "siPosition"  , 7, my_siPosition   },
+  { "siJoystickUD", 0, my_siJoystickUD },
+  { "siJoystickLR", 0, my_siJoystickLR },
+  { "siJoystickA" , 0, my_siJoystickA  },
+  { "siJoystickB" , 0, my_siJoystickB  },
+  { "siJoystickC" , 0, my_siJoystickC  },
+  { "siJoystickD" , 0, my_siJoystickD  },
+  { "siJoystickL" , 0, my_siJoystickL  },
+  { "siJoystickR" , 0, my_siJoystickR  },
+  { "fabs"        , 1, my_fabs         },
   { NULL, 0, NULL }
 } ;
 
 
 pslProgram *prog = NULL ;
+ulClock ck ;
 
 int main ( int argc, char **argv )
 {
@@ -59,7 +142,6 @@ int main ( int argc, char **argv )
 
   prog = new pslProgram ( extensions, argv[1] ) ;
 
-  ulClock ck ;
   ck.setMaxDelta ( 100000.0 ) ;
   ck.update () ;
 
@@ -75,8 +157,12 @@ int main ( int argc, char **argv )
 
 void siUpdate ()
 {
+  static int nframes = 0 ;
+  static double total_time = 0.0 ;
+
   pslResult res ;
 
+  ck.update () ;
   do
   {
     res = prog -> step () ;
@@ -85,6 +171,17 @@ void siUpdate ()
 
   if ( res == PSL_PROGRAM_END )
     exit ( 0 ) ;
+
+  ck.update () ;
+  total_time += ck.getDeltaTime () ;
+  nframes++ ;
+
+  if ( nframes == 100 )
+  {
+    fprintf ( stderr, "Avg PSL Interp time = %fs.\n", total_time / nframes ) ;
+    nframes = 0 ;
+    total_time = 0.0 ;
+  }
 }
 
 

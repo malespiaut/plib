@@ -43,7 +43,7 @@ int pslCompiler::pushPrimitive ()
     if ( strcmp ( c, ")" ) != 0 )
     {
       ungetToken ( c ) ;
-      return error ( "Missing ')' after expression (found '%s')", c );
+      return error ( "Missing ')' (found '%s')", c );
     }
 
     return TRUE ;
@@ -331,9 +331,39 @@ int pslCompiler::pushRelExpression ()
 }
 
 
+
+int pslCompiler::pushBoolExpression ()
+{
+  if ( ! pushRelExpression () )
+    return FALSE ;
+
+  while ( TRUE )
+  {
+    char c [ MAX_TOKEN ] ;
+
+    getToken ( c ) ;
+
+    if ( strcmp ( c, "&&"  ) != 0 &&
+         strcmp ( c, "||"  ) != 0 )
+    {
+      ungetToken ( c ) ;
+      return TRUE ;
+    }
+
+    if ( ! pushRelExpression () )
+      return FALSE ;
+
+    if ( strcmp ( c, "&&"  ) == 0 )
+      pushAndAnd () ;
+    else
+      pushOrOr   () ;
+  }
+}
+
+
 int pslCompiler::pushExpression ()
 {
-  return pushRelExpression () ;
+  return pushBoolExpression () ;
 }
 
 

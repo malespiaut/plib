@@ -27,7 +27,10 @@
 
 void pslCompiler::pushCodeByte ( pslOpcode op )
 {
-  code [ next_code++ ] = op ;
+  if ( next_code >= MAX_CODE - 1 )
+    error ( "Program too big!" ) ;
+  else
+    code [ next_code++ ] = op ;
 }
 
 

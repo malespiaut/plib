@@ -41,7 +41,7 @@
 #define MAX_VARIABLE    256
 #define MAX_LABEL       256
 #define MAX_TOKEN      1024 
-#define MAX_CODE        512
+#define MAX_CODE      65536
 #define MAX_STACK       256 
 #define MAX_NESTING      32 
 #define MAX_UNGET        64
