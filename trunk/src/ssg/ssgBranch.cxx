@@ -155,6 +155,28 @@ void ssgBranch::print ( FILE *fd, char *indent, int how_much )
 }
 
 
+void ssgBranch::getStats ( int *num_branches, int *num_leaves, int *num_tris, int *num_verts )
+{
+  int nb, nl, nt, nv ;
+
+  *num_branches = 1 ;   /* this! */
+  *num_leaves   = 0 ;
+  *num_tris     = 0 ;
+  *num_verts    = 0 ;
+
+  for ( int i = 0 ; i < getNumKids () ; i++ )
+  {
+    ssgEntity *e = getKid ( i ) ;
+
+    e -> getStats ( & nb, & nl, & nt, & nv ) ;
+    *num_branches += nb ;
+    *num_leaves   += nl ;
+    *num_tris     += nt ;
+    *num_verts    += nv ;
+  }
+}
+
+
 ssgEntity *ssgBranch::getByName ( char *match )
 {
   if ( getName() != NULL && strcmp ( getName(), match ) == 0 )

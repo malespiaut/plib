@@ -1172,6 +1172,7 @@ public:
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) = 0 ;
   virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) = 0 ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void getStats ( int *num_branches, int *num_leaves, int *num_tris, int *num_vertices ) = 0 ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1262,6 +1263,7 @@ public:
   virtual void recalcBSphere () = 0 ;
   virtual const char *getTypeName(void) ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void getStats ( int *num_branches, int *num_leaves, int *num_tris, int *num_vertices ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
@@ -1606,6 +1608,7 @@ public:
   virtual void hot           ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void los           ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void print         ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void getStats ( int *num_branches, int *num_leaves, int *num_tris, int *num_vertices ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual void recalcBSphere () ;
