@@ -11,7 +11,11 @@
  #include <windows.h>
 #else
  #include <unistd.h>
- typedef unsigned int RECVFROM_LENGTH_TYPE ;
+ #if defined(__sgi)
+  typedef int RECVFROM_LENGTH_TYPE ;
+ #else
+  typedef unsigned int RECVFROM_LENGTH_TYPE ;
+ #endif
 #endif
 
 #include <string.h>
