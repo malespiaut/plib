@@ -127,8 +127,6 @@ int ssgTimedSelector::getStep ()
 ssgTimedSelector::~ssgTimedSelector (void)
 {
   delete [] times ;
-  ulSetError ( UL_DEBUG, "In ssgTimedSelectors' destructor." ) ;
-  print () ;
 }
 
 

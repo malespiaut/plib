@@ -512,7 +512,7 @@ void keyboard(unsigned char key, int, int)
   case 'l':
     if ( !file_picker )
     {
-      file_picker = new puFilePicker ( ( 640 - 220 ) / 2, ( 480 - 170 ) / 2, ARROWS_USED, "data" ) ;
+      file_picker = new puFilePicker ( ( 640 - 320 ) / 2, ( 480 - 270 ) / 2, 320, 270, ARROWS_USED, "data" ) ;
       file_picker -> setCallback ( pick_cb ) ;
     }
     break;

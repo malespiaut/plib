@@ -613,24 +613,15 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
   //   fprintf( stdout, "%d verts\n", num_verts );
 
   //pass the data to ssg
-  ssgCreateData* data = new ssgCreateData ;
-  if ( mesh_name != NULL )
-  {
-    data->parentName = new char [ strlen(mesh_name)+1 ] ;
-    strcpy ( data->parentName, mesh_name ) ;
-  }
-  else
-    data->parentName = NULL ;
-  data->gltype = GL_TRIANGLES ;
-  data->st = get_state ( mat ) ;
-  data->tfname = mat -> tfname ;
-  data->cull_face = TRUE ;
-  data->il = new ssgIndexArray ( num_faces * 3 ) ;
-  data->vl = new ssgVertexArray ( num_verts ) ;
+  ssgIndexArray* il = new ssgIndexArray ( num_faces * 3 ) ;
+  ssgVertexArray* vl = new ssgVertexArray ( num_verts ) ;
+  ssgTexCoordArray* tl = NULL ;
+  ssgColourArray* cl = NULL ;
+  ssgNormalArray* nl = NULL ;
   if ( mesh -> tverts )  
-    data->tl = new ssgTexCoordArray ( num_verts ) ;
+    tl = new ssgTexCoordArray ( num_verts ) ;
   if ( mesh -> cverts )
-    data->cl = new ssgColourArray ( num_verts ) ;
+    cl = new ssgColourArray ( num_verts ) ;
 
   //build the index list
   face = mesh -> faces ;
@@ -647,7 +638,7 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
       if ( ! vert -> use_flag )
         ulSetError ( UL_FATAL, "internal error" ) ;
 
-      data-> il -> add ( vert -> index ) ;
+      il -> add ( vert -> index ) ;
     }
   }
 
@@ -657,7 +648,7 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
   {
     if ( vert -> use_flag )
     {
-      data -> vl -> add ( vert -> v ) ;
+      vl -> add ( vert -> v ) ;
 
       if ( mesh -> tverts )
       {
@@ -671,7 +662,7 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
         tv[0] += mat->texoff[0] ;
         tv[1] += mat->texoff[1] ;
 
-        data -> tl -> add ( tv ) ;
+        tl -> add ( tv ) ;
       }
 
       if ( mesh -> cverts )
@@ -681,7 +672,7 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
 
         c[3] = 1.0f; //alpha is always one ??
 
-        data -> cl -> add ( c ) ;
+        cl -> add ( c ) ;
       }
     }
   }
@@ -689,33 +680,37 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
   delete[] vert_list ;
   delete[] map_index ;
 
-  if ( data -> st -> isEnabled ( GL_LIGHTING ) )
+  ssgSimpleState* st = get_state ( mat ) ;
+  if ( st -> isEnabled ( GL_LIGHTING ) )
   {
-    if ( data -> cl == NULL )
+    if ( cl == NULL )
     {
       sgVec4 c ;
       sgCopyVec3 ( c, mat -> diff ) ;
       c[3] = 1.0f - mat -> transparency ;
   
-      data -> cl = new ssgColourArray ( 1 ) ;
-      data -> cl -> add ( c ) ;
+      cl = new ssgColourArray ( 1 ) ;
+      cl -> add ( c ) ;
     }
   
-    if ( data -> vl -> getNum () >= 3 )
+    if ( vl -> getNum () >= 3 )
     {
       sgVec3 n ;
       sgMakeNormal ( n,
-        data -> vl -> get(0),
-        data -> vl -> get(1),
-        data -> vl -> get(2) ) ;
+        vl -> get(0),
+        vl -> get(1),
+        vl -> get(2) ) ;
   
-      data -> nl = new ssgNormalArray ( 1 ) ;
-      data -> nl -> add ( n ) ;
+      nl = new ssgNormalArray ( 1 ) ;
+      nl -> add ( n ) ;
     }
   }
 
-  ssgLeaf* leaf = (*_ssgCreateFunc) ( data ) ;
-  return leaf ;
+  ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES,
+    vl, nl, tl, cl, il ) ;
+  leaf -> setCullFace ( TRUE ) ;
+  leaf -> setState ( st ) ;
+  return (*_ssgCreateFunc) ( leaf, mat -> tfname, mesh_name ) ;
 }
 
 
@@ -995,7 +990,7 @@ static void parse_free()
 
 ssgEntity *ssgLoadASE ( const char *fname, ssgHookFunc hookfunc )
 {
-  (*_ssgCreateFunc) ( 0 ) ;  //reset
+  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
 
   top_branch = new ssgBranch ;
   parser.openFile( fname, &parser_spec );
@@ -1007,6 +1002,6 @@ ssgEntity *ssgLoadASE ( const char *fname, ssgHookFunc hookfunc )
   parse_free();
   parser.closeFile();
 
-  (*_ssgCreateFunc) ( 0 ) ;  //reset
+  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
   return top_branch ;
 }

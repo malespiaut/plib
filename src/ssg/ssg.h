@@ -1882,26 +1882,6 @@ enum {
 	SSG_MD2_POSE
 };
 
-class ssgCreateData
-{ 
-public: 
-  ssgCreateData () ;
-  ~ssgCreateData () ;
-
-  char* parentName ; 
-
-  GLenum gltype ; 
-  ssgVertexArray *vl ; 
-  ssgNormalArray *nl ; 
-  ssgTexCoordArray *tl ; 
-  ssgColourArray *cl ; 
-  ssgIndexArray *il ;
-
-  ssgSimpleState *st ;     //setTexture() not yet called 
-  char* tfname ;           //nonzero if has texture 
-  int cull_face ;
-} ; 
-
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
 
 int        ssgSave     ( const char *fname, ssgEntity *ent ) ;
@@ -1938,8 +1918,8 @@ void ssgTexturePath ( const char *path ) ;
 
 ssgLight *ssgGetLight ( int i ) ;
 
-extern ssgLeaf *(*_ssgCreateFunc)(ssgCreateData *) ;
-void  ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgCreateData *) ) ;
+extern ssgLeaf *(*_ssgCreateFunc)(ssgLeaf*,const char*,const char*) ;
+void  ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgLeaf*,const char*,const char*) ) ;
 
 void  ssgSetAppStateCallback ( ssgState *(*cb)(char *) ) ;
 

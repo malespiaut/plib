@@ -538,28 +538,15 @@ int do_refs     ( char *s )
                break ;
     }
 
-    ssgCreateData *data = new ssgCreateData ;
-    data->gltype = gltype ;
-    data->vl = vlist ;
-    data->nl = nrm ;
-    data->tl = tlist ;
-    data->cl = col ;
-    data->st = get_state ( current_material ) ;
+    ssgVtxTable* vtab = new ssgVtxTable ( gltype,
+      vlist, nrm, tlist, col ) ;
+    vtab -> setState ( get_state ( current_material ) ) ;
+    vtab -> setCullFace ( ! ( (current_flags>>4) & 0x02 ) ) ;
 
-    if ( current_tfname != NULL )
-    {
-      data->tfname = new char [ strlen ( current_tfname ) + 1 ] ;
-      strcpy ( data->tfname, current_tfname ) ;
-    }
-    else
-      data->tfname = NULL ;
+    ssgLeaf* leaf = (*_ssgCreateFunc) ( vtab, current_tfname, 0 ) ;
 
-    data->cull_face = ! ( (current_flags>>4) & 0x02 ) ;
-   
-    ssgLeaf* vtab = (*_ssgCreateFunc) ( data ) ;
-
-    if ( vtab )
-       current_branch -> addKid ( vtab ) ;
+    if ( leaf )
+       current_branch -> addKid ( leaf ) ;
   }
 
   return PARSE_POP ;
@@ -596,7 +583,7 @@ ssgEntity *ssgLoadAC3D ( const char *fname, ssgHookFunc hookfunc )
 ssgEntity *ssgLoadAC ( const char *fname, ssgHookFunc hookfunc )
 {
   current_hookFunc = hookfunc ;
-  (*_ssgCreateFunc) ( 0 ) ;  //reset
+  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
 
   char filename [ 1024 ] ;
 
@@ -663,7 +650,7 @@ ssgEntity *ssgLoadAC ( const char *fname, ssgHookFunc hookfunc )
       search ( top_tags, s ) ;
   }
 
-  (*_ssgCreateFunc) ( 0 ) ;  //reset
+  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
   delete current_tfname ;
   current_tfname = NULL ;
   delete [] vtab ;
