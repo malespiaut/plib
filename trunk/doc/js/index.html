@@ -1,6 +1,10 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
-<TITLE>A Joystick Library.</TITLE>
-<body text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
+<HEAD>
+   <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <TITLE>A Joystick Library.</TITLE>
+</HEAD>
+<BODY text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
  bgcolor="#005000" background="../marble.png">
 
 
@@ -85,7 +89,7 @@ Since it's inconvenient to do keep uninstalling your stick
 to do that, we provide <code>setError()</code> which causes
 that stick to react exactly as if it were not installed.
 <p>
-To read the joystick, just call <code>read(&buttons,axes)</code>
+To read the joystick, just call <code>read(&amp;buttons,axes)</code>
 where 'buttons' is an integer and 'axes' is an array of
 floating point numbers.  The buttons variable will be populated
 with a number that has one bit per button (0==Not Pressed, 1==Pressed)
