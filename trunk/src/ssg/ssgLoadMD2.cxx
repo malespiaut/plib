@@ -342,9 +342,9 @@ ssgEntity * convert_to_ssg()
 
 ssgEntity * ssgLoadMD2( const char *filename, const ssgLoaderOptions* options)
 {
-  current_options = options? options: ssgGetCurrentOptions () ;
-  current_options -> begin () ;
- 
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  current_options = ssgGetCurrentOptions () ;
+
   int j = 1 ;
   is_little_endian = *((char *) &j );
 
@@ -378,8 +378,6 @@ ssgEntity * ssgLoadMD2( const char *filename, const ssgLoaderOptions* options)
 	}
 
 	delete[] vertices;
-
-  current_options -> end () ;
 
 	return model;
 }

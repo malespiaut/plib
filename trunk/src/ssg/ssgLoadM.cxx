@@ -5,9 +5,9 @@ static const ssgLoaderOptions* current_options;
 
 ssgEntity* ssgLoadM( const char* fname, 
                     const ssgLoaderOptions* options ) {
-  current_options = options? options: ssgGetCurrentOptions () ;
-  current_options -> begin () ;
-  
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  current_options = ssgGetCurrentOptions () ;
+
   char filename [ 1024 ] ;
   current_options -> makeModelPath ( filename, fname ) ;
 
@@ -125,6 +125,5 @@ ssgEntity* ssgLoadM( const char* fname,
   
   ssgLeaf* model = current_options -> createLeaf( leaf, NULL );
   
-  current_options -> end () ; 
   return model;
 }

@@ -628,15 +628,14 @@ static int parse()
 
 ssgEntity *ssgLoadX ( const char *fname, const ssgLoaderOptions* options )
 {
-  current_options = (ssgLoaderOptions*) (options? options: ssgGetCurrentOptions () ) ;
-  current_options -> begin () ;
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  current_options = ssgGetCurrentOptions () ;
 
   top_branch = new ssgBranch ;
 	curr_branch_ = top_branch;
 	if ( !parser.openFile( fname, &parser_spec ))
 	{
     delete top_branch ;
-		current_options -> end () ;
 		return 0;
   }
   if ( !parse() )
@@ -647,6 +646,5 @@ ssgEntity *ssgLoadX ( const char *fname, const ssgLoaderOptions* options )
 //  parse_free();
   parser.closeFile();
 
-  current_options -> end () ;
   return top_branch ;
 }

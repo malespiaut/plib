@@ -1139,8 +1139,8 @@ static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length )
 
 ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   int i;
-  current_options = options? options: ssgGetCurrentOptions () ;
-  current_options -> begin () ;
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  current_options = ssgGetCurrentOptions () ;
 
   char filepath [ 1024 ] ;
   current_options -> makeModelPath ( filepath, filename ) ;
@@ -1200,7 +1200,6 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
 
   free_trimesh();
 
-  current_options -> end () ;
   return top_object; 
 }
 

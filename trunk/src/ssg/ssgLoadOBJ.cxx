@@ -733,9 +733,8 @@ static int obj_read ( FILE *filein )
 
 ssgEntity *ssgLoadOBJ ( const char *fname, const ssgLoaderOptions* options )
 {
-  const ssgLoaderOptions* current_options =
-    options? options: ssgGetCurrentOptions() ;
-  current_options -> begin () ;
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  const ssgLoaderOptions* current_options = ssgGetCurrentOptions () ;
 
   current_branch   = NULL ;
 
@@ -755,8 +754,6 @@ ssgEntity *ssgLoadOBJ ( const char *fname, const ssgLoaderOptions* options )
   obj_read ( loader_fd ) ;
 
   fclose ( loader_fd ) ;
-
-  current_options -> end () ;
 
   return current_branch ;
 }

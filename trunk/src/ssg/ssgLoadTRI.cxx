@@ -34,10 +34,9 @@ ssgEntity *ssgLoadTRI ( const char *fname, const ssgLoaderOptions* options )
 
 */
 {
-  const ssgLoaderOptions* current_options =
-    options? options: ssgGetCurrentOptions () ;
-  current_options -> begin () ;
- 
+  ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+  const ssgLoaderOptions* current_options = ssgGetCurrentOptions () ;
+
   //open the file
   char filename [ 1024 ] ;
   current_options -> makeModelPath ( filename, fname ) ;
@@ -101,8 +100,6 @@ ssgEntity *ssgLoadTRI ( const char *fname, const ssgLoaderOptions* options )
   }
 
   delete[] tri ;
-
-  current_options -> end () ;
 
   return current_branch ;
 }
