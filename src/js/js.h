@@ -614,16 +614,16 @@ public:
 						// wk: I know of no define for PI that we could use here:
 						// SG_PI would pull in sg, M_PI is undefined for MSVC
 						// But the accuracy of the value of PI is very unimportant at this point.
-            float s = sin((js.dwPOV & 0xFFFF) * (0.01 * 3.1415926535f / 180));
-            float c = cos((js.dwPOV & 0xFFFF) * (0.01 * 3.1415926535f / 180));
+            float s = (float)sin((js.dwPOV & 0xFFFF) * (0.01 * 3.1415926535f / 180));
+            float c = (float)cos((js.dwPOV & 0xFFFF) * (0.01 * 3.1415926535f / 180));
             // Convert to coordinates on a square so that North-East
             // is (1,1) not (.7,.7), etc.
             // s and c cannot both be zero so we won't divide by zero.
             if (fabs(s) < fabs(c)) {
               axes[6] = (c < 0.0) ? -s/c : s/c;
-              axes[7] = (c < 0.0) ? -1.0 : 1.0;
+              axes[7] = (c < 0.0) ? -1.0f : 1.0f;
             } else {
-              axes[6] = (s < 0.0) ? -1.0 : 1.0;
+              axes[6] = (s < 0.0) ? -1.0f : 1.0f;
               axes[7] = (s < 0.0) ? -c/s : c/s;
             }
           }
