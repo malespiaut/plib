@@ -51,34 +51,12 @@ public:
   ssgBranch *generateGeometry ( int root ) ;
 } ;
  
+
+void init_bones      () ;
+void setShowAngle    ( float a ) ;
+
 float *getCurrTranslate () ;
+Bone  *getBone   ( int i ) ;
 
-void opaqueBones () ;
-void blendBones  () ;
-
-void init_bones () ;
-
-int getNumBones () ;
-Bone *getBone   ( int i ) ;
-
-void createJoint ( sgVec4 colour, Bone *b ) ;
- 
-void setShowAngle ( float a ) ;
-
-extern int rootBone   ;
-extern int nextBone   ;
-extern int nextVertex ;
-
-struct Vertex
-{
-  int     boneID ;
-  sgVec3  rel_vx ;
-  float  *vx     ;
-} ;
- 
-#define MAX_VERTICES  (64*1024)
-extern Vertex vertex [] ;
-extern sgVec3 curr_translate ;
-
-void syncTranslators ( sgVec3 newTranslate ) ;
+ssgSimpleState *getBoneState () ;
 

@@ -129,6 +129,19 @@ static void add_1_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+1
 static void add_2_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+2.0f);}
 static void add_5_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+5.0f);}
 
+void opaqueBones ()
+{
+  if ( getBoneState() != NULL )
+    getBoneState() -> disable ( GL_BLEND ) ;
+}
+ 
+ 
+void blendBones ()
+{
+  if ( getBoneState() != NULL )
+    getBoneState() -> enable ( GL_BLEND ) ;
+}
+
 
 /* GLUT callbacks */
 
