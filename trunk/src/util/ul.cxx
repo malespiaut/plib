@@ -326,3 +326,78 @@ void ulFindFile( char *filenameOutput, const char *path,
 
 }
 
+///////////////////// string handling ///////////////////////////////
+
+// string comparisons that are *not* case sensitive:
+
+/*
+  I'm sick of half the machines on the planet supporting
+  strncasecmp and the other half strnicmp - so here is my own
+  offering:
+*/
+
+int ulStrNEqual ( const char *s1, const char *s2, int len )
+{
+  int l1 = (s1==NULL) ? 0 : strlen ( s1 ) ;
+  int l2 = (s2==NULL) ? 0 : strlen ( s2 ) ;
+
+  if ( l1 > len ) l1 = len ;
+
+  if ( l2 < l1 || l1 < len )
+    return FALSE ;
+
+  for ( int i = 0 ; i < l1 ; i++ )
+  {
+    char c1 = s1[i] ;
+    char c2 = s2[i] ;
+
+    if ( c1 == c2 )
+     continue ;
+
+    if ( c1 >= 'a' && c1 <= 'z' )
+      c1 = c1 - ('a'-'A') ;
+
+    if ( c2 >= 'a' && c2 <= 'z' )
+      c2 = c2 - ('a'-'A') ;
+
+    if ( c1 != c2 )
+     return FALSE ;
+  }
+
+  return TRUE ;
+}
+
+
+/*
+  I'm sick of half the machines on the planet supporting
+  strcasecmp and the other half stricmp - so here is my own
+  offering:
+*/
+
+int ulStrEqual ( const char *s1, const char *s2 )
+{
+  int l1 = (s1==NULL) ? 0 : strlen ( s1 ) ;
+  int l2 = (s2==NULL) ? 0 : strlen ( s2 ) ;
+
+  if ( l1 != l2 ) return FALSE ;
+
+  for ( int i = 0 ; i < l1 ; i++ )
+  {
+    char c1 = s1[i] ;
+    char c2 = s2[i] ;
+
+    if ( c1 == c2 )
+     continue ;
+
+    if ( c1 >= 'a' && c1 <= 'z' )
+      c1 = c1 - ('a'-'A') ;
+
+    if ( c2 >= 'a' && c2 <= 'z' )
+      c2 = c2 - ('a'-'A') ;
+
+    if ( c1 != c2 )
+     return FALSE ;
+  }
+
+  return TRUE ;
+}
