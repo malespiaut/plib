@@ -54,6 +54,87 @@ int pslCompiler::getChar ()
 }
 
 
+int pslCompiler::searchDefines ( char *token )
+{
+  for ( int i = 0 ; i < next_define ; i++ )
+    if ( define_token [ i ] != NULL &&
+         strcmp ( token, define_token [ i ] ) == 0 )
+      return i ;
+
+  return -1 ;
+}
+
+
+void pslCompiler::doUndefStatement  ()
+{
+  char token [ MAX_TOKEN ] ;
+
+  /*
+    It's tempting to just getToken to get the undefined token
+    but that doesn't work because it get's define-processed.
+  */
+
+  getToken ( token, FALSE ) ;
+
+  int c ;
+  do { c = getChar () ; } while ( c != '\n' && c != -1 ) ;
+
+  int def = searchDefines ( token ) ;
+
+  if ( def == -1 ) return ;  /* Not an error to have undefined undef's */
+ 
+  delete define_token       [ def ] ;
+  delete define_replacement [ def ] ;
+  define_token       [ def ] = NULL ;
+  define_replacement [ def ] = NULL ;
+}
+
+void pslCompiler::doIfdefStatement  () { fprintf(stderr,"#ifdef? - Not yet!\n");}
+void pslCompiler::doIfndefStatement () { fprintf(stderr,"#ifndef? - Not yet!\n");}
+void pslCompiler::doElseStatement   () { fprintf(stderr,"#else? - Not yet!\n");}
+void pslCompiler::doEndifStatement  () { fprintf(stderr,"#endif? - Not yet!\n");}
+
+void pslCompiler::doDefineStatement ()
+{
+  char token [ MAX_TOKEN ] ;
+  char subst [ 1024 ] ;
+  char *p ;
+
+  getToken ( token, FALSE ) ;
+
+  /*
+    Skip to the end of this line of text BEFORE we hand
+    control over to the next file.
+  */
+
+  int c ;
+
+  p = subst ;
+
+  do
+  {
+    c = getChar () ;
+
+    *(p++) = c ;
+  } while ( c != -1 && c != '\n' ) ;
+
+  *(p-1) = '\0' ;
+
+  if ( searchDefines ( token ) != -1 )
+    error ( "Attempt to re-#define %s", token ) ;
+  else
+  if ( next_define >= MAX_SYMBOL - 1 )
+    error ( "Too many #define's\n" ) ;
+  else
+  {
+    define_token       [ next_define ] = new char [ strlen ( token ) + 1 ] ;
+    define_replacement [ next_define ] = new char [ strlen ( subst ) + 1 ] ;
+    strcpy ( define_token       [ next_define ], token ) ;
+    strcpy ( define_replacement [ next_define ], subst ) ;
+    next_define++ ;
+  }
+}
+
 void pslCompiler::doIncludeStatement ()
 {
   char token [ MAX_TOKEN ] ;
@@ -103,31 +184,49 @@ int pslCompiler::doPreProcessorCommand ()
 
   getToken ( token ) ;
 
-  /* #include?? */
-
   if ( strcmp ( token, "include" ) == 0 )
   {
     doIncludeStatement () ;
     return getChar () ;
   }
 
+  if ( strcmp ( token, "undef"  ) == 0 )
+  {
+    doUndefStatement () ;
+    return '\n' ; // getChar () ;
+  }
+
   if ( strcmp ( token, "define"  ) == 0 )
   {
+    doDefineStatement () ;
+    return '\n' ; // getChar () ;
   }
-  else
+
+  if ( strcmp ( token, "ifndef"   ) == 0 )
+  {
+    doIfndefStatement () ;
+    return getChar () ;
+  }
+
   if ( strcmp ( token, "ifdef"   ) == 0 )
   {
+    doIfdefStatement () ;
+    return getChar () ;
   }
-  else
+
   if ( strcmp ( token, "endif"   ) == 0 )
   {
+    doEndifStatement () ;
+    return getChar () ;
   }
-  else
+
   if ( strcmp ( token, "else"    ) == 0 )
   {
+    doElseStatement () ;
+    return getChar () ;
   }
-  else
-    error ( "Unrecognised preprocessor directive '%s'", token ) ;
+
+  error ( "Unrecognised preprocessor directive '%s'", token ) ;
 
   /* Skip to the end of this line. */
 
@@ -139,7 +238,7 @@ int pslCompiler::doPreProcessorCommand ()
 }
 
 
-void pslCompiler::getToken ( char *res )
+void pslCompiler::getToken ( char *res, int define_sub )
 {
   /* WARNING -- RECURSIVE -- WARNING -- RECURSIVE -- WARNING -- RECURSIVE */
 
@@ -283,6 +382,34 @@ void pslCompiler::getToken ( char *res )
     res [ 0 ] = c ;
     res [ 1 ] = '\0' ;
   }
+
+  /*
+    Don't do define substituting if told not to
+  */
+
+  if ( ! define_sub )
+    return ;
+
+  /* Do #define expansion.  */
+
+  int def = searchDefines ( res ) ;
+
+  if ( def == -1 )
+    return ;
+
+  /*
+    If there is a replacement for this token, un-get it so it's the
+    next thing we'll read.
+  */
+
+  for ( int i = strlen ( define_replacement [ def ] ) - 1 ; i >= 0 ; i-- )
+    _pslUnGetChar ( define_replacement [ def ][ i ] ) ;
+
+  /*
+    Then have another try at reading the token.
+  */
+
+  getToken ( res ) ;
 }
 
 
