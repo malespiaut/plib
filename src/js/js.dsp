@@ -1,24 +1,24 @@
 # Microsoft Developer Studio Project File - Name="js" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
+# ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
 CFG=js - Win32 Debug
-!MESSAGE This is not a valid makefile. To build this project using NMAKE,
-!MESSAGE use the Export Makefile command and run
+!MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
+!MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
 !MESSAGE 
 !MESSAGE NMAKE /f "js.mak".
 !MESSAGE 
-!MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
+!MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
 !MESSAGE NMAKE /f "js.mak" CFG="js - Win32 Debug"
 !MESSAGE 
-!MESSAGE Possible choices for configuration are:
+!MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "js - Win32 Release" (based on "Win32 (x86) Static Library")
-!MESSAGE "js - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "js - Win32 Release" (basierend auf  "Win32 (x86) Static Library")
+!MESSAGE "js - Win32 Debug" (basierend auf  "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
@@ -50,6 +50,15 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
+# Begin Custom Build - 'js' gets installed
+ProjDir=.
+InputPath=.\Release\js.lib
+SOURCE="$(InputPath)"
+
+"$(ProjDir)\..\..\js.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(ProjDir)\js.h $(ProjDir)\..\..\js.h
+
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "js - Win32 Debug"
 
@@ -73,6 +82,15 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
+# Begin Custom Build - 'js' gets installed
+ProjDir=.
+InputPath=.\Debug\js.lib
+SOURCE="$(InputPath)"
+
+"$(ProjDir)\..\..\js.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(ProjDir)\js.h $(ProjDir)\..\..\js.h
+
+# End Custom Build
 
 !ENDIF 
 

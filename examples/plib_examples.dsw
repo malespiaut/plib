@@ -1,5 +1,5 @@
 Microsoft Developer Studio Workspace File, Format Version 6.00
-# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+# WARNUNG: DIESE ARBEITSBEREICHSDATEI DARF NICHT BEARBEITET ODER GELÖSCHT WERDEN!
 
 ###############################################################################
 
@@ -213,6 +213,18 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name viewer
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name net_http_get
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PointPicker
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name test_dir
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name WavingFlag
     End Project Dependency
 }}}
 
