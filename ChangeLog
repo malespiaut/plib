@@ -2,6 +2,13 @@
 PLIB Change Log.
 ================
 
+PLIB v1.8.4 (???)
+~~~~~~~~~~~~~~~~~
+
+  * Added a way to get SSG intersection tests to work with
+    backfacing polygons.
+
+
 PLIB v1.8.3 (April 8th 2004)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
