@@ -1409,14 +1409,8 @@ puLargeInput widgets do not have a legend.
 <a NAME="puGroup"></a>
 <h3>
 puGroup</h3>
-The puGroup class is derived from <a href="#puObject">puObject</a>. When
-declaring objects derived from puGroup, it is essential that these objects
-be deleted in the reverse order to their creation (except when your program
-is about to exit anyway). This is because PUI keeps a list of puGroup
-widgets on a stack, and attempting to delete a puGroup from the middle
-of the stack will cause an error.
-<p>
-The purpose of a puGroup is to allow you to group together other <a href="#puObject">puObjects</a>
+The puGroup class is derived from <a href="#puObject">puObject</a>. It's
+purpose is to allow you to group together other <a href="#puObject">puObjects</a>
 and to operate on them en-masse.
 <p>
 When you want to create a group of <a href="#puObject">puObjects</a>
@@ -1526,11 +1520,16 @@ cannot be clicked upon. Widgets such as popup menus are typically puInterfaces
 which group a number of
 <a href="#puButton">puButtons</a>.
 <p>
+When declaring objects derived from puInterface, it is essential that these
+objects are deleted in the reverse order to their creation (except when
+your program is about to exit anyway). This is because PUI keeps a list
+of puInterfaces on a stack, and attempting to delete a puInterface from
+the middle of the stack will cause an error.
+<p>
 The PUI system itself maintains a private global puInterface which is
 used to group together all of the <a href="#puObject">puObjects</a> that
-the application generates that are not grouped into other puInterfaces.
-<p>
-The puButtonBox widget does not have a legend.
+the application generates that are not grouped into other
+<a href="#puGroup">puGroups</a> or puInterfaces.
 <p>
 <a NAME="puPopup"></a>
 <h3>
