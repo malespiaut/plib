@@ -465,7 +465,7 @@ static void create_materials_chunk( ssgEntity* ent, _ssgSave3dsChunk* parent ) {
 }
 
 int ssgSave3ds( const char* filename, ssgEntity* ent ) {
-  save_fd = fopen( filename, "wa" );
+  save_fd = fopen( filename, "wba" );
 
   if (save_fd == NULL) {
     ulSetError( UL_WARNING, "ssgSave3ds: Failed to open '%s' for writing",
