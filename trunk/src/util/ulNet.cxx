@@ -1,21 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if !defined(WIN32) || defined(__CYGWIN__)
+#include <unistd.h>
+#endif
+
 #if defined(WIN32)
- #if defined(__CYGWIN__)
-  #include <unistd.h>
-  typedef int RECVFROM_LENGTH_TYPE ;
- #else
-  typedef int RECVFROM_LENGTH_TYPE ;  /* Probably. */
- #endif
- #include <windows.h>
-#else
- #include <unistd.h>
- #if defined(__sgi)
-  typedef int RECVFROM_LENGTH_TYPE ;
- #else
-  typedef unsigned int RECVFROM_LENGTH_TYPE ;
- #endif
+#include <windows.h>
 #endif
 
 #include <string.h>
@@ -33,6 +24,10 @@
 #include <sys/errno.h>
 #ifdef __sgi
 #include <errno.h>
+#endif
+
+#if !defined(STDC_HEADERS) && !defined(socklen_t)
+#define socklen_t int
 #endif
 
 #include "ul.h"
@@ -209,9 +204,9 @@ int ulUDPConnection::recvMessage ( char *mesg, int length )
 #ifdef WIN32
   return 0;
 #else
-  unsigned int len = sizeof ( in_addr ) ;
+  socklen_t len = sizeof ( in_addr ) ;
 
-  int r = recvfrom ( sockfd, mesg, length, 0, (sockaddr *) in_addr, (RECVFROM_LENGTH_TYPE *)(&len) );
+  int r = recvfrom ( sockfd, mesg, length, 0, (sockaddr *) in_addr, &len );
 
   if ( r < 0 && errno != EAGAIN      &&
                 errno != EWOULDBLOCK &&
@@ -304,8 +299,8 @@ Ben
 
   for (;;)  /* FIXME: can someone change to a more elegant loop */
   {
-	int len = sizeof(sockaddr_in);
-      c_sockfd = accept( sockfd, (struct sockaddr *) out_addr, (RECVFROM_LENGTH_TYPE *) &len) ;
+        socklen_t len = sizeof(sockaddr_in);
+        c_sockfd = accept( sockfd, (struct sockaddr *) out_addr, &len) ;
 	
 	if (c_sockfd == -1) /* don't ask me, i don't know */
 		continue;     /* does continue jump you out of loop */
