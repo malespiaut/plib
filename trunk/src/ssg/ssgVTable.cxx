@@ -559,6 +559,38 @@ void ssgVTable::los_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
   }
 }
 
+
+
+ssgVtxArray *ssgVtxTable::getAs_ssgVtxArray()
+{ 
+
+	ssgIndexArray    *indices = new ssgIndexArray ();
+	int i, no = 0;
+	switch ( getPrimitiveType () )
+  {
+    case GL_POLYGON :
+    case GL_TRIANGLE_FAN :
+    case GL_TRIANGLE_STRIP :
+      no = getNumTriangles() + 2 ;
+			break;
+
+    case GL_TRIANGLES :
+      no = getNumTriangles() * 3 ;
+	}
+	for(i=0;i<no;i++)
+		indices ->add(i);
+
+  
+	ssgState * state = getState();
+	char * name = getName();
+	ssgVtxArray * s = new ssgVtxArray ( getGLtype(),
+							vertices, normals, texcoords, colours, indices);
+	s->setName(name);
+	s->setState(state);
+	return s;
+}
+
+
 void ssgVTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
 {
   int nt = getNumTriangles () ;
