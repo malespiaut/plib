@@ -122,6 +122,10 @@ SOURCE=.\pslDump.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\pslError.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\pslExpression.cxx
 # End Source File
 # Begin Source File
