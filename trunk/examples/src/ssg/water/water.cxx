@@ -77,17 +77,34 @@ sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
 
 int enableTexGen ( ssgEntity * )
 {
+#ifdef GL_ARB_multitexture
+  int tx ;
+  glGetIntegerv ( GL_TEXTURE_BINDING_2D, &tx ) ;
+  glActiveTextureARB ( GL_TEXTURE1_ARB ) ;
+#endif
   glTexGeni ( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;
   glTexGeni ( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;
   glEnable ( GL_TEXTURE_GEN_S ) ;
   glEnable ( GL_TEXTURE_GEN_T ) ;
+  glEnable ( GL_TEXTURE_2D ) ;
+#ifdef GL_ARB_multitexture
+  glBindTexture ( GL_TEXTURE_2D, tx ) ;
+  glActiveTextureARB ( GL_TEXTURE0_ARB ) ;
+#endif    
   return TRUE ;
 } 
 
 int disableTexGen ( ssgEntity * )
 {
+#ifdef GL_ARB_multitexture
+  glActiveTextureARB ( GL_TEXTURE1_ARB ) ;
+#endif
   glDisable ( GL_TEXTURE_GEN_S ) ;
   glDisable ( GL_TEXTURE_GEN_T ) ;
+  glDisable ( GL_TEXTURE_2D ) ;
+#ifdef GL_ARB_multitexture
+  glActiveTextureARB ( GL_TEXTURE0_ARB ) ;
+#endif
   return TRUE ;
 }
  
@@ -98,17 +115,34 @@ void writeCplusplusCode ()
     printf ( "\n" ) ;
     printf ( "static int enableTexGen ( ssgEntity * )\n" ) ;
     printf ( "{\n" ) ;
+    printf ( "#ifdef GL_ARB_multitexture\n" ) ;
+    printf ( "  int tx ;\n" ) ;
+    printf ( "  glGetIntegerv ( GL_TEXTURE_BINDING_2D, &tx ) ;\n" ) ;
+    printf ( "  glActiveTextureARB ( GL_TEXTURE1_ARB ) ;\n" ) ;
+    printf ( "#endif\n" ) ;
     printf ( "  glTexGeni ( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;\n" ) ;
     printf ( "  glTexGeni ( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;\n" ) ;
     printf ( "  glEnable ( GL_TEXTURE_GEN_S ) ;\n" ) ;
     printf ( "  glEnable ( GL_TEXTURE_GEN_T ) ;\n" ) ;
+    printf ( "  glEnable ( GL_TEXTURE_2D ) ;\n" ) ;
+    printf ( "#ifdef GL_ARB_multitexture\n" ) ;
+    printf ( "  glBindTexture ( GL_TEXTURE_2D, tx ) ;\n" ) ;
+    printf ( "  glActiveTextureARB ( GL_TEXTURE0_ARB ) ;\n" ) ;
+    printf ( "#endif\n" ) ;
     printf ( "  return TRUE ;\n" ) ;
     printf ( "} \n" ) ;
     printf ( "\n" ) ;
     printf ( "static int disableTexGen ( ssgEntity * )\n" ) ;
     printf ( "{\n" ) ;
+    printf ( "#ifdef GL_ARB_multitexture\n" ) ;
+    printf ( "  glActiveTextureARB ( GL_TEXTURE1_ARB ) ;\n" ) ;
+    printf ( "#endif\n" ) ;
     printf ( "  glDisable ( GL_TEXTURE_GEN_S ) ;\n" ) ;
     printf ( "  glDisable ( GL_TEXTURE_GEN_T ) ;\n" ) ;
+    printf ( "  glDisable ( GL_TEXTURE_2D ) ;\n" ) ;
+    printf ( "#ifdef GL_ARB_multitexture\n" ) ;
+    printf ( "  glActiveTextureARB ( GL_TEXTURE0_ARB ) ;\n" ) ;
+    printf ( "#endif\n" ) ;
     printf ( "  return TRUE ;\n" ) ;
     printf ( "}\n" ) ;
     printf ( "\n" ) ;
