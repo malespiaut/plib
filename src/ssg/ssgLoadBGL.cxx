@@ -343,15 +343,16 @@ static int triangulateConcave(ssgVertexArray *coords, ssgIndexArray *w, int n, i
    int i, chk, num_tris;
    float a0, a1, a2, b0, b1, b2, c0, c1, c2;
 
+   Vtx *p = new Vtx[n];
    /* construct a circular linked list of the vertices */
-   p0 = (Vtx *) alloca(sizeof(Vtx));
+   p0 = &p[0];
    p0->index = w ? *w->get(0) : 0;
    p0->x = coords->get(p0->index)[x];
    p0->y = coords->get(p0->index)[y];
    p1 = p0;
    p2 = 0;
    for (i = 1; i < n; i++) {
-      p2 = (Vtx *) alloca(sizeof(Vtx));
+      p2 = &p[i];
       p2->index = w ? *w->get(i) : i;
       p2->x = coords->get(p2->index)[x];
       p2->y = coords->get(p2->index)[y];
@@ -370,6 +371,7 @@ static int triangulateConcave(ssgVertexArray *coords, ssgIndexArray *w, int n, i
       if (chk && m0 == p0 && m1 == p1 && m2 == p2) {
          /* no suitable vertex found.. */
          ulSetError(UL_WARNING, "ssgTriangulate: Self-intersecting polygon.");
+         delete [] p;
          return 0;
       }
       chk = 1;
@@ -435,7 +437,7 @@ static int triangulateConcave(ssgVertexArray *coords, ssgIndexArray *w, int n, i
    tris->add(p1->index);
    tris->add(p2->index);
    num_tris++;
-
+   delete [] p;
    return num_tris;
 }
 
