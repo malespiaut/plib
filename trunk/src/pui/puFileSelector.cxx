@@ -654,73 +654,88 @@ void puFileSelector::find_files ()
   list_box -> newList ( files ) ;
 }
 
-void puFileSelector::setStyle( int style )
+void puFileSelector::setChildStyle( int childs, int style )
 {
-  frame->setStyle ( style ) ;
-  list_box->setStyle ( style ) ;
-  slider->setStyle ( style ) ;
-  cancel_button->setStyle ( style ) ;
-  ok_button->setStyle ( style ) ;
-  input->setStyle ( style ) ;
-
-  if ( down_arrow != NULL )
+  if ( childs & PUCLASS_FRAME ) frame->setStyle ( style ) ;
+  if ( childs & PUCLASS_LISTBOX ) list_box->setStyle ( style ) ;
+  if ( childs & PUCLASS_SLIDER ) slider->setStyle ( style ) ;
+  if ( childs & PUCLASS_ONESHOT )
   {
-    down_arrow->setStyle ( style ) ;
-    up_arrow->setStyle ( style ) ;
-    if ( fastdown_arrow != NULL )
-    {
-      fastdown_arrow->setStyle ( style ) ;
-      fastup_arrow->setStyle ( style ) ;
-    }
+    cancel_button->setStyle ( style ) ;
+    ok_button->setStyle ( style ) ;
   }
 
-  puObject::setStyle ( style ) ;
+  if ( childs & PUCLASS_INPUT ) input->setStyle ( style ) ;
+
+  if ( childs & PUCLASS_ARROW )
+  {
+    if ( down_arrow != NULL )
+    {
+      down_arrow->setStyle ( style ) ;
+      up_arrow->setStyle ( style ) ;
+      if ( fastdown_arrow != NULL )
+      {
+        fastdown_arrow->setStyle ( style ) ;
+        fastup_arrow->setStyle ( style ) ;
+      }
+    }
+  }
 }
 
-void puFileSelector::setColour( int which, float r, float g, float b, float  a )
+void puFileSelector::setChildColour( int childs, int which, float r, float g, float b, float  a )
 {
-  frame->setColour ( which, r, g, b, a ) ;
-  list_box->setColour ( which, r, g, b, a ) ;
-  slider->setColour ( which, r, g, b, a ) ;
-  cancel_button->setColour ( which, r, g, b, a ) ;
-  ok_button->setColour ( which, r, g, b, a ) ;
-  input->setColour ( which, r, g, b, a ) ;
-
-  if ( down_arrow != NULL )
+  if ( childs & PUCLASS_FRAME ) frame->setColour ( which, r, g, b, a ) ;
+  if ( childs & PUCLASS_LISTBOX ) list_box->setColour ( which, r, g, b, a ) ;
+  if ( childs & PUCLASS_SLIDER ) slider->setColour ( which, r, g, b, a ) ;
+  if ( childs & PUCLASS_ONESHOT )
   {
-    down_arrow->setColour ( which, r, g, b, a ) ;
-    up_arrow->setColour ( which, r, g, b, a ) ;
-    if ( fastdown_arrow != NULL )
-    {
-      fastdown_arrow->setColour ( which, r, g, b, a ) ;
-      fastup_arrow->setColour ( which, r, g, b, a ) ;
-    }
+    cancel_button->setColour ( which, r, g, b, a ) ;
+    ok_button->setColour ( which, r, g, b, a ) ;
   }
 
-  puObject::setColour ( which, r, g, b, a ) ;
+  if ( childs & PUCLASS_INPUT ) input->setColour ( which, r, g, b, a ) ;
+
+  if ( childs & PUCLASS_ARROW )
+  {
+    if ( down_arrow != NULL )
+    {
+      down_arrow->setColour ( which, r, g, b, a ) ;
+      up_arrow->setColour ( which, r, g, b, a ) ;
+      if ( fastdown_arrow != NULL )
+      {
+        fastdown_arrow->setColour ( which, r, g, b, a ) ;
+        fastup_arrow->setColour ( which, r, g, b, a ) ;
+      }
+    }
+  }
 }
 
-void puFileSelector::setBorderThickness( int t )
+void puFileSelector::setChildBorderThickness( int childs, int t )
 {
-  frame->setBorderThickness ( t ) ;
-  list_box->setBorderThickness ( t ) ;
-  slider->setBorderThickness ( t ) ;
-  cancel_button->setBorderThickness ( t ) ;
-  ok_button->setBorderThickness ( t ) ;
-  input->setBorderThickness ( t ) ;
-
-  if ( down_arrow != NULL )
+  if ( childs & PUCLASS_FRAME ) frame->setBorderThickness ( t ) ;
+  if ( childs & PUCLASS_LISTBOX ) list_box->setBorderThickness ( t ) ;
+  if ( childs & PUCLASS_SLIDER ) slider->setBorderThickness ( t ) ;
+  if ( childs & PUCLASS_ONESHOT )
   {
-    down_arrow->setBorderThickness ( t ) ;
-    up_arrow->setBorderThickness ( t ) ;
-    if ( fastdown_arrow != NULL )
-    {
-      fastdown_arrow->setBorderThickness ( t ) ;
-      fastup_arrow->setBorderThickness ( t ) ;
-    }
+    cancel_button->setBorderThickness ( t ) ;
+    ok_button->setBorderThickness ( t ) ;
   }
 
-  puObject::setBorderThickness ( t ) ;
+  if ( childs & PUCLASS_INPUT ) input->setBorderThickness ( t ) ;
+
+  if ( childs & PUCLASS_ARROW )
+  {
+    if ( down_arrow != NULL )
+    {
+      down_arrow->setBorderThickness ( t ) ;
+      up_arrow->setBorderThickness ( t ) ;
+      if ( fastdown_arrow != NULL )
+      {
+        fastdown_arrow->setBorderThickness ( t ) ;
+        fastup_arrow->setBorderThickness ( t ) ;
+      }
+    }
+  }
 }
 
 

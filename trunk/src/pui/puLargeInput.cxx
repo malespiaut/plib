@@ -1084,63 +1084,66 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   return TRUE ;
 }
 
-void puLargeInput::setStyle( int style )
+void puLargeInput::setChildStyle ( int childs, int style )
 {
-  frame->setStyle ( style ) ;
-  bottom_slider->setStyle ( style ) ;
-  right_slider->setStyle ( style ) ;
+  if ( childs & PUCLASS_FRAME ) frame->setStyle ( style ) ;
+  if ( childs & PUCLASS_SLIDER ) bottom_slider->setStyle ( style ) ;
+  if ( childs & PUCLASS_SLIDER ) right_slider->setStyle ( style ) ;
 
-  if ( down_arrow != NULL )
+  if ( childs & PUCLASS_ARROW )
   {
-    down_arrow->setStyle ( style ) ;
-    up_arrow->setStyle ( style ) ;
-    if ( fastdown_arrow != NULL )
+    if ( down_arrow != NULL )
     {
-      fastdown_arrow->setStyle ( style ) ;
-      fastup_arrow->setStyle ( style ) ;
+      down_arrow->setStyle ( style ) ;
+      up_arrow->setStyle ( style ) ;
+      if ( fastdown_arrow != NULL )
+      {
+        fastdown_arrow->setStyle ( style ) ;
+        fastup_arrow->setStyle ( style ) ;
+      }
     }
   }
-
-  puObject::setStyle ( style ) ;
 }
 
-void puLargeInput::setColour( int which, float r, float g, float b, float  a )
+void puLargeInput::setChildColour ( int childs, int which, float r, float g, float b, float  a )
 {
-  frame->setColour ( which, r, g, b, a ) ;
-  bottom_slider->setColour ( which, r, g, b, a ) ;
-  right_slider->setColour ( which, r, g, b, a ) ;
+  if ( childs & PUCLASS_FRAME ) frame->setColour ( which, r, g, b, a ) ;
+  if ( childs & PUCLASS_SLIDER ) bottom_slider->setColour ( which, r, g, b, a ) ;
+  if ( childs & PUCLASS_SLIDER ) right_slider->setColour ( which, r, g, b, a ) ;
 
-  if ( down_arrow != NULL )
+  if ( childs & PUCLASS_ARROW )
   {
-    down_arrow->setColour ( which, r, g, b, a ) ;
-    up_arrow->setColour ( which, r, g, b, a ) ;
-    if ( fastdown_arrow != NULL )
+    if ( down_arrow != NULL )
     {
-      fastdown_arrow->setColour ( which, r, g, b, a ) ;
-      fastup_arrow->setColour ( which, r, g, b, a ) ;
+      down_arrow->setColour ( which, r, g, b, a ) ;
+      up_arrow->setColour ( which, r, g, b, a ) ;
+      if ( fastdown_arrow != NULL )
+      {
+        fastdown_arrow->setColour ( which, r, g, b, a ) ;
+        fastup_arrow->setColour ( which, r, g, b, a ) ;
+      }
     }
   }
-
-  puObject::setColour ( which, r, g, b, a ) ;
 }
 
-void puLargeInput::setBorderThickness( int t )
+void puLargeInput::setChildBorderThickness ( int childs, int t )
 {
-  frame->setBorderThickness ( t ) ;
-  bottom_slider->setBorderThickness ( t ) ;
-  right_slider->setBorderThickness ( t ) ;
+  if ( childs & PUCLASS_FRAME ) frame->setBorderThickness ( t ) ;
+  if ( childs & PUCLASS_SLIDER ) bottom_slider->setBorderThickness ( t ) ;
+  if ( childs & PUCLASS_SLIDER ) right_slider->setBorderThickness ( t ) ;
 
+  if ( childs & PUCLASS_ARROW )
+  {
   if ( down_arrow != NULL )
   {
     down_arrow->setBorderThickness ( t ) ;
     up_arrow->setBorderThickness ( t ) ;
-    if ( fastdown_arrow != NULL )
-    {
-      fastdown_arrow->setBorderThickness ( t ) ;
-      fastup_arrow->setBorderThickness ( t ) ;
+      if ( fastdown_arrow != NULL )
+      {
+        fastdown_arrow->setBorderThickness ( t ) ;
+        fastup_arrow->setBorderThickness ( t ) ;
+      }
     }
   }
-
-  puObject::setBorderThickness ( t ) ;
-}
-
+}  
+  
