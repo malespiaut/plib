@@ -33,8 +33,21 @@ puButtonBox::puButtonBox ( int minx, int miny, int maxx, int maxy,
 
   button_labels = labels ;
 
-  for ( num_kids = 0 ; button_labels [ num_kids ] != NULL ; num_kids++ )
-    /* Count number of labels */ ;
+  newList ( labels ) ;
+}
+
+
+void puButtonBox::newList ( char ** _list )
+{
+  button_labels = _list ;
+
+  if ( button_labels == NULL )
+    num_kids = 0 ;
+  else
+    for ( num_kids = 0 ; button_labels [ num_kids ] != NULL ; num_kids++ )
+      /* Count number of items */ ;
+
+  puPostRefresh() ;
 }
 
 

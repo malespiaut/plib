@@ -1345,6 +1345,9 @@ public:
 
   int isOneButton ( void ) { return one_only ; }
 
+  void newList     ( char ** _list ) ;
+  int  getNumItems () const { return num_kids ; }
+
   int checkKey ( int key   , int updown ) ;
   int checkHit ( int button, int updown, int x, int y ) ;
   void draw    ( int dx, int dy ) ;
