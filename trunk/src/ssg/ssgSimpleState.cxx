@@ -15,10 +15,10 @@ void ssgSimpleState::copy_from ( ssgSimpleState *src, int clone_flags )
 
   colour_material_mode = src -> colour_material_mode ;
 
-  specular_colour = src -> specular_colour ;
-  emission_colour = src -> emission_colour ;
-   ambient_colour = src ->  ambient_colour ;
-   diffuse_colour = src ->  diffuse_colour ;
+  sgCopyVec4 ( specular_colour, src -> specular_colour ) ;
+  sgCopyVec4 ( emission_colour, src -> emission_colour ) ;
+  sgCopyVec4 (  ambient_colour, src ->  ambient_colour ) ;
+  sgCopyVec4 (  diffuse_colour, src ->  diffuse_colour ) ;
 
   shade_model = src -> shade_model ;
   shininess   = src -> shininess   ;

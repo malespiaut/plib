@@ -2,6 +2,10 @@
 PLIB Change Log.
 ================
 
+PLIB v1.1.11 (Feb 9th 2000)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Fixed a tiny problem with double-sided polygons.
+
 PLIB v1.1.10 (Feb 9th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Added ssgLoad and ssgSave that look at the
