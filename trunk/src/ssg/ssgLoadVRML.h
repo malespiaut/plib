@@ -14,14 +14,23 @@ public:
 };
 
 
-class vrmlNodeIndex
+class _nodeIndex
 {
  private:
    ssgListOfNodes *nodeList;
  public:
-   vrmlNodeIndex() 
+   _nodeIndex() 
      {
 	nodeList = new ssgListOfNodes();
+     }
+   ~_nodeIndex()
+     {
+	for( int i=0; i<nodeList->getNum(); i++ )
+	  {
+	     ssgBase *extractedThing = nodeList->get( i );
+	     if( extractedThing->getRef() == 0 )
+	       delete( extractedThing );
+	  }
      }
    
    void insert( ssgBase *thing ) 
@@ -51,26 +60,70 @@ class vrmlNodeIndex
 	  }
 	
 	return NULL;
-     }
+     }   
 };
 
-
-   
-   /*
-// a linked list for storing USE instances
-// (yes, I know its not robust and it breaks
-// all the rules I tried so hard to follow elsewhere), 
-// fix it if you feel like it
-class vrmlNodeElement
+// the current properties for a certain point in scene traversal
+class _traversalState
 {
- public:
-   vrmlNodeElement( ssgBase *element ) 
-     {
-	this->element = element;
-	next=NULL;
-     }
+ private:
+   ssgVertexArray *vertices;
+   ssgTexCoordArray *textureCoordinates;
+   ssgTransform *transform;
+   ssgTexture *texture;
+   bool textureCoordinatesArePerFaceAndVertex;
+   GLenum frontFace;
+   bool enableCullFace;
    
-   ssgBase *element;
-   vrmlNodeElement *next;
-}
-*/
+ public:
+   
+   bool getEnableCullFace() { return enableCullFace; }
+   void setEnableCullFace( bool newEnableCullFace ) { enableCullFace = newEnableCullFace; }	   
+   
+   GLenum getFrontFace( void ) { return frontFace; }
+   void setFrontFace( GLenum newFrontFace ) { frontFace = newFrontFace; }
+   
+   ssgTransform * getTransform( void ) { return transform; }
+   void setTransform( ssgTransform *newTransform ) { transform = newTransform; }
+	
+   ssgVertexArray * getVertices( void ) { return vertices; }
+   void setVertices( ssgVertexArray *newVertices ) { vertices = newVertices; }	
+
+   ssgTexCoordArray *getTextureCoordinates( void ) { return textureCoordinates; }
+   void setTextureCoordinates( ssgTexCoordArray *newTextureCoordinates ) { textureCoordinates = newTextureCoordinates; }	
+	    
+   ssgTexture * getTexture( void ) { return texture; }
+   void setTexture( ssgTexture *newTexture ) { texture = newTexture; }
+     
+   bool areTextureCoordinatesArePerFaceAndVertex( void ) { return textureCoordinatesArePerFaceAndVertex; }
+   
+   _traversalState *clone() { return new _traversalState(*this); }
+   _traversalState() { vertices = NULL; textureCoordinates = NULL; transform = NULL; texture = NULL; textureCoordinatesArePerFaceAndVertex  = TRUE; enableCullFace = FALSE; }
+};
+
+// tags for functions which may actually modify the scene graph
+struct _parseTag
+{
+  char *token ;
+  bool (*func) ( ssgBranch *parentBranch, _traversalState *parentData, char *defName ) ;
+} ;
+
+// the vrml1 common subset that is shared with inventor
+bool vrml1_parseCoordinate3( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+bool vrml1_parseTextureCoordinate2( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+bool vrml1_parseTexture2(  ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+bool vrml1_parseShapeHints( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+bool vrml1_parseMatrixTransform( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+bool vrml1_parseScale( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+bool vrml1_parseRotation( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+bool vrml1_parseUseDirective( ssgBranch *parentBranch, _traversalState *currentData, char *useName, char *defName );
+bool vrml1_parseCoordIndex( ssgLoaderWriterMesh *loaderMesh, _traversalState *currentData );
+bool vrml1_parseTextureCoordIndex( ssgLoaderWriterMesh *loaderMesh, _traversalState *currentData );
+bool parseUnidentified();
+
+void applyTransform( ssgTransform *currentTransform, _traversalState *currentData );
+void mergeTransformNodes( ssgTransform *newTransform, ssgTransform *oldTransform1, ssgTransform *oldTransform2 );
+bool parseVec( SGfloat *v, int vSize );
+ssgIndexArray * parseIndexArray( _traversalState *currentData );
+
+extern _ssgParser vrmlParser;
