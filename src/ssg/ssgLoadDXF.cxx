@@ -33,11 +33,26 @@
 
 
 #define MAX_LINE_LEN 1024
-#define MAX_VERT 100000
 
 struct dxfVert {
   sgVec3 pos ;
   int color_index ;
+} ;
+
+class dxfVertArray : public ssgSimpleList
+{
+public:
+  dxfVertArray () : ssgSimpleList ( sizeof(dxfVert), 0, NULL ) {} 
+  dxfVert *get ( unsigned int n ) { return (dxfVert *) raw_get ( n ) ; }
+  void add ( const dxfVert* thing ) { raw_add ( (char *) thing ) ; } ;
+} ;
+
+struct dxfMesh
+{
+  int flags;
+  int size[2];
+  int vlist[4];
+  int vnum;
 } ;
 
 enum Entities {
@@ -58,20 +73,13 @@ static ssgBranch* current_block = NULL ;
 static ssgBranch* blocks = NULL ;
 
 static int num_line;
-static int num_linevert;
-static dxfVert* linevert;
-
 static int num_face;
-static int num_facevert;
-static dxfVert* facevert;
+static dxfVertArray tempvert;
+static dxfVertArray linevert;
+static dxfVertArray facevert;
+static dxfVertArray meshvert;
+static dxfMesh mesh;
 
-static int num_meshvert;
-static dxfVert* meshvert;
-static int meshface[4];
-static int meshflags;
-static int meshsize[2];
-
-static int num_vert;
 static int cflags;
 static sgVec3 cvec;
 static sgVec3 scale_vec;
@@ -345,39 +353,56 @@ static void copy_vert ( dxfVert& dst, const dxfVert& src )
   sgCopyVec3 ( dst.pos, src.pos ) ;
 }
 
+static void add_tri ( const dxfVert* p, const dxfVert* q, const dxfVert* r )
+{
+  facevert.add ( p ) ;
+  facevert.add ( q ) ;
+  facevert.add ( r ) ;
+  num_face ++;
+}
+
+static void add_face ( void )
+{
+  int num_vert = tempvert.getNum() ;
+  if ( num_vert >= 3 )
+  {
+    if ( num_vert >= 4 ) //quad?
+    {
+      add_tri ( tempvert.get(0), tempvert.get(1), tempvert.get(3) ) ;
+      add_tri ( tempvert.get(3), tempvert.get(1), tempvert.get(2) ) ;
+    }
+    else //triangle
+    {
+      add_tri ( tempvert.get(0), tempvert.get(1), tempvert.get(2) ) ;
+    }
+  }
+}
+
 static void dxf_flush ( void )
 {
-  if ( ent_type == ENT_LINE ) {
-    if ( num_vert >= 2 ) {
+  int num_vert = tempvert.getNum() ;
+  if ( ent_type == ENT_LINE )
+  {
+    if ( num_vert >= 2 )
+    {
+      linevert.add( tempvert.get(0) ) ;
+      linevert.add( tempvert.get(1) ) ;
       num_line ++;
-      num_linevert += 2;
     }
   }
-  else if ( ent_type == ENT_FACE ) {
-    if ( num_vert >= 3 ) {
-      //quad?
-      if ( num_vert >= 4 && num_facevert + 6 < MAX_VERT ) {
-        copy_vert( facevert[num_facevert + 4], facevert[num_facevert + 1] );
-        copy_vert( facevert[num_facevert + 5], facevert[num_facevert + 2] );
-        copy_vert( facevert[num_facevert + 2], facevert[num_facevert + 3] );
-        num_face += 2;
-        num_facevert += 6;
-      }
-      else {
-        //triangle
-        num_face += 1;
-        num_facevert += 3;
-      }
-    }
+  else if ( ent_type == ENT_FACE )
+  {
+    add_face () ;
   }
-  else if ( ent_type == ENT_POLYLINE ) {
-    meshflags = cflags;
-    num_meshvert = 0;
-    meshsize[0] = meshface[0];
-    meshsize[1] = meshface[1];
+  else if ( ent_type == ENT_POLYLINE )
+  {
+    mesh.flags = cflags;
+    meshvert.removeAll();
+    mesh.size[0] = mesh.vlist[0];
+    mesh.size[1] = mesh.vlist[1];
   }
-  else if ( ent_type == ENT_INSERT ) {
-
+  else if ( ent_type == ENT_INSERT )
+  {
     if ( block_name != NULL )
     {
       //block_name
@@ -398,84 +423,59 @@ static void dxf_flush ( void )
       }
     }
   }
-  else if ( ent_type == ENT_VERTEX ) {
-
-    if ( (meshflags & 8) != 0 ) {
-
+  else if ( ent_type == ENT_VERTEX )
+  {
+    if ( (mesh.flags & 8) != 0 )
+    {
       //This is a 3D Polyline
-      if ( (cflags & 32) != 0 ) {
-
+      if ( (cflags & 32) != 0 )
+      {
         //This is a 3D Polyline vertex
-        if ( num_meshvert < MAX_VERT ) {
-          meshvert[num_meshvert].color_index = color_index;
-          sgCopyVec3( meshvert[num_meshvert].pos, cvec );
-          num_meshvert ++ ;
-        }
+        meshvert.add ( tempvert.get(0) ) ;
       }
     }
-    else if ( (meshflags & 16) != 0 ) {
-
+    else if ( (mesh.flags & 16) != 0 )
+    {
       //This is a 3D polygon MxN mesh. (uniform grid)
-      if ( (cflags & 64) != 0 ) {
-
+      if ( (cflags & 64) != 0 )
+      {
         //This is a 3D polygon mesh vertex
-        if ( num_meshvert < MAX_VERT ) {
-          meshvert[num_meshvert].color_index = color_index;
-          sgCopyVec3( meshvert[num_meshvert].pos, cvec );
-          num_meshvert ++ ;
-        }
+        meshvert.add ( tempvert.get(0) ) ;
       }
     }
-    else if ( (meshflags & 64) != 0 ) {
-
+    else if ( (mesh.flags & 64) != 0 )
+    {
       //This Polyline is a polyface mesh.
-      if ( (cflags & 128) != 0 ) {
-
-        if ( (cflags & 64) != 0 ) {
-
+      if ( (cflags & 128) != 0 )
+      {
+        if ( (cflags & 64) != 0 )
+        {
           //This is a 3D polygon mesh vertex
-          if ( num_meshvert < MAX_VERT ) {
-            meshvert[num_meshvert].color_index = color_index;
-            sgCopyVec3( meshvert[num_meshvert].pos, cvec );
-            num_meshvert ++ ;
-          }
+          meshvert.add ( tempvert.get(0) ) ;
         }
-        else if ( num_vert >= 3 && num_facevert + num_vert < MAX_VERT ) {
-
+        else if ( mesh.vnum >= 3 )
+        {
           //copy each vertex where the first is numbered 1
+          tempvert.removeAll();
           int error = 0;
-          for ( int i=0; i<num_vert; i++ )
+          for ( int i=0; i<mesh.vnum; i++ )
           {
-            int ival = meshface[i];
+            int ival = mesh.vlist[i];
             if ( ival < 0 )
               ival = -ival;  //invisible vertex whatever that means :)
-            if ( ival > 0 && ival <= num_meshvert )
-              copy_vert( facevert[num_facevert + i], meshvert[ival-1] );
+            if ( ival > 0 && ival <= meshvert.getNum() )
+              tempvert.add ( meshvert.get(ival-1) ) ;
             else
               error = 1;
           }
-
-          if ( error == 0 ) {
-            //quad?
-            if ( num_vert >= 4 && num_facevert + 6 < MAX_VERT ) {
-              copy_vert( facevert[num_facevert + 4], facevert[num_facevert + 1] );
-              copy_vert( facevert[num_facevert + 5], facevert[num_facevert + 2] );
-              copy_vert( facevert[num_facevert + 2], facevert[num_facevert + 3] );
-              num_face += 2;
-              num_facevert += 6;
-            }
-            else {
-              //triangle
-              num_face += 1;
-              num_facevert += 3;
-            }
-          }
+          
+          if ( error == 0 )
+            add_face () ;
         }
       }
     }
   }
 
-  num_vert = 0;
   cflags = 0;
   cvec[0] = 0.0f;
   cvec[1] = 0.0f;
@@ -485,59 +485,29 @@ static void dxf_flush ( void )
   scale_vec[2] = 0.0f;
   rot_angle = 0.0f;
   color_index = 7 ;
-  meshface[0] = 0;
-  meshface[1] = 0;
-  meshface[2] = 0;
-  meshface[3] = 0;
+
+  tempvert.removeAll();
+
+  mesh.vnum = 0 ;
+  mesh.vlist[0] = 0;
+  mesh.vlist[1] = 0;
+  mesh.vlist[2] = 0;
+  mesh.vlist[3] = 0;
 
   delete[] block_name;
   block_name = NULL;
 }
 
 
-static void AddTriangle ( const dxfVert* p, const dxfVert* q, const dxfVert* r )
-{
-  if ( num_facevert + 3 < MAX_VERT ) {
-    copy_vert( facevert[num_facevert], *p ) ;
-    copy_vert( facevert[num_facevert+1], *q ) ;
-    copy_vert( facevert[num_facevert+2], *r ) ;
-    num_face ++;
-    num_facevert += 3;
-  }
-}
-
-
-static void dxf_init ()
-{
-  linevert = new dxfVert[MAX_VERT];
-  facevert = new dxfVert[MAX_VERT];
-  meshvert = new dxfVert[MAX_VERT];
-
-  for ( int i=0; i<MAX_VERT; i++ )
-  {
-    linevert[i].color_index = 7 ;
-    facevert[i].color_index = 7 ;
-    meshvert[i].color_index = 7 ;
-  }
-}
-
-
 static void dxf_free ()
 {
-  delete[] linevert ;
-  delete[] facevert ;
-  delete[] meshvert ;
-}
+  tempvert.removeAll();
+  linevert.removeAll() ;
+  facevert.removeAll() ;
+  meshvert.removeAll() ;
 
-
-static void dxf_reset ()
-{
   num_line = 0;
-  num_linevert = 0;
   num_face = 0;
-  num_facevert = 0;
-  num_meshvert = 0;
-  num_vert = 0;
 
   ent_type = ENT_NONE;
 }
@@ -563,23 +533,24 @@ static void dxf_create ( ssgBranch* br )
   //create ssg nodes
   if ( num_face )
   {
-    ssgVertexArray* vlist = new ssgVertexArray ( num_facevert ) ;
-    ssgColourArray* clist = new ssgColourArray ( num_facevert ) ;
-    ssgNormalArray* nlist = new ssgNormalArray ( num_facevert ) ;
+    int num_vert = facevert.getNum () ;
+    ssgVertexArray* vlist = new ssgVertexArray ( num_vert ) ;
+    ssgColourArray* clist = new ssgColourArray ( num_vert ) ;
+    ssgNormalArray* nlist = new ssgNormalArray ( num_vert ) ;
     sgVec3 normal ;
-    for ( int i=0; i<num_facevert; i++ )
+    for ( int i=0; i<num_vert; i++ )
     {
       if ( (i % 3) == 0 )
       {
         sgMakeNormal ( normal,
-          facevert[i].pos,
-          facevert[i+1].pos,
-          facevert[i+2].pos ) ;
+          facevert.get(i) -> pos,
+          facevert.get(i+1) -> pos,
+          facevert.get(i+2) -> pos ) ;
       }
       
-      vlist -> add ( facevert[i].pos ) ;
+      vlist -> add ( facevert.get(i) -> pos ) ;
       nlist -> add ( normal ) ;
-      clist -> add ( get_color(facevert[i].color_index) ) ;
+      clist -> add ( get_color( facevert.get(i) -> color_index ) ) ;
     }
     ssgVtxTable *vtab = new ssgVtxTable ( GL_TRIANGLES, vlist, nlist, 0, clist );
     vtab -> setState ( current_state ) ;
@@ -588,25 +559,26 @@ static void dxf_create ( ssgBranch* br )
 
   if ( num_line )
   {
-    ssgVertexArray* vlist = new ssgVertexArray ( num_linevert ) ;
-    ssgColourArray* clist = new ssgColourArray ( num_facevert ) ;
-    for ( int i=0; i<num_linevert; i++ )
+    int num_vert = linevert.getNum () ;
+    ssgVertexArray* vlist = new ssgVertexArray ( num_vert ) ;
+    ssgColourArray* clist = new ssgColourArray ( num_vert ) ;
+    for ( int i=0; i<num_vert; i++ )
     {
-      vlist -> add ( linevert[i].pos ) ;
-      clist -> add ( get_color(linevert[i].color_index) ) ;
+      vlist -> add ( linevert.get(i) -> pos ) ;
+      clist -> add ( get_color(linevert.get(i) -> color_index) ) ;
     }
     ssgVtxTable *vtab = new ssgVtxTable ( GL_LINES, vlist, 0, 0, clist );
     vtab -> setState ( current_state ) ;
     br -> addKid ( vtab ) ;
   }
 
-  dxf_reset () ;
+  dxf_free () ;
 }
 
 
 static int dxf_read ( FILE *filein )
 {
-  dxf_init () ;
+  dxf_free () ;
 
 /* 
   Read the next two lines of the file into INPUT1 and INPUT2. 
@@ -676,66 +648,65 @@ static int dxf_read ( FILE *filein )
 #define PL_POLYFACE_MESH 	0x40
 #define PL_USE_LINETYPE 	0x80
 
-        int polyline_flags = meshflags ;
+        int polyline_flags = mesh.flags ;
 
         if ( (polyline_flags & PL_3D_POLYLINE) != 0 ) {
 
           //This is a 3D Polyline
           int last = 0;
           int i = 1;
+          int num_vert = meshvert.getNum () ;
 
           if ( (polyline_flags & (PL_CLOSED_IN_M|PL_CLOSED_IN_N)) != 0 ) {
 
             //Polyline is closed
-            last = num_meshvert - 1;
+            last = num_vert - 1;
             i = 0;
           }
 
-          for ( ; i<num_meshvert; i++ ) {
-
-            if ( num_linevert + 2 < MAX_VERT ) {
-
-              copy_vert( linevert[num_linevert], meshvert[last] );
-              copy_vert( linevert[num_linevert+1], meshvert[i] );
-              num_line ++;
-              num_linevert += 2;
-            }
+          for ( ; i<num_vert; i++ )
+          {
+            linevert.add ( meshvert.get ( last ) ) ;
+            linevert.add ( meshvert.get ( i ) ) ;
+            num_line ++ ;
+            last = i ;
           }
         }
         else if ( (polyline_flags & PL_3D_MESH) != 0 ) {
 
           //This is a 3D polygon MxN mesh. (uniform grid)
-          if ( num_meshvert >= ( meshsize[0] * meshsize[1] ) ) {
+          int num_vert = meshvert.getNum () ;
+          if ( num_vert >= ( mesh.size[0] * mesh.size[1] ) ) {
 
-            int mesh_m = meshsize[0];
-            int mesh_n = meshsize[1];
+            int mesh_m = mesh.size[0];
+            int mesh_n = mesh.size[1];
 
             dxfVert *buff[2];
-            buff[0] = &meshvert[0];
-            buff[1] = &meshvert[mesh_n];
+            buff[0] = meshvert.get(0);
+            buff[1] = meshvert.get(mesh_n);
 
             /* create triangles */
             int i,j;
             for (i=1;i<mesh_m;i++) {
-              buff[1] = &meshvert[ mesh_n*i ] ;
+              buff[1] = meshvert.get( mesh_n*i ) ;
               dxfVert* p = &buff[0][0];
               dxfVert* q = &buff[0][1];
               for (j=1;j<mesh_n;j++) {
                 dxfVert* r = &buff[1][j-1];
-                AddTriangle ( p, q, r ) ;
+                add_tri ( p, q, r ) ;
                 p = q;
                 q = &buff[1][j];
-                AddTriangle ( p, q, r ) ;
+                add_tri ( p, q, r ) ;
                 q = &buff[0][j+1];
               }
               if (polyline_flags & PL_CLOSED_IN_N) {
                 dxfVert* p = &buff[0][mesh_n-1];
                 dxfVert* q = &buff[0][0];
                 dxfVert* r = &buff[1][mesh_n-1];
-                AddTriangle ( p, q, r ) ;
+                add_tri ( p, q, r ) ;
                 p = q;
                 q = &buff[1][0];
-                AddTriangle ( p, q, r ) ;
+                add_tri ( p, q, r ) ;
               }
               buff[0] = buff[1];
             }
@@ -743,18 +714,18 @@ static int dxf_read ( FILE *filein )
               dxfVert* p = &buff[0][0];
               dxfVert* q = &buff[0][1];
               for (j=1;j<mesh_n;j++) {
-                dxfVert* r = &meshvert[j-1];
-                AddTriangle ( p, q, r ) ;
+                dxfVert* r = meshvert.get(j-1);
+                add_tri ( p, q, r ) ;
                 p = q;
-                q = &meshvert[j];
-                AddTriangle ( p, q, r ) ;
+                q = meshvert.get(j);
+                add_tri ( p, q, r ) ;
                 q = &buff[0][j+1];
               }
             }
           }
         }
 
-        meshflags = 0;
+        mesh.flags = 0;
         ent_type = ENT_NONE;
       }
       else
@@ -803,20 +774,13 @@ static int dxf_read ( FILE *filein )
   
             case '3':
               cvec[2] = rval;
+
+              {
+                dxfVert vert ;
+                vert.color_index = color_index ;
+                sgCopyVec3 ( vert.pos, cvec ) ;
   
-              if ( ent_type == ENT_LINE ) {
-                if ( num_linevert + num_vert < MAX_VERT ) {
-                  linevert[num_linevert + num_vert].color_index = color_index;
-                  sgCopyVec3( linevert[num_linevert + num_vert].pos, cvec );
-                  num_vert ++ ;
-                }
-              }
-              else if ( ent_type == ENT_FACE ) {
-                if ( num_facevert + num_vert < MAX_VERT ) {
-                  facevert[num_facevert + num_vert].color_index = color_index;
-                  sgCopyVec3( facevert[num_facevert + num_vert].pos, cvec );
-                  num_vert ++ ;
-                }
+                tempvert.add ( &vert ) ;
               }
               break;
           }
@@ -869,23 +833,23 @@ static int dxf_read ( FILE *filein )
             break;
 
           case '1':
-            meshface[0] = ival;
-            num_vert = 1;
+            mesh.vlist[0] = ival;
+            mesh.vnum = 1;
             break;
 
           case '2':
-            meshface[1] = ival;
-            num_vert = 2;
+            mesh.vlist[1] = ival;
+            mesh.vnum = 2;
             break;
 
           case '3':
-            meshface[2] = ival;
-            num_vert = 3;
+            mesh.vlist[2] = ival;
+            mesh.vnum = 3;
             break;
 
           case '4':
-            meshface[3] = ival;
-            num_vert = 4;
+            mesh.vlist[3] = ival;
+            mesh.vnum = 4;
             break;
         }
       }
@@ -893,7 +857,6 @@ static int dxf_read ( FILE *filein )
   }
 
   dxf_create ( top_branch ) ;
-  dxf_free () ;
 
   return TRUE;
 }
