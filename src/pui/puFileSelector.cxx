@@ -403,6 +403,7 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
   input -> setValue ( startDir ) ;
   input -> setUserData ( this ) ;
   input -> setCallback ( input_entered ) ;
+  input -> setDownCallback ( input_entered ) ;
 
   cancel_button = new puOneShot ( 10, 10, (w<170)?(w/2-5):80, 30 ) ;
   cancel_button -> setLegend ( "Cancel" ) ;
