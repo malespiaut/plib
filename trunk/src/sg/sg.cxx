@@ -860,16 +860,14 @@ SGfloat sgDistSquaredToLineVec3 ( const sgLine3 line, const sgVec3 pnt )
 SGfloat sgDistSquaredToLineSegmentVec3 ( const sgLineSegment3 line,
                                          const sgVec3 pnt )
 {
-  sgLine3 l ; sgLineSegment3ToLine3 ( & l, line ) ;
- 
-  sgVec3 v  ; sgSubVec3 ( v , line.b, line.a ) ; sgNormalizeVec3 ( v ) ;
-  sgVec3 r1 ; sgSubVec3 ( r1, pnt   , line.a ) ;
- 
+  sgVec3 v ; sgSubVec3 ( v, line.b, line.a ) ;
+  sgVec3 r1 ; sgSubVec3 ( r1, pnt, line.a ) ;
+
   SGfloat r1_dot_v = sgScalarProductVec3 ( r1, v ) ;
- 
+
   if ( r1_dot_v <= 0 )  /* Off the "A" end  */
     return sgScalarProductVec3 ( r1, r1 ) ;
- 
+
   sgVec3 r2 ; sgSubVec3 ( r2, pnt, line.b ) ;
 
   SGfloat r2_dot_v = sgScalarProductVec3 ( r2, v ) ;
@@ -879,7 +877,7 @@ SGfloat sgDistSquaredToLineSegmentVec3 ( const sgLineSegment3 line,
  
   /* Closest point on line is on the line segment */
  
-  return sgScalarProductVec3 ( r1, r1 ) - r1_dot_v * r1_dot_v ;
+  return sgScalarProductVec3 ( r1, r1 ) - r1_dot_v * r1_dot_v / sgScalarProductVec3 ( v, v ) ;
 }
 
 
