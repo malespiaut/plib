@@ -80,6 +80,14 @@ extern void setStatusWidgets ( WidgetList *wid ) ;
 // From the properties window:
 extern int properties_window;
 
+// Definitions
+  #define RESIZING_BORDER_WIDTH   5
+  #define RESIZING_CORNER_BORDER_WIDTH   4
+  /** 4 seems to be the best number for this define... this makes sure  *
+   *  that the default widget size allows you to still resize along the *
+   *  X axis without difficulty -  23 Jan 03 JCJ                       **/
+
+
 // Properties Callback
 
 static void cb_edit_properties ( puObject *ob )
@@ -660,9 +668,6 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
             if ( wid->visible && ( x >= box->min[0] ) && ( x <= box->max[0] ) &&
                                  ( y >= box->min[1] ) && ( y <= box->max[1] ) )
             {
-    #define RESIZING_BORDER_WIDTH   5
-    #define RESIZING_CORNER_BORDER_WIDTH   8
-
               active_widget = wid ;
               active_object = wid->obj ;
               if ( abs ( x - box->min[0] ) < RESIZING_BORDER_WIDTH )
@@ -676,11 +681,10 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
               else
                 activity_flag = 1 ;  // Away from edges, we're moving it
 
-	      // bottom left 6
-	      // top right 7
-	      // top left 8
-	      // bottom right 9
-
+       /* Now we check and see if we're clicking on a corner - the sensitivity for
+       the determiniation of whether we're clicking a corner or not is held by the
+       definition of "RESIZING_CORNER_BORDER_WIDTH" which is at the top of this file */
+                
 	      int corner_resize_width = RESIZING_CORNER_BORDER_WIDTH + (((box->max[0] - box->min[0]) + (box->max[1] - box->min[1]) / 2 ) / 50 ) * 2 ;
 
               if ( activity_flag != 1 )
@@ -702,8 +706,7 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
 		    activity_flag = 8;
 	      }
 
-              // TO DO:  If the user clicks on a corner, let him resize in both directions at once
-              /* This basically will involve setting "resize_corner" to be 1 */
+              /* If CTRL is held down, symmetric resize is forced. */
 
               resize_symmetric = ctrl_key_down ? 2 : 1 ;
 

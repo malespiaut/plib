@@ -498,7 +498,7 @@ void loadProject ( puObject *ob ) {
                         /* widget_number to it.                                    */
                         int tmp_wid_num = 0;
                         sscanf(tagvalue, "widget%d", &tmp_wid_num) ;
-                        if (tmp_wid_num > widget_number) widget_number = tmp_wid_num + 1;
+                        if (tmp_wid_num >= widget_number) widget_number = tmp_wid_num + 1;
                     }
                     if ( strstr(tag,"type") )
                     {
