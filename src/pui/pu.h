@@ -1318,7 +1318,7 @@ public:
     if ( valid_data ) free ( valid_data ) ;
   }
 
-  virtual void invokeDownCallback ( void )
+  void invokeDownCallback ( void )
   {
     rejectInput () ;
     normalize_cursors () ;
@@ -1572,6 +1572,13 @@ public:
   int isValidCharacter ( char c )
   {
     return ( ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ) ;
+  }
+
+  void invokeDownCallback ( void )
+  {
+    rejectInput () ;
+    normalize_cursors () ;
+    if ( down_cb ) (*down_cb)(this) ;
   }
 
   void enableInput ()  {  input_disabled = FALSE ;  }
