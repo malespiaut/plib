@@ -29,8 +29,7 @@ struct pslFwdRef
 
   void set ( const char *s, pslAddress w )
   {
-    symbol = new char [ strlen(s)+1 ] ;
-    strcpy ( symbol, s ) ;
+    symbol = ulStrDup ( s ) ;
     where = w ;
   }
 
@@ -151,7 +150,7 @@ private:
     for ( int i = locality_stack [ locality_sp-1 ] ;
               i < next_var ; i++ )
     {
-      delete symtab [ i ] . symbol ;
+      delete [] symtab [ i ] . symbol ;
       symtab [ i ] . symbol = NULL ;
     }
 
@@ -181,9 +180,9 @@ public:
   {
     for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
     {
-      delete symtab      [ i ] . symbol ;
-      delete code_symtab [ i ] . symbol ;
-      delete forward_ref [ i ] . symbol ;
+      delete [] symtab      [ i ] . symbol ;
+      delete [] code_symtab [ i ] . symbol ;
+      delete [] forward_ref [ i ] . symbol ;
     }
   }
 
@@ -197,9 +196,9 @@ public:
 
     for ( i = 0 ; i < MAX_SYMBOL ; i++ )
     {
-      delete symtab      [ i ] . symbol ; symtab      [ i ] . symbol = NULL ;
-      delete code_symtab [ i ] . symbol ; code_symtab [ i ] . symbol = NULL ;
-      delete forward_ref [ i ] . symbol ; forward_ref [ i ] . symbol = NULL ;
+      delete [] symtab      [ i ] . symbol ; symtab      [ i ] . symbol = NULL ;
+      delete [] code_symtab [ i ] . symbol ; code_symtab [ i ] . symbol = NULL ;
+      delete [] forward_ref [ i ] . symbol ; forward_ref [ i ] . symbol = NULL ;
     }
 
     locality_sp = 0 ;

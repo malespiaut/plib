@@ -38,13 +38,12 @@ public:
 
   void set ( const char *s, pslAddress v, int loc )
   {
-    symbol   = new char [ strlen ( s ) + 1 ] ;
-    strcpy ( symbol, s ) ;
+    symbol   = ulStrDup ( s ) ;
     address  = v ;
     locality = loc ;
   }
 
-  ~pslSymbol () { delete symbol ; }
+  ~pslSymbol () { delete [] symbol ; }
 } ;
 
 
