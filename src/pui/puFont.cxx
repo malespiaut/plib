@@ -64,14 +64,24 @@ int puFont::getStringWidth ( const char *str ) const
   if ( glut_font_handle != (GlutFont) 0 )
   {
     int res = 0 ;
+    int max_res = 0 ;
 
     while ( *str != '\0' )
     {
-      res += glutBitmapWidth ( glut_font_handle, *str ) ;
-      str++ ;
+        if ( *str == '\n' )
+        {
+            if ( res > max_res ) max_res = res;
+            res = 0;
+        }
+        else
+        {
+            res += glutBitmapWidth ( glut_font_handle, *str ) ;
+        }
+        str++ ;
     }
+    if ( res > max_res ) max_res = res;
 
-    return res ;
+    return max_res ;
   }
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
