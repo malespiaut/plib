@@ -258,8 +258,7 @@ void puObject::draw_legend ( int dx, int dy )
   case PUPLACE_CENTERED_CENTERED :
   case PUPLACE_CENTERED_RIGHT :
   default :
-    yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () -
-           legendFont.getStringDescender () ) / 2 ;
+    yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2 ;
     break ;
 
   case PUPLACE_LOWER_LEFT    :
