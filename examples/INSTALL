@@ -51,6 +51,20 @@ The simplest way to compile this package is:
      all sorts of other programs in order to regenerate files that came
      with the distribution.
 
+Configure Options
+=================
+On some occations opengl are not found on systems. Additional
+commandline parameters have been added to resolve this issue.
+
+--with-gl  GL prefix
+
+Examples
+./configure --with-gl=/usr/local
+
+This should help with locating GL when configure is unable to find 
+the files.
+
+
 Compilers and Options
 =====================
 
