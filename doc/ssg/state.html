@@ -20,11 +20,27 @@ OpenGL state - but all must be derived from an ssgState:
     int  getExternalPropertyIndex () ;
     void setExternalPropertyIndex ( int i ) ;
 
+    ssgStateCallback getStateCallback ( int cb_type ) ;
+    void setStateCallback ( int cb_type, ssgStateCallback cb ) ;
+
     virtual void force () ;
     virtual void apply () ;
   } ;
 
 </pre>
+<H3>Callbacks.</H3>
+States are 'applied' immediately before the geometry they are attached
+to is rendered.  Applying the state causes all of it's properties to
+be set up in OpenGL.
+<p>
+Each state has three optional callback function hooks.  The application
+program can have a function called before the state is applied, after
+it is applied (but before the geometry is drawn) and another after the
+geometry is rendered - immediately before the next state is applied.
+<p>
+You can set those three callbacks with setStateCallback - passing
+either SSG_CALLBACK_PREAPPLY, SSG_CALLBACK_PREDRAW or SSG_CALLBACK_POSTDRAW
+as the first parameter and the address of your function as the second.
 <H3>External Properties.</H3>
 Each state entity can have an external property - which is a simple
 integer that can be set using <code>ssgState::setExternalPropertyIndex(i)</code>

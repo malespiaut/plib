@@ -26,6 +26,10 @@
 
 #include "ssg.h"
 
+void _ssgStartOfFrameInit  () ;
+void _ssgEndOfFrameCleanup () ;
+
+
 extern void (*__ssgEnableTable[64])() ;
 extern void (*__ssgDisableTable[64])() ;
 
