@@ -46,6 +46,13 @@
 #  endif
 #endif
 
+#ifndef GL_VERSION_1_3
+// ARB_multitexture
+#define GL_TEXTURE0      GL_TEXTURE0_ARB
+#define GL_TEXTURE1      GL_TEXTURE1_ARB
+#define glActiveTexture  glActiveTextureARB
+#endif
+
 #define GUI_BASE      80
 #define VIEW_GUI_BASE 20
 #define FONT_COLOUR   1,1,1,1
@@ -116,7 +123,7 @@ static int enableTexGen ( ssgEntity * )
 #ifdef GL_ARB_multitexture
   int tx ;
   glGetIntegerv ( GL_TEXTURE_BINDING_2D, &tx ) ;
-  glActiveTextureARB ( GL_TEXTURE1_ARB ) ;
+  glActiveTexture ( GL_TEXTURE1 ) ;
 #endif
   glTexGeni ( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;
   glTexGeni ( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;
@@ -125,7 +132,7 @@ static int enableTexGen ( ssgEntity * )
 #ifdef GL_ARB_multitexture
   glEnable ( GL_TEXTURE_2D ) ;  /* Enables the second texture map. */
   glBindTexture ( GL_TEXTURE_2D, tx ) ;
-  glActiveTextureARB ( GL_TEXTURE0_ARB ) ;
+  glActiveTexture ( GL_TEXTURE0 ) ;
 #endif    
   return TRUE ;
 } 
@@ -133,13 +140,13 @@ static int enableTexGen ( ssgEntity * )
 static int disableTexGen ( ssgEntity * )
 {
 #ifdef GL_ARB_multitexture
-  glActiveTextureARB ( GL_TEXTURE1_ARB ) ;
+  glActiveTexture ( GL_TEXTURE1 ) ;
 #endif
   glDisable ( GL_TEXTURE_GEN_S ) ;
   glDisable ( GL_TEXTURE_GEN_T ) ;
 #ifdef GL_ARB_multitexture
   glDisable ( GL_TEXTURE_2D ) ; /* Disables the second texture map */
-  glActiveTextureARB ( GL_TEXTURE0_ARB ) ;
+  glActiveTexture ( GL_TEXTURE0 ) ;
 #endif
   return TRUE ;
 }
