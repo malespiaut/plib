@@ -92,7 +92,7 @@ float puFont::getFloatStringWidth ( const char *str ) const
     return ( r - l ) ;
   }
 
-  return 0 ;
+  return 0.0f ;
 }
 
 
