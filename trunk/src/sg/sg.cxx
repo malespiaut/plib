@@ -24,6 +24,8 @@
 
 #include "sg.h"
 
+sgVec3 _sgGravity = { 0.0f, 0.0f, -9.8f } ;
+
 void sgVectorProductVec3 ( sgVec3 dst, const sgVec3 a, const sgVec3 b )
 {
   dst[0] = a[1] * b[2] - a[2] * b[1] ;
