@@ -74,8 +74,8 @@ void ssgaParticleSystem::draw_geometry ()
     sgSetVec3 ( xx, mat[0][0] * sz, mat[1][0] * sz, mat[2][0] * sz ) ;
     sgSetVec3 ( yy, mat[0][1] * sz, mat[1][1] * sz, mat[2][1] * sz ) ;
 
-    sgSetVec3 ( nxny, -xx[0]+yy[0], -xx[1]+yy[1], -xx[2]+yy[2] ) ;
-    sgSetVec3 ( nxyy, -xx[0]-yy[0], -xx[1]-yy[1], -xx[2]-yy[2] ) ;
+    sgSetVec3 ( nxny, -xx[0]-yy[0], -xx[1]-yy[1], -xx[2]-yy[2] ) ;
+    sgSetVec3 ( nxyy, -xx[0]+yy[0], -xx[1]+yy[1], -xx[2]+yy[2] ) ;
     sgSetVec3 ( xxny,  xx[0]-yy[0],  xx[1]-yy[1],  xx[2]-yy[2] ) ;
     sgSetVec3 ( xxyy,  xx[0]+yy[0],  xx[1]+yy[1],  xx[2]+yy[2] ) ;
   }
