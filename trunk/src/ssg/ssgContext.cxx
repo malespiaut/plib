@@ -96,7 +96,11 @@ void ssgContext::forceBasicState ()
     glEnable ( GL_CULL_FACE ) ;
 
   cullFace = TRUE ;
-  basicState -> force () ;
+
+  if ( ovState != NULL )
+    ovState -> force () ;
+  else
+    basicState -> force () ;
 }
 
 
@@ -108,6 +112,11 @@ void ssgContext::makeCurrent ()
 void ssgContext::getCameraPosition ( sgVec3 pos )
 {
   sgCopyVec3 ( pos, cameraMatrix [ 3 ] ) ;
+}
+
+void ssgContext::overrideState ( ssgState *s )
+{
+  ovState = s ;
 }
 
 void ssgContext::overrideTexture ( int on_off )

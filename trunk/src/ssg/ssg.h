@@ -2271,10 +2271,11 @@ class ssgContext
   ssgSimpleState *basicState   ;
   sgFrustum      *frustum      ;
 
-  sgMat4 cameraMatrix         ;
-  int    cullFace             ;
-  int    ovTexture            ;
-  int    ovCullface           ;
+  sgMat4    cameraMatrix       ;
+  int       cullFace           ;
+  int       ovTexture          ;
+  int       ovCullface         ;
+  ssgState *ovState            ;
 
 public:
 
@@ -2311,6 +2312,7 @@ public:
     return ((i<0)||(i>=6)) ? NULL : clipPlane [i] ;
   }
 
+  void overrideState     ( ssgState *s ) ;
   void overrideTexture   ( int on_off ) ;
   void overrideCullface  ( int on_off ) ;
 
@@ -2325,6 +2327,8 @@ public:
                else glDisable ( GL_CULL_FACE ) ;
   }
 
+  ssgState *overriddenState () { return ovState ; }
+  int  stateOverridden    () { return ovState != NULL ; }
   int  textureOverridden  () { return ovTexture  ; }
   int  cullfaceOverridden () { return ovCullface ; }
   int  cullfaceIsEnabled  () { return cullFace   ; }
@@ -2379,6 +2383,11 @@ inline ssgContext *ssgGetCurrentContext () { return _ssgCurrentContext ; }
 inline void ssgGetCameraPosition ( sgVec3 pos )
 {
   _ssgCurrentContext -> getCameraPosition ( pos ) ;
+}
+
+inline void ssgOverrideState ( ssgState *s )
+{
+  _ssgCurrentContext->overrideState ( s ) ;
 }
 
 inline void ssgOverrideTexture ( int on_off )

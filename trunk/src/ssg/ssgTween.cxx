@@ -254,7 +254,11 @@ void ssgTween::draw ()
   if ( ! preDraw () )
     return ;
 
-  if ( hasState () ) getState () -> apply () ;
+  if ( _ssgCurrentContext-> stateOverridden () )
+     _ssgCurrentContext -> overriddenState () -> apply () ;
+  else
+  if ( hasState () )
+    getState () -> apply () ;
 
   stats_num_leaves++ ;
   stats_num_vertices += getNumVertices() ;
