@@ -936,12 +936,13 @@ void ssgFlatten ( ssgEntity *ent )
     Since the top level node may not be removed, loop over the kids.
     Done in two passes because *kid* may be removed.
   */
+	ssgEntity *kid;
 
-  for ( ssgEntity *kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
+  for ( kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
 	           kid = b_ent -> getNextKid () )
     flatten ( b_ent, kid, mat ) ;
 
-  for ( ssgEntity *kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
+  for ( kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
 	           kid = b_ent -> getNextKid () )
     strip ( kid ) ;
 
@@ -965,7 +966,7 @@ void ssgTransTool ( ssgEntity *ent, const sgMat4 trans )
 {
   if ( ent -> isAKindOf ( ssgTypeLeaf () ) )
   {
-    ((ssgLeaf *) ent) -> transform ( (sgMat4) trans ) ;
+		((ssgLeaf *) ent) -> transform ( trans ) ;
     return ;
   }
 
@@ -995,11 +996,12 @@ void ssgTransTool ( ssgEntity *ent, const sgMat4 trans )
     return ;
   }
 
-  for ( ssgEntity *kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
+	ssgEntity *kid;
+  for ( kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
 	           kid = b_ent -> getNextKid () )
     flatten ( b_ent, kid, mat ) ;
 
-  for ( ssgEntity *kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
+  for ( kid = b_ent -> getKid ( 0 ) ; kid != NULL ;
 	           kid = b_ent -> getNextKid () )
     strip ( kid ) ;
 
