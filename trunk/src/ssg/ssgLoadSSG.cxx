@@ -5,57 +5,32 @@
 // used for reading only:
 int _ssgFileVersionNumber = 0 ;
 
-
-/*
-  Feb 6 2001:
-  Previously the spare field was used to determine whether a particular object 
-  had been saved already. When that was fine for the ssgEntities, it did not 
-  work for other kinds of objects because their spare fields were not cleared.
-  Therefore an external list is now used for the same purpose.
-  Some kind of hashing could be added to speed up saving if needed.
-  A corresponding list is built when the file is loaded back.
-*/
-
-// very simple list of ssgBase derived objects:
-struct _ssgBaseList 
+// simple list of ssgBase derived objects:
+class _ssgBaseList : public ssgSimpleList
 {
-  int num ;
-  int len ;
-  ssgBase **arr ;
+public:
 
-  _ssgBaseList() 
+  _ssgBaseList() : ssgSimpleList( sizeof(ssgBase *), 16 ) {}
+
+  ~_ssgBaseList() {}
+
+  ssgBase *get ( unsigned n )
   {
-    num = 0 ;
-    len = 16 ;
-    arr = (ssgBase **) malloc ( sizeof(ssgBase *) * len ) ;
+    return n < total ? ((ssgBase **) list) [ n ] : NULL;
   }
-
-  ~_ssgBaseList() 
+  
+  void add ( ssgBase *obj )
   {
-    free ( arr ) ;
-  }
-
-  ssgBase *get ( int index )
-  {
-    return index >= 0 && index < num ? arr[index] : NULL ;
+    sizeChk ( 1 ) ;
+    ((ssgBase **) list) [ total++ ] = obj ;
   }
 
   int find ( ssgBase *obj ) 
   {
-    for ( int i = 0 ; i < num ; i++ )
-      if ( arr[i] == obj )
+    for ( unsigned i = 0 ; i < total ; i++ )
+      if ( ((ssgBase **) list) [ i ] == obj )
 	return i ;
     return -1 ;
-  }
-
-  void add ( ssgBase *obj ) 
-  {
-    if ( num >= len ) 
-    {
-      len += len ;
-      arr = (ssgBase **) realloc ( arr, sizeof(ssgBase *) * len ) ;
-    }
-    arr[num++] = obj ;
   }
 
 };

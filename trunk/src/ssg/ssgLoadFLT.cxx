@@ -364,8 +364,9 @@ static struct snode *sinsert(struct snode *root, void *key, size_t size, sfunc c
    t = splay(root, key, comp);
    if (t != NULL && comp(t->key, key) == 0)
       return t;
-   x = (struct snode *)malloc(sizeof(struct snode));
-	 assert( x != NULL );
+   //x = (struct snode *)malloc(sizeof(struct snode));
+   x = new snode;
+   assert( x != NULL );
    if (t == NULL) {
       x->left = x->right = NULL;
    }
@@ -380,7 +381,8 @@ static struct snode *sinsert(struct snode *root, void *key, size_t size, sfunc c
       t->right = NULL;
    }
    if (size > 0) {
-      x->key = malloc(size);
+      //x->key = malloc(size);
+      x->key = new ubyte[size];
       memcpy(x->key, key, size);
    }
    else {
@@ -411,11 +413,13 @@ static void sfree(struct snode *x, int flags)
    if (x) {      
       sfree(x->left, flags);
       sfree(x->right, flags);
-      if ((flags & S_KEY)) 
-	 free(x->key);
+      if ((flags & S_KEY))
+	 //free(x->key);
+	 delete [] (ubyte *)x->key;
       if (x->data != (void *)-1 && x->data != 0) {
 	 if ((flags & S_DATA)) 
-	    free(x->data);
+	    //free(x->data);
+	    delete [] (ubyte *)x->data;
 	 if ((flags & S_TREE)) {
 	    deltree((ssgEntity *)x->data);
 	    ssgDeRefDelete((ssgEntity *)x->data);
@@ -426,7 +430,7 @@ static void sfree(struct snode *x, int flags)
 
 static int ptrcmp(const void *key1, const void *key2)
 {
-   return (int)key1 - (int)key2;
+   return (const char *)key1 - (const char *)key2;
 }
 
 
@@ -517,7 +521,8 @@ struct fltState {
       memset(this, 0, sizeof(*this));  
       notex_state = (ssgState *)-1;
       atris = 256;
-      tris = (fltTriangle *)malloc(sizeof(fltTriangle) * atris);
+      //tris = (fltTriangle *)malloc(sizeof(fltTriangle) * atris);
+      tris = new fltTriangle[atris];
    }
 
    ~fltState() {
@@ -532,7 +537,8 @@ struct fltState {
 	 delete [] normal;
 	 delete [] texcoord;
       }
-      free(tris);
+      //free(tris);
+      delete [] tris;
    }
 
    const char *filename;
@@ -569,7 +575,7 @@ struct fltNodeAttr {
 
    /* allocated using new/delete for convenience */
    fltNodeAttr() { memset(this, 0, sizeof(*this)); }
-   ~fltNodeAttr() { if (name) free(name); }
+   ~fltNodeAttr() { if (name) /*free(name);*/ delete name; }
 
    /* properies that are not applied immediately */
 
@@ -601,8 +607,9 @@ static fltTexture *LoadTex(char *fname)
 {
    TexCache = sinsert(TexCache, fname, strlen(fname) + 1, (sfunc)strcmp);
    if (TexCache->data == (void *)-1) {
-      fltTexture *tex = (fltTexture *)malloc(sizeof(fltTexture));
-			assert ( tex != NULL );
+      //fltTexture *tex = (fltTexture *)malloc(sizeof(fltTexture));
+      fltTexture *tex = new fltTexture;
+      assert ( tex != NULL );
       tex->file = fname;
 #ifdef NO_LOADER_OPTIONS
       tex->state = 0;
@@ -659,10 +666,10 @@ static int StateCompare(const void *key1, const void *key2)
       if (d == 0) {
 	 d = s1->cm - s2->cm;
 	 if (d == 0) {
-	    d = (int)s1->tex - (int)s2->tex;
+	    d = (char *)s1->tex - (char *)s2->tex;
 	    if (d == 0) {
 	       if (s1->mtl == 0 || s2->mtl == 0)
-		  d = (int)s1->mtl - (int)s2->mtl;
+		  d = (char *)s1->mtl - (char *)s2->mtl;
 	       else {
 		  int i = s1->cm ? 6 : 0;
 		  for (; i < 12 && d == 0; i++)
@@ -1088,7 +1095,11 @@ static void AddTri(fltState *state, int v0, int v1, int v2)
    fltTriangle *tri;
    if (state->ntris == state->atris) {
       state->atris += state->atris;
-      state->tris = (fltTriangle *)realloc(state->tris, sizeof(fltTriangle) * state->atris);
+      //state->tris = (fltTriangle *)realloc(state->tris, sizeof(fltTriangle) * state->atris);
+      fltTriangle *old = state->tris;
+      state->tris = new fltTriangle[state->atris];
+      memcpy(state->tris, old, sizeof(fltTriangle) * state->atris / 2);
+      delete [] old;
    }
    tri = state->tris + state->ntris++;
    memcpy(tri, state->temp, sizeof(fltTriangle));
@@ -1874,7 +1885,8 @@ static int AttrChunks(ubyte *ptr0, ubyte *end, fltNodeAttr **attrp)
 	 if (n > 0 && n < 256) {
 	    if (attr == 0) 
 	       attr = new fltNodeAttr;
-	    attr->name = (char *)malloc(n + 1);
+	    //attr->name = (char *)malloc(n + 1);
+	    attr->name = new char[n + 1];
 	    memcpy(attr->name, ptr + 4, n);
 	    attr->name[n] = 0;
 	 }
@@ -2328,8 +2340,9 @@ static int TableChunks(ubyte *ptr0, ubyte *end, fltState *state)
 	       index = get32i(ptr + len - 12);
 	       state->texs = sinsert(state->texs, (void *)index, 0, ptrcmp);
 	       if (state->texs->data == (void *)-1) {
-		  fltTexture *tex = (fltTexture *)malloc(sizeof(fltTexture));
-			assert ( tex != NULL );
+		  //fltTexture *tex = (fltTexture *)malloc(sizeof(fltTexture));
+		  fltTexture *tex = new fltTexture;
+		  assert ( tex != NULL );
 		  tex->file = file;
 		  tex->state = (ssgState *)-1;
 		  tex->tex = (ssgTexture *)-1;
@@ -2353,7 +2366,8 @@ static int TableChunks(ubyte *ptr0, ubyte *end, fltState *state)
             for (i = 0; i < n; ++i) {
 	       float *mtl;
 	       state->mtls = sinsert(state->mtls, (void *)i, 0, ptrcmp);
-	       state->mtls->data = malloc(sizeof(float)*14);
+	       //state->mtls->data = malloc(sizeof(float)*14);
+	       state->mtls->data = new float[14];
 	       mtl = (float *)state->mtls->data;
                get32v(p, mtl, 14);
 	       for (j = 0; j < 12; j++)
@@ -2391,7 +2405,8 @@ static int TableChunks(ubyte *ptr0, ubyte *end, fltState *state)
 	 if (state->mtls->data == (void *)-1) {
 	    float *mtl;
 	    int i;
-	    state->mtls->data = malloc(sizeof(float)*14);
+	    //state->mtls->data = malloc(sizeof(float)*14);
+	    state->mtls->data = new float[14];
 	    mtl = (float *)state->mtls->data;
 	    get32v(ptr + 24, mtl, 14);
 	    for (i = 0; i < 12; i++)
@@ -2671,7 +2686,8 @@ static ssgEntity *LoadFLT(const char *file)
 	    perror(file);
 	    break;
 	 }
-	 ptr = (ubyte *)malloc(size);
+	 //ptr = (ubyte *)malloc(size);
+	 ptr = new ubyte[size];
 	 lseek(fd, 0, SEEK_SET);
 	 if (read(fd, ptr, size) != size) {
 	    perror(file);
@@ -2712,7 +2728,8 @@ static ssgEntity *LoadFLT(const char *file)
 	 munmap((char *)ptr, size);
 #else
       if (ptr != 0 && ptr != buf)
-	 free(ptr);
+	 //free(ptr);
+	 delete [] ptr;
 #endif
 
 #endif /* ! USE_WIN32_MMAP */
