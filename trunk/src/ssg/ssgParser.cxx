@@ -388,7 +388,7 @@ int _ssgParser::parseUInt(unsigned int &retVal, const char* name )
 	long l = strtol( token, &endptr, 10);
 	if (l<0)
 		message("The field %s should contain an UNSIGNED integer number but contains %s",name, token) ;
-  retVal = unsigned int(l);
+  retVal = (unsigned int)(l);
 	if ( (endptr == NULL) || (*endptr == 0))
     return TRUE;
 	else

@@ -562,7 +562,7 @@ static int parse_mesh( aseObject* obj )
 			if (my_token[strlen(my_token)-1]==':')
 				my_token[strlen(my_token)-1]=0;
 
-			index = unsigned int(strtol( my_token, &my_endptr, 10));
+			index = (unsigned int)(strtol( my_token, &my_endptr, 10));
 			if ( (my_endptr != NULL) && (*my_endptr != 0))
 			{ parser.error("The field face # should contain an integer number but contains %s", my_token) ;
 				return FALSE;
