@@ -349,13 +349,20 @@ static int do_name ( char *s )
 static int do_data ( char *s )
 {
   int len = strtol ( s, NULL, 0 ) ;
-  char buffer [ len + 3 ] ;            /* data + \r + \n + \0 */
-  fgets ( buffer, len + 3, loader_fd ) ;
 
   current_data = new char [ len + 1 ] ;
 
-  strncpy ( current_data, buffer, len ) ;
+  for ( int i = 0 ; i < len ; i++ )
+    current_data [ i ] = getc ( loader_fd ) ;
+
   current_data [ len ] = '\0' ;
+
+  int c;
+  while ( ( c = getc( loader_fd ) ) != EOF )  /* Final RETURN */
+    if ( c != '\r' && c != '\n' ) {
+      ungetc ( c, loader_fd ) ;
+      break ;
+    }
 
   ssgBranch *br = current_options -> createBranch ( current_data ) ;
 
