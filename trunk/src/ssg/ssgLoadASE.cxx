@@ -149,8 +149,8 @@ static ssgSimpleState* get_state( aseMaterial* mat )
 {
   ssgSimpleState *st = new ssgSimpleState () ;
 
-  st -> setMaterial ( GL_AMBIENT, mat -> amb ) ;
-  st -> setMaterial ( GL_DIFFUSE, mat -> diff ) ;
+//  st -> setMaterial ( GL_AMBIENT, mat -> amb ) ;
+//  st -> setMaterial ( GL_DIFFUSE, mat -> diff ) ;
   st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
   st -> setShininess ( mat -> shine ) ;
 
@@ -160,7 +160,7 @@ static ssgSimpleState* get_state( aseMaterial* mat )
   st -> enable  ( GL_LIGHTING       ) ;
   st -> setShadeModel ( GL_SMOOTH ) ;
 
-  if ( mat -> transparency < 0.99f )
+  if ( mat -> transparency > 0.0f )
   {
     st -> disable ( GL_ALPHA_TEST ) ;
     st -> enable  ( GL_BLEND ) ;
@@ -688,6 +688,31 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
 
   delete[] vert_list ;
   delete[] map_index ;
+
+  if ( data -> st -> isEnabled ( GL_LIGHTING ) )
+  {
+    if ( data -> cl == NULL )
+    {
+      sgVec4 c ;
+      sgCopyVec3 ( c, mat -> diff ) ;
+      c[3] = 1.0f - mat -> transparency ;
+  
+      data -> cl = new ssgColourArray ( 1 ) ;
+      data -> cl -> add ( c ) ;
+    }
+  
+    if ( data -> vl -> getNum () >= 3 )
+    {
+      sgVec3 n ;
+      sgMakeNormal ( n,
+        data -> vl -> get(0),
+        data -> vl -> get(1),
+        data -> vl -> get(2) ) ;
+  
+      data -> nl = new ssgNormalArray ( 1 ) ;
+      data -> nl -> add ( n ) ;
+    }
+  }
 
   ssgLeaf* leaf = (*_ssgCreateFunc) ( data ) ;
   return leaf ;
