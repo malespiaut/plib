@@ -197,11 +197,16 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUARROW_FASTLEFT   6
 #define PUARROW_FASTRIGHT  7
 
-#define PUPLACE_DEFAULT  PUPLACE_RIGHT
-#define PUPLACE_ABOVE    0
-#define PUPLACE_BELOW    1
-#define PUPLACE_LEFT     2
-#define PUPLACE_RIGHT    3
+#define PUPLACE_DEFAULT         PUPLACE_RIGHT
+#define PUPLACE_ABOVE           0
+#define PUPLACE_BELOW           1
+#define PUPLACE_LEFT            2
+#define PUPLACE_RIGHT           3
+#define PUPLACE_CENTERED        4
+#define PUPLACE_TOP_CENTER      5
+#define PUPLACE_BOTTOM_CENTER   6
+#define PUPLACE_LEFT_CENTER     7
+#define PUPLACE_RIGHT_CENTER    8
 
 #define PUCOL_FOREGROUND 0
 #define PUCOL_BACKGROUND 1
@@ -480,7 +485,7 @@ protected:
   int window ;        /* Which window does the object appear in? */
 
   const char *label  ; puFont  labelFont ; int labelPlace ;
-  const char *legend ; puFont legendFont ;
+  const char *legend ; puFont legendFont ; int legendPlace ;
 
   void *user_data ;
   puCallback cb ;
@@ -601,6 +606,9 @@ public:
 
   void  setLegendFont ( puFont f ) { legendFont = f ; recalc_bbox() ; puRefresh = TRUE ; }
   puFont getLegendFont ( void ) { return legendFont ; }
+
+  void  setLegendPlace ( int lp ) { legendPlace = lp ; recalc_bbox() ; puRefresh = TRUE ; }
+  int   getLegendPlace ( void ) { return legendPlace ; }
 
   void  setLabel ( const char *l ) { label = l ; recalc_bbox() ; puRefresh = TRUE ; }
   const char *getLabel ( void ) const { return label ; }
@@ -1154,8 +1162,10 @@ protected:
 
 public:
 
-  puFilePicker ( int x, int y, int arrows, const char* dir, const char *title = "Pick a file" ) ;
   puFilePicker ( int x, int y, int w, int h, int arrows, const char *dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, int w, int h,const char *dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, int arrows, const char* dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, const char* dir, const char *title = "Pick a file" ) ;
   ~puFilePicker () ;
 
   void setSize ( int w, int h ) ;

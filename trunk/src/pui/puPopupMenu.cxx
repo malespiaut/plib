@@ -14,6 +14,7 @@ puObject *puPopupMenu::add_item ( const char *str, puCallback cb )
 		       colour[PUCOL_FOREGROUND][2],
 		       colour[PUCOL_FOREGROUND][3] ) ;
   b->setCallback     ( cb ) ;
+  b->setLegendPlace  ( PUPLACE_LEFT ) ;
   recalc_bbox () ;
   return b ;
 }
