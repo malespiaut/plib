@@ -324,7 +324,7 @@ void  puDisplay ( int window_number )  /* Deprecated */
 
 int puKeyboard ( int key, int updown, int, int )
 {
-  puKeyboard ( key, updown ) ;
+  return puKeyboard ( key, updown ) ;
 }
 
 
