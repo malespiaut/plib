@@ -28,7 +28,7 @@ ssgCutout::~ssgCutout ()
 
 void ssgCutout::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {
-  if ( ( getTraversalMask () & SSGTRAV_CULL ) == 0 )
+  if ( ! preTravTests ( &test_needed, SSGTRAV_CULL ) )
     return ;
 
   sgMat4 tmp ;
@@ -99,6 +99,8 @@ void ssgCutout::cull ( sgFrustum *f, sgMat4 m, int test_needed )
   glPopMatrix () ;
 
   _ssgPopMatrix  () ;
+
+  postTravTests ( SSGTRAV_CULL ) ; 
 }
 
 

@@ -16,6 +16,9 @@ ssgEntity::ssgEntity (void)
   traversal_mask = 0xFFFFFFFF ;
   type |= SSG_TYPE_ENTITY ;
   bsphere_is_invalid = TRUE ;
+
+  preTravCB = NULL ;
+  postTravCB = NULL ;
 }
 
 
@@ -114,11 +117,32 @@ ssgEntity* ssgEntity::getByPath ( char *path )
 }
   
 
+int ssgEntity::preTravTests ( int *test_needed, int which )
+{
+  if ( (getTraversalMask() & which) == 0 )
+    return FALSE ;
+
+  if ( preTravCB != NULL )
+  {
+    int result = (*preTravCB)(this,which) ;
+    
+    if ( result == 0 ) return FALSE ;
+    if ( result == 2 ) *test_needed = 0 ;
+  }
+  
+  return TRUE ;
+}
+
+
+void ssgEntity::postTravTests ( int which )
+{
+  if ( postTravCB != NULL )
+    (*postTravCB)(this,which) ;
+}
+
+
 ssgCullResult ssgEntity::cull_test ( sgFrustum *f, sgMat4 m, int test_needed )
 {
-  if ( (getTraversalMask() & SSGTRAV_CULL) == 0 )
-    return SSG_OUTSIDE ;
-
   if ( ! test_needed )
     return SSG_INSIDE ;
 
@@ -139,9 +163,6 @@ ssgCullResult ssgEntity::cull_test ( sgFrustum *f, sgMat4 m, int test_needed )
 
 ssgCullResult ssgEntity::isect_test ( sgSphere *s, sgMat4 m, int test_needed )
 {
-  if ( (getTraversalMask() & SSGTRAV_ISECT) == 0 )
-    return SSG_OUTSIDE ;
-
   if ( ! test_needed )
     return SSG_INSIDE ;
 
@@ -225,12 +246,6 @@ stats_hot_triv_accept++ ;
     return SSG_INSIDE ;
 }
    
-  if ((getTraversalMask() & SSGTRAV_HOT) == 0 )
-{
-stats_hot_no_trav++ ;
-    return SSG_OUTSIDE ;
-}
-
   sgSphere tmp = *(getBSphere()) ;
 
   if ( tmp.isEmpty () )

@@ -35,14 +35,8 @@ ssgSelector::~ssgSelector (void)
 
 void ssgSelector::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {
-  if ( preTravCB != NULL )
-  {
-    int result = (*preTravCB)(this,SSGTRAV_CULL) ;
-    if ( !result )
-      return ;
-    if ( result == 2 )
-      test_needed = 0 ;
-  }
+  if ( ! preTravTests ( &test_needed, SSGTRAV_CULL ) )
+    return ;
 
   int cull_result = cull_test ( f, m, test_needed ) ;
 
@@ -55,12 +49,14 @@ void ssgSelector::cull ( sgFrustum *f, sgMat4 m, int test_needed )
     if ( selection [s] )
       e -> cull ( f, m, cull_result != SSG_INSIDE ) ;
 
-  if ( postTravCB != NULL )
-    (*postTravCB)(this,SSGTRAV_CULL) ;
+  postTravTests ( SSGTRAV_CULL ) ; 
 }
 
 void ssgSelector::hot ( sgVec3 sp, sgMat4 m, int test_needed )
 {
+  if ( ! preTravTests ( &test_needed, SSGTRAV_HOT ) )
+    return ;
+
   int hot_result = hot_test ( sp, m, test_needed ) ;
 
   if ( hot_result == SSG_OUTSIDE )
@@ -75,11 +71,16 @@ void ssgSelector::hot ( sgVec3 sp, sgMat4 m, int test_needed )
       e -> hot ( sp, m, hot_result != SSG_INSIDE ) ;
 
   _ssgPopPath () ;
+
+  postTravTests ( SSGTRAV_HOT ) ; 
 }
 
 
 void ssgSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 {
+  if ( ! preTravTests ( &test_needed, SSGTRAV_ISECT ) )
+    return ;
+
   int isect_result = isect_test ( sp, m, test_needed ) ;
 
   if ( isect_result == SSG_OUTSIDE )
@@ -94,6 +95,8 @@ void ssgSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
       e -> isect ( sp, m, isect_result != SSG_INSIDE ) ;
 
   _ssgPopPath () ;
+
+  postTravTests ( SSGTRAV_ISECT ) ; 
 }
 
 

@@ -761,11 +761,17 @@ struct ssgEntityBinding
 } ;
 
 
+typedef int (*ssgTravCallback)( ssgEntity *entity, int traversal_mask ) ;
+#define SSG_CALLBACK_PRETRAV   1
+#define SSG_CALLBACK_POSTTRAV  2
+
 class ssgEntity : public ssgBase
 {
   ssgList parents ;
 
   int traversal_mask ;
+  ssgTravCallback  preTravCB ;
+  ssgTravCallback postTravCB ;
 
 protected:
   sgSphere bsphere ;
@@ -791,6 +797,22 @@ public:
   void setTraversalMask     ( int t ) { traversal_mask  =  t ; }
   void setTraversalMaskBits ( int t ) { traversal_mask |=  t ; }
   void clrTraversalMaskBits ( int t ) { traversal_mask &= ~t ; }
+
+  ssgTravCallback getCallback ( int cb_type )
+  {
+    return ( cb_type == SSG_CALLBACK_PRETRAV ) ? preTravCB : postTravCB ;
+  }
+
+  void setCallback ( int cb_type, ssgTravCallback cb )
+  {
+    if ( cb_type == SSG_CALLBACK_PRETRAV )
+      preTravCB = cb ;
+    else
+      postTravCB = cb ;
+  }
+
+  int preTravTests ( int *test_needed, int which ) ;
+  void postTravTests ( int which ) ;
 
   virtual ssgEntity* getByName  ( char *nm ) ;
   virtual ssgEntity* getByPath  ( char *path ) ;
@@ -1156,18 +1178,11 @@ public:
 // class ssgVtxInterleavedArray
 
 
-typedef int (*ssgTravCallback)( ssgBranch *branch, int traversal_mask ) ;
-#define SSG_CALLBACK_PRETRAV   1
-#define SSG_CALLBACK_POSTTRAV  2
-
 class ssgBranch : public ssgEntity
 {
   ssgKidList kids ;
 
 protected:
-  ssgTravCallback  preTravCB ;
-  ssgTravCallback postTravCB ;
-
   virtual void copy_from ( ssgBranch *src, int clone_flags ) ;
 
 public:
@@ -1187,19 +1202,6 @@ public:
   void removeKid     ( int n ) ;
   void removeKid     ( ssgEntity *entity ) ;
   void removeAllKids (void) ;
-
-  ssgTravCallback getCallback ( int cb_type )
-  {
-    return ( cb_type == SSG_CALLBACK_PRETRAV ) ? preTravCB : postTravCB ;
-  }
-
-  void setCallback ( int cb_type, ssgTravCallback cb )
-  {
-    if ( cb_type == SSG_CALLBACK_PRETRAV )
-      preTravCB = cb ;
-    else
-      postTravCB = cb ;
-  }
 
   virtual ssgEntity *getByName ( char *match ) ;
   virtual ssgEntity *getByPath ( char *path  ) ;

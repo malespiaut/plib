@@ -28,9 +28,6 @@ ssgBase *ssgBranch::clone ( int clone_flags )
 ssgBranch::ssgBranch (void)
 {
   type |= SSG_TYPE_BRANCH ;
-
-  preTravCB = NULL ;
-  postTravCB = NULL ;
 }
 
 
@@ -202,14 +199,8 @@ ssgEntity *ssgBranch::getByPath ( char *path )
 
 void ssgBranch::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {
-  if ( preTravCB != NULL )
-  {
-    int result = (*preTravCB)(this,SSGTRAV_CULL) ;
-    if ( !result )
-      return ;
-    if ( result == 2 )
-      test_needed = 0 ;
-  }
+  if ( ! preTravTests ( &test_needed, SSGTRAV_CULL ) )
+    return ;
 
   int cull_result = cull_test ( f, m, test_needed ) ;
 
@@ -219,14 +210,16 @@ void ssgBranch::cull ( sgFrustum *f, sgMat4 m, int test_needed )
   for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid() )
     e -> cull ( f, m, cull_result != SSG_INSIDE ) ;
 
-  if ( postTravCB != NULL )
-    (*postTravCB)(this,SSGTRAV_CULL) ;
+  postTravTests ( SSGTRAV_CULL ) ; 
 }
 
 
 
 void ssgBranch::hot ( sgVec3 s, sgMat4 m, int test_needed )
 {
+  if ( ! preTravTests ( &test_needed, SSGTRAV_HOT ) )
+    return ;
+
   int hot_result = hot_test ( s, m, test_needed ) ;
 
   if ( hot_result == SSG_OUTSIDE )
@@ -238,12 +231,17 @@ void ssgBranch::hot ( sgVec3 s, sgMat4 m, int test_needed )
     e -> hot ( s, m, hot_result != SSG_INSIDE ) ;
 
   _ssgPopPath () ;
+
+  postTravTests ( SSGTRAV_HOT ) ; 
 }
 
 
 
 void ssgBranch::isect ( sgSphere *s, sgMat4 m, int test_needed )
 {
+  if ( ! preTravTests ( &test_needed, SSGTRAV_ISECT ) )
+    return ;
+
   int isect_result = isect_test ( s, m, test_needed ) ;
 
   if ( isect_result == SSG_OUTSIDE )
@@ -255,6 +253,8 @@ void ssgBranch::isect ( sgSphere *s, sgMat4 m, int test_needed )
     e -> isect ( s, m, isect_result != SSG_INSIDE ) ;
 
   _ssgPopPath () ;
+
+  postTravTests ( SSGTRAV_ISECT ) ; 
 }
 
 
