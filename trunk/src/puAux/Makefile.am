@@ -16,7 +16,8 @@ libplibpuaux_a_SOURCES = puAux.cxx                  \
                          puAuxSliderWithInput.cxx   \
                          puAuxSpinBox.cxx           \
                          puAuxTriSlider.cxx         \
-                         puAuxVerticalMenu.cxx
+                         puAuxVerticalMenu.cxx      \
+                         puAuxChooser.cxx
 
 INCLUDES = -I$(top_srcdir)/src/sg  \
            -I$(top_srcdir)/src/pui \

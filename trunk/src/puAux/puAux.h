@@ -41,6 +41,7 @@
 #define PUCLASS_BISLIDERWITHENDS    0x02000000
 #define PUCLASS_SLIDERWITHINPUT     0x04000000
 #define PUCLASS_COMPASS             0x08000000
+#define PUCLASS_CHOOSER             0x10000000
 
 
 // Widget Declarations
@@ -56,6 +57,7 @@ class puaScrollBar        ;
 class puaBiSliderWithEnds ;
 class puaCompass          ;
 class puaSliderWithInput  ;
+class puaChooser          ;
 
 
 // A File selector widget
@@ -743,7 +745,11 @@ public :
   {
     setValue ( PUACOMPASS_INACTIVE ) ;
 
-    sgSetQuat ( rotation, 1.0f, 0.0f, 0.0f, 0.0f ) ;
+//    sgSetQuat ( rotation, 1.0f, 0.0f, 0.0f, 0.0f ) ;
+//    sgSetQuat ( rotation, 0.707107f, 0.707107f, 0.0f, 0.0f ) ;
+//    sgSetQuat ( rotation, 0.5f, -0.5f, 0.5f, 0.5f ) ;
+//    sgSetQuat ( rotation, 0.866025f, -0.166667f, 0.166667f, 0.166667f ) ;
+    sgSetQuat ( rotation, 0.866025f, -0.408248f, 0.288675f, 0.0f ) ;
     sgSetVec3 ( translation, 0.0f, 0.0f, 0.0f ) ;
 
     point_size = 10.0f ;
@@ -764,9 +770,20 @@ public :
   // Accessors and mutators
   void getRotation ( sgQuat q ) const  {  memcpy ( q, rotation, 4 * sizeof(sgFloat) ) ;  }
   void setRotation ( sgQuat q )  {  memcpy ( rotation, q, 4 * sizeof(sgFloat) ) ;  }
+  void setRotation ( sgFloat t, sgFloat x, sgFloat y, sgFloat z )
+  {
+    sgFloat sinth = sgSin ( t / 2.0f ) ;
+    sgFloat norm = sgSqrt ( x * x + y * y + z * z ) ;
+    if ( norm == 0.0 ) norm = 1.0 ;
+    rotation[SG_W] = sgCos ( t / 2.0f ) ;
+    rotation[SG_X] = sinth * x / norm ;
+    rotation[SG_Y] = sinth * y / norm ;
+    rotation[SG_Z] = sinth * z / norm ;
+  }
 
   void getTranslation ( sgVec3 t ) const  {  memcpy ( t, translation, 3 * sizeof(sgFloat) ) ;  }
   void setTranslation ( sgVec3 t )  {  memcpy ( translation, t, 3 * sizeof(sgFloat) ) ;  }
+  void setTranslation ( sgFloat x, sgFloat y, sgFloat z )  {  translation[SG_X] = x ;  translation[SG_Y] = y ;  translation[SG_Z] = z ;  }
 
   float getPointSize () const  {  return point_size ;  }
   void setPointSize ( float p )  {  point_size = p ;  }
@@ -776,6 +793,42 @@ public :
 
   float getTranslationSensitivity () const  {  return translation_sensitivity ;  }
   void setTranslationSensitivity ( float t )  {  translation_sensitivity = t ;  }
+} ;
+
+
+class puaChooser
+{
+  UL_TYPE_DATA
+
+  puButton    *chooser_button ;
+  puPopupMenu *popup_menu ;
+
+  int x1, y1, x2, y2 ;
+
+  static void static_popup_cb ( puObject * ) ;
+  static void static_menu_cb  ( puObject * ) ;
+
+public:
+
+  ~puaChooser ()
+  {
+    delete chooser_button ;
+    delete popup_menu     ;
+  }
+
+  puaChooser ( int _x1, int _y1, int _x2, int _y2, char *legend ) ;
+
+  void add_item ( char *str, puCallback _cb, void *_user_data = NULL ) ;
+  void close () ;
+
+  void popup_cb () ;
+
+  void menuCleanup  ( const char *s ) ;
+
+  void hide   () { chooser_button -> hide   () ; popup_menu -> hide   () ; }
+  void reveal () { chooser_button -> reveal () ; popup_menu -> hide   () ; }
+
+  static void menuCleanup  ( puObject * ) ;
 } ;
 
 
