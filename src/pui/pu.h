@@ -483,7 +483,7 @@ public:
                                      is correctly terminated. */
                                   int s_len = strlen ( s ) ;
 
-                                  if ( s_len > PUSTRING_MAX )
+                                  if ( s_len >= PUSTRING_MAX )
                                     s_len = PUSTRING_MAX - 1 ;
 
                                   memcpy ( string, s, s_len ) ;
