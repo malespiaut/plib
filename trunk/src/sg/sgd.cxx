@@ -1081,18 +1081,18 @@ void sgdMultQuat2 ( sgdQuat dst, const sgdQuat a, const sgdQuat b )
 //from gamasutra.com
 //by nb@netcom.ca 
 
-void sgdEulerToQuat(sgdQuat quat, sgdVec3 ypr )
+void sgdEulerToQuat(sgdQuat quat, sgdVec3 hpr )
 {
   SGDfloat cr, cp, cy, sr, sp, sy, cpcy, spsy;
 
 // calculate trig identities
-  cr = (SGDfloat) cos(ypr[2]/SGD_TWO);
-  cp = (SGDfloat) cos(ypr[1]/SGD_TWO);
-  cy = (SGDfloat) cos(ypr[0]/SGD_TWO);
+  cr = (SGDfloat) cos(hpr[2]*SGD_DEGREES_TO_RADIANS/SGD_TWO);
+  cp = (SGDfloat) cos(hpr[1]*SGD_DEGREES_TO_RADIANS/SGD_TWO);
+  cy = (SGDfloat) cos(hpr[0]*SGD_DEGREES_TO_RADIANS/SGD_TWO);
 
-  sr = (SGDfloat) sin(ypr[2]/SGD_TWO);
-  sp = (SGDfloat) sin(ypr[1]/SGD_TWO);
-  sy = (SGDfloat) sin(ypr[0]/SGD_TWO);
+  sr = (SGDfloat) sin(hpr[2]*SGD_DEGREES_TO_RADIANS/SGD_TWO);
+  sp = (SGDfloat) sin(hpr[1]*SGD_DEGREES_TO_RADIANS/SGD_TWO);
+  sy = (SGDfloat) sin(hpr[0]*SGD_DEGREES_TO_RADIANS/SGD_TWO);
   
   cpcy = cp * cy;
   spsy = sp * sy;
@@ -1106,7 +1106,7 @@ void sgdEulerToQuat(sgdQuat quat, sgdVec3 ypr )
 //from darwin3d.com
 // jeffl@darwin3d.com
 
-void sgdQuatToEuler( sgdVec3 euler, const sgdQuat quat )
+void sgdQuatToEuler( sgdVec3 hpr, const sgdQuat quat )
 {
   SGDfloat matrix[3][3];
   SGDfloat cx,sx;
@@ -1136,7 +1136,7 @@ void sgdQuatToEuler( sgdVec3 euler, const sgdQuat quat )
   sy = -matrix[2][0];
   cy = sqrt(SGD_ONE - (sy * sy));
   yr = (SGDfloat)atan2(sy,cy);
-  euler[1] = yr * SGD_RADIANS_TO_DEGREES ;
+  hpr[1] = yr * SGD_RADIANS_TO_DEGREES ;
 
   // AVOID DIVIDE BY ZERO ERROR ONLY WHERE Y= +-90 or +-270 
   // NOT CHECKING cy BECAUSE OF PRECISION ERRORS
@@ -1144,11 +1144,11 @@ void sgdQuatToEuler( sgdVec3 euler, const sgdQuat quat )
   {
     cx = matrix[2][2] / cy;
     sx = matrix[2][1] / cy;
-    euler[0] = ((SGDfloat)atan2(sx,cx)) * SGD_RADIANS_TO_DEGREES ;
+    hpr[0] = ((SGDfloat)atan2(sx,cx)) * SGD_RADIANS_TO_DEGREES ;
 
     cz = matrix[0][0] / cy;
     sz = matrix[1][0] / cy;
-    euler[2] = ((SGDfloat)atan2(sz,cz)) * SGD_RADIANS_TO_DEGREES ;
+    hpr[2] = ((SGDfloat)atan2(sz,cz)) * SGD_RADIANS_TO_DEGREES ;
   }
   else
   {
@@ -1163,11 +1163,11 @@ void sgdQuatToEuler( sgdVec3 euler, const sgdQuat quat )
 
     cx =  matrix[1][1];
     sx = -matrix[1][2];
-    euler[0] = ((SGDfloat)atan2(sx,cx)) * SGD_RADIANS_TO_DEGREES ;
+    hpr[0] = ((SGDfloat)atan2(sx,cx)) * SGD_RADIANS_TO_DEGREES ;
 
     cz = SGD_ONE ;
     sz = SGD_ZERO ;
-    euler[2] = ((SGDfloat)atan2(sz,cz)) * SGD_RADIANS_TO_DEGREES ;
+    hpr[2] = ((SGDfloat)atan2(sz,cz)) * SGD_RADIANS_TO_DEGREES ;
   }
 }
 
@@ -1196,6 +1196,11 @@ void sgdQuatToMatrix ( sgdMat4 dst, sgdQuat q )
 
 //from gamasutra.com
 //by nb@netcom.ca 
+
+/************************************
+ DEPRECATED - use sgdQuatToMatrix instead.
+*************************************/
+
 void sgdMakeRotMat42( sgdMat4 m, sgdQuat quat ){
   SGDfloat wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
 

@@ -1072,7 +1072,7 @@ void sgQuatToMatrix ( sgMat4 m, sgQuat quat ) ;
 
 /* Convert a set of eulers to/from a quat */
 
-void sgQuatToEuler( SGfloat h, SGfloat p, SGfloat r, sgQuat quat ) ;
+void sgQuatToEuler( sgVec3 hpr, const sgQuat quat ) ;
 void sgEulerToQuat( sgQuat quat, const sgVec3 hpr ) ;
 
 inline void sgEulerToQuat( sgQuat dst,
@@ -2247,8 +2247,8 @@ void sgdQuatToMatrix ( sgdMat4 m, sgdQuat quat ) ;
 
 /* Convert a set of eulers to/from a quat */
 
-void sgdQuatToEuler( SGDfloat h, SGDfloat p, SGDfloat r, sgdQuat quat ) ;
-void sgdEulerToQuat( sgdQuat quat, sgdVec3 hpr ) ;
+void sgdQuatToEuler( sgdVec3 hpr, const sgdQuat quat ) ;
+void sgdEulerToQuat( sgdQuat quat, const sgdVec3 hpr ) ;
 
 inline void sgdEulerToQuat( sgdQuat dst,
                             SGDfloat h, SGDfloat p, SGDfloat r )

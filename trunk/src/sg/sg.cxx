@@ -1215,7 +1215,7 @@ void sgEulerToQuat(sgQuat quat, const sgVec3 hpr )
 //from darwin3d.com
 // jeffl@darwin3d.com
 
-void sgQuatToEuler( sgVec3 euler, const sgQuat quat )
+void sgQuatToEuler( sgVec3 hpr, const sgQuat quat )
 {
   SGfloat matrix[3][3];
   SGfloat cx,sx;
@@ -1245,7 +1245,7 @@ void sgQuatToEuler( sgVec3 euler, const sgQuat quat )
   sy = -matrix[2][0];
   cy = (SGfloat)sqrt(SG_ONE - (sy * sy));
   yr = (SGfloat)atan2(sy,cy);
-  euler[1] = yr * SG_RADIANS_TO_DEGREES ;
+  hpr[1] = yr * SG_RADIANS_TO_DEGREES ;
 
   // AVOID DIVIDE BY ZERO ERROR ONLY WHERE Y= +-90 or +-270 
   // NOT CHECKING cy BECAUSE OF PRECISION ERRORS
@@ -1253,11 +1253,11 @@ void sgQuatToEuler( sgVec3 euler, const sgQuat quat )
   {
     cx = matrix[2][2] / cy;
     sx = matrix[2][1] / cy;
-    euler[0] = ((SGfloat)atan2(sx,cx)) * SG_RADIANS_TO_DEGREES ;
+    hpr[0] = ((SGfloat)atan2(sx,cx)) * SG_RADIANS_TO_DEGREES ;
 
     cz = matrix[0][0] / cy;
     sz = matrix[1][0] / cy;
-    euler[2] = ((SGfloat)atan2(sz,cz)) * SG_RADIANS_TO_DEGREES ;
+    hpr[2] = ((SGfloat)atan2(sz,cz)) * SG_RADIANS_TO_DEGREES ;
   }
   else
   {
@@ -1272,11 +1272,11 @@ void sgQuatToEuler( sgVec3 euler, const sgQuat quat )
 
     cx =  matrix[1][1];
     sx = -matrix[1][2];
-    euler[0] = ((SGfloat)atan2(sx,cx)) * SG_RADIANS_TO_DEGREES ;
+    hpr[0] = ((SGfloat)atan2(sx,cx)) * SG_RADIANS_TO_DEGREES ;
 
     cz = SG_ONE ;
     sz = SG_ZERO ;
-    euler[2] = ((SGfloat)atan2(sz,cz)) * SG_RADIANS_TO_DEGREES ;
+    hpr[2] = ((SGfloat)atan2(sz,cz)) * SG_RADIANS_TO_DEGREES ;
   }
 }
 
