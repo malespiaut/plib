@@ -38,12 +38,12 @@ netMessageChannel::handleBufferRead (netBuffer& in_buffer)
       in_buffer.remove(0,msg_len);
       handleMessage ( msg );
 
-      //fprintf ( stderr, "netMessageChannel: %d read\n", msg_len ) ;
+      //ulSetError ( UL_DEBUG, "netMessageChannel: %d read", msg_len ) ;
       n -= msg_len ;
     }
     else
     {
-      //fprintf ( stderr, "netMessageChannel: %d waiting\n", n ) ;
+      //ulSetError ( UL_DEBUG, "netMessageChannel: %d waiting", n ) ;
       break ;
     }
   }

@@ -72,7 +72,7 @@ public:
 		bind ("", port);
 		listen (1);
 
-    printf("Monitor \"%s\" started on port %d\n",name,port);
+    ulSetError(UL_DEBUG, "Monitor \"%s\" started on port %d",name,port);
   }
 
   ~netMonitorServer()
