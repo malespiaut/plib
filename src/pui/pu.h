@@ -327,11 +327,7 @@ struct puBox
 #define PUSTRING_MAX 80
 
 /* With many memory managers, allocating powers of two is more efficient */
-// wk: This was 64. But in the viewer example, compiled as debug build with MSVC
-// when you choose a file with a path/file name length more than 64, there will be
-// a crash. Obviously, the right thing to do would be to find the real cause
-// for this and fix it, but I could not find it and we need to release...
-#define PUSTRING_INITIAL 128
+#define PUSTRING_INITIAL 64
 
 extern puColour _puDefaultColourTable[] ;
 
@@ -577,7 +573,6 @@ protected:
   int am_default  ;
   int window ;        /* Which window does the object appear in? */
   int v_status ;      /* 1 if the Object should lock in the top left corner, 0 if not */
-  bool isSubWidget;   /* TRUE if the Object is a child of another object but does not inherit from puGroup (SpinBoxes' puInput) */
 
   const char *label  ; puFont  labelFont ; int labelPlace ;
   const char *legend ; puFont legendFont ; int legendPlace ;
@@ -738,9 +733,6 @@ public:
   void reveal     ( void ) { if ( ! visible ) { visible = TRUE  ; puPostRefresh () ; } }
   void hide       ( void ) { if (   visible ) { visible = FALSE ; puPostRefresh () ; } }
   int  isVisible  ( void ) const { return visible ; }
-
-  bool IsItSubWidget( void ) { return isSubWidget ; }
-  void ItIsSubWidget( void ) { isSubWidget = TRUE ; }
 
   void setStyle ( int which )
   {
@@ -1661,12 +1653,12 @@ public :
     input_box->setCallback(puSpinBox_handle_input) ;
     input_box->setDownCallback(puSpinBox_handle_input) ;
     input_box->setUserData(this) ;
-    input_box->ItIsSubWidget() ;
+    parent->remove ( input_box ) ;
   }
 
   ~puSpinBox ()
   {
-    puDeleteObject ( (puObject *)input_box ) ;  // THIS MAY NEED TO CHANGE !!!
+    puDeleteObject ( (puObject *)input_box ) ;
   }
 
   void setValue ( float f ) { puValue::setValue ( f ) ;  input_box->setValue ( f ) ; }
@@ -1858,7 +1850,7 @@ public:
 
 
 
-class puLargeInput : public puInput
+class puLargeInput : public puGroup
 {
   UL_TYPE_DATA
 
@@ -1868,6 +1860,13 @@ protected:
   int top_line_in_window ;     // Number of the first line in the window
   float max_width ;            // Width of longest line of text in box, in pixels
   int slider_width ;
+  int accepting ;
+  int cursor_position ;
+  int select_start_position ;
+  int select_end_position ;
+  char *valid_data ;
+
+  puFrame *frame ;
 
   puSlider *bottom_slider ;    // Horizontal slider at bottom of window
   puScrollBar *right_slider ;     // Vertical slider at right of window
@@ -1875,6 +1874,8 @@ protected:
   char *wrapped_text ;         // Pointer to word-wrapped text in the box
 
   int arrow_count ;          // Number of up/down arrows above and below the right slider
+
+  int input_disabled ;
 
   void normalize_cursors ( void ) ;
   void removeSelectRegion ( void ) ;
@@ -1889,7 +1890,7 @@ public:
 
   int getNumLines ( void ) const {  return num_lines ;  }
   int getLinesInWindow ( void ) const { return lines_in_window ; }
-  void setTopLineInWindow ( int val ) {  top_line_in_window = val ;  }
+  void setTopLineInWindow ( int val ) {  top_line_in_window = (val<0) ? 0 : ( (val>num_lines-2) ? num_lines-2 : val ) ;  }
 
   void draw     ( int dx, int dy ) ;
   int  checkHit ( int button, int updown, int x, int y ) ;
@@ -1917,6 +1918,38 @@ public:
   {
     if ( s ) *s = select_start_position ;
     if ( e ) *e = select_end_position   ;
+  }
+
+  char *getValidData ( void ) const { return valid_data ; }
+  void setValidData ( const char *data )
+  {
+    delete [] valid_data ;
+
+    if ( data != NULL )
+      valid_data = ulStrDup ( data ) ;
+    else
+      valid_data = NULL ;
+  }
+
+  void addValidData ( const char *data )
+  {
+    int new_data_len = 1 ;
+    if ( valid_data ) new_data_len += strlen ( valid_data ) ;
+    if ( data )       new_data_len += strlen ( data ) ;
+    char *new_data = new char [ new_data_len ] ;
+    strcpy ( new_data, "\0" ) ;
+    if ( valid_data ) strcat ( new_data, valid_data ) ;
+    if ( data )       strcat ( new_data, data ) ;
+    delete [] valid_data ;
+    valid_data = new_data ;
+  }
+
+  int isValidCharacter ( char c ) const
+  {
+    if ( valid_data != NULL )
+      return ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ;
+    else
+      return 1 ;
   }
 
   void invokeDownCallback ( void )

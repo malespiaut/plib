@@ -24,7 +24,7 @@
 
 #include "puLocal.h"
 
-UL_RTTI_DEF1(puLargeInput,puInput)
+UL_RTTI_DEF1(puLargeInput,puGroup)
 
 
 // Callbacks from the internal widgets
@@ -34,24 +34,37 @@ static void puLargeInputHandleRightSlider ( puObject * slider )
   float val = ((puRange *)slider)->getMaxValue () - slider->getFloatValue () ;
 
   puLargeInput* text = (puLargeInput*) slider->getUserData () ;
-  int lines_in_window = text->getLinesInWindow () ; 
+  //int lines_in_window = text->getLinesInWindow () ; 
   int num_lines = text->getNumLines () ;
 
   if ( num_lines > 0 )
-  {
-    int idx = int ( val + 0.5 ) ;
-    if ( idx > ( num_lines - lines_in_window + 2 ) ) idx = num_lines - lines_in_window + 2 ;
-    if ( idx < 0 ) idx = 0 ;
-
-    text->setTopLineInWindow ( idx ) ;
-  }
+    text->setTopLineInWindow ( int ( val + 0.5 ) ) ;
 }
 
 // Private function from the widget itself
 
 void puLargeInput::normalize_cursors ( void )
 {
-  puInput::normalize_cursors () ;
+  char *val = getStringValue () ;
+  int sl = strlen ( val ) ;
+
+  // Clamp the positions to the limits of the text.
+
+  if ( cursor_position       <  0 ) cursor_position       =  0 ;
+  if ( select_start_position <  0 ) select_start_position =  0 ;
+  if ( select_end_position   <  0 ) select_end_position   =  0 ;
+  if ( cursor_position       > sl ) cursor_position       = sl ;
+  if ( select_start_position > sl ) select_start_position = sl ;
+  if ( select_end_position   > sl ) select_end_position   = sl ;
+
+  // Swap the ends of the select window if they get crossed over
+
+  if ( select_end_position < select_start_position )
+  {
+    int tmp = select_end_position ;     
+    select_end_position = select_start_position ;     
+    select_start_position = tmp ;
+  }
 
   // Set the top line in the window so that the last line is at the bottom of the window
 
@@ -63,7 +76,16 @@ void puLargeInput::normalize_cursors ( void )
 
 void puLargeInput::removeSelectRegion ( void )
 {
-  puInput::removeSelectRegion () ;
+  char *text = getStringValue () ;
+  char *p = new char [ strlen ( text ) + 1 -
+                           ( select_end_position - select_start_position ) ] ;
+  strncpy ( p, text, select_start_position ) ;
+  p [ select_start_position ] = '\0' ;
+  strcat ( p, (text + select_end_position ) ) ;
+  setValue ( p ) ;
+  delete [] p ;
+
+  cursor_position = select_end_position = select_start_position ;
 
   wrapText () ;
 }
@@ -72,7 +94,7 @@ void puLargeInput::removeSelectRegion ( void )
 // Public functions from the widget itself
 
 puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text ) :
-puInput( x, y + (wrap_text?0:sl_width), x + w - sl_width, y + h )
+    puGroup( x, y )
 {
   setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; // Colour of the 'I' bar cursor
 
@@ -94,18 +116,20 @@ puInput( x, y + (wrap_text?0:sl_width), x + w - sl_width, y + h )
 
   // Set up the widgets
 
+  frame = new puFrame ( 0, 0, w, h );
+
   if ( wrap_text )
     bottom_slider = (puSlider *)NULL ;
   else
   {
-    bottom_slider = new puSlider ( x, y, w - slider_width, FALSE, slider_width ) ,
+    bottom_slider = new puSlider ( 0, 0, w - slider_width, FALSE, slider_width ) ,
     bottom_slider->setValue ( 0.0f ) ;   // All the way to the left
 //    bottom_slider->setDelta(0.1f); // Commented out CBModes and Deltas for these sliders to increase response time and to ensure the sliders react properly even when first selected - JCJ 13 Jun 2002
     bottom_slider->setSliderFraction (1.0f) ;
 //    bottom_slider->setCBMode( PUSLIDER_DELTA );
   }
 
-  right_slider = new puScrollBar ( x + w - slider_width, y + (bottom_slider?slider_width:0),
+  right_slider = new puScrollBar ( w - slider_width, (bottom_slider?slider_width:0),
                                    h - (bottom_slider?slider_width:0), arrows, TRUE, slider_width ) ,
   right_slider->setValue ( 1.0f ) ;    // All the way to the top
 //  right_slider->setDelta(0.1f);
@@ -120,12 +144,14 @@ puInput( x, y + (wrap_text?0:sl_width), x + w - sl_width, y + h )
   wrapped_text = NULL ;
   setValue ( "\n" ) ;
 
+  close  () ;
   reveal () ;
 }
 
 puLargeInput::~puLargeInput ()
 {
   delete [] wrapped_text ;
+  delete [] valid_data ;
 
   if ( puActiveWidget() == this )
     puDeactivateWidget () ;
@@ -133,14 +159,16 @@ puLargeInput::~puLargeInput ()
 
 void puLargeInput::setSize ( int w, int h )
 {
+  // Resize the frame:
+  frame->setSize ( w, h ) ;
+
   // Resize and reposition the sliders
   if ( bottom_slider )
     bottom_slider->setSize ( w - slider_width, slider_width ) ;
   else  // No bottom slider, rewrap the text
     wrapText () ;
 
-  puInput::setSize ( w - slider_width, h - (bottom_slider?slider_width:0) ) ;
-  right_slider->setPosition ( abox.min[0]+w-slider_width, abox.min[1] ) ;
+  right_slider->setPosition ( w-slider_width, (bottom_slider?slider_width:0) ) ;
   right_slider->setSize ( slider_width, h-(bottom_slider?slider_width:0) ) ;
 
   lines_in_window = ( h - (bottom_slider?slider_width:0) ) /
@@ -158,8 +186,9 @@ void puLargeInput::setSize ( int w, int h )
 
 void puLargeInput::setSelectRegion ( int s, int e )
 {
-  puInput::setSelectRegion ( s, e ) ;
-  char *lin_ptr = ( bottom_slider ? getText () : getWrappedText () ) ;
+  select_start_position = s ;
+  select_end_position   = e ;
+  char *lin_ptr = ( bottom_slider ? getStringValue () : getWrappedText () ) ;
   char *text_start = lin_ptr ;
 
   if ( num_lines > lines_in_window )
@@ -192,7 +221,7 @@ void puLargeInput::setSelectRegion ( int s, int e )
 
 void  puLargeInput::selectEntireLine ( void )
 {
-  char *temp_text = ( bottom_slider ? getText () : getWrappedText () ) ;
+  char *temp_text = ( bottom_slider ? getStringValue () : getWrappedText () ) ;
    
   if ( select_start_position < 0 )
       select_start_position = 0 ;
@@ -204,7 +233,7 @@ void  puLargeInput::selectEntireLine ( void )
     select_start_position++ ;
 
   select_end_position = int ( strchr ( temp_text + select_end_position, '\n' ) + 1 - temp_text) ;
-  if ( select_end_position == 1 ) select_end_position = strlen ( temp_text ) ;
+  if ( select_end_position <= 1 ) select_end_position = strlen ( temp_text ) ;
   //else select_end_position = int ( select_end_position - temp_text ) ;/** Needs real fixing **/
 
   puPostRefresh () ;
@@ -244,7 +273,7 @@ void  puLargeInput::addText ( const char *l )
 
   strcat ( temp_text, (text+select_end_position) ) ;
   int temp_select_start = select_start_position ;
-  setText ( temp_text ) ;
+  setValue ( temp_text ) ;
   delete [] temp_text ;
   setSelectRegion ( temp_select_start,
                     temp_select_start + strlen(l) ) ;
@@ -291,18 +320,14 @@ void  puLargeInput::removeText ( int start, int end )
 
 void  puLargeInput::setValue ( const char *s )
 {
-  cursor_position = 0 ;
-  select_start_position = select_end_position = 0 ;
-
   if ( bottom_slider ) bottom_slider->setSliderFraction ( 0.0 ) ;
   right_slider->setSliderFraction ( 0.0 ) ;
-
-  puPostRefresh () ;
 
   if ( !s )
   {
     puValue::setValue ( "\n" ) ;
     num_lines = 0 ;
+    cursor_position = select_start_position = select_end_position = 0 ;
     return ;
   }
 
@@ -367,6 +392,9 @@ void  puLargeInput::setValue ( const char *s )
 
   right_slider->setSliderFraction ( float(box_height) / float(right_slider_max) ) ;
   right_slider->setMaxValue ( float(right_slider_max) ) ;
+
+  // Normalize the cursors
+  normalize_cursors () ;
 }
 
 
@@ -386,6 +414,9 @@ void puLargeInput::draw ( int dx, int dy )
   else
   {
     // Calculate window parameters:
+
+    int xwidget = abox.min[0] + dx ;
+    int ywidget = abox.min[1] + dy ;
 
     int line_size = legendFont.getStringHeight () +         // Height of a line
                     legendFont.getStringDescender() + 1 ;  // of text, in pixels
@@ -497,8 +528,8 @@ void puLargeInput::draw ( int dx, int dy )
            glColor3f ( 1.0f, 1.0f, 0.7f ) ;
            glRecti ( x_start, bot, x_end, top ) ;
          }
-         yy -= line_size ;
 
+         yy -= line_size ;
          if ( line_count == end_lin ) break ;
        }
      }
@@ -543,7 +574,7 @@ void puLargeInput::draw ( int dx, int dy )
 
             int start_pos = beg_pos ;
             int end_pos      // Position in window of end of line, in pixels
-                    = start_pos + (int)legendFont.getFloatStringWidth ( val ) ;
+                    = start_pos + int(legendFont.getFloatStringWidth ( val )) ;
 
             if ( end_pos > start_pos )  // If we actually have text in the line
             {
@@ -632,12 +663,12 @@ void puLargeInput::draw ( int dx, int dy )
         char temp_char = val[ cursor_position ] ;
         val [ cursor_position ] = '\0' ;
 
-        xx = (int)legendFont.getFloatStringWidth ( " " ) ;
-        yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 
-                + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
+        xx = int(legendFont.getFloatStringWidth ( " " )) ;
+        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 )
+                + top_line_in_window * line_size ;   // Offset y-coord for unprinted lines
 
         char *end_of_line = strchr ( val, '\n' ) ;
-        char *start_of_line = val;
+        char *start_of_line = val ;
 
         // Step down the lines until you reach the line with the cursor
 
@@ -678,6 +709,11 @@ void puLargeInput::draw ( int dx, int dy )
         val[ cursor_position ] = temp_char ;
       }
     }
+
+    // Draw the other widgets in the large input box
+
+    if ( bottom_slider ) bottom_slider->draw ( xwidget, ywidget ) ;
+    right_slider->draw ( xwidget, ywidget ) ;
   }
 
   draw_label ( dx, dy ) ;
@@ -686,12 +722,15 @@ void puLargeInput::draw ( int dx, int dy )
 
 int puLargeInput::checkHit ( int button, int updown, int x, int y )
 {
+  int xwidget = x - abox.min[0] ;
+  int ywidget = y - abox.min[1] ;
+
   if ( bottom_slider )
   {
-    if ( bottom_slider->checkHit ( button, updown, x, y ) ) return TRUE ;
+    if ( bottom_slider->checkHit ( button, updown, xwidget, ywidget ) ) return TRUE ;
   }
 
-  if ( right_slider->checkHit ( button, updown, x, y ) ) return TRUE ;
+  if ( right_slider->checkHit ( button, updown, xwidget, ywidget ) ) return TRUE ;
 
   // If the user has clicked within the bottom slider or to its right, don't activate.
 
@@ -746,7 +785,7 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
 
     // Get the line number and position on the line of the mouse
 
-    char *strval = bottom_slider ? getText () : getWrappedText () ;
+    char *strval = bottom_slider ? getStringValue () : getWrappedText () ;
     char *tmpval = ulStrDup ( strval ) ;
 
     int i = strlen ( tmpval ) ;
@@ -848,8 +887,8 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
 
   normalize_cursors () ;
 
-  //char *old_text = getText () ;
-  char *old_text = bottom_slider ? getText () : getWrappedText () ;
+  //char *old_text = getStringValue () ;
+  char *old_text = bottom_slider ? getStringValue () : getWrappedText () ;
   int lines_in_window = getLinesInWindow () ;  /* Added lines_in_window and num_lines to allow for "END" */
   int num_lines = getNumLines () ;             /* and PGUP/DOWN to work properly        - JCJ 20 Jun 2002 */
   int line_width = 0 ;                         /* Width of current line (for bottomslider) */
@@ -864,55 +903,55 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   char *line_end = 0 ;
   char* p = new char[ strlen(old_text)+1 ] ;
   float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0 ; /* Value of the bottom slider */
-  if (old_text[1] != '\0') /* Ensure that we don't delete something that doesn't exist! - JCJ 22 July 2002 */
+  if ( old_text[1] != '\0' ) /* Ensure that we don't delete something that doesn't exist! - JCJ 22 July 2002 */
   {
-      /*Count how many characters from the beginning of the line the cursor is*/
-      while ( ( old_text [ cursor_position - i ] != '\n' ) &&
-               ( i < cursor_position ) )
-       i++ ;            /* Step back to the beginning of the line */
-      if ( i < cursor_position ) i-- ;
+    /*Count how many characters from the beginning of the line the cursor is*/
+    while ( ( old_text [ cursor_position - i ] != '\n' ) &&
+             ( i < cursor_position ) )
+     i++ ;            /* Step back to the beginning of the line */
+    if ( i < cursor_position ) i-- ;
 
-      /*Find the length of the current line*/
-      while ( ( old_text [ tmp_cursor_position ] != '\n' ) &&
-               ( tmp_cursor_position > 0) )
-        tmp_cursor_position-- ;          
-  
-      p [0] = '\0' ;
-      strcat ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
-      if ( bottom_slider )
-      {
-        line_end = strchr ( p, '\n' ) ;
-        if ( line_end )  // Found an end-of-line
-        {
-            *line_end = '\0' ;  // Temporary break in line
-            line_width = legendFont.getStringWidth ( p ) ;
-            *line_end = '\n' ;  // Reset the carriage return
-        }
-        /*Now delete all characters in the string beyond i, and re-find its width*/
-        p [i+1] = '\0' ;
-        line_width_to_cursor = legendFont.getStringWidth ( p ) ;
-      }
-
-      /* Now find the length of the previous line */
+    /*Find the length of the current line*/
+    while ( ( old_text [ tmp_cursor_position ] != '\n' ) &&
+             ( tmp_cursor_position > 0) )
       tmp_cursor_position-- ;          
-      while ( ( old_text [ tmp_cursor_position ] != '\n' ) &&
-              ( tmp_cursor_position > 0) )
-        tmp_cursor_position-- ;          
-      p [0] = '\0' ;
-      strcat ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
-      if ( bottom_slider )
+  
+    p [0] = '\0' ;
+    strcat ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
+    if ( bottom_slider )
+    {
+      line_end = strchr ( p, '\n' ) ;
+      if ( line_end )  // Found an end-of-line
       {
-        line_end = strchr ( p, '\n' ) ; 
-        if ( line_end )  /*Actually, we KNOW there's a line after this one, but hey, let's be safe, eh? - JCJ 21 Jun 2002 */
-        {
-            *line_end = '\0' ;  // Temporary break in line
-            prev_line_width = legendFont.getStringWidth ( p ) ;
-            *line_end = '\n' ;  // Reset the carriage return
-        }
+          *line_end = '\0' ;  // Temporary break in line
+          line_width = int(legendFont.getFloatStringWidth ( p )) ;
+          *line_end = '\n' ;  // Reset the carriage return
       }
+      /*Now delete all characters in the string beyond i, and re-find its width*/
+      p [i+1] = '\0' ;
+      line_width_to_cursor = int(legendFont.getFloatStringWidth ( p )) ;
+    }
 
-      delete [] p  ;
-      p = NULL ;
+    /* Now find the length of the previous line */
+    tmp_cursor_position-- ;          
+    while ( ( old_text [ tmp_cursor_position ] != '\n' ) &&
+            ( tmp_cursor_position > 0) )
+      tmp_cursor_position-- ;          
+    p [0] = '\0' ;
+    strcat ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
+    if ( bottom_slider )
+    {
+      line_end = strchr ( p, '\n' ) ; 
+      if ( line_end )  /*Actually, we KNOW there's a line after this one, but hey, let's be safe, eh? - JCJ 21 Jun 2002 */
+      {
+        *line_end = '\0' ;  // Temporary break in line
+        prev_line_width = legendFont.getStringWidth ( p ) ;
+        *line_end = '\n' ;  // Reset the carriage return
+      }
+    }
+
+    delete [] p  ;
+    p = NULL ;
   }
 
   bool done = true ;
@@ -923,14 +962,14 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
     while ( old_text [ cursor_position ] != '\0' ) /* Move the cursor to the top of the data */
       cursor_position-- ;
     select_start_position = select_end_position = cursor_position ; 
-    setTopLineInWindow ( ((top_line_in_window - lines_in_window + 2)<0) ? 0 : (top_line_in_window - lines_in_window + 2) );
+    setTopLineInWindow ( top_line_in_window - lines_in_window + 2 ) ;
     right_slider->setValue (1.0f - float(top_line_in_window) / num_lines ) ;
     break;
   case PU_KEY_PAGE_DOWN :
     while ( old_text [ cursor_position ] != '\0' ) /* Move the cursor to the end of the data */
       cursor_position++ ;
     select_start_position = select_end_position = cursor_position ; 
-    setTopLineInWindow ( ((top_line_in_window + lines_in_window - 2)>num_lines) ? (num_lines + 2) : (top_line_in_window + lines_in_window - 2) ); /* Plus two for consistancy - JCJ 20 Jun 2002 */
+    setTopLineInWindow ( top_line_in_window + lines_in_window - 2 ) ; /* Plus two for consistency - JCJ 20 Jun 2002 */
     right_slider->setValue (1.0f - float(top_line_in_window) / num_lines ) ;
     break;
   case PU_KEY_INSERT    : return FALSE ;
@@ -1058,7 +1097,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
         strncpy ( p, old_text, cursor_position ) ;
         p [ --cursor_position ] = '\0' ;
         strcat ( p, ( old_text + cursor_position + 1 ) ) ;
-        setText ( p ) ;
+        setValue ( p ) ;
         setCursor ( temp_cursor - 1 ) ;
         delete [] p ;
       }
@@ -1074,19 +1113,19 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
         strncpy ( p, old_text, cursor_position ) ;
         p [ cursor_position ] = '\0' ;
         strcat ( p, ( old_text + cursor_position + 1 ) ) ;
-        setText ( p ) ;
+        setValue ( p ) ;
         setCursor ( temp_cursor ) ;
         delete [] p ;
       }
 
       break ;
 
-    case 0x15 /* ^U */ : getText () [ 0 ] = '\0' ; break ;
+    case 0x15 /* ^U */ : getStringValue () [ 0 ] = '\0' ; break ;
     case 0x03 /* ^C */ :
     case 0x18 /* ^X */ :  /* Cut or copy selected text */
       if ( select_start_position != select_end_position )
       {
-        p = getText () ;
+        p = getStringValue () ;
         char ch = p[select_end_position] ;
         p[select_end_position] = '\0' ;
         puSetPasteBuffer ( p + select_start_position ) ;
@@ -1105,13 +1144,13 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
       p = puGetPasteBuffer () ;
       if ( p )  // Make sure something has been cut previously!
       {
-        p = new char [ strlen ( getText () ) + strlen ( p ) + 1 ] ;
-        strncpy ( p, getText (), cursor_position ) ;
+        p = new char [ strlen ( getStringValue () ) + strlen ( p ) + 1 ] ;
+        strncpy ( p, getStringValue (), cursor_position ) ;
         p[cursor_position] = '\0' ;
         strcat ( p, puGetPasteBuffer () ) ;
-        strcat ( p, getText() + cursor_position ) ;
+        strcat ( p, getStringValue() + cursor_position ) ;
         temp_cursor += strlen ( puGetPasteBuffer () ) ;
-        setText ( p ) ;
+        setValue ( p ) ;
         setCursor ( temp_cursor ) ;
         delete [] p ;
       }
@@ -1163,7 +1202,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
           }
       }
 
-      setText ( p ) ;
+      setValue ( p ) ;
       setCursor ( temp_cursor + 1 ) ;
       delete [] p ;
 

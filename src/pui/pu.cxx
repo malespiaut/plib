@@ -193,8 +193,8 @@ void puDeleteObject ( puObject *ob )
 
   puGroup *parent = ob->getParent () ;
 
-  if ( !ob->IsItSubWidget() )
-  {
+  /*if ( !ob->IsItSubWidget() )
+  {*/
       /* Add object to linked list to be deleted */
       if ( objects_to_delete == NULL )
         objects_to_delete = ob ;
@@ -227,7 +227,7 @@ void puDeleteObject ( puObject *ob )
             child = next ;
         }
      }
-  }
+  /*}*/
 }
 
 
