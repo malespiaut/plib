@@ -395,8 +395,6 @@ void puLargeInput::draw ( int dx, int dy )
 
     float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0 ;
 
-    float right_value = right_slider->getFloatValue () ;
-
     int beg_pos      // Position in window of start of line, in pixels
                 = int(( box_width - max_width ) * bottom_value ) ;
 ////  int end_pos      // Position in window of end of line, in pixels
@@ -541,9 +539,8 @@ void puLargeInput::draw ( int dx, int dy )
 
             int start_pos = beg_pos ;
             int end_pos      // Position in window of end of line, in pixels
-                    = start_pos + legendFont.getFloatStringWidth ( val ) ;
+                    = start_pos + (int)legendFont.getFloatStringWidth ( val ) ;
 
-            int nch = strlen ( val ) ;
             if ( end_pos > start_pos )  // If we actually have text in the line
             {
                 char * lastonleft = val ;
@@ -631,7 +628,7 @@ void puLargeInput::draw ( int dx, int dy )
         char temp_char = val[ cursor_position ] ;
         val [ cursor_position ] = '\0' ;
 
-        xx = legendFont.getFloatStringWidth ( " " ) ;
+        xx = (int)legendFont.getFloatStringWidth ( " " ) ;
         yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 
                 + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
 
@@ -730,8 +727,6 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
                                                // Input box height, in lines
 
     float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0 ;
-
-    float right_value = right_slider->getFloatValue () ;
 
     int beg_pos      // Position in window of start of line, in pixels
                 = int( ( box_width - max_width ) * bottom_value ) ;
@@ -921,14 +916,14 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   switch ( key )
   {
   case PU_KEY_PAGE_UP   :
-    while ( old_text [ cursor_position ] != NULL ) /* Move the cursor to the top of the data */
+    while ( old_text [ cursor_position ] != '\0' ) /* Move the cursor to the top of the data */
       cursor_position-- ;
     select_start_position = select_end_position = cursor_position ; 
     setTopLineInWindow ( ((top_line_in_window - lines_in_window + 2)<0) ? 0 : (top_line_in_window - lines_in_window + 2) );
     right_slider->setValue (1.0f - float(top_line_in_window) / num_lines ) ;
     break;
   case PU_KEY_PAGE_DOWN :
-    while ( old_text [ cursor_position ] != NULL ) /* Move the cursor to the end of the data */
+    while ( old_text [ cursor_position ] != '\0' ) /* Move the cursor to the end of the data */
       cursor_position++ ;
     select_start_position = select_end_position = cursor_position ; 
     setTopLineInWindow ( ((top_line_in_window + lines_in_window - 2)>num_lines) ? (num_lines + 2) : (top_line_in_window + lines_in_window - 2) ); /* Plus two for consistancy - JCJ 20 Jun 2002 */
