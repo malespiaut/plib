@@ -2218,6 +2218,8 @@ public:
 
 class ssgContext
 {
+ protected:
+
   int enabledClipPlanes ;
   sgVec4 clipPlane [ 6 ] ;
   ssgSimpleState *currentState ;
