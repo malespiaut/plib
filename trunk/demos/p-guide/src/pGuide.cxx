@@ -457,8 +457,8 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
           } else {
               context_menu->hide();
           }
-      } else if ( context_menu->isVisible() == 1) { context_menu->hide(); } /* The user did something funny, so hide the menu since they've been naughty */
-
+      } else /*if ( context_menu->isVisible() == 1) { context_menu->hide(); } /* The user did something funny, so hide the menu since they've been naughty */
+      {
       // Downclick:  Place a new widget, activate an existing widget, deactivate widget, or select from menu.
       if ( updown == GLUT_DOWN )
       {
@@ -724,6 +724,7 @@ static void main_window_mousefn ( int button, int updown, int x, int yy )
             active_object = (puObject *)NULL ;
           }
         }
+}
 
         setStatusWidgets ( active_widget ) ;
       }
