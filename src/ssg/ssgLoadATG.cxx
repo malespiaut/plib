@@ -333,7 +333,13 @@ static int parse()
 		ssgTexCoordArray * sca = new ssgTexCoordArray (nNoOfVerticesForThisFace);
 		sca->ref();
 		for(j=0;j<nNoOfVerticesForThisFace;j++)
+		{
+			if ( ! aiTCs[j] )
+			{	parser.error("Internal error while reading *.atg-file: aiTCs[j] == NULL \n");
+				return FALSE;
+			}
 			sca->add(linearListTCPFAV->get(aiTCs[j]));
+		}
 
 		// ****** add face to mesh *****
 		_theMesh.addTCPFAV ( &sca ) ;
