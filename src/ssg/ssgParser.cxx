@@ -150,6 +150,16 @@ void _ssgParser::addOneCharToken ( char *ptr )
 	onechartokenbuf_ptr += 2; // prepare for nect onechartoken
 }
 
+char *mystrchr( const char *string, int c )
+// like strchr, but string may be NULL
+{
+	if (string == NULL )
+		return NULL;
+	else
+		return strchr( string, c );
+}
+
+
 // wk stop
 char* _ssgParser::getLine( int startLevel )
 {
@@ -163,27 +173,31 @@ char* _ssgParser::getLine( int startLevel )
   char* ptr = tokbuf , *tptr;
   while ( *ptr == 0 )
   {
-     linenum++ ;
-     if ( fgets ( linebuf, sizeof(linebuf), fileptr ) == NULL )
-       return(0) ;
+		linenum++ ;
+		if ( fgets ( linebuf, sizeof(linebuf), fileptr ) == NULL )
+		 return(0) ;
 
-     memcpy( tokbuf, linebuf, sizeof(linebuf) ) ;
-     ptr = tokbuf ;
+		memcpy( tokbuf, linebuf, sizeof(linebuf) ) ;
+		ptr = tokbuf ;
 
-			// check for comments
-		  tptr=strchr(tokbuf, spec.comment_char);
-			if ( tptr != NULL )
-				*tptr = 0;
+		// check for comments
+		tptr=strchr(tokbuf, spec.comment_char);
+		if ( tptr != NULL )
+			*tptr = 0;
+		if ( spec.comment_string != NULL )
+		{
 			tptr=strstr(tokbuf, spec.comment_string);
 			if ( tptr != NULL )
 				*tptr = 0;
-			
+		}
 
 
-       
-     //skip delim_chars
-     while ( *ptr && strchr(spec.delim_chars_skipable,*ptr) )
-       ptr++ ;
+
+ 
+		//skip delim_chars
+		if ( spec.delim_chars_skipable != NULL )
+			while ( *ptr && strchr(spec.delim_chars_skipable,*ptr) )
+				ptr++ ;
   }
 
   //tokenize the line
@@ -191,8 +205,9 @@ char* _ssgParser::getLine( int startLevel )
   while ( *ptr )
   {
      //skip delim_chars
-     while ( *ptr && strchr(spec.delim_chars_skipable,*ptr) )
-       ptr++ ;
+		if ( spec.delim_chars_skipable != NULL )
+			while ( *ptr && strchr(spec.delim_chars_skipable,*ptr) )
+				ptr++ ;
   
 		if ( *ptr == spec.comment_char )
     {
@@ -212,9 +227,9 @@ char* _ssgParser::getLine( int startLevel )
     }
 
     //adjust level
-    if ( spec.open_brace_chars && *ptr && strchr(spec.open_brace_chars,*ptr) )
+    if ( spec.open_brace_chars && *ptr && mystrchr(spec.open_brace_chars,*ptr) )
       level++ ;
-    else if ( spec.close_brace_chars && *ptr && strchr(spec.close_brace_chars,*ptr) )
+    else if ( spec.close_brace_chars && *ptr && mystrchr(spec.close_brace_chars,*ptr) )
       level-- ;
 
     //find end of token
@@ -223,7 +238,7 @@ char* _ssgParser::getLine( int startLevel )
 		
 		if ( ptr == tokptr [ numtok-1 ] )
 		{ // we dont want tokens of length zero
-			assert(NULL==strchr(spec.delim_chars_skipable,*ptr));
+			assert(NULL==mystrchr(spec.delim_chars_skipable,*ptr));
 			// ptr is non-skipable, return it as token of length one
 			numtok--;                  // remove zero-length token
 			addOneCharToken ( ptr ) ;  // and add new token instead
@@ -232,17 +247,18 @@ char* _ssgParser::getLine( int startLevel )
 		}
 
     //mark end of token
-		if( *ptr && ( strchr(spec.delim_chars_non_skipable,*ptr) 
-			        || strchr(spec.open_brace_chars,*ptr)
-							|| strchr(spec.close_brace_chars,*ptr) ) )
+		if( *ptr && ( mystrchr(spec.delim_chars_non_skipable,*ptr) 
+			        || mystrchr(spec.open_brace_chars,*ptr)
+							|| mystrchr(spec.close_brace_chars,*ptr) ) )
 		{ 
 			// ptr is non-skipable, return it as token of length one
 			// additional to the one already in tokptr [ numtok-1 ].
 			addOneCharToken ( ptr ) ;
 			*ptr++ = 0;
 		}
-    while ( *ptr && strchr(spec.delim_chars_skipable,*ptr) )
-      *ptr++ = 0 ;
+		if ( spec.delim_chars_skipable != NULL )
+			while ( *ptr && strchr(spec.delim_chars_skipable,*ptr) )
+				*ptr++ = 0 ;
   }
   if (level >= startLevel)
     return parseToken (0) ;
