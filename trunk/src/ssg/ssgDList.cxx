@@ -102,7 +102,8 @@ public:
 } ;
 
 
-#define MAX_DLIST   2048
+#define MAX_DLIST   4096
+//2048
 
 static int next_dlist = 0 ;
 static _ssgDList dlist [ MAX_DLIST ] ;
