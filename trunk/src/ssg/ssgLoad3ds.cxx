@@ -12,7 +12,7 @@
 
   * Some models (one of the test cases) gets turned "inside out" - obviously 
     the triangle winding has been reversed so that all triangles that should be
-    culled is show and vice versa. I don't know where this information can
+    culled are shown and vice versa. I don't know where this information can
     be found in the file.
 
   * Models that uses double-sided materials sometimes look strange. My approach
@@ -27,6 +27,7 @@
 */
 
 #include "ssgLocal.h"
+#include "ssg3ds.h"
 
 #define MAX_MATERIALS 512
 
@@ -39,7 +40,7 @@
 /* Define DEBUG if you want debug output
    (this might be a nice way of looking at the
    structure of a 3DS file). */
-/*#define DEBUG 1*/
+//#define DEBUG 1
 
 
 #ifdef DEBUG
@@ -56,51 +57,6 @@ char debug_indent[256];
    to faces if their normals should be smoothed, if
    they don't use smooth groups. */
 float _ssg_smooth_threshold = 0.8f;
-
-// 3ds chunk identifiers
-enum {
-  CHUNK_VERSION         = 0x0002,
-  CHUNK_RGB1            = 0x0010,  // 3 floats of RGB
-  CHUNK_RGB2            = 0x0011,  // 3 bytes of RGB
-  CHUNK_RGB3            = 0x0012,  // 3 bytes of RGB (gamma corrected)
-  CHUNK_AMOUNT          = 0x0030,
-  CHUNK_MAIN            = 0x4D4D,
-  CHUNK_OBJMESH         = 0x3D3D,
-  CHUNK_ONEUNIT         = 0x0100,
-  CHUNK_BKGCOLOR        = 0x1200,
-  CHUNK_AMBCOLOR        = 0x2100,
-  CHUNK_OBJBLOCK        = 0x4000,
-  CHUNK_TRIMESH         = 0x4100,
-  CHUNK_VERTLIST        = 0x4110,
-  CHUNK_FACELIST        = 0x4120,
-  CHUNK_FACEMAT         = 0x4130,
-  CHUNK_MAPLIST         = 0x4140,
-  CHUNK_SMOOLIST        = 0x4150,
-  CHUNK_TRMATRIX        = 0x4160,
-  CHUNK_LIGHT           = 0x4600,
-  CHUNK_SPOTLIGHT       = 0x4610,
-  CHUNK_CAMERA          = 0x4700,
-  CHUNK_MATERIAL        = 0xAFFF,
-  CHUNK_MATNAME         = 0xA000,
-  CHUNK_AMBIENT         = 0xA010,
-  CHUNK_DIFFUSE         = 0xA020,
-  CHUNK_SPECULAR        = 0xA030,
-  CHUNK_SHININESS       = 0xA040,
-  CHUNK_SHINE_STRENGTH  = 0xA041,
-  CHUNK_TRANSPARENCY    = 0xA050,
-  CHUNK_TRANSP_FALLOFF  = 0xA052,
-  CHUNK_DOUBLESIDED     = 0xA081,
-  CHUNK_TEXTURE         = 0xA200,
-  CHUNK_BUMPMAP         = 0xA230,
-  CHUNK_MAPFILENAME     = 0xA300,
-  CHUNK_MAPOPTIONS      = 0xA351,
-  CHUNK_MAP_VSCALE      = 0xA354,
-  CHUNK_MAP_USCALE      = 0xA356,
-  CHUNK_MAP_UOFFST      = 0xA358,
-  CHUNK_MAP_VOFFST      = 0xA35A,
-  CHUNK_KEYFRAMER       = 0xB000,
-  CHUNK_FRAMES          = 0xB008
-} _3dsChunkIds;
 
 // parsing functions for chunks that need separate treatment.
 static int parse_material( unsigned int length);
@@ -235,7 +191,6 @@ static void add_leaf( _3dsMat *material, int listed_faces,
 
 FILE *model;
 
-static int is_little_endian;
 static int num_objects, num_materials, num_textures;
 static int double_sided;     // is there some double sided material?
 
@@ -257,56 +212,7 @@ static int smooth_found, facemat_found;
 
 static int colour_mode;
 
-//==========================================================
-// ENDIAN ISSUES
-static inline void endian_swap(unsigned int *x) {
-  *x = (( *x >> 24 ) & 0x000000FF ) | 
-    (( *x >>  8 ) & 0x0000FF00 ) | 
-    (( *x <<  8 ) & 0x00FF0000 ) | 
-    (( *x << 24 ) & 0xFF000000 ) ;
-}
-
-static inline void endian_swap(unsigned short *x) {
-  *x = (( *x >>  8 ) & 0x00FF ) | 
-    (( *x <<  8 ) & 0xFF00 ) ;
-}
-
-static float get_float() {
-  float f;
-  fread( &f, 4, 1, model );
-
-  if (is_little_endian)
-    return f;
-  else {
-    endian_swap((unsigned int*)&f);
-    return f;
-  }
-}
-
-static unsigned int get_dword() {
-  unsigned int d;
-  fread( &d, 4, 1, model );
-
-  if (is_little_endian)
-    return d;
-  else {
-    endian_swap(&d);
-    return d;
-  }
-}
-
-static unsigned short get_word() {
-  unsigned short w;
-  fread( &w, 2, 1, model );
-  
-  if (is_little_endian)
-    return w;
-  else {
-    endian_swap(&w);
-    return w;
-  }
-}
-
+// convenient functions
 static unsigned char get_byte() {
   unsigned char b;
   fread( &b, 1, 1, model );
@@ -340,7 +246,7 @@ static int parse_mapname( unsigned int length )
 
 static int parse_mapoptions( unsigned int length )
 {
-  unsigned short value = get_word();
+  unsigned short value = ulEndianReadLittle16(model);
   // bit 4: 0=tile (default), 1=do not tile (a single bit for both u and v)
   current_material->wrap_s = current_material->wrap_t = ((value & 0x10) == 0);
   DEBUGPRINT("%sMap options (wrap): %c %s%s\n", 
@@ -351,21 +257,21 @@ static int parse_mapoptions( unsigned int length )
 
 static int parse_uscale( unsigned int length )
 {
-  current_material->tex_scale[1] = get_float();
+  current_material->tex_scale[1] = ulEndianReadLittleFloat(model);
   DEBUGPRINT("%sU-scale: %.3f %s%s\n", current_material->tex_scale[1], "", "");
   return PARSE_OK;
 }
 
 static int parse_vscale( unsigned int length )
 {
-  current_material->tex_scale[0] = get_float();
+  current_material->tex_scale[0] = ulEndianReadLittleFloat(model);
   DEBUGPRINT("%sV-scale: %.3f %s%s\n", current_material->tex_scale[0], "", "");
   return PARSE_OK;
 }
 
 static int parse_uoffst( unsigned int length )
 {
-  current_material->tex_offset[1] = get_float();
+  current_material->tex_offset[1] = ulEndianReadLittleFloat(model);
   DEBUGPRINT("%sU-offset: %.3f %s%s\n",
 	     current_material->tex_offset[1], "", "");
   return PARSE_OK;
@@ -373,7 +279,7 @@ static int parse_uoffst( unsigned int length )
 
 static int parse_voffst( unsigned int length )
 {
-  current_material->tex_offset[0] = get_float();
+  current_material->tex_offset[0] = ulEndianReadLittleFloat(model);
   DEBUGPRINT("%sV-offset: %.3f %s%s\n",
 	     current_material->tex_offset[0], "", "");
   return PARSE_OK;
@@ -412,9 +318,9 @@ static int parse_material_name( unsigned int length ) {
 static int parse_rgb1( unsigned int length ) {
   float r, g, b;
 
-  r = get_float();
-  g = get_float();
-  b = get_float();
+  r = ulEndianReadLittleFloat(model);
+  g = ulEndianReadLittleFloat(model);
+  b = ulEndianReadLittleFloat(model);
   DEBUGPRINT("%sColour: R:%.2f, G:%.2f, B:%.2f\n", r, g, b);
 
   sgSetVec3(current_material->colour[colour_mode], r, g, b);
@@ -455,8 +361,8 @@ static int parse_specular( unsigned int length ) {
 static int parse_shininess( unsigned int length ) {
   // this chunk contains a percentage chunk,
   // so just read that chunks header
-  get_word(); get_dword();
-  current_material -> shi = (float)get_word() * 128.0f / 100.0f;
+  ulEndianReadLittle16(model); ulEndianReadLittle32(model);
+  current_material -> shi = (float)ulEndianReadLittle16(model) * 128.0f / 100.0f;
   DEBUGPRINT("%sShininess:%.1f%s%s\n", current_material->shi, "", "");
   return PARSE_OK;
 }
@@ -464,8 +370,8 @@ static int parse_shininess( unsigned int length ) {
 static int parse_transparency( unsigned int length ) {
   // this chunk contains a percentage chunk,
   // so just read that chunks header
-  get_word(); get_dword();
-  current_material->alpha = 1.0f - (float)get_word() / 100.0f;
+  ulEndianReadLittle16(model); ulEndianReadLittle32(model);
+  current_material->alpha = 1.0f - (float)ulEndianReadLittle16(model) / 100.0f;
   DEBUGPRINT("%sAlpha:%.1f%s%s\n", current_material->alpha, "", "");
   return PARSE_OK;
 }
@@ -597,15 +503,15 @@ static int parse_trimesh( unsigned int length ) {
 }
 
 static int parse_vert_list( unsigned int length ) {
-  num_vertices = get_word();
+  num_vertices = ulEndianReadLittle16(model);
   vertex_list = new sgVec3[num_vertices];
 
   DEBUGPRINT("%sReading %d vertices.%s%s\n", num_vertices, "", "");
 
   for (int i = 0; i < num_vertices; i++) {
-    vertex_list[i][0] = get_float();
-    vertex_list[i][1] = get_float();
-    vertex_list[i][2] = get_float();
+    vertex_list[i][0] = ulEndianReadLittleFloat(model);
+    vertex_list[i][1] = ulEndianReadLittleFloat(model);
+    vertex_list[i][2] = ulEndianReadLittleFloat(model);
   }
 
   return PARSE_OK;
@@ -620,7 +526,7 @@ static int parse_smooth_list( unsigned int length )
   DEBUGPRINT("%sReading smoothlist%s%s%s\n", "", "", "");
 
   for (i = 0; i < num_faces; i++)
-    smooth_list[i] = get_dword();
+    smooth_list[i] = ulEndianReadLittle32(model);
 
   return PARSE_OK;
 }
@@ -677,7 +583,7 @@ static int identify_face_materials( unsigned int length ) {
 
 static int parse_face_list( unsigned int length ) {
   int i;
-  num_faces = get_word();
+  num_faces = ulEndianReadLittle16(model);
 
   DEBUGPRINT("%sReading %d faces.%s%s\n", num_faces, "", "");
 
@@ -687,10 +593,10 @@ static int parse_face_list( unsigned int length ) {
   vertex_normals = new sgVec3[num_faces * 3];
 
   for (i = 0; i < num_faces; i++) {
-    vertex_index[i*3    ] = get_word();
-    vertex_index[i*3 + 1] = get_word();
-    vertex_index[i*3 + 2] = get_word();
-    unsigned short flags  = get_word();
+    vertex_index[i*3    ] = ulEndianReadLittle16(model);
+    vertex_index[i*3 + 1] = ulEndianReadLittle16(model);
+    vertex_index[i*3 + 2] = ulEndianReadLittle16(model);
+    unsigned short flags  = ulEndianReadLittle16(model);
 
     if (flags & 7 == 0) {     // Triangle vertices order should be swapped
       unsigned short tmp    = vertex_index[i*3 + 1];
@@ -743,14 +649,14 @@ static int parse_face_list( unsigned int length ) {
 }
 
 static int parse_map_list( unsigned int length ) {
-  unsigned short num_v = get_word();
+  unsigned short num_v = ulEndianReadLittle16(model);
   texcrd_list = new sgVec2[num_v];
 
   DEBUGPRINT("%sReading %d texture coords.%s%s\n", num_v, "", "");
 
   for (int i = 0; i < num_v; i++) {
-    texcrd_list[i][0] = get_float();
-    texcrd_list[i][1] = 1.0f - get_float();
+    texcrd_list[i][0] = ulEndianReadLittleFloat(model);
+    texcrd_list[i][1] = 1.0f - ulEndianReadLittleFloat(model);
   }
 
   return PARSE_OK;
@@ -772,7 +678,7 @@ static int parse_tra_matrix( unsigned int length ) {
   
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 3; j++) {
-      m[j][i] = get_float();
+      m[j][i] = ulEndianReadLittleFloat(model);
     }
   }
   
@@ -894,7 +800,7 @@ static int parse_face_materials( unsigned int length ) {
     return PARSE_ERROR;
   }
 
-  unsigned short listed_faces = get_word();
+  unsigned short listed_faces = ulEndianReadLittle16(model);
 
   DEBUGPRINT("%sFaces of \"%s\" list with %d faces.%s\n", 
 	     mat_name, listed_faces, "");
@@ -903,7 +809,7 @@ static int parse_face_materials( unsigned int length ) {
   
   unsigned short *face_indices = new unsigned short[listed_faces];
   for (int i = 0; i < listed_faces; i++) {
-    face_indices[i] = get_word();
+    face_indices[i] = ulEndianReadLittle16(model);
   }
 
   add_leaf(material, listed_faces, face_indices);
@@ -926,10 +832,10 @@ static int parse_objblock( unsigned int length ) {
 
 static int parse_oneunit( unsigned int length ) {
 #ifdef DEBUG
-  float oneunit = get_float();
+  float oneunit = ulEndianReadLittleFloat(model);
   DEBUGPRINT("%sOne unit: %.3f%s%s\n", oneunit, "", "");
 #else
-  get_float() ;
+  ulEndianReadLittleFloat(model) ;
 #endif
 
   return PARSE_OK;
@@ -937,10 +843,10 @@ static int parse_oneunit( unsigned int length ) {
 
 static int parse_version( unsigned int length ) {
 #ifdef DEBUG
-  unsigned int version = get_dword();
+  unsigned int version = ulEndianReadLittle32(model);
   DEBUGPRINT("%s3DS Version: %d%s%s\n", version, "", "");
 #else
-  get_dword() ;
+  ulEndianReadLittle32(model) ;
 #endif
 
   return PARSE_OK;
@@ -958,8 +864,8 @@ static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length )
   _ssg3dsChunk *t;
 
   while (parse_ok && p < length) {
-    id = get_word();
-    sub_length = get_dword();
+    id = ulEndianReadLittle16(model);
+    sub_length = ulEndianReadLittle32(model);
 
     if (p + sub_length > length) {
       ulSetError(UL_WARNING, "ssgLoad3ds: Illegal chunk %X of length %i. " \
@@ -1010,9 +916,7 @@ static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length )
 
 
 ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
-  int i = 1 ;
-  is_little_endian = *((char *) &i );
-
+  int i;
   current_options = options? options: &_ssgDefaultOptions ;
   current_options -> begin () ;
 

@@ -72,64 +72,8 @@ static int                      curr_color_, curr_pal_id_;
 
 static bool			has_normals_, vtx_dirty_, join_children_;
 static FILE*                    model_file_;
-static int                      is_little_endian_;
-
 
 static const ssgLoaderOptions* current_options = NULL ;
-
-//static void joinChildren(ssgEntity*);
-
-//==========================================================
-// ENDIAN ISSUES
-static inline void endian_swap(unsigned int *x) {
-  *x = (( *x >> 24 ) & 0x000000FF ) | 
-    (( *x >>  8 ) & 0x0000FF00 ) | 
-    (( *x <<  8 ) & 0x00FF0000 ) | 
-    (( *x << 24 ) & 0xFF000000 ) ;
-}
-
-static inline void endian_swap(unsigned short *x) {
-  *x = (( *x >>  8 ) & 0x00FF ) | 
-    (( *x <<  8 ) & 0xFF00 ) ;
-}
-
-/*
-static float get_float() {
-  float f;
-  fread( &f, 4, 1, model_file_ );
-
-  if (is_little_endian_)
-    return f;
-  else {
-    endian_swap((unsigned int*)&f);
-    return f;
-  }
-}
-*/
-
-static unsigned int get_dword() {
-  unsigned int d;
-  fread( &d, 4, 1, model_file_ );
-
-  if (is_little_endian_)
-    return d;
-  else {
-    endian_swap(&d);
-    return d;
-  }
-}
-
-static unsigned short get_word() {
-  unsigned short w;
-  fread( &w, 2, 1, model_file_ );
-  
-  if (is_little_endian_)
-    return w;
-  else {
-    endian_swap(&w);
-    return w;
-  }
-}
 
 static unsigned char get_byte() {
   unsigned char b;
@@ -243,11 +187,11 @@ static bool findPart(FILE* fp)
 	  unsigned short var;
 	  short offset, high, low, next_op;
 	  fseek(fp, -2+matchpos, SEEK_CUR);
-	  offset = get_word();
-	  var    = get_word();
-	  low    = get_word();
-	  high   = get_word();
-	  next_op = get_word();
+	  offset = ulEndianReadLittle16(model_file_);
+	  var    = ulEndianReadLittle16(model_file_);
+	  low    = ulEndianReadLittle16(model_file_);
+	  high   = ulEndianReadLittle16(model_file_);
+	  next_op = ulEndianReadLittle16(model_file_);
 
 	  int part_idx, kid_idx;
 
@@ -344,9 +288,9 @@ static bool findPart(FILE* fp)
 static void readPoint(FILE* fp, sgVec3 p)
 {
   short x_int, y_int, z_int;
-  y_int = get_word();
-  z_int = get_word();
-  x_int = get_word();
+  y_int = ulEndianReadLittle16(model_file_);
+  z_int = ulEndianReadLittle16(model_file_);
+  x_int = ulEndianReadLittle16(model_file_);
  
   // Convert from .MDL units (ca 2mm) to meters
   p[0] =  -(float)x_int/512.0;
@@ -360,9 +304,9 @@ static void readPoint(FILE* fp, sgVec3 p)
 static void readVector(FILE* fp, sgVec3 v)
 {
   short x_int, y_int, z_int;
-  y_int = get_word();
-  z_int = get_word();
-  x_int = get_word();
+  y_int = ulEndianReadLittle16(model_file_);
+  z_int = ulEndianReadLittle16(model_file_);
+  x_int = ulEndianReadLittle16(model_file_);
 
   v[0] = -(float)x_int;
   v[1] = (float)y_int;
@@ -523,9 +467,9 @@ static bool readTexIndices(FILE* fp, int numverts, const sgVec3 s_norm)
       unsigned short ix;
       short tx_int, ty_int;
 
-      ix     = get_word();
-      tx_int = get_word();
-      ty_int = get_word();
+      ix     = ulEndianReadLittle16(model_file_);
+      tx_int = ulEndianReadLittle16(model_file_);
+      ty_int = ulEndianReadLittle16(model_file_);
 
       int tex_idx = ix - start_idx_ + last_idx_;
 
@@ -593,7 +537,7 @@ static bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
   for(int v = 0; v < numverts; v++)
     {
       unsigned short ix;
-      ix = get_word();
+      ix = ulEndianReadLittle16(model_file_);
       ixarr.add(ix - start_idx_ + last_idx_);
       DEBUGPRINT( "ix[" << v << "] = " << *ixarr.get(v) << std::endl);
       //ixarr.insert(v, ix - start_idx_);
@@ -693,9 +637,6 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
   current_options = options? options: &_ssgDefaultOptions ;
   current_options -> begin () ;
 
-  int endiantest = 1 ;
-  is_little_endian_ = *((char *) &endiantest );
-
   num_tex_states_ = 0;
   start_idx_      = 0;
   join_children_  = true;
@@ -755,7 +696,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
      from looking at a few MDL files in a hex editor :-O  /PL */
   fseek(model_file_, 0x10a4, SEEK_SET); // 0x11fc in Thomas' original code
   unsigned int code_len;
-  code_len = get_dword();
+  code_len = ulEndianReadLittle32(model_file_);
   DEBUGPRINT( "Code length: " << code_len << " bytes\n");
   
   start_idx_ = 0;
@@ -769,7 +710,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
     {
       unsigned short opcode;
 
-      opcode = get_word();
+      opcode = ulEndianReadLittle16(model_file_);
 
       switch(opcode)
 	{
@@ -778,13 +719,13 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 
 	case 0x1a: 	// RESLIST (point list with no normals)
 	  {
-	    start_idx_ = get_word();
+	    start_idx_ = ulEndianReadLittle16(model_file_);
 
 	    has_normals_ = false;
 	    vtx_dirty_   = true;
 
 	    unsigned short numpoints;
-	    numpoints = get_word();
+	    numpoints = ulEndianReadLittle16(model_file_);
 
 	    DEBUGPRINT( "New group (unlit): start_idx = " << start_idx_ 
 		 << ", num vertices = " << numpoints << std::endl);
@@ -809,13 +750,13 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	
 	case 0x29: 	// GORAUD RESLIST (point list with normals)
 	  {
-	    start_idx_ = get_word();
+	    start_idx_ = ulEndianReadLittle16(model_file_);
 
 	    has_normals_ = true;
 	    vtx_dirty_   = true;
 
 	    unsigned short numpoints;
-	    numpoints = get_word();
+	    numpoints = ulEndianReadLittle16(model_file_);
 
 	    DEBUGPRINT( "New group (goraud): start_idx = " << start_idx_
 		 << ", num vertices = " << numpoints << std::endl);
@@ -839,7 +780,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	case 0x0f:	// STRRES: Start line definition
 	  {
 	    unsigned short idx;
-	    idx = get_word();
+	    idx = ulEndianReadLittle16(model_file_);
 	    DEBUGPRINT( "Start line: idx = " << idx << std::endl);
 	    if(vtx_dirty_)
 	      {
@@ -886,7 +827,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	case 0x10:	// CNTRES: Continue line definition
 	  {
 	    unsigned short idx;
-	    idx = get_word();
+	    idx = ulEndianReadLittle16(model_file_);
 	    DEBUGPRINT( "Cont. line: idx = " << idx << std::endl);
 	    curr_part_->idx->add(idx - start_idx_ + last_idx_);
 	  }
@@ -913,7 +854,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    curr_part_->idx  = new ssgIndexArray;
 
 	    unsigned short numverts;
-	    numverts = get_word();
+	    numverts = ulEndianReadLittle16(model_file_);
 	    DEBUGPRINT( "New part: (goraud/texture), num indices = " << numverts << std::endl);
 
 	    // Unused data
@@ -975,14 +916,14 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    curr_part_->idx  = new ssgIndexArray;
 
 	    unsigned short numverts;
-	    numverts = get_word();
+	    numverts = ulEndianReadLittle16(model_file_);
 	    DEBUGPRINT( "New part: (no tex), num indices = " << numverts << std::endl);
 
 	    // Surface normal
 	    sgVec3 v;
 	    readVector(model_file_, v);
 
-	    get_dword();  // dummy data
+	    ulEndianReadLittle32(model_file_);  // dummy data
 
 	    // Read vertex indices
 	    readIndices(model_file_, numverts, v);
@@ -1019,10 +960,10 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	case 0x18: 	// Set texture
 	  {
 	    unsigned short id, dx, scale, dy;
-	    id    = get_word();
-	    dx    = get_word();
-	    scale = get_word();
-	    dy    = get_word();
+	    id    = ulEndianReadLittle16(model_file_);
+	    dx    = ulEndianReadLittle16(model_file_);
+	    scale = ulEndianReadLittle16(model_file_);
+	    dy    = ulEndianReadLittle16(model_file_);
 	    char tex_name[14];
 	    fread(tex_name, 1, 14, model_file_);
 	    int j = 0;
@@ -1043,13 +984,13 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 
 	case 0x43:      // TEXTURE2
 	  {
-	    get_word();  // record length
-	    get_word();  // must be zero
+	    ulEndianReadLittle16(model_file_);  // record length
+	    ulEndianReadLittle16(model_file_);  // must be zero
 	    get_byte();  // flags, ignored
 	    get_byte();  // checksum, must be zero
 	    curr_color_  = get_byte();
 	    curr_pal_id_ = get_byte();
-	    get_word();  // ??
+	    ulEndianReadLittle16(model_file_);  // ??
 
 	    int i;
 	    for (i = 0; (curr_tex_name_[i] = get_byte()) != '\0'; i++);
@@ -1109,10 +1050,10 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 
 	case 0x24:      // BGL_IFIN1 -- currently ignored
 	  {
-	    get_word();   // jump offset
-	    get_word();   // variable
-	    get_word();   // lower bound
-	    get_word();   // upper bound
+	    ulEndianReadLittle16(model_file_);   // jump offset
+	    ulEndianReadLittle16(model_file_);   // variable
+	    ulEndianReadLittle16(model_file_);   // lower bound
+	    ulEndianReadLittle16(model_file_);   // upper bound
 	  }
 	  break;
 	  
@@ -1255,7 +1196,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	
 	case 0x88:      // JUMP32 -- ignored
 	  {
-	    get_dword();
+	    ulEndianReadLittle32(model_file_);
 	  }
 	  break;
 
