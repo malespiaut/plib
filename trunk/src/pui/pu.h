@@ -1339,7 +1339,7 @@ public:
 
   ~puInput ()
   {
-    if ( valid_data ) free ( valid_data ) ;
+    if ( valid_data ) delete valid_data ;
   }
 
   void invokeDownCallback ( void )
@@ -1569,7 +1569,7 @@ public:
   {
     if ( valid_data )
     {
-      free ( valid_data ) ;
+      delete valid_data ;
       valid_data = NULL ;
     }
 
