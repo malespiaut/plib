@@ -359,6 +359,19 @@ void ulFindFile( char *filenameOutput, const char *path,
 
 ///////////////////// string handling ///////////////////////////////
 
+/*
+  Strdup is *evil* - use this instead...
+*/
+
+char *ulStrDup ( const char *s )
+{
+  char *ret = new char [ strlen(s)+1 ] ;
+  strcpy ( ret, s ) ;
+  return ret ;
+}
+
+
+
 // string comparisons that are *not* case sensitive:
 
 /*
