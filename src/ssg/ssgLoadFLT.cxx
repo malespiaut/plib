@@ -3069,7 +3069,6 @@ static ssgEntity *Flatten(ssgEntity *node, float (*mat)[4])
       }
       g->recalcBSphere();
    }
-int rri =    0xDeadBeef;
    assert(!node->isA(0xDeadBeef));
    return node;
 }
