@@ -1356,7 +1356,7 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
 	       info.mtl = 0;
 #else
 	       /* material */
-	       if (lmode < 2 || /* (objflags & (1 << 3)) || */ white) {
+	       if (/*lmode < 2 ||*/ /* (objflags & (1 << 3)) || */ white) {
 		  info.mtl = 0;
 	       }
 	       else {
