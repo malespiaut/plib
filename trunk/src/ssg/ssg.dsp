@@ -194,6 +194,10 @@ SOURCE=.\ssgLoadBMP.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadDOF.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadDXF.cxx
 # End Source File
 # Begin Source File
@@ -331,6 +335,10 @@ SOURCE=.\ssgSaveATG.cxx
 # Begin Source File
 
 SOURCE=.\ssgSaveDXF.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveFLT.cxx
 # End Source File
 # Begin Source File
 
