@@ -3,17 +3,27 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 #include <math.h>
-#include <GL/glut.h>
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
 #include <plib/fnt.h>
 
-fntRenderer *text ;
+static fntRenderer *text ;
 
-const char *font_names [] =
+static const char *font_names [] =
 {
   "Helvetica.txf",         /* This is the default */
   "Helvetica-Bold.txf",
@@ -74,17 +84,17 @@ const char *font_names [] =
   NULL
 } ;
 
-fntTexFont **font_list ;
+static fntTexFont **font_list ;
 
-int cur_font = 0 ;
-int max_font = 0 ;
+static int cur_font = 0 ;
+static int max_font = 0 ;
 
-void motionfn ( int, int )
+static void motionfn ( int, int )
 {
   glutPostRedisplay () ;
 }
 
-void keyfn ( unsigned char key, int, int )
+static void keyfn ( unsigned char key, int, int )
 {
   cur_font++ ;
 
@@ -92,13 +102,13 @@ void keyfn ( unsigned char key, int, int )
     cur_font = 0 ;
 }
 
-void mousefn ( int /*button*/, int /*updown*/, int /*x*/, int /*y*/ )
+static void mousefn ( int /*button*/, int /*updown*/, int /*x*/, int /*y*/ )
 {
   exit ( 0 ) ;
 }
 
-int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
-int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
+static int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
+static int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
 
 static void setOpenGLState ( void )
 {
@@ -137,7 +147,7 @@ static void restoreOpenGLState ( void )
 
 
 
-void displayfn (void)
+static void displayfn (void)
 {
   setOpenGLState () ;
   glClearColor ( 0.1f, 0.4f, 0.1f, 1.0f ) ;

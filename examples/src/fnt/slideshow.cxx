@@ -15,25 +15,35 @@
 #  include <unistd.h>
 #endif
 #include <math.h>
-#include <GL/glut.h>
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
 #include <plib/fnt.h>
 
-fntRenderer *text ;
-fntTexFont *font ;
+static fntRenderer *text ;
+static fntTexFont *font ;
 
-char  *file ;
-char **line ;
-int   *page ;
-int  num_lines = 0 ;
-int  num_pages = 0 ;
-int  curr_page = 0 ;
+static char  *file ;
+static char **line ;
+static int   *page ;
+static int  num_lines = 0 ;
+static int  num_pages = 0 ;
+static int  curr_page = 0 ;
 
-void motionfn ( int, int )
+static void motionfn ( int, int )
 {
   glutPostRedisplay () ;
 }
 
-void keyfn ( unsigned char key, int, int )
+static void keyfn ( unsigned char key, int, int )
 {
   switch ( key )
   {
@@ -59,13 +69,13 @@ void keyfn ( unsigned char key, int, int )
   if ( curr_page >= num_pages ) curr_page = num_pages-1 ;
 }
 
-void mousefn ( int /*button*/, int /*updown*/, int /*x*/, int /*y*/ )
+static void mousefn ( int /*button*/, int /*updown*/, int /*x*/, int /*y*/ )
 {
   exit ( 0 ) ;
 }
 
-int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
-int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
+static int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
+static int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
 
 static void setOpenGLState ( void )
 {
@@ -106,7 +116,7 @@ static void restoreOpenGLState ( void )
 
 
 
-void displayfn (void)
+static void displayfn (void)
 {
   setOpenGLState () ;
   glClearColor ( 0.1f, 0.4f, 0.1f, 1.0f ) ;

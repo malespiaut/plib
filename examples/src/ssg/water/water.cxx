@@ -3,64 +3,73 @@
 #include <ctype.h>
 #include <string.h>
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 #include <math.h>
 #include <plib/ssg.h>
 #include <plib/ssgAux.h>
 #include <plib/pu.h>
-#include <GL/glut.h>
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
 
 #define GUI_BASE      80
 #define VIEW_GUI_BASE 20
 #define FONT_COLOUR   1,1,1,1
 
-puSlider    *trainLengthSlider  = (puSlider    *) NULL ;
-puSlider    *trainSpeedSlider   = (puSlider    *) NULL ;
-puSlider    *trainLambdaSlider  = (puSlider    *) NULL ;
-puSlider    *trainHeightSlider  = (puSlider    *) NULL ;
-puButton    *trainEnableButton  = (puButton    *) NULL ;
-puOneShot   *trainDisableButton = (puOneShot   *) NULL ;
-puDial      *trainHeadingDial   = (puDial      *) NULL ;
-puSelectBox *trainSelectBox     = (puSelectBox *) NULL ;
-puText      *timeText           = (puText      *) NULL ;
+static puSlider    *trainLengthSlider  = (puSlider    *) NULL ;
+static puSlider    *trainSpeedSlider   = (puSlider    *) NULL ;
+static puSlider    *trainLambdaSlider  = (puSlider    *) NULL ;
+static puSlider    *trainHeightSlider  = (puSlider    *) NULL ;
+static puButton    *trainEnableButton  = (puButton    *) NULL ;
+static puOneShot   *trainDisableButton = (puOneShot   *) NULL ;
+static puDial      *trainHeadingDial   = (puDial      *) NULL ;
+static puSelectBox *trainSelectBox     = (puSelectBox *) NULL ;
+static puText      *timeText           = (puText      *) NULL ;
 
-puSelectBox *depthSelectBox     = (puSelectBox *) NULL ;
+static puSelectBox *depthSelectBox     = (puSelectBox *) NULL ;
 
-puDial      *viewHeadingDial    = (puDial      *) NULL ;
-puDial      *viewPitchDial      = (puDial      *) NULL ;
-puSlider    *viewRangeSlider    = (puSlider    *) NULL ;
-puButton    *viewWireframeButton= (puButton    *) NULL ;
-puButton    *viewEnvMapButton   = (puButton    *) NULL ;
+static puDial      *viewHeadingDial    = (puDial      *) NULL ;
+static puDial      *viewPitchDial      = (puDial      *) NULL ;
+static puSlider    *viewRangeSlider    = (puSlider    *) NULL ;
+static puButton    *viewWireframeButton= (puButton    *) NULL ;
+static puButton    *viewEnvMapButton   = (puButton    *) NULL ;
 
-puOneShot   *writeButton        = (puOneShot   *) NULL ;
+static puOneShot   *writeButton        = (puOneShot   *) NULL ;
 
-puSlider    *waveTextureSlider  = (puSlider    *) NULL ;
-puSlider    *waveSizeSlider     = (puSlider    *) NULL ;
-puSlider    *wavePolycountSlider= (puSlider    *) NULL ;
+static puSlider    *waveTextureSlider  = (puSlider    *) NULL ;
+static puSlider    *waveSizeSlider     = (puSlider    *) NULL ;
+static puSlider    *wavePolycountSlider= (puSlider    *) NULL ;
 
-ssgRoot            *scene        = NULL ;
-ssgaLensFlare      *sun_obj      = NULL ;
-ssgTransform       *sun          = NULL ;
-ssgTransform       *teapot       = NULL ;
-ssgTransform       *fire         = NULL ;
-ssgTransform       *pedestal     = NULL ;
-ssgaWaveSystem     *ocean        = NULL ;
-ssgaParticleSystem *fountain     = NULL ;
-ssgaCube           *ped_obj      = NULL ;
-ssgaTeapot         *tpt_obj      = NULL ;
-ssgaFire           *fire_obj     = NULL ;
+static ssgRoot            *scene        = NULL ;
+static ssgaLensFlare      *sun_obj      = NULL ;
+static ssgTransform       *sun          = NULL ;
+static ssgTransform       *teapot       = NULL ;
+static ssgTransform       *fire         = NULL ;
+static ssgTransform       *pedestal     = NULL ;
+static ssgaWaveSystem     *ocean        = NULL ;
+static ssgaParticleSystem *fountain     = NULL ;
+static ssgaCube           *ped_obj      = NULL ;
+static ssgaTeapot         *tpt_obj      = NULL ;
+static ssgaFire           *fire_obj     = NULL ;
 
-ssgSimpleState     *sea_state    = NULL ;
-ssgSimpleState     *splash_state = NULL ;
-ssgSimpleState     *teapot_state = NULL ;
-ssgSimpleState     *plinth_state = NULL ;
+static ssgSimpleState     *sea_state    = NULL ;
+static ssgSimpleState     *splash_state = NULL ;
+static ssgSimpleState     *teapot_state = NULL ;
+static ssgSimpleState     *plinth_state = NULL ;
 
-ssgaWaveTrain trains [ 16 ] ;
+static ssgaWaveTrain trains [ 16 ] ;
 
-char *trainNameList[] =
+static char *trainNameList[] =
 {
   "Train 0" , "Train 1" , "Train 2" , "Train 3" , "Train 4" ,
   "Train 5" , "Train 6" , "Train 7" , "Train 8" , "Train 9" ,
@@ -69,16 +78,16 @@ char *trainNameList[] =
   NULL
 } ;
 
-int   curr_train = 0 ;
-int   curr_depthfunc = 0 ;
-int   wireframe  = FALSE ;
-int   displayGUI = TRUE  ;
-float cam_range  = 25.0f ;
+static int   curr_train = 0 ;
+static int   curr_depthfunc = 0 ;
+static int   wireframe  = FALSE ;
+static int   displayGUI = TRUE  ;
+static float cam_range  = 25.0f ;
 
-sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
-sgVec3  sunpos = { 400, 300, 50 } ;
+static sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
+static sgVec3  sunpos = { 400, 300, 50 } ;
 
-int enableTexGen ( ssgEntity * )
+static int enableTexGen ( ssgEntity * )
 {
 #ifdef GL_ARB_multitexture
   int tx ;
@@ -97,7 +106,7 @@ int enableTexGen ( ssgEntity * )
   return TRUE ;
 } 
 
-int disableTexGen ( ssgEntity * )
+static int disableTexGen ( ssgEntity * )
 {
 #ifdef GL_ARB_multitexture
   glActiveTextureARB ( GL_TEXTURE1_ARB ) ;
@@ -111,7 +120,7 @@ int disableTexGen ( ssgEntity * )
   return TRUE ;
 }
  
-void writeCplusplusCode ()
+static void writeCplusplusCode ()
 {
   if ( viewEnvMapButton -> getIntegerValue () )
   {
@@ -192,27 +201,27 @@ void writeCplusplusCode ()
 }
 
 
-void waveTextureSlider_cb ( puObject *ob )
+static void waveTextureSlider_cb ( puObject *ob )
 {
   ocean   -> setTexScale ( ob -> getFloatValue (),
                            ob -> getFloatValue () ) ;
 }
 
 
-void waveSizeSlider_cb ( puObject *ob )
+static void waveSizeSlider_cb ( puObject *ob )
 {
   cam_range = ob -> getFloatValue () ;
   ocean   -> setSize ( ob -> getFloatValue () ) ;
 }
 
 
-void wavePolycountSlider_cb ( puObject *ob )
+static void wavePolycountSlider_cb ( puObject *ob )
 {
   ocean -> setNumTris ( ob -> getIntegerValue () ) ;
 }
 
 
-void viewHeadingDial_cb ( puObject *ob )
+static void viewHeadingDial_cb ( puObject *ob )
 {
   campos.hpr[0] = ob -> getFloatValue () ;
 
@@ -224,7 +233,7 @@ void viewHeadingDial_cb ( puObject *ob )
 }
 
 
-void viewPitchDial_cb ( puObject *ob )
+static void viewPitchDial_cb ( puObject *ob )
 {
   campos . hpr [ 1 ] = ob -> getFloatValue () ;
 
@@ -236,7 +245,7 @@ void viewPitchDial_cb ( puObject *ob )
 }
 
 
-void viewRangeSlider_cb ( puObject *ob )
+static void viewRangeSlider_cb ( puObject *ob )
 {
   cam_range = ob -> getFloatValue () ;
 
@@ -248,13 +257,13 @@ void viewRangeSlider_cb ( puObject *ob )
 }
 
 
-void viewWireframeButton_cb ( puObject *ob )
+static void viewWireframeButton_cb ( puObject *ob )
 {
   wireframe = ob -> getIntegerValue () ;
 }
 
 
-void viewEnvMapButton_cb ( puObject *ob )
+static void viewEnvMapButton_cb ( puObject *ob )
 {
   if ( ob -> getIntegerValue () )
   {
@@ -271,34 +280,34 @@ void viewEnvMapButton_cb ( puObject *ob )
 }
 
 
-void trainLengthSlider_cb ( puObject *ob )
+static void trainLengthSlider_cb ( puObject *ob )
 {
   trains[curr_train].setLength ( ob -> getFloatValue () ) ;
   ob -> setLegend ( ob -> getStringValue () ) ;
 }
 
 
-void trainSpeedSlider_cb ( puObject *ob )
+static void trainSpeedSlider_cb ( puObject *ob )
 {
   trains[curr_train].setSpeed ( ob -> getFloatValue () ) ;
   ob -> setLegend ( ob -> getStringValue () ) ;
 }
 
 
-void trainLambdaSlider_cb ( puObject *ob )
+static void trainLambdaSlider_cb ( puObject *ob )
 {
   trains[curr_train].setLambda ( ob -> getFloatValue () ) ;
   ob -> setLegend ( ob -> getStringValue () ) ;
 }
 
 
-void trainHeightSlider_cb ( puObject *ob )
+static void trainHeightSlider_cb ( puObject *ob )
 {
   trains[curr_train].setWaveHeight ( ob -> getFloatValue () ) ;
   ob -> setLegend ( ob -> getStringValue () ) ;
 }
 
-void trainDisableButton_cb ( puObject *ob )
+static void trainDisableButton_cb ( puObject *ob )
 {
   for ( int i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
     ocean -> setWaveTrain ( i, NULL ) ;
@@ -306,13 +315,13 @@ void trainDisableButton_cb ( puObject *ob )
   trainEnableButton -> setValue ( 0 ) ;
 }
 
-void writeButton_cb ( puObject *ob )
+static void writeButton_cb ( puObject *ob )
 {
   if ( ob -> getIntegerValue () )
     writeCplusplusCode () ;
 }
 
-void trainEnableButton_cb ( puObject *ob )
+static void trainEnableButton_cb ( puObject *ob )
 {
   if ( ob -> getIntegerValue () )
     ocean -> setWaveTrain ( curr_train, & trains [ curr_train ] ) ;
@@ -320,13 +329,13 @@ void trainEnableButton_cb ( puObject *ob )
     ocean -> setWaveTrain ( curr_train, NULL ) ;
 }
 
-void trainHeadingDial_cb ( puObject *ob )
+static void trainHeadingDial_cb ( puObject *ob )
 {
   trains[curr_train].setHeading ( ob -> getFloatValue () ) ;
   ob -> setLegend ( ob -> getStringValue () ) ;
 }
 
-void trainSelectBox_cb ( puObject *ob )
+static void trainSelectBox_cb ( puObject *ob )
 {
   curr_train = ((puSelectBox *) ob) -> getCurrentItem () ;
 
@@ -347,49 +356,49 @@ void trainSelectBox_cb ( puObject *ob )
 }
 
 
-float halfMeterEverywhere ( float x, float y )
+static float halfMeterEverywhere ( float x, float y )
 {
   return 0.5f ;
 }
 
  
-float oneMeterEverywhere ( float x, float y )
+static float oneMeterEverywhere ( float x, float y )
 {
   return 1.0f ;
 }
 
  
-float twoMeterEverywhere ( float x, float y )
+static float twoMeterEverywhere ( float x, float y )
 {
   return 1.5f ;
 }
 
  
-float gentleSlope ( float x, float y )
+static float gentleSlope ( float x, float y )
 {
   return (1.0f + x / (ocean -> getSize ()[0] / 2.0f)) * 2.0f ;
 }
 
 
-float steepSlope ( float x, float y )
+static float steepSlope ( float x, float y )
 {
   return (1.0f + x / (ocean -> getSize ()[0] / 2.0f)) * 10.0f ;
 }
 
 
-float stepFunction ( float x, float y )
+static float stepFunction ( float x, float y )
 {
   return (x < 0.0f ) ? 0.5f : 20000.0f ;
 }
 
 
-float twoBeaches ( float x, float y )
+static float twoBeaches ( float x, float y )
 {
   return fabs ( sin(       x / ocean->getSize()[0]) *
                 sin(2.0f * y / ocean->getSize()[1]) * 1.5 + 0.5 ) ;
 }
 
-ssgaWSDepthCallback depthFuncs [] =
+static const ssgaWSDepthCallback depthFuncs [] =
 {
   NULL,   /* Infinite depth */
   halfMeterEverywhere,
@@ -402,7 +411,7 @@ ssgaWSDepthCallback depthFuncs [] =
   NULL,
 } ;
 
-char *depthNames [] =
+static char *depthNames [] =
 {
   "Infinite Depth",
   "Half Meter Deep",
@@ -415,7 +424,7 @@ char *depthNames [] =
   NULL,
 } ;
 
-void depthSelectBox_cb ( puObject *ob )
+static void depthSelectBox_cb ( puObject *ob )
 {
   curr_depthfunc = ((puSelectBox *) ob) -> getCurrentItem () ;
 
@@ -430,7 +439,7 @@ void depthSelectBox_cb ( puObject *ob )
 
 
 
-void update_motion ()
+static void update_motion ()
 {
   static ulClock ck ;
   static char s [ 128 ] ;
@@ -517,7 +526,7 @@ static void mousefn ( int button, int updown, int x, int y )
   The GLUT redraw event
 */
 
-void redraw ()
+static void redraw ()
 {
   update_motion () ;
 
@@ -541,7 +550,7 @@ void redraw ()
 
 
 
-void init_graphics ()
+static void init_graphics ()
 {
   int   fake_argc = 1 ;
   char *fake_argv[3] ;
@@ -613,7 +622,7 @@ static void droplet_create ( SPS *, int, ssgaParticle *p )
 }
 
 
-void init_states ()
+static void init_states ()
 {
   plinth_state = new ssgSimpleState () ;
   plinth_state -> setTexture        ( "data/pavement.rgb" ) ;
@@ -670,7 +679,7 @@ void init_states ()
 
 
 
-void load_database ()
+static void load_database ()
 {
   /* Set up the path to the data files */
 
@@ -764,7 +773,7 @@ void load_database ()
 }
 
 
-void init_gui ()
+static void init_gui ()
 {
   static puFont     *sorority ;
   static fntTexFont *fnt      ;
@@ -962,6 +971,4 @@ int main ( int, char ** )
   glutMainLoop  () ;
   return 0 ;
 }
-
-
 
