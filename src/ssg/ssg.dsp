@@ -166,6 +166,14 @@ SOURCE=.\ssgLoadDXF.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoaderWriterStuff.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgLoaderWriterStuff.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadmd2.cxx
 # End Source File
 # Begin Source File
