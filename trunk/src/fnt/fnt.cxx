@@ -23,11 +23,6 @@
 
 #include "fntLocal.h"
 
-void fntInit ( void )
-{
-}
-
-
 fntFont:: fntFont () {}
 fntFont::~fntFont () {}
 
