@@ -77,6 +77,7 @@ Here are the elements that make up the PUI API:
     <li><A HREF="#puPopupMenu"><code>puPopupMenu</code></A>
     <li><A HREF="#puMenuBar"><code>puMenuBar</code></A>
     <li><A HREF="#puInput"><code>puInput</code></A>
+    <li><A HREF="#puFilePicker"><code>puFilePicker</code></A>
     </ul>
   </TD>
   <TD>
@@ -87,6 +88,8 @@ Here are the elements that make up the PUI API:
     <li><A HREF="#puKeyboard"><code>puKeyboard</code></A>
     <li><A HREF="#puMouse"><code>puMouse</code></A>
     <li><A HREF="#puShowCursor"><code>puShowCursor</code></A>
+    <li><A HREF="#puBiSlider"><code>puBiSlider</code></A>
+    <li><A HREF="#puTriSlider"><code>puTriSlider</code></A>
     </ul>
   </TD>
 </TR>
@@ -1341,6 +1344,25 @@ There is a demo of this PUI setup in the puiAlone
 directory. Notice that this code is provided under
 somewhat different terms from the remainder of
 PUI - nothing too onerous though.
+<A NAME="puFilePicker"><H3><code>puFilePicker</code></H3></A>
+The puFilePicker class is derived from <A HREF="#puDialogBox">puDialogBox</A>. 
+FilePicker creates a dialog box for selecting a file.  
+<p>
+The API for puFilePicker:
+<pre>
+
+  puFilePicker::puFilePicker ( int x, int y, const char* dir, const char* title ) ;
+  puFilePicker::puFilePicker ( int x, int y, int w, int h, const char* dir, const char* title ) ;
+<pre>
+
+The first constructor sets the possition but uses a default value for the size of the dialog box, currently defaulting to 170,220. 
+The second constructor allows you to also select the size of the dialog box as well.
+
+<pre>
+  puFilePicker::setSize ( int w, int h) ;
+</pre>
+This method is used to set the current width and hight of the dialog box.  
+
 <hr>
 <ADDRESS>
 <A HREF="http://web2.airmail.net/sjbaker1">
