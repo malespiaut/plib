@@ -165,5 +165,7 @@ AC_OUTPUT( \
 	src/ssg/state_test/Makefile \
 	src/ssg/viewer/Makefile \
 	src/fnt/Makefile \
-	src/net/Makefile )
+	src/net/Makefile \
+	src/util/Makefile )
+
 
