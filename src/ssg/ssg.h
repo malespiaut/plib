@@ -178,6 +178,13 @@ public:
     removeEntity ( searchForEntity ( entity ) ) ;
   }
 
+  virtual void replaceEntity ( unsigned int n, ssgEntity *new_entity ) ;
+
+  void replaceEntity ( ssgEntity *old_entity, ssgEntity *new_entity )
+  {
+    replaceEntity ( searchForEntity ( old_entity ), new_entity ) ;
+  }
+
   int        getNumEntities    (void) { return total ; }
   ssgEntity *getNextEntity     (void) { return getEntity ( next+1 ) ; }
   int        searchForEntity   ( ssgEntity *entity ) ;
@@ -197,6 +204,13 @@ public:
   void removeEntity ( ssgEntity *entity )
   {
     removeEntity ( searchForEntity ( entity ) ) ;
+  }
+
+  void replaceEntity ( unsigned int n, ssgEntity *new_entity ) ;
+
+  void replaceEntity ( ssgEntity *old_entity, ssgEntity *new_entity )
+  {
+    replaceEntity ( searchForEntity ( old_entity ), new_entity ) ;
   }
 } ;
 
@@ -1252,6 +1266,8 @@ public:
   void removeKid     ( int n ) ;
   void removeKid     ( ssgEntity *entity ) ;
   void removeAllKids (void) ;
+  void replaceKid    ( int n, ssgEntity *new_entity ) ;
+  void replaceKid    ( ssgEntity *old_entity, ssgEntity *new_entity ) ;
 
   virtual ssgEntity *getByName ( char *match ) ;
   virtual ssgEntity *getByPath ( char *path  ) ;
