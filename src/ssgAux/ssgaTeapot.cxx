@@ -229,8 +229,9 @@ void ssgaTeapot::regenerate ()
   for ( int i = 0 ; patch[i][0] >= 0 ; i++ )
   {
     ssgaPatch *p = new ssgaPatch ( ntriangles / 32 ) ;
+    int j ;
 
-    for ( int j = 0 ; j < 16 ; j++ )
+    for ( j = 0 ; j < 16 ; j++ )
     {
       sgVec3 xyz ;
       sgVec4 rgba = { 1,1,1,1 } ;
@@ -261,7 +262,7 @@ void ssgaTeapot::regenerate ()
 
     ssgaPatch *p2 = new ssgaPatch ( ntriangles / 32 ) ;
 
-    for ( int j = 0 ; j < 16 ; j++ )
+    for ( j = 0 ; j < 16 ; j++ )
     {
       p  -> getControlPoint ( j>>2, 3-(j&3), xyz, uv, rgba ) ; 
       xyz [ 1 ] *= -1.0f ;
@@ -283,7 +284,7 @@ void ssgaTeapot::regenerate ()
       ssgaPatch *p3 = new ssgaPatch ( ntriangles / 32 ) ;
       ssgaPatch *p4 = new ssgaPatch ( ntriangles / 32 ) ;
 
-      for ( int j = 0 ; j < 16 ; j++ )
+      for ( j = 0 ; j < 16 ; j++ )
       {
         p  -> getControlPoint ( j>>2, 3-(j&3), xyz, uv, rgba ) ; 
         xyz [ 0 ] *= -1.0f ;
@@ -310,7 +311,7 @@ void ssgaTeapot::regenerate ()
       p4 -> setSize    ( getSize   () ) ;
       p4 -> regenerate () ;
 
-      for ( int j = 0 ; j < p3 -> getNumKids () ; j++ )
+      for ( j = 0 ; j < p3 -> getNumKids () ; j++ )
       {
         addKid ( p3->getKid(j) ) ;
         addKid ( p4->getKid(j) ) ;
@@ -322,7 +323,7 @@ void ssgaTeapot::regenerate ()
       delete p4 ;
     }
 
-    for ( int j = 0 ; j < p -> getNumKids () ; j++ )
+    for ( j = 0 ; j < p -> getNumKids () ; j++ )
     {
       addKid ( p->getKid(j) ) ;
       addKid ( p2->getKid(j) ) ;
