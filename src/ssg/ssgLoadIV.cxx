@@ -1,3 +1,4 @@
+
 #include "ssgLocal.h"
 #include "ssgParser.h"
 #include "ssgLoaderWriterStuff.h"
@@ -35,6 +36,7 @@ _parseTag ivTags [] =
      { "MatrixTransform", vrml1_parseMatrixTransform },
      { "Scale", vrml1_parseScale },
      { "Rotation", vrml1_parseRotation },
+     { "Translation", vrml1_parseTranslation },
      { NULL, NULL },
 };
 
