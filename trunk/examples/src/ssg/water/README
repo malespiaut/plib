@@ -1,0 +1,41 @@
+
+Designing Waves.
+~~~~~~~~~~~~~~~~
+
+The PLIB ssgAux library contains a class for handling
+water waves.
+
+   class ssgaWaveSystem ;
+
+This generates a large polygonal mesh which it distorts in
+realtime to simulate water waves.
+
+The simulation uses between one and sixteen "Wave Trains" - each
+using a class:
+
+  class ssgaWaveTrain ;
+
+The program in this directory demonstrates this system and allows
+you to play with the wave train parameters.
+
+Use the 'Edit Wave Train Number' widget to select which of the
+16 wave trains you want to play with.  There is a button just
+below that to enable or disable that particular wave train - and
+for convenience, there is a button to disable ALL wave trains.
+
+It's often convenient to turn on just one wave train at a time
+and set it's parameters - then combine two, three or more to
+produce the final effect.
+
+Each wave train has a direction in which the waves are travelling,
+a speed, a wave length (which also affects the shape of the wave),
+the height of the wave and a 'curl' term (which controls how much
+the tops of the waves bend over).
+
+There are also controls to set the eyepoint pan/tilt/range and to
+toggle the system into wireframe.
+
+Finally, you can determine the number of polygons used to render
+the patch of waves, the size of the wave patch and the amount
+of texture repetition.
+
