@@ -374,11 +374,9 @@ void ssgVtxTable::drawHighlight ( sgVec4 colour, int v )
 
 void ssgVtxTable::draw ()
 {
-fprintf(stderr, "IN SSGVTXTABLE::draw()\n" ) ;
   if ( ! preDraw () )
     return ;
 
-fprintf(stderr, "    REALLY IN SSGVTXTABLE::draw()\n" ) ;
   if ( hasState () ) getState () -> apply () ;
 
   stats_num_leaves++ ;
