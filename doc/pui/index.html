@@ -7,7 +7,7 @@
    <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
    <title>The Picoscopic User Interface: Programmers Guide.</title>
 </head>
-<body text="#B5A642" bgcolor="#005000" link="#8FFF8F" vlink="#18A515" alink="#20336B" background="marble.png">
+<body text="#B5A642" bgcolor="#005000" link="#8FFF8F" vlink="#18A515" alink="#20336B" background="../marble.png">
 &nbsp;
 <table>
 <tr>
@@ -2134,8 +2134,9 @@ his changes were improved and verified to work under other operating systems
 as well.
 <p>However, this is certainly not the intended way to use PUI - even under
 WIN32 - but it's interesting to know that it <b>is</b> possible.
-<p>All you have to do is to define <b>PU_NOT_USING_GLUT</b> both when compiling
-PUI and previous to including "pu.h" from your application.
+<p>All you have to do is pass the option --without-glut to the PLIB
+configure script and define the PU_NOT_USING_GLUT macro before
+including "pu.h" from your code.
 <p>Since there is no longer any way for PUI to glutGet() the screen dimensions,
 your application must now tell PUI every time it changes the screen dimensions.
 <pre>&nbsp;&nbsp;&nbsp; puSetWindowSize ( int width, int height ) ;
@@ -2148,18 +2149,17 @@ There are two portability functions:
 </pre>
 These return the most recent puSetWindowSize() parameters without GLUT
 - and do a nice portable glutGet() otherwise.
-<p>Without GLUT, PUI can also not create the default fonts from the seven
-GLUT_BITMAP fonts like it normally would. Instead, it tries to load some
-.txf fonts in the <a href="#puInit">puInit</a> routine. Hence, you have
-to ensure that the typewriter.txf, times_bold.txf and helvetica_bold.txf
-files from examples/src/fnt/data/ are in the current directory when using
-the GLUT-less PUI library. Additionally, note that currently spreading
-PUI widgets across multiple windows won't work properly when using the
-non-GLUT hack.
+<p>Without GLUT, PUI can also not create the default PUI fonts from the seven
+GLUT bitmap fonts like it normally would. Instead, it tries to load some
+textured fonts in the <a href="#puInit">puInit</a> routine. Hence, you have
+to ensure that Courier.txf, Times-Roman.txf and Helvetica.txf from
+examples/src/fnt/data/ are in the working directory when using the GLUT-free
+PUI library. Additionally, note that currently spreading PUI widgets across
+multiple windows won't work properly when using the non-GLUT hack.
 <hr>
 <table>
 <tr>
-<td><a href="http://validator.w3.org/check/referer"><img SRC="valid-html40.png" ALT="Valid HTML 4.0!" BORDER=0 height=31 width=88></a></td>
+<td><a href="http://validator.w3.org/check/referer"><img SRC="../valid-html40.png" ALT="Valid HTML 4.0!" BORDER=0 height=31 width=88></a></td>
 
 <td>
 <address>
