@@ -893,7 +893,7 @@ int main ( int argc, char **argv )
 #endif
 
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
-  puSetDefaultColourScheme ( 0.8, 0.8, 0.8, 1.0 ) ;
+  puSetDefaultColourScheme ( 0.8f, 0.8f, 0.8f, 1.0f ) ;
 
   // Add the properties context menu
   context_menu = new puPopupMenu( 0, 0 ) ;
