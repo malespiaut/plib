@@ -312,9 +312,9 @@ void puBox::draw ( int dx, int dy, int style, puColour colour[], int am_default,
     case  PUSTYLE_SPECIAL_UNDERLINED :
       glColor4fv ( colour [ hi  ] ) ;
       glRecti ( dx + min[0], dy + min[1],
-		dx + max[0], dy + min[1]+2 ) ;
+		dx + max[0], dy + min[1]+border ) ;
       glColor4fv ( colour [ mid ] ) ;
-      glRecti ( dx + min[0], dy + min[1]+1,
+      glRecti ( dx + min[0], dy + min[1]+border,
 		dx + max[0], dy + max[1] ) ;
       break ;
 
