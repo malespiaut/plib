@@ -140,38 +140,38 @@ void puBox::draw ( int dx, int dy, int style, puColour colour[], int am_default,
       }
       else
       {
-	glShadeModel(GL_SMOOTH);
-	glBegin(GL_POLYGON);
-	  glColor4fv( colour [ mid ] );
-	  glVertex2i( dx + min[0] + border, dy + min[1] + border );
+	glShadeModel ( GL_SMOOTH ) ;
+	glBegin ( GL_POLYGON ) ;
+	  glColor4fv ( colour [ mid ] ) ;
+	  glVertex2i ( dx + min[0] + border, dy + min[1] + border ) ;
 	  if ( ( style == PUSTYLE_SMALL_SHADED ) ||
                ( style == PUSTYLE_SHADED ) )
-	    glColor4f( colour [mid][0] + (colour[lo][0] - colour[mid][0])/2.0f,
-		       colour [mid][1] + (colour[lo][1] - colour[mid][1])/2.0f,
-		       colour [mid][2] + (colour[lo][2] - colour[mid][2])/2.0f,
-		       colour [lo][3] );
+	    glColor4f ( colour [mid][0] + (colour[lo][0] - colour[mid][0])/2.0f,
+		        colour [mid][1] + (colour[lo][1] - colour[mid][1])/2.0f,
+		        colour [mid][2] + (colour[lo][2] - colour[mid][2])/2.0f,
+		        colour [lo][3] ) ;
 	  else
-	    glColor4f( colour [mid][0] + (colour[hi][0] - colour[mid][0])/2.0f,
-		       colour [mid][1] + (colour[hi][1] - colour[mid][1])/2.0f,
-		       colour [mid][2] + (colour[hi][2] - colour[mid][2])/2.0f,
-		       colour [hi][3] );
-	  glVertex2i( dx + min[0] + border, dy + max[1] - border );
-	  glColor4fv( colour [ mid ] );
-	  glVertex2i( dx + max[0] - border, dy + max[1] - border );
+	    glColor4f ( colour [mid][0] + (colour[hi][0] - colour[mid][0])/2.0f,
+		        colour [mid][1] + (colour[hi][1] - colour[mid][1])/2.0f,
+		        colour [mid][2] + (colour[hi][2] - colour[mid][2])/2.0f,
+		        colour [hi][3] ) ;
+	  glVertex2i ( dx + min[0] + border, dy + max[1] - border ) ;
+	  glColor4fv ( colour [ mid ] ) ;
+	  glVertex2i ( dx + max[0] - border, dy + max[1] - border ) ;
 	  if ( ( style == -PUSTYLE_SMALL_SHADED ) ||
                ( style == -PUSTYLE_SHADED ) )
-	    glColor4f( colour [mid][0] + (colour[lo][0] - colour[mid][0])/2.0f,
-		       colour [mid][1] + (colour[lo][1] - colour[mid][1])/2.0f,
-		       colour [mid][2] + (colour[lo][2] - colour[mid][2])/2.0f,
-		       colour [lo][3] );
+	    glColor4f ( colour [mid][0] + (colour[lo][0] - colour[mid][0])/2.0f,
+		        colour [mid][1] + (colour[lo][1] - colour[mid][1])/2.0f,
+		        colour [mid][2] + (colour[lo][2] - colour[mid][2])/2.0f,
+		        colour [lo][3] ) ;
 	  else
-	    glColor4f( colour [mid][0] + (colour[hi][0] - colour[mid][0])/2.0f,
-		       colour [mid][1] + (colour[hi][1] - colour[mid][1])/2.0f,
-		       colour [mid][2] + (colour[hi][2] - colour[mid][2])/2.0f,
-		       colour [hi][3] );
-	  glVertex2i( dx + max[0] - border, dy + min[1] + border );
-	glEnd();
-	glShadeModel(GL_FLAT);
+	    glColor4f ( colour [mid][0] + (colour[hi][0] - colour[mid][0])/2.0f,
+		        colour [mid][1] + (colour[hi][1] - colour[mid][1])/2.0f,
+		        colour [mid][2] + (colour[hi][2] - colour[mid][2])/2.0f,
+		        colour [hi][3] ) ;
+	  glVertex2i ( dx + max[0] - border, dy + min[1] + border ) ;
+	glEnd () ;
+	glShadeModel (GL_FLAT) ;
 
 	if ( ( style == -PUSTYLE_SMALL_SHADED ) ||
              ( style == -PUSTYLE_SHADED ) )
