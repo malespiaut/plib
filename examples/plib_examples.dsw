@@ -129,6 +129,9 @@ Package=<4>
     Project_Dep_Name fnt_test
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name http_get
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name js_demo
     End Project Dependency
     Begin Project Dependency
@@ -139,6 +142,15 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name mod_demo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name net_echo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name net_udp_client
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name net_udp_server
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name save
@@ -168,7 +180,13 @@ Package=<4>
     Project_Dep_Name test_dir
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name tween_test
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name WavingFlag
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name widget_list
     End Project Dependency
 }}}
 
@@ -259,6 +277,78 @@ Package=<4>
 ###############################################################################
 
 Project: "viewer"=.\src\ssg\viewer\viewer.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "net_udp_server"=.\src\net\client_server\net_udp_server.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "net_udp_client"=.\src\net\client_server\net_udp_client.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "http_get"=.\src\net\http_get\http_get.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "net_echo"=.\src\net\net_echo\net_echo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "widget_list"=.\src\pui\widget_list.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "tween_test"=.\src\ssg\tween_test\tween_test.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
