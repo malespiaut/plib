@@ -190,7 +190,10 @@ static void sliderdisplayfn (void)
 {
   /*
     Function to display only the slider window
+    We must set the glut window first
   */
+
+  glutSetWindow ( slider_window ) ;
 
   /* Clear the screen */
 
