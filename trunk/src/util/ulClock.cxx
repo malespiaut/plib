@@ -29,8 +29,10 @@
 #ifdef UL_CYGWIN
   typedef long long _int64;
   #define LARGEINTEGER _int64
-#else
-#include <sys/time.h>
+#endif
+
+#ifndef UL_WIN32
+#  include <sys/time.h>
 #endif
 
 #include <time.h>
