@@ -109,6 +109,7 @@ void ssgLoaderWriterMesh::ThereAreNVertices( int n )
 
 void ssgLoaderWriterMesh::addVertex ( sgVec3 v ) 
 {
+	assert(theVertices!=NULL);
 	theVertices->add ( v );
 }
 
@@ -121,6 +122,7 @@ void ssgLoaderWriterMesh::ThereAreNFaces( int n )
 
 void ssgLoaderWriterMesh::addFace ( ssgIndexArray **ia ) 
 {
+	assert(theFaces!=NULL);
 	theFaces->add ( (ssgSimpleList **)ia );
 }
 
@@ -133,6 +135,7 @@ void ssgLoaderWriterMesh::ThereAreNTCPFAV( int n )
 
 void ssgLoaderWriterMesh::addTCPFAV ( ssgTexCoordArray **tca ) 
 {
+	assert(tCPFAV!=NULL);
 	tCPFAV->add ( (ssgSimpleList **)tca );
 }
 
@@ -144,6 +147,7 @@ void ssgLoaderWriterMesh::ThereAreNTCPV( int n )
 
 void ssgLoaderWriterMesh::addTCPV ( sgVec2 tc ) 
 {
+	assert(tCPV!=NULL);
 	tCPV->add ( tc );
 }
 
@@ -157,6 +161,7 @@ void ssgLoaderWriterMesh::ThereAreNMaterialIndexes( int n )
 
 void ssgLoaderWriterMesh::addMaterialIndex ( short mi ) 
 {
+	assert(materialIndexes!=NULL);
 	materialIndexes->add ( mi );
 }
 
@@ -169,6 +174,7 @@ void ssgLoaderWriterMesh::ThereAreNMaterials( int n )
 
 void ssgLoaderWriterMesh::addMaterial ( class ssgSimpleState **ss ) 
 {
+	assert(theMaterials!=NULL);
 	theMaterials->add ( ss );
 }
 
@@ -207,6 +213,7 @@ void ssgLoaderWriterMesh::AddFaceFromCArray(int nNoOfVerticesForThisFace,
 	oneFace->ref();
 	for(j=0;j<nNoOfVerticesForThisFace;j++)
 		oneFace->add(aiVertices[j]);
+	assert(theFaces!=NULL);
 	theFaces->add( (ssgSimpleList **) &oneFace ); 
 
 }
@@ -273,7 +280,9 @@ void ssgLoaderWriterMesh::AddOneNode2SSG(class ssgVertexArray *theVertices,
 
 	leaf -> setState ( currentState ) ;
 	//return 
-	current_options -> createLeaf ( leaf, NULL) ;
+	assert(	
+		current_options -> createLeaf ( leaf, NULL)  
+		!= NULL );
 	curr_branch_->addKid(leaf);
 }
 
@@ -311,7 +320,8 @@ void ssgLoaderWriterMesh::add2SSG(
 	if ( theMaterials == NULL )
 		AddOneNode2SSG(theVertices, theFaces, currentState, current_options, curr_branch_);
 	else
-	{	
+	{	assert(theVertices!=NULL);
+		assert(theFaces!=NULL);
 		for(i=0;i<theMaterials->getNum();i++)
 		{	
 			// I often allocate too much; This is wastefull on memory, but fast since it never "resizes":
@@ -326,8 +336,7 @@ void ssgLoaderWriterMesh::add2SSG(
 			// Pfusch, kludge, 2do: if the Materials just differ through the colour, one would not need
 			// several meshes, but could use the colour array. However, this is not possible,
 			// if they differ by for example the texture
-					thisFace = *((class ssgIndexArray **) theFaces->get( 0 )); 
-					thisFace = *((class ssgIndexArray **) theFaces->get( 1 )); 
+			assert(materialIndexes!=NULL);
 			for (j=0;j<theFaces->getNum();j++)
 				if ( i == *(materialIndexes->get(
 					       // for *.x-files, there may be less materialIndexes than faces. I then simply repeat 
@@ -404,6 +413,7 @@ int ssgLoaderWriterMesh::checkMe()
 	/* Pfusch; kludge 2do
 	// one index per face:
 	class ssgIndexArray *materialIndexes; 
+
 	theMaterials
 	*/
 	if ((( theMaterials == NULL ) && ( materialIndexes != NULL )) ||
@@ -415,6 +425,7 @@ int ssgLoaderWriterMesh::checkMe()
 	if ( materialIndexes != NULL ) 
 	{ for (i=0;i<materialIndexes->getNum();i++)
 		{ oneIndex = *materialIndexes->get(i);
+			assert(theMaterials!=NULL);
 	    if (( oneIndex < 0 ) || ( oneIndex >= theMaterials->getNum()))
 			{	ulSetError( UL_WARNING, "LoaderWriterMesh::checkMe(): "
 													 "Material index out of range. Index = %d, "

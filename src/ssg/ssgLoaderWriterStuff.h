@@ -101,9 +101,9 @@ public:
 	void ThereAreNMaterials( int n = 3 ) ;
 	void addMaterial ( class ssgSimpleState **ss ) ;
 
-  int getNumVertices(void) { return theVertices->getNum(); } ;
-	int getNumFaces   (void) { return theFaces->getNum(); } ;
-	int getNumMaterials   (void) { return theMaterials->getNum(); } ;
+  unsigned int getNumVertices(void) { return theVertices->getNum(); } ;
+	unsigned int getNumFaces   (void) { return theFaces->getNum(); } ;
+	unsigned int getNumMaterials(void) { return theMaterials->getNum(); } ;
 
 
 	// tools:
