@@ -149,7 +149,7 @@ void puGroup::add ( puObject *new_obj )
 
 int puGroup::checkKey ( int key, int updown )
 {
-  if ( dlist == NULL || ! isVisible () || ! isActive () )
+  if ( updown == PU_UP || dlist == NULL || ! isVisible () || ! isActive () )
     return FALSE ;
 
   puObject *bo ;

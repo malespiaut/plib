@@ -192,7 +192,7 @@ int puComboBox::checkHit ( int button, int updown, int x, int y )
 
 int puComboBox::checkKey ( int key, int updown )
 {
-  if ( ! input -> isAcceptingInput () || ! isVisible () || ! isActive () || ( window != puGetWindow () ) )
+  if ( updown == PU_UP || ! input -> isAcceptingInput () || ! isVisible () || ! isActive () || ( window != puGetWindow () ) )
     return FALSE ;
 
   switch ( key )
