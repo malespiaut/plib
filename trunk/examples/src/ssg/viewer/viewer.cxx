@@ -15,6 +15,15 @@
 #include <plib/fnt.h>
 #include <plib/pu.h>
 
+#define ARROWS_USED 1
+/*
+!!!FIXME!!!
+Defines what type of arrows to uses with puFilePicker
+0 - No arrows
+1 - Single move arrows
+2 - Single move and Jump 10 moves
+*/
+
 /*
 scene graph
 */
@@ -503,7 +512,7 @@ void keyboard(unsigned char key, int, int)
   case 'l':
     if ( !file_picker )
     {
-      file_picker = new puFilePicker ( ( 640 - 220 ) / 2, ( 480 - 170 ) / 2, "data" ) ;
+      file_picker = new puFilePicker ( ( 640 - 220 ) / 2, ( 480 - 170 ) / 2, ARROWS_USED, "data" ) ;
       file_picker -> setCallback ( pick_cb ) ;
     }
     break;
