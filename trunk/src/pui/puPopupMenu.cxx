@@ -191,7 +191,7 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
     return FALSE ;
 
   puObject *bo ;
-  int objecthit ;  
+  int objecthit = FALSE ;
   /*
     We have to walk the list backwards to ensure that
     the click order is the same as the DRAW order.
