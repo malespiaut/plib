@@ -466,35 +466,29 @@ inline void sgAddScaledVec4 ( sgVec4 dst, const sgVec4 src1, const sgVec4 src2, 
 
 inline int sgCompareVec2 ( const sgVec2 a, const sgVec2 b, const SGfloat tol )
 {
-  int val = 0 ;
+  if ( sgCompareFloat( a[0], b[0], tol ) != 0 ) return FALSE ;
+  if ( sgCompareFloat( a[1], b[1], tol ) != 0 ) return FALSE ;
 
-  if ( ( val = sgCompareFloat( a[0], b[0], tol ) ) != 0 ) return val ;
-  if ( ( val = sgCompareFloat( a[1], b[1], tol ) ) != 0 ) return val ;
-
-  return 0 ;
+  return TRUE ;
 }
 
 inline int sgCompareVec3 ( const sgVec3 a, const sgVec3 b, const SGfloat tol )
 {
-  int val = 0 ;
+  if ( sgCompareFloat( a[0], b[0], tol ) != 0 ) return FALSE ;
+  if ( sgCompareFloat( a[1], b[1], tol ) != 0 ) return FALSE ;
+  if ( sgCompareFloat( a[2], b[2], tol ) != 0 ) return FALSE ;
 
-  if ( ( val = sgCompareFloat( a[0], b[0], tol ) ) != 0 ) return val ;
-  if ( ( val = sgCompareFloat( a[1], b[1], tol ) ) != 0 ) return val ;
-  if ( ( val = sgCompareFloat( a[2], b[2], tol ) ) != 0 ) return val ;
-
-  return 0 ;
+  return TRUE ;
 }
 
 inline int sgCompareVec4 ( const sgVec4 a, const sgVec4 b, const SGfloat tol )
-{
-  int val = 0 ;
 
-  if ( ( val = sgCompareFloat( a[0], b[0], tol ) ) != 0 ) return val ;
-  if ( ( val = sgCompareFloat( a[1], b[1], tol ) ) != 0 ) return val ;
-  if ( ( val = sgCompareFloat( a[2], b[2], tol ) ) != 0 ) return val ;
-  if ( ( val = sgCompareFloat( a[3], b[3], tol ) ) != 0 ) return val ;
+  if ( sgCompareFloat( a[0], b[0], tol ) != 0 ) return FALSE ;
+  if ( sgCompareFloat( a[1], b[1], tol ) != 0 ) return FALSE ;
+  if ( sgCompareFloat( a[2], b[2], tol ) != 0 ) return FALSE ;
+  if ( sgCompareFloat( a[3], b[3], tol ) != 0 ) return FALSE ;
 
-  return 0 ;
+  return TRUE ;
 }
 
 
