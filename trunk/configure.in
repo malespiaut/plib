@@ -3,8 +3,6 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/js/js.h)
 AM_INIT_AUTOMAKE(plib, 1.6.0)
 
-AM_CONFIG_HEADER(plibconfig.h)
-
 # This AC_PREFIX_DEFAULT will place the library files
 # into /usr/lib - but will put the include files into
 # /usr/include - when /usr/include/plib would be less
@@ -289,8 +287,7 @@ dnl Checks for header files.
 
 AC_HEADER_STDC
 
-AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32,,
-[Define if build system is a Windows box]))
+AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
 
 if test "x$need_opengl" = "xyes"; then
     dnl Check for OpenGl header files
@@ -303,8 +300,7 @@ if test "x$need_opengl" = "xyes"; then
         AC_MSG_ERROR([OpenGL header file not found]))
 
         if test "x$need_glut" = "xyes"; then
-                AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(PU_USING_GLUT,,
-                [If defined, PUI uses the GLUT library]),
+                AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
                 AC_MSG_ERROR([GLUT header file not found]))
         fi
 		;;
@@ -315,8 +311,7 @@ if test "x$need_opengl" = "xyes"; then
         AC_MSG_ERROR([OpenGL header file not found]))
 
         if test "x$need_glut" = "xyes"; then
-                AC_CHECK_HEADER(GLUT/glut.h, AC_DEFINE(PU_USING_GLUT,,
-                [If defined, PUI uses the GLUT library]),
+                AC_CHECK_HEADER(GLUT/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
                 AC_MSG_ERROR([GLUT header file not found]))
         fi
 		;;
@@ -327,13 +322,11 @@ if test "x$need_opengl" = "xyes"; then
         if test "x$need_glut" = "xyes"; then
                 if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xyes"; then
                         AC_CHECK_HEADER(GL/freeglut.h,
-                        AC_DEFINE(PU_USING_FREEGLUT,,
-                        [If defined, PUI uses the freeglut library]),
+                        AC_DEFINE(FREEGLUT_IS_PRESENT),
                         AC_MSG_ERROR([freeglut header file not found]))
                 else
                         AC_CHECK_HEADER(GL/glut.h,
-                        AC_DEFINE(PU_USING_GLUT,,
-                        [If defined, PUI uses the GLUT library]),
+                        AC_DEFINE(GLUT_IS_PRESENT),
                         AC_MSG_ERROR([GLUT header file not found]))
                 fi
         fi
@@ -377,9 +370,9 @@ AC_TRY_COMPILE([
 int accept (int, struct sockaddr *, size_t *);
 ],[],[
 AC_MSG_RESULT(size_t)
-AC_DEFINE(socklen_t,size_t,[socklen_t definition (if not defined by OS)])], [
+AC_DEFINE(socklen_t,size_t)], [
 AC_MSG_RESULT(int)
-AC_DEFINE(socklen_t,int,[socklen_t definition (if not defined by OS)])])])
+AC_DEFINE(socklen_t,int)])])
 
 
 AC_OUTPUT( \
