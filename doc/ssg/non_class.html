@@ -115,9 +115,23 @@ class ssgLight
   int isOn () ;
   void on  () ;
   void off () ;
-  void setPosition ( sgVec3 pos ) ;
+
+  void setPosition ( const sgVec3 pos ) ;
+  void setPosition ( float x, float y, float z ) ;
+
+  void setColour ( GLenum which , const sgVec4 colour ) ;
+  void setColour ( GLenum which , float r, float g, float b ) ;
+
   void setHeadlight ( int head ) ;
   int  isHeadlight () ;
+
+  void setSpotlight ( int spot ) ;
+  int  isSpotlight () ;
+
+  void setSpotDirection ( const sgVec3 dir ) ;
+  void setSpotDirection ( float x, float y, float z ) ;
+  void setSpotDiffusion ( float exponent, float cutoff = 90.0f ) ;
+  void setSpotAttenuation ( float constant, float linear, float quadratic ) ; 
 } ;
 
 </pre>
@@ -126,6 +140,14 @@ Each light can be turned on or off - or tested to see if it's on or off.
 Lights are positioned with 'setPosition()' - which can be relative
 to the origin of the world - or relative to the SSG camera (in 'headlight'
 mode).
+<p>
+If the 'spotlight' mode is enabled,
+then the light intensity has a certain distribution and attenuation.
+These parameters can be set with the 'setSpotXxx' methods.
+Otherwise, the light source is considered to be directional, 
+or infinitely far away (in the direction of its position).
+The 'spotlight' mode is initially disabled.
+
 <H3>Miscellany.</H3>
 It's convenient to find out how much texture memory has been
 consumed:

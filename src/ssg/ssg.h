@@ -596,7 +596,7 @@ public:
   int getNum (void) { return total ; }
   ssgSimpleState* get ( unsigned int n )
   {
-    assert(n>=0 && n<total);
+    assert(n<total);
     return *( (ssgSimpleState**) raw_get ( n ) ) ;
   }
   void add ( ssgSimpleState* ss ) ;
@@ -1936,6 +1936,11 @@ class ssgLight
 
   sgVec4 position ;
 
+  sgVec3 direction ;
+  float  exponent ;
+  float  cutoff ;
+  sgVec3 atten ;
+
 public:
 
   ssgLight ()
@@ -1947,15 +1952,22 @@ public:
     sgSetVec4 ( ambient , 0.2f, 0.2f, 0.2f, 1.0f ) ;
     sgSetVec4 ( diffuse , 1.0f, 1.0f, 1.0f, 1.0f ) ;
     sgSetVec4 ( specular, 1.0f, 1.0f, 1.0f, 1.0f ) ;
+    sgSetVec3 ( direction, 0.0f, 0.0f, -1.0f ) ;
+    exponent = 1.0f;
+    cutoff   = 90.0f;
+    sgSetVec3 ( atten, 1.0f, 0.0f, 0.0f ) ;
   }
 
   void setID ( int i ) { id = i ; }
   int  isOn () { return is_turned_on  ; }
   void on  () { is_turned_on = TRUE  ; }
   void off () { is_turned_on = FALSE ; }
-  void setPosition ( sgVec3 pos ) { sgCopyVec3 ( position, pos ) ; }
 
-  void setColour   ( GLenum which, sgVec4 col )
+  void setPosition ( const sgVec3 pos ) { sgCopyVec3 ( position, pos ) ; }
+  void getPosition ( sgVec3 pos )       { sgCopyVec3 ( pos, position ) ; }
+  void setPosition ( float x, float y, float z ) { sgSetVec3 ( position, x, y, z ) ; }
+
+  void setColour   ( GLenum which, const sgVec4 col )
   {
     switch ( which )
     {
@@ -1969,17 +1981,54 @@ public:
 
   void getColour   ( GLenum which, sgVec4 col )
   {
-	  switch ( which )
-	  {
-		  case GL_AMBIENT  : sgCopyVec4 ( col , ambient ) ; break ;
-		  case GL_DIFFUSE  : sgCopyVec4 ( col , diffuse ) ; break ;
-		  case GL_SPECULAR : sgCopyVec4 ( col, specular ) ; break ;
-		  default : break ;
-	  }
+    switch ( which )
+    {
+      case GL_AMBIENT  : sgCopyVec4 ( col , ambient ) ; break ;
+      case GL_DIFFUSE  : sgCopyVec4 ( col , diffuse ) ; break ;
+      case GL_SPECULAR : sgCopyVec4 ( col, specular ) ; break ;
+      default : break ;
+    }
+  }
+
+  void setColour   ( GLenum which, float r, float g, float b )
+  {
+    sgVec4 colour = { r, g, b, 1.0f };
+    setColour(which, colour);
   }
 
   void setHeadlight ( int head ) { is_headlight = head ; }
   int  isHeadlight () { return is_headlight ; }
+
+  void setSpotlight ( int spot ) { position[3] = ( spot ? 1.0f : 0.0f ) ; }
+  int  isSpotlight () { return position[3] != 0.0f; }
+  
+  void setSpotDirection ( const sgVec3 dir ) { sgCopyVec3 ( direction, dir ) ; }
+  void getSpotDirection ( sgVec3 dir )       { sgCopyVec3 ( dir, direction ) ; }
+  void setSpotDirection ( float x, float y, float z ) { sgSetVec3 ( direction, x, y, z ) ; }
+
+  void setSpotDiffusion ( float exp, float cut = 90.0f )
+  {
+    exponent = exp;
+    cutoff   = cut;
+  }
+
+  void getSpotDiffusion ( float *exp, float *cut = 0 )
+  {
+    if (exp != 0) *exp = exponent;
+    if (cut != 0) *cut = cutoff;
+  }
+
+  void setSpotAttenuation ( float constant, float linear, float quadratic )
+  {
+    sgSetVec3( atten, constant, linear, quadratic );
+  }
+
+  void getSpotAttenuation ( float *constant, float *linear, float *quadratic )
+  {
+    if (constant  != 0) *constant  = atten[0];
+    if (linear    != 0) *linear    = atten[1];
+    if (quadratic != 0) *quadratic = atten[2];
+  }
 
   void setup ()
   {
@@ -1990,10 +2039,19 @@ public:
       glLightfv ( (GLenum)(GL_LIGHT0+id), GL_DIFFUSE , diffuse  ) ;
       glLightfv ( (GLenum)(GL_LIGHT0+id), GL_SPECULAR, specular ) ;
       glLightfv ( (GLenum)(GL_LIGHT0+id), GL_POSITION, position ) ;
+      if ( isSpotlight() ) {
+	 glLightfv ( (GLenum)(GL_LIGHT0+id), GL_SPOT_DIRECTION, direction ) ;
+	 glLightf  ( (GLenum)(GL_LIGHT0+id), GL_SPOT_EXPONENT,  exponent  ) ;
+	 glLightf  ( (GLenum)(GL_LIGHT0+id), GL_SPOT_CUTOFF,    cutoff    ) ;
+	 glLightf  ( (GLenum)(GL_LIGHT0+id), GL_CONSTANT_ATTENUATION,  atten[0] );
+	 glLightf  ( (GLenum)(GL_LIGHT0+id), GL_LINEAR_ATTENUATION,    atten[1] );
+	 glLightf  ( (GLenum)(GL_LIGHT0+id), GL_QUADRATIC_ATTENUATION, atten[2] );
+      }
     }
     else
       glDisable ( (GLenum)(GL_LIGHT0+id) ) ;
   }
+
 } ;
 
 class ssgHit
