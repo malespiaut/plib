@@ -1536,7 +1536,7 @@ public:
                            ssgNormalArray   *nl,
                            ssgTexCoordArray *tl,
                            ssgColourArray   *cl,
-						   ssgIndexArray    *il ) ;
+			   ssgIndexArray    *il ) ;
 
   virtual void drawHighlight ( sgVec4 colour ) ;
   virtual void drawHighlight ( sgVec4 colour, int i ) ;
@@ -2687,6 +2687,7 @@ ssgEntity *ssgLoad3ds  ( const char *fname, const ssgLoaderOptions *options = NU
 ssgEntity *ssgLoadAC3D ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadSSG  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadASE  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadDOF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadDXF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadTRI  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 ssgEntity *ssgLoadOBJ  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;

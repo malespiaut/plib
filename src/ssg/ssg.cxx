@@ -129,6 +129,7 @@ void ssgInit ()
   ssgAddModelFormat ( ".3ds",   ssgLoad3ds  , ssgSave3ds ) ;
   ssgAddModelFormat ( ".ac" ,   ssgLoadAC3D , ssgSaveAC  ) ;
   ssgAddModelFormat ( ".ase",   ssgLoadASE  , ssgSaveASE ) ;
+  ssgAddModelFormat ( ".dof",   ssgLoadDOF  , NULL       ) ;
   ssgAddModelFormat ( ".dxf",   ssgLoadDXF  , ssgSaveDXF ) ;
   ssgAddModelFormat ( ".obj",   ssgLoadOBJ  , ssgSaveOBJ ) ;
   ssgAddModelFormat ( ".tri",   ssgLoadTRI  , ssgSaveTRI ) ;
