@@ -66,6 +66,8 @@ Event::Event ( int n, float t )
   nbones = n ;
   bone_angles = new sgCoord [ n ] ;
 
+  sgCopyVec3 ( translate, getCurrTranslate() ) ;
+
   for ( int i = 0 ; i < n ; i++ )
   {
     sgCopyVec3 ( bone_angles [ i ] . hpr, getBone(i)->getDialAngles() ) ;
@@ -78,7 +80,8 @@ void Event::read ( FILE *fd )
 {
   int ssh, ssp, ssr ;
  
-  fscanf ( fd, "EVENT %f %d\n", &time, &nbones ) ;
+  fscanf ( fd, "EVENT %f %d (%f,%f,%f)\n", &time, &nbones,
+                 &translate[0], &translate[1], &translate[2] ) ;
 
   for ( int i = 0 ; i < nbones ; i++ )
   {
@@ -91,7 +94,8 @@ void Event::read ( FILE *fd )
  
 void Event::write ( FILE *fd )
 {
-  fprintf ( fd, "EVENT %f %d\n", time, nbones ) ;
+  fprintf ( fd, "EVENT %f %d (%f,%f,%f)\n", time, nbones,
+                 translate[0], translate[1], translate[2] ) ;
 
   for ( int i = 0 ; i < nbones ; i++ )
   {

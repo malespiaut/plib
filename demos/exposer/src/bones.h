@@ -51,12 +51,16 @@ public:
   ssgBranch *generateGeometry ( int root ) ;
 } ;
  
+float *getCurrTranslate () ;
+
 ssgBranch *extractBones    ( ssgBranch *root ) ;
 void       extractVertices ( ssgBranch *root ) ;
 void       transformModel  ( ssgRoot   *boneRoot, float tim ) ;
 
 void opaqueBones () ;
 void blendBones  () ;
+
+void init_bones () ;
 
 int getNumBones () ;
 Bone *getBone   ( int i ) ;

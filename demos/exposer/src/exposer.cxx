@@ -476,6 +476,8 @@ void bnpickfn ( puObject * )
     return ;
   }
 
+  deleteAll () ;
+
   int numbones, numevents ;
 
   fscanf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f\n", &numbones, &numevents,
@@ -497,9 +499,6 @@ void bnpickfn ( puObject * )
     e -> read ( fd ) ;
     addEvent ( e ) ;
   }
-
-  setCurrentEvent ( NULL ) ;
-  lcursor = rcursor = 0.0f ;
 
   fclose ( fd ) ;
   puDeleteObject ( file_selector ) ;
@@ -912,7 +911,7 @@ void init_graphics ()
   char *fake_argv[3] ;
 
   fake_argv[0] = "ExPoser" ;
-  fake_argv[1] = "Simple Animation/Viewer Program." ;
+  fake_argv[1] = "ExPoser - Skin and Bones animation for PLIB." ;
   fake_argv[2] = NULL ;
 
   /*
@@ -1047,6 +1046,7 @@ int main ( int argc, char **argv )
 {
   init_graphics     () ;
   init_database     () ;
+  init_bones        () ;
   init_events       () ;
   loadCB      ( NULL ) ;
   glutPostRedisplay () ;
