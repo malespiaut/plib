@@ -8,7 +8,7 @@ PLIB v1.3.2 (???? 2000)
 
   * Added puFilePicker  
 
-  * Added Ref Counting
+  * Added Ref Counting to ssgState
 
   * Added puBiSlider and puTriSlider
 
@@ -20,6 +20,10 @@ PLIB v1.3.2 (???? 2000)
   * Fixed a problem in the configure.in that prevented
     ssgAux from building.
 
+  * Moved the 'name' and 'user_data' (with associated
+    set/get member functions) from ssgEntity down into
+    ssgBase so that these functions will work with ssgState
+    and ssgTexture objects.  This is needed for PrettyPoly.
 
 PLIB v1.3.1 (Sept 15th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
