@@ -40,7 +40,7 @@ static saveTriangle *tlist ;
 
 
 int ssgSaveLeaf ( ssgEntity *ent )
-{
+{ int i;
   assert ( ent -> isAKindOf ( SSG_TYPE_LEAF ) ) ;
 
   ssgLeaf *vt = (ssgLeaf *) ent ;
@@ -51,10 +51,10 @@ int ssgSaveLeaf ( ssgEntity *ent )
   vlist = new sgVec3 [ num_verts ] ;
   tlist = new saveTriangle [ num_tris ] ;
 
-  for ( int i = 0 ; i < num_verts; i++ )
+  for ( i = 0 ; i < num_verts; i++ )
     sgCopyVec3 ( vlist[i], vt->getVertex ( i ) ) ;
 
-  for ( int i = 0 ; i < num_tris ; i++ )
+  for ( i = 0 ; i < num_tris ; i++ )
   {
     short vv0, vv1, vv2 ;
 
@@ -104,12 +104,12 @@ int ssgSaveLeaf ( ssgEntity *ent )
 
   fprintf ( save_fd, "numvert %d\n", num_verts ) ;
   
-  for ( int i = 0 ; i < num_verts ; i++ )
+  for ( i = 0 ; i < num_verts ; i++ )
     fprintf ( save_fd, "%g %g %g\n", vlist[i][0],vlist[i][2],-vlist[i][1] ) ;
 
   fprintf ( save_fd, "numsurf %d\n", num_tris ) ;
 
-  for ( int i = 0 ; i < num_tris ; i++ )
+  for ( i = 0 ; i < num_tris ; i++ )
   {
     fprintf ( save_fd, "SURF 0x0\n" ) ;
     ssgState *s = vt->getState ();
