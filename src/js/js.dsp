@@ -113,5 +113,9 @@ InputPath=.\js.h
 !ENDIF 
 
 # End Source File
+# Begin Source File
+
+SOURCE=.\js.cxx
+# End Source File
 # End Target
 # End Project
