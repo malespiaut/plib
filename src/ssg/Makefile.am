@@ -16,6 +16,7 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
         ssgLoadOBJ.cxx ssgSaveOBJ.cxx
 
 INCLUDES += -I$(top_srcdir)/src/sg
+INCLUDES += -I$(top_srcdir)/src/ul
 
 EXTRA_DIST = ssg.dsp
 
