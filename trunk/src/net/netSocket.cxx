@@ -242,8 +242,16 @@ int netSocket::listen ( int backlog )
 int netSocket::accept ( netAddress* addr )
 {
   assert ( handle != -1 ) ;
-  socklen_t addr_len = (socklen_t) sizeof(netAddress) ;
-  return ::accept(handle,(sockaddr*)addr,&addr_len);
+
+  if ( addr == NULL )
+  {
+    return ::accept(handle,NULL,NULL);
+  }
+  else
+  {
+    socklen_t addr_len = (socklen_t) sizeof(netAddress) ;
+    return ::accept(handle,(sockaddr*)addr,&addr_len);
+  }
 }
 
 
