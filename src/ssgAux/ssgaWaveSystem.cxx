@@ -26,6 +26,8 @@
 #include "ssgAux.h"
 #include <string.h>
 
+#define G 9.8f
+
 void ssgaWaveSystem::updateAnimation ( float tim )
 {
   if ( ntriangles <= 0 ||
@@ -36,18 +38,18 @@ void ssgaWaveSystem::updateAnimation ( float tim )
 
   int i ;
 
-  float adjOmega [ SSGA_MAX_WAVETRAIN ] ;
-  float sinTheta [ SSGA_MAX_WAVETRAIN ] ;
-  float cosTheta [ SSGA_MAX_WAVETRAIN ] ;
+  float adjSpeed [ SSGA_MAX_WAVETRAIN ] ;
+  float sinHeading [ SSGA_MAX_WAVETRAIN ] ;
+  float cosHeading [ SSGA_MAX_WAVETRAIN ] ;
 
-  /* Pre-adjust omega's to allow for wind speed. */
+  /* Pre-adjust speed's to allow for wind speed. */
 
   for ( int i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
     if ( train [ i ] != NULL )
     {
-      adjOmega [ i ] = train [ i ] -> getOmega  () * tim / windSpeed ;
-      sinTheta [ i ] = -sin ( train[i]->getTheta()*SG_DEGREES_TO_RADIANS ) ;
-      cosTheta [ i ] =  cos ( train[i]->getTheta()*SG_DEGREES_TO_RADIANS ) ;
+      adjSpeed   [ i ] = train [ i ] -> getSpeed () * G * tim / windSpeed ;
+      sinHeading [ i ] = -sin ( train[i]->getHeading()*SG_DEGREES_TO_RADIANS ) ;
+      cosHeading [ i ] =  cos ( train[i]->getHeading()*SG_DEGREES_TO_RADIANS ) ;
     }
 
   for ( int i = 0 ; i <= nstrips ; i++ )
@@ -68,37 +70,37 @@ void ssgaWaveSystem::updateAnimation ( float tim )
 
       float x0 = orig_vertices [idx][0] + center[0] ;
       float y0 = orig_vertices [idx][1] + center[1] ; 
-      float z0 = center[2] ;
+      float z0 = vertices [idx][2] ;
 
       float depth = (gridGetter==NULL) ? 1000000.0f : gridGetter ( x0, y0 ) ;
 
       float xx = x0 ;
       float yy = y0 ;
-      float zz =  0 ;
+      float zz = center[2] ;
 
       for ( int t = 0 ; t < SSGA_MAX_WAVETRAIN ; t++ )
       {
         if ( train [ t ] == NULL ) continue ;
 
-	float kappa  = train [ t ] -> getKappa  () ;
+	float length = train [ t ] -> getLength () ;
 	float lambda = train [ t ] -> getLambda () ;
 	float height = train [ t ] -> getWaveHeight () * edge_fade ;
 
-	kappa = ( depth < 0.0f ) ? 1.8f :
-	          ( depth > 1.0f ) ? kappa :
-	                   kappa * depth + 1.8f * (1.0f - depth) ;
+	length = ( depth < 0.0f ) ? 0.5f :
+	            ( depth > 1.0f ) ? length :
+	                   length * depth + 0.5f * (1.0f - depth) ;
 
-	float phase = kappa * ( x0 * sinTheta[t] + y0 * cosTheta[t] ) -
-                                             adjOmega[t] - lambda * zz ;
+	float phase = ( x0 * sinHeading[t] + y0 * cosHeading[t] ) / length -
+                                             adjSpeed[t] - lambda * z0 ;
 
         float delta = height * (float) sin ( phase ) ;
 
-  	xx += delta * sinTheta [ t ] ;
-  	yy += delta * cosTheta [ t ] ;
+  	xx += delta * sinHeading [ t ] ;
+  	yy += delta * cosHeading [ t ] ;
         zz += height * (float) -cos ( phase ) ;
       }
 
-      sgSetVec3 ( vertices  [idx], xx, yy, zz + z0 ) ; 
+      sgSetVec3 ( vertices  [idx], xx, yy, zz ) ; 
       sgSetVec2 ( texcoords [idx], tu * x0 / size[0], tv * y0 /size[1] ) ;
     }
   }

@@ -8,33 +8,33 @@ typedef float (* ssgaWSDepthCallback ) ( float x, float y ) ;
 class ssgaWaveTrain
 {
   float height ;
-  float kappa  ;
+  float length ;
   float lambda ;
-  float omega  ;
-  float theta  ;
+  float speed  ;
+  float heading;
 
 public:
 
   ssgaWaveTrain ()
   {
-    height = 0.5f ;
-    kappa  = 0.8f ;
-    lambda = 1.0f ;
-    omega  = 9.8f * (float) sqrt ( 2.0f/3.0f ) ;
-    theta  = 0.0f ;
+    height  = 0.5f ;
+    length  = 0.8f ;
+    lambda  = 1.0f ;
+    speed   = (float) sqrt ( 2.0f/3.0f ) ;
+    heading = 0.0f ;
   }
 
-  float getOmega () { return omega  ; }
-  void  setOmega ( float h ) { omega  = h ; }
+  float getSpeed () { return speed  ; }
+  void  setSpeed ( float h ) { speed  = h ; }
 
-  float getKappa () { return kappa  ; }
-  void  setKappa ( float h ) { kappa  = h ; }
+  float getLength () { return length  ; }
+  void  setLength ( float h ) { length  = h ; }
 
   float getLambda () { return lambda  ; }
   void  setLambda ( float h ) { lambda  = h ; }
 
-  float getTheta () { return theta  ; }
-  void  setTheta ( float h ) { theta  = h ; }
+  float getHeading () { return heading  ; }
+  void  setHeading ( float h ) { heading  = h ; }
 
   float getWaveHeight () { return height  ; }
   void  setWaveHeight ( float h ) { height  = h ; }
