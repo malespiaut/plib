@@ -440,8 +440,9 @@ static _ssgFileFormat formats[] =
   { ".wrl", ssgLoadVRML, NULL       },
   { ".md2", ssgLoadMD2 , NULL       },
   { ".mdl", ssgLoadMDL , NULL       },
-	{ ".x"	, ssgLoadX	 , ssgSaveX   },
-	{ NULL  , NULL       , NULL       }
+  { ".x"  , ssgLoadX   , ssgSaveX   },
+  { ".flt", ssgLoadFLT , NULL       },
+  { NULL  , NULL       , NULL       }
 } ;
 
   
