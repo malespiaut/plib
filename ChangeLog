@@ -2,6 +2,15 @@
 PLIB Change Log.
 ================
 
+PLIB v1.8.1 (March 21th 2004)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * puAux library wouldn't build without GLUT being
+    installed...that's fixed.
+
+  * the NET library examples needed some love and
+    attention.  They are much more useful now!
+
 PLIB v1.8.0 (March 19th 2004)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
