@@ -64,8 +64,8 @@ sgVec3 _ssgNormalUp    = { 0.0f, 0.0f, 1.0f } ;
 sgVec2 _ssgTexCoord00  = { 0.0f, 0.0f } ;
 short  _ssgIndex0      = 0;
 
-ssgLight _ssgLights [ 8 ] ;
-int      _ssgFrameCounter = 0 ;
+static ssgLight _ssgLights [ 8 ] ;
+static int      _ssgFrameCounter = 0 ;
 
 int  ssgGetFrameCounter () { return _ssgFrameCounter ; }
 void ssgSetFrameCounter ( int fc ) { _ssgFrameCounter = fc ; }
