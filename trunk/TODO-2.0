@@ -10,6 +10,10 @@ PUI section
 *	Remove deprecated PUSTYLE_RADIO
 
 *	Remove deprecated 'int puValue::getValue ( void )' function
+	(Programmers: use 'puValue::getIntegerValue' instead)
+
+*	Remove deprecated 'int puObject::getDefaultValue ( void )' function
+	(Programmers: use 'puValue::getDefaultIntegerValue' instead)
 
 *	Line up widget constructors (explicit size vs. max coordinates issue)
 

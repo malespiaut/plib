@@ -3,5 +3,4 @@
   do later with "NIV14" or "NIV135".
 - Document ssgStats
 - Document the new path handling and ssgLoaderOptions
-- Check that all console output has been changed to ulSetError.
 - Finalize and test the path handling.
