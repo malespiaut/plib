@@ -72,11 +72,11 @@ ssgEntity *ssgVtxTable::makeConvex() {
     return NULL;
   }
 
-  gluTessCallback( tesselator, GLU_BEGIN , 
+  gluTessCallback( tesselator, (GLenum) GLU_BEGIN , 
 		   (void (CALLBACK *)())beginCallback  );
-  gluTessCallback( tesselator, GLU_END   , 
+  gluTessCallback( tesselator, (GLenum) GLU_END   , 
 		   (void (CALLBACK *)())endCallback    );
-  gluTessCallback( tesselator, GLU_VERTEX, 
+  gluTessCallback( tesselator, (GLenum) GLU_VERTEX, 
 		   (void (CALLBACK *)())vertexCallback );
 
   source      = this;
