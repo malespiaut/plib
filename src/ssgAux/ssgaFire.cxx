@@ -117,9 +117,9 @@ static int postFireDraw ( ssgEntity * )
 }                                                                              
 
 ssgaFire::ssgaFire ( int num,
-                     float _radius = 1.0f,
-                     float height  = 5.0f,
-                     float speed   = 2.0f )
+                     float _radius,
+                     float height,
+                     float speed )
             : ssgaParticleSystem ( num/2,
                                   0, 0,             // <== Don't Change this!!
                                   TRUE, 1.0f, height * 2.0f,
