@@ -76,20 +76,28 @@ static puFont defaultLegendFont ;
 static puFont defaultLabelFont  ;
 static float  defaultColourScheme [ 4 ] ;
 
-void puSetDefaultStyle ( int  style )
+void puSetDefaultStyle ( int style )
 {
   defaultStyle = style ;
 
-  if ( abs(style) == PUSTYLE_SPECIAL_UNDERLINED )
-    defaultBorderThickness = 1 ;
-  else if ( ( abs(style) == PUSTYLE_SMALL_BEVELLED ) ||
-            ( abs(style) == PUSTYLE_SMALL_SHADED ) ||
-            ( abs(style) == PUSTYLE_BOXED ) )
-    defaultBorderThickness = 2 ;
-  else if ( ( abs(style) == PUSTYLE_BEVELLED ) ||
-            ( abs(style) == PUSTYLE_SHADED ) ||
-            ( abs(style) == PUSTYLE_DROPSHADOW ) )
-    defaultBorderThickness = 5 ;
+  switch ( abs(style) )
+  {
+    case PUSTYLE_SPECIAL_UNDERLINED :
+      defaultBorderThickness = 1 ;
+      break ;
+
+    case PUSTYLE_SMALL_BEVELLED :
+    case PUSTYLE_SMALL_SHADED :
+    case PUSTYLE_BOXED :
+      defaultBorderThickness = 2 ;
+      break ;
+
+    case PUSTYLE_BEVELLED :
+    case PUSTYLE_SHADED :
+    case PUSTYLE_DROPSHADOW :
+      defaultBorderThickness = 5 ;
+      break ;
+  }
 }
 int  puGetDefaultStyle ( void ) { return defaultStyle ; }
 
@@ -259,22 +267,23 @@ void puObject::getAbsolutePosition ( int *x, int *y ) const
 
 void puObject::draw_legend ( int dx, int dy )
 {
-  if ( getStyle () == PUSTYLE_RADIO ) return ;
-
   int xx, yy ;
 
   int lgap = PUSTR_LGAP ;
   int rgap = PUSTR_RGAP ;
   int tgap = PUSTR_TGAP ;
   int bgap = PUSTR_BGAP ;
+
   if ( ( abs(style) != PUSTYLE_NONE ) &&
        ( abs(style) != PUSTYLE_PLAIN ) &&
-       ( abs(style) != PUSTYLE_DROPSHADOW ) &&
-       ( abs(style) != PUSTYLE_SPECIAL_UNDERLINED ) )
+       ( abs(style) != PUSTYLE_DROPSHADOW ) )
   {
-    lgap += getBorderThickness () ;
-    rgap += getBorderThickness () ;
-    tgap += getBorderThickness () ;
+    if ( abs(style) != PUSTYLE_SPECIAL_UNDERLINED )
+    {
+      lgap += getBorderThickness () ;
+      rgap += getBorderThickness () ;
+      tgap += getBorderThickness () ;
+    }
     bgap += getBorderThickness () ;
   }
 
