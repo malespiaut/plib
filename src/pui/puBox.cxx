@@ -24,7 +24,7 @@
 
 #include "puLocal.h"
 
-#define PU_DFLT_OFFSET        8
+#define PU_DFLT_OFFSET        5
 
 void puBox::extend ( puBox *bx )
 {
@@ -253,10 +253,10 @@ void puBox::draw ( int dx, int dy, int style, puColour colour[], int am_default,
     glLineStipple ( 1, 0xF0F0 ) ;
     glEnable ( GL_LINE_STIPPLE ) ;
     glBegin ( GL_LINE_LOOP ) ;
-      glVertex2i ( dx + min[0] + PU_DFLT_OFFSET, dy + min[1] + PU_DFLT_OFFSET ) ;
-      glVertex2i ( dx + min[0] + PU_DFLT_OFFSET, dy + max[1] - PU_DFLT_OFFSET ) ;
-      glVertex2i ( dx + max[0] - PU_DFLT_OFFSET, dy + max[1] - PU_DFLT_OFFSET ) ;
-      glVertex2i ( dx + max[0] - PU_DFLT_OFFSET, dy + min[1] + PU_DFLT_OFFSET ) ;
+      glVertex2f ( dx + min[0] + PU_DFLT_OFFSET + 0.5f, dy + min[1] + PU_DFLT_OFFSET + 0.5f ) ;
+      glVertex2f ( dx + min[0] + PU_DFLT_OFFSET + 0.5f, dy + max[1] - PU_DFLT_OFFSET - 0.5f ) ;
+      glVertex2f ( dx + max[0] - PU_DFLT_OFFSET - 0.5f, dy + max[1] - PU_DFLT_OFFSET - 0.5f ) ;
+      glVertex2f ( dx + max[0] - PU_DFLT_OFFSET - 0.5f, dy + min[1] + PU_DFLT_OFFSET + 0.5f ) ;
     glEnd () ;
     glDisable ( GL_LINE_STIPPLE ) ;
   }

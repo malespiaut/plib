@@ -82,7 +82,8 @@ void puInput::draw ( int dx, int dy )
   else
   {
     int xx = legendFont.getStringWidth ( " " ) ;
-    int yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2 ;
+    int yy = ( ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2
+               + legendFont.getStringDescender () ) ;
 
     int ncut ;
     char *s2 ;
@@ -150,20 +151,20 @@ void puInput::draw ( int dx, int dy )
       {
         s2 [ cursor_position-ncut ] = '\0' ;
 
-        int cpos = legendFont.getStringWidth ( s2 ) + xx + dx + abox.min[0] ;
-        int top = yy + legendFont.getStringHeight () ;
-        int bot = yy - legendFont.getStringDescender() ;
+        float cpos = 0.5f + legendFont.getStringWidth ( s2 ) + xx + dx + abox.min[0] ;
+        float top = 0.5f + dy + abox.min[1] + yy + legendFont.getPointSize () ;
+        float bot = 0.5f + dy + abox.min[1] + yy - legendFont.getStringDescender() ;
 
         glColor4fv ( colour [ PUCOL_MISC ] ) ;
         glBegin   ( GL_LINES ) ;
-        glVertex2i ( cpos    , dy + abox.min[1] + bot ) ;
-        glVertex2i ( cpos    , dy + abox.min[1] + top ) ;
-        glVertex2i ( cpos - 1, dy + abox.min[1] + bot ) ;
-        glVertex2i ( cpos - 1, dy + abox.min[1] + top ) ;
-        glVertex2i ( cpos - 4, dy + abox.min[1] + bot ) ;
-        glVertex2i ( cpos + 3, dy + abox.min[1] + bot ) ;
-        glVertex2i ( cpos - 4, dy + abox.min[1] + top ) ;
-        glVertex2i ( cpos + 3, dy + abox.min[1] + top ) ;
+        glVertex2f ( cpos    , bot ) ;
+        glVertex2f ( cpos    , top ) ;
+        glVertex2f ( cpos - 1, bot ) ;
+        glVertex2f ( cpos - 1, top ) ;
+        glVertex2f ( cpos - 3, bot ) ;
+        glVertex2f ( cpos + 3, bot ) ;
+        glVertex2f ( cpos - 3, top ) ;
+        glVertex2f ( cpos + 3, top ) ;
         glEnd      () ;
       }
     }

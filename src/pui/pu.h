@@ -62,9 +62,11 @@ public:
     slant = sl ;
   }
 
+  float getPointSize ( ) const { return pointsize; }
+
   int getStringDescender ( void ) const ;
   int getStringHeight ( const char *str ) const ;
-  int getStringHeight ( void ) const { return getStringHeight ( "K" ) ; }
+  int getStringHeight ( void ) const { return getStringHeight ( "" ) ; }
 
   float getFloatStringWidth ( const char *str ) const ; 
   int   getStringWidth      ( const char *str ) const /* Deprecated ? */ 
