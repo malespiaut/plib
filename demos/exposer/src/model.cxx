@@ -1,11 +1,11 @@
 #include "exposer.h"
 
-int rootBone = -1  ;
-int nextBone =  0  ;
+static int rootBone = -1  ;
+static int nextBone =  0  ;
 
 int getNumBones () { return nextBone ; }                                  
 
-void findChildBones ( int root )
+static void findChildBones ( int root )
 {
   float *v0 = getBone ( root ) -> vx[0] ;
   float *v1 = getBone ( root ) -> vx[1] ;
@@ -146,7 +146,7 @@ void makeTweenCopy ( ssgBranch *dst, ssgBranch *src )
 }
 
 
-void tweenify ( ssgBranch *root )
+static void tweenify ( ssgBranch *root )
 {
   for ( int i = 0 ; i < root -> getNumKids () ; i++ )
   {
@@ -196,7 +196,7 @@ ssgEntity *makeTweenCopy ( ssgEntity *root )
 }
 
 
-void walkBones ( ssgBranch *root, sgMat4 mat )
+static void walkBones ( ssgBranch *root, sgMat4 mat )
 {
   if ( root == NULL )
     return ;
@@ -349,7 +349,7 @@ ssgBranch *extractBones ( ssgBranch *root )
 }
 
 
-void walkTransforms ( ssgBranch *root, sgMat4 mat )
+static void walkTransforms ( ssgBranch *root, sgMat4 mat )
 {
   if ( root == NULL )
     return ;

@@ -13,11 +13,11 @@ public:
 } ;
                                                                                 
 
-int nextVertex = 0 ;
+static int nextVertex = 0 ;
 
 #define MAX_VERTICES  (64*1024)                                                 
 
-Vertex vertex [ MAX_VERTICES ] ;
+static Vertex vertex [ MAX_VERTICES ] ;
 
 
 

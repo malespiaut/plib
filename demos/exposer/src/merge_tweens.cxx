@@ -16,11 +16,11 @@ static void help ()
 }
 
 
-int   numBones     =   0  ;
-int   totalEvents  =   0  ;
-float totalTime    = 0.0f ;
-float floor_z      = 0.0f ;
-float ground_speed = 0.0f ;
+static int   numBones     =   0  ;
+static int   totalEvents  =   0  ;
+static float totalTime    = 0.0f ;
+static float floor_z      = 0.0f ;
+static float ground_speed = 0.0f ;
 
 int main ( int argc, char **argv )
 {

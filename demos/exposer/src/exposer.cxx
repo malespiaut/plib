@@ -1,7 +1,7 @@
 #include "exposer.h"
 
-int curr_button = 0 ;
-int scroll_controllers = 0 ;
+static int curr_button = 0 ;
+static int scroll_controllers = 0 ;
 
 EventList * eventList = NULL ;
 TimeBox   *   timebox = NULL ;
@@ -11,29 +11,29 @@ ssgRoot   *tweenScene = NULL ;
 ssgRoot   * boneScene = NULL ;
 ssgRoot   *sceneScene = NULL ;
 
-puText     *message     ;
-puButton   *hideBones   ;
-puButton   *hideSkin    ;
-puButton   *hideGround  ;
-puButton   *hideScene   ;
-puSlider   *scroller    ;
-puMenuBar  *menuBar     ;
+static puText     *message     ;
+static puButton   *hideBones   ;
+static puButton   *hideSkin    ;
+static puButton   *hideGround  ;
+static puButton   *hideScene   ;
+static puSlider   *scroller    ;
+static puMenuBar  *menuBar     ;
 
-puSlider   *rangeSlider ;
-puDial     *  panSlider ;
-puDial     * tiltSlider ;
+static puSlider   *rangeSlider ;
+static puDial     *  panSlider ;
+static puDial     * tiltSlider ;
 
-puInput    *show_angle  ;
+static puInput    *show_angle  ;
 
-void save_60th_CB ( puObject * ) { setTweenInterval ( 1.0f/60.0f ) ; }
-void save_30th_CB ( puObject * ) { setTweenInterval ( 1.0f/30.0f ) ; }
-void save_20th_CB ( puObject * ) { setTweenInterval ( 1.0f/20.0f ) ; }
-void save_15th_CB ( puObject * ) { setTweenInterval ( 1.0f/15.0f ) ; }
-void save_10th_CB ( puObject * ) { setTweenInterval ( 1.0f/10.0f ) ; }
-void save_8th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 8.0f ) ; }
-void save_4th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 4.0f ) ; }
-void save_2th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 2.0f ) ; }
-void save_1th_CB  ( puObject * ) { setTweenInterval ( 1.0f ) ; }
+static void save_60th_CB ( puObject * ) { setTweenInterval ( 1.0f/60.0f ) ; }
+static void save_30th_CB ( puObject * ) { setTweenInterval ( 1.0f/30.0f ) ; }
+static void save_20th_CB ( puObject * ) { setTweenInterval ( 1.0f/20.0f ) ; }
+static void save_15th_CB ( puObject * ) { setTweenInterval ( 1.0f/15.0f ) ; }
+static void save_10th_CB ( puObject * ) { setTweenInterval ( 1.0f/10.0f ) ; }
+static void save_8th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 8.0f ) ; }
+static void save_4th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 4.0f ) ; }
+static void save_2th_CB  ( puObject * ) { setTweenInterval ( 1.0f/ 2.0f ) ; }
+static void save_1th_CB  ( puObject * ) { setTweenInterval ( 1.0f ) ; }
 
 void setShowAngle ( float a )
 {
@@ -140,14 +140,14 @@ static void add_1_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+1
 static void add_2_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+2.0f);}
 static void add_5_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+5.0f);}
 
-void opaqueBones ()
+static void opaqueBones ()
 {
   if ( getBoneState() != NULL )
     getBoneState() -> disable ( GL_BLEND ) ;
 }
  
  
-void blendBones ()
+static void blendBones ()
 {
   if ( getBoneState() != NULL )
     getBoneState() -> enable ( GL_BLEND ) ;
@@ -222,7 +222,7 @@ static void redraw ()
 
 /* Menu bar entries: */
  
-char      *file_submenu    [] = {  "Exit", 
+static char *file_submenu  [] = {  "Exit", 
                                    "------------", 
                                    "Save Tweened Model As...",
                                    "Save Bones As...",
@@ -231,26 +231,26 @@ char      *file_submenu    [] = {  "Exit",
                                    "Load Model",
                                    NULL } ;
 
-puCallback file_submenu_cb [] = { exitCB,
-                                  NULL,
-                                  twsaveCB,
-                                  bnsaveCB,
-                                  bnloadCB,
-                                  scloadCB,
-                                  loadCB,
-                                  NULL } ;
+static puCallback file_submenu_cb [] = { exitCB,
+                                         NULL,
+                                         twsaveCB,
+                                         bnsaveCB,
+                                         bnloadCB,
+                                         scloadCB,
+                                         loadCB,
+                                         NULL } ;
 
-char      *view_submenu    [] = { "Zoom Timeline In", 
+static char *view_submenu  [] = { "Zoom Timeline In", 
                                   "Zoom Timeline Out",
                                   "Zoom Timeline 1:1",
                                   NULL } ;
 
-puCallback view_submenu_cb [] = { zoom_in_CB,
-				  zoom_out_CB,
-				  zoom_nrm_CB,
-                                  NULL } ;
+static puCallback view_submenu_cb [] = { zoom_in_CB,
+				         zoom_out_CB,
+				         zoom_nrm_CB,
+                                         NULL } ;
 
-char      *pref_submenu    [] = { "1/60th second", 
+static char *pref_submenu  [] = { "1/60th second", 
                                   "1/30th second",
                                   "1/20th second",
                                   "1/15th second",
@@ -262,19 +262,19 @@ char      *pref_submenu    [] = { "1/60th second",
                                   "Save a tween bank every...",
                                   NULL } ;
 
-puCallback pref_submenu_cb [] = { save_60th_CB,
-                                  save_30th_CB,
-                                  save_20th_CB,
-                                  save_15th_CB,
-                                  save_10th_CB,
-                                  save_8th_CB,
-                                  save_4th_CB,
-                                  save_2th_CB,
-                                  save_1th_CB,
-                                  NULL,
-                                  NULL } ;
+static puCallback pref_submenu_cb [] = { save_60th_CB,
+                                         save_30th_CB,
+                                         save_20th_CB,
+                                         save_15th_CB,
+                                         save_10th_CB,
+                                         save_8th_CB,
+                                         save_4th_CB,
+                                         save_2th_CB,
+                                         save_1th_CB,
+                                         NULL,
+                                         NULL } ;
 
-char      *time_submenu    [] = { "Add 5 seconds", 
+static char *time_submenu  [] = { "Add 5 seconds", 
                                   "Add 2 seconds",
                                   "Add 1 second",
                                   "------------", 
@@ -285,16 +285,16 @@ char      *time_submenu    [] = { "Add 5 seconds",
                                   "Add new event",
                                   NULL } ;
 
-puCallback time_submenu_cb [] = { add_5_CB,
-                                  add_2_CB,
-                                  add_1_CB,
-                                  NULL,
-                                  reverseRegionCB,
-                                  deleteRegionAndCompressCB,
-                                  deleteRegionCB,
-                                  deleteEventCB,
-                                  addNewEventCB,
-                                  NULL } ;
+static puCallback time_submenu_cb [] = { add_5_CB,
+                                         add_2_CB,
+                                         add_1_CB,
+                                         NULL,
+                                         reverseRegionCB,
+                                         deleteRegionAndCompressCB,
+                                         deleteRegionCB,
+                                         deleteEventCB,
+                                         addNewEventCB,
+                                         NULL } ;
 
 
 static void init_graphics ()

@@ -12,44 +12,44 @@
 
 /* GUI callback functions. */
 
-void vcr_fastReverse ( puObject *ob )
+static void vcr_fastReverse ( puObject *ob )
 {
   TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
   timebox -> setReplaySpeed (-3.0f);
 }
 
-void vcr_reverse ( puObject *ob )
+static void vcr_reverse ( puObject *ob )
 {
   TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
   timebox -> setReplaySpeed (-1.0f);
 }
 
-void vcr_stop ( puObject *ob )
+static void vcr_stop ( puObject *ob )
 {
   TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
   timebox -> setReplaySpeed ( 0.0f);
 }
 
-void vcr_play ( puObject *ob )
+static void vcr_play ( puObject *ob )
 {
   TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
   timebox -> setReplaySpeed ( 1.0f);
 }
 
-void vcr_fastPlay ( puObject *ob )
+static void vcr_fastPlay ( puObject *ob )
 {
   TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
   timebox -> setReplaySpeed ( 3.0f);
 }
 
-void vcr_groundSpeed ( puObject *ob )
+static void vcr_groundSpeed ( puObject *ob )
 {
   TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
   timebox -> setGroundSpeed ( ob -> getFloatValue () ) ;
 }                                                              
 
 
-void timescrollerCB ( puObject *ob )
+static void timescrollerCB ( puObject *ob )
 {
   TimeBox *timebox = (TimeBox *) ob -> getUserData () ;
 
