@@ -1,24 +1,24 @@
 # Microsoft Developer Studio Project File - Name="ssgAux" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
+# ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
 CFG=ssgAux - Win32 Debug
-!MESSAGE This is not a valid makefile. To build this project using NMAKE,
-!MESSAGE use the Export Makefile command and run
+!MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
+!MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
 !MESSAGE 
 !MESSAGE NMAKE /f "ssgAux.mak".
 !MESSAGE 
-!MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
+!MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
 !MESSAGE NMAKE /f "ssgAux.mak" CFG="ssgAux - Win32 Debug"
 !MESSAGE 
-!MESSAGE Possible choices for configuration are:
+!MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "ssgAux - Win32 Release" (based on "Win32 (x86) Static Library")
-!MESSAGE "ssgAux - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "ssgAux - Win32 Release" (basierend auf  "Win32 (x86) Static Library")
+!MESSAGE "ssgAux - Win32 Debug" (basierend auf  "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
@@ -50,6 +50,27 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
+# Begin Custom Build - 'ssgAux' gets installed
+ProjDir=.
+InputPath=.\Release\ssgAux.lib
+SOURCE="$(InputPath)"
+
+BuildCmds= \
+	copy $(ProjDir)\ssgAux.h $(ProjDir)\..\..\ssgAux.h \
+	copy $(ProjDir)\ssgaShapes.h $(ProjDir)\..\..\ssgaShapes.h \
+	
+
+"$(ProjDir)\..\..\ssgAux.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\ssgaShapes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy release\*.lib ..\..\*.*
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ssgAux - Win32 Debug"
 
@@ -73,6 +94,27 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
+# Begin Custom Build - 'ssgAux' gets installed
+ProjDir=.
+InputPath=.\Debug\ssgAux.lib
+SOURCE="$(InputPath)"
+
+BuildCmds= \
+	copy $(ProjDir)\ssgAux.h $(ProjDir)\..\..\ssgAux.h \
+	copy $(ProjDir)\ssgaShapes.h $(ProjDir)\..\..\ssgaShapes.h \
+	
+
+"$(ProjDir)\..\..\ssgAux.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\ssgaShapes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*
+# End Special Build Tool
 
 !ENDIF 
 

@@ -1,24 +1,24 @@
 # Microsoft Developer Studio Project File - Name="net" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
+# ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
 CFG=net - Win32 Debug
-!MESSAGE This is not a valid makefile. To build this project using NMAKE,
-!MESSAGE use the Export Makefile command and run
+!MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
+!MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
 !MESSAGE 
 !MESSAGE NMAKE /f "net.mak".
 !MESSAGE 
-!MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
+!MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
 !MESSAGE NMAKE /f "net.mak" CFG="net - Win32 Debug"
 !MESSAGE 
-!MESSAGE Possible choices for configuration are:
+!MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "net - Win32 Release" (based on "Win32 (x86) Static Library")
-!MESSAGE "net - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "net - Win32 Release" (basierend auf  "Win32 (x86) Static Library")
+!MESSAGE "net - Win32 Debug" (basierend auf  "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
@@ -50,6 +50,51 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
+# Begin Custom Build - 'net' gets installed
+ProjDir=.
+InputPath=.\Release\net.lib
+SOURCE="$(InputPath)"
+
+BuildCmds= \
+	copy $(ProjDir)\netBuffer.h $(ProjDir)\..\..\netBuffer.h \
+	copy $(ProjDir)\netChannel.h $(ProjDir)\..\..\netChannel.h \
+	copy $(ProjDir)\netChat.h $(ProjDir)\..\..\netChat.h \
+	copy $(ProjDir)\netList.h $(ProjDir)\..\..\netList.h \
+	copy $(ProjDir)\netMessage.h $(ProjDir)\..\..\netMessage.h \
+	copy $(ProjDir)\netMonitor.h $(ProjDir)\..\..\netMonitor.h \
+	copy $(ProjDir)\netRoom.h $(ProjDir)\..\..\netRoom.h \
+	copy $(ProjDir)\netSocket.h $(ProjDir)\..\..\netSocket.h \
+	
+
+"$(ProjDir)\..\..\netBuffer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netChannel.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netChat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netList.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netMessage.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netMonitor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netRoom.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netSocket.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy release\*.lib ..\..\*.*
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "net - Win32 Debug"
 
@@ -73,6 +118,51 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
+# Begin Custom Build - 'net' gets installed
+ProjDir=.
+InputPath=.\Debug\net.lib
+SOURCE="$(InputPath)"
+
+BuildCmds= \
+	copy $(ProjDir)\netBuffer.h $(ProjDir)\..\..\netBuffer.h \
+	copy $(ProjDir)\netChannel.h $(ProjDir)\..\..\netChannel.h \
+	copy $(ProjDir)\netChat.h $(ProjDir)\..\..\netChat.h \
+	copy $(ProjDir)\netList.h $(ProjDir)\..\..\netList.h \
+	copy $(ProjDir)\netMessage.h $(ProjDir)\..\..\netMessage.h \
+	copy $(ProjDir)\netMonitor.h $(ProjDir)\..\..\netMonitor.h \
+	copy $(ProjDir)\netRoom.h $(ProjDir)\..\..\netRoom.h \
+	copy $(ProjDir)\netSocket.h $(ProjDir)\..\..\netSocket.h \
+	
+
+"$(ProjDir)\..\..\netBuffer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netChannel.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netChat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netList.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netMessage.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netMonitor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netRoom.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\..\..\netSocket.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*
+# End Special Build Tool
 
 !ENDIF 
 
