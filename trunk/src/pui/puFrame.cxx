@@ -45,11 +45,11 @@ void puFrame::draw ( int dx, int dy )
     r_cb ( this, dx, dy, render_data ) ;
   else
   {
-    int xx = ( abox.max[0] - abox.min[0] - puGetStringWidth ( legendFont, legend ) ) / 2 ;
+    int xx = ( abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
 
-    puDrawString ( legendFont, legend,
+    legendFont.drawString ( legend,
                   dx + abox.min[0] + xx,
-                  dy + abox.min[1] + puGetStringDescender ( legendFont ) + PUSTR_BGAP ) ;
+                  dy + abox.min[1] + legendFont.getStringDescender() + PUSTR_BGAP ) ;
   }
 
   draw_label ( dx, dy ) ;

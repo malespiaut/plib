@@ -408,8 +408,8 @@ void  puLargeInput::setText ( char *l )
 
   // Set slider fractions
 
-  int line_size = puGetStringHeight ( legendFont ) +     // Height of a line
-                  puGetStringDescender ( legendFont ) ;  // of text, in pixels
+  int line_size = legendFont.getStringHeight () +     // Height of a line
+                  legendFont.getStringDescender() ;  // of text, in pixels
 
   int box_width = abox.max[0] - abox.min[0] - slider_width ;   // Input box width, in pixels
   int box_height = ( abox.max[1] - abox.min[1] - slider_width ) / line_size ;
@@ -437,8 +437,8 @@ void puLargeInput::draw ( int dx, int dy )
   {
     // Calculate window parameters:
 
-    int line_size = puGetStringHeight ( legendFont ) +         // Height of a line
-                    puGetStringDescender ( legendFont ) + 1 ;  // of text, in pixels
+    int line_size = legendFont.getStringHeight () +         // Height of a line
+                    legendFont.getStringDescender() + 1 ;  // of text, in pixels
 
     int box_width = abox.max[0] - abox.min[0] - slider_width ;   // Input box width, in pixels
     int box_height = ( abox.max[1] - abox.min[1] - slider_width ) / line_size ;
@@ -544,8 +544,8 @@ void puLargeInput::draw ( int dx, int dy )
 
             x_end = ( x_end > xx ) ? x_end : xx ;
 
-            int top = dy + abox.min[1] + yy + puGetStringHeight ( legendFont ) ;
-            int bot = dy + abox.min[1] + yy - puGetStringDescender ( legendFont ) ;
+            int top = dy + abox.min[1] + yy + legendFont.getStringHeight () ;
+            int bot = dy + abox.min[1] + yy - legendFont.getStringDescender() ;
 
             glColor3f ( 1.0f, 1.0f, 0.7f ) ;
             glRecti ( x_start, bot, x_end, top ) ;
@@ -746,8 +746,8 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
 
     // Text and window parameters:
 
-    int line_size = puGetStringHeight ( legendFont ) +         // Height of a line
-                    puGetStringDescender ( legendFont ) + 1 ;  // of text, in pixels
+    int line_size = legendFont.getStringHeight () +         // Height of a line
+                    legendFont.getStringDescender() + 1 ;  // of text, in pixels
 
     int box_width = abox.max[0] - abox.min[0] - slider_width ;   // Input box width, in pixels
 //  int box_height = ( abox.max[1] - abox.min[1] ) / line_size ;

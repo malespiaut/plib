@@ -151,37 +151,37 @@ void puObject::recalc_bbox ( void )
     switch ( labelPlace )
     {
       case PUPLACE_ABOVE         : bbox.max[1] += 
-              puGetStringHeight    ( getLabelFont (), getLabel () ) +
-              puGetStringDescender ( getLabelFont () ) +
+              labelFont.getStringHeight ( getLabel () ) +
+              labelFont.getStringDescender () +
               PUSTR_TGAP + PUSTR_BGAP ; break ;
       case PUPLACE_TOP_CENTER    :  bbox.min[0] -=
-            ( puGetStringWidth  ( getLabelFont(), getLabel() ) - abox.max[0] + abox.min[0] ) / 2 ;
+            ( labelFont.getStringWidth (  label ) - abox.max[0] + abox.min[0] ) / 2 ;
                                     bbox.max[0] +=
-            ( puGetStringWidth  ( getLabelFont(), getLabel() ) - abox.max[0] + abox.min[0] ) / 2 ;
+            ( labelFont.getStringWidth (  label ) - abox.max[0] + abox.min[0] ) / 2 ;
                                     bbox.max[1] +=
-              puGetStringHeight    ( getLabelFont (), getLabel () ) +
-              puGetStringDescender ( getLabelFont () ) +
+              labelFont.getStringHeight ( getLabel () ) +
+              labelFont.getStringDescender () +
               PUSTR_TGAP + PUSTR_BGAP ; break ;
       case PUPLACE_BELOW         : bbox.min[1] -=
-              puGetStringHeight ( getLabelFont() ) +
-              puGetStringDescender ( getLabelFont () ) +
+              labelFont.getStringHeight () +
+              labelFont.getStringDescender () +
               PUSTR_TGAP + PUSTR_BGAP ; break ;
       default                    :
       case PUPLACE_BOTTOM_CENTER :  bbox.min[0] -=
-            ( puGetStringWidth  ( getLabelFont(), getLabel() ) - abox.max[0] + abox.min[0] ) / 2 ;
+            ( labelFont.getStringWidth (  label ) - abox.max[0] + abox.min[0] ) / 2 ;
                                     bbox.max[0] +=
-            ( puGetStringWidth  ( getLabelFont(), getLabel() ) - abox.max[0] + abox.min[0] ) / 2 ;
+            ( labelFont.getStringWidth (  label ) - abox.max[0] + abox.min[0] ) / 2 ;
                                     bbox.min[1] -=
-              puGetStringHeight ( getLabelFont() ) +
-              puGetStringDescender ( getLabelFont () ) +
+              labelFont.getStringHeight () +
+              labelFont.getStringDescender() +
               PUSTR_TGAP + PUSTR_BGAP ; break ;
       case PUPLACE_LEFT_CENTER   :
       case PUPLACE_LEFT          : bbox.min[0] -=
-              puGetStringWidth  ( getLabelFont(), getLabel() ) +
+              labelFont.getStringWidth (  label ) +
               PUSTR_LGAP + PUSTR_RGAP ; break ;
       case PUPLACE_RIGHT_CENTER  :
       case PUPLACE_RIGHT         : bbox.max[0] +=
-              puGetStringWidth  ( getLabelFont(), getLabel() ) +
+              labelFont.getStringWidth (  label ) +
               PUSTR_LGAP + PUSTR_RGAP ; break ;
     }
 
@@ -205,15 +205,15 @@ void puObject::draw_label ( int dx, int dy )
 
   switch ( labelPlace )
   {
-    case PUPLACE_ABOVE         : puDrawString ( labelFont, label, dx + abox.min[0] + PUSTR_LGAP, dy + abox.max[1] + puGetStringDescender(labelFont) + PUSTR_BGAP ) ; break ;
+    case PUPLACE_ABOVE         : labelFont.drawString ( label, dx + abox.min[0] + PUSTR_LGAP, dy + abox.max[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
     default                    :
-    case PUPLACE_BELOW         : puDrawString ( labelFont, label, dx + abox.min[0] + PUSTR_LGAP, dy + bbox.min[1] + puGetStringDescender(labelFont) + PUSTR_BGAP ) ; break ;
-    case PUPLACE_LEFT          : puDrawString ( labelFont, label, dx + bbox.min[0] + PUSTR_LGAP, dy + abox.min[1] + puGetStringDescender(labelFont) + PUSTR_BGAP ) ; break ;
-    case PUPLACE_RIGHT         : puDrawString ( labelFont, label, dx + abox.max[0] + PUSTR_LGAP, dy + abox.min[1] + puGetStringDescender(labelFont) + PUSTR_BGAP ) ; break ;
-    case PUPLACE_TOP_CENTER    : puDrawString ( labelFont, label, dx + bbox.min[0] + PUSTR_LGAP, dy + abox.max[1] + puGetStringDescender(labelFont) + PUSTR_BGAP ) ; break ;
-    case PUPLACE_BOTTOM_CENTER : puDrawString ( labelFont, label, dx + bbox.min[0] + PUSTR_LGAP, dy + bbox.min[1] + puGetStringDescender(labelFont) + PUSTR_BGAP ) ; break ;
-    case PUPLACE_LEFT_CENTER   : puDrawString ( labelFont, label, dx + bbox.min[0] + PUSTR_LGAP, dy + ( abox.max[1] + abox.min[1] - puGetStringHeight(labelFont) ) / 2 ) ; break ;
-    case PUPLACE_RIGHT_CENTER  : puDrawString ( labelFont, label, dx + abox.max[0] + PUSTR_LGAP, dy + ( abox.max[1] + abox.min[1] - puGetStringHeight(labelFont) ) / 2 ) ; break ;
+    case PUPLACE_BELOW         : labelFont.drawString ( label, dx + abox.min[0] + PUSTR_LGAP, dy + bbox.min[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
+    case PUPLACE_LEFT          : labelFont.drawString ( label, dx + bbox.min[0] + PUSTR_LGAP, dy + abox.min[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
+    case PUPLACE_RIGHT         : labelFont.drawString ( label, dx + abox.max[0] + PUSTR_LGAP, dy + abox.min[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
+    case PUPLACE_TOP_CENTER    : labelFont.drawString ( label, dx + bbox.min[0] + PUSTR_LGAP, dy + abox.max[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
+    case PUPLACE_BOTTOM_CENTER : labelFont.drawString ( label, dx + bbox.min[0] + PUSTR_LGAP, dy + bbox.min[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
+    case PUPLACE_LEFT_CENTER   : labelFont.drawString ( label, dx + bbox.min[0] + PUSTR_LGAP, dy + ( abox.max[1] + abox.min[1] - labelFont.getStringHeight() ) / 2 ) ; break ;
+    case PUPLACE_RIGHT_CENTER  : labelFont.drawString ( label, dx + abox.max[0] + PUSTR_LGAP, dy + ( abox.max[1] + abox.min[1] - labelFont.getStringHeight() ) / 2 ) ; break ;
   }
 }
 

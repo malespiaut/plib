@@ -371,37 +371,6 @@ void puDeactivateWidget () ;
 void puSetActiveWidget ( puObject *w, int x, int y ) ;
 puObject *puActiveWidget () ;
 
-/*
-  Some deprecated functions for backwards compatibility...
-*/
-
-inline int puGetStringDescender ( puFont fnt )
-{
-  return fnt . getStringDescender () ;
-}
-
-inline int puGetStringHeight ( puFont fnt )
-{
-  return fnt . getStringHeight () ;
-}
-
-inline int puGetStringHeight ( puFont fnt, const char *str )
-{
-  return fnt . getStringHeight ( str ) ;
-}
-
-inline int puGetStringWidth ( puFont fnt, const char *str )
-{
-  return fnt . getStringWidth ( str ) ;
-}
-
-inline void puDrawString ( puFont fnt, const char *str, int x, int y )
-{
-  fnt . drawString ( str, x, y ) ;
-}
-
-/* ------------------------------- */
-
 
 class puValue
 {
@@ -844,8 +813,8 @@ public:
   void draw  ( int dx, int dy ) ;
   puButton   ( int minx, int miny, const char *l ) :
                  puObject ( minx, miny,
-                            minx + puGetStringWidth  ( puGetDefaultLegendFont(), l ) + PUSTR_LGAP + PUSTR_RGAP,
-                            miny + puGetStringHeight ( puGetDefaultLegendFont() ) + puGetStringDescender ( puGetDefaultLegendFont() ) + PUSTR_TGAP + PUSTR_BGAP )
+                            minx + puGetDefaultLegendFont().getStringWidth ( l ) + PUSTR_LGAP + PUSTR_RGAP,
+                            miny + puGetDefaultLegendFont().getStringHeight () + puGetDefaultLegendFont().getStringDescender () + PUSTR_TGAP + PUSTR_BGAP )
   {
     type |= PUCLASS_BUTTON ;
     setLegend ( l ) ;
@@ -914,13 +883,13 @@ public:
   void draw  ( int dx, int dy ) ;
   puSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
      puObject ( minx, miny, vertical ?
-	       ( minx + puGetStringWidth ( puGetDefaultLegendFont(), "W" ) +
+	       ( minx + puGetDefaultLegendFont().getStringWidth ( "W" ) +
 			PUSTR_LGAP + PUSTR_RGAP ) :
 	       ( minx + sz ),
 	      vertical ?
 	       ( miny + sz ) :
-	       ( miny + puGetStringHeight ( puGetDefaultLegendFont() ) +
-			puGetStringDescender ( puGetDefaultLegendFont() ) +
+	       ( miny + puGetDefaultLegendFont().getStringHeight () +
+			puGetDefaultLegendFont().getStringDescender () +
 			PUSTR_TGAP + PUSTR_BGAP )
 	     )
   {
@@ -1111,7 +1080,7 @@ protected:
 public:
   puMenuBar ( int h = -1 ) :
          puInterface ( 0, h < 0 ? puGetWindowHeight() -
-                      ( puGetStringHeight( puGetDefaultLegendFont() ) + PUSTR_TGAP + PUSTR_BGAP ) : h )
+                      ( puGetDefaultLegendFont().getStringHeight () + PUSTR_TGAP + PUSTR_BGAP ) : h )
   {
     type |= PUCLASS_MENUBAR ;
   }
@@ -1128,10 +1097,10 @@ public:
   puVerticalMenu ( int x = -1, int y = -1 ) :
 
   puGroup ( x < 0 ? puGetWindowWidth() -
-                     ( puGetStringWidth( puGetDefaultLegendFont(), " " )
+                     ( puGetDefaultLegendFont().getStringWidth ( " " )
                        + PUSTR_TGAP + PUSTR_BGAP ) : x,
             y < 0 ? puGetWindowHeight() -
-                     ( puGetStringHeight( puGetDefaultLegendFont() )
+                     ( puGetDefaultLegendFont().getStringHeight ()
                        + PUSTR_TGAP + PUSTR_BGAP ) : y)
   {
     type |= PUCLASS_VERTMENU ;

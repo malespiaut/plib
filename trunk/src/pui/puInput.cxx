@@ -74,7 +74,7 @@ static char *chop_to_width ( puFont fnt, const char *s, int width, int *ncut )
   {
     strcpy ( res, & s[n] ) ;
     n++ ;
-    w = puGetStringWidth ( fnt, res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
+    w = fnt.getStringWidth ( res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
   } while ( w >= width ) ;
 
   if ( ncut != NULL ) *ncut = n-1 ;
@@ -98,8 +98,8 @@ void puInput::draw ( int dx, int dy )
     r_cb ( this, dx, dy, render_data ) ;
   else
   {
-    int xx = puGetStringWidth ( legendFont, " " ) ;
-    int yy = ( abox.max[1] - abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
+    int xx = legendFont.getStringWidth ( " " ) ;
+    int yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2 ;
 
     int ncut ;
     char *s2 ;
@@ -120,10 +120,10 @@ void puInput::draw ( int dx, int dy )
         if ( ssp < sep )
         {
           s2 [ sep ] = '\0' ;
-          int cpos2 = puGetStringWidth ( legendFont, s2 ) +
+          int cpos2 = legendFont.getStringWidth ( s2 ) +
                                                   xx + dx + abox.min[0] ;
           s2 [ ssp ] = '\0' ;
-          int cpos1 = puGetStringWidth ( legendFont, s2 ) +
+          int cpos1 = legendFont.getStringWidth ( s2 ) +
                                                   xx + dx + abox.min[0] ;
 
           glColor3f ( 1.0f, 1.0f, 0.7f ) ;
@@ -149,7 +149,7 @@ void puInput::draw ( int dx, int dy )
     s2 = chop_to_width ( legendFont, getStringValue(),
                          abox.max[0]-abox.min[0], &ncut ) ;
 
-    puDrawString ( legendFont, s2,
+    legendFont.drawString ( s2,
                   dx + abox.min[0] + xx,
                   dy + abox.min[1] + yy ) ;
 
@@ -164,9 +164,9 @@ void puInput::draw ( int dx, int dy )
       {
         s2 [ cursor_position-ncut ] = '\0' ;
 
-        int cpos = puGetStringWidth ( legendFont, s2 ) + xx + dx + abox.min[0] ;
-        int top = yy + puGetStringHeight ( legendFont ) ;
-        int bot = yy - puGetStringDescender ( legendFont ) ;
+        int cpos = legendFont.getStringWidth ( s2 ) + xx + dx + abox.min[0] ;
+        int top = yy + legendFont.getStringHeight () ;
+        int bot = yy - legendFont.getStringDescender() ;
 
         glColor3f ( 0.1f, 0.1f, 1.0f ) ;
         glBegin   ( GL_LINES ) ;
@@ -210,14 +210,14 @@ void puInput::doHit ( int button, int updown, int x, int y )
     int i = strlen ( s2 ) ;
 
     int length, prev_length ;
-    length = puGetStringWidth ( legendFont, s2 ) + abox.min[0] ;
+    length = legendFont.getStringWidth ( s2 ) + abox.min[0] ;
     prev_length = length ;
 
     while ( ( x <= prev_length ) && ( i >= 0 ) )
     {
       prev_length = length ;
       s2[--i] = '\0' ;
-      length = puGetStringWidth ( legendFont, s2 ) + abox.min[0] ;
+      length = legendFont.getStringWidth ( s2 ) + abox.min[0] ;
     }
 
     if ( ( x - length ) > ( prev_length - x ) )
