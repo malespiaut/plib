@@ -120,8 +120,8 @@ public:
   }
 
   int getStringDescender ( void ) const ;
-  int getStringHeight    ( void ) const ;
   int getStringHeight ( const char *str ) const ;
+  int getStringHeight ( void ) const { return getStringHeight ( "K" ) ; }
   int getStringWidth  ( const char *str ) const ;
 
   void drawString ( const char *str, int x, int y ) ;

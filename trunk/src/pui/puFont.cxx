@@ -151,12 +151,6 @@ int puFont::getStringHeight ( const char *s ) const
 }
 
 
-int puFont::getStringHeight ( void ) const
-{
-  return getStringHeight ( "K" ) ;
-}
-
-
 int puFont::getStringDescender ( void ) const
 {
 #ifdef _PU_USE_GLUT_FONTS
