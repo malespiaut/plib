@@ -6,8 +6,7 @@ include_HEADERS = fnt.h
 
 libplibfnt_a_SOURCES = fnt.cxx fntTXF.cxx fntLocal.h
 
-INCLUDES = -I$(top_srcdir)/src/sg
-INCLUDES += -I$(top_srcdir)/src/util
+INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/util
 
 endif
 
