@@ -38,11 +38,25 @@ void msFunc ( int button, int updn, int x, int y )
 }
 
 
+char keyIsDown [ 512 ] = { 0 } ;
+
 void kbFunc ( int key, int updn, int x, int y )
 {
-  fprintf ( stderr, "Keyboard key %d dirn %d at (%4dx%4d)\n",
+  fprintf ( stderr, "Keyboard key %d dirn %d at (%4dx%4d) ",
                                            key, updn, x, y ) ;
 
+  keyIsDown [ key ] = (updn==PW_DOWN) ;
+
+  for ( int i = 0 ; i < 512 ; i++ )
+    if ( keyIsDown [ i ] )
+    {
+      if ( i > ' ' && i < 0x7F )
+        fprintf ( stderr, "%c ", i ) ;
+      else
+        fprintf ( stderr, "0x%2x ", i ) ;
+    }
+
+  fprintf ( stderr, "\n" ) ;
   if ( key == 0x1B ) /* ESC */
   {
     pwCleanup () ;

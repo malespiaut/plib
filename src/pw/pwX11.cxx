@@ -74,7 +74,8 @@ typedef struct
 
 #endif
 
-static int initialised = 0 ;
+static bool initialised    = false ;
+static bool insideCallback = false ;
 static int modifiers   = 0 ;
 static int origin [2]  = {   0,   0 } ;
 static int size   [2]  = { 640, 480 } ;
@@ -355,7 +356,8 @@ void pwInit ( int x, int y, int w, int h, int multisample,
   resizeCB = NULL ;
   exitCB   = defaultExitFunc ;
 
-  initialised = 1 ;
+  initialised = true ;
+  insideCallback = false ;
 
   glClear ( GL_COLOR_BUFFER_BIT ) ;
   pwSwapBuffers () ;
@@ -448,11 +450,15 @@ int pwGetModifiers ()
 
 static void getEvents ()
 {
+  bool repeating = false ;
+  char keyflags [ 32 ] ;
   XEvent event ;
+
+  insideCallback = true ;
 
   while ( XPending ( currDisplay ) )
   {
-    int updown = PW_UP ;
+    int updown = PW_DOWN ;
 
     XNextEvent ( currDisplay, &event ) ;
 
@@ -493,10 +499,11 @@ static void getEvents ()
           (*mpCB) ( event.xmotion.x, event.xmotion.y ) ;
         break ;
 
-      case ButtonPress     :
-        updown = PW_DOWN ;
-        /* FALLTHROUGH */
       case ButtonRelease   :
+        updown = PW_UP ;
+        /* FALLTHROUGH */
+
+      case ButtonPress     :
         {
           int button = -1 ;
 
@@ -512,62 +519,78 @@ static void getEvents ()
         }
         break ;
 
-      case KeyPress        :
-        updown = PW_DOWN ;
-        /* FALLTHROUGH */
       case KeyRelease      :
+        updown = PW_UP ;
+
+        XQueryKeymap ( currDisplay, keyflags ) ;
+
+        repeating = ( ( keyflags [ event.xkey.keycode >> 3 ] &
+                          ( 1 << ( event.xkey.keycode & 7 ) ) ) != 0 ) ;
+
+        /* FALLTHROUGH */
+
+      case KeyPress        :
+        /*
+          Only generate a key up callback if the key is actually up
+          and not repeating.
+        */
+
+        if ( repeating )
+          break ;
+
+        XComposeStatus composeStatus ;
+        char           asciiCode [ 32 ] ;
+        KeySym         keySym ;
+
+        int len = XLookupString( &event.xkey, asciiCode, sizeof(asciiCode),
+                                 &keySym, &composeStatus ) ;
+        int result = -1 ;
+
+        if( len > 0 )
+          result = asciiCode[ 0 ] ;
+        else
         {
-          XComposeStatus composeStatus ;
-          char           asciiCode [ 32 ] ;
-          KeySym         keySym ;
-
-          int len = XLookupString( &event.xkey, asciiCode, sizeof(asciiCode),
-                                   &keySym, &composeStatus ) ;
-          int result = -1 ;
-
-          if( len > 0 )
-            result = asciiCode[ 0 ] ;
-          else
+          switch( keySym )
           {
-            switch( keySym )
-            {
-              case XK_F1:     result = PW_KEY_F1;     break;
-              case XK_F2:     result = PW_KEY_F2;     break;
-              case XK_F3:     result = PW_KEY_F3;     break;
-              case XK_F4:     result = PW_KEY_F4;     break;
-              case XK_F5:     result = PW_KEY_F5;     break;
-              case XK_F6:     result = PW_KEY_F6;     break;
-              case XK_F7:     result = PW_KEY_F7;     break;
-              case XK_F8:     result = PW_KEY_F8;     break;
-              case XK_F9:     result = PW_KEY_F9;     break;
-              case XK_F10:    result = PW_KEY_F10;    break;
-              case XK_F11:    result = PW_KEY_F11;    break;
-              case XK_F12:    result = PW_KEY_F12;    break;
+            case XK_F1:     result = PW_KEY_F1;     break;
+            case XK_F2:     result = PW_KEY_F2;     break;
+            case XK_F3:     result = PW_KEY_F3;     break;
+            case XK_F4:     result = PW_KEY_F4;     break;
+            case XK_F5:     result = PW_KEY_F5;     break;
+            case XK_F6:     result = PW_KEY_F6;     break;
+            case XK_F7:     result = PW_KEY_F7;     break;
+            case XK_F8:     result = PW_KEY_F8;     break;
+            case XK_F9:     result = PW_KEY_F9;     break;
+            case XK_F10:    result = PW_KEY_F10;    break;
+            case XK_F11:    result = PW_KEY_F11;    break;
+            case XK_F12:    result = PW_KEY_F12;    break;
 
-              case XK_Left:   result = PW_KEY_LEFT;   break;
-              case XK_Right:  result = PW_KEY_RIGHT;  break;
-              case XK_Up:     result = PW_KEY_UP;     break;
-              case XK_Down:   result = PW_KEY_DOWN;   break;
+            case XK_Left:   result = PW_KEY_LEFT;   break;
+            case XK_Right:  result = PW_KEY_RIGHT;  break;
+            case XK_Up:     result = PW_KEY_UP;     break;
+            case XK_Down:   result = PW_KEY_DOWN;   break;
 
-              case XK_KP_Prior:
-              case XK_Prior:  result = PW_KEY_PAGE_UP; break;
-              case XK_KP_Next:
-              case XK_Next:   result = PW_KEY_PAGE_DOWN; break;
-              case XK_KP_Home:
-              case XK_Home:   result = PW_KEY_HOME;   break;
-              case XK_KP_End:
-              case XK_End:    result = PW_KEY_END;    break;
-              case XK_KP_Insert:
-              case XK_Insert: result = PW_KEY_INSERT; break;
-            }
+            case XK_KP_Prior:
+            case XK_Prior:  result = PW_KEY_PAGE_UP; break;
+            case XK_KP_Next:
+            case XK_Next:   result = PW_KEY_PAGE_DOWN; break;
+            case XK_KP_Home:
+            case XK_Home:   result = PW_KEY_HOME;   break;
+            case XK_KP_End:
+            case XK_End:    result = PW_KEY_END;    break;
+            case XK_KP_Insert:
+            case XK_Insert: result = PW_KEY_INSERT; break;
           }
-
-          if ( result != -1 && kbCB != NULL )
-            (*kbCB) ( result, updown, event.xkey.x, event.xkey.y ) ;
         }
+
+        if ( result != -1 && kbCB != NULL )
+          (*kbCB) ( result, updown, event.xkey.x, event.xkey.y ) ;
+
         break ;
     }
   }
+
+  insideCallback = false ;
 
   glXMakeCurrent ( currDisplay, currHandle, currContext ) ;
 }
@@ -575,6 +598,20 @@ static void getEvents ()
 
 void pwSwapBuffers ()
 {
+  if ( ! initialised )
+  {
+    fprintf ( stderr, "PLIB/PW: FATAL - Application called pwSwapBuffers"
+                      " before pwInit.\n" ) ;
+    exit ( 1 ) ;
+  }
+
+  if ( insideCallback )
+  {
+    fprintf ( stderr, "PLIB/PW: FATAL - Application called pwSwapBuffers"
+                      " from inside a callback function.\n" ) ;
+    exit ( 1 ) ;
+  }
+
   glFlush () ;
   glXSwapBuffers ( currDisplay, currHandle ) ;
   getEvents () ;
@@ -593,6 +630,10 @@ void pwSetGamma ( float g )
 
 void pwCleanup ()
 {
+  if ( ! initialised )
+    fprintf ( stderr, "PLIB/PW: WARNING - Application called pwCleanup"
+                      " before pwInit.\n" ) ;
+
   glXDestroyContext ( currDisplay, currContext ) ;
   XDestroyWindow    ( currDisplay, currHandle  ) ;
   XFlush            ( currDisplay ) ;

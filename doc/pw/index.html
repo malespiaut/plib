@@ -130,7 +130,8 @@ void pwSwapBuffers () ;
 </pre>
 This function swaps the double-buffers, collects keystrokes, mouse events
 and resize events and calls whatever application-defined callbacks are
-needed.
+needed.  It is NOT LEGAL to call pwSwapBuffers() from inside a PW callback
+function.
 <p>
 When you wish to close the PW window, you should call:
 <pre>
