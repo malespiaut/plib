@@ -48,7 +48,7 @@ union PSL_Variable
 class PSL_Extension
 {
 public:
-  char *symbol ;
+  const char *symbol ;
   int   argc ;
   PSL_Variable (*func) ( int, PSL_Variable *, PSL_Program *p ) ;
 } ;
@@ -71,17 +71,17 @@ public:
 
   ~PSL_Program () ;
 
-  PSL_Context   *getContext     () { return context    ; }
-  PSL_Opcode    *getCode        () { return code       ; }
-  PSL_Parser    *getParser      () { return parser     ; }
-  PSL_Extension *getExtensions  () { return extensions ; }
+  PSL_Context   *getContext     () const { return context    ; }
+  PSL_Opcode    *getCode        () const { return code       ; }
+  PSL_Parser    *getParser      () const { return parser     ; }
+  PSL_Extension *getExtensions  () const { return extensions ; }
 
-  void      *getUserData ()           { return userData ; }
+  void      *getUserData () const     { return userData ; }
   void       setUserData ( void *ud ) { userData = ud ; }
 
-  void       dump  () ;
-  int        parse ( char *fname ) ;
-  int        parse ( FILE *fd    ) ;
+  void       dump  () const ;
+  int        parse ( const char *fname ) ;
+  int        parse ( FILE *fd ) ;
   void       reset () ;
   PSL_Result step  () ;
 } ;

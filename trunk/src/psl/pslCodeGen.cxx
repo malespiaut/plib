@@ -24,7 +24,7 @@
 
 #include "pslLocal.h"
 
-int PSL_Parser::parse ( char *fname )
+int PSL_Parser::parse ( const char *fname )
 {
   init () ;
 
@@ -77,14 +77,14 @@ void PSL_Parser::pushConstant ( const char *c )
   pushCodeByte ( ff [ 3 ] ) ;
 }
 
-void PSL_Parser::pushVariable ( char *c )
+void PSL_Parser::pushVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
   pushCodeByte ( OPCODE_PUSH_VARIABLE | a ) ;
 } 
 
-void PSL_Parser::pushAssignment ( char *c )
+void PSL_Parser::pushAssignment ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
@@ -92,7 +92,7 @@ void PSL_Parser::pushAssignment ( char *c )
 } 
 
 
-void PSL_Parser::pushCall ( char *c, int argc )
+void PSL_Parser::pushCall ( const char *c, int argc )
 {
   int ext = getExtensionSymbol ( c ) ;
 

@@ -25,7 +25,7 @@
 #include "pslLocal.h"
 
 
-PSL_Address PSL_Parser::setVarSymbol ( char *s )
+PSL_Address PSL_Parser::setVarSymbol ( const char *s )
 {
   for ( int i = 0 ; i < next_var ; i++ )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
@@ -47,7 +47,7 @@ PSL_Address PSL_Parser::setVarSymbol ( char *s )
 
 
 
-PSL_Address PSL_Parser::getVarSymbol ( char *s )
+PSL_Address PSL_Parser::getVarSymbol ( const char *s )
 {
   for ( int i = 0 ; i < next_var ; i++ )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
@@ -59,7 +59,7 @@ PSL_Address PSL_Parser::getVarSymbol ( char *s )
 }
 
 
-int PSL_Parser::getExtensionSymbol ( char *s )
+int PSL_Parser::getExtensionSymbol ( const char *s )
 {
   for ( int i = 0 ; extensions [ i ] . symbol != NULL ; i++ )
     if ( strcmp ( s, extensions [ i ] . symbol ) == 0 )

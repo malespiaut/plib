@@ -58,10 +58,17 @@ PSL_Program::~PSL_Program ()
 }
 
 
-void       PSL_Program::dump  ()             {        parser -> dump () ; }
-int        PSL_Program::parse ( char *fname ){ return parser -> parse(fname) ; }
-int        PSL_Program::parse ( FILE *fd )   { return parser -> parse( fd  ) ; }
+void       PSL_Program::dump  () const {        parser  -> dump  () ; }
+void       PSL_Program::reset ()       {        context -> reset () ; }
+PSL_Result PSL_Program::step  ()       { return context -> step  () ; }
 
-void       PSL_Program::reset ()             {        context -> reset () ; }
-PSL_Result PSL_Program::step  ()             { return context -> step  () ; }                           
+int        PSL_Program::parse ( const char *fname )
+{
+  return parser -> parse(fname) ;
+}
+
+int        PSL_Program::parse ( FILE *fd )
+{
+  return parser -> parse( fd  ) ;
+}
 
