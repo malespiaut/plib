@@ -490,8 +490,8 @@ void ssgaSphere::regenerateLatLong ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b)/2.0f,
                        center[1] + size[1]*cos(a)*sin(b)/2.0f,
                        center[2] - size[2]*       cos(b)/2.0f ) ;
-	sgSetVec3 ( n, -sin(a)*sin(b)*size[0],
-                       -cos(a)*sin(b)*size[1],
+	sgSetVec3 ( n, sin(a)*sin(b)*size[0],
+                       cos(a)*sin(b)*size[1],
                        -cos(b)*size[2] ) ;
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices, (float) i /(float)stacks ) ;
@@ -517,8 +517,8 @@ void ssgaSphere::regenerateLatLong ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b)/2.0f,
                        center[1] + size[1]*cos(a)*sin(b)/2.0f,
                        center[2] - size[2]*       cos(b)/2.0f ) ;
-	sgSetVec3 ( n, -sin(a)*sin(b)*size[0],
-                       -cos(a)*sin(b)*size[1],
+	sgSetVec3 ( n, sin(a)*sin(b)*size[0],
+                       cos(a)*sin(b)*size[1],
                        -cos(b)*size[2] ) ;
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices,
@@ -539,8 +539,8 @@ void ssgaSphere::regenerateLatLong ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b0)/2.0f,
                        center[1] + size[1]*cos(a)*sin(b0)/2.0f,
                        center[2] - size[2]*       cos(b0)/2.0f ) ;
-	sgSetVec3 ( n, -sin(a)*sin(b0)*size[0],
-                       -cos(a)*sin(b0)*size[1],
+	sgSetVec3 ( n, sin(a)*sin(b0)*size[0],
+                       cos(a)*sin(b0)*size[1],
                        -cos(b0)*size[2] ) ;
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices,
@@ -550,8 +550,8 @@ void ssgaSphere::regenerateLatLong ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b1)/2.0f,
                        center[1] + size[1]*cos(a)*sin(b1)/2.0f,
                        center[2] - size[2]*       cos(b1)/2.0f ) ;
-	sgSetVec3 ( n, -sin(a)*sin(b1)*size[0],
-                       -cos(a)*sin(b1)*size[1],
+	sgSetVec3 ( n, sin(a)*sin(b1)*size[0],
+                       cos(a)*sin(b1)*size[1],
                        -cos(b1)*size[2] ) ;
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices,
