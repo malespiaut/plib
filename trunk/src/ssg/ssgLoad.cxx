@@ -106,15 +106,6 @@ char* ssgLoaderOptions::make_path ( char* path,
 {
   if ( fname != NULL && fname [ 0 ] != '\0' )
   {
-    /* Remove all leading path information. */
-    const char* seps = "\\/" ;
-    const char* fn = & fname [ strlen ( fname ) - 1 ] ;
-    for ( ; fn != fname && strchr(seps,*fn) == NULL ; fn-- )
-      /* Search back for a seperator */ ;
-    if ( strchr(seps,*fn) != NULL )
-      fn++ ;
-    fname = fn ;
-
     if ( fname [ 0 ] != '/' &&
        dir != NULL && dir[0] != '\0' )
     {
@@ -125,14 +116,12 @@ char* ssgLoaderOptions::make_path ( char* path,
     else
       strcpy ( path, fname ) ;
 
-#if 0
     //convert backward slashes to forward slashes
     for ( char* ptr = path ; *ptr ; ptr ++ )
     {
       if ( *ptr == '\\' )
         *ptr = '/' ;
     }
-#endif
   }
   else
      path [0] = 0 ;
@@ -148,6 +137,15 @@ void ssgLoaderOptions::makeModelPath ( char *path, const char *fname ) const
 
 void ssgLoaderOptions::makeTexturePath ( char *path, const char *fname ) const
 {
+  /* Remove all leading path information. */
+  const char* seps = "\\/" ;
+  const char* fn = & fname [ strlen ( fname ) - 1 ] ;
+  for ( ; fn != fname && strchr(seps,*fn) == NULL ; fn-- )
+    /* Search back for a seperator */ ;
+  if ( strchr(seps,*fn) != NULL )
+    fn++ ;
+  fname = fn ;
+
   make_path ( path, texture_dir, fname ) ;
 }
 
