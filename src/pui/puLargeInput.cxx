@@ -86,6 +86,13 @@ void puLargeInput::normalize_cursors ( void )
     select_end_position = select_start_position ;     
     select_start_position = tmp ;
   }
+
+  // Set the top line in the window so that the last line is at the bottom of the window
+
+  if ( top_line_in_window > num_lines - lines_in_window + 2 )
+    top_line_in_window = num_lines - lines_in_window + 2 ;
+
+  if ( top_line_in_window < 0 ) top_line_in_window = 0 ;
 }
 
 void puLargeInput::removeSelectRegion ( void )
@@ -114,11 +121,11 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
 
   type |= PUCLASS_LARGEINPUT ;
   num_lines = 1 ;
+  slider_width = sl_width ;
   lines_in_window = ( h - slider_width ) /
                     ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
   top_line_in_window = 0 ;
   max_width = 0 ;
-  slider_width = sl_width ;
 
   accepting = FALSE ;
   cursor_position = 0 ;
@@ -217,6 +224,9 @@ void puLargeInput::setSize ( int w, int h )
         ob->setPosition ( w-slider_width, h-slider_width ) ;
     }
   }
+
+  lines_in_window = ( h - slider_width ) /
+                    ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
 }
 
 void puLargeInput::setSelectRegion ( int s, int e )
@@ -248,7 +258,7 @@ void puLargeInput::setSelectRegion ( int s, int e )
 
 void  puLargeInput::selectEntireLine ( void )
 {
-  while ( ( select_start_position >= 0 ) && ( *(text + select_start_position) != '\n' ) )
+  while ( ( select_start_position > 0 ) && ( *(text + select_start_position) != '\n' ) )
     select_start_position -- ;
 
 
@@ -421,278 +431,283 @@ void puLargeInput::draw ( int dx, int dy )
                            style==PUSTYLE_SMALL_SHADED) ) ? -style :
                         (accepting ? -style : style ), colour, FALSE ) ;
 
-  // Calculate window parameters:
-
-  int line_size = puGetStringHeight ( legendFont ) +         // Height of a line
-                  puGetStringDescender ( legendFont ) + 1 ;  // of text, in pixels
-
-  int box_width = abox.max[0] - abox.min[0] - slider_width ;   // Input box width, in pixels
-  int box_height = ( abox.max[1] - abox.min[1] - slider_width ) / line_size ;
-                                                // Input box height, in lines
-
-  float bottom_value ;
-  bottom_slider -> getValue ( &bottom_value ) ;
-  float right_value ;
-  right_slider -> getValue ( &right_value ) ;
-
-  int beg_pos      // Position in window of start of line, in pixels
-              = (int)(( box_width - max_width ) * bottom_value ) ;
-//  int end_pos      // Position in window of end of line, in pixels
-//              = beg_pos + max_width - 1 ;
-  if ( top_line_in_window < 0 ) top_line_in_window = 0 ;
-  int end_lin      // Position on line count of bottom of window, in lines
-              = top_line_in_window + box_height - 1 ;
-
-  int xx = legendFont.getStringWidth ( " " ) ;
-  int yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 ) ;
-
-  if ( accepting )
+  if ( r_cb )
+    r_cb ( this, dx, dy, render_data ) ;
+  else
   {
-    char *val = getText () ;
+    // Calculate window parameters:
 
-    // Highlight the select area
+    int line_size = puGetStringHeight ( legendFont ) +         // Height of a line
+                    puGetStringDescender ( legendFont ) + 1 ;  // of text, in pixels
 
-    if ( select_end_position > 0 &&
-         select_end_position != select_start_position )    
+    int box_width = abox.max[0] - abox.min[0] - slider_width ;   // Input box width, in pixels
+    int box_height = ( abox.max[1] - abox.min[1] - slider_width ) / line_size ;
+                                                  // Input box height, in lines
+
+    float bottom_value ;
+    bottom_slider -> getValue ( &bottom_value ) ;
+    float right_value ;
+    right_slider -> getValue ( &right_value ) ;
+
+    int beg_pos      // Position in window of start of line, in pixels
+                = (int)(( box_width - max_width ) * bottom_value ) ;
+////  int end_pos      // Position in window of end of line, in pixels
+////              = beg_pos + max_width - 1 ;
+    if ( top_line_in_window < 0 ) top_line_in_window = 0 ;
+    int end_lin      // Position on line count of bottom of window, in lines
+                = top_line_in_window + box_height - 1 ;
+
+    int xx = legendFont.getStringWidth ( " " ) ;
+    int yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 ) ;
+
+    if ( accepting )
     {
-      // First:  find the positions on the window of the selection start and end
+      char *val = getText () ;
 
-      char temp_char = val[ select_start_position ] ;
-      val [ select_start_position ] = '\0' ;
+      // Highlight the select area
 
-      xx = dx + abox.min[0] + legendFont.getStringWidth ( " " ) ;
-      yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 
-              + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
-
-      char *end_of_line = strchr ( val, '\n' ) ;
-      char *start_of_line = val;
-
-      // Step down the lines until you reach the line with the selection start
-
-      int select_start_line = 0 ;
-
-      while ( end_of_line )
+      if ( select_end_position > 0 &&
+           select_end_position != select_start_position )    
       {
-        select_start_line++ ;
-        start_of_line = end_of_line + 1 ;
-        yy -= line_size ;
-        end_of_line = strchr ( start_of_line, '\n' ) ;
-      }
+        // First:  find the positions on the window of the selection start and end
 
-      int start_pos = legendFont.getStringWidth ( start_of_line ) + xx +
-                      beg_pos ;   // Start of selection
+        char temp_char = val[ select_start_position ] ;
+        val [ select_start_position ] = '\0' ;
 
-      val [ select_start_position ] = temp_char ;
+        xx = dx + abox.min[0] + legendFont.getStringWidth ( " " ) ;
+        yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 
+                + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
 
-      // Now repeat the process for the end of the selection.
+        char *end_of_line = strchr ( val, '\n' ) ;
+        char *start_of_line = val;
 
-      temp_char = val[ select_end_position ] ;
-      val [ select_end_position ] = '\0' ;
+        // Step down the lines until you reach the line with the selection start
 
-      end_of_line = strchr ( start_of_line, '\n' ) ;
+        int select_start_line = 0 ;
 
-      // Step down the lines until you reach the line with the selection end
-
-      int select_end_line = select_start_line ;
-
-      while ( end_of_line )
-      {
-        select_end_line++ ;
-        start_of_line = end_of_line + 1 ;
-        end_of_line = strchr ( start_of_line, '\n' ) ;
-      }
-
-      int end_pos = legendFont.getStringWidth ( start_of_line ) + xx +
-                    beg_pos ;   // End of selection
-
-      val [ select_end_position ] = temp_char ;
-
-      // Now draw the selection area.
-
-      for ( int line_count = select_start_line ; line_count <= select_end_line ;
-                line_count++ )
-      {
-        if ( line_count >= top_line_in_window )
+        while ( end_of_line )
         {
-          int x_start, x_end ;
-
-          if ( line_count == select_start_line )
-            x_start = ( start_pos > xx ) ? start_pos : xx ;
-          else
-            x_start = xx ;
-
-          x_start = ( x_start < abox.max[0] + dx ) ? x_start : abox.max[0] + dx ;
-
-          if ( line_count == select_end_line )
-            x_end = ( end_pos < abox.max[0] + dx ) ? end_pos : abox.max[0] + dx ;
-          else
-            x_end = abox.max[0] + dx ;
-
-          x_end = ( x_end > xx ) ? x_end : xx ;
-
-          int top = dy + abox.min[1] + yy + puGetStringHeight ( legendFont ) ;
-          int bot = dy + abox.min[1] + yy - puGetStringDescender ( legendFont ) ;
-
-          glColor3f ( 1.0f, 1.0f, 0.7f ) ;
-          glRecti ( x_start, bot, x_end, top ) ;
-
-          if ( line_count == end_lin ) break ;
+          select_start_line++ ;
+          start_of_line = end_of_line + 1 ;
+          yy -= line_size ;
+          end_of_line = strchr ( start_of_line, '\n' ) ;
         }
 
-        yy -= line_size ;
-      }
-    }
-  }
+        int start_pos = legendFont.getStringWidth ( start_of_line ) + xx +
+                        beg_pos ;   // Start of selection
 
-  // Draw the text
+        val [ select_start_position ] = temp_char ;
 
-  {
-    // If greyed out then halve the opacity when drawing the label and legend
+        // Now repeat the process for the end of the selection.
 
-    if ( active )
-      glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
-    else
-      glColor4f ( colour [ PUCOL_LEGEND ][0],
-                  colour [ PUCOL_LEGEND ][1],
-                  colour [ PUCOL_LEGEND ][2],
-                  colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
+        temp_char = val[ select_end_position ] ;
+        val [ select_end_position ] = '\0' ;
 
-    char *val ;                   // Pointer to the actual text in the box
-    val = getText () ;
+        end_of_line = strchr ( start_of_line, '\n' ) ;
 
-    if ( val )
-    {
-      char *end_of_line = strchr (val, '\n') ;
-      int line_count = 0;
+        // Step down the lines until you reach the line with the selection end
 
-      xx = legendFont.getStringWidth ( " " ) ;
-      yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 ) ;
+        int select_end_line = select_start_line ;
 
-      while (end_of_line)  // While there is a carriage return in the string
-      {
-        if ( line_count < top_line_in_window )
-        {                                        // Before the start of the window
-          val = end_of_line + 1 ;
-          end_of_line = strchr (val, '\n') ;     // Just go to the next line
-        }
-        else if ( line_count <= end_lin )        // Within the window, draw it
+        while ( end_of_line )
         {
-          char temp_char = *end_of_line ;   // Temporary holder for last char on line
+          select_end_line++ ;
+          start_of_line = end_of_line + 1 ;
+          end_of_line = strchr ( start_of_line, '\n' ) ;
+        }
 
-          *end_of_line = '\0' ;     // Make end-of-line be an end-of-string
+        int end_pos = legendFont.getStringWidth ( start_of_line ) + xx +
+                      beg_pos ;   // End of selection
 
-          int beg_pos      // Position in window of start of line, in pixels
-                  = (int)( ( box_width - max_width ) * bottom_value ) ;
-          int end_pos      // Position in window of end of line, in pixels
-                  = (int)( beg_pos + legendFont.getStringWidth ( val ) ) ;
+        val [ select_end_position ] = temp_char ;
 
-          while ( ( beg_pos < 0 ) && ( val < end_of_line ) )   // Step down line
-          {                                                    // until it is in the window
-#ifdef PU_NOT_USING_GLUT
-            beg_pos += fontSize [ *val ] ;
-#else
-            char chr = *(val+1) ;
-            *(val+1) = '\0' ;
-            beg_pos += legendFont.getStringWidth ( val ) ;
-            *(val+1) = chr ;
-#endif
-            val++ ;
-          }
+        // Now draw the selection area.
 
-          while ( end_pos > box_width )  // Step up the line until it is in the window
+        for ( int line_count = select_start_line ; line_count <= select_end_line ;
+                  line_count++ )
+        {
+          if ( line_count >= top_line_in_window )
           {
-            *end_of_line = temp_char ;
-            end_of_line--;
-            temp_char = *end_of_line ;
-            *end_of_line = '\0' ;
-            end_pos = beg_pos + legendFont.getStringWidth ( val ) ;
+            int x_start, x_end ;
+
+            if ( line_count == select_start_line )
+              x_start = ( start_pos > xx ) ? start_pos : xx ;
+            else
+              x_start = xx ;
+
+            x_start = ( x_start < abox.max[0] + dx ) ? x_start : abox.max[0] + dx ;
+
+            if ( line_count == select_end_line )
+              x_end = ( end_pos < abox.max[0] + dx ) ? end_pos : abox.max[0] + dx ;
+            else
+              x_end = abox.max[0] + dx ;
+
+            x_end = ( x_end > xx ) ? x_end : xx ;
+
+            int top = dy + abox.min[1] + yy + puGetStringHeight ( legendFont ) ;
+            int bot = dy + abox.min[1] + yy - puGetStringDescender ( legendFont ) ;
+
+            glColor3f ( 1.0f, 1.0f, 0.7f ) ;
+            glRecti ( x_start, bot, x_end, top ) ;
+
+            if ( line_count == end_lin ) break ;
           }
-
-          if ( val < end_of_line )                 // If any text shows in the window,
-            legendFont.drawString ( val,           // draw it.
-                                    dx + abox.min[0] + xx + beg_pos,
-                                    dy + abox.min[1] + yy ) ;
-
-          *end_of_line = temp_char ;     // Restore the end-of-line character
-
-          if ( temp_char != '\n' )               // If we had to step up from the end of
-            end_of_line = strchr (val, '\n') ;   // the line, go back to the actual end
 
           yy -= line_size ;
-          val = end_of_line + 1 ;
-          end_of_line = strchr (val, '\n') ;     // On to the next line
         }
-        else if ( line_count > end_lin )        // Have gone beyond window, end process
-          end_of_line = NULL ;
+      }
+    }
 
-        line_count ++ ;
+    // Draw the text
 
-      }     // while ( end_of_line )
-    }     // if ( val )
-
-    draw_label ( dx, dy ) ;
-  }
-
-  if ( accepting )
-  { 
-    char *val ;                   // Pointer to the actual text in the box
-    val = getText () ;
-
-    // Draw the 'I' bar cursor.
-
-    if ( val && ( cursor_position >= 0 ) )
     {
-      char temp_char = val[ cursor_position ] ;
-      val [ cursor_position ] = '\0' ;
+      // If greyed out then halve the opacity when drawing the label and legend
 
-      xx = legendFont.getStringWidth ( " " ) ;
-      yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 
-              + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
+      if ( active )
+        glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
+      else
+        glColor4f ( colour [ PUCOL_LEGEND ][0],
+                    colour [ PUCOL_LEGEND ][1],
+                    colour [ PUCOL_LEGEND ][2],
+                    colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
 
-      char *end_of_line = strchr ( val, '\n' ) ;
-      char *start_of_line = val;
+      char *val ;                   // Pointer to the actual text in the box
+      val = getText () ;
 
-      // Step down the lines until you reach the line with the cursor
-
-      int line_count = 1 ;
-
-      while ( end_of_line )
+      if ( val )
       {
-        line_count++ ;
-        start_of_line = end_of_line + 1 ;
-        yy -= line_size ;
-        end_of_line = strchr ( start_of_line, '\n' ) ;
-      }
+        char *end_of_line = strchr (val, '\n') ;
+        int line_count = 0;
 
-      if ( ( line_count > top_line_in_window ) && ( line_count <= end_lin+1 ) )
-      {
-        int beg_pos      // Position in window of start of line, in pixels
-                  = (int)( ( box_width - max_width ) * bottom_value ) ;
+        xx = legendFont.getStringWidth ( " " ) ;
+        yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 ) ;
 
-        int cpos = (int)( legendFont.getStringWidth ( start_of_line ) + xx +
-                   abox.min[0] + beg_pos ) ;
-        int top = (int)( abox.min[1] + yy + legendFont.getStringHeight () ) ;
-        int bot = (int)( abox.min[1] + yy - legendFont.getStringDescender () ) ;
-
-        if ( ( cpos > abox.min[0] ) && ( cpos < abox.max[0] ) )
+        while (end_of_line)  // While there is a carriage return in the string
         {
-          glColor3f ( 0.1f, 0.1f, 1.0f ) ;
-          glBegin   ( GL_LINES ) ;
-          glVertex2i ( dx + cpos    , dy + bot ) ;
-          glVertex2i ( dx + cpos    , dy + top ) ;
-          glVertex2i ( dx + cpos - 1, dy + bot ) ;
-          glVertex2i ( dx + cpos - 1, dy + top ) ;
-          glVertex2i ( dx + cpos - 4, dy + bot ) ;
-          glVertex2i ( dx + cpos + 3, dy + bot ) ;
-          glVertex2i ( dx + cpos - 4, dy + top ) ;
-          glVertex2i ( dx + cpos + 3, dy + top ) ;
-          glEnd      () ;
-        }
-      }
+          if ( line_count < top_line_in_window )
+          {                                        // Before the start of the window
+            val = end_of_line + 1 ;
+            end_of_line = strchr (val, '\n') ;     // Just go to the next line
+          }
+          else if ( line_count <= end_lin )        // Within the window, draw it
+          {
+            char temp_char = *end_of_line ;   // Temporary holder for last char on line
 
-      val[ cursor_position ] = temp_char ;
+            *end_of_line = '\0' ;     // Make end-of-line be an end-of-string
+
+            int beg_pos      // Position in window of start of line, in pixels
+                    = (int)( ( box_width - max_width ) * bottom_value ) ;
+            int end_pos      // Position in window of end of line, in pixels
+                    = (int)( beg_pos + legendFont.getStringWidth ( val ) ) ;
+
+            while ( ( beg_pos < 0 ) && ( val < end_of_line ) )   // Step down line
+            {                                                    // until it is in the window
+#ifdef PU_NOT_USING_GLUT
+              beg_pos += fontSize [ *val ] ;
+#else
+              char chr = *(val+1) ;
+              *(val+1) = '\0' ;
+              beg_pos += legendFont.getStringWidth ( val ) ;
+              *(val+1) = chr ;
+#endif
+              val++ ;
+            }
+
+            while ( end_pos > box_width )  // Step up the line until it is in the window
+            {
+              *end_of_line = temp_char ;
+              end_of_line--;
+              temp_char = *end_of_line ;
+              *end_of_line = '\0' ;
+              end_pos = beg_pos + legendFont.getStringWidth ( val ) ;
+            }
+
+            if ( val < end_of_line )                 // If any text shows in the window,
+              legendFont.drawString ( val,           // draw it.
+                                      dx + abox.min[0] + xx + beg_pos,
+                                      dy + abox.min[1] + yy ) ;
+
+            *end_of_line = temp_char ;     // Restore the end-of-line character
+
+            if ( temp_char != '\n' )               // If we had to step up from the end of
+              end_of_line = strchr (val, '\n') ;   // the line, go back to the actual end
+
+            yy -= line_size ;
+            val = end_of_line + 1 ;
+            end_of_line = strchr (val, '\n') ;     // On to the next line
+          }
+          else if ( line_count > end_lin )        // Have gone beyond window, end process
+            end_of_line = NULL ;
+
+          line_count ++ ;
+
+        }     // while ( end_of_line )
+      }     // if ( val )
+    }
+
+    if ( accepting )
+    { 
+      char *val ;                   // Pointer to the actual text in the box
+      val = getText () ;
+
+      // Draw the 'I' bar cursor.
+
+      if ( val && ( cursor_position >= 0 ) )
+      {
+        char temp_char = val[ cursor_position ] ;
+        val [ cursor_position ] = '\0' ;
+
+        xx = legendFont.getStringWidth ( " " ) ;
+        yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 
+                + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
+
+        char *end_of_line = strchr ( val, '\n' ) ;
+        char *start_of_line = val;
+
+        // Step down the lines until you reach the line with the cursor
+
+        int line_count = 1 ;
+
+        while ( end_of_line )
+        {
+          line_count++ ;
+          start_of_line = end_of_line + 1 ;
+          yy -= line_size ;
+          end_of_line = strchr ( start_of_line, '\n' ) ;
+        }
+
+        if ( ( line_count > top_line_in_window ) && ( line_count <= end_lin+1 ) )
+        {
+          int beg_pos      // Position in window of start of line, in pixels
+                    = (int)( ( box_width - max_width ) * bottom_value ) ;
+
+          int cpos = (int)( legendFont.getStringWidth ( start_of_line ) + xx +
+                     abox.min[0] + beg_pos ) ;
+          int top = (int)( abox.min[1] + yy + legendFont.getStringHeight () ) ;
+          int bot = (int)( abox.min[1] + yy - legendFont.getStringDescender () ) ;
+
+          if ( ( cpos > abox.min[0] ) && ( cpos < abox.max[0] ) )
+          {
+            glColor3f ( 0.1f, 0.1f, 1.0f ) ;
+            glBegin   ( GL_LINES ) ;
+            glVertex2i ( dx + cpos    , dy + bot ) ;
+            glVertex2i ( dx + cpos    , dy + top ) ;
+            glVertex2i ( dx + cpos - 1, dy + bot ) ;
+            glVertex2i ( dx + cpos - 1, dy + top ) ;
+            glVertex2i ( dx + cpos - 4, dy + bot ) ;
+            glVertex2i ( dx + cpos + 3, dy + bot ) ;
+            glVertex2i ( dx + cpos - 4, dy + top ) ;
+            glVertex2i ( dx + cpos + 3, dy + top ) ;
+            glEnd      () ;
+          }
+        }
+
+        val[ cursor_position ] = temp_char ;
+      }
     }
   }
+
+  draw_label ( dx, dy ) ;
 
   // Draw the other widgets in the large input box
 
