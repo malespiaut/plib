@@ -268,7 +268,6 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUSTR_BGAP   5
 #define PUSTR_LGAP   5
 #define PUSTR_RGAP   5
-#define PUSTR_MAX_HEIGHT  ( 25 + PUSTR_TGAP + PUSTR_BGAP )
 
 #define PU_RADIO_BUTTON_SIZE 16
 
@@ -423,7 +422,7 @@ public:
   virtual ~puValue () {  delete string ;  }
 
   int  getType ( void ) { return type ; }
-  char *getTypeString ( void ) ;
+  const char *getTypeString ( void ) ;
   void clrValue ( void ) { setValue ( "" ) ; }
 
   void setValue ( puValue *pv )
@@ -441,7 +440,7 @@ public:
 
   void setValue ( int   i ) { integer = i ; floater = (float) i ; sprintf ( string, "%d", i ) ; update_res() ; puRefresh = TRUE ; }
   void setValue ( float f ) { integer = (int) f ; floater = f ; sprintf ( string, "%g", f ) ; update_res() ; puRefresh = TRUE ; }
-  void setValue ( char *s ) { 
+  void setValue ( const char *s ) { 
                               if ( s == NULL || s[0] == '\0' )
                               {
                                 integer = 0 ;
@@ -713,7 +712,7 @@ public:
 
   void setDefaultValue ( int    i ) { default_value.setValue ( i ) ; }
   void setDefaultValue ( float  f ) { default_value.setValue ( f ) ; }
-  void setDefaultValue ( char  *s ) { default_value.setValue ( s ) ; }
+  void setDefaultValue ( const char *s ) { default_value.setValue ( s ) ; }
 
   void getDefaultValue ( int   *i ) { default_value.getValue ( i ) ; }
   void getDefaultValue ( float *f ) { default_value.getValue ( f ) ; }
@@ -794,7 +793,7 @@ public:
   void setFloating ( int value ) { floating = value; }
   int getFloating () { return floating; }
 
-  void setChildStyle ( int childs, int style, int recursive = FALSE ) ;
+  void setChildStyle ( int childs, int which, int recursive = FALSE ) ;
   void setChildBorderThickness ( int childs, int t, int recursive = FALSE ) ;
 
   void setChildColour ( int childs, int which,
@@ -947,7 +946,7 @@ protected:
   float cb_delta ;
   int   cb_mode ;
   float slider_fraction ;
-  void draw_slider_box ( int dx, int dy, float val, char *box_label = NULL ) ;
+  void draw_slider_box ( int dx, int dy, float val, const char *box_label = NULL ) ;
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
@@ -1137,7 +1136,7 @@ public:
     type |= PUCLASS_POPUPMENU ;
   }
 
-  puObject *add_item ( const char *str, puCallback cb ) ;
+  puObject *add_item ( const char *str, puCallback _cb ) ;
   int  checkHit ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key   , int updown ) ;
   void close ( void ) ;
@@ -1155,7 +1154,7 @@ public:
     type |= PUCLASS_MENUBAR ;
   }
 
-  void add_submenu ( const char *str, char *items[], puCallback cb[] ) ;
+  void add_submenu ( const char *str, char *items[], puCallback _cb[] ) ;
   void close ( void ) ;
 } ;
 
@@ -1177,7 +1176,7 @@ public:
     floating = TRUE ;
   }
 
-  void add_submenu ( char *str, char *items[], puCallback cb[] ) ;
+  void add_submenu ( const char *str, char *items[], puCallback _cb[] ) ;
   void close ( void ) ;
 } ;
 
@@ -1233,7 +1232,7 @@ public:
   }
 
   char *getValidData () { return valid_data ; }
-  void setValidData ( char *data )
+  void setValidData ( const char *data )
   {
     if ( valid_data )
     {
@@ -1248,7 +1247,7 @@ public:
     }
   }
 
-  void addValidData ( char *data )
+  void addValidData ( const char *data )
   {
     int new_data_len = 1 ;
     if ( valid_data ) new_data_len += strlen ( valid_data ) ;
@@ -1429,7 +1428,7 @@ public:
   puInput *__getInput () { return input ; }
   char *__getStartDir () { return startDir ; }
 
-  void setInitialValue ( char *fname ) ;
+  void setInitialValue ( const char *fname ) ;
   void setSize ( int w, int h ) ;
 } ;
 
@@ -1508,7 +1507,7 @@ public:
   }
 
   char *getValidData () { return valid_data ; }
-  void setValidData ( char *data )
+  void setValidData ( const char *data )
   {
     if ( valid_data )
     {
@@ -1523,7 +1522,7 @@ public:
     }
   }
 
-  void addValidData ( char *data )
+  void addValidData ( const char *data )
   {
     int new_data_len = 1 ;
     if ( valid_data ) new_data_len += strlen ( valid_data ) ;
@@ -1545,15 +1544,15 @@ public:
   void disableInput () {  input_disabled = TRUE ;  }
   int  inputDisabled ()  {  return input_disabled ;  }
 
-  void  setText ( char *l ) ;
+  void  setText ( const char *l ) ;
   char *getText ( void ) { return text ; }
   char *getWrappedText ( void )
   {
     return ( wrapped_text == NULL ? text : wrapped_text ) ;
   }
-  void  addNewLine ( char *l ) ;
-  void  addText ( char *l ) ;
-  void  appendText ( char *l ) ;
+  void  addNewLine ( const char *l ) ;
+  void  addText ( const char *l ) ;
+  void  appendText ( const char *l ) ;
   void  removeText ( int start, int end ) ;
 } ;
 

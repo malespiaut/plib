@@ -95,7 +95,7 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
   puMoveToLast ( p );
 }
 
-void puMenuBar::add_submenu ( const char *str, char *items[], puCallback cb[] )
+void puMenuBar::add_submenu ( const char *str, char *items[], puCallback _cb[] )
 {
   int w, h ;
   getSize ( &w, &h ) ;
@@ -114,7 +114,7 @@ void puMenuBar::add_submenu ( const char *str, char *items[], puCallback cb[] )
   b -> setUserData ( p ) ;
 
   for ( int i = 0 ; items[i] != NULL ; i++ )
-    p -> add_item ( items[i], cb[i] ) ;
+    p -> add_item ( items[i], _cb[i] ) ;
 
   p->close () ;
   recalc_bbox () ;

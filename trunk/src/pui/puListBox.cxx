@@ -167,13 +167,13 @@ void puListBox::doHit ( int button, int updown, int x, int y )
       lowlight () ;
     
       int yinc = legendFont.getStringHeight () + PUSTR_BGAP ;
-      int index = top + ( abox.max[1] - PUSTR_BGAP - y ) / yinc;
-      if ( index < 0 )
-        index = 0;
-      else if ( index >= num )
-        index = num-1;
+      int idx = top + ( abox.max[1] - PUSTR_BGAP - y ) / yinc;
+      if ( idx < 0 )
+        idx = 0;
+      else if ( idx >= num )
+        idx = num-1;
     
-      setValue ( index ) ;
+      setValue ( idx ) ;
     
       puSetActiveWidget ( this, x, y ) ;
       invokeCallback () ;
