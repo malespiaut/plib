@@ -244,3 +244,9 @@ void fntTexFont::puts ( sgVec3 curpos, float pointsize, float italic, const char
   }
 }
 
+void fntInit ()
+{
+  /* Empty right now */
+}
+
+

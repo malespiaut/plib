@@ -291,5 +291,7 @@ public:
 } ;
 
 
+void fntInit () ;
+
 #endif
 
