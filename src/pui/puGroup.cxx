@@ -255,16 +255,40 @@ void puGroup::draw ( int dx, int dy )
      * correctly.
      */
 
-    if ( ( bo -> getType () & PUCLASS_MENUBAR ) &&
-         ( bo -> getWindow () == puGetWindow () ) )
+      int x, y ;
+      int xdraw = dx + abox.min[0] ;
+      int ydraw = dy + abox.min[1] ;
+      bo -> getPosition (&x, &y) ;
 
+    /* Introduced PUCLASS_VERTMENU into the club of widgets being automatically moved */
+    /* to the top-left corner of the screen. This eliminates all Vertmenu-resize and  */
+    /* window-jumping problems.                                 - JCJ 31 May 2002     */
+
+    /* If the object is a menubar or a vertmenu and supposed to be locked to the top, */
+    /* then move it there. - JCJ 6 June 2002                                          */
+    if ( ( ( bo -> getType () & PUCLASS_MENUBAR ) || 
+           ( ( bo -> getType () & PUCLASS_VERTMENU ) && 
+           ( bo -> getVStatus () == 1 ) ) ) &&
+         ( bo -> getWindow () == puGetWindow () ) )
     {
       int obWidth, obHeight ;
       bo -> getSize ( &obWidth, &obHeight ) ;
       bo -> setPosition ( 0, puGetWindowHeight() - obHeight ) ;
+    } 
+    else 
+    {
+      if ( ( y < 0 ) && ( bo->getType () & PUCLASS_POPUPMENU ) )
+      {
+    /* IF the object's bottom left corner lies outside the window, THEN */
+    /* move the object to the top left         - JCJ and Fay 5 Jun 2002 */
+        int absx, absy ;
+        bo -> getAbsolutePosition (&absx, &absy) ;
+        if ( absy < 0 )
+          ydraw -= absy ;
+      }
     }
 
-    bo -> draw ( dx + abox.min[0], dy + abox.min[1] ) ;
+    bo -> draw ( xdraw, ydraw ) ;
   }
 }
 

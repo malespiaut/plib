@@ -1,21 +1,21 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
@@ -64,16 +64,19 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
       if ( x_siz < (x_max - x_min) ) x_siz = x_max - x_min ;    // Adjust the present size
       if ( y_siz < (y_max - y_min) ) y_siz = y_max - y_min ;
 
-      int x_pos = glutGet ( (GLenum)GLUT_WINDOW_X ) ;
-      int y_pos = glutGet ( (GLenum)GLUT_WINDOW_Y ) ;
+      //int x_pos = glutGet ( (GLenum)GLUT_WINDOW_X ) ;
+      //int y_pos = glutGet ( (GLenum)GLUT_WINDOW_Y ) ;
 
       glutReshapeWindow ( x_siz, y_siz ) ;
-      glutPositionWindow ( x_pos + x_min, y_pos ) ;
+      //glutPositionWindow ( x_pos + x_min, y_pos ) ; // Unneccessary - JCJ 6 Jun 2002
 
       x_min = par_box->min[0] - x_min ;
       y_min = y_siz - ( par_box->max[1] - par_box->min[1] ) ;
 
-      parent -> setPosition ( x_min, y_min ) ;
+      /* If the parent window is SUPPOSED to be stuck at the top of the screen, move it. 
+         - JCJ 6 June 2002 */
+      if (parent -> getVStatus () == 1)
+        parent -> setPosition ( x_min, y_min ) ;
 
       glutSetWindow ( temp_window ) ;
     }

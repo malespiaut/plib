@@ -1,25 +1,26 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
 */
+
 
 #include "puLocal.h"
 
@@ -121,9 +122,16 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
   if ( dlist == NULL || ! isVisible () || ! isActive () || ( window != puGetWindow () ) )
     return FALSE ;
 
-  /* Must test 'isHit' before making the menu invisible! */
+  /* If an item is going to fall out the bottom of the window and puGroup will  */
+  /* move it upward (around line 303 of puGroup.cxx), then make sure checkhit   */
+  /* realizes the thing has moved -- JCJ and Fay 5 June 2002                    */
 
-  int hit = isHit ( x, y ) ;
+  int absx, absy ;
+  getAbsolutePosition (&absx, &absy) ;
+  if ( absy < 0 )
+    y += absy ;
+
+  /* Must test 'isHit' before making the menu invisible! */
 
   /*
    * June 17th, 1998, Shammi :
@@ -136,6 +144,12 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
     track of changing abox sizes when daughter objects are
     changing sizes.
   */
+
+  int hit = isHit ( x, y ) ;
+
+  /* If the mouse is clicked on another widget, hide the window - JCJ 18 Jun 2002 */
+  if ( updown != PU_DRAG && !hit )
+    hide () ;
 
   recalc_bbox();
   x -= abox.min[0] ;

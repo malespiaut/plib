@@ -26,6 +26,7 @@
 
 extern void puMenuBar_drop_down_the_menu ( puObject *b );
 
+/* If there is only one entry in a vmenu, just act as if clicking the menu clicks the oneshot underneath it. */
 void puVerticalMenu::add_submenu ( const char *str, char *items[], puCallback _cb[] )
 {
   int w, h ;
