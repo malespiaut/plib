@@ -12,8 +12,16 @@ int main ( int, char ** )
   printf ( "Joystick test program.\n" ) ;
   printf ( "~~~~~~~~~~~~~~~~~~~~~~\n" ) ;
 
-  if ( js[0]->notWorking () ) printf ( "Joystick 0 not detected\n" ) ;
-  if ( js[1]->notWorking () ) printf ( "Joystick 1 not detected\n" ) ;
+  if ( js[0]->notWorking () )
+    printf ( "Joystick 0 not detected\n" ) ;
+  else
+    printf ( "Joystick 0 is \"%s\"\n", js[0]->getName() ) ;
+
+  if ( js[1]->notWorking () )
+    printf ( "Joystick 1 not detected\n" ) ;
+  else
+    printf ( "Joystick 1 is \"%s\"\n", js[1]->getName() ) ;
+
   if ( js[0]->notWorking () && js[1]->notWorking () ) exit ( 1 ) ;
 
   ax[0] = new float [ js[0]->getNumAxes () ] ;

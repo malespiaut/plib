@@ -45,9 +45,10 @@ look the same to application code.
      jsJoystick ( int id = 0 ) ;
     ~jsJoystick () ;
 
-     int  getNumAxes () const ;
-     int  notWorking () const ;
-     void setError   () ;
+     const char* getName () const ;
+     int   getNumAxes    () const ;
+     int   notWorking    () const ;
+     void  setError      () ;
 
      float getDeadBand ( int axis ) const     ;
      void  setDeadBand ( int axis, float db ) ;
@@ -78,6 +79,11 @@ and all the buttons will appear to be up. If you need to
 check for the existance of a particular stick, you can
 call <code>notWorking()</code> which returns JS_TRUE if
 there is some problem with that stick, JS_FALSE otherwise.
+<p>
+<code>getName()</code> tells you the device name of the
+joystick, if available through API calls in your OS. A
+typical value is "CH PRODUCTS CH PRO PEDALS USB ". If no
+name is available, this method will return the empty string.
 <p>
 <code>getNumAxes()</code> tells you how many axes the stick
 has. Note that it is NOT safe to assume that all sticks have

@@ -1,25 +1,26 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
 */
+
 #ifndef __INCLUDED_JS_H__
 #define __INCLUDED_JS_H__ 1
 
@@ -28,8 +29,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> // -dw- for memcpy
-
-#include "ul.h"
 
 #ifdef macintosh
 #  include <InputSprocket.h>
@@ -118,17 +117,17 @@
 #  define _JS_MAX_AXES 9
 #  endif
 #endif
-  
+
 class jsJoystick
 {
 #ifdef macintosh
-   
+
    #define  isp_num_axis   9
    #define  isp_num_needs  41
-   
+
    ISpElementReference     isp_elem[isp_num_needs];
    ISpNeed isp_needs       [isp_num_needs];
-    
+
 #endif
 
 
@@ -152,6 +151,7 @@ class jsJoystick
 #endif
 
   int          error    ;
+  char         name [ 128 ] ;
   int          num_axes ;
   int          num_buttons ;
 
@@ -163,19 +163,24 @@ class jsJoystick
 
   void open ()
   {
+   name [0] = '\0' ;
 
 #ifdef macintosh
-   
+
+   /*
+     FIXME: get joystick name in Mac
+   */
+
    OSStatus err;
-      
-   err = ISpStartup ();      
-      
+
+   err = ISpStartup ();
+
 	if ( err == noErr ) {
-   	   	
+
    	#define ISP_CHECK_ERR(x) if (x != noErr) { setError(); return; }
-   	
+
    	setError ();
-    
+
       // initialize the needs structure
       ISpNeed temp_isp_needs[isp_num_needs] = 
       {
@@ -188,7 +193,7 @@ class jsJoystick
           {"\pAxis   6",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
           {"\pAxis   7",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
           {"\pAxis   8",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-         
+
           {"\pButton 0",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
           {"\pButton 1",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
           {"\pButton 2",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
@@ -224,45 +229,49 @@ class jsJoystick
       };
 
       memcpy (isp_needs, temp_isp_needs, sizeof (temp_isp_needs) );
-         
-      
+
+
       // next two calls allow keyboard and mouse to emulate other input devices (gamepads, joysticks, etc)
-      
+
       /*
       err = ISpDevices_ActivateClass (kISpDeviceClass_Keyboard);
       ISP_CHECK_ERR(err)
-      
-      
+
+
       err = ISpDevices_ActivateClass (kISpDeviceClass_Mouse);
       ISP_CHECK_ERR(err)
       */
-      
+
       err = ISpElement_NewVirtualFromNeeds (isp_num_needs, isp_needs, isp_elem, 0);
       ISP_CHECK_ERR(err)
-         
+
       err = ISpInit (isp_num_needs, isp_needs, isp_elem, 'PLIB', nil, 0, 128, 0);
       ISP_CHECK_ERR(err)
-      
+
       num_buttons = isp_num_needs - isp_num_axis;
       num_axes    = isp_num_axis;
-            
+
       for ( int i = 0; i < num_axes; i++ ) {
-      
+
          dead_band[i] = 0;
          saturate [i] = 1;
          center[i]    = kISpAxisMiddle;         
          max [i]      = kISpAxisMaximum;
          min [i]      = kISpAxisMinimum;
       }
-      
+
       error = false;
    }
    else {
      setError ();
      num_buttons = num_axes = 0; 
    }
-         
+
 #elif defined( WIN32 )
+
+    /*
+      FIXME: get joystick name in Windows
+    */
 
     JOYCAPS jsCaps ;
 
@@ -325,13 +334,17 @@ class jsJoystick
 
    // fd = ::open ( fname, O_RDONLY | O_NONBLOCK ) ;
     fd = ::open ( fname, O_RDONLY ) ;
-    
+
     error = ( fd < 0 ) ;
 
     if ( error )
       return ;
 
 #  if defined(__FreeBSD__) || defined(__NetBSD__)
+
+    /*
+      FIXME: get joystick name for BSD
+    */
 
     float axes[_JS_MAX_AXES];
     int buttons[_JS_MAX_AXES];
@@ -369,6 +382,7 @@ class jsJoystick
 #  ifdef JS_NEW
     ioctl ( fd, JSIOCGAXES   , & num_axes    ) ;
     ioctl ( fd, JSIOCGBUTTONS, & num_buttons ) ;
+    ioctl ( fd, JSIOCGNAME ( 128 ), name ) ;
     fcntl ( fd, F_SETFL, O_NONBLOCK ) ;
 
     if ( num_axes > _JS_MAX_AXES )
@@ -393,7 +407,7 @@ class jsJoystick
                 counter < 100 &&
                 center[0] == 512.0f &&
                 center[1] == 512.0f ) ;
-   
+
     if ( counter >= 100 )
       setError() ;
 #endif
@@ -480,7 +494,7 @@ public:
       default :    num_axes = 0 ; setError () ; break ;
     }
 
-   
+
 #else
 #  if defined(__FreeBSD__) || defined(__NetBSD__)
     id = ident;
@@ -497,9 +511,10 @@ public:
     close () ;
   }
 
-  int  getNumAxes () const { return num_axes ; }
-  int  notWorking () const { return error ;    }
-  void setError   () { error = JS_TRUE ; }
+  const char* getName () const { return name ;     }
+  int   getNumAxes    () const { return num_axes ; }
+  int   notWorking    () const { return error ;    }
+  void  setError      () { error = JS_TRUE ; }
 
   float getDeadBand ( int axis ) const       { return dead_band [ axis ] ; }
   void  setDeadBand ( int axis, float db )   { dead_band [ axis ] = db   ; }
@@ -531,7 +546,6 @@ public:
 
     rawRead ( buttons, raw_axes ) ;
 
-    
     if ( axes )
       for ( int i = 0 ; i < num_axes ; i++ )
         axes[i] = fudge_axis ( raw_axes[i], i ) ;
@@ -552,31 +566,31 @@ public:
     }
 
 #ifdef macintosh
-   
+
       int i;
       int err;
       UInt32 state;
-      
+
       if (buttons) {
-      
+
          *buttons = 0;
-      
+
          for (i = 0; i < num_buttons; i++) {
-                  
+
             err = ISpElement_GetSimpleState (isp_elem[i + isp_num_axis ], &state);
             ISP_CHECK_ERR (err)
-            
+
             *buttons  |= state << i;   
          }
       }
-      
+
       if (axes) {
-                  
+
          for (i = 0; i < num_axes; i++) {
-         
+
             err = ISpElement_GetSimpleState (isp_elem[ i ], &state);
             ISP_CHECK_ERR  (err);
-            
+
             axes [i] = (float) state;
          }
       }
@@ -700,7 +714,7 @@ public:
 # else
 
     int status = ::read ( fd, &js, JS_RETURN ) ;
-    
+
     if ( status != JS_RETURN )
     {
       perror ( fname ) ;
