@@ -25,6 +25,7 @@ ssgBase *ssgTexture::clone ( int clone_flags )
 
 ssgTexture::ssgTexture ()
 {
+  type |= SSG_TYPE_TEXTURE ;
   filename = NULL ;
   handle = 0 ;
 }
@@ -72,6 +73,8 @@ ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize
 // fname is used when saving the ssgSimpleState to disc.
 // If there is no associated file, you can use a dummy name.
 {
+  type |= SSG_TYPE_TEXTURE ;
+
 #ifdef GL_VERSION_1_1
   glGenTextures ( 1, & handle ) ;
   glBindTexture ( GL_TEXTURE_2D, handle ) ;
@@ -96,6 +99,8 @@ ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize
 ssgTexture::ssgTexture ( const char *fname, int wrapu, int wrapv,
 	     int mipmap )
 {
+  type |= SSG_TYPE_TEXTURE ;
+
 #ifdef GL_VERSION_1_1
   glGenTextures ( 1, & handle ) ;
   glBindTexture ( GL_TEXTURE_2D, handle ) ;

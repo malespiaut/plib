@@ -66,40 +66,52 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 
 /* ssgEntities */
 #define SSG_TYPE_ENTITY        0x00000002
-#define SSG_TYPE_LEAF          0x00000004
-#define SSG_TYPE_VTABLE        0x00000008
-#define SSG_TYPE_BRANCH        0x00000010
-#define SSG_TYPE_BASETRANSFORM 0x00000020
-#define SSG_TYPE_TRANSFORM     0x00000040
-#define SSG_TYPE_TEXTRANS      0x00000080
+#define SSG_TYPE_LEAF          0x00000020
+#define SSG_TYPE_VTABLE        0x00000080
+#define SSG_TYPE_VTXTABLE      0x00000100
+#define SSG_TYPE_VTXARRAY      0x00000200
+#define SSG_TYPE_BRANCH        0x00000040
+#define SSG_TYPE_BASETRANSFORM 0x00000080
+#define SSG_TYPE_TRANSFORM     0x00001000
+#define SSG_TYPE_TEXTRANS      0x00002000
 #define SSG_TYPE_SELECTOR      0x00000100
-#define SSG_TYPE_TIMEDSELECTOR 0x00000200
-#define SSG_TYPE_ROOT          0x00000400
-#define SSG_TYPE_CUTOUT        0x00000800
 #define SSG_TYPE_RANGESELECTOR 0x00001000
-#define SSG_TYPE_INVISIBLE     0x00002000
-#define SSG_TYPE_VTXTABLE      0x00004000
-#define SSG_TYPE_VTXARRAY      0x00008000
-#define SSG_TYPE_TRANSFORM_ARRAY 0x00010000
+#define SSG_TYPE_TIMEDSELECTOR 0x00002000
+#define SSG_TYPE_ROOT          0x00000200
+#define SSG_TYPE_CUTOUT        0x00000400
+#define SSG_TYPE_INVISIBLE     0x00000800
 
 /* ssgStates */
 #define SSG_TYPE_STATE         0x00000004
-#define SSG_TYPE_SIMPLESTATE   0x00000008
-#define SSG_TYPE_STATESELECTOR 0x00000010
+#define SSG_TYPE_SIMPLESTATE   0x00000020
+#define SSG_TYPE_STATESELECTOR 0x00000040
+
+/* ssgSimpleLists */
+#define SSG_TYPE_SIMPLELIST    0x00000008
+#define SSG_TYPE_VERTEXARRAY   0x00000020
+#define SSG_TYPE_NORMALARRAY   0x00000040
+#define SSG_TYPE_TEXCOORDARRAY 0x00000080
+#define SSG_TYPE_COLOURARRAY   0x00000100
+#define SSG_TYPE_INDEXARRAY    0x00000200
+#define SSG_TYPE_TRANSFORMARRAY 0x0000400
+#define SSG_TYPE_INTERLEAVEDARRAY 0x00800
+
+/* ssgTextures */
+#define SSG_TYPE_TEXTURE       0x00000010
 
 #define SSG_FILE_VERSION       0x01
 #define SSG_FILE_MAGIC_NUMBER  (('S'<<24)+('S'<<16)+('G'<<8)+SSG_FILE_VERSION)
 
+
 inline int ssgTypeBase         () { return SSG_TYPE_BASE ; }
+
 inline int ssgTypeEntity       () { return SSG_TYPE_ENTITY    | ssgTypeBase    () ; }
-
-
 inline int ssgTypeLeaf         () { return SSG_TYPE_LEAF      | ssgTypeEntity  () ; }
 inline int ssgTypeVTable       () { return SSG_TYPE_VTABLE    | ssgTypeLeaf    () ; }
 inline int ssgTypeVtxTable     () { return SSG_TYPE_VTXTABLE  | ssgTypeLeaf    () ; }
 inline int ssgTypeVtxArray     () { return SSG_TYPE_VTXARRAY  | ssgTypeVtxTable() ; }
 inline int ssgTypeBranch       () { return SSG_TYPE_BRANCH    | ssgTypeEntity  () ; }
-inline int ssgTypeBaseTransform() { return SSG_TYPE_BASETRANSFORM | ssgTypeBranch  () ; }
+inline int ssgTypeBaseTransform() { return SSG_TYPE_BASETRANSFORM | ssgTypeBranch () ; }
 inline int ssgTypeTransform    () { return SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
 inline int ssgTypeTexTrans     () { return SSG_TYPE_TEXTRANS  | ssgTypeBaseTransform () ; }
 inline int ssgTypeSelector     () { return SSG_TYPE_SELECTOR  | ssgTypeBranch  () ; }
@@ -109,9 +121,20 @@ inline int ssgTypeRoot         () { return SSG_TYPE_ROOT      | ssgTypeBranch  (
 inline int ssgTypeCutout       () { return SSG_TYPE_CUTOUT    | ssgTypeBranch  () ; }
 inline int ssgTypeInvisible    () { return SSG_TYPE_INVISIBLE | ssgTypeBranch  () ; }
 
-inline int ssgTypeState        () { return SSG_TYPE_STATE     | ssgTypeBase  () ; }
+inline int ssgTypeState        () { return SSG_TYPE_STATE     | ssgTypeBase    () ; }
 inline int ssgTypeSimpleState  () { return SSG_TYPE_SIMPLESTATE | ssgTypeState () ; }
 inline int ssgTypeStateSelector() { return SSG_TYPE_STATESELECTOR | ssgTypeSimpleState () ; }
+
+inline int ssgTypeSimpleList   () { return SSG_TYPE_SIMPLELIST | ssgTypeBase   () ; }
+inline int ssgTypeVertexArray  () { return SSG_TYPE_VERTEXARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeNormalArray  () { return SSG_TYPE_NORMALARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeTexCoordArray() { return SSG_TYPE_TEXCOORDARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeColourArray  () { return SSG_TYPE_COLOURARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeIndexArray   () { return SSG_TYPE_INDEXARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeTransformArray() { return SSG_TYPE_TRANSFORMARRAY | ssgTypeSimpleList () ; }
+inline int ssgTypeInterleavedArray() { return SSG_TYPE_INTERLEAVEDARRAY | ssgTypeSimpleList () ; }
+
+inline int ssgTypeTexture      () { return SSG_TYPE_TEXTURE   | ssgTypeBase    () ; }
 
 /*
   It's critical that these numbers don't change without
@@ -311,6 +334,7 @@ _SSG_PUBLIC:
 
   ssgSimpleList ()
   {
+    type |= SSG_TYPE_SIMPLELIST ;
     limit = 0 ;
     size_of = 0 ;
     total = 0 ;
@@ -321,6 +345,7 @@ public:
 
   ssgSimpleList ( int sz, int init = 3 )
   {
+    type |= SSG_TYPE_SIMPLELIST ;
     limit = init ;
     size_of = sz ;
     total = 0 ;
@@ -378,7 +403,10 @@ class ssgVertexArray : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgVertexArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init ) {} 
+  ssgVertexArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init )
+  {
+    type |= SSG_TYPE_VERTEXARRAY ;
+  } 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
@@ -392,7 +420,10 @@ class ssgNormalArray : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgNormalArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init ) {} 
+  ssgNormalArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init )
+  {
+    type |= SSG_TYPE_NORMALARRAY ;
+  }
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
@@ -406,7 +437,10 @@ class ssgTexCoordArray : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgTexCoordArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec2), init ) {} 
+  ssgTexCoordArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec2), init )
+  {
+    type |= SSG_TYPE_TEXCOORDARRAY ;
+  }
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec2   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec2   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
@@ -420,7 +454,10 @@ class ssgColourArray : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgColourArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec4), init ) {} 
+  ssgColourArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec4), init )
+  {
+    type |= SSG_TYPE_COLOURARRAY ;
+  }
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec4   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
@@ -433,7 +470,10 @@ class ssgIndexArray : public ssgSimpleList
 {
 public:
 
-  ssgIndexArray ( int init = 3 ) : ssgSimpleList ( sizeof(short), init ) {} 
+  ssgIndexArray ( int init = 3 ) : ssgSimpleList ( sizeof(short), init )
+  {
+    type |= SSG_TYPE_INDEXARRAY ;
+  }
   short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
   void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
   void   set ( short    thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
@@ -448,7 +488,7 @@ public:
 
   ssgTransformArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgMat4), init )
   {
-    type |= SSG_TYPE_TRANSFORM_ARRAY ;
+    type |= SSG_TYPE_TRANSFORMARRAY ;
     selection = 0 ;
   } 
   sgMat4 *get ( unsigned int n ) { return (sgMat4 *) raw_get ( n ) ; }
@@ -470,7 +510,10 @@ class ssgInterleavedArray : public ssgSimpleList
 {
 public:
 
-  ssgInterleavedArray ( int init = 3 ) : ssgSimpleList ( sizeof(ssgInterleavedArrayElement), init ) {} 
+  ssgInterleavedArray ( int init = 3 ) : ssgSimpleList ( sizeof(ssgInterleavedArrayElement), init )
+  {
+    type |= SSG_TYPE_INTERLEAVEDARRAY ;
+  }
   ssgInterleavedArrayElement *get ( unsigned int n ) { return (ssgInterleavedArrayElement *) raw_get ( n ) ; }
   void add ( ssgInterleavedArrayElement  thing ) { raw_add ( (char *) &thing ) ; } ;
   void add ( ssgInterleavedArrayElement *thing ) { raw_add ( (char *)  thing ) ; } ;
