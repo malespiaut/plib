@@ -1701,7 +1701,7 @@ SGfloat sgTriangleSolver_ASAtoArea ( SGfloat angA, SGfloat lenB, SGfloat angC )
 {
   /* Get the third angle */
 
-  SGfloat angB = SG_180 - angA - angC ;
+  SGfloat angB = SG_180 - (angA + angC) ;
 
   /* Use Sine Rule to get length of a second side - then use SAStoArea. */
 
@@ -1756,7 +1756,6 @@ SGfloat sgTriangleSolver_SAAtoArea ( SGfloat lenA, SGfloat angB, SGfloat angA )
 void sgTriangleSolver_SSStoAAA ( SGfloat  lenA, SGfloat  lenB, SGfloat  lenC,
                                  SGfloat *angA, SGfloat *angB, SGfloat *angC )
 {
-  SGfloat twoK = SG_TWO * sgTriangleSolver_SSStoArea ( lenA, lenB, lenC ) ;
   SGfloat aa, bb, cc ;
 
   int flag =  ( lenA == SG_ZERO )     |
@@ -1770,9 +1769,10 @@ void sgTriangleSolver_SSStoAAA ( SGfloat  lenA, SGfloat  lenB, SGfloat  lenC,
   switch ( flag )
   {
     case 0 :  /* no zero-lengthed sides */
-     aa = sgASin ( twoK / ( lenB * lenC ) ) ;
-     bb = sgASin ( twoK / ( lenC * lenA ) ) ;
-     cc = sgASin ( twoK / ( lenA * lenB ) ) ;
+     /* Cosine law */
+     aa = sgACos (( lenB*lenB + lenC*lenC - lenA*lenA )/(SG_TWO*lenB*lenC)) ;
+     bb = sgACos (( lenA*lenA + lenC*lenC - lenB*lenB )/(SG_TWO*lenA*lenC)) ;
+     cc = sgACos (( lenA*lenA + lenB*lenB - lenC*lenC )/(SG_TWO*lenA*lenB)) ;
      break ;
 
     case 1 :  /* lenA is zero */
@@ -1818,14 +1818,7 @@ void sgTriangleSolver_SAStoASA ( SGfloat  lenA, SGfloat  angB, SGfloat  lenC,
 
   if ( lenB ) *lenB = lb ;
 
-  /* Get Area using SAStoArea */
-
-  SGfloat twoK = SG_TWO * sgTriangleSolver_SAStoArea ( lenA, angB, lenC ) ;
-
-  if ( angA ) *angA = (lb*lenC == SG_ZERO ) ? SG_ZERO :
-                                  sgASin ( twoK / ( lb * lenC ) ) ;
-  if ( angC ) *angC = (lb*lenA == SG_ZERO ) ? SG_ZERO :
-                                  sgASin ( twoK / ( lb * lenA ) ) ;
+  sgTriangleSolver_SSStoAAA ( lenA, lenB, lenC, angA, NULL, angC ) ;
 }
 
 
@@ -1834,7 +1827,7 @@ void sgTriangleSolver_ASAtoSAS ( SGfloat  angA, SGfloat  lenB, SGfloat  angC,
 {
   /* Find the missing angle */
 
-  SGfloat bb = SG_180 - angA - angC ;
+  SGfloat bb = SG_180 - (angA + angC) ;
 
   if ( angB ) *angB = bb ;
 
@@ -1865,7 +1858,7 @@ void sgTriangleSolver_ASStoSAA ( SGfloat  angB, SGfloat  lenA, SGfloat  lenB,
 
   /* Find the missing angle */
 
-  SGfloat cc = SG_180 - aa - angB ;
+  SGfloat cc = SG_180 - (aa + angB) ;
 
   if ( angC ) *angC = cc ;
 
@@ -1879,11 +1872,11 @@ void sgTriangleSolver_SAAtoASS ( SGfloat  lenA, SGfloat  angB, SGfloat  angA,
 {
   /* Find the missing angle */
 
-  SGfloat cc = SG_180 - angB - angA ;
+  SGfloat cc = SG_180 - (angB + angA) ;
 
   if ( angC ) *angC = cc ;
 
-  sgTriangleSolver_ASAtoSAS ( cc, lenA, angB, lenB, NULL, lenC ) ;
+  sgTriangleSolver_ASAtoSAS ( cc, lenA, angB, lenC, NULL, lenB ) ;
 }
 
 
