@@ -126,7 +126,7 @@ static void displayfn (void)
 
   /* Make PUI redraw */
 
-  puDisplay () ;
+  puDisplay ( glutGetWindow () ) ;
 
   /* Swap buffers */
 
