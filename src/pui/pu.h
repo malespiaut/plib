@@ -495,6 +495,7 @@ public:
 
   int  getValue ( void ) { re_eval () ; return integer ; }
 
+  int  getIntegerValue () { re_eval () ; return ( integer ) ; }
   float getFloatValue () { re_eval () ; return ( floater ) ; }
   char getCharValue () { re_eval () ; return ( string[0] ) ; }
   char *getStringValue () { return res_string ? res_string : string ; }
@@ -1661,7 +1662,7 @@ public:
 
   void setPosition ( int x, int y )
   {
-    puObject::setPosition ( x, y ) ;
+    puGroup::setPosition ( x, y ) ;
 
     /* Ensure that popup menu will show up at the right place */
     newList ( list ) ;
@@ -1688,7 +1689,7 @@ protected:
   puArrowButton *down_arrow ;
   puArrowButton *up_arrow   ;
 
-  static void handle_arrow ( puObject *arrow  ) ;
+  static void handle_arrow ( puObject *arrow ) ;
 
   void update_widgets ( void ) ;
 
