@@ -1,11 +1,11 @@
 
 #include <data/header.psh>
-
-#define ONE  1
-#define TWO  2
+#define ONE    1 
+#define TWO    2 
 #define THREE  3
 #undef ONE
 #define ONE (THREE-TWO)
+
 void main ()
 {
   int i ;

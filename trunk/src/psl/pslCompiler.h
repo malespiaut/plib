@@ -61,6 +61,7 @@ class pslCompiler
   int  doPreProcessorCommand () ;
   void getToken              ( char *s, int define_sub = TRUE ) ;
   void ungetToken            ( const char *s ) ;
+  void skipToEOL             () ;
 
 
   /* Write data into Code space */

@@ -27,6 +27,16 @@
 static char ungotten_token [ MAX_UNGET ][ MAX_TOKEN ] ;
 static int  unget_token_stack_depth = 0 ;
 
+void pslCompiler::skipToEOL ()
+{
+  int c ;
+
+  do
+  {
+    c = getChar () ;
+  } while ( c != '\n' && c != -1 ) ;
+}
+
 int pslCompiler::getChar ()
 {
   /*
@@ -56,6 +66,11 @@ int pslCompiler::getChar ()
 
 int pslCompiler::searchDefines ( const char *token ) const
 {
+  if ( ( token[0] < 'a' || token[0] > 'z' ) &&
+       ( token[0] < 'A' || token[0] > 'Z' ) &&
+         token[0] != '_' )
+    return -1 ;
+
   for ( int i = 0 ; i < next_define ; i++ )
     if ( define_token [ i ] != NULL &&
          strcmp ( token, define_token [ i ] ) == 0 )
@@ -76,8 +91,16 @@ void pslCompiler::doUndefStatement  ()
 
   getToken ( token, FALSE ) ;
 
-  int c ;
-  do { c = getChar () ; } while ( c != '\n' && c != -1 ) ;
+  if ( ( token[0] < 'a' || token[0] > 'z' ) &&
+       ( token[0] < 'A' || token[0] > 'Z' ) &&
+         token[0] != '_' )
+  {
+    error ( "#undef token is not a legal identifier" ) ;
+    skipToEOL () ;
+    return ;
+  } 
+
+  skipToEOL () ;
 
   int def = searchDefines ( token ) ;
 
@@ -102,10 +125,14 @@ void pslCompiler::doDefineStatement ()
 
   getToken ( token, FALSE ) ;
 
-  /*
-    Skip to the end of this line of text BEFORE we hand
-    control over to the next file.
-  */
+  if ( ( token[0] < 'a' || token[0] > 'z' ) &&
+       ( token[0] < 'A' || token[0] > 'Z' ) &&
+         token[0] != '_' )
+  {
+    error ( "#define token is not a legal identifier" ) ;
+    skipToEOL () ;
+    return ;
+  } 
 
   int c ;
 
@@ -162,6 +189,7 @@ void pslCompiler::doIncludeStatement ()
   else
   {
     error ( "Illegal character after '#include'" ) ;
+    skipToEOL () ;
     return ;
   }
 
@@ -170,9 +198,7 @@ void pslCompiler::doIncludeStatement ()
     control over to the next file.
   */
 
-  int c ;
-  do { c = getChar () ; } while ( c != '\n' && c != -1 ) ;
-
+  skipToEOL () ;
   _pslPushDefaultFile ( p ) ;
 }
 
@@ -193,13 +219,13 @@ int pslCompiler::doPreProcessorCommand ()
   if ( strcmp ( token, "undef"  ) == 0 )
   {
     doUndefStatement () ;
-    return '\n' ; // getChar () ;
+    return '\n' ;
   }
 
   if ( strcmp ( token, "define"  ) == 0 )
   {
     doDefineStatement () ;
-    return '\n' ; // getChar () ;
+    return '\n' ;
   }
 
   if ( strcmp ( token, "ifndef"   ) == 0 )
@@ -228,13 +254,8 @@ int pslCompiler::doPreProcessorCommand ()
 
   error ( "Unrecognised preprocessor directive '%s'", token ) ;
 
-  /* Skip to the end of this line. */
-
-  int c ;
-
-  do { c = getChar () ; } while ( c != '\n' && c != -1 ) ; 
-
-  return c ;
+  skipToEOL () ;
+  return '\n' ;
 }
 
 
