@@ -18,9 +18,11 @@ char  rowptrctr [ 4 ][ 4 ][ 4 ] ;
 
 void setupRowArray ()
 {
-  for ( int x = 0 ; x < 4 ; x++ )
-    for ( int y = 0 ; y < 4 ; y++ )
-      for ( int z = 0 ; z < 4 ; z++ )
+  int x, y, z;
+
+  for ( x = 0 ; x < 4 ; x++ )
+    for ( y = 0 ; y < 4 ; y++ )
+      for ( z = 0 ; z < 4 ; z++ )
       {
         rowptrctr [ x ][ y ][ z ] = 0 ;
 
@@ -32,10 +34,10 @@ void setupRowArray ()
 
   /* 16 Z axis rows */
 
-  for ( int x = 0 ; x < 4 ; x++ )
-    for ( int y = 0 ; y < 4 ; y++ )
+  for ( x = 0 ; x < 4 ; x++ )
+    for ( y = 0 ; y < 4 ; y++ )
     {
-      for ( int z = 0 ; z < 4 ; z++ )
+      for ( z = 0 ; z < 4 ; z++ )
       {
         row [ r ][ z ] = & board [ x ][ y ][ z ] ;
         rowptr [ x ][ y ][ z ][ rowptrctr[x][y][z]++ ] = r ;
@@ -45,10 +47,10 @@ void setupRowArray ()
 
   /* 16 Y axis rows */
 
-  for ( int x = 0 ; x < 4 ; x++ )
-    for ( int z = 0 ; z < 4 ; z++ )
+  for ( x = 0 ; x < 4 ; x++ )
+    for ( z = 0 ; z < 4 ; z++ )
     {
-      for ( int y = 0 ; y < 4 ; y++ )
+      for ( y = 0 ; y < 4 ; y++ )
       {
         row [ r ][ y ] = & board [ x ][ y ][ z ] ;
         rowptr [ x ][ y ][ z ][ rowptrctr[x][y][z]++ ] = r ;
@@ -59,10 +61,10 @@ void setupRowArray ()
 
   /* 16 Y axis rows */
 
-  for ( int z = 0 ; z < 4 ; z++ )
-    for ( int y = 0 ; y < 4 ; y++ )
+  for ( z = 0 ; z < 4 ; z++ )
+    for ( y = 0 ; y < 4 ; y++ )
     {
-      for ( int x = 0 ; x < 4 ; x++ )
+      for ( x = 0 ; x < 4 ; x++ )
       {
         row [ r ][ x ] = & board [ x ][ y ][ z ] ;
         rowptr [ x ][ y ][ z ][ rowptrctr[x][y][z]++ ] = r ;
@@ -73,9 +75,11 @@ void setupRowArray ()
 
   /* 8 xy plane diagonals */
 
-  for ( int z = 0 ; z < 4 ; z++ )
+  for ( z = 0 ; z < 4 ; z++ )
   {
-    for ( int xy = 0 ; xy < 4 ; xy++ )
+    int xy;
+
+    for ( xy = 0 ; xy < 4 ; xy++ )
     {
       row [ r ][ xy ] = & board [ xy ][ xy ][ z ] ;
       rowptr [ xy ][ xy ][ z ][ rowptrctr[xy][xy][z]++ ] = r ;
@@ -83,7 +87,7 @@ void setupRowArray ()
 
     r++ ;
 
-    for ( int xy = 0 ; xy < 4 ; xy++ )
+    for ( xy = 0 ; xy < 4 ; xy++ )
     {
       row [ r ][ xy ] = & board [ xy ][ 3 - xy ][ z ] ;
       rowptr [ xy ][3-xy][ z ][ rowptrctr[xy][3-xy][z]++ ] = r ;
@@ -94,9 +98,11 @@ void setupRowArray ()
 
   /* 8 xz plane diagonals */
 
-  for ( int y = 0 ; y < 4 ; y++ )
+  for ( y = 0 ; y < 4 ; y++ )
   {
-    for ( int xz = 0 ; xz < 4 ; xz++ )
+    int xz;
+
+    for ( xz = 0 ; xz < 4 ; xz++ )
     {
       row [ r ][ xz ] = & board [ xz ][ y ][ xz ] ;
       rowptr [ xz ][ y ][ xz ][ rowptrctr[xz][y][xz]++ ] = r ;
@@ -104,7 +110,7 @@ void setupRowArray ()
 
     r++ ;
 
-    for ( int xz = 0 ; xz < 4 ; xz++ )
+    for ( xz = 0 ; xz < 4 ; xz++ )
     {
       row [ r ][ xz ] = & board [ xz ][ y ][ 3 - xz ] ;
       rowptr [ xz ][ y ][3-xz][ rowptrctr[xz][y][3-xz]++ ] = r ;
@@ -115,9 +121,10 @@ void setupRowArray ()
 
   /* 8 yz plane diagonals */
 
-  for ( int x = 0 ; x < 4 ; x++ )
+  for ( x = 0 ; x < 4 ; x++ )
   {
-    for ( int yz = 0 ; yz < 4 ; yz++ )
+    int yz;
+    for ( yz = 0 ; yz < 4 ; yz++ )
     {
       row [ r ][ yz ] = & board [ x ][ yz ][ yz ] ;
       rowptr [ x ][ yz ][ yz ][ rowptrctr[x][yz][yz]++ ] = r ;
@@ -125,7 +132,7 @@ void setupRowArray ()
 
     r++ ;
 
-    for ( int yz = 0 ; yz < 4 ; yz++ )
+    for ( yz = 0 ; yz < 4 ; yz++ )
     {
       row [ r ][ yz ] = & board [ x ][ yz ][ 3 - yz ] ;
       rowptr [ x ][ yz ][3-yz][ rowptrctr[x][yz][3-yz]++ ] = r ;
@@ -136,7 +143,8 @@ void setupRowArray ()
 
   /* 4 grand diagonals. */
   
-  for ( int xyz = 0 ; xyz < 4 ; xyz++ )
+  int xyz;
+  for ( xyz = 0 ; xyz < 4 ; xyz++ )
   {
     row [ r ][ xyz ] = & board [ xyz ][ xyz ][ xyz ] ;
     rowptr [ xyz ][ xyz ][ xyz ][ rowptrctr[xyz][xyz][xyz]++ ] = r ;
@@ -144,7 +152,7 @@ void setupRowArray ()
 
   r++ ;
 
-  for ( int xyz = 0 ; xyz < 4 ; xyz++ )
+  for ( xyz = 0 ; xyz < 4 ; xyz++ )
   {
     row [ r ][ xyz ] = & board [ xyz ][ xyz ][ 3-xyz ] ;
     rowptr [ xyz ][ xyz ][ 3-xyz ][ rowptrctr[xyz][xyz][3-xyz]++ ] = r ;
@@ -152,7 +160,7 @@ void setupRowArray ()
 
   r++ ;
 
-  for ( int xyz = 0 ; xyz < 4 ; xyz++ )
+  for ( xyz = 0 ; xyz < 4 ; xyz++ )
   {
     row [ r ][ xyz ] = & board [ xyz ][ 3-xyz ][ xyz ] ;
     rowptr [ xyz ][ 3-xyz ][ xyz ][ rowptrctr[xyz][3-xyz][xyz]++ ] = r ;
@@ -160,7 +168,7 @@ void setupRowArray ()
 
   r++ ;
 
-  for ( int xyz = 0 ; xyz < 4 ; xyz++ )
+  for ( xyz = 0 ; xyz < 4 ; xyz++ )
   {
     row [ r ][ xyz ] = & board [ xyz ][ 3-xyz ][ 3-xyz ] ;
     rowptr [ xyz ][ 3-xyz ][ 3-xyz ][ rowptrctr[xyz][3-xyz][3-xyz]++ ] = r ;
@@ -187,6 +195,8 @@ void clearBoard ()
 
 void printBoard ( int winrow )
 {
+  int x, y, z;
+	
   for ( int i = 0 ; i < 50 ; i++ )
     printf ( "\n" ) ;
 
@@ -195,11 +205,11 @@ void printBoard ( int winrow )
   printf ( "\n" ) ;
   printf ( "\n" ) ;
 
-  for ( int y = 0 ; y < 4 ; y++ )
+  for ( y = 0 ; y < 4 ; y++ )
   {
-    for ( int z = 0 ; z < 4 ; z++ )
+    for ( z = 0 ; z < 4 ; z++ )
     {
-      for ( int x = 0 ; x < 4 ; x++ )
+      for ( x = 0 ; x < 4 ; x++ )
       {
         printf ( "   " ) ;
 
@@ -210,9 +220,9 @@ void printBoard ( int winrow )
     }
     printf ( "\n" ) ;
 
-    for ( int z = 0 ; z < 4 ; z++ )
+    for ( z = 0 ; z < 4 ; z++ )
     {
-      for ( int x = 0 ; x < 4 ; x++ )
+      for ( x = 0 ; x < 4 ; x++ )
       {
         int q ;
 
@@ -233,9 +243,9 @@ void printBoard ( int winrow )
     }
     printf ( "\n" ) ;
 
-    for ( int z = 0 ; z < 4 ; z++ )
+    for ( z = 0 ; z < 4 ; z++ )
     {
-      for ( int x = 0 ; x < 4 ; x++ )
+      for ( x = 0 ; x < 4 ; x++ )
       {
         if ( board [ x ][ y ][ z ] == ' ' )
         {
@@ -358,6 +368,8 @@ char get_board_entry ( int x, int y, int z )
 
 int game_update ( int x, int y, int z )
 {
+  int q;
+
   if ( win != STILL_PLAYING )
     game_init () ;
 
@@ -367,7 +379,7 @@ int game_update ( int x, int y, int z )
 
   int rc = rowptrctr[x][y][z] ;
 
-  for ( int q = 0 ; q < rc ; q++ )
+  for ( q = 0 ; q < rc ; q++ )
   {
     int r = rowptr[x][y][z][q] ;
 
@@ -432,7 +444,7 @@ int game_update ( int x, int y, int z )
 
   rc = rowptrctr[x][y][z] ;
 
-  for ( int q = 0 ; q < rc ; q++ )
+  for ( q = 0 ; q < rc ; q++ )
   {
     int r = rowptr[x][y][z][q] ;
 

@@ -2,6 +2,15 @@
 #include "p3d.h"
 #include <signal.h>
 
+#ifdef _WIN32
+#  include <io.h>
+#  include <direct.h>
+
+#  define access _access
+#  define chdir _chdir
+#  define F_OK 04
+#endif
+
 char   *ttt3d_datadir = NULL ;
 GFX              *gfx = NULL ;
 GUI              *gui = NULL ;
