@@ -35,6 +35,7 @@ puDial      *viewHeadingDial    = (puDial      *) NULL ;
 puDial      *viewPitchDial      = (puDial      *) NULL ;
 puSlider    *viewRangeSlider    = (puSlider    *) NULL ;
 puButton    *viewWireframeButton= (puButton    *) NULL ;
+puButton    *viewEnvMapButton   = (puButton    *) NULL ;
 
 puOneShot   *writeButton        = (puOneShot   *) NULL ;
 
@@ -74,8 +75,45 @@ float cam_range  = 25.0f ;
 
 sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
 
+int enableTexGen ( ssgEntity * )
+{
+  glTexGeni ( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;
+  glTexGeni ( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;
+  glEnable ( GL_TEXTURE_GEN_S ) ;
+  glEnable ( GL_TEXTURE_GEN_T ) ;
+  return TRUE ;
+} 
+
+int disableTexGen ( ssgEntity * )
+{
+  glDisable ( GL_TEXTURE_GEN_S ) ;
+  glDisable ( GL_TEXTURE_GEN_T ) ;
+  return TRUE ;
+}
+ 
 void writeCplusplusCode ()
 {
+  if ( viewEnvMapButton -> getIntegerValue () )
+  {
+    printf ( "\n" ) ;
+    printf ( "static int enableTexGen ( ssgEntity * )\n" ) ;
+    printf ( "{\n" ) ;
+    printf ( "  glTexGeni ( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;\n" ) ;
+    printf ( "  glTexGeni ( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;\n" ) ;
+    printf ( "  glEnable ( GL_TEXTURE_GEN_S ) ;\n" ) ;
+    printf ( "  glEnable ( GL_TEXTURE_GEN_T ) ;\n" ) ;
+    printf ( "  return TRUE ;\n" ) ;
+    printf ( "} \n" ) ;
+    printf ( "\n" ) ;
+    printf ( "static int disableTexGen ( ssgEntity * )\n" ) ;
+    printf ( "{\n" ) ;
+    printf ( "  glDisable ( GL_TEXTURE_GEN_S ) ;\n" ) ;
+    printf ( "  glDisable ( GL_TEXTURE_GEN_T ) ;\n" ) ;
+    printf ( "  return TRUE ;\n" ) ;
+    printf ( "}\n" ) ;
+    printf ( "\n" ) ;
+  }
+ 
   printf ( "\n" ) ;
   printf ( "ssgaWaveSystem *makeWaveSystem ( ssgState *state )\n" ) ;
   printf ( "{\n" ) ;
@@ -105,6 +143,11 @@ void writeCplusplusCode ()
     }
   }
 
+  if ( viewEnvMapButton -> getIntegerValue () )
+  {
+    printf ( "  ocean   -> setKidCallback ( SSG_CALLBACK_PREDRAW ,  enableTexGen ) ;\n" ) ;
+    printf ( "  ocean   -> setKidCallback ( SSG_CALLBACK_POSTDRAW, disableTexGen ) ;\n" ) ;
+  }
   printf ( "  ocean -> regenerate () ;\n" ) ;
   printf ( "  return ocean ;\n" ) ;
   printf ( "}\n" ) ;
@@ -171,6 +214,23 @@ void viewRangeSlider_cb ( puObject *ob )
 void viewWireframeButton_cb ( puObject *ob )
 {
   wireframe = ob -> getIntegerValue () ;
+}
+
+
+void viewEnvMapButton_cb ( puObject *ob )
+{
+  if ( ob -> getIntegerValue () )
+  {
+    ocean   -> setKidCallback   ( SSG_CALLBACK_PREDRAW , enableTexGen ) ;
+    ocean   -> setKidCallback   ( SSG_CALLBACK_POSTDRAW, disableTexGen ) ;
+    ocean   -> regenerate       () ;
+  }
+  else
+  {
+    ocean   -> setKidCallback   ( SSG_CALLBACK_PREDRAW , NULL ) ;
+    ocean   -> setKidCallback   ( SSG_CALLBACK_POSTDRAW, NULL ) ;
+    ocean   -> regenerate       () ;
+  }
 }
 
 
@@ -577,6 +637,7 @@ void init_states ()
 
 
 
+
 void load_database ()
 {
   /* Set up the path to the data files */
@@ -630,7 +691,6 @@ void load_database ()
   ocean   -> setWaveTrain     ( 0, & trains[0] ) ;
   ocean   -> setWaveTrain     ( 1, & trains[1] ) ;
   ocean   -> setWaveTrain     ( 2, & trains[2] ) ;
-  ocean   -> regenerate       () ;
 
   ped_obj =  new ssgaCube     () ;
   ped_obj -> setSize          ( 4 ) ;
@@ -676,7 +736,7 @@ void init_gui ()
 
   puGroup *window_group = new puGroup ( 0, 0 ) ;
 
-  trainLengthSlider = new puSlider ( 193, GUI_BASE+28, 90, false, 20 ) ;
+  trainLengthSlider = new puSlider ( 200, GUI_BASE+28, 90, false, 20 ) ;
   trainLengthSlider->setMaxValue   ( 20.0f ) ;
   trainLengthSlider->setMinValue   (  0.1f ) ;
   trainLengthSlider->setStepSize   (  0.1f ) ;
@@ -686,7 +746,7 @@ void init_gui ()
   trainLengthSlider->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   trainLengthSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
-  trainSpeedSlider = new puSlider  ( 193, GUI_BASE+56, 90, false, 20 ) ;
+  trainSpeedSlider = new puSlider  ( 200, GUI_BASE+56, 90, false, 20 ) ;
   trainSpeedSlider->setMaxValue    ( 20.0f ) ;
   trainSpeedSlider->setMinValue    ( 0.0f ) ;
   trainSpeedSlider->setStepSize    ( 0.1f ) ;
@@ -696,7 +756,7 @@ void init_gui ()
   trainSpeedSlider->setLabelPlace  ( PUPLACE_CENTERED_LEFT ) ;
   trainSpeedSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
-  trainLambdaSlider = new puSlider ( 294, GUI_BASE+28, 90, false, 20 ) ;
+  trainLambdaSlider = new puSlider ( 300, GUI_BASE+28, 90, false, 20 ) ;
   trainLambdaSlider->setMaxValue   ( 2.0f ) ;
   trainLambdaSlider->setMinValue   ( 0.0f ) ;
   trainLambdaSlider->setStepSize   ( 0.1f ) ;
@@ -706,7 +766,7 @@ void init_gui ()
   trainLambdaSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
   trainLambdaSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
-  trainHeightSlider = new puSlider ( 295, GUI_BASE+56, 90, false, 20 ) ;
+  trainHeightSlider = new puSlider ( 300, GUI_BASE+56, 90, false, 20 ) ;
   trainHeightSlider->setMaxValue   ( 5.0f ) ;
   trainHeightSlider->setMinValue   ( 0.0f ) ;
   trainHeightSlider->setStepSize   ( 0.1f ) ;
@@ -716,7 +776,7 @@ void init_gui ()
   trainHeightSlider->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
   trainHeightSlider->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
-  trainEnableButton = new puButton ( 194, GUI_BASE+84, " " ) ;
+  trainEnableButton = new puButton ( 200, GUI_BASE+84, " " ) ;
   trainEnableButton->setStyle      ( PUSTYLE_RADIO ) ;
   trainEnableButton->setCallback   ( trainEnableButton_cb ) ;
   trainEnableButton->setLabel      ( "Enable this Wave Train" ) ;
@@ -727,7 +787,7 @@ void init_gui ()
                                                 "Disable All WaveTrains" ) ;
   trainDisableButton->setCallback  ( trainDisableButton_cb ) ;
   
-  trainHeadingDial = new puDial    ( 294, GUI_BASE+82, 50 ) ;
+  trainHeadingDial = new puDial    ( 300, GUI_BASE+82, 50 ) ;
   trainHeadingDial->setWrap        ( 1 ) ;
   trainHeadingDial->setMaxValue    ( 360 ) ;
   trainHeadingDial->setMinValue    ( 0 ) ;
@@ -739,7 +799,7 @@ void init_gui ()
   trainHeadingDial->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   trainHeadingDial->setLegendPlace ( PUPLACE_BOTTOM_CENTERED ) ;
   
-  trainSelectBox = new puSelectBox ( 190, GUI_BASE+109, 280, GUI_BASE+139,
+  trainSelectBox = new puSelectBox ( 200, GUI_BASE+109, 300, GUI_BASE+139,
                                      trainNameList ) ;
   trainSelectBox->setCallback      ( trainSelectBox_cb ) ;
   trainSelectBox->setCurrentItem   ( 0 ) ;
@@ -750,7 +810,7 @@ void init_gui ()
   /* Set everything up on the first time around */
   trainSelectBox_cb ( trainSelectBox ) ;
 
-  depthSelectBox = new puSelectBox ( 193, GUI_BASE, 400, GUI_BASE+20,
+  depthSelectBox = new puSelectBox ( 200, GUI_BASE, 400, GUI_BASE+20,
                                      depthNames ) ;
   depthSelectBox->setCallback      ( depthSelectBox_cb ) ;
   depthSelectBox->setCurrentItem   ( 0 ) ;
@@ -799,6 +859,10 @@ void init_gui ()
   viewWireframeButton= new puButton ( 400, VIEW_GUI_BASE, "Wireframe" ) ;
   viewWireframeButton->setCallback  ( viewWireframeButton_cb ) ;
   viewWireframeButton->setValue     ( FALSE ) ;
+
+  viewEnvMapButton= new puButton ( 300, VIEW_GUI_BASE, "Env.Map" ) ;
+  viewEnvMapButton->setCallback  ( viewEnvMapButton_cb ) ;
+  viewEnvMapButton->setValue     ( FALSE ) ;
 
   writeButton = new puOneShot ( 400, VIEW_GUI_BASE + 30, "Write C++" ) ;
   writeButton->setCallback  ( writeButton_cb ) ;
