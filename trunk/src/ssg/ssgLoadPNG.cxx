@@ -3,21 +3,21 @@
 
 #ifdef SSG_LOAD_PNG_SUPPORTED
 
-#include "glpng.h"
+#include <gl/glpng.h>
 
 bool ssgLoadPNG ( const char *fname, ssgTextureInfo* info )
 {
-  pngInfo info;
-  if (!pngLoad(fname, PNG_BUILDMIPMAP, PNG_ALPHA, &info)) {
+  pngInfo png_info;
+  if (!pngLoad(fname, PNG_BUILDMIPMAP, PNG_ALPHA, &png_info)) {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname ) ;
     return false ;
   }
   if ( info != NULL )
   {
-    info -> width = info.Width ;
-    info -> height = info.Height ;
-    info -> depth = info.Depth ;
-    info -> alpha = info.Alpha ;
+    info -> width = png_info.Width ;
+    info -> height = png_info.Height ;
+    info -> depth = png_info.Depth ;
+    info -> alpha = png_info.Alpha ;
   }
   return true ;
 }
