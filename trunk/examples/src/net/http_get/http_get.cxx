@@ -21,7 +21,7 @@
      $Id$
 */
 
-#include <plib/netBuffer.h>
+#include <plib/net.h>
 
 
 class HTTPClient : public netBufferChannel

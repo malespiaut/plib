@@ -122,7 +122,11 @@ public:
 } ;
 
 
-int netInit ( int* argc = NULL, char** argv = NULL ) ;
+int netInit ( int* argc, char** argv = NULL ) ;  /* Legacy */
+
+int netInit () ;
+
+
 cchar* netFormat ( cchar* fmt, ... ) ;
 
 

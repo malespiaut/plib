@@ -21,7 +21,7 @@
      $Id$
 */
 
-#include <plib/netChat.h>
+#include <plib/net.h>
 
 /*
 **  simple example server that reads lines of text from the client
