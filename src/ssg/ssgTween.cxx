@@ -371,6 +371,30 @@ void ssgTween::draw ()
 
 
 
+void ssgTween::transform ( const sgMat4 m )
+{
+  int prev_bank = curr_bank ;
+
+  for ( int i = 0 ; i < getNumBanks(); i++ )
+  {
+    // see if this bank has been transformed already
+    // (it is really a deeper problem, but this will work in simple cases)
+    int j ;
+    for ( j = 0 ; j < i ; j++ )
+      if ( banked_vertices -> getEntity ( i ) == banked_vertices -> getEntity ( j ) )
+	break;
+    if ( j == i ) 
+    {
+      setBank ( i ) ;
+      ssgVtxTable::transform ( m ) ;
+    }
+  }
+
+  setBank ( prev_bank ) ;
+}
+
+
+
 int ssgTween::load ( FILE *fd )
 {
   sgVec3 temp;
@@ -443,5 +467,3 @@ void ssgTween::print ( FILE *fd, char *indent, int how_much )
   texcoords -> print ( fd, in, how_much ) ;
   colours   -> print ( fd, in, how_much ) ;
 }
-
-

@@ -933,7 +933,8 @@ static void flatten ( ssgBranch *parent, ssgEntity *ent, sgMat4 mat )
     t_ent -> getTransform ( mat2 ) ;
     if ( mat != NULL )
       sgPostMultMat4 ( mat2, mat ) ;
-    mat = mat2 ;
+
+    mat = sgClassifyMat4 ( mat2 ) != 0 ? mat2 : NULL ;
     
     ssgBranch *br = new ssgBranch ;
     /*
