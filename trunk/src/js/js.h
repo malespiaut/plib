@@ -132,9 +132,9 @@ class jsJoystick
 
 
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+/*#if defined(__FreeBSD__) || defined(__NetBSD__)
   int          id ;
-#endif
+#endif*/
 #ifdef WIN32
   JOYINFOEX    js       ;
   UINT         js_id    ;
@@ -495,10 +495,12 @@ public:
 
 #else
 #  if defined(__FreeBSD__) || defined(__NetBSD__)
-    id = ident;
+    //id = ident;
     sprintf ( fname, "/dev/joy%d", ident ) ;
 #  else
-    sprintf ( fname, "/dev/js%d", ident ) ;
+    sprintf ( fname, "/dev/input/js%d", ident ) ;
+    if ( access ( fname, F_OK ) != 0 )
+      sprintf ( fname, "/dev/js%d", ident ) ;
 #  endif
     open () ;
 #endif
