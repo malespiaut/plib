@@ -86,9 +86,8 @@ pslProgram::~pslProgram ()
   /* We need ref-counting on code/compiler */
   /* DEBUG-ME! */
   delete [] progName ;
-  delete    compiler ;
   delete    context  ;
-  delete [] code     ;
+  compiler -> ref();
 }
 
 
