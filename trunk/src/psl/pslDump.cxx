@@ -55,6 +55,7 @@ static const OpcodeDecode opcodeDecode [] =
   { "SET_INT_VARIABLE"   , OPCODE_SET_INT_VARIABLE   , 1 },
   { "SET_FLOAT_VARIABLE" , OPCODE_SET_FLOAT_VARIABLE , 1 },
   { "SET_STRING_VARIABLE", OPCODE_SET_STRING_VARIABLE, 1 },
+  { "GET_PARAMETER"      , OPCODE_GET_PARAMETER      , 2 },
 
   /* Flow Control */
 
@@ -177,11 +178,12 @@ int pslCompiler::printInstruction ( FILE *fd, int addr ) const
     case OPCODE_SET_INT_VARIABLE :
     case OPCODE_SET_FLOAT_VARIABLE :
     case OPCODE_SET_STRING_VARIABLE :
-      fprintf ( fd, "\t[%d]", code [ addr+1 ] ) ;
-      break ;
-
     case OPCODE_PUSH_VARIABLE :
       fprintf ( fd, "\t\t[%d]", code [ addr+1 ] ) ;
+      break ;
+
+    case OPCODE_GET_PARAMETER :
+      fprintf ( fd, "\t\t[%d],off=%d", code [ addr+1 ], code [ addr+2 ] ) ;
       break ;
 
     case OPCODE_POP_VARIABLE :
