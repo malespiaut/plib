@@ -343,7 +343,8 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
   }
   else
   {
-    if ( ulGetCWD ( startDir, PUSTRING_MAX ) == NULL )
+    startDir = new char [ UL_NAME_MAX + 1 ] ;
+    if ( ulGetCWD ( startDir, UL_NAME_MAX + 1 ) == NULL )
     {
       ulSetError ( UL_WARNING,
                    "PUI: puFileSelector - can't find current directory" ) ;
