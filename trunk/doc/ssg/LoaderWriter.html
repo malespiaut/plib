@@ -7,29 +7,34 @@
 
 <H2>1.1 Introduction</H2>
 
-If you just use plib (including loaders and writers), you don't 
-really need to read this page. In some parts, this page was written for newbies.
+This page is intended for those who wish to write loaders and writers
+for plib. If you just use plib (using the included loaders and writers), you don't 
+really need to read this.
 
-It is quite easy to adapt 
-3D-file-loaders and writers to ssg. There are already a lot of 
-loaders and writers you can use as examples. Plib comes with 
+It is quite easy to adapt 3D-file-loaders and writers to be used by ssg. Plib
+already has many loaders and writers that may be used as examples.<p>
+
+A brief note on cross platform compilation: Plib comes with 
 both Makefiles (for Unix and for the CygWin-system under Windows)
 and workspace/project-files for Micro$oft Visual C++. If you 
 have both, please update, test and commit both.
-Otherwise, when committing, please tell the people that, for 
-example, you didnt update the workspace files and that some 
+Otherwise, when committing, please tell the people that something is
+missing (for example: you didn't update the workspace files) and that some 
 kind soul should do so.
 <p>
 
 Both loaders and writers convert between ssg's internal geometry 
-representation and that of the file format. One of the main 
-differences is that when loading, you have to support all possibile 
-geometry-representations of the file-format, when writing only one.
-OTOH, during load you have to support just one possibile 
-geometry-representations of plib, during writing all.
+representation and that of the file format. One key difference is that when 
+loading, you should support all possibile 
+geometry-representations of the file format. This is to ensure that
+plib can handle all the possible variations of a file format that may be generated
+by the tools that export to it. On the other hand, when writing a format, you can 
+pretty safely only write to one geometry format (unless you need features peculiar 
+to more than one geometry representation), because you have the final say on how the 
+data is to be written. 
 <p>
 
-Regarding plib's geometry-representations, there are only two on the highest
+Regarding plib's geometry-representations: there are only two on the highest
 level: <code>ssgVtxTable</code> and <code>ssgVtxArray</code>. Actually, there is also 
 ssgVTable, but that is deprecated.
 
@@ -37,96 +42,97 @@ ssgVTable, but that is deprecated.
 from ssgVtxTable and uses a index-list. Apart from that they are quite
 similar, and both have an interface <code>getNumTriangles () ; </code> and
 <code>getTriangle ( i, ...); </code>
-For these reasons, it is easier to write a writer than a loader.
+For this reasons, it is easier to write a writer than a loader.
 
 
 For both ssgVtxTable and ssgVtxArray you need to choose a
-GL-type. I have to admit I was lazy and used <code>GL_TRIANGLES</code>.
+GL-type. Currently ssgLoaderWriterMesh (more on this in the
+next section) uses <code>GL_TRIANGLES</code>.
 
 
-<H2>1.2The class ssgLoaderWriterMesh - an Overview</H2>
+<H2>1.2 class ssgLoaderWriterMesh - an overview</H2>
 
-
-
-The two main parts of writing 
-a loader are writing the actual parser (coding 
+The two main parts of writing a loader are writing the actual parser (coding 
 the syntax of the format) and transferring the contents
 to ssg. The second task is fairly trivial if your contents
-obeys the restrictions of ssg (which come from OpenGL).
+obey the restrictions of ssg (which follow from OpenGL).
 <BR><BR>
 These are:
 <BR><BR>
 
-1. Each ssg-node can currently have only one texture.
+1. Each ssg-node can (currently) have only one texture.
 <BR>
 2. Only one polygon or strip or fan per node. So you can't have a 3-, a 4- and a 5-sided
 poly inside one node (without subdividing the polys into triangles)
 <BR>
-3. Currently, only one texture coordinate per vertex.
+3. Currently, you may have only one texture coordinate per vertex.
 <BR>
-4. Only one normal per vertex.
+4. You may have only one normal per vertex.
 <BR><BR>
 To modularize the two steps parsing the format and transfering it to ssg
 and to reduce redundant work, there is an intermediatory structure, the class
 ssgLoaderWriterMesh. For example, this has a member function
 <pre>
-void ssgLoaderWriterMesh::AddFaceFromCArray(int nNoOfVerticesForThisFace, int *aiVertices);
+void ssgLoaderWriterMesh::addFaceFromIntegerArray( int numVertices, int *vertices );
 </pre>
 With several calls, you can add several n-sided polys to one mesh ("one node").
 When you are done constructing the mesh from the file, you call
 <pre>
-void ssgLoaderWriterMesh::add2SSG(
+void ssgLoaderWriterMesh::addToSSG(
 		class ssgSimpleState *currentState,
 		class ssgLoaderOptions* current_options,
 		class ssgBranch *curr_branch_)
 </pre>
-and the class adds the information into the scene graph. It handles ssg's restrictions,
-so, for example, if the polys of the mesh use 5 textures then at least 5 nodes will be 
-added to the scene graph.
-Unfortunately the class isn't completely implemented yet, I (Wolfram Kuss, w_kuss@rz-online.de)
-have just implemented those parts I needed for "my" loaders.
-But I urge everyone and am willing to help everyone writing a new loader for a file format that doesnt hold 
-all ssg-restrictions to use this class. Then the loaders will become more consistent 
-and therefore easier to maintain and read. Also, there are a lot of optimizations that can be done
-(for example, if the state is different, but not the texture, do we need several nodes? 
-When we have multitexturing, can we use that? Is there an optimal strip length?
-How do I subdivide polys into triangles so that the stripifier will work well? etc).
-It will be easier to do them once in the ssgLoaderWriterMesh than in all the 
-loaders seperately. BTW, most loaders written before ssgLoaderWriterMesh have some
-sort of intermediatory mesh structure.
-<p>
+and the class adds the information into the scene graph. It handles
+ssgs' restrictions. For example, if the polygons of the mesh use 
+5 textures then at least 5 nodes will be added to the scene graph.<p>
+
+Unfortunately, this class isn't completely finished. As of this
+writing, Wolfram Kuss (w_kuss@rz-online.de) has implemented those
+parts that were needed for the loaders he has finished thus far. Hopefully 
+people will contribute more features as time goes on.<p>
+
+If you are writing a new loader for a file format that doesn't hold to
+all restrictions of ssg (and virtually none do), you are urged to use this class. 
+Your loader will be more consistent and easier to maintain and read.<p>
+
+Further, there are many optimizations that can be done (For example: "If the state is 
+different, but not the texture, do we need several nodes?" or "When we have multitexturing, 
+can we use that?" or "Is there an optimal strip length?" or "How do I subdivide polys into 
+triangles so that the stripifier will work well?"-- the list goes on
+forever). Once we have good answers to these questions (and the will
+to implement them), it will be easier to do them once in the ssgLoaderWriterMesh than in all the 
+loaders seperately. It is noteable that most loaders written before
+ssgLoaderWriterMesh have had some sort of intermediatory mesh
+structure.<p>
+
 In the future, ssgLoaderWriterMesh should also be used for writers, doing the opposite 
 job: It takes the information from ssg with the restrictions and then looks whether
-it can optimise (for example merging nodes) by relaxing the restrictions.
+it can optimize (for example merging nodes) by relaxing the restrictions.
 
-<H2>1.3The class ssgLoaderWriterMesh - a deeper Look</H2>
+<H2>1.3 The Class ssgLoaderWriterMesh - A Deeper Look</H2>
 At the start of your loader, you create a new <code>ssgLoaderWriterMesh</code>
-or do a <code>ReInit()</code>. To insert the data into the <code>ssgLoaderWriterMesh</code>,
+or do a <code>reInit()</code>. To insert the data into the <code>ssgLoaderWriterMesh</code>,
 you have to add vertices, faces, materials, materialindexes (saying what face uses what material)
 and, if applicable texture coordinates. For all of these, you <B>can</B> say in advance how many you have.
-If you know that you have 3712 vertices, call <code>ThereAreNVertices(3712)</code> and everything is allocated
-at once and the <code>addVertex</code> works very fast. If you don't know in advance how many you have, you 
-still have to call <code>ThereAreNVertices</code>, as this also allocates the vertices. In this case, a certain amount of 
-vertices is reserved and if you use more, the list will dynamically grow.<p>
+If you know that you have 3712 vertices, call <code>createVertices(3712)</code> and everything is allocated
+at once and <code>addVertex</code> will be very fast. If you don't know in advance how many you have, you 
+still have to call <code>createVertices()</code>, as this also allocates the vertices. In this case, a 
+certain amount of vertices will be reserved and the list will dynamically grow as more are added.<p>
 
-Vertices are simply sgVec3s. Faces are simply
-lists/arrays of vertex indexes.
+Vertices are simply sgVec3s. Faces are simply lists/arrays of vertex indexes.
 For adding faces, use <code>addFace</code> if you already have a <code>ssgIndexArray</code> or use
-<code>AddFaceFromCArray</code> if you have the vertex indexes in a C(++) array.
+<code>addFaceFromIntegerArray</code> if you have the vertex indexes in a C(++) array.
 You need to add at least one material (<code>ssgSimpleState</code>). For each face, you tell
 ssg which material to use via <code>addMaterialIndex</code>. Here is code from ssgLoadOFF, which tells
 ssg to use the <code>ssgSimpleState</code> ss for all faces:
 
-
-
-
-
 <BR>
 <pre>
 
-	theMesh.ThereAreNMaterials( 1 );
+	theMesh.createMaterials( 1 );
 	theMesh.addMaterial( &ss );
-	theMesh.ThereAreNMaterialIndexes( _ssgNoFacesToRead ) ;
+	theMesh.createMaterialIndices( _ssgNoFacesToRead ) ;
 	for(i=0;i<_ssgNoFacesToRead ;i++)
 	   theMesh.addMaterialIndex ( 0 ) ;
 </pre>
@@ -135,30 +141,31 @@ If the file format has texture coordinates, you have to find out whether it has 
 per vertex or per vertex and face. If you look at a "straight forward" cube,
 having texture coordinates per vertex means you can have 8, but if you have
 texture coordinates per vertex and face, you can have 24 (each vertex is part of 3 faces).
-According to which of these two cases you have, you use the functions
+The two functions corresponding to these cases are:
 <pre>
-	void ThereAreNTCPFAV( int n = 3 ) ;
-	void addTCPFAV ( ssgTexCoordArray **tca ) ;
+       void createPerFaceAndVertexTextureCoordinates2( int numReservedTextureCoordinate2Lists = 3 );
+       void addPerFaceAndVertexTextureCoordinate2( ssgTexCoordArray **textureCoordinateArray ); 
 </pre>
 or
 <pre>
-	void ThereAreNTCPV( int n = 3 ) ;
-	void addTCPV ( sgVec2 tc ) ;
+        void createPerVertexTextureCoordinates2( int numReservedTextureCoordinates2 = 3 ); 
+        void addPerVertexTextureCoordinate2( sgVec2 textureCoordinate ); 
 </pre>
 
 
-<H2>2.Loaders</H2>
+<H2>2. Loaders</H2>
 
 
-<H2>2.1 ssgLoaderOptions</H2>
+<H2>2.1 class ssgLoaderOptions</H2>
 
 ssgLoaderOptions is a class that is defined in ssg.h.
 It is used to tell the loader some options.
-It is NOT used for user-setable options (yet?!).
-For example, one COULD create a member-variable in it
+It is NOT used for user-setable options, although
+this may be nice to have at some point. For example, 
+one COULD create a member-variable in it
 telling the unit that one wants. The loader would then 
 be responsible to scale the object in such a way that
-the sizes are in that unit (for example meter, millimeter etc).
+the sizes are in that unit (for example: meter, millimeter, etc).
 
 <BR>
 <BR>
@@ -166,17 +173,16 @@ Regarding the reason for the callbacks in ssgLoaderOptions, Steve
 wrote:
 <BR>
 <BR>
-"Whenever a branch node is created.  The deal is that most file formats
+<blockquote>
+<i>"Whenever a branch node is created.  The deal is that most file formats
 are
 missing important features at the Branch level - but many support
 comment
-fields - or long ASCII name strings or something.
-
-The idea was to allow the artists to attach an ARBITARY comment string
+fields - or long ASCII name strings or something. The idea was to allow the artists to attach an ARBITARY comment string
 in their modeller - and to have the loader trap these strings and pass
-them on to the application.
+them on to the application.</i><p>
 
-Hence, if the hook function is defined then when a branch node needs
+<i>Hence, if the hook function is defined then when a branch node needs
 to
 be created, we call the application's callback with the ASCII string
 that was embedded in the file and let the application construct the
@@ -191,48 +197,50 @@ with a tilde ('~') is a command to the loader" and parse such
 as commands.  In this case, it would construct an ssgRangeSelector and
 set
 the transition range to 100m and return the application back to the
-loader.
+loader.</i><p>
 
-Check the TuxKart sources to see this in action."
-<BR>
-<BR>
+<i>Check the <a href="tuxkart.sf.net">Tux Kart</a> sources to see this in action."</i>
+</blockquote>
+
 So much for the quote from Steve.
-<BR>
-<BR>
-I just copied all the ssgLoaderOptions-code from another loader 
-into my own.
+<p>
+
+As of this writing, the ssgLoaderOptions code has been copied from 
+another loader into ssgLoaderWriterMesh.
 
 
-<H2>2.2 Ascii file formats</H2>
+<H2>2.2 ASCII file formats</H2>
 A lexical analyzer for ascii-files is available in ssgParser.cxx and 
 ssgParser.h. It converts the file into a stream of tokens and 
-handles comments. 
-
-In a way, it has two APIs.
+handles comments. In a way, it has two APIs.
 One hides the line structure from the loader. The loader just has 
 to say "getNextToken".
-The other means you have to know the exact line structure.
+The other API operates in terms of exact line structure.
 You do a getLine which reads all the tokens of that line into a 
-buffer and then you do a parseToken to get each token.
+buffer and then you do a parseToken to get each token.<p>
 
-The formats which currently use the parser are .X (uses the line-independant API) and 
-.ase, .scenery and .off, which use the line-by-line-API.
-Some members can be used for both APIs, for example
+The formats which currently use the parser are .X (which uses the
+line-independant API), .ase, .scenery and .off (which use the
+line-by-line-API).<p>
+Some functions are used by both APIs. For example:<p>
 
 <pre>
 	void openFile( const char* fname, const _ssgParserSpec* spec = 0 );
-</pre>
-Here you give the parser the specification of the format,
-for example you say which characters start a comment and 
-which are used for braces etc. Most important are the delimiters.
-These determine where one token ends and the next one begins.
-For example, the first token of the line
+</pre><p>
+
+In ssgParserSpec, you give the parser the specification of the format.
+You say which characters start a comment, which characters are skipable,
+which characters are used for braces (which are used to determine the
+parser's level-- useful for parser's which work recursively).
+Most important are the delimiters. These determine where one token ends and the 
+next one begins. For example, the first token of the line
 
 <pre>
 1234,567
 </pre>
 
-is <code>1234</code> if <code>","</code> is a delimiter and <code>1234,567</code> else.
+is <code>1234</code> if <code>","</code> is a delimiter and
+<code>1234,567</code> otherwise.
 The parser differentiates between skipable delimiters that
 are "swallowed" by the parser and non-skipable ones that are
 passed to the loader. So, regarding the example-line there 
@@ -274,7 +282,7 @@ write a
 static void save_vtx_table ( ssgVtxTable *vt )
 </pre>
 
-which writes a <code>ssgVtxTable</code>. 
+which writes a <code>ssgVtxTable</code>.<p>
 
 
 
