@@ -2783,6 +2783,28 @@ void ssgGetValuesFromLastATGFile(double *x, double *y, double *z, double *r);
  bool ssgConvertTexture( char * fname_output, char * fname_input ) ;
 
 
+class ssgStatistics
+{
+  int vertex_count ;
+  int leaf_count   ;
+
+public:
+
+  void reset () ;
+
+  void bumpVertexCount ( int i ) { vertex_count += i ; }
+  void bumpLeafCount   ( int i ) {   leaf_count += i ; }
+
+  int getVertexCount () { return vertex_count ; }
+  int getLeafCount   () { return leaf_count ; }
+
+  ssgStatistics ()
+  {
+    reset () ;
+  }
+} ;
+
+ssgStatistics *ssgGetLatestStatistics () ;
 
 /* scene walkers */
 

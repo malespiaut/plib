@@ -179,7 +179,10 @@ public:
       case PSL_INT    : i = (int) strtol ( v, NULL, 0 ) ; return ;
       case PSL_FLOAT  : f = (float) atof ( v ) ; return ;
       case PSL_STRING : delete [] s ;
-                        s = ulStrDup ( v ) ;
+                        if ( v == NULL )
+                          s = ulStrDup ( "" ) ;
+                        else
+                          s = ulStrDup ( v ) ;
                         return ;
       case PSL_VOID   : return ;
     }
@@ -252,7 +255,10 @@ public:
   virtual void set ( int         v ) { t = PSL_INT    ; i = v ; }
   virtual void set ( float       v ) { t = PSL_FLOAT  ; f = v ; }
   virtual void set ( const char *v ) { t = PSL_STRING ;
-                                         delete [] s ;
+                                       delete [] s ;
+                                       if ( v == NULL )
+                                         s = ulStrDup ( "" ) ;
+                                       else
                                          s = ulStrDup ( v ) ; }
 
   virtual void set ( const pslNumber *v )

@@ -28,7 +28,6 @@ AC_PROG_CXXCPP
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
-
 dnl Command line arguments
 
 dnl Don't use AC_HELP_STRING here as old versions of autoconf do not

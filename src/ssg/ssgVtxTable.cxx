@@ -625,6 +625,9 @@ void ssgVtxTable::draw_geometry ()
   glEnableClientState ( GL_VERTEX_ARRAY ) ;
   glVertexPointer ( 3, GL_FLOAT, 0, vertices->get(0) ) ;
 
+  _ssgCurrStatistics . bumpVertexCount ( num_vertices ) ;
+  _ssgCurrStatistics . bumpLeafCount   ( 1 ) ;
+
   glDrawArrays ( gltype, 0, num_vertices ) ;
 
   glPopClientAttrib () ;
