@@ -308,6 +308,504 @@ Saving into ssg-format is done with these functions:
 This returns TRUE if the operation worked - FALSE if it failed.
 In the newest version from cvs, you will also find writers for the
 AC, ASE, DXF, OBJ and TRI-formats.
+
+<H3>Features of the file formats and status of the loaders/writers</H3>
+
+Here comes a table of the features of all the file formats and loaders and writers.
+VRML doesn't really work, so you won't find it here. The SSG loaders/writers support all
+features of the ssg-lib, so missing features mean they miss in the library (normaly because they miss in OpenGL)
+The letters mean:
+<BR><BR>
+A = feature not in file format
+<BR>
+B = feature in file format and not implemented, not planned.
+<BR>
+C = feature in file format and not implemented, but planned.
+<BR>
+D = feature in file format and partly implemented or not tested.
+<BR>
+E = feature in file format and implemented.
+<BR><BR>
+And here are the features with some explanaitions:
+<BR><BR>
+
+<ul>
+<li>Filled polys - Planar polygons. In the ssg-lib, this is the only primitive you can use to make "solid" looking models. This is a 2D primitive; it has no volume but an area.
+<li>Lines - for example used for high voltage lines in a flight simulator.
+This is a 1D primitive; it has no area but a length.
+<li>Points - for example used for small lights.
+This is a "0D" primitive; it has no length.
+<li>Sub objects - The complete model may consist of several sub models.
+There are several reasons one wants this, for example to make the structure of the model
+clearer to humans, to easily enable humans or programs to move, colour, texture, animate etc 
+one part, for example one wheel of the complete model.
+<li>Hierarchie - You not only have sub objects, but there is a parent-kid relation between some, 
+for example, the upper arm of a human model may be "under" the body and the lower arm "under" the upper arm etc.
+<li>DAG - direct acyclic graph means that the hierarchie may not only be a tree where
+each node has exactly one parent (apart from the root, which has zero parents), but that nodes may have more than one parent.
+Used for example in cars to have the wheel geometry only once. If the one wheel-node has four parents, this means 
+it will be rendered four times when the scene is drawn.
+<li>Colours - Things can have a colour. Uncoloured objects are always white.
+<li>Textures - Texture things with 2D bitmaps.
+<li>Texture coordinates - The texture mapping is arbitrary.
+<li>Texture coord. per face AND vertex - If a vertex is part of three faces, then this feature 
+allows it to have three texture coordinates. For example, a cube may have 18 texture coordinates, even if it has much fewer vertices.
+<li>Texture per face - each face may have another texture bitmap. Formats (and the ssg lib) that 
+don't have this have to increase the number of nodes to get this effect.
+<li>Transparency - Some polys may be partially or completely transparent.
+<li>Animation - There may be many different sorts of animation.
+<li>Billboards - geometry that automatically rotates so it always faces the viewer. Normaly flat.
+As an example, can be used to model trees in a driving simulator.
+<li>LOD - stands for "Level of Detail" and means there can be geometries of varying 
+complexity for the model, so for example, if it is near the viewer you use many polys 
+and if it is far away you use few polys so that the impact on rendering speed is low.
+<li>Other switches - switch means you can switch the visibility of some nodes on and off.
+For example, in MDL models showing aircraft you may have one or several nodes for the 
+gear in the "up"-position and one or some for the gear in the "down"-position.
+Normaly, you would switch one set on and the other off.
+<li>Ascii or Binary - A stands for Ascii, B for Binary files.
+</ul>
+
+<table width="100%" border="1" cellspacing="0" cellpadding="0">
+  <tr>
+    <td>&nbsp;Feature</td>
+    <td>&nbsp;3DS<BR>load</td>
+    <td>&nbsp;AC<BR>load</td>
+    <td>&nbsp;AC<BR>save</td>
+    <td>&nbsp;ASE<BR>load</td>
+    <td>&nbsp;ASE<BR>save</td>
+    <td>&nbsp;DXF<BR>load</td>
+    <td>&nbsp;DXF<BR>save</td>
+    <td>&nbsp;FLT<BR>load</td>
+    <td>&nbsp;M<BR>load</td>
+    <td>&nbsp;M<BR>save</td>
+    <td>&nbsp;MD2<BR>load</td>
+    <td>&nbsp;MDL<BR>load</td>
+    <td>&nbsp;OBJ<BR>load</td>
+    <td>&nbsp;OBJ<BR>save</td>
+    <td>&nbsp;SSG<BR>load/<BR>save</td>
+    <td>&nbsp;Strip<BR>load</td>
+    <td>&nbsp;TRI<BR>load</td>
+    <td>&nbsp;TRI<BR>save</td>
+    <td>&nbsp;X<BR>load</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Filled polys</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Lines</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Points</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;B</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Sub objects</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Hierarchie</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;C</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;C</td>
+  </tr>
+  <tr>
+    <td>&nbsp;DAG</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;A?</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A(?)</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Colours</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D(1)</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Textures</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Texture coord.</td>
+    <td>&nbsp;S</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Texture coord.<BR>per face<BR>AND vertex</td>
+    <td>&nbsp;D(?)</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A(?)</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;E(?)</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;C</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Texture per face</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;C</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Transparency</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Animation</td>
+    <td>&nbsp;B</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;B(2)</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;B or C</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Billboards</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A</td>
+  </tr>
+  <tr>
+    <td>&nbsp;LOD</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;E</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A</td>
+  </tr>
+  <tr>
+    <td>&nbsp;Other switches</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;D</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;A</td>
+  </tr>
+  <tr>
+    <td>&nbsp;A=Ascii or<BR>B=Binary</td>
+    <td>&nbsp;B</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;B</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;B</td>
+    <td>&nbsp;B</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;B</td>
+    <td>&nbsp;?</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A</td>
+    <td>&nbsp;A+B(3)</td>
+  </tr>
+</table>
+footnotes:
+<BR><BR>
+(1) problematic for ancient files
+<BR>
+(2) DOFs are not implemented
+<BR>
+(3) There is an ascii- and a binary X-file-format.
+I only implemented the ascii-one and probably wont implement the 
+binary one. There is a free (as in beer) converter by Microsoft 
+running under Windo$. 
+<BR><BR>
+Additional info on some formats:
+
+<BR><BR>
+3ds-writer:
+<BR>
+I (Per) have one basicly working, but since there seems to be so much else to do 
+with plib right now, I'm a bit reluctant to put my energy into it. Also, the 
+only 3ds-loader I've tested files written by it with is the one in ssg :-)
+
+
+<BR><BR>
+MDL loader:
+<BR>
+It is a bit shaky, as those who have tested it already 
+knows. The format isn't that easily translated into SSG. I'm working on a 
+more complete and powerful loader (that would probably also handle 
+BGL-files), but it's a quite large task to write such a loader and the 
+documentation is sparse to say the least.
+
+<BR><BR>
+.X file writer:
+<BR>
+Planned.
+<BR><BR>
+.X file loader:
+<BR>
+The .X-entity "Frame" is not yet implemented. 
+If you convert files into .X with "3D Exploration", you can check the
+option "without frames".
+
+
 <hr>
 <table width="100%">
    	<tr>
