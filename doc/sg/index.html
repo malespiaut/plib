@@ -65,13 +65,8 @@ are normally '#define'd as 'float'. Common data types are:
          sgVec3 hpr ;
        } ;
 
-  sgQuat     -- A simple structure used to hold
-                a Quaternion:
-
-       struct sgQuat
-       {
-         SGfloat w, x, y, z ;
-       } ;
+  sgQuat     -- An sgVec4 holding the values (x, y, z, w),
+                representing the quaternion w + xi + yj + zk.
 
   class sgSphere   -- A sphere
   class sgBox      -- An axially aligned box.
@@ -146,8 +141,11 @@ they represent a rotation followed by a translation.
 There is a rich set of functions to interconvert sgCoord's and
 sgMat4's.
 <H3>sgQuat</H3>
-This simple structure contains four members - each of type
-'SGfloat'. A quaternion can be used to encode a rotation.
+The sgQuat is an array of four floats, (x, y, z, w), respresenting
+the quaternion q = w + xi + yj + zk.
+<p>
+It can be used to encode rotations.
+The quaternion (sin(a) * v, cos(a)) rotates 2*a about the vector v.
 <p>
 There is a rich set of functions to interconvert sgQuat's and
 other rotation structures.
@@ -488,11 +486,12 @@ input data formats:
 
   void sgMakeRotMat4   ( sgMat4 dst, sgVec3 hpr )
   void sgMakeRotMat4   ( sgMat4 dst, SGfloat h, SGfloat p, SGfloat r )
-  void sgMakeRotMat4   ( sgMat4 dst, sgQuat *q ) ;
   void sgMakeRotMat4   ( sgMat4 dst, SGfloat angle, sgVec3 axis ) ;
 
   void sgMakeTransMat4 ( sgMat4 dst, sgVec3 xyz ) ;
   void sgMakeTransMat4 ( sgMat4 dst, SGfloat x, SGfloat y, SGfloat z ) ;
+
+  void sgQuatToMatrix  ( sgMat4 dst, sgQuat quat ) ;
 
 
 </pre>
@@ -568,61 +567,71 @@ picks a valid rotation - but just beware of this behaviour.
 Quaternions are convenient alternatives to Matrices for storing
 rotations.
 <pre>
-  void sgMakeIdentQuat ( sgQuat *dst ) ;
+  void sgMakeIdentQuat ( sgQuat dst ) ;
 </pre>
 Creates the identity quaternion. (0,0,0,1)
 <pre>
-  void sgSetQuat ( sgQuat *dst, SGfloat w,
-                                SGfloat x,
-                                SGfloat y,
-                                SGfloat z ) ;
+  void sgSetQuat ( sgQuat dst, SGfloat w,
+                               SGfloat x,
+                               SGfloat y,
+                               SGfloat z ) ;
 </pre>
 Sets the four components of the quaternion.
 <pre>
-  void sgCopyQuat ( sgQuat *dst, sgQuat *src ) ;
+  void sgCopyQuat ( sgQuat dst, sgQuat src ) ;
 </pre>
 Copies one quaternion into another.
 <pre>
-  void sgNormalizeQuat ( sgQuat *dst ) ;
-  void sgNormalizeQuat ( sgQuat *dst, sgQuat *src ) ;
+  void sgNormalizeQuat ( sgQuat dst ) ;
+  void sgNormalizeQuat ( sgQuat dst, sgQuat src ) ;
 </pre>
 For most operations, quaternions need to be normalized,
 these functions ensure that they are.
 <pre>
-  void sgInvertQuat ( sgQuat *dst ) ;
-  void sgInvertQuat ( sgQuat *dst, sgQuat *src ) ;
+  void sgInvertQuat ( sgQuat dst ) ;
+  void sgInvertQuat ( sgQuat dst, sgQuat src ) ;
 </pre>
 Computes the inverse of a quaternion.
 <pre>
-  void sgQuatToAngleAxis ( SGfloat *angle, sgVec3 axis, sgQuat *src ) ;
+  void sgQuatToAngleAxis ( SGfloat *angle, sgVec3 axis, const sgQuat src ) ;
   void sgQuatToAngleAxis ( SGfloat *angle,
                            SGfloat *x, SGfloat *y, SGfloat *z,
-                                                        sgQuat *src ) ;
+                           const sgQuat src ) ;
 </pre>
 Converts a quaternion into an angle+axis format - just the thing
 to pass to glRotate for example.
 <pre>
-  void sgMakeQuat ( sgQuat *dst, SGfloat angle, sgVec3 axis ) ;
-  void sgMakeQuat ( sgQuat *dst, SGfloat angle,
-                                 SGfloat x, SGfloat y, SGfloat z ) ;
+  void sgAngleAxisToQuat ( sgQuat dst, SGfloat angle, const sgVec3 axis ) ;
+  void sgAngleAxisToQuat ( sgQuat dst,
+                           SGfloat angle,
+                           SGfloat x, SGfloat y, SGfloat z ) ;
 </pre>
 Converts an angle+axis rotation into a quaternion.
 <pre>
-  void sgMultQuat     ( sgQuat *dst, sgQuat *a, sgQuat *b ) ;
-  void sgPostMultQuat ( sgQuat *dst, sgQuat *q )
-  void sgPreMultQuat  ( sgQuat *dst, sgQuat *q )
+  void sgMultQuat     ( sgQuat dst, sgQuat a, sgQuat b ) ;
+  void sgPostMultQuat ( sgQuat dst, sgQuat q ) ;
+  void sgPreMultQuat  ( sgQuat dst, sgQuat q ) ;
 </pre>
 Concatenates quaternion rotations.
 <pre>
-  void sgMakeRotMat4 ( sgMat4 dst, sgQuat *q ) ;
+  void sgQuatToMatrix ( sgMat4 mat, sgQuat quat ) ;
+  void sgMatrixToQuat ( sgQuat quat, sgMat4 mat ) ;
 </pre>
-Converts a quaternion into a rotation matrix.
+Converts between quaternions and rotation matrices.
 <pre>
-  void sgRotQuat ( sgQuat *dst, SGfloat angle, sgVec3 axis )
-  void sgRotQuat ( sgQuat *dst, SGfloat angle,
-                                SGfloat x, SGfloat y, SGfloat z )
+  void sgPostRotQuat ( sgQuat dst, SGfloat angle, sgVec3 axis )
+  void sgPostRotQuat ( sgQuat dst, SGfloat angle,
+                       SGfloat x, SGfloat y, SGfloat z )
+  void sgPreRotQuat  ( sgQuat dst, SGfloat angle,
+                       SGfloat x, SGfloat y, SGfloat z )
 </pre>
 Rotates a quaternion by an angle/axis rotation.  
+<pre>
+extern void sgSlerpQuat ( sgQuat dst,
+                          const sgQuat from, const sgQuat to,
+                          const SGfloat t ) ;
+</pre>
+Interpolates between two quaternions.
 <H3>Miscellaneous Functions.</H3>
 <pre>
   void sgHPRfromVec3 ( sgVec3 hpr, sgVec3 src ) ;
