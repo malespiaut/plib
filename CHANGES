@@ -2,8 +2,8 @@
 PLIB Change Log.
 ================
 
-PLIB v1.3.3 (June 18th 2001 ???)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PLIB v1.3.3 (June 18th 2001)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   * Various warnings cleaned up under MSVC.
 
@@ -15,6 +15,10 @@ PLIB v1.3.3 (June 18th 2001 ???)
   * Changed PUI to make sliders and dial widgets grab a hold
     of the mouse focus and not release it until the button is
     released.  This is a subtle but important behavioural change.
+
+  * puDial's are now derived from puSlider's - one side-effect of
+    that is that they now return 0..1 rather than 0..360 and no
+    longer support the maximum and minimum range functions.
 
 PLIB v1.3.2 (June 13th 2001)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
