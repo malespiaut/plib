@@ -155,6 +155,18 @@ This returns the state of those three keys as the OR of the three constants:
 Note that the results are only valid inside of a callback called from
 pwSwapBuffers().
 <p>
+By default, PW disallows auto-repeat of keyboard keys.  This is generally what
+you want for games.  However, it's possible that you may want auto-repeat to
+be enabled:
+<pre>
+
+   void pwSetAutoRepeatKey ( bool enable ) ;
+
+</pre>
+If the user has told the windowing system that auto repeat should be off as
+some kind of a global preference then pwSetAutoRepeatKey(true) won't turn
+it back on again.
+<p>
 Finally, there are a number of functions for setting and getting the window
 position and dimensions - also to set the current cursor shape:
 <pre>
