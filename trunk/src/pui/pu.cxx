@@ -114,7 +114,7 @@ puColour _puDefaultColourTable[] =
 } ;
 
 
-static int glIsValidContext ()
+static int glIsValidContext ( void )
 {
 #if defined(CONSOLE)
   return true ;
@@ -217,7 +217,7 @@ void puDeleteObject ( puObject *ob )
 }
 
 
-static void puCleanUpJunk ()
+static void puCleanUpJunk ( void )
 {
   /* Step through the linked list of objects to delete, removing them. */
   while ( objects_to_delete != NULL )
@@ -283,7 +283,7 @@ static void puSetOpenGLState ( void )
   glDisable      ( GL_CULL_FACE  ) ;
 
   if ( ! openGLSize )
-  glViewport     ( 0, 0, w, h ) ;
+    glViewport   ( 0, 0, w, h ) ;
 
   glMatrixMode   ( GL_PROJECTION ) ;
   glPushMatrix   () ;
@@ -371,8 +371,8 @@ int puMouse ( int button, int updown, int x, int y )
     int x_offset, y_offset ;
     active -> getAbsolutePosition ( &x_offset, &y_offset ) ;
 
-    x_offset -= active -> getABox () -> min[0] ;
-    y_offset -= active -> getABox () -> min[1] ;
+    x_offset -= active -> getABox () -> min [0] ;
+    y_offset -= active -> getABox () -> min [1] ;
 
     if ( ! active -> isHit ( pu_mouse_x - x_offset, pu_mouse_y - y_offset ) )
     {
@@ -464,7 +464,7 @@ void puSetPasteBuffer ( char *ch )
   strcpy ( input_paste_buffer, ch ) ;
 }
 
-char *puGetPasteBuffer ()  {  return input_paste_buffer ;  }
+char *puGetPasteBuffer ( void )  {  return input_paste_buffer ;  }
 
 int  puNeedRefresh ( void )  {  return puRefresh ;  }
 void puPostRefresh ( void )  {  puRefresh = TRUE ;  }
