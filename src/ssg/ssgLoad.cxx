@@ -166,7 +166,7 @@ static void appendPath(char *a, char *b)
 
 #endif
   
-void savePathInAPOM(const char * pathAndFileName )
+static void savePathInAPOM(const char * pathAndFileName )
 {
 	// save path in _ssgAPOM (actual path of model):
 
