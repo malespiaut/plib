@@ -29,6 +29,8 @@ puDial      *trainHeadingDial   = (puDial      *) NULL ;
 puSelectBox *trainSelectBox     = (puSelectBox *) NULL ;
 puText      *timeText           = (puText      *) NULL ;
 
+puSelectBox *depthSelectBox     = (puSelectBox *) NULL ;
+
 puDial      *viewHeadingDial    = (puDial      *) NULL ;
 puDial      *viewPitchDial      = (puDial      *) NULL ;
 puSlider    *viewRangeSlider    = (puSlider    *) NULL ;
@@ -65,7 +67,9 @@ char *trainNameList[] =
 } ;
 
 int   curr_train = 0 ;
+int   curr_depthfunc = 0 ;
 int   wireframe  = FALSE ;
+int   displayGUI = TRUE  ;
 float cam_range  = 25.0f ;
 
 sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
@@ -246,11 +250,87 @@ void trainSelectBox_cb ( puObject *ob )
 }
 
 
-float getDepth ( float x, float y )
+float halfMeterEverywhere ( float x, float y )
 {
-//  return (x > 0.0f) ? fabs ( sin(x/15.0f) * sin(y/10.0f) * 0.5 + 0.5 ) : 1.0f;
-  return 1000.0f ;
+  return 0.5f ;
 }
+
+ 
+float oneMeterEverywhere ( float x, float y )
+{
+  return 1.0f ;
+}
+
+ 
+float twoMeterEverywhere ( float x, float y )
+{
+  return 1.5f ;
+}
+
+ 
+float gentleSlope ( float x, float y )
+{
+  return (1.0f + x / (ocean -> getSize ()[0] / 2.0f)) * 2.0f ;
+}
+
+
+float steepSlope ( float x, float y )
+{
+  return (1.0f + x / (ocean -> getSize ()[0] / 2.0f)) * 10.0f ;
+}
+
+
+float stepFunction ( float x, float y )
+{
+  return (x < 0.0f ) ? 0.5f : 20000.0f ;
+}
+
+
+float twoBeaches ( float x, float y )
+{
+  return fabs ( sin(       x / ocean->getSize()[0]) *
+                sin(2.0f * y / ocean->getSize()[1]) * 1.5 + 0.5 ) ;
+}
+
+ssgaWSDepthCallback depthFuncs [] =
+{
+  NULL,   /* Infinite depth */
+  halfMeterEverywhere,
+  oneMeterEverywhere,
+  twoMeterEverywhere,
+  gentleSlope,
+  steepSlope,
+  stepFunction,
+  twoBeaches,
+  NULL,
+} ;
+
+char *depthNames [] =
+{
+  "Infinite Depth",
+  "Half Meter Deep",
+  "One Meter Deep",
+  "Two Meters Deep",
+  "Gentle Slope",
+  "Steep Slope",
+  "Step Function",
+  "Two Curved Beaches",
+  NULL,
+} ;
+
+void depthSelectBox_cb ( puObject *ob )
+{
+  curr_depthfunc = ((puSelectBox *) ob) -> getCurrentItem () ;
+
+  if ( curr_depthfunc < 0 )
+    curr_depthfunc = 0 ;
+
+  if ( curr_depthfunc >= (int)(sizeof(depthFuncs)/sizeof(ssgaWSDepthCallback)))
+    curr_depthfunc = (int)(sizeof(depthFuncs)/sizeof(ssgaWSDepthCallback)) - 1 ;
+
+  ocean -> setDepthCallback ( depthFuncs [ curr_depthfunc ] ) ;
+}
+
 
 
 void update_motion ( int frameno )
@@ -304,7 +384,17 @@ static void reshape ( int w, int h )
 
 static void keyboard ( unsigned char key, int, int )
 {
-  puKeyboard ( key, PU_DOWN ) ;
+  if ( ! puKeyboard ( key, PU_DOWN ) )
+  {
+    switch ( key )
+    {
+      case ' ' : displayGUI = ! displayGUI ; break ;
+
+      case 0x03 : exit ( 0 ) ;
+
+      default : displayGUI = ! displayGUI ; break ;
+    }
+  }
 }
 
 
@@ -316,12 +406,14 @@ static void specialfn ( int key, int x, int y )
 
 static void motionfn ( int x, int y )
 {
-  puMouse ( x, y ) ;
+  if ( displayGUI )
+    puMouse ( x, y ) ;
 }
 
 static void mousefn ( int button, int updown, int x, int y )
 {
-  puMouse ( button, updown, x, y ) ;
+  if ( displayGUI )
+    puMouse ( button, updown, x, y ) ;
 }
 
 
@@ -347,7 +439,9 @@ frameno++ ;
   ssgCullAndDraw ( scene ) ;
 
   glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL ) ;
-  puDisplay () ;
+
+  if ( displayGUI )
+    puDisplay () ;
 
   glutPostRedisplay () ;
   glutSwapBuffers () ;
@@ -538,7 +632,7 @@ void load_database ()
   ocean   -> setSize          ( 100 ) ;
   ocean   -> setTexScale      ( 3, 3 ) ;
   ocean   -> setCenter        ( pos ) ;
-  ocean   -> setDepthCallback ( getDepth ) ;
+  ocean   -> setDepthCallback ( depthFuncs [ curr_depthfunc ] ) ;
   ocean   -> setKidState      ( sea_state ) ;
   ocean   -> setWindSpeed     ( 10.0f ) ;
   ocean   -> setWaveTrain     ( 0, & trains[0] ) ;
@@ -663,6 +757,17 @@ void init_gui ()
   
   /* Set everything up on the first time around */
   trainSelectBox_cb ( trainSelectBox ) ;
+
+  depthSelectBox = new puSelectBox ( 193, GUI_BASE, 400, GUI_BASE+20,
+                                     depthNames ) ;
+  depthSelectBox->setCallback      ( depthSelectBox_cb ) ;
+  depthSelectBox->setCurrentItem   ( 0 ) ;
+  depthSelectBox->setLabel         ( "Water Depth" ) ;
+  depthSelectBox->setLabelPlace    ( PUPLACE_CENTERED_LEFT ) ;
+  depthSelectBox->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
+  
+  /* Set everything up on the first time around */
+  depthSelectBox_cb ( depthSelectBox ) ;
 
   viewHeadingDial = new puDial (  50, VIEW_GUI_BASE, 50 ) ;
   viewHeadingDial->setValue       ( 0.0f ) ;

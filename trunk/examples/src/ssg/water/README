@@ -32,12 +32,21 @@ a speed, a wave length (which also affects the shape of the wave),
 the height of the wave and a 'curl' term (which controls how much
 the tops of the waves bend over).
 
+The appearance of waves varies greatly with the depth of the
+water - and this simulation produces the correct effects. There
+are a number of preset water depths that you can select between,
+notice that the effect of varying the depth is more pronounced
+for long Wave Lengths.
+
 There are also controls to set the eyepoint pan/tilt/range and to
 toggle the system into wireframe.
 
 You can determine the number of polygons used to render
 the patch of waves, the size of the wave patch and the amount
 of texture repetition with the three sliders in the bottom right.
+
+Hitting the space bar toggles the GUI on and off so you can see
+your creation without any clutter on the screen.
 
 Finally, when you have your waves exactly how you like them, hit
 the 'Write C++' button and a C++ subroutine to recreate the

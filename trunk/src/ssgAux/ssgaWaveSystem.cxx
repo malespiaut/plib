@@ -93,9 +93,8 @@ void ssgaWaveSystem::updateAnimation ( float tim )
       for ( int t = 0 ; t < num_trains ; t++ )
       {
 	float adjHeight = height [ t ] * edge_fade ;
-	float adjLength = ( depth < 0.0f ) ? 0.5f :
-	                    ( depth > 1.0f ) ? length[t] :
-	                       length[t] * depth + 0.5f * (1.0f - depth) ;
+	float adjLength = ( depth < 0.2f ) ? 0.2f :
+	                    ( depth > length[t] ) ? length[t] : depth ;
 
 	float phase = ( x0 * sinHeading[t] + y0 * cosHeading[t] ) / adjLength -
                                              adjSpeed[t] - lambda[t] * z0 ;
