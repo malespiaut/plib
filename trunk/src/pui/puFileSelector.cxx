@@ -204,31 +204,35 @@ void puFileSelector::handle_select ( puObject* l_box )
     {
       /* If this is a directory - then descend into it and refresh */
 
-      if ( strlen ( dst ) + strlen ( src ) + 2 >= PUSTRING_MAX )
-      {
-	ulSetError ( UL_WARNING,
-          "PUI: puFileSelector - path is too long, max is %d.", PUSTRING_MAX ) ;
-	return ;
-      }
+      src++ ; /* Remove leading '[' */
 
-      strcat ( dst, &src[1] ) ;  /* Remove leading '[' */
-      dst [ strlen ( dst ) - 1 ] = SLASH[0] ;  /* Replace trailing ']' with slash */
+      int dst_len = strlen ( dst ) ;
+      int src_len = strlen ( src ) ;
+      char *new_dst = new char [ dst_len + src_len + 1 ] ;
+
+      memcpy ( new_dst, dst, dst_len ) ;
+      memcpy ( new_dst + dst_len, src, src_len + 1 ) ; /* Copy trailing '\0' */
+
+      /* Replace trailing ']' with slash */
+      new_dst [ dst_len + src_len - 1 ] = SLASH[0] ;
+
       file_selector -> find_files () ;
-      file_selector -> __getInput() -> setValue ( dst ) ;
+      file_selector -> __getInput() -> setValue ( new_dst ) ;
+      delete [] new_dst ;
       return ;
     }
 
     /* If this is a regular file - then just append it to the string */
 
-    if ( strlen ( dst ) + strlen ( src ) + 2 >= PUSTRING_MAX )
-    {
-      ulSetError ( UL_WARNING, 
-        "PUI: puFileSelector - path is too long, max is %d.", PUSTRING_MAX ) ;
-      return ;
-    }
+    int dst_len = strlen ( dst ) ;
+    int src_len = strlen ( src ) ;
+    char *new_dst = new char [ dst_len + src_len + 1 ] ;
 
-    strcat ( dst, src ) ;
-    file_selector -> __getInput() -> setValue ( dst ) ;
+    memcpy ( new_dst, dst, dst_len ) ;
+    memcpy ( new_dst + dst_len, src, src_len + 1 ) ; /* Copy trailing '\0' */
+
+    file_selector -> __getInput() -> setValue ( new_dst ) ;
+    delete [] new_dst ;
   }
   else
   {
