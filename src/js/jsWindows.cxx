@@ -126,7 +126,7 @@ void jsJoystick::open ()
     // X,Y,Z,R,U,V,POV - not necessarily the first n of these.
     if ( os->jsCaps.wCaps & JOYCAPS_HASPOV )
     {
-      num_axes = _JS_MAX_AXES ;
+      num_axes = _JS_MAX_AXES_WIN ;
       min [ 7 ] = -1.0 ; max [ 7 ] = 1.0 ;  // POV Y
       min [ 6 ] = -1.0 ; max [ 6 ] = 1.0 ;  // POV X
     }
