@@ -14,81 +14,9 @@ char * ssgGetAPOM()
 }
 
 
-
-enum { MAX_SHARED_STATES = 1000 };
-static ssgSimpleState* shared_states [ MAX_SHARED_STATES ] ;
-static int num_shared_states = 0 ;
+static ssgSimpleStateArray shared_states ;
 static ssgTextureArray shared_textures ;
 
-static void _ssgShareReset ()
-{
-  int i;
-
-  shared_textures.removeAll () ;
-
-  //~~ T.G. we ref() all new states (see below) so we need to deref here
-  for ( i = 0; i < num_shared_states; i++)
-    ssgDeRefDelete( shared_states[i] );
-
-  num_shared_states = 0 ;
-}
-
-static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
-{
-  if ( st == NULL )
-     return NULL ;
-
-  for ( int i = 0 ; i < num_shared_states ; i++ )
-  {
-    ssgSimpleState *st2 = shared_states [ i ] ;
-
-    if ( st == st2 )
-      return NULL ; //same pointer -- don't change state
-
-    if ( st->isEnabled ( GL_TEXTURE_2D ) != st2->isEnabled ( GL_TEXTURE_2D ) )
-      continue ;
-
-    if ( st->isEnabled ( GL_TEXTURE_2D ) &&
-       st -> getTextureHandle () != st2 -> getTextureHandle () )
-      continue ;
-
-    if ( st->getCareAbout (SSG_GL_SPECULAR) != st2->getCareAbout (SSG_GL_SPECULAR) ||
-      st->getCareAbout (SSG_GL_EMISSION) != st2->getCareAbout (SSG_GL_EMISSION) ||
-      st->getCareAbout (SSG_GL_AMBIENT) != st2->getCareAbout (SSG_GL_AMBIENT) ||
-      st->getCareAbout (SSG_GL_DIFFUSE) != st2->getCareAbout (SSG_GL_DIFFUSE) )
-      continue ;
-
-    if ( ! st->getCareAbout (SSG_GL_SPECULAR) &&
-       ! sgEqualVec4 ( st->getMaterial (GL_SPECULAR), st2->getMaterial (GL_SPECULAR) ) )
-      continue ;
-
-    if ( ! st->getCareAbout (SSG_GL_EMISSION) &&
-       ! sgEqualVec4 ( st->getMaterial (GL_EMISSION), st2->getMaterial (GL_EMISSION) ) )
-      continue ;
-
-    if ( ! st->getCareAbout (SSG_GL_AMBIENT) &&
-       ! sgEqualVec4 ( st->getMaterial (GL_AMBIENT), st2->getMaterial (GL_AMBIENT) ) )
-      continue ;
-
-    if ( ! st->getCareAbout (SSG_GL_DIFFUSE) &&
-       ! sgEqualVec4 ( st->getMaterial (GL_DIFFUSE), st2->getMaterial (GL_DIFFUSE) ) )
-      continue ;
-
-    if ( st -> isTranslucent () != st2 -> isTranslucent () ||
-         st -> getShininess () != st2 -> getShininess () )
-      continue ;
-
-    return st2 ;//switch to this state
-  }
-
-  //we have a state we've never seen before
-  if ( num_shared_states < MAX_SHARED_STATES )
-  {
-    st -> ref();  // deref'ed in _ssgShareReset()
-    shared_states [ num_shared_states++ ] = st ;
-  }
-  return NULL ; //don't change state
-}
 
 ssgLeaf* ssgLoaderOptions::defaultCreateLeaf ( ssgLeaf* leaf,
                                               const char* parent_name ) const
@@ -96,7 +24,8 @@ ssgLeaf* ssgLoaderOptions::defaultCreateLeaf ( ssgLeaf* leaf,
   /* is this just a sharing 'reset' */
   if ( leaf == NULL )
   {
-    _ssgShareReset () ;
+    shared_textures.removeAll () ;
+    shared_states.removeAll () ;
     return NULL ;
   }
   
@@ -115,10 +44,13 @@ ssgLeaf* ssgLoaderOptions::defaultCreateLeaf ( ssgLeaf* leaf,
       }
     }
     
-    if (ss != NULL) {
-      ss = _ssgShareState ( ss ) ;
-      if ( ss != NULL )
-        leaf -> setState ( ss ) ;
+    if (ss != NULL)
+    {
+      ssgSimpleState *match = shared_states.findMatch ( ss ) ;
+      if ( match )
+        leaf -> setState ( match ) ;
+      else
+        shared_states.add ( ss ) ;
     }
   }
   
@@ -134,7 +66,7 @@ ssgTexture* ssgLoaderOptions::defaultCreateTexture ( char* tfname,
   char filename [ 1024 ] ;
 	ulFindFile( filename, _ssgTexturePath, tfname, _ssgAPOM ) ;
 
-  ssgTexture *tex = shared_textures.find ( filename ) ;
+  ssgTexture *tex = shared_textures.findByFilename ( filename ) ;
   if ( tex )
     return tex ;
   
@@ -180,37 +112,35 @@ static const char *file_extension ( const char *fname )
 }
 
 
-typedef ssgEntity *_ssgLoader ( const char *, const ssgLoaderOptions * ) ;
-typedef int         _ssgSaver ( const char *, ssgEntity * ) ;
-
-struct _ssgFileFormat
+struct _ssgModelFormat
 {
   const char *extension ;
-  _ssgLoader *loadfunc ;
-  _ssgSaver  *savefunc ;
+  ssgLoadFunc *loadfunc ;
+  ssgSaveFunc *savefunc ;
 } ;
 
 
-static _ssgFileFormat formats[] =
+enum { MAX_FORMATS = 100 } ;
+
+static _ssgModelFormat formats [ MAX_FORMATS ] ;
+static int num_formats = 0 ;
+
+
+void ssgAddModelFormat ( const char* extension,
+                        ssgLoadFunc *loadfunc , ssgSaveFunc  *savefunc )
 {
-  { ".3ds",   ssgLoad3ds  , ssgSave3ds },
-  { ".ac" ,   ssgLoadAC3D , ssgSaveAC  },
-  { ".ase",   ssgLoadASE  , ssgSaveASE },
-  { ".dxf",   ssgLoadDXF  , ssgSaveDXF },
-  { ".obj",   ssgLoadOBJ  , ssgSaveOBJ },
-  { ".ssg",   ssgLoadSSG  , ssgSaveSSG },
-  { ".tri",   ssgLoadTRI  , ssgSaveTRI },
-  { ".wrl",   ssgLoadVRML , NULL       },
-  { ".md2",   ssgLoadMD2  , NULL       },
-  { ".mdl",   ssgLoadMDL  , NULL       },
-  { ".x"  ,   ssgLoadX    , ssgSaveX   },
-  { ".flt",   ssgLoadFLT  , NULL       },
-  { ".strip", ssgLoadStrip, NULL       },
-  { ".m"  ,   ssgLoadM    , ssgSaveM   },
-  { ".off"  , ssgLoadOFF  , ssgSaveOFF },
-	{ ".qhi"  , NULL        , ssgSaveQHI },
-  { NULL  , NULL       , NULL       }
-} ;
+  if ( num_formats < MAX_FORMATS )
+  {
+    formats [ num_formats ] . extension = extension ;
+    formats [ num_formats ] . loadfunc = loadfunc ;
+    formats [ num_formats ] . savefunc = savefunc ;
+    num_formats ++ ;
+  }
+  else
+  {
+    ulSetError ( UL_WARNING, "ssgAddModelFormat: too many formats" );
+  }
+}
 
 
 	// Changes 14.Feb.2001, Wolfram Kuss:
@@ -322,10 +252,13 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
     return NULL ;
   }
 
-  for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
+  _ssgModelFormat *f = formats ;
+  for ( int i=0; i<num_formats; i++, f++ )
+  {
     if ( f->loadfunc != NULL &&
 	       _ssgStrEqual ( extn, f->extension ) )
       return f->loadfunc( fname, options ) ;
+  }
 
   ulSetError ( UL_WARNING, "ssgLoad: Unrecognised file type '%s'", extn ) ;
   return NULL ;
@@ -345,10 +278,13 @@ int ssgSave ( const char *fname, ssgEntity *ent )
     return FALSE ;
   }
 
-  for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
+  _ssgModelFormat *f = formats ;
+  for ( int i=0; i<num_formats; i++, f++ )
+  {
     if ( f->savefunc != NULL &&
          _ssgStrEqual ( extn, f->extension ) )
       return f->savefunc( fname, ent ) ;
+  }
 
   ulSetError ( UL_WARNING, "ssgSave: Unrecognised file type '%s'", extn ) ;
   return FALSE ;

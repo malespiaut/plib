@@ -496,37 +496,34 @@ void ssgSimpleState::print ( FILE *fd, char *indent, int how_much )
 }
 
 // ***********************************************************************
-// ******************** class CGlobalSimpleStateList *********************
+// ******************** class ssgSimpleStateArray ************************
 // ***********************************************************************
  
 
-int CGlobalSimpleStateList::find_state ( ssgState* st )
+int ssgSimpleStateArray::findIndex ( ssgSimpleState* st )
 {
-  for ( int i=0; i<num_states; i++ )
-    if ( states[ i ] == st )
+  for ( int i = 0; i < getNum (); i++ )
+    if ( get (i) == st )
       return i ;
   return -1 ;
 }
 
 
-void CGlobalSimpleStateList::get_states ( ssgEntity *e )
+void ssgSimpleStateArray::collect ( ssgEntity *e )
 {
-	if ( (states != NULL ) || ( num_states != 0 ) )
-    ulSetError( UL_WARNING, "There are already states!\n");
-	states = new ssgSimpleState*[ MAX_STATES ] ;
-	num_states = 0;
-
-	get_states_recursive (e);
+  removeAll () ;
+	collect_recursive (e);
 }
 
-void CGlobalSimpleStateList::get_states_recursive ( ssgEntity *e )
+
+void ssgSimpleStateArray::collect_recursive ( ssgEntity *e )
 {
   if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
   {
     ssgBranch *br = (ssgBranch *) e ;
 
     for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      get_states_recursive ( br -> getKid ( i ) ) ;
+      collect_recursive ( br -> getKid ( i ) ) ;
   }
   else
   if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
@@ -536,9 +533,77 @@ void CGlobalSimpleStateList::get_states_recursive ( ssgEntity *e )
     if ( st && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
     {
       ssgSimpleState* ss = (ssgSimpleState*) vt -> getState () ;
-      if ( find_state ( ss ) == -1 )
-        states[ num_states++ ] = ss ;
+      if ( findIndex ( ss ) == -1 )
+        add ( ss ) ;
     }
   }
 }
 
+
+void ssgSimpleStateArray::add ( ssgSimpleState* ss )
+{
+  if ( ss )
+  {
+    ss -> ref () ;
+    raw_add ( (char *) &ss ) ;
+  }
+}
+
+
+void ssgSimpleStateArray::removeAll ()
+{
+  for ( int i = 0; i < getNum (); i++ )
+    ssgDeRefDelete ( get (i) ) ;
+  ssgSimpleList::removeAll () ;
+}
+
+
+ssgSimpleState* ssgSimpleStateArray::findMatch ( ssgSimpleState* st )
+{
+  if ( st == NULL )
+     return NULL ;
+
+  for ( int i = 0; i < getNum (); i++ )
+  {
+    ssgSimpleState *st2 = get (i) ;
+
+    if ( st == st2 )
+      return NULL ; //same pointer -- don't change state
+
+    if ( st->isEnabled ( GL_TEXTURE_2D ) != st2->isEnabled ( GL_TEXTURE_2D ) )
+      continue ;
+
+    if ( st->isEnabled ( GL_TEXTURE_2D ) &&
+       st -> getTextureHandle () != st2 -> getTextureHandle () )
+      continue ;
+
+    if ( st->getCareAbout (SSG_GL_SPECULAR) != st2->getCareAbout (SSG_GL_SPECULAR) ||
+      st->getCareAbout (SSG_GL_EMISSION) != st2->getCareAbout (SSG_GL_EMISSION) ||
+      st->getCareAbout (SSG_GL_AMBIENT) != st2->getCareAbout (SSG_GL_AMBIENT) ||
+      st->getCareAbout (SSG_GL_DIFFUSE) != st2->getCareAbout (SSG_GL_DIFFUSE) )
+      continue ;
+
+    if ( ! st->getCareAbout (SSG_GL_SPECULAR) &&
+       ! sgEqualVec4 ( st->getMaterial (GL_SPECULAR), st2->getMaterial (GL_SPECULAR) ) )
+      continue ;
+
+    if ( ! st->getCareAbout (SSG_GL_EMISSION) &&
+       ! sgEqualVec4 ( st->getMaterial (GL_EMISSION), st2->getMaterial (GL_EMISSION) ) )
+      continue ;
+
+    if ( ! st->getCareAbout (SSG_GL_AMBIENT) &&
+       ! sgEqualVec4 ( st->getMaterial (GL_AMBIENT), st2->getMaterial (GL_AMBIENT) ) )
+      continue ;
+
+    if ( ! st->getCareAbout (SSG_GL_DIFFUSE) &&
+       ! sgEqualVec4 ( st->getMaterial (GL_DIFFUSE), st2->getMaterial (GL_DIFFUSE) ) )
+      continue ;
+
+    if ( st -> isTranslucent () != st2 -> isTranslucent () ||
+         st -> getShininess () != st2 -> getShininess () )
+      continue ;
+
+    return st2 ;
+  }
+  return NULL ;
+}

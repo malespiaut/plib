@@ -7,7 +7,7 @@
 #include "ssgLoaderWriterStuff.h"
 
 static FILE *save_fd ;
-static class CGlobalSimpleStateList gSSL;
+static ssgSimpleStateArray gSSL;
 
 static void save_state ( ssgSimpleState* st, int istate )
 {
@@ -69,10 +69,10 @@ static void save_state ( ssgSimpleState* st, int istate )
 static void save_states ()
 {
   fprintf ( save_fd, "*MATERIAL_LIST {\n" ) ;
-  fprintf ( save_fd, "  *MATERIAL_COUNT %d\n", gSSL.get_num_states() ) ;
+  fprintf ( save_fd, "  *MATERIAL_COUNT %d\n", gSSL.getNum() ) ;
   
-  for ( int i=0; i < gSSL.get_num_states(); i++ )
-    save_state ( gSSL.get_state(i) , i ) ;
+  for ( int i=0; i < gSSL.getNum(); i++ )
+    save_state ( gSSL.get(i) , i ) ;
   
   fprintf ( save_fd, "}\n" );
 }
@@ -92,8 +92,8 @@ static void save_vtx_table ( ssgVtxTable *vt )
   const char* name = vt->getPrintableName() ;
   int j ;
 
-  int istate = gSSL.find_state ( vt->getState () ) ;
-  ssgSimpleState* st = ( istate != -1 )? gSSL.get_state( istate ): 0;
+  int istate = gSSL.findIndex ( (ssgSimpleState*)vt->getState () ) ;
+  ssgSimpleState* st = ( istate != -1 )? gSSL.get( istate ): 0;
 
 /*
   Begin the big geometry block.
@@ -232,7 +232,7 @@ static void save_vtx_table ( ssgVtxTable *vt )
   fprintf ( save_fd, "  *PROP_RECVSHADOW 1\n" );
   
   if ( st )
-    fprintf ( save_fd, "  *MATERIAL_REF %d\n", gSSL.find_state ( st ) );
+    fprintf ( save_fd, "  *MATERIAL_REF %d\n", gSSL.findIndex ( st ) );
 
 /*
   Close the GEOM object.
@@ -290,10 +290,10 @@ int ssgSaveASE ( FILE* fileout, ssgEntity *ent )
   fprintf ( save_fd, "}\n" );
 
   
-  gSSL.get_states ( ent ) ;
+  gSSL.collect ( ent ) ;
   save_states () ;
   save_geom ( ent ) ;  
-	gSSL.dealloc();  
+	gSSL.removeAll();  
 
   fflush ( save_fd ) ;
   

@@ -2,7 +2,7 @@
 #include "ssgLocal.h"
 #include "ssgLoaderWriterStuff.h"
 
-static class CGlobalSimpleStateList gSSL;
+static ssgSimpleStateArray gSSL;
 
 
 static const int writeTextureWithoutPath=TRUE; // TODO / FIXME make this optional so the user can decide
@@ -93,7 +93,7 @@ int ssgSaveLeaf ( ssgEntity *ent )
 		int istate = 0;
 		if( s != NULL )
 			if (s->isAKindOf(SSG_TYPE_SIMPLESTATE ))
-			{ istate = gSSL.find_state ( (ssgSimpleState *)s );
+			{ istate = gSSL.findIndex ( (ssgSimpleState *)s );
 				assert(istate>=0);
 			}
     fprintf ( save_fd, "mat %d\n", istate ) ;
@@ -149,9 +149,9 @@ int ssgSaveAC ( const char *filename, ssgEntity *ent )
   
   fprintf ( save_fd, "AC3Db\n" ) ;
 
-	gSSL.get_states( ent );
-	for (i = 0 ; i < gSSL.get_num_states(); i++)
-	{ ssgSimpleState * ss = gSSL.get_state(i);
+	gSSL.collect( ent );
+	for (i = 0 ; i < gSSL.getNum(); i++)
+	{ ssgSimpleState * ss = gSSL.get(i);
 	  float *em = ss->getMaterial (GL_EMISSION );
     float *sp = ss->getMaterial (GL_SPECULAR );
     float *am = ss->getMaterial (GL_AMBIENT  );
@@ -169,7 +169,7 @@ int ssgSaveAC ( const char *filename, ssgEntity *ent )
 	int bReturn = ssgSaveACInner(	ent);
 
   
-	gSSL.dealloc();
+	gSSL.removeAll();
 	fclose ( save_fd ) ;
 
   return bReturn;

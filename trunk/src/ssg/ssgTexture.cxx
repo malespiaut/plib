@@ -201,3 +201,33 @@ int ssgTexture::save ( FILE *fd )
 
   return ssgBase::save ( fd ) ;
 }
+
+
+void ssgTextureArray::add ( ssgTexture* tex )
+{
+  if ( tex )
+  {
+    tex -> ref () ;
+    raw_add ( (char *) &tex ) ;
+  }
+}
+
+
+void ssgTextureArray::removeAll ()
+{
+  for ( int i = 0; i < getNum (); i++ )
+    ssgDeRefDelete ( get (i) ) ;
+  ssgSimpleList::removeAll () ;
+}
+
+
+ssgTexture* ssgTextureArray::findByFilename ( const char* fname )
+{
+  for ( int i = 0; i < getNum (); i++ )
+  {
+    ssgTexture *tex = get (i) ;
+    if ( _ssgStrEqual ( fname, tex->getFilename() ) )
+	    return tex ;
+  }
+  return NULL ;
+}
