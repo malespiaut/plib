@@ -352,7 +352,7 @@ ssgSGIHeader::ssgSGIHeader ( const char *fname, ssgTextureInfo* info )
     info -> width = sgihdr->xsize ;
     info -> height = sgihdr->ysize ;
     info -> depth = sgihdr->zsize ;
-    info -> alpha = ( sgihdr->zsize == 4 ) ;
+    info -> alpha =  ( sgihdr->zsize == 2 || sgihdr->zsize == 4 )  ;
   }
 
   bool result =
