@@ -141,11 +141,7 @@ int puFont::getStringHeight ( const char *s ) const
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
   if ( fnt_font_handle != NULL )
-  {
-    float i = pointsize * 1.333f ;
-
-    return (int) ( ( i * count_lines ( s ) ) - ( 0.333f * pointsize ) ) ;
-  }
+    return int ( pointsize * ( 1.333f * count_lines ( s ) - 0.333f ) ) ;
 
   return 0 ;
 }
