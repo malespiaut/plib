@@ -165,7 +165,7 @@ struct aseMaterial
 };
 
 
-enum { MAX_MATERIALS = 1000 };
+#define MAX_MATERIALS 1000
 static aseMaterial** materials ;
 static u32 num_materials ;
 
@@ -738,7 +738,7 @@ static int parse_mesh( aseObject* obj )
 		}
     else if (!strcmp(token,"*MESH_VERTEXNORMAL"))
     {
-			int nverts = mesh -> num_verts;
+			//int nverts = mesh -> num_verts;
 
       if ( mesh_face_normal_index >= mesh -> num_faces )
         parser.error("bad mesh_face_normal_index #");

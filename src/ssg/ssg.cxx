@@ -70,7 +70,7 @@ int      _ssgFrameCounter = 0 ;
 int  ssgGetFrameCounter () { return _ssgFrameCounter ; }
 void ssgSetFrameCounter ( int fc ) { _ssgFrameCounter = fc ; }
 
-char *ssgGetVersion ()
+const char *ssgGetVersion ()
 {
 #ifdef VERSION
   return VERSION ;
@@ -300,35 +300,35 @@ void ssgCullAndDraw ( ssgRoot *r )
 }
 
 
-char *ssgAxisTransform::getTypeName (void) { return "ssgAxisTransform" ; }
-char *ssgBase         ::getTypeName (void) { return "ssgBase"          ; }
-char *ssgTexture      ::getTypeName (void) { return "ssgTexture"       ; }
-char *ssgState        ::getTypeName (void) { return "ssgState"         ; }
-char *ssgSimpleState  ::getTypeName (void) { return "ssgSimpleState"   ; }
-char *ssgStateSelector::getTypeName (void) { return "ssgStateSelector" ; }
-char *ssgEntity       ::getTypeName (void) { return "ssgEntity"        ; }
-char *ssgLeaf         ::getTypeName (void) { return "ssgLeaf"          ; }
-char *ssgVTable       ::getTypeName (void) { return "ssgVTable"        ; }
-char *ssgVtxTable     ::getTypeName (void) { return "ssgVtxTable"      ; }
-char *ssgVtxArray     ::getTypeName (void) { return "ssgVtxArray"      ; }
-char *ssgBranch       ::getTypeName (void) { return "ssgBranch"        ; }
-char *ssgSelector     ::getTypeName (void) { return "ssgSelector"      ; }
-char *ssgRangeSelector::getTypeName (void) { return "ssgRangeSelector" ; }
-char *ssgTimedSelector::getTypeName (void) { return "ssgTimedSelector" ; }
-char *ssgBaseTransform::getTypeName (void) { return "ssgBaseTransform" ; }
-char *ssgTransform    ::getTypeName (void) { return "ssgTransform"     ; }
-char *ssgTexTrans     ::getTypeName (void) { return "ssgTexTrans"      ; }
-char *ssgCutout       ::getTypeName (void) { return "ssgCutout"        ; }
-char *ssgRoot         ::getTypeName (void) { return "ssgRoot"          ; }
+const char *ssgAxisTransform::getTypeName (void) { return "ssgAxisTransform" ; }
+const char *ssgBase         ::getTypeName (void) { return "ssgBase"          ; }
+const char *ssgTexture      ::getTypeName (void) { return "ssgTexture"       ; }
+const char *ssgState        ::getTypeName (void) { return "ssgState"         ; }
+const char *ssgSimpleState  ::getTypeName (void) { return "ssgSimpleState"   ; }
+const char *ssgStateSelector::getTypeName (void) { return "ssgStateSelector" ; }
+const char *ssgEntity       ::getTypeName (void) { return "ssgEntity"        ; }
+const char *ssgLeaf         ::getTypeName (void) { return "ssgLeaf"          ; }
+const char *ssgVTable       ::getTypeName (void) { return "ssgVTable"        ; }
+const char *ssgVtxTable     ::getTypeName (void) { return "ssgVtxTable"      ; }
+const char *ssgVtxArray     ::getTypeName (void) { return "ssgVtxArray"      ; }
+const char *ssgBranch       ::getTypeName (void) { return "ssgBranch"        ; }
+const char *ssgSelector     ::getTypeName (void) { return "ssgSelector"      ; }
+const char *ssgRangeSelector::getTypeName (void) { return "ssgRangeSelector" ; }
+const char *ssgTimedSelector::getTypeName (void) { return "ssgTimedSelector" ; }
+const char *ssgBaseTransform::getTypeName (void) { return "ssgBaseTransform" ; }
+const char *ssgTransform    ::getTypeName (void) { return "ssgTransform"     ; }
+const char *ssgTexTrans     ::getTypeName (void) { return "ssgTexTrans"      ; }
+const char *ssgCutout       ::getTypeName (void) { return "ssgCutout"        ; }
+const char *ssgRoot         ::getTypeName (void) { return "ssgRoot"          ; }
 
-char *ssgSimpleList   ::getTypeName (void) { return "ssgSimpleList"    ; }
-char *ssgColourArray  ::getTypeName (void) { return "ssgColourArray"   ; }
-char *ssgIndexArray   ::getTypeName (void) { return "ssgIndexArray"    ; }
-char *ssgTransformArray::getTypeName (void) { return "ssgTransformArray" ; }
-char *ssgTexCoordArray::getTypeName (void) { return "ssgTexCoordArray" ; }
-char *ssgVertexArray  ::getTypeName (void) { return "ssgVertexArray"   ; }
-char *ssgNormalArray  ::getTypeName (void) { return "ssgNormalArray"   ; }
-char *ssgInterleavedArray::getTypeName (void) { return "ssgInterleavedArray"; }
+const char *ssgSimpleList   ::getTypeName (void) { return "ssgSimpleList"    ; }
+const char *ssgColourArray  ::getTypeName (void) { return "ssgColourArray"   ; }
+const char *ssgIndexArray   ::getTypeName (void) { return "ssgIndexArray"    ; }
+const char *ssgTransformArray::getTypeName (void) { return "ssgTransformArray" ; }
+const char *ssgTexCoordArray::getTypeName (void) { return "ssgTexCoordArray" ; }
+const char *ssgVertexArray  ::getTypeName (void) { return "ssgVertexArray"   ; }
+const char *ssgNormalArray  ::getTypeName (void) { return "ssgNormalArray"   ; }
+const char *ssgInterleavedArray::getTypeName (void) { return "ssgInterleavedArray"; }
 
 
 

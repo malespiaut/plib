@@ -47,7 +47,7 @@ static void swab_int ( unsigned int *x )
          (( *x << 24 ) & 0xFF000000 ) ;
 }
 
-static void swab_int_array ( int *x, int leng )
+/*static void swab_int_array ( int *x, int leng )
 {
   if ( ! isSwapped )
     return ;
@@ -60,7 +60,7 @@ static void swab_int_array ( int *x, int leng )
          (( *x << 24 ) & 0xFF000000 ) ;
     x++ ;
   }
-}
+}*/
 
 
 static unsigned char readByte ()

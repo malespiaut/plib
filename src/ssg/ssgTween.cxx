@@ -28,7 +28,7 @@
 
 static float current_tween_state = 0.0f ;
 
-char *ssgTween::getTypeName (void) { return "ssgTween" ; }
+const char *ssgTween::getTypeName (void) { return "ssgTween" ; }
 
 float _ssgGetCurrentTweenState () { return current_tween_state ; }
 

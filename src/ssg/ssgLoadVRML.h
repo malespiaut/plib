@@ -125,7 +125,7 @@ class _traversalState
 // tags for functions which may actually modify the scene graph
 struct _parseTag
 {
-  char *token ;
+  const char *token ;
   bool (*func) ( ssgBranch *parentBranch, _traversalState *parentData, char *defName ) ;
 } ;
 

@@ -73,7 +73,7 @@ static _ssgParserSpec parser_spec =
 static _ssgParser parser;
 static ssgBranch* top_branch;
 
-static int Ascii2Int(int &retVal, const char *token, const char* name )
+/*static int Ascii2Int(int &retVal, const char *token, const char* name )
 // returns TRUE on success
 {
   char *endptr;
@@ -84,7 +84,7 @@ static int Ascii2Int(int &retVal, const char *token, const char* name )
 	{ parser.error("The field %s should contain an integer number but contains %s",name, token) ;
 		return FALSE;
 	}
-}
+}*/
 
 static int Ascii2UInt(unsigned int &retVal, const char *token, const char* name )
 // returns TRUE on success

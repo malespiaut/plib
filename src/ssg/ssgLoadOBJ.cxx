@@ -154,7 +154,7 @@ static ssgState* get_state( matData* mat )
   return st ;
 }
 
-static int leqi ( char* string1, char* string2 )
+static int leqi ( const char* string1, const char* string2 )
 //LEQI compares two strings for equality, disregarding case.
 {
   int i;
