@@ -2250,6 +2250,8 @@ public:
     create_branch_cb = 0 ;
   }
 
+  virtual ~ssgLoaderOptions() {}
+
   const char* getModelDir ( void ) { return model_dir ; }
   const char* getTextureDir ( void ) { return texture_dir ; }
   void setModelDir ( const char *s ) ;
