@@ -274,13 +274,11 @@ protected :
   ssgBase *user_data ;
   virtual void copy_from ( ssgBase *src, int clone_flags ) ;
 
-_SSG_PUBLIC:
-
-  void deadBeefCheck () { assert ( type != (int) 0xDeadBeef ) ; }
-
 public:
   void *operator new  ( size_t size ) ;
   void  operator delete ( void *ptr ) ;
+
+  void deadBeefCheck () { assert ( type != (int) 0xDeadBeef ) ; }
 
   virtual void zeroSpareRecursive ();
   virtual void zeroSpare ()         ;
