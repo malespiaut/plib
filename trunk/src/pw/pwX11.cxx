@@ -18,7 +18,6 @@ extern "C"
 #include <X11/Xatom.h>
 #include <X11/keysym.h>
 #include <X11/cursorfont.h>
-#include <X11/extensions/xf86vmode.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 }
@@ -333,7 +332,9 @@ void pwInit ( int x, int y, int w, int h, int multisample,
 
   pwSetCursor ( PW_CURSOR_LEFT ) ;
 
+#ifdef GL_MULTISAMPLE_FILTER_HINT_NV
   glHint ( GL_MULTISAMPLE_FILTER_HINT_NV, multisample ) ;
+#endif
 
   kbCB = kb ;
   msCB = ms ;
