@@ -3,7 +3,7 @@ noinst_PROGRAMS = js_demo
 
 js_demo_SOURCES = js_demo.cxx
 
-js_demo_LDADD = -lplibul $(JS_LIBS)
+js_demo_LDADD = -lplibul
 
 EXTRA_DIST = js_demo.dsp
 
