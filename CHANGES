@@ -2,6 +2,18 @@
 PLIB Change Log.
 ================
 
+PLIB v1.3.2 (???? 2000)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Added some missing 'AUTHORS' entries.
+
+  * puDial widget (was actually in 1.3.1 but got
+    missed in the 'CHANGES' file)
+
+  * Fixed a problem in the configure.in that prevented
+    ssgAux from building.
+
+
 PLIB v1.3.1 (Sept 15th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
