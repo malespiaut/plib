@@ -31,7 +31,7 @@
 			*MAP_CLASS "Bitmap"
 			*MAP_SUBNO 1
 			*MAP_AMOUNT 1.0000
-			*BITMAP "\\SIERRA_ONLINE\DYNAMIX\NETDRIVES\DYN-OUT_MINIGOLF\MG3D\tools\viewer\base\textures\Brown.bmp"
+			*BITMAP "brown.bmp"
 			*MAP_TYPE Screen
 			*UVW_U_OFFSET 0.0000
 			*UVW_V_OFFSET 0.0000
@@ -67,7 +67,7 @@
 			*MAP_CLASS "Bitmap"
 			*MAP_SUBNO 1
 			*MAP_AMOUNT 1.0000
-			*BITMAP "\\SIERRA_ONLINE\DYNAMIX\NETDRIVES\DYN-OUT_MINIGOLF\MG3D\tools\viewer\base\textures\Gray.bmp"
+			*BITMAP "gray.bmp"
 			*MAP_TYPE Screen
 			*UVW_U_OFFSET 0.0000
 			*UVW_V_OFFSET 0.0000
