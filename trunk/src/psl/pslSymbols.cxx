@@ -62,7 +62,7 @@ pslAddress pslCompiler::getVarSymbol ( const char *s )
 }
 
 
-int pslCompiler::getExtensionSymbol ( const char *s )
+int pslCompiler::getExtensionSymbol ( const char *s ) const
 {
   for ( int i = 0 ; extensions [ i ] . symbol != NULL ; i++ )
     if ( strcmp ( s, extensions [ i ] . symbol ) == 0 )
