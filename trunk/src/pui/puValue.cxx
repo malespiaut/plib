@@ -31,18 +31,19 @@ void puValue::re_eval ( void ) const
 
   if ( res_integer != NULL )
   {
-    *floater = (float) *res_integer ;
-    sprintf ( string, "%d", *res_integer ) ;
+    *floater = (float) *res_integer ; sprintf ( string, "%d", *res_integer ) ;
+    puPostRefresh () ;
   }
   else if ( res_floater != NULL )
   {
-    *integer = (int) *res_floater ;
-    sprintf ( string, "%g", *res_floater ) ;
+    *integer = (int) *res_floater ; sprintf ( string, "%g", *res_floater ) ;
+    puPostRefresh () ;
   }
   else if ( res_string  != NULL )
   {
     *integer = (int) strtol ( res_string, NULL, 0 ) ;
     *floater = (float) strtod ( res_string, NULL ) ;
+    puPostRefresh () ;
   }
 }
 
