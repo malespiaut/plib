@@ -6,11 +6,25 @@ Bug Fixes:
 
 2.  Make the Active widget's black line go all the way around it.
 
-3.  Make the widget creations type-specific.
+3.  puFileSelector needs options
+
+4.  puScrollBar needs to be added
+
+5.  Menus (Vert and normal) need a method to populate submenus.
 
 Upgrades:
 
-1.  Allow the user to click a corner of a widget in the main window to extend its size in two directions at once.
+1.  Improve layer support. 
 
-2.  
+2.  Make widgets added to window the real widgets, rather than Frames.
+
+3.  Multiple Window support
+
+4.  Makefile building?
+
+5.  Font viewing / selecting (a font browser and such)
+
+6.  Copy / Cut / Paste
+
+7.  Widget class changes
 
