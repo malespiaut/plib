@@ -199,7 +199,6 @@ class netBufferChannel : public netChannel
 
 public:
 
-  // constructor
   netBufferChannel (int in_buffer_size = 4096, int out_buffer_size = 16384) :
     in_buffer (in_buffer_size),
     out_buffer (out_buffer_size),

@@ -53,8 +53,7 @@ int main ( int argc, char * argv[] )
 {
   netInit () ;
 
-  new HTTPClient ( "plib.sf.net", "/index.html" ) ;
-
+  new HTTPClient ( "www.opengl.org", "/index.html" ) ;
   netChannel::loop ( 0 ) ;
   return 0 ;
 }
