@@ -8,6 +8,8 @@
   FreeBSD port - courtesy of Stephen Montgomery-Smith
   <stephen@math.missouri.edu>
 
+  NetBSD mods - courtesy Rene Hexel.
+
   The next lines are to define BSD
   see http://www.freebsd.org/handbook/porting.html for why we do this
 */
@@ -29,7 +31,7 @@
 #  include <unistd.h>
 #  include <fcntl.h>
 
-#  ifdef __FreeBSD__
+#  if defined(__FreeBSD__) || defined(__NetBSD__)
 #    include <machine/joystick.h>
 #    define JS_DATA_TYPE joystick
 #    define JS_RETURN (sizeof(struct JS_DATA_TYPE))
@@ -76,7 +78,7 @@
 #ifdef WIN32
 #  define _JS_MAX_AXES 6
 #else
-#  ifdef __FreeBSD__
+#  if defined(__FreeBSD__) || defined(__NetBSD__)
 #  define _JS_MAX_AXES 2
 #  else
 #  define _JS_MAX_AXES 6
@@ -85,7 +87,7 @@
 
 class jsJoystick
 {
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
   int          id ;
 #endif
 #ifdef WIN32
@@ -153,7 +155,7 @@ class jsJoystick
     }
 
 #else
-#  ifdef __FreeBSD__
+#  if defined(__FreeBSD__) || defined(__NetBSD__)
     FILE *joyfile;
     char joyfname[1024];
     int noargs, in_no_axes;
@@ -178,7 +180,7 @@ class jsJoystick
     if ( error )
       return ;
 
-#  ifdef __FreeBSD__
+#  if defined(__FreeBSD__) || defined(__NetBSD__)
 
     float axes[_JS_MAX_AXES];
     int buttons[_JS_MAX_AXES];
@@ -316,7 +318,7 @@ public:
       default :    num_axes = 0 ; setError () ; break ;
     }
 #else
-#  ifdef __FreeBSD__
+#  if defined(__FreeBSD__) || defined(__NetBSD__)
     id = ident;
     sprintf ( fname, "/dev/joy%d", ident ) ;
 #  else
@@ -467,7 +469,7 @@ public:
     }
 
     if ( buttons )
-#  ifdef __FreeBSD__
+#  if defined(__FreeBSD__) || defined(__NetBSD__)
       *buttons = ( js.b1 ? 1 : 0 ) | ( js.b2 ? 2 : 0 ) ;
 #  else
       *buttons = js.buttons ;

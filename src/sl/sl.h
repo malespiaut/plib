@@ -46,7 +46,7 @@ private:
   int error ;
   int fd ;
 
-#ifdef __OpenBSD__
+#if defined (__NetBSD__) || defined(__OpenBSD__)
   audio_info_t    ainfo;        // ioctl structure
   audio_offset_t  audio_offset; // offset in audiostream
   long            counter;      // counter-written packets

@@ -34,42 +34,43 @@
 #include <limits.h>
 #include <math.h>
 
-#if defined(__linux__) || defined(BSD)
+#if (defined(__linux__) || defined(BSD)) && !defined(__NetBSD__)
 #define SL_USING_OSS_AUDIO 1
 #endif
 
 #ifdef SL_USING_OSS_AUDIO
-#if defined(__linux__)
-#include <linux/soundcard.h>
-#elif defined(__FreeBSD__)
-#include <machine/soundcard.h>
-#else
-/*
-  Tom thinks this file may be <sys/soundcard.h> under some
-  unixen - but that isn't where the OSS manuals say it
-  should be.
+#  if defined(__linux__)
+#    include <linux/soundcard.h>
+#  elif defined(__FreeBSD__)
+#    include <machine/soundcard.h>
+#  else
+    /*
+      Tom thinks this file may be <sys/soundcard.h> under some
+      unixen - but that isn't where the OSS manuals say it
+      should be.
 
-  If you ever find out the truth, please email me:
-     Steve Baker <sjbaker1@airmail.net>
-*/
-#include <soundcard.h>
-#endif
+      If you ever find out the truth, please email me:
+       Steve Baker <sjbaker1@airmail.net>
+    */
+#    include <soundcard.h>
+#  endif
 #endif
 
-#ifdef	__OpenBSD__
-#include <sys/audioio.h>
+#if defined (__NetBSD__) || defined(__OpenBSD__)
+#  include <sys/audioio.h>
 #endif
 
 /* Tom */
 
 #ifdef	sgi
-#include <audio.h>
+#  include <audio.h>
 #endif
 
 #if defined(__svr4__)
-#include <sys/audioio.h>
-#include <sys/stropts.h>
-#define SOLARIS
+#  include <sys/audioio.h>
+#  include <sys/stropts.h>
+#  define SOLARIS
 #endif
+
 #endif
 
