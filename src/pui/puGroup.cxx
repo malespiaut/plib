@@ -199,8 +199,12 @@ void puGroup::doHit ( int, int, int, int )
 
 puGroup::~puGroup ()
 {
-  for ( puObject *bo = dlist ; bo != NULL ; bo = bo->next )
-    delete bo ;
+  for ( puObject *bo = dlist ; bo != NULL ; /* Nothing */ )
+  {
+    dlist = bo    ;
+    bo = bo->next ;
+    delete dlist  ;
+  }
 }
 
 
