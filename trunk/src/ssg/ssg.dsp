@@ -270,6 +270,10 @@ SOURCE=.\ssgVTable.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgVtxArray.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgVtxTable.cxx
 # End Source File
 # End Target
