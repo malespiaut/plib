@@ -3,7 +3,8 @@
 // .X is the 3D file format for Micro$ofts directX retained mode.
 // Written by Wolfram Kuss (Wolfram.Kuss@t-online.de) in Oct/Nov of 2000
 //
-#include "ssgLoaderWriterStuff.h" // "ssgLocal.h" called in ssgLoaderWriterStuff
+#include  "ssgLocal.h"
+#include "ssgLoaderWriterStuff.h" 
 #include "ssgParser.h"
 
 #define u32 unsigned int
