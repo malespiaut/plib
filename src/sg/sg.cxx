@@ -565,95 +565,136 @@ void sgFrustum::update ()
   {
     if ( fabs ( hfov ) < 0.1 || fabs ( vfov ) < 0.1 )
     {
-      ulSetError ( UL_WARNING, "sgFrustum: Can't support fields of view narrower than 0.1 degrees.");
+      ulSetError ( UL_WARNING, ortho ? 
+		   "sgFrustum: Can't support width or height <0.1 units." : 
+		   "sgFrustum: Can't support fields of view narrower than 0.1 degrees." ) ;
       return ;
     }
 
-    /* Corners of screen relative to eye... */
-  
-    right = nnear * (SGfloat) tan ( hfov * SG_DEGREES_TO_RADIANS / SG_TWO ) ;
-    top   = nnear * (SGfloat) tan ( vfov * SG_DEGREES_TO_RADIANS / SG_TWO ) ;
+    if ( ortho )
+    {
+      right = SG_HALF * hfov ;
+      top   = SG_HALF * vfov ;
+    }
+    else
+    {
+      right = nnear * (SGfloat) tan ( hfov * SG_DEGREES_TO_RADIANS / SG_TWO ) ;
+      top   = nnear * (SGfloat) tan ( vfov * SG_DEGREES_TO_RADIANS / SG_TWO ) ;
+    }
+
     left  = -right ;
     bot   = -top   ;
   }
 
+
+  /* Compute the projection matrix */
+
+  SGfloat width  = right - left  ;
+  SGfloat height = top   - bot   ;
+  SGfloat depth  = ffar  - nnear ;
+
+  if ( ortho )
+  {
+    /* orthographic */
+
+    mat[0][0] =  SG_TWO / width ;
+    mat[0][1] =  SG_ZERO ;
+    mat[0][2] =  SG_ZERO ;
+    mat[0][3] =  SG_ZERO ;
+
+    mat[1][0] =  SG_ZERO ;
+    mat[1][1] =  SG_TWO / height ;
+    mat[1][2] =  SG_ZERO ;
+    mat[1][3] =  SG_ZERO ;
+
+    mat[2][0] =  SG_ZERO ;
+    mat[2][1] =  SG_ZERO ;
+    mat[2][2] = -SG_TWO / depth ;
+    mat[2][3] =  SG_ZERO ;
+
+    mat[3][0] = -( left  + right ) / width ;
+    mat[3][1] = -( bot   + top   ) / height ;
+    mat[3][2] = -( nnear + ffar  ) / depth ;
+    mat[3][3] =  SG_ONE ;
+  }
+  else
+  {
+    /* perspective */
+
+    mat[0][0] =  SG_TWO * nnear / width ;
+    mat[0][1] =  SG_ZERO ;
+    mat[0][2] =  SG_ZERO ;
+    mat[0][3] =  SG_ZERO ;
+    
+    mat[1][0] =  SG_ZERO ;
+    mat[1][1] =  SG_TWO * nnear / height ;
+    mat[1][2] =  SG_ZERO ;
+    mat[1][3] =  SG_ZERO ;
+    
+    mat[2][0] =  ( right + left ) / width ;
+    mat[2][1] =  ( top   + bot  ) / height ;
+    mat[2][2] = -( ffar  + nnear ) / depth ;
+    mat[2][3] = -SG_ONE ;
+    
+    mat[3][0] =  SG_ZERO ;
+    mat[3][1] =  SG_ZERO ;
+    mat[3][2] = -SG_TWO * nnear * ffar / depth ;
+    mat[3][3] =  SG_ZERO ;
+  }
+
+
   /*
-    Compute plane equations for the four sloping faces of the frustum.
+   * The clip planes are derived from the projection matrix.
+   *
+   * After projection (in clip coordinates), the clip planes are simply:
+   * 
+   *  left:    (  1,  0,  0,  1 )
+   *  right:   ( -1,  0,  0,  1 )
+   *  bottom:  (  0,  1,  0,  1 )
+   *  top:     (  0, -1,  0,  1 )
+   *  near:    (  0,  0,  1,  1 )
+   *  far:     (  0,  0, -1,  1 )
+   *
+   * These can easily be transformed *backwards* by 
+   * multiplying by the transposed projection matrix, i.e:
+   *
+   *  ( A )            ( A')
+   *  ( B )  =  mat^T  ( B')
+   *  ( C )            ( C')
+   *  ( D )            ( D')
+   *
+   * where (A',B',C',D') represents a plane in clip coordinates,
+   * and (A,B,C,D) is the same plane expressed in eye coordinates.
+   */
 
-    These are useful for FrustContains(sphere) tests.
+  sgVec4 pln[6] = {
+    {   SG_ONE,  SG_ZERO,  SG_ZERO,  SG_ONE  },  // left
+    {  -SG_ONE,  SG_ZERO,  SG_ZERO,  SG_ONE  },  // right
+    {  SG_ZERO,   SG_ONE,  SG_ZERO,  SG_ONE  },  // bottom
+    {  SG_ZERO,  -SG_ONE,  SG_ZERO,  SG_ONE  },  // top
+    {  SG_ZERO,  SG_ZERO,   SG_ONE,  SG_ONE  },  // near
+    {  SG_ZERO,  SG_ZERO,  -SG_ONE,  SG_ONE  },  // far
+  };
 
-    Noting that those planes always go through the origin, their 'D'
-    components will always be zero - so the plane equation is really
-    just the normal - which is the cross-product of two edges of each face,
-    and since we can pick two edges that go through the origin, the
-    vectors for the edges are just the normalised corners of the near plane.
-  */
+  for ( int i = 0 ; i < 6 ; i++ )
+  {
+    sgVec4 tmp ;
 
-  sgVec3 v1, v2, v3, v4 ;
+    for ( int j = 0 ; j < 4 ; j++ )
+      tmp[j] = sgScalarProductVec4 ( pln[i], mat[j] ) ;
 
-  sgSetVec3 ( v1, left , top, -nnear ) ;
-  sgSetVec3 ( v2, right, top, -nnear ) ;
-  sgSetVec3 ( v3, left , bot, -nnear ) ;
-  sgSetVec3 ( v4, right, bot, -nnear ) ;
+    sgScaleVec4 ( pln[i], tmp, SG_ONE / sgLengthVec3 ( tmp ) ) ;
+  }
 
-  sgNormaliseVec3 ( v1 ) ;
-  sgNormaliseVec3 ( v2 ) ;
-  sgNormaliseVec3 ( v3 ) ;
-  sgNormaliseVec3 ( v4 ) ;
+  sgCopyVec4 (  left_plane, pln[0] ) ;
+  sgCopyVec4 ( right_plane, pln[1] ) ;
+  sgCopyVec4 (   bot_plane, pln[2] ) ;
+  sgCopyVec4 (   top_plane, pln[3] ) ;
+  sgCopyVec4 (  near_plane, pln[4] ) ;
+  sgCopyVec4 (   far_plane, pln[5] ) ;
 
-  /*
-    Take care of the order of the parameters so that all the planes
-    are oriented facing inwards...
-  */
-
-  sgVectorProductVec3 (   top_plane, v1, v2 ) ;
-  sgVectorProductVec3 ( right_plane, v2, v4 ) ;
-  sgVectorProductVec3 (   bot_plane, v4, v3 ) ;
-  sgVectorProductVec3 (  left_plane, v3, v1 ) ;
-
-  /* 
-    At this point, you could call
-
-      glMatrixMode ( GL_PROJECTION ) ;
-      glLoadIdentity () ;
-      glFrustum      ( left, right, bot, top, nnear, ffar ) ;
-
-    Or...
-
-      pfMakePerspFrust ( frust, left, right, bot, top ) ;
-      pfFrustNearFar   ( frust, nnear, ffar ) ;
-
-    Or...
-
-      just use the matrix we generate below:
-  */
-
-  /* Width, height, depth */
-
-  SGfloat w = right - left ;
-  SGfloat h = top   - bot  ;
-  SGfloat d = ffar  - nnear ;
-
-  mat[0][0] =  SG_TWO * nnear / w ;
-  mat[0][1] =  SG_ZERO ;
-  mat[0][2] =  SG_ZERO ;
-  mat[0][3] =  SG_ZERO ;
-
-  mat[1][0] =  SG_ZERO ;
-  mat[1][1] =  SG_TWO * nnear / h ;
-  mat[1][2] =  SG_ZERO ;
-  mat[1][3] =  SG_ZERO ;
-
-  mat[2][0] =  ( right + left ) / w ;
-  mat[2][1] =  ( top   + bot  ) / h ;
-  mat[2][2] = -( ffar  + nnear ) / d ;
-  mat[2][3] = -SG_ONE ;
-
-  mat[3][0] =  SG_ZERO ;
-  mat[3][1] =  SG_ZERO ;
-  mat[3][2] = -SG_TWO * nnear * ffar/ d ;
-  mat[3][3] =  SG_ZERO ;
 }
+
 
 
 #define OC_LEFT_SHIFT   0
@@ -701,14 +742,17 @@ int sgFrustum::contains ( const sgVec3 pt ) const
 
 int sgFrustum::contains ( const sgSphere *s ) const 
 {
+
+  const SGfloat *center = s->getCenter() ;
+  const SGfloat  radius = s->getRadius() ;
+  
   /*
     Lop off half the database (roughly) with a quick near-plane test - and
     lop off a lot more with a quick far-plane test
   */
 
-  if ( -s->getCenter() [ 2 ] + s->getRadius() < nnear ||
-       -s->getCenter() [ 2 ] - s->getRadius() > ffar )
-    return SG_OUTSIDE ;
+  if ( -center[2] + radius < nnear || -center[2] - radius > ffar )
+    return SG_OUTSIDE ;  
 
   /*
     OK, so the sphere lies between near and far.
@@ -722,13 +766,52 @@ int sgFrustum::contains ( const sgSphere *s ) const
     whole task using only 12 multiplies and 8 adds.
   */
 
-  SGfloat sp1 = sgScalarProductVec3 (  left_plane, s->getCenter() ) ;
-  SGfloat sp2 = sgScalarProductVec3 ( right_plane, s->getCenter() ) ;
-  SGfloat sp3 = sgScalarProductVec3 (   bot_plane, s->getCenter() ) ;
-  SGfloat sp4 = sgScalarProductVec3 (   top_plane, s->getCenter() ) ;
+  /*
+    A few operations are saved by observing that certain values in the plane 
+    equations are zero or one. These are specific to orthographic and perspective 
+    projections respectively.
+  */
 
-  if ( -sp1 >= s->getRadius() || -sp2 >= s->getRadius() ||
-       -sp3 >= s->getRadius() || -sp4 >= s->getRadius() )
+  SGfloat sp1, sp2, sp3, sp4 ;
+  
+  if ( ortho )
+  {
+    /*
+      left:    (  1,  0,  0,  x  )
+      right:   ( -1,  0,  0,  x  )
+      bottom:  (  0,  1,  0,  x  )
+      top:     (  0, -1,  0,  x  )
+    */
+    sp1 =  left_plane[3] + center[0] ;
+    sp2 = right_plane[3] - center[0] ;
+    sp3 =   bot_plane[3] + center[1] ;
+    sp4 =   top_plane[3] - center[1] ;
+  }
+  else
+  {
+    /*
+      left:    (  x,  0,  x,  0  )
+      right:   (  x,  0,  x,  0  )
+      bottom:  (  0,  x,  x,  0  )
+      top:     (  0,  x,  x,  0  )
+    */
+    sp1 =  left_plane[0] * center[0] +  left_plane[2] * center[2] ;
+    sp2 = right_plane[0] * center[0] + right_plane[2] * center[2] ;
+    sp3 =   bot_plane[1] * center[1] +   bot_plane[2] * center[2] ;
+    sp4 =   top_plane[1] * center[1] +   top_plane[2] * center[2] ;
+  }
+
+  /* 
+     Note: in the general case, we would have to do:
+
+     sp1 = sgScalarProductVec3 (  left_plane, center ) +  left_plane[3] ;
+     sp2 = sgScalarProductVec3 ( right_plane, center ) + right_plane[3] ;
+     ...
+     sp6 = sgScalarProductVec3 (   far_plane, center ) +   far_plane[3] ;
+  */
+  
+
+  if ( -sp1 > radius || -sp2 > radius || -sp3 > radius || -sp4 > radius )
     return SG_OUTSIDE ;
   
   /*
@@ -736,10 +819,8 @@ int sgFrustum::contains ( const sgSphere *s ) const
     and we can save time elsewhere if we know that for sure.
   */
 
-  if ( -s->getCenter() [ 2 ] - s->getRadius() > nnear &&
-       -s->getCenter() [ 2 ] + s->getRadius() < ffar &&
-       sp1 >= s->getRadius() && sp2 >= s->getRadius() &&
-       sp3 >= s->getRadius() && sp4 >= s->getRadius() )
+  if ( sp1 >= radius && sp2 >= radius && sp3 >= radius && sp4 >= radius
+       && -center[2] - radius >= nnear && -center[2] + radius <= ffar )
     return SG_INSIDE ;
 
   return SG_STRADDLE ;

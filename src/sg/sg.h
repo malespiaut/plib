@@ -1026,22 +1026,26 @@ public:
 
 class sgFrustum
 {
-  /* The parameters for a glFrustum or pfMakePerspFrust */
+  /* Is the projection orthographic (or perspective)? */
+  int ortho ;
+
+  /* The parameters for glFrustum/glOrtho */
   
-  SGfloat left, right, top, bot, nnear, ffar ;
+  SGfloat left, right, bot, top, nnear, ffar ;
 
-  /* The A,B,C terms of the plane equations of the four sloping planes */
-
-  sgVec3 top_plane, bot_plane, left_plane, right_plane ;
-
-  /* A GL/PF-style perspective matrix for this frustum */
+  /* The computed projection matrix for this frustum */
 
   sgMat4 mat ;
 
+  /* The A,B,C,D terms of the plane equations of the clip planes */
+  /* A point (x,y,z) is inside the frustum iff  Ax + By + Cz + D >= 0  for all planes */
+
+  sgVec4 left_plane, right_plane, bot_plane, top_plane, near_plane, far_plane ;
+
   /* These two are only valid for simple frusta */
 
-  SGfloat hfov ;    /* Horizontal Field of View */
-  SGfloat vfov ;    /* Vertical   Field of View */
+  SGfloat hfov ;    /* Horizontal Field of View  -or-  Orthographic Width  */
+  SGfloat vfov ;    /* Vertical   Field of View  -or-  Orthographic Height */
 
   void update (void) ;
   int getOutcode ( const sgVec4 src ) const ;
@@ -1050,6 +1054,7 @@ public:
 
   sgFrustum (void)
   {
+    ortho = FALSE ;
     nnear = SG_ONE ;
     ffar  = 1000000.0f ;
     hfov  = SG_45 ;
@@ -1061,23 +1066,43 @@ public:
                     const SGfloat b, const SGfloat t,
                     const SGfloat n, const SGfloat f )
   {
-    left  = l ; right = r ;
-    top   = t ; bot   = b ;
-    nnear = n ; ffar  = f ;
+    ortho = FALSE ;
+    left  = l ; 
+    right = r ;
+    bot   = b ; 
+    top   = t ; 
+    nnear = n ; 
+    ffar  = f ;
+    hfov = vfov = SG_ZERO ;
+    update () ;
+  } 
+
+  void setOrtho   ( const SGfloat l, const SGfloat r,
+                    const SGfloat b, const SGfloat t,
+                    const SGfloat n, const SGfloat f )
+  {
+    ortho = TRUE ;
+    left  = l ; 
+    right = r ;
+    bot   = b ; 
+    top   = t ; 
+    nnear = n ; 
+    ffar  = f ;
     hfov = vfov = SG_ZERO ;
     update () ;
   } 
 
   void     getMat4 ( sgMat4 dst ) { sgCopyMat4 ( dst, mat ) ; }
 
-  SGfloat  getHFOV (void) const { return hfov  ; }
-  SGfloat  getVFOV (void) const { return vfov  ; }
-  SGfloat  getNear (void) const { return nnear ; }
-  SGfloat  getFar  (void) const { return ffar  ; }
   SGfloat  getLeft (void) const { return left  ; }
   SGfloat  getRight(void) const { return right ; }
-  SGfloat  getTop  (void) const { return top   ; }
   SGfloat  getBot  (void) const { return bot   ; }
+  SGfloat  getTop  (void) const { return top   ; }
+  SGfloat  getNear (void) const { return nnear ; }
+  SGfloat  getFar  (void) const { return ffar  ; }
+		    
+  SGfloat  getHFOV (void) const { return hfov  ; }
+  SGfloat  getVFOV (void) const { return vfov  ; }
 
   void getFOV ( SGfloat *h, SGfloat *v ) const 
   {
@@ -1087,8 +1112,23 @@ public:
 
   void setFOV ( const SGfloat h, const SGfloat v )
   {
+    ortho = FALSE ;
     hfov = ( h <= 0 ) ? ( v * SG_THREE / SG_TWO ) : h ;
     vfov = ( v <= 0 ) ? ( h * SG_TWO / SG_THREE ) : v ;
+    update () ;
+  }
+
+  void getOrtho ( SGfloat *w, SGfloat *h ) const
+  {
+    if ( w != (SGfloat *) 0 ) *w = right - left ;
+    if ( h != (SGfloat *) 0 ) *h = top   - bot  ;
+  }
+
+  void setOrtho ( const SGfloat w, const SGfloat h )
+  {
+    ortho = TRUE ;
+    hfov = ( w <= 0 ) ? ( h * SG_THREE / SG_TWO ) : w ;
+    vfov = ( h <= 0 ) ? ( w * SG_THREE / SG_TWO ) : h ;
     update () ;
   }
 
@@ -1104,6 +1144,8 @@ public:
     ffar  = f ;
     update () ;
   }
+
+  int  isOrtho (void) const { return ortho ; }
 
   int  contains ( const sgVec3 p ) const ;
   int  contains ( const sgSphere *s ) const ;
