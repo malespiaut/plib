@@ -51,6 +51,11 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy release\*.lib ..\..\*.*
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "js - Win32 Debug"
 
@@ -75,6 +80,11 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"Debug\js_d.lib"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*
+# End Special Build Tool
 
 !ENDIF 
 
@@ -82,6 +92,10 @@ LIB32=link.exe -lib
 
 # Name "js - Win32 Release"
 # Name "js - Win32 Debug"
+# Begin Source File
+
+SOURCE=.\js.cxx
+# End Source File
 # Begin Source File
 
 SOURCE=.\js.h
@@ -112,10 +126,6 @@ InputPath=.\js.h
 
 !ENDIF 
 
-# End Source File
-# Begin Source File
-
-SOURCE=.\js.cxx
 # End Source File
 # End Target
 # End Project
