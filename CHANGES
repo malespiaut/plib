@@ -4,6 +4,11 @@ PLIB Change Log.
 
 PLIB v1.3.2 (???? 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Added puFilePicker  
+
+  * Added Ref Counting
+
+  * Added puBiSlider and puTriSlider
 
   * Added some missing 'AUTHORS' entries.
 
