@@ -740,6 +740,9 @@ public:
 #endif
   }
 } ;
+
+extern void jsInit () ;
+
 //lint -restore
 
 #endif
