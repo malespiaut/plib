@@ -210,6 +210,8 @@ protected :
   int   type  ;
   int   spare ;  /* This spare field is used in a bunch of short-term hacks */
 
+  char    *name ;
+  ssgBase *user_data ;
   virtual void copy_from ( ssgBase *src, int clone_flags ) ;
 
 _SSG_PUBLIC:
@@ -248,6 +250,21 @@ public:
   virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
+
+  ssgBase *getUserData () { return user_data ; }
+
+  void setUserData ( ssgBase *s )
+  {
+    ssgDeRefDelete ( user_data ) ;
+
+    user_data = s ;
+    if ( s != NULL )
+      s -> ref () ;
+  }
+
+  void  setName ( char *nm ) ;
+  char *getName () { return name ; }
+  const char *getPrintableName () { return (name == NULL) ? "NoName" : name ; }
 } ;
 
 
@@ -753,9 +770,6 @@ class ssgEntity : public ssgBase
 {
   ssgList parents ;
 
-  char *name ;
-
-  ssgBase *user_data ;
   int traversal_mask ;
 
 protected:
@@ -790,17 +804,6 @@ public:
   virtual ssgEntity* getByPath  ( char *path ) ;
   int  bindEntities ( ssgEntityBinding *bind ) ;
 
-  ssgBase *getUserData () { return user_data ; }
-
-  void setUserData ( ssgBase *s )
-  {
-    ssgDeRefDelete ( user_data ) ;
-
-    user_data = s ;
-    if ( s != NULL )
-      s -> ref () ;
-  }
-
   ssgCallback getCallback ( int cb_type )
   {
     return ( cb_type == SSG_CALLBACK_PREDRAW ) ? preDrawCB : postDrawCB ;
@@ -818,10 +821,6 @@ public:
   virtual void recalcBSphere (void) = 0 ;
   int  isDirtyBSphere (void) { return bsphere_is_invalid ; }
   void dirtyBSphere  () ;
-
-  void  setName ( char *nm ) ;
-  char *getName () { return name ; }
-  const char *getPrintableName () { return (name == NULL) ? "NoName" : name ; }
 
   sgSphere *getBSphere ()
   {

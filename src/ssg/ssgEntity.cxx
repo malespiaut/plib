@@ -5,13 +5,6 @@ void ssgEntity::copy_from ( ssgEntity *src, int clone_flags )
 {
   ssgBase::copy_from ( src, clone_flags ) ;
 
-  setName ( src -> getName () ) ;
-
-  if ( clone_flags & SSG_CLONE_USERDATA )
-    setUserData ( src -> getUserData () ) ;
-  else
-    setUserData ( NULL ) ;
-
   traversal_mask = src -> getTraversalMask () ;
 
   dirtyBSphere () ;
@@ -20,9 +13,7 @@ void ssgEntity::copy_from ( ssgEntity *src, int clone_flags )
 
 ssgEntity::ssgEntity (void)
 {
-  user_data = NULL ;
   traversal_mask = 0xFFFFFFFF ;
-  name  = NULL ;
   type |= SSG_TYPE_ENTITY ;
   bsphere_is_invalid = TRUE ;
 }
@@ -30,22 +21,6 @@ ssgEntity::ssgEntity (void)
 
 ssgEntity::~ssgEntity (void)
 {
-  delete name ;
-  ssgDeRefDelete ( user_data ) ;
-}
-
-
-void ssgEntity::setName ( char *nm )
-{
-  delete name ;
-
-  if ( nm == NULL )
-    name = NULL ;
-  else
-  {
-    name = new char [ strlen ( nm ) + 1 ] ;
-    strcpy ( name, nm ) ;
-  }
 }
 
 
@@ -94,11 +69,11 @@ void ssgEntity::visualiseBSphere ()
   glEnable ( GL_LIGHTING ) ;
 }
 
+
 void ssgEntity::print ( FILE *fd, char *indent )
 {
   ssgBase::print ( fd, indent ) ;
 
-  fprintf ( fd, "%s  Name = \"%s\"\n", indent, getPrintableName() ) ;
   fprintf ( fd, "%s  Num Parents=%d\n", indent, parents . getNumEntities () ) ;
 }
 
@@ -279,18 +254,15 @@ stats_hot_straddle++ ;
 
 int ssgEntity::load ( FILE *fd )
 {
-  delete name ;
-  name = NULL ;
   bsphere_is_invalid = TRUE ;
-
-  _ssgReadString ( fd, &name ) ;
   _ssgReadInt    ( fd, &traversal_mask ) ;
   return ssgBase::load(fd) ;
 }
 
+
+
 int ssgEntity::save ( FILE *fd )
 {
-  _ssgWriteString ( fd, name ) ;
   _ssgWriteInt    ( fd, traversal_mask ) ;
   return ssgBase::save(fd) ;
 }
