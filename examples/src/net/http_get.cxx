@@ -30,7 +30,7 @@ main (int argc, char * argv[])
 {
   netInit(&argc,argv);
 
-  HTTPClient* hc = new HTTPClient( "www.opengl.org", "/index.html" );
+  new HTTPClient( "www.opengl.org", "/index.html" );
 
   netChannel::loop(0);
   return 0;
