@@ -210,7 +210,7 @@ int ssgLeaf::load ( FILE *fd )
   if ( ! _ssgLoadObject ( fd, (ssgBase **) &st, ssgTypeState () ) )
      return FALSE ;
 
-  if ( st -> isAKindOf ( ssgTypeSimpleState () ) )
+  if ( st != NULL && st -> isAKindOf ( ssgTypeSimpleState () ) )
   {
     ssgSimpleState *ss = (ssgSimpleState *) st ;
     char *tfname = ss -> getTextureFilename () ;
