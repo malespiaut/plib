@@ -25,7 +25,7 @@
 
 #include "ssgLocal.h"
 
-char *ssgTweenController::getTypeName (void) { return "ssgTweenController" ; }
+const char *ssgTweenController::getTypeName (void) { return "ssgTweenController" ; }
 
 void ssgTweenController::copy_from ( ssgTweenController *src, int clone_flags )
 {

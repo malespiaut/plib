@@ -300,7 +300,7 @@ public:
 
   /* Type checking mechanism */
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 
   int   getType    (void)     { return type ; }
   int   isA        ( int ty ) { return getType() == ty ; }
@@ -456,7 +456,7 @@ public:
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 
@@ -474,7 +474,7 @@ public:
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 
@@ -492,7 +492,7 @@ public:
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 
@@ -510,7 +510,7 @@ public:
   void   add ( sgVec2   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec2   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 
@@ -528,7 +528,7 @@ public:
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec4   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 
@@ -544,7 +544,7 @@ public:
   short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
   void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
   void   set ( short    thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 
@@ -561,7 +561,7 @@ public:
   } 
   sgMat4 *get ( unsigned int n ) { return (sgMat4 *) raw_get ( n ) ; }
   void   add ( sgMat4  thing ) { raw_add ( (char *) thing ) ; } ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 
@@ -636,7 +636,7 @@ public:
   void add ( ssgInterleavedArrayElement *thing ) { raw_add ( (char *)  thing ) ; } ;
   void set ( ssgInterleavedArrayElement  thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
   void set ( ssgInterleavedArrayElement *thing, unsigned int n ) { raw_set ( (char *)  thing, n ) ; } ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 
@@ -725,7 +725,7 @@ public:
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 } ;
 
 typedef int (*ssgCallback)( ssgEntity * ) ;
@@ -764,7 +764,7 @@ public:
   ssgState (void) ;
   virtual ~ssgState (void) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 
   ssgStateCallback getStateCallback ( int cb_type )
   {
@@ -829,7 +829,7 @@ public:
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgSimpleState (void) ;
   virtual ~ssgSimpleState (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 
   virtual void force (void) ;
   virtual void apply (void) ;
@@ -1014,7 +1014,7 @@ public:
   ssgStateSelector ( int ns ) ;
 
   virtual ~ssgStateSelector (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 
   int             getNumSteps ( void ) { return nstates ; }
   void            selectStep ( unsigned int s ) ;
@@ -1153,7 +1153,7 @@ public:
   void addParent    ( ssgEntity *entity ) { parents.addEntity    ( entity ) ; }
   void removeParent ( ssgEntity *entity ) { parents.removeEntity ( entity ) ; }
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) = 0 ;
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) = 0 ;
@@ -1248,7 +1248,7 @@ public:
   int  getCullFace () { return cull_face ; }
 
   virtual void recalcBSphere () = 0 ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1356,7 +1356,7 @@ public:
 
   virtual ~ssgVTable (void) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void recalcBSphere () ;
   virtual void draw () ;
 
@@ -1433,7 +1433,7 @@ public:
 
   virtual ~ssgVtxTable (void) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void recalcBSphere () ;
   virtual void draw () ;
 
@@ -1481,7 +1481,7 @@ public:
   virtual void draw () ;
   virtual void transform ( const sgMat4 m ) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2);
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1538,7 +1538,7 @@ public:
 
   virtual ~ssgVtxArray (void) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
@@ -1579,7 +1579,7 @@ public:
   virtual ssgEntity *getByName ( char *match ) ;
   virtual ssgEntity *getByPath ( char *path  ) ;
  
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void cull          ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual void isect         ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot           ( sgVec3     s, sgMat4 m, int test_needed ) ;
@@ -1609,7 +1609,7 @@ public:
   float getCurrBank () { return curr_bank ; }
 
   virtual void cull ( sgFrustum *f, sgMat4 m, int test_needed ) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1694,7 +1694,7 @@ public:
   
   int getMaxKids (void) const { return max_kids ; }
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
@@ -1745,7 +1745,7 @@ public:
   void setAdditive ( int add ) { additive = add ; }
   int  isAdditive  () { return additive ; }
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
@@ -1801,7 +1801,7 @@ public:
   ssgTimedSelector ( int max_kids = 32 ) ;
   virtual ~ssgTimedSelector (void) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 
   int getStep () ;	
 
@@ -1928,7 +1928,7 @@ public:
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
 } ;
 
@@ -1949,7 +1949,7 @@ public:
   virtual void setTransform ( sgCoord *xform, float sx, float sy, float sz ) ;
   virtual void setTransform ( sgMat4 xform ) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
@@ -1984,7 +1984,7 @@ public:
   virtual void setRotationLimits ( float low, float high ) ;
   virtual void setLinearRotation ( float rot ) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 };
@@ -2006,7 +2006,7 @@ public:
   virtual void setTransform ( sgCoord *xform, float sx, float sy, float sz ) ;
   virtual void setTransform ( sgMat4 xform ) ;
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
@@ -2026,7 +2026,7 @@ public:
 
   int isPointRotate (void) { return point_rotate ; }
 
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
@@ -2045,7 +2045,7 @@ public:
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgRoot (void) ;
   virtual ~ssgRoot (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -2703,7 +2703,7 @@ ssgLight *ssgGetLight ( int i ) ;
 
 char *ssgShowStats () ;
 void  ssgDelete ( ssgBranch *br ) ;
-char *ssgGetVersion () ;
+const char *ssgGetVersion () ;
 
 void ssgSetLoadOFFTranslucent ( int i );
 

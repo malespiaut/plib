@@ -42,7 +42,7 @@ static ssgBranch *curr_branch_;
 
 struct EntityType
 {
-  char * sName;
+  const char * sName;
 	HandlerFunctionType *HandleEntity;
 	int bMayBeIgnored;
 } ;

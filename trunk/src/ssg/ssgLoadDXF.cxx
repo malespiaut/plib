@@ -358,11 +358,11 @@ int dxfVert::isEqual ( class dxfVert * other )
 
 }
 
-static void copy_vert ( dxfVert& dst, const dxfVert& src )
+/*static void copy_vert ( dxfVert& dst, const dxfVert& src )
 {
   dst.color_index = src.color_index ;
   sgCopyVec3 ( dst.pos, src.pos ) ;
-}
+}*/
 
 static void add_tri ( const dxfVert* p, const dxfVert* q, const dxfVert* r )
 {

@@ -98,9 +98,9 @@ static int			    start_idx_, last_idx_;
 static int              curr_var_;
 
 static bool			    has_normals_, vtx_dirty_, tex_vtx_dirty_;
-static bool             join_children_, override_normals_;
+//static bool             join_children_, override_normals_;
 
-static char             *tex_fmt_;
+//static char             *tex_fmt_;
 
 //===========================================================================
 
