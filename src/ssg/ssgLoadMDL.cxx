@@ -391,6 +391,8 @@ static void recalcNormals( _MDLPart *part ) {
     
     sgVectorProductVec3(n, v1, v2);
 
+		sgNormaliseVec3(n);
+
     sgCopyVec3( part->nrm->get(ix0), n );
     sgCopyVec3( part->nrm->get(ix1), n );
     sgCopyVec3( part->nrm->get(ix2), n );
