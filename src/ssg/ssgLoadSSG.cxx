@@ -155,6 +155,9 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
   return kid ;
 }
 
+#ifdef WRITE_SSG_VERSION_ZERO
+extern int WriteVersionZero(ssgEntity *kid, FILE *fd );
+#endif
 
 int ssgSaveSSG ( const char *fname, ssgEntity *ent )
 {
@@ -193,32 +196,18 @@ int ssgSaveSSG ( const char *fname, ssgEntity *ent )
 	
 	
 #ifdef WRITE_SSG_VERSION_ZERO
-	assert(!ent->isAKindOf(ssgTypeSelector())); // not implemented, sorry
+	if ( !WriteVersionZero( ent, fd ) )
+		return FALSE;
+#else
+	_ssgWriteInt ( fd, ent->getType() ) ;
 
-	// Pfusch, kludge, fix me: Use index array
-	if(ent->isAKindOf(ssgTypeVtxArray()))
+	if ( ! ent -> save ( fd ) )
 	{
-    _ssgWriteInt ( fd, ssgTypeVtxTable()  ) ;
-
-		ssgVtxArray *svt=(ssgVtxArray *)ent;
-		if ( ! svt -> ssgVtxTable::save ( fd ) )
-		{
-			ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
-			return FALSE ;
-		}
+		fprintf ( stderr,
+			"ssgSaveSSG: Failed to write child object.\n" ) ;
+		return FALSE ;
 	}
-	else
 #endif
-	{
-		_ssgWriteInt ( fd, ent->getType() ) ;
-
-		if ( ! ent -> save ( fd ) )
-		{
-			fprintf ( stderr,
-				"ssgSaveSSG: Failed to write child object.\n" ) ;
-			return FALSE ;
-		}
-	}
   fclose ( fd ) ;
   return TRUE ;
 }
