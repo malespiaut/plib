@@ -174,17 +174,15 @@ static bool findPart(FILE* fp)
 	  long pos = ftell(fp);
 
 	  unsigned short var;
-	  short offset, high, low;
+	  short offset, high, low, next_op;
 	  fseek(fp, -3+matchpos, SEEK_CUR);
 	  offset = get_word();
 	  var    = get_word();
 	  low    = get_word();
 	  high   = get_word();
-	  DEBUGPRINT( "JumpOnVar (" << std::hex << (int)pattern[matchpos] << 
-		      "): var " << var << std::dec << ", offset: " << offset <<
-		      ", value: " << low << " < " << high << std::endl );
+	  next_op = get_word();
 
-	  int part_idx;
+	  int part_idx, kid_idx;
 	  switch (var) {
 	  case 0x5200:
 	  case 0x6c00:
@@ -208,6 +206,18 @@ static bool findPart(FILE* fp)
 	    part_idx = -1; break;
 	  }
 
+	  if ( (next_op & 0xFF00) == 0x0D00) {
+	    kid_idx = 0;
+	  } else {
+	    kid_idx = 1;
+	  }
+
+	  DEBUGPRINT( "IfVarRange(" << std::hex << offset << " " << var
+		      << " " << low << " " << high << ")"
+		      << "   (next op " << next_op << ", kid_idx "
+		      << kid_idx << ")" << 
+		      std::dec << std::endl );
+
 	  if (part_idx == -1) {
 	    curr_branch_ = model_;
 	  } else {
@@ -215,10 +225,18 @@ static bool findPart(FILE* fp)
 	      moving_parts_[part_idx] = new ssgSelector;
 	      model_->addKid(moving_parts_[part_idx]);	      	   
 	      moving_parts_[part_idx]->setName( PART_NAME[part_idx] );
-	      moving_parts_[part_idx]->addKid( new ssgBranch() );
+	      
 	    }
 
-	    curr_branch_ = (ssgBranch*)moving_parts_[part_idx]->getKid(0);
+	    while (moving_parts_[part_idx]->getKid(kid_idx) == NULL)
+	      moving_parts_[part_idx]->addKid( new ssgBranch() );
+
+	    curr_branch_ = (ssgBranch*)moving_parts_[part_idx]->
+	      getKid(kid_idx);
+	    if (curr_branch_ == NULL) {
+	      moving_parts_[part_idx]->print(stdout, "  ");
+	      exit(0);
+	    }
 	  }
 
 	  fseek(fp, pos, SEEK_SET);
@@ -754,19 +772,23 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 
 	    curr_part_->idx->add(idx - start_idx_ + last_idx_);
 
-      ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
-        curr_part_->vtx,
-        curr_part_->nrm,
-        NULL,
-        NULL,
-        curr_part_->idx ) ;
-
-      ssgSimpleState* st = createMaterialState(curr_color_, curr_pal_id_) ;
-
-      vtab -> setCullFace ( TRUE ) ;
-      vtab -> setState ( st ) ;
-
-      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
+	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
+						  curr_part_->vtx,
+						  curr_part_->nrm,
+						  NULL,
+						  NULL,
+						  curr_part_->idx ) ;
+	    
+	    ssgSimpleState* st = createMaterialState(curr_color_, 
+						     curr_pal_id_) ;
+	    
+	    vtab -> setCullFace ( TRUE ) ;
+	    vtab -> setState ( st ) ;
+	    
+	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
+	    char lname[5];
+	    sprintf(lname, "%X%X", curr_color_, curr_pal_id_);
+	    leaf -> setName(lname);
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -822,19 +844,20 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 		recalcNormals(curr_part_);
 	      }
 	    
-      ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
-        curr_part_->vtx,
-        curr_part_->nrm,
-        curr_part_->crd,
-        NULL,
-        curr_part_->idx ) ;
-
-      ssgSimpleState* st = createTextureState(curr_tex_name_) ;
-
-      vtab -> setCullFace ( TRUE ) ;
-      vtab -> setState ( st ) ;
-
-      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
+	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
+						  curr_part_->vtx,
+						  curr_part_->nrm,
+						  curr_part_->crd,
+						  NULL,
+						  curr_part_->idx ) ;
+	    
+	    ssgSimpleState* st = createTextureState(curr_tex_name_) ;
+	    
+	    vtab -> setCullFace ( TRUE ) ;
+	    vtab -> setState ( st ) ;
+	    
+	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
+	    leaf -> setName( curr_tex_name_ );
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -880,19 +903,23 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 		recalcNormals(curr_part_);
 	      }
 
-      ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
-        curr_part_->vtx,
-        curr_part_->nrm,
-        NULL,
-        NULL,
-        curr_part_->idx ) ;
-
-      ssgSimpleState* st = createMaterialState(curr_color_, curr_pal_id_) ;
-
-      vtab -> setCullFace ( TRUE ) ;
-      vtab -> setState ( st ) ;
-
-      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
+	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
+						  curr_part_->vtx,
+						  curr_part_->nrm,
+						  NULL,
+						  NULL,
+						  curr_part_->idx ) ;
+	    
+	    ssgSimpleState* st = createMaterialState(curr_color_, 
+						     curr_pal_id_) ;
+	    
+	    vtab -> setCullFace ( TRUE ) ;
+	    vtab -> setState ( st ) ;
+	    
+	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
+	    char lname[5];
+	    sprintf(lname, "%X%X", curr_color_, curr_pal_id_);
+	    leaf -> setName(lname);
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -1124,52 +1151,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
   vertex_array_ -> deRef();
   normal_array_ -> deRef();
 
-  //joinChildren( model_ );
-  
   current_options -> end () ;
 
   return model_;
 }
-
-
-//===========================================================================
-
-/*static void joinChildren(ssgEntity* grp)
-{
-  if ( grp->isAKindOf(ssgTypeBranch()) ) {
-    ssgBranch* b = (ssgBranch*)grp;
-    ssgIndexArray* idx = NULL;
-
-    for (int i = 0; i < b->getNumKids(); i++) {
-      ssgEntity* k = b->getKid(i);
-
-      if ( k->isA(ssgTypeVtxArray()) ) {
-	ssgVtxArray *vtx = (ssgVtxArray*)k;
-	if (vtx->getGLtype() == GL_TRIANGLES) {
-	  if (idx == NULL) {
-	    idx = new ssgIndexArray();
-	  }
-
-	  for (int j = 0; j < vtx->getNumIndices(); j++) {
-	    idx->add(*vtx->getIndex(j));
-	  }
-
-	  b->removeKid(i--);
-	}
-      } else {
-	joinChildren( k );
-      }
-    }
-
-    if (idx != NULL) {
-      ssgVtxArray *v = new ssgVtxArray( GL_TRIANGLES,
-					vertex_array_,
-					normal_array_,
-					tex_coords_,
-					NULL,
-					idx );
-      b->addKid(v);
-    }
-  }
-} 
-*/
