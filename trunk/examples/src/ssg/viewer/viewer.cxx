@@ -69,6 +69,8 @@ Defines what type of arrows to uses with puFileSelector
 2 - Single move and Jump 10 moves
 */
 
+
+
 /*
 scene graph
 */
@@ -96,8 +98,7 @@ animation vars
 static const int speed_tab [] =
 { 0, 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60 };
 
-static int speed_index = 0 ;
-static int anim_delay = -1 ;
+static int speed_index = 1 ;
 static int anim_frame ;
 static int num_anim_frames ;
 
@@ -231,14 +232,25 @@ static void count_anim_frames( ssgEntity *e )
 }
 
 
-static void set_anim_frame( ssgEntity *e )
+
+// You need to have a object with animation loaded into memory for the following function to make sense.
+// Animation can be discreet (in steps) or "smooth" (fluid).
+// If you loaded an animation made of several meshes, it will use a selector and therefore always be "discreet"
+// If you loaded some transformation matrices like some rotations to rotate the flap of a plane,
+// the define DISCREET_STEPS will determine whether the animation is smooth (new code, WK) or 
+// in steps ("old" code, Dave McClurg). 
+//
+// The anim_frame is for discreet animation and an index determining which matrix / which selector will be used.
+//
+// typically, you will call set_anim_frame directly before you call ssgCullAndDraw 
+static void set_anim_frame( ssgEntity *e, int anim_frame )
 {
   if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
     ssgBranch *br = (ssgBranch *) e ;
     
     for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      set_anim_frame ( br -> getKid ( i ) ) ;
+      set_anim_frame ( br -> getKid ( i ), anim_frame ) ;
     
     if ( e -> isAKindOf ( ssgTypeSelector() ) )
     {
@@ -247,48 +259,8 @@ static void set_anim_frame( ssgEntity *e )
       if ( num > 0 )
       {
         int frame = anim_frame ;
-        if ( frame >= num )
-          frame = num-1 ;
+        frame %= num ;
         p -> selectStep ( frame ) ;
-      }
-    }
-    else if ( e -> isAKindOf ( ssgTypeTransform() ) )
-    {
-      ssgBase* data = e -> getUserData () ;
-      if ( data != NULL && data -> isAKindOf ( ssgTypeTransformArray() ) )
-      {
-        ssgTransform* p = (ssgTransform*) e ;
-        ssgTransformArray* ta = (ssgTransformArray*) data ;
-        int num = ta -> getNum () ;
-        if ( num > 0 )
-        {
-#ifdef DISCREET_STEPS
-          int frame = anim_frame ;
-          if ( frame >= num )
-            frame = num-1 ;
-          ta -> selection = frame ;
-          p -> setTransform ( *( ta -> get ( ta -> selection ) ) ) ;
-#else
-          /* fluid motion */
-          int curr_time = glutGet((GLenum)GLUT_ELAPSED_TIME); // in ms
-          int nFrame = curr_time / 1000;
-          int frac = curr_time -1000*nFrame;
-          float tFrame, tFrameP1;
-          tFrame = frac / 1000.0f;
-          tFrameP1 = 1.0 - tFrame;
-          nFrame = nFrame - (num-1) * (nFrame/(num-1));
-          assert(nFrame<num-1);
-          {
-            sgMat4 XForm, *pmFrame;
-            pmFrame = ta -> get ( nFrame );
-            sgMat4 *pmFrameP1 = ta -> get ( nFrame+1 );
-            for(int i=0;i<4;i++)
-              for(int j=0; j<4; j++)
-                XForm[i][j] = tFrame * ((*pmFrame)[i][j]) + tFrameP1 * ((*pmFrameP1)[i][j]);
-            p -> setTransform ( XForm );
-          }
-#end
-        }
       }
     }
   }
@@ -304,13 +276,13 @@ static void set_anim_frame( ssgEntity *e )
       if ( num > 0 )
       {
         int frame = anim_frame ;
-        if ( frame >= num )
-          frame = num-1 ;
+        frame %= num ;
         ss -> selectStep ( frame ) ;
       }
     }
   }
 }
+
 
 
 static int wire_draw ( ssgEntity* e )
@@ -417,6 +389,7 @@ static void reshape ( int w, int h )
 }
 
 
+
 /*
   The GLUT display event
 */
@@ -436,24 +409,18 @@ static void display(void)
   glEnable( GL_DEPTH_TEST ) ;
   
   /*
-  increment the frame counter
+  update virtual time, from "real" time and speed.
   */
   static int last_time = 0;
   int curr_time = glutGet((GLenum)GLUT_ELAPSED_TIME);
-  while (curr_time >= last_time + 1000/60)
-  {
-    last_time += 1000/60;
+  if (last_time != 0)
+    // calculate the "virtual time"  
+    _ssgGlobTime += 0.001f*(curr_time-last_time)*speed_tab[ speed_index ];
 
-    static int anim_time = 0 ;
-    if ( anim_delay != -1 && ++ anim_time >= anim_delay )
-    {
-      if ( ++ anim_frame >= num_anim_frames )
-        anim_frame = 0 ;
-      set_anim_frame ( scene ) ;
-      anim_time = 0 ;
-    }
-  }
-
+  last_time = curr_time;
+  
+  //set_anim_frame ( scene, _ssgGlobTime); // currently not needed by our sample data 
+ 
   /*
   figure out how fast this bus is going
   */
@@ -495,6 +462,7 @@ static void display(void)
   }
   else if ( fps > 0 )
   {
+    
     char buffer [ PUSTRING_MAX ] ;
     text -> begin () ;
     glColor3f ( 0.0f, 0.0f, 0.0f ) ;
@@ -505,9 +473,10 @@ static void display(void)
       text -> puts ( buffer ) ;
     sprintf ( buffer, "anim_speed : %d fps\n", speed_tab[ speed_index ] ) ;
       text -> puts ( buffer ) ;
-    sprintf ( buffer, "time : %-4d, %d\n", curr_time, anim_frame ) ;
+    sprintf ( buffer, "time : %-4d\n", curr_time ) ;
       text -> puts ( buffer ) ;
     text -> end () ;
+    
   }
   
   glColor3f ( 1.0f, 1.0f, 1.0f ) ;
@@ -712,14 +681,6 @@ static void pick_cb ( puObject * )
 }
 
 
-static int get_delay( int speed_index )
-{
-  int fps = speed_tab[ speed_index ] ;
-  if ( fps > 0 )
-    return MAX_SPEED / fps ;
-  return -1 ;
-}
-
 
 /*
   The GLUT keyboard event
@@ -737,12 +698,10 @@ static void keyboard(unsigned char key, int, int)
   case '+':
     if ( speed_tab[ speed_index ] != MAX_SPEED )
       speed_index ++ ;
-    anim_delay = get_delay( speed_index );
     break;
   case '-':
     if ( speed_tab[ speed_index ] != 0 )
       speed_index -- ;
-    anim_delay = get_delay( speed_index );
     break;
   case ' ':
     Ex = 0;
@@ -847,6 +806,8 @@ static void init_graphics ()
   sgVec3 sunposn ;
   sgSetVec3 ( sunposn, 200.0f, -500.0f, 500.0f ) ;
   ssgGetLight ( 0 ) -> setPosition ( sunposn ) ;
+
+
   
   /*
   Set up the path to the data files
