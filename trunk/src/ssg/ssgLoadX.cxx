@@ -574,7 +574,38 @@ static int HandleMesh(const char * sName, const char *firstToken)
 
 //
 	if ( currentState == NULL )
-		currentState = new ssgSimpleState();
+	{	currentState = new ssgSimpleState();
+	  currentState->setOpaque();
+		currentState->disable(GL_BLEND);
+		currentState->disable(GL_ALPHA_TEST);
+		currentState->disable(GL_TEXTURE_2D);
+		currentState->enable(GL_COLOR_MATERIAL);
+		currentState->enable(GL_LIGHTING);
+		currentState->setShadeModel(GL_SMOOTH);
+		currentState->setMaterial(GL_AMBIENT , 0.7f, 0.7f, 0.7f, 1.0f);
+		currentState->setMaterial(GL_DIFFUSE , 0.7f, 0.7f, 0.7f, 1.0f);
+		currentState->setMaterial(GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
+		currentState->setMaterial(GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
+		currentState->setShininess(50);
+/*
+		currentState -> setMaterial ( GL_AMBIENT, 0.5, 0.5, 0.5);
+   	currentState -> setMaterial ( GL_DIFFUSE,  0.7, 0.7, 0.7); // light grey
+		currentState -> setMaterial ( GL_SPECULAR, 1.0, 1.0, 1.0);
+		currentState -> setMaterial ( GL_EMISSION, 0.0, 0.0, 0.0);
+		
+		currentState -> setShininess ( 3 ) ; 
+
+		//currentState -> enable ( GL_COLOR_MATERIAL ) ;
+		//currentState -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
+
+		currentState -> enable  ( GL_LIGHTING       ) ;
+		currentState -> setShadeModel ( GL_SMOOTH ) ;
+
+		currentState -> disable ( GL_BLEND ) ;
+		currentState -> setOpaque () ;
+		currentState -> disable( GL_TEXTURE_2D );
+		*/
+	}
 
 	currentMesh.addToSSG(
 		currentState // Pfusch, kludge. NIV135
@@ -636,7 +667,8 @@ static int parse()
   //int startLevel = parser.level;
 	token = parser.getNextToken(0);
   while (! parser.eof )
-	{ if (firsttime)
+	{ 
+		if (firsttime)
 		{ 
 			if(!HeaderIsValid(token))
 					return FALSE;
@@ -657,6 +689,7 @@ ssgEntity *ssgLoadX ( const char *fname, const ssgLoaderOptions* options )
   ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
   current_options = ssgGetCurrentOptions () ;
 
+	currentState = NULL; 
   top_branch = new ssgBranch ;
 	curr_branch_ = top_branch;
 	if ( !parser.openFile( fname, &parser_spec ))
