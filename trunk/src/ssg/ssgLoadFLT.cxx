@@ -2159,7 +2159,8 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
             char *file = (char *)ptr + 4, *p;
 	    if ((p = strrchr(file, '/')))
 		file = p + 1;
-	    stack[sp] = LoadFLT(file);
+//	    stack[sp] = LoadFLT(file);
+	    stack[sp] = ssgLoad (file);
          }
          ptr += len;
          ptr += AttrChunks(ptr, end, &attr[sp]);
