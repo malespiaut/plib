@@ -32,6 +32,11 @@ pslResult pslContext::step ()
       pc++ ;
       return PSL_PROGRAM_END ;
 
+    case OPCODE_LINE_NUMBER :
+      line_no = code [ pc + 1 ] + ( code [ pc + 2 ] << 8 ) ;
+      pc+=3 ;
+      return PSL_PROGRAM_CONTINUE ;
+
     case OPCODE_PUSH_INT_CONSTANT :
       {
         int ii ;

@@ -124,7 +124,6 @@ The following features are "NOT IMPLEMENTED YET" - but will
 hopefully arrive soon:
 <ul>
   <li> Multiple assignments (eg  x = y = 0 ; )
-  <li> Logic operators "&&", "||".
   <li> Character constants.
   <li> Arrays & Structs.
   <li> Operations on "string" variables.
@@ -152,11 +151,49 @@ that contains the for loop. So:
 WINDOWS USERS BEWARE: PSL IMPLEMENTS THIS CORRECTLY - *NOT* LIKE
 MSVC.
 
-<H3>Hard Limits</H3>
+<H1>Hard Limits</H1>
 Currently there are hard limits in many places - the number of
 variables, the size of the program, the depth of nesting, etc.
 These limits will gradually be removed as PSL is developed.
 
+<H1>Debugging PSL Programs</H1>
+
+Specific PSL-enabled applications may have their own
+special features to assist with debugging - but all
+PSL-enabled applications support several 'shell variables'
+that enable certain debugging features.
+<p>
+When using a command line shell, you can set these
+variables using one of the following commands before
+you run your application:
+<pre>
+    setenv VARIABLE value     -- csh or tcsh
+    export VARIABLE=value     -- bash or sh
+    set VARIABLE=value        -- DOS shell
+</pre>
+<H3> Byte-Code Dump </H3>
+It's possible to view the byte code that PSL generated
+by setting the shell variable 'PSL_DUMP' to either:
+<ul>
+<li> <b>never</b> (the default) -- Never produce a dump unless
+          the application demands it.
+<li> <b>on_error</b> -- Produce a dump whenever the PSL program
+          fails to compile for whatever reason.
+<li> <b>always</b> -- Always produce a dump after the PSL program
+          finishes compiling.
+</ul>
+<H3> Byte-Code Execution Trace </H3>
+It's possible to view the byte code as it's executed
+by setting the shell variable 'PSL_TRACE' to either:
+<ul>
+<li> <b>never</b> (the default) -- Never produce a trace unless
+          the application demands it.
+<li> <b>always</b> -- Always produce a trace.
+</ul>
+When the execution trace is enabled, extra instructions will be
+inserted into the byte code to enable the PSL interpreter to
+produce debug indicating which lines of the source code are
+being traced.
 <hr>
 <address>
 <a href="http://www.sjbaker.org">Steve J. Baker.</a> &lt;<a href="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</a>&gt;</address>

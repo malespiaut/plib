@@ -35,6 +35,7 @@ class pslContext
 
   int num_errors   ;
   int num_warnings ;
+  int line_no      ;
  
   void bumpErrors   () { num_errors++   ; }
   void bumpWarnings () { num_warnings++ ; }
@@ -56,6 +57,9 @@ public:
   }
 
   ~pslContext () {} ;
+
+  int getLineNo () { return line_no ; }
+
 
   void pushInt    ( int              x ) { stack [ sp++ ] . set ( x ) ; }
   void pushFloat  ( float            x ) { stack [ sp++ ] . set ( x ) ; }
@@ -86,6 +90,8 @@ public:
   {
     for ( int i = 0 ; i < MAX_VARIABLE ; i++ )
       variable [ i ] . reset () ;
+
+    line_no = -1 ;
 
     sp = 0 ;
     pc = 0 ;

@@ -50,6 +50,9 @@ pslProgram::pslProgram ( const pslExtension *ext, const char *_prgnm )
 
   force_trace = ( force_trace_env != NULL &&
                   ulStrEqual ( force_trace_env, "always" ) ) ;
+
+  if ( force_trace )
+    compiler -> generateLineNumbers () ;
 }
  
 
