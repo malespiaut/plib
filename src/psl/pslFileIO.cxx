@@ -77,7 +77,7 @@ public:
         fclose ( fd ) ;
     }
 
-    delete fname ;
+    delete [] fname ;
   }
 
   void unGetChar ( int c )
