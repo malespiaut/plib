@@ -1,3 +1,4 @@
+#define FOR_PPE 1
 
 #ifndef _INCLUDED_SSG_H_
 #define _INCLUDED_SSG_H_
@@ -1943,6 +1944,17 @@ public:
       default : break ;
     }
     setup () ;
+  }
+
+  void getColour   ( GLenum which, sgVec4 col )
+  {
+	  switch ( which )
+	  {
+		  case GL_AMBIENT  : sgCopyVec4 ( col , ambient ) ; break ;
+		  case GL_DIFFUSE  : sgCopyVec4 ( col , diffuse ) ; break ;
+		  case GL_SPECULAR : sgCopyVec4 ( col, specular ) ; break ;
+		  default : break ;
+	  }
   }
 
   void setHeadlight ( int head ) { is_headlight = head ; }
