@@ -40,7 +40,7 @@
  */
 
 #ifndef PU_NOT_USING_GLUT
-#  ifdef PU_USING_FREEGLUT
+#  ifdef FREEGLUT_IS_PRESENT
 #    include <GL/freeglut.h>
 #  else
 #    ifdef __APPLE__
