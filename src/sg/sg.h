@@ -1112,7 +1112,7 @@ void sgAngleAxisToQuat ( sgQuat dst,
 /* Convert a matrix to/from a quat */
 
 void sgMatrixToQuat ( sgQuat quat, const sgMat4 m ) ;
-void sgQuatToMatrix ( sgMat4 m, sgQuat quat ) ;
+void sgQuatToMatrix ( sgMat4 m, const sgQuat quat ) ;
 
 /* Convert a set of eulers to/from a quat */
 
@@ -2286,8 +2286,8 @@ void sgdAngleAxisToQuat ( sgdQuat dst,
 
 /* Convert a matrix to/from a quat */
 
-void sgdMatrixToQuat ( sgdQuat quat, sgdMat4 m ) ;
-void sgdQuatToMatrix ( sgdMat4 m, sgdQuat quat ) ;
+void sgdMatrixToQuat ( sgdQuat quat, const sgdMat4 m ) ;
+void sgdQuatToMatrix ( sgdMat4 m, const sgdQuat quat ) ;
 
 /* Convert a set of eulers to/from a quat */
 
