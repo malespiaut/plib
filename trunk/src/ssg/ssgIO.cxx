@@ -220,7 +220,7 @@ int _ssgStrNEqual ( const char *s1, const char *s2, int len )
 
   if ( l1 > len ) l1 = len ;
 
-  if ( l2 < l1 )
+  if ( l2 < l1 || l1 < len )
     return FALSE ;
 
   for ( int i = 0 ; i < l1 ; i++ )
@@ -430,18 +430,20 @@ struct _ssgFileFormat
 
 static _ssgFileFormat formats[] =
 {
-  { ".3ds", ssgLoad3ds , NULL       },
-  { ".ac" , ssgLoadAC3D, ssgSaveAC  },
-  { ".ase", ssgLoadASE , ssgSaveASE },
-  { ".dxf", ssgLoadDXF , ssgSaveDXF },
-  { ".obj", ssgLoadOBJ , ssgSaveOBJ },
-  { ".ssg", ssgLoadSSG , ssgSaveSSG },
-  { ".tri", ssgLoadTRI , ssgSaveTRI },
-  { ".wrl", ssgLoadVRML, NULL       },
-  { ".md2", ssgLoadMD2 , NULL       },
-  { ".mdl", ssgLoadMDL , NULL       },
-  { ".x"  , ssgLoadX   , ssgSaveX   },
-  { ".flt", ssgLoadFLT , NULL       },
+  { ".3ds",   ssgLoad3ds  , NULL       },
+  { ".ac" ,   ssgLoadAC3D , ssgSaveAC  },
+  { ".ase",   ssgLoadASE  , ssgSaveASE },
+  { ".dxf",   ssgLoadDXF  , ssgSaveDXF },
+  { ".obj",   ssgLoadOBJ  , ssgSaveOBJ },
+  { ".ssg",   ssgLoadSSG  , ssgSaveSSG },
+  { ".tri",   ssgLoadTRI  , ssgSaveTRI },
+  { ".wrl",   ssgLoadVRML , NULL       },
+  { ".md2",   ssgLoadMD2  , NULL       },
+  { ".mdl",   ssgLoadMDL  , NULL       },
+  { ".x"  ,   ssgLoadX    , ssgSaveX   },
+  { ".flt",   ssgLoadFLT  , NULL       },
+  { ".strip", ssgLoadStrip, NULL       },
+  { ".m"  ,   ssgLoadM    , ssgSaveM   },
   { NULL  , NULL       , NULL       }
 } ;
 
@@ -471,6 +473,7 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
 
   for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
     if ( f->loadfunc != NULL &&
+	 //_ssgStrEqual ( extn, f->extension ) )
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
       return f->loadfunc( fname, options ) ;
 
