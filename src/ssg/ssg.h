@@ -484,6 +484,10 @@ public:
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
+  void   set ( float x, float y, float z, unsigned int n )
+  { sgVec3 tmp = { x, y, z } ; raw_set ( (char *) tmp, n ) ; } ;
+  void   add ( float x, float y, float z )
+  { sgVec3 tmp = { x, y, z } ; raw_add ( (char *) tmp ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual const char *getTypeName(void) ;
 } ;
@@ -502,6 +506,10 @@ public:
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
+  void   set ( float x, float y, float z, unsigned int n )
+  { sgVec3 tmp = { x, y, z } ; raw_set ( (char *) tmp, n ) ; } ;
+  void   add ( float x, float y, float z )
+  { sgVec3 tmp = { x, y, z } ; raw_add ( (char *) tmp ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual const char *getTypeName(void) ;
 } ;
@@ -520,6 +528,10 @@ public:
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec2   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec2   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
+  void   set ( float u, float v, unsigned int n )
+  { sgVec2 tmp = { u, v } ; raw_set ( (char *) tmp, n ) ; } ;
+  void   add ( float u, float v )
+  { sgVec2 tmp = { u, v } ; raw_add ( (char *) tmp ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual const char *getTypeName(void) ;
 } ;
@@ -538,6 +550,10 @@ public:
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( sgVec4   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
+  void   set ( float r, float g, float b, float a, unsigned int n )
+  { sgVec4 tmp = { r,g,b,a } ; raw_set ( (char *) tmp, n ) ; } ;
+  void   add ( float r, float g, float b, float a )
+  { sgVec4 tmp = { r,g,b,a } ; raw_add ( (char *) tmp ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual const char *getTypeName(void) ;
 } ;
