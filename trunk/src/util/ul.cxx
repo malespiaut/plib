@@ -29,6 +29,8 @@
 
 #if defined(__CYGWIN__) || !defined(WIN32)
 #include <dirent.h>
+#elif defined(_MSC_VER)
+#include <direct.h>
 #endif
 
 
@@ -445,8 +447,10 @@ int ulIsAbsolutePathName ( const char *pathname )
     Is this an absolute pathname or a relative one?
   */
  
+	if ( (pathname == NULL) || (pathname [0] == 0) )
+		return FALSE;
+
 #if defined(WIN32)
-  char drive_letter = pathname[0] ;
  
   /*
     Under WinDOS, it's an absolute path if it starts
@@ -454,16 +458,22 @@ int ulIsAbsolutePathName ( const char *pathname )
     a colon and a slash.
   */
 
-  return pathname [0] == SLASH ||
-         (
-           (
-             ( drive_letter >= 'a' && drive_letter <= 'z' ) ||
-             ( drive_letter >= 'A' && drive_letter <= 'Z' )
-           ) &&
-           pathname[1] == ':' &&
-           pathname[2] == SLASH 
-         ) ;
-#else
+  if ( pathname [0] == SLASH || pathname [0] == '\\')
+		return TRUE;
+	if ( pathname[1] == 0 || pathname[2] == 0)
+		return FALSE;
+  char drive_letter = pathname[0] ;
+  return( (
+						 ( drive_letter >= 'a' && drive_letter <= 'z' ) ||
+						 ( drive_letter >= 'A' && drive_letter <= 'Z' )
+					 ) &&
+					 pathname[1] == ':' &&
+					 ( pathname[2] == SLASH || pathname [2] == '\\')
+				 ) ;
+#elif defined(macintosh)
+	  return (pathname [0] != ':' && NULL != strchr( pathname, ':'));
+#else 
+
   return pathname [0] == SLASH ;
 #endif
 }
@@ -476,11 +486,8 @@ char *ulGetCWD ( char *result, int maxlength )
     has enough space for 'maxlength-1' characters and a '\0'.
   */
 
-#if defined(WIN32)
-  /*
-    Dunno if Windoze has this but...
-  */
-  return getcwd ( result, maxlength ) ;
+#if defined(_MSC_VER)
+  return _getcwd ( result, maxlength ) ;
 #else
   return getcwd ( result, maxlength ) ;
 #endif
