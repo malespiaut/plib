@@ -41,8 +41,8 @@ The PUI FAQ list is <a href="FAQ.html">here</a>.
 <p>
 
 Like most similar GUI's (MUI, Xforms, FLTK, GLUI, etc), PUI is comprised
-of a base class (puObject) from which all the interesting widgets are derived.
-Most of the packages functionality is concentrated in the puObject class.
+of a base class (<a href="#puObject">puObject</a>) from which all the interesting widgets are derived.
+Most of the packages functionality is concentrated in the <a href="#puObject">puObject</a> class.
 <h2>
 Contributions</h2>
 <a href="mailto:mdanks@Stormfront.com">Mark Danks</a> contributed code for making PUI run without GLUT under Win32,
@@ -52,7 +52,7 @@ Contributions</h2>
 He also fixed a number of bug fixes.
 <p>
 
-Dave McClurg added the puListBox and puFilePicker widgets.
+Dave McClurg added the <a href="#puListBox">puListBox</a> and <a href="#puFilePicker">puFilePicker</a> widgets.
 <p>
 
 John Fay added a few widgets and other things and reworked this
@@ -79,6 +79,7 @@ Non-class functions:</h3>
 <td>
 <ul>
   <li>  <a href="#puFont">puFont</a>  </li> 
+  <li>  <a href="#puObject">puObject</a>  </li>
   <li>  <a href="#puButton">puButton</a>  </li> 
   <li>  <a href="#puArrowButton">puArrowButton</a>  </li> 
   <li>  <a href="#puOneShot">puOneShot</a>  </li> 
@@ -120,6 +121,7 @@ Non-class functions:</h3>
   <li>  <a href="#puShowCursor">puShowCursor</a>  </li> 
   <li>  <a href="#ActiveWidgetFunctions">puActiveWidget</a>  </li> 
   <li>  <a href="#CutAndPaste">Cutting and Pasting</a> </li>
+  <li>  <a href="#Misc">Miscellany</a>  </li>
 </ul>
 </td>
 </tr>
@@ -148,10 +150,10 @@ LABEL : This is a text string that resudes outside the widget's active
 area.</li>
 
 <li>
-VALUE : All puObjects have a current 'value' which can be read or written
+VALUE : All <a href="#puObject">puObjects</a> have a current 'value' which can be read or written
 as an integer, float or string. The exact meaning of this value may vary
 from widget to widget. For some widget types, the value has no meaning
-at all (eg a puFrame) - although it is always available to be set and read
+at all (eg a <a href="#puFrame">puFrame</a>) - although it is always available to be set and read
 by the application. The manner in which the value of a widget is displayed
 (if at all) varies from widget to widget.</li>
 
@@ -162,8 +164,8 @@ it does.</li>
 
 <li>
 BBOX : The Bounding Box - A rectangular region that surrounds the pixels
-drawn by the widget. This is typically the ABOX - extended in one direction
-to include the LABEL string.</li>
+drawn by the widget. This is typically the ABOX - extended to include
+the LABEL string.</li>
 
 <li>
 STRING : PUI recognizes only the printable ASCII set plus space and newline.</li>
@@ -217,7 +219,7 @@ void displayfn ()
   glutPostRedisplay () ;
 }
 
-void button_cb ( puObject * )
+void button_cb ( <a href="#puObject">puObject</a> * )
 {
   fprintf ( stderr, "Hello World.\n" ) ;
 }
@@ -233,14 +235,14 @@ int main ( int argc, char **argv )
   glutMouseFunc       ( mousefn   ) ;
   glutMotionFunc      ( motionfn  ) ;
 
-  <a href="#puInit">puInit () ;
+  <a href="#puInit">puInit () ;</a>
 
-</a>  <a href="#puOneShot">puOneShot *b = new puOneShot ( 50, 50, 200, 80 ) ;
+  <a href="#puOneShot">puOneShot *b = new puOneShot ( 50, 50, 200, 80 ) ;</a>
 
   b -> setLegend   ( "Say Hello" ) ;
   b -> setCallback ( button_cb ) ;
 
-</a>  glutMainLoop () ;
+  glutMainLoop () ;
 
   return 0 ;
 }</pre>
@@ -251,7 +253,7 @@ PUI menus.
 <p>
 
 The needs of PUI are small - as a minimum, call the <a href="#puMouse">puMouse</a>
-function whenever the mouse is clicked or dragged, call the puKeyboard
+function whenever the mouse is clicked or dragged, call the <a href="#puKeyboard">puKeyboard</a>
 function whenever a key is pressed, call the <a href="#puDisplay">puDisplay</a>
 function frequently enough to maintain smooth interactions.
 <p>
@@ -273,14 +275,13 @@ from the lower left-hand corner of the window.  There are a few recommended
 practices when using PUI in connection with multiple windows:
 <ul>
 <li>
-Make the first widget in a new window a "puGroup" widget and place all
+Make the first widget in a new window a <a href="#puGroup">puGroup</a> widget and place all
 of that window's widgets in that group.  This is simply good organization.</li>
 
 <li>
-Do not place widgets that are displayed in one window under a "puGroup"
-widget that is displayed in another window.  PUI has a "puDisplay"
-function that will redraw only the widgets in a single window, but it does
-not work if widgets in one window are part of another window's group.</li>
+Do not place widgets that are displayed in one window under a <a href="#puGroup">puGroup</a>
+widget that is displayed in another window.  That only works with recent
+PLIB versions and is simply not recommended.</li>
 
 <li>
 If the user will be able to reshape the window, include a window reshape
@@ -314,22 +315,22 @@ A simple GLUT mouse function that does this is as follows:
 <pre>
   static void mousefn ( int button, int updown, int x, int y )
   {
-    if ( !puMouse ( button, updown, x, y ) )
+    if ( !<a href="#puMouse">puMouse</a> ( button, updown, x, y ) )
     {
       // PUI didn't take the mouseclick, try the main window
       mouse_x = x ;
       mouse_y = puGetWindowHeight () - y ;
       // Check for an active widget.
       //  If there is one, call its active callback
-      if ( puActiveWidget () )
-        puActiveWidget () -> invokeActiveCallback () ;
+      if ( <a href="#ActiveWidgetFunctions">puActiveWidget</a> () )
+        <a href="#ActiveWidgetFunctions">puActiveWidget</a> () -> invokeActiveCallback () ;
    }
 
    glutPostRedisplay () ;
  }
 </pre>
-First the mouse function calls "puMouse" to see if the user clicked
-on a new PUI widget.  If the user did not, "puMouse" returns FALSE
+First the mouse function calls <a href="#puMouse">puMouse</a> to see if the user clicked
+on a new PUI widget.  If the user did not, <a href="#puMouse">puMouse</a> returns FALSE
 and the function executes the contents of the if-block.  It saves
 the mouse coordinates in a pair of global variables and, if there is an
 active widget, it invokes the active widget's active callback.  This
@@ -349,7 +350,7 @@ Pick a default colour with an alpha component of about 0.4f.</li>
 <li>
 Be sure to glEnable(GL_BLEND) and set up the appropriate blend functions.
 I use glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA) and glAlphaFunc(GL_GREATER,0.1f)
-- call these just before puDisplay().</li>
+- call these just before <a href="#puDisplay">puDisplay</a>().</li>
 
 <li>
 Now, is that cool or what?</li>
@@ -475,14 +476,14 @@ the puObject base class:
   #define PUCLASS_LARGEINPUT
 
 </pre>
-Hence, if you declare an object of (say) class puOneShot, then calling
+Hence, if you declare an object of (say) class <a href="#puOneShot">puOneShot</a>, then calling
 getType() for that object would return
 <pre>   PUCLASS_VALUE | PUCLASS_OBJECT | PUCLASS_BUTTON | PUCLASS_ONESHOT</pre>
-(since a puOneShot is a kind of puButton which is a kind of puObject which
+(since a <a href="#puOneShot">puOneShot</a> is a kind of <a href="#puButton">puButton</a> which is a kind of puObject which
 is [although not documented that way here] a kind of puValue).
 <p>
 For the purposes of printing diagnostics, etc there is also:
-<pre>  char *puObject::getTypeString() ;
+<pre>  const char *puObject::getTypeString() ;
 
 </pre>
 ...which returns a pointer to a statically allocated string which is the
@@ -510,7 +511,7 @@ the value of the widget:
 <pre>  void  puObject::clrValue () ;
   void  puObject::setValue ( int   i ) ;
   void  puObject::setValue ( float f ) ;
-  void  puObject::setValue ( char *s ) ;
+  void  puObject::setValue ( const char *s ) ;
 
   void  puObject::getValue ( int   *i ) ;
   void  puObject::getValue ( float *f ) ;
@@ -534,7 +535,7 @@ to.
 value can also be set and read:
 <pre>  void puObject::setDefaultValue ( int    i ) ;
   void puObject::setDefaultValue ( float  f ) ;
-  void puObject::setDefaultValue ( char  *s ) ;
+  void puObject::setDefaultValue ( const char  *s ) ;
 
   void puObject::getDefaultValue ( int   *i ) ;
   void puObject::getDefaultValue ( float *f ) ;
@@ -576,10 +577,10 @@ can retrieve:
 
 </pre>
 These routines will always return NULL unless the widget is a member
-of a <a href="#puGroup">puGroup</a>. If the widget is a child of a <a href="#puGroup">puGroup</a>,
+of a <a href="#puGroup">puGroup</a>. If the widget is a child of a puGroup,
 the functions will return a pointer to the previous or the next object
 in the puGroup according to the order of the child widgets' creation.
-If the object is the first child inside a puGroup, getPrevObject returns
+If the object is the first child inside the puGroup, getPrevObject returns
 NULL, if it is the last one, getNextObject will return a NULL pointer
 as well.
 <p>
@@ -587,7 +588,7 @@ Normally, these functions are only used by PUI, although a programmer
 may find it useful to iterate over the childs of a <a href="#puGroup">puGroup</a> himself.
 <p>
 There is another function which returns the <a href="#puGroup">puGroup</a> in which a puObject
-resides or NULL if the widget is not in a <a href="#puGroup">puGroup</a>:
+resides or NULL if the widget is not in a group:
 <pre>  puGroup * puObject::getParent ( void ) ;
 
 </pre>
@@ -647,7 +648,7 @@ and to the right to make it look like it has been raised off of the page.</li>
 <li>
 PUSTYLE_RADIO - The bounding rectangle and the legend text isn't drawn
 at all - the widget is drawn as a small diamond shape which is filled in
-when the object has a non-zero value. This is only useful for puButton
+when the object has a non-zero value. This is only useful for <a href="#puButton">puButton</a>
 widgets.</li>
 </ul>
 In case of PUSTYLE_BOXED and PUSTYLE_SPECIAL_UNDERLINED, you can alter
@@ -712,8 +713,9 @@ the widget.</li>
 <li>
 PUCOL_MISC - This colour is used for miscellaneous things in some
 classes. Currently, it indicates the colour of the arrow inside a
-<a href="#puArrowButton">puArrowButton</a>, and it is used while drawing the circle of a <a href="#puDial">puDial</a>
-widget.</li>
+<a href="#puArrowButton">puArrowButton</a>, and it is used while drawing the circle that is
+inscribed in a <a href="#puDial">puDial</a> or the text cursor in the <a href="#puInput">puInput</a>
+and <a href="#puLargeInput">puLargeInput</a> widgets.
 </ul>
 <p>
 Picking all of the individual colours for each widget can be tedious,
@@ -727,9 +729,9 @@ need to set the colours individually.
 
 </pre>
 Please note that these routines only affect the appearance of the widget
-itself in case of widgets that contain subwidgets (currently <a href="#puDialogBox">puDialogBox</a>,
-<a href="#puFileSelector">puFileSelector</a>, <a href="#puLargeInput">puLargeInput</a>, <a href="#puMenuBar">puMenuBar</a>, <a href="#puPopup">puPopup</a>, <a href="#puPopupMenu">puPopupMenu</a>,
-<a href="#puVerticalMenu">puVerticalMenu</a> and the obsolete <a href="#puFilePicker">puFilePicker</a> class).
+itself in case of classes that contain subwidgets and are not menu
+widgets (currently <a href="#puFileSelector">puFileSelector</a>, <a href="#puLargeInput">puLargeInput</a> and the obsolete
+<a href="#puFilePicker">puFilePicker</a> class).
 <p>
 However, these classes are all derived directly or indirectly from
 <a href="#puGroup">puGroup</a>, and thus you can use the appropiate <a href="#puGroup">puGroup</a> functions in
@@ -825,11 +827,11 @@ choose where the LABEL is placed relative to the active area of the widget.
 You can also move the LEGEND text around inside the widget.
 <pre>
 
-  void   puObject::setLegend ( char *str ) ;
-  void   puObject::setLabel  ( char *str ) ;
+  void   puObject::setLegend ( const char *str ) ;
+  void   puObject::setLabel  ( const char *str ) ;
 
-  char  *puObject::getLegend () ;
-  char  *puObject::getLabel  () ;
+  const char *puObject::getLegend () ;
+  cobst char *puObject::getLabel  () ;
 
   void   puObject::setLegendFont ( puFont font ) ;
   void   puObject::setLabelFont  ( puFont font ) ;
@@ -960,10 +962,13 @@ a one-shot behaviour by resetting the value to '0' in the buttons callback
 class for this).
 <pre>
 
-  puButton::puButton ( int minx, int miny, char *legend ) ;
+  puButton::puButton ( int minx, int miny, const char *legend ) ;
   puButton::puButton ( int minx, int miny, int maxx, int maxy ) ;
 
 </pre>
+Where the first constructor sets the button's size automatically
+according to the size of the 'legend' string.
+<p>
 Apart from these convenient short-hand constructor functions, puButtons
 have no special API - everything they need is in the <a href="#puObject">puObject</a>
 API.
@@ -1023,10 +1028,10 @@ puSlider class is derived from
 <a href="#puObject">puObject</a>. It implements
 a slider widget. When clicked, dragged or unclicked its value changes in
 proportion to where it is clicked. For the value (as returned by
- <a href="#puObject">puObject</a>::getValue(float
+puObject::<a href="#getValue">getValue</a>(float
 *f)  ) ranges from 0.0 to 1.0 from the left to the right (or from the
 bottom to the top). The application can change the position of the slider
-using  <a href="#puObject">puObject</a>::setValue(float f)  with
+using puObject::<a href="#getValue">setValue</a>(float f)  with
 a number in the range 0.0 to 1.0.
 <pre>
 
@@ -1086,7 +1091,7 @@ This returns TRUE for Vertical sliders - FALSE for Horizontal ones.
 <h3>
 puDial</h3>
 <img SRC="puDial.png" ALT="view of puDial widget" height=127 width=188 align=RIGHT>The
-puDial class is derived from puSlider and implements a square widget
+puDial class is derived from <a href="#puSlider">puSlider</a> and implements a square widget
 with a circle inscribed in it. 
 A radius of the circle is also drawn.  The value of the widget is
 proportional to the angle the radius makes with the vertical
@@ -1129,7 +1134,7 @@ call:
   puBiSlider::puBiSlider ( int minx, int miny, int sz, int vertical = FALSE ) ;
 
 </pre>
-The puBiSlider differs from the puSlider in that the values of the slider
+The puBiSlider differs from the <a href="#puSlider">puSlider</a> in that the values of the slider
 boxes are integers and you can set the minimum and maximum values that
 they can take:
 <pre>
@@ -1179,7 +1184,7 @@ the following call:
 The third box in the puTriSlider stores its value in the widget's value. 
 You can set and retrieve the absolute minimum and maximum values that the
 widget boxes can take, and you can set and retrieve the current minimum
-and maximum values in the same way that you do with the puBiSlider. 
+and maximum values in the same way that you do with the <a href="#puBiSlider">puBiSlider</a>.
 You can set and retrieve the value of the middle box by using the "<a href="#getValue">setValue</a>"
 and "<a href="#getValue">getValue</a>" functions.
 <p>
@@ -1275,7 +1280,7 @@ of those entities:
 
 </pre>
 Since a puInput uses the normal value getting and setting functions of
-puObject, you are limited to PUSTRING_MAX characters (currently 80).
+<a href="#puObject">puObject</a>, you are limited to PUSTRING_MAX characters (currently 80).
 <p>
 When typing into a puInput box, the Backspace, Delete, Home, End, Left
 and Right Arrows, Space, Return, Tab, Esc and ^U keys have the expected
@@ -1286,8 +1291,8 @@ If you want to restrict the characters that the input widget will accept,
 you use the following functions:
 <pre>
 
-  void  puInput::setValidData ( char *data ) ;  /* Sets list of valid characters to argument string */
-  void  puInput::addValidData ( char *data ) ;  /* Appends argument string to list of valid characters */
+  void  puInput::setValidData ( const char *data ) ;  /* Sets list of valid characters to 'data' */
+  void  puInput::addValidData ( const char *data ) ;  /* Appends 'data' to list of valid characters */
   char *puInput::getValidData () ;              /* Returns pointer to list of valid characters */
   int   puInput::isValidCharacter ( char c ) ;  /* Returns 1 if character is valid and 0 if not */
 
@@ -1321,7 +1326,7 @@ sliders of "sl_width" pixels wide, and with "arrows" pairs of up- and down-arrow
 on the right-hand slider.  Allowed values for "arrows" are 0, 1, and
 2.
 <p>
-The following functionality from the puInput widget is also implemented
+The following functionality from the <a href="#puInput">puInput</a> widget is also implemented
 in the puLargeInput widget:
 <pre>
 
@@ -1335,8 +1340,8 @@ in the puLargeInput widget:
   void puLargeInput::setSelectRegion ( int  start, int  end ) ;
   void puLargeInput::getSelectRegion ( int *start, int *end ) ;
 
-  void  puLargeInput::setValidData ( char *data ) ;  /* Sets list of valid characters to argument string */
-  void  puLargeInput::addValidData ( char *data ) ;  /* Appends argument string to list of valid characters */
+  void  puLargeInput::setValidData ( const char *data ) ;  /* Sets list of valid characters to 'data' */
+  void  puLargeInput::addValidData ( const char *data ) ;  /* Appends 'data' to list of valid characters */
   char *puLargeInput::getValidData () ;              /* Returns pointer to list of valid characters */
   int   puLargeInput::isValidCharacter ( char c ) ;  /* Returns 1 if character is valid and 0 if not */
 
@@ -1345,11 +1350,11 @@ Besides the obvious methods of typing or erasing, you can add text to and
 remove text from the widget using the following calls:
 <pre>
 
-  void  puLargeInput::setText ( char *l ) ;  /* Erases current text and copies input string to text */
-  char *puLargeInput::getText ( void ) ;     /* Returns the pointer to the text string */
-  void  puLargeInput::addNewLine ( char *l ) ;  /* Inserts input string at start of next line after cursor */
-  void  puLargeInput::addText ( char *l ) ;  /* Inserts input string at cursor position */
-  void  puLargeInput::appendText ( char *l ) ;  /* Adds input string to the end of text */
+  void  puLargeInput::setText ( const char *l ) ;  /* Erases current text and copies input string to text */
+  char *puLargeInput::getText ( void ) ;           /* Returns the pointer to the text string */
+  void  puLargeInput::addNewLine ( const char *l ) ;  /* Inserts input string at start of next line after cursor */
+  void  puLargeInput::addText ( const char *l ) ;     /* Inserts input string at cursor position */
+  void  puLargeInput::appendText ( const char *l ) ;  /* Adds input string to the end of text */
   void  puLargeInput::removeText ( int start, int end ) ;  /* Removes the text between character positions */
 
 </pre>
@@ -1371,7 +1376,10 @@ Additionally, you can let a puLargeInput widget reject all input, which is usefu
 
   void puLargeInput::enableInput () ;
   void puLargeInput::disableInput () ;
-  int  puLargeInput::inputDisabled () ; /* Returns FALSE if the text can be modifed and TRUE if it can not */
+  int  puLargeInput::inputDisabled () ;
+
+  where:
+    inputDisabled() retuns FALSE if the text can be modifed and TRUE if it can not.
 
 </pre>
 puLargeInput widgets do not have a legend.
@@ -1385,7 +1393,7 @@ is about to exit anyway).  This is because PUI keeps a list of puGroup
 widgets on a stack, and attempting to delete a puGroup from the middle
 of the stack will cause an error.
 <p>
-The purpose of a puGroup is allow you to group together other <a href="#puObject">puObject</a>s
+The purpose of a puGroup is to allow you to group together other <a href="#puObject">puObjects</a>
 and to operate on them en-masse.
 <p>
 When you want to create a group of <a href="#puObject">puObjects</a>
@@ -1405,8 +1413,8 @@ Widgets can even be added later, and you can remove a child from a
 puGroup:
 <pre>
 
-  void puGroup::add ( puObject *object ) ;
-  void puGroup::remove ( puObject *object ) ;
+  void puGroup::add ( <a href="#puObject">puObject</a> *object ) ;
+  void puGroup::remove ( <a href="#puObject">puObject</a> *object ) ;
 
 </pre>
 Where 'object' is either a pointer to a new widget which should be added
@@ -1419,11 +1427,11 @@ if the group is empty):
 <pre>
 
   int puGroup::getNumChildren ( void ) ;
-  puObject * puGroup::getFirstChild ( void ) ;
+  <a href="#puObject">puObject</a> * puGroup::getFirstChild ( void ) ;
 
 </pre>
-Doing a puObject::hide() on a puGroup will hide all the objects inside
-the puGroup. Doing a puObject::greyout() on a puGroup prevents anything
+Doing a <a href="#puObject">puObject</a>::hide() on a puGroup will hide all the objects inside
+the puGroup. Doing a <a href="#puObject">puObject</a>::greyout() on a puGroup prevents anything
 inside that group from being clicked.
 <p>
 A puGroup can be put into "floating" state, meaning that the user can
@@ -1439,7 +1447,7 @@ drag it around with the right mouse button pressed:
 </pre>
 By default, floating is not enabled.
 <p>
-Colours, styles, etc are NOT propagated from puGroup to its children,
+Colours, styles, etc are <b>not</b> propagated from puGroup to its children,
 although there are six functions which allow you to change the
 appearances of the child widgets on a per-child-class basis:
 <pre>
@@ -1501,7 +1509,7 @@ The puInterface class is derived from <a href="#puGroup">puGroup</a>. This
 class is another abstract class - application programs should not declare
 puInterface objects.
 <p>
-The difference between a simple puGroup and a puInterface is that when
+The difference between a simple <a href="#puGroup">puGroup</a> and a puInterface is that when
 an interface is enabled, it takes priority over other widgets so that they
 cannot be clicked upon. Widgets such as popup menus are typically puInterfaces
 which group a number of
@@ -1514,12 +1522,11 @@ the application generates that are not grouped into other puInterfaces.
 <h3>
 puButtonBox</h3>
 <img SRC="puButtonBox.png" ALT="view of puButtonBox widget" height=127 width=188 align=RIGHT>The
-puButtonBox class is derived from <a href="#puInterface">puInterface</a>.
-It is designed to automatically generate a number of 'radio' buttons with
-a handful of member function calls and a single callback function. It can
-optionally manage the problem of ensuring that exactly one of the buttons
-is depressed at all times, or it can allow multiple buttons to be active
-at the same time.
+puButtonBox class is derived from <a href="#puObject">puObject</a>.
+It automatically generates a number of 'radio' buttons in it's draw
+function and has single callback function. It can optionally manage the
+problem of ensuring that exactly one of the buttons is depressed at all
+times, or it can allow multiple buttons to be active at the same time.
 <pre>
 
   puButtonBox::puButtonBox ( int minx, int miny, int maxx, int maxy,
@@ -1530,8 +1537,8 @@ The 'labels' parameter is a NULL-terminated array of pointers-to-strings
 containing the labels for each of the radio-buttons. These are drawn in
 order from top to bottom of the Button Box.
 <p>
-Like most other puObjects, puButtonBox has a 'value' that can be set
-using puObject::setValue(int i) and read using puObject::getValue(). If
+Like most other <a href="#puObject">puObjects</a>, puButtonBox has a 'value' that can be set
+using puObject::<a href="#getValue">setValue</a>(int i) and read using puObject::<a href="#getValue">getValue</a>(). If
 'one_button' is set TRUE then the puButtonBox will use its value as the
 index of the radio-button that is currently pressed. If 'one_button' is
 FALSE then the puButtonBox will limit the number of buttons to 32 and use
@@ -1560,8 +1567,8 @@ puPopup</h3>
 The puPopup class is derived from <a href="#puInterface">puInterface</a>.
 Its function is to pop up a bunch of other widgets on command.
 <p>
-One significant difference between puPopups and other puObjects is that
-it starts off hidden (puObject::isVisible()==FALSE) - and the application
+One significant difference between puPopups and other <a href="#puObject">puObjects</a> is that
+it starts off hidden (<a href="#puObject">puObject</a>::isVisible()==FALSE) - and the application
 (or some other widget) has to make it visible in order for it to DO something.
 <p>
 It's possible to use a puPopup to create a popup menu, as a part of
@@ -1584,31 +1591,31 @@ Here is a simple example where a callback function wants to tell the user
 that its code hasn't been written yet...
 <pre>
 
-<a href="#puDialogBox">puDialogBox *dialog_box = NULL ; </a>
+puDialogBox *dialog_box = NULL ;
 
-void go_away_callback ( puObject * )
+void go_away_callback ( <a href="#puObject">puObject</a> * )
 {
   delete dialog_box ;
   dialog_box = NULL ;
 }
 
-void make_dialog ( char *txt )
+void make_dialog ( const char *txt )
 {
   if ( dialog_box != NULL )
     return ;
 
-  <a href="#puDialogBox">dialog_box = new puDialogBox ( 50, 50 ) ;
-</a>  {
-    <a href="#puFrame">new puFrame ( 0, 0, 400, 100 ) ;
-</a>    <a href="#puText">new puText  ( 10, 70 ) -> setLabel ( txt ) ;
+  dialog_box = new puDialogBox ( 50, 50 ) ;
+  {
+    <a href="#puFrame">new puFrame ( 0, 0, 400, 100 ) ;</a>
+    <a href="#puText">new puText  ( 10, 70 ) -> setLabel ( txt ) ;</a>
 
-</a>    <a href="#puOneShot">puOneShot *ok = new puOneShot ( 180, 10, "OK" ) ;
+    <a href="#puOneShot">puOneShot *ok = new puOneShot ( 180, 10, "OK" ) ;</a>
     ok -> makeReturnDefault ( TRUE ) ;
     ok -> setCallback       ( go_away_callback ) ;
-</a>  }
-  <a href="#puDialogBox">dialog_box -> close  () ;
+  }
+  dialog_box -> close  () ;
   dialog_box -> reveal () ;
-</a>}
+}
 
 void not_implemented_yet_callback ( <a href="#puObject">puObject</a> * )
 {
@@ -1617,13 +1624,14 @@ void not_implemented_yet_callback ( <a href="#puObject">puObject</a> * )
 
 </pre>
 When 'not_implemented_yet_callback' is called (presumably from another
-puObject), it calls 'make_dialog' to construct and activate a suitable
+<a href="#puObject">puObject</a>), it calls 'make_dialog' to construct and activate a suitable
 dialog box object.
 <p>
 This causes the dialog box to pop up onto the screen. When the 'OK'
-button is pressed (or the RETURN key is hit - since the button has makeReturnDefault(TRUE)
-set), the 'go_away_callback' is called - which deletes the dialog box (which
-in turn causes the destruction of all the contents of that box).
+button is pressed (or the RETURN key is hit - since the button has
+<a href="#puObject">puObject</a>::makeReturnDefault(TRUE) set), the 'go_away_callback' is called
+- which deletes the dialog box (which in turn causes the destruction of
+all the contents of that box).
 <p>
 <a NAME="puPopupMenu"></a>
 <h3>
@@ -1631,25 +1639,38 @@ puPopupMenu</h3>
 <img SRC="puPopupMenu.png" ALT="view of puPopupMenu widget" height=127 width=88 align=RIGHT>The
 puPopupMenu class is derived from <a href="#puPopup">puPopup</a>. It's
 designed for the specific purpose of building a simple popup menu - which
-is actualy implemented as a stack of buttons (puOneShot's actually) with
+is actualy implemented as a stack of buttons (<a href="#puOneShot">puOneShot's</a> actually) with
 callbacks.
 <p>
-To create the puPopupMenu object:
+First, create the puPopupMenu object:
 <pre>
 
-   puPopupMenu::puPopupMenu ( int x, int y, char *legends[], puCallback cb[] ) ;
+   puPopupMenu::puPopupMenu ( int x, int y ) ;
 
 </pre>
-The individual items in the menu are set up in a pair of NULL-terminated
-arrays. The 'legends' array lists the strings that will appear in the menu
-and the 'cb' array is the corresponding callback that will be made if that
-menu item is clicked. (Both arrays should be NULL terminated but the puCallback
-array can have other NULL pointers indicating items that have no action
-when clicked upon).
+Afterwards, each item is added:
+<pre>
+
+   <a href="#puObject">puObject</a> *puPopupMenu::add_item ( const char *str, puCallback cb ) ;
+
+</pre>
+Where 'str' is the string that will appear in the menu and 'cb' is the
+corresponding callback that will be made if that menu item is clicked,
+or NULL in order to indicate items that should not have an action
+when clicked upon.
 <p>
 Each item that you add will be translated into an appropriately sized,
-styled and coloured puOneShot (which is only visible to the application
-when passed to the callback function).
+styled and coloured <a href="#puOneShot">puOneShot</a>. The add_item() function returns a
+pointer to the newly created <a href="#puOneShot">puOneShot</a> casted into a <a href="#puObject">puObject</a>.
+<p>
+Since puPopupMenu is derived from <a href="#puPopup">puPopup</a> and hence is a <a href="#puGroup">puGroup</a>,
+don't forget to call
+<pre>
+
+  puPopupMenu::close () ;
+
+</pre>
+after you have finished adding the individual menu entries.
 <p>
 A puPopupMenu does not have a label or a legend.
 <p>
@@ -1659,24 +1680,28 @@ puMenuBar</h3>
 <img SRC="puMenuBar.png" ALT="view of puMenuBar widget" height=227 width=188 align=RIGHT>The
 puMenuBar class is derived from <a href="#puInterface">puInterface</a>.
 It's designed for the specific purpose of building a horizontal strip menu
-(typically at the top of the screen). Each entry in that menu turns into
-a <a href="#puPopupMenu">puPopupMenu</a> when clicked upon.
+(typically at the top of the screen). Each entry in that menu is a
+<a href="#puOneShot">puOneShot</a> that pops up a <a href="#puPopupMenu">puPopupMenu</a>
+when clicked upon.
 <p>
 First, create the puMenuBar object:
 <pre>
 
-   puMenuBar::puMenuBar () ;
-   puMenuBar::puMenuBar ( int y ) ;
+   puMenuBar::puMenuBar ( int height = -1 ) ;
 
 </pre>
-(If you omit 'y', the menu bar will attempt to remain at the top of the
-screen, even if the screen is resized).
+Which creates a menu bar with height 'height' at the top of the window.
+If you omit 'height', the menu bar height will be auto-determined through
+the height of the current <a href="#puSetDefaults">default legend font</a>.
 <p>
-Next, set up the colours for the menu - just as with any other puObject,
+Aftwerwards, PUI will always attempt to remain the menu bar at the top
+of the screen, even if the screen is resized.
+<p>
+Next, set up the colours for the menu - just as with any other <a href="#puObject">puObject</a>,
 then add the individual items:
 <pre>
 
-  void *puMenuBar::add_submenu ( char *name, char *legends[], puCallback cb[] );
+  void *puMenuBar::add_submenu ( const char *name, char *legends[], puCallback cb[] );
 
 </pre>
 'name' is the name that appears on the menu bar, 'legends' is the NULL-terminated
@@ -1685,11 +1710,11 @@ of corresponding callback functions. (Both arrays should be NULL terminated
 but the puCallback array can have other NULL pointers indicating PopupMenu
 items that have no action when clicked upon).
 <p>
-Each item that you add will be translated into an appropriately sized,
-styled and coloured puPopupMenu which is hidden and revealed appropriately
-as each name is clicked upon.
+Each submenu that you add will be translated into a <a href="#puOneShot">puOneShot</a> and an appropriately sized, styled and coloured <a href="#puPopupMenu">puPopupMenu</a>
+which is hidden and revealed appropriately as it's button in the menu
+bar is clicked upon.
 <p>
-Don't forget (since this is a kind of puInterface) that you need to
+Don't forget (since this is a kind of <a href="#puInterface">puInterface</a>) that you need to
 call:
 <pre>
 
@@ -1774,7 +1799,7 @@ A puListBox widget does not have a legend.
 <a NAME="puFilePicker"></a>
 <h3>
 puFilePicker</h3>
-puFilePicker is now obsolete. Please use puFileSelector instead.
+puFilePicker is now obsolete. Please use <a href="#puFileSelector">puFileSelector</a> instead.
 <a NAME="puFileSelector"></a>
 <h3>
 puFileSelector</h3>
@@ -1838,7 +1863,7 @@ This method is used to set the current width and height of the dialog box.
 <p>
 <pre>
 
-  puFileSelector::setInitialValue ( char *pathname ) ;
+  puFileSelector::setInitialValue ( const char *pathname ) ;
 
 </pre>
 Sets the initial value within the type-in area of the widget.  This
@@ -1857,13 +1882,13 @@ The following functions are not a part of any classes:
 <h3>
 Setting Defaults</h3>
 It can be pretty tedious coding in the colours, fonts and style for every
-puObject. There are a number of routines that alter the defaults that will
-be assumed for all subsequently constructed puObjects...
+<a href="#puObject">puObject</a>. There are a number of routines that alter the defaults that will
+be assumed for all subsequently constructed <a href="#puObject">puObjects</a>...
 <pre>  void puSetDefaultStyle ( int style ) ;
   int  puGetDefaultStyle () ;
 
-  void   puSetDefaultFonts ( puFont  legendFont, puFont  labelFont ) ;
-  void   puGetDefaultFonts ( puFont *legendFont, puFont *labelFont ) ;
+  void   puSetDefaultFonts ( <a href="#puFont">puFont</a>  legendFont, <a href="#puFont">puFont</a>  labelFont ) ;
+  void   puGetDefaultFonts ( <a href="#puFont">puFont</a> *legendFont, <a href="#puFont">puFont</a> *labelFont ) ;
   puFont puGetDefaultLabelFont  () ;
   puFont puGetDefaultLegendFont () ;
 
@@ -1871,7 +1896,7 @@ be assumed for all subsequently constructed puObjects...
   void puGetDefaultColourScheme ( float *r, float *g, float *b, float *a = NULL);
 
 </pre>
-These take the same arguments as the corresponding puObject class members.
+These take the same arguments as the corresponding <a href="#puObject">puObject</a> class members.
 <p>
 <a NAME="puInit"></a>
 <h3>
@@ -1958,7 +1983,7 @@ puDeleteObject</h3>
 You should use this routine instead of deleting widgets directly.
 <pre>
 
-   void puDeleteObject ( puObject *ob ) ;
+   void puDeleteObject ( <a href="#puObject">puObject</a> *ob ) ;
 
 </pre>
 <a NAME="puKeyboard"></a>
@@ -2082,7 +2107,7 @@ of course the application chooses to change a colour or a label or something).
 <h3>
 The PUI 'soft' Cursor</h3>
 PUI can take motion events (presumably generated by GLUT - and passed on
-to puMouse) and use them to draw a mouse cursor. Typically, the underlying
+to <a href="#puMouse">puMouse</a>) and use them to draw a mouse cursor. Typically, the underlying
 window manager will draw a perfectly good cursor for you - but there are
 a few (rare) cases where such facilities are not available and a cursor
 drawn using OpenGL is needed.
@@ -2149,8 +2174,8 @@ Here they are:
 <pre>
 
   void puDeactivateWidget () ;  /* Sets the Active Widget to NULL */
-  void puSetActiveWidget ( puObject *w ) ;  /* Sets the Active Widget */
-  puObject *puActiveWidget () ;  /* Returns the active widget */
+  void puSetActiveWidget ( <a href="#puObject">puObject</a> *w ) ;  /* Sets the Active Widget */
+  <a href="#puObject">puObject</a> *puActiveWidget () ;  /* Returns the active widget */
 
 </pre>
 
@@ -2158,22 +2183,20 @@ Here they are:
 <a NAME="CutAndPaste"></a>
 <h3>
 Cut and Paste</h3>
-You can cut and paste text between different puInput widgets and puLargeInput
+You can cut and paste text between different <a href="#puInput">puInput</a> widgets and <a href="#puInput">puLargeInput</a>
 widgets.  The cut, copy, and paste commands are the standard CTRL-X,
 CTRL-C, and CTRL-V.
+<a NAME="Misc"></a>
 <h2>
 Miscellany</h2>
-<a href="mailto:mdanks@Stormfront.com">Mark Danks</a> has succeeded in getting PUI to function in a WIN32 environment
-without using GLUT. This is certainly not the intended way to use PUI -
-even under WIN32 - but it's interesting to know that it
-<b>is</b> possible.
+It is possible to get PUI to function without using GLUT. <a href="mailto:mdanks@Stormfront.com">Mark Danks</a>
+had initially implemented that for a WIN32 environment. Later, his changes
+were improved and verified to work under other operating systems as well.
 <p>
-In fact, this neatly demolishes my hope that people would write their
-WIN32 programs in GLUT/OpenGL/PUI and thus be able to port them over to
-Linux at near zero effort.
+However, this is certainly not the intended way to use PUI - even under
+WIN32 - but it's interesting to know that it <b>is</b> possible.
 <p>
-Mark's changes are now in mainstream PUI, all you have to do is to compile
-the PUI sources with:
+All you have to do is to compile the PUI sources with:
 <pre>
 
       -DPU_NOT_USING_GLUT
@@ -2193,12 +2216,12 @@ There are two portability functions:
    int puGetWindowHeight () ;
 
 </pre>
-These return the most recent puSetWindowSize parameters under Marks raw
-WIN32 environment - and do a nice portable glutGet() on all other setups.
+These return the most recent puSetWindowSize() parameters without GLUT
+- and do a nice portable glutGet() otherwise.
 <p>
 Without GLUT, PUI can also not create the default fonts from the seven
 GLUT_BITMAP fonts like it normaly would. Instead, it tries to load
-some .txf fonts in the puInit routine. Hence, you have to ensure that
+some .txf fonts in the <a href="#puInit">puInit</a> routine. Hence, you have to ensure that
 the typewriter.txf, times_bold.txf and helvetica_bold.txf files
 from examples/src/fnt/data/ are in the current directory when using
 the GLUT-less PUI library.
