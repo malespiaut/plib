@@ -21,6 +21,9 @@
 
 #ifdef WIN32
 #include <windows.h>
+ #ifdef __CYGWIN__
+ #include <unistd.h>
+ #endif
 #else
 #include <unistd.h>
 #endif

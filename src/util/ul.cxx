@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__CYGWIN__)
 #include <dirent.h>
 #endif
 
@@ -15,7 +15,7 @@ struct _ulDir
   char dirname [ UL_NAME_MAX+1 ];
   ulDirEnt curr ;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__CYGWIN__)
   WIN32_FIND_DATA data ;
   HANDLE hFind ;
   bool first ;
@@ -37,7 +37,7 @@ ulDir* ulOpenDir ( const char* dirname )
   if ( dir != NULL )
   {
     strcpy( dir->dirname, dirname ) ;
-#ifdef WIN32
+#if defined(WIN32) && !defined(__CYGWIN__)
     char search[_MAX_PATH];
     strcpy(search,dirname);
     
@@ -68,7 +68,7 @@ ulDir* ulOpenDir ( const char* dirname )
 ulDirEnt* ulReadDir ( ulDir* dir )
 {
   //read the next entry from the directory
-#ifdef WIN32
+#if defined(WIN32) && !defined(__CYGWIN__)
   //update state
   if ( dir->first )
     dir->first = false ;
@@ -90,7 +90,7 @@ ulDirEnt* ulReadDir ( ulDir* dir )
   sprintf( path, "%s/%s", dir->dirname, dir->curr.d_name );
 
   //determine if this entry is a directory
-#ifdef WIN32
+#if defined(WIN32) && !defined(__CYGWIN__)
   struct _stat buf;
   int result = _stat(path,&buf);
   if ( result == 0 )
@@ -114,7 +114,7 @@ void ulCloseDir ( ulDir* dir )
 {
   if ( dir != NULL )
   {
-#ifdef WIN32
+#if defined(WIN32) && !defined(__CYGWIN__)
     FindClose(dir->hFind);
 #else
     closedir(dir->dirp);
