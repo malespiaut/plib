@@ -405,6 +405,7 @@ int puMouse ( int x, int y )
   
   int h = puGetWindowHeight () ;
 
+#ifdef WANT_STICKY_SLIDERS
   /*
     When you drag over an ACTIVE widget, you don't
     affect any other widgets until you release the
@@ -416,6 +417,7 @@ int puMouse ( int x, int y )
     puActiveWidget()->doHit(button, PU_DRAG, x, h-y) ;
     return TRUE ;
   }
+#endif
 
   int return_value = puGetBaseLiveInterface () -> checkHit ( button,
     PU_DRAG, x, h - y ) ;
