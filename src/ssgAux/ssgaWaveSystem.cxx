@@ -37,6 +37,7 @@ void ssgaWaveSystem::updateAnimation ( float t )
     return ;
 
   int i;
+
   for ( i = 0 ; i <= nstrips ; i++ )
   {
     float fade_i = (i<2) ? 0.0f : (i<7) ? (float)(i-2)/5.0f :
@@ -45,9 +46,9 @@ void ssgaWaveSystem::updateAnimation ( float t )
 
     for ( int j = 0 ; j <= nstacks ; j++ )
     {
-    float fade_j = (j<2) ? 0.0f : (j<7) ? (float)(j-2)/5.0f :
-                   (j>nstacks-2) ? 0.0f :
-                   (j>nstacks-7) ? (float)(nstacks-j-2)/5.0f : 1.0f ;
+      float fade_j = (j<2) ? 0.0f : (j<7) ? (float)(j-2)/5.0f :
+                     (j>nstacks-2) ? 0.0f :
+                     (j>nstacks-7) ? (float)(nstacks-j-2)/5.0f : 1.0f ;
 
       int idx = i * (nstrips+1) + j ;
       float x0 = orig_vertices [idx][0] + center[0] ;
@@ -70,9 +71,9 @@ void ssgaWaveSystem::updateAnimation ( float t )
       float phase = k * x0 - omega * t - lambda * dz ;
 
       sgSetVec3 ( vertices [idx], 
-	                  x0 + waveHeight * (float) sin ( phase ),
-	                  y0,
-	                  z0 - waveHeight * (float) cos ( phase ) * edge_fade ) ;
+                  x0 + waveHeight * (float) sin ( phase ) * edge_fade,
+                  y0,
+                  z0 - waveHeight * (float) cos ( phase ) * edge_fade ) ;
 
       sgSetVec2 ( texcoords [idx], tu * x0 / size[0], tv * y0 /size[1] ) ;
     }
