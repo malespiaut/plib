@@ -41,7 +41,7 @@ void dismissDialogCB ( puObject * )
 }
 
 
-void dialog ( char *msg, float r, float g, float b )
+void dialog ( const char *msg, float r, float g, float b )
 {
   initDialog () ;
   dialog_button -> setLegend ( msg ) ;
