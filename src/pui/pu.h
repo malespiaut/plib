@@ -68,6 +68,10 @@
 
 #ifdef _PU_USE_GLUT_FONTS
 typedef void *GlutFont ;
+#else
+extern fntTexFont PUFONT_TXF_TYPEWRITER ;
+extern fntTexFont PUFONT_TXF_TIMES ;
+extern fntTexFont PUFONT_TXF_HELVETICA ;
 #endif
 
 class puFont 
@@ -84,8 +88,12 @@ public:
   {
 #ifdef _PU_USE_GLUT_FONTS
     glut_font_handle = GLUT_BITMAP_8_BY_13 ;
-#endif
     fnt_font_handle  = NULL ;
+#else
+    fnt_font_handle  = &PUFONT_TXF_TYPEWRITER ;
+    pointsize = 13 ;
+    slant = 0 ;
+#endif
   }
 
 #ifdef _PU_USE_GLUT_FONTS
