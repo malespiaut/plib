@@ -714,16 +714,24 @@ public:
   {
     style = which ;
 
-    if ( abs(style) == PUSTYLE_SPECIAL_UNDERLINED )
-      border_thickness = 1 ;
-    else if ( ( abs(style) == PUSTYLE_SMALL_BEVELLED ) ||
-              ( abs(style) == PUSTYLE_SMALL_SHADED ) ||
-              ( abs(style) == PUSTYLE_BOXED ) )
-      border_thickness = 2 ;
-    else if ( ( abs(style) == PUSTYLE_BEVELLED ) ||
-              ( abs(style) == PUSTYLE_SHADED ) ||
-              ( abs(style) == PUSTYLE_DROPSHADOW ) )
-      border_thickness = 5 ;
+    switch ( abs(style) )
+    {
+      case PUSTYLE_SPECIAL_UNDERLINED :
+        border_thickness = 1 ;
+        break ;
+
+      case PUSTYLE_SMALL_BEVELLED :
+      case PUSTYLE_SMALL_SHADED :
+      case PUSTYLE_BOXED :
+        border_thickness = 2 ;
+        break ;
+
+      case PUSTYLE_BEVELLED :
+      case PUSTYLE_SHADED :
+      case PUSTYLE_DROPSHADOW :
+        border_thickness = 5 ;
+        break ;
+    }
 
     recalc_bbox () ;
     puPostRefresh () ;
