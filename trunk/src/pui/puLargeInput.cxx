@@ -242,7 +242,7 @@ void puLargeInput::setSelectRegion ( int s, int e )
   int line_count = 0 ;
   while ( lin_ptr && ( lin_ptr <= text_start + select_start_position ) )  // Count the lines
   {
-    line_count ++ ;
+    line_count++ ;
     lin_ptr = strchr ( lin_ptr+1, '\n' ) ;
   }
 
@@ -271,7 +271,7 @@ void  puLargeInput::selectEntireLine ( void )
 
 
   if ( select_start_position > 0 )
-    select_start_position ++ ;
+    select_start_position++ ;
 
   select_end_position = int ( strchr ( temp_text + select_end_position, '\n' ) + 1 - temp_text ) ;
   if ( select_end_position == 1 ) select_end_position = strlen ( temp_text ) ;
@@ -659,7 +659,7 @@ void puLargeInput::draw ( int dx, int dy )
           else if ( line_count > end_lin )        // Have gone beyond window, end process
             end_of_line = NULL ;
 
-          line_count ++ ;
+          line_count++ ;
 
         }     // while ( end_of_line )
       }     // if ( val )
