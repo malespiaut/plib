@@ -174,6 +174,20 @@ inline void sgXformPnt4     ( sgVec4 dst, const sgMat4 mat ) { sgXformPnt4 ( dst
 inline void sgFullXformPnt3 ( sgVec3 dst, const sgMat4 mat ) { sgFullXformPnt3 ( dst, dst, mat ) ; }
 inline void sgFullXformPnt4 ( sgVec4 dst, const sgMat4 mat ) { sgFullXformPnt4 ( dst, dst, mat ) ; }
 
+
+/* matrix properties */
+#define SG_ROTATION        0x01   // includes a rotational component
+#define SG_MIRROR          0x02   // changes handedness (det < 0)
+#define SG_UNIFORM_SCALE   0x04   // uniform scaling
+#define SG_GENERAL_SCALE   0x08   // x, y and z scaled differently
+#define SG_NONORTHO        0x10   // row vectors not orthogonal
+#define SG_TRANSLATION     0x20   // translates
+#define SG_PROJECTION      0x40   // forth column not 0,0,0,1
+
+extern int sgClassifyMat4 ( const sgMat4 mat ) ;
+
+
+
 /*
   Basic low-level vector functions.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -740,11 +754,6 @@ extern void sgMakePickMatrix( sgMat4 mat, sgFloat x, sgFloat y,
                     sgFloat width, sgFloat height, sgVec4 viewport ) ;
 
 extern int  sgCompare3DSqdDist ( const sgVec3 a, const sgVec3 b, const SGfloat sqd_dist ) ;
-extern void sgMakeTransMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat z ) ;
-extern void sgMakeTransMat4 ( sgMat4 m, const sgVec3 xyz ) ;
-extern void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat z,
-                                        const SGfloat h, const SGfloat p, const SGfloat r ) ;
-extern void sgMakeCoordMat4 ( sgMat4 m, const sgCoord *c ) ;
 
 inline SGfloat sgDistToLineVec2 ( const sgVec3 line, const sgVec2 pnt )
 {
