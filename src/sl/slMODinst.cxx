@@ -215,10 +215,12 @@ void _MOD_instHirevLoop ( InstHirevInfo *ihip )
 
     if ( ihi.ptr < ihi.end || ihi.end <= ihi.ptr - ( ihi.wAcc >> 16 ) ) 
     {
-      fprintf ( stderr, "bug: restS = %u restF=%u end-ptr = %d, ptr=%u\n",
-          restS, restF, ihi.end-ihi.ptr, ( unsigned int ) ihi.ptr ) ;
-      fprintf ( stderr, "last ptr=%u\n",
-          ( unsigned int ) ( ihi.ptr - ( ihi.wAcc >> 16 ) ) ) ;
+      fprintf ( stderr, "SL: Internal Error in _MOD_instHirevLoop.\n" ) ;
+/*
+      fprintf ( stderr, "bug: restS = %u restF=%u end-ptr = %d, ptr=%p\n",
+          restS, restF, ihi.end-ihi.ptr, ihi.ptr ) ;
+      fprintf ( stderr, "last ptr=%p\n", ( ihi.ptr - ( ihi.wAcc >> 16 ) ) ) ;
+*/
       exit ( 1 ) ;
     }
 
