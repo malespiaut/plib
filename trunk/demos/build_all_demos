@@ -1,0 +1,19 @@
+
+echo "Building ExPoser..."
+cd exposer
+./configure
+make
+cd ..
+
+echo "Building P-Guide..."
+cd p-guide
+./configure
+make
+cd ..
+
+echo "Building 3D TicTacToe..."
+cd ttt3d
+./configure
+make
+cd ..
+

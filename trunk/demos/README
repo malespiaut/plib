@@ -9,5 +9,8 @@ has it's own licensing rules (although all are OpenSourced
 in some way) and each has it's own build mechanism and
 documentation.
 
+You can build all of the demo's (on UNIX-like OS's)
+by running the 'build_all_demos' script.
+
 Enjoy!
 
