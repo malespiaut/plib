@@ -433,7 +433,7 @@ int do_url      ( char *s )
   skip_quotes ( & s ) ;
 
 #ifdef PRINT_URLS
-  printf ( "/* URL: \"%s\" */\n", s ) ;
+  ulSetError ( UL_DEBUG, "/* URL: \"%s\" */\n", s ) ;
 #endif
 
   return PARSE_CONT ;

@@ -682,22 +682,22 @@ void ssgLoaderWriterMesh::addToSSG(
   
 #ifdef WRITE_MESH_TO_STDOUT	
 	if ( theMaterials == NULL )
-		fprintf(stdout, "( theMaterials == NULL )\n");
+		ulSetError(UL_DEBUG, "( theMaterials == NULL )");
 	else
 	{	
-		fprintf(stdout, "%d Materials:\n", theMaterials->getNum());
+		ulSetError(UL_DEBUG, "%d Materials:", theMaterials->getNum());
 		for(i=0;i<theMaterials->getNum();i++)
-		{ fprintf(stdout, "%ld\n", (long)theMaterials->get(i));
+		{ ulSetError(UL_DEBUG, "%ld", (long)theMaterials->get(i));
 		}
 	}
 	if ( materialIndices == NULL )
-		fprintf(stdout, "( materialIndices == NULL )\n");
+		ulSetError(UL_DEBUG, "( materialIndices == NULL )");
 	else
 	{
-		fprintf(stdout, "%d Material Indexes:\n", materialIndices->getNum());
+		ulSetError(UL_DEBUG, "%d Material Indexes:", materialIndices->getNum());
 		for(i=0;i<materialIndices->getNum();i++)
 		{ short s=*(materialIndices->get(i));
-			fprintf(stdout, "%ld\n", (long)s);
+			ulSetError(UL_DEBUG, "%ld", (long)s);
 		}
 	}
 #endif
@@ -772,21 +772,21 @@ void ssgLoaderWriterMesh::addToSSG(
 		      }	
 		 }
 #ifdef WRITE_MESH_TO_STDOUT	
-	     fprintf(stdout, "NumVert: %d\n", newVertices->getNum());
+	     ulSetError(UL_DEBUG, "NumVert: %d", newVertices->getNum());
 	     for(j=0;j<newVertices->getNum();j++)
 	       { float *f=newVertices->get(j);
-		  fprintf(stdout, "%f, %f, %f\n",f[0], f[1], f[2]);
+		  ulSetError(UL_DEBUG, "%f, %f, %f",f[0], f[1], f[2]);
 	       }
 	     for(j=0;j<newFaces->getNum();j++)
 			{
 			   thisFace = *((class ssgIndexArray **) newFaces->get( j )); 	
-			   fprintf(stdout, "%d EP:", thisFace->getNum());
+			   fprintf(stderr, "%d EP:", thisFace->getNum());
 			   for(k=0;k<thisFace->getNum();k++)
 			     {
 				oldVertexIndex = * thisFace->get(k);
-				fprintf(stdout, "%d, ", oldVertexIndex);
+				fprintf(stderr, "%d, ", oldVertexIndex);
 			     }
-			   fprintf(stdout, "\n");
+			   putc('\n', stderr);
 			}
 #endif	
 	     if ( newFaces->getNum() > 0 )

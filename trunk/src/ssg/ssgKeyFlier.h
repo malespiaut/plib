@@ -206,9 +206,9 @@ public:
                     query_action ( last_pos.xyz[0], last_pos.xyz[1], last_pos.xyz[2],
                                    last_pos.hpr[0], last_pos.hpr[1], last_pos.hpr[2] ) ;
                   else
-                    printf ( "ssgKeyFlier: XYZ=(%g,%g,%g), HPR=(%g,%g,%g)\n",
-                             last_pos.xyz[0], last_pos.xyz[1], last_pos.xyz[2],
-                             last_pos.hpr[0], last_pos.hpr[1], last_pos.hpr[2] ) ;
+                    ulSetError ( UL_DEBUG, "ssgKeyFlier: XYZ=(%g,%g,%g), HPR=(%g,%g,%g)",
+                                 last_pos.xyz[0], last_pos.xyz[1], last_pos.xyz[2],
+                                 last_pos.hpr[0], last_pos.hpr[1], last_pos.hpr[2] ) ;
 
                   break ;
       case  'r' :
