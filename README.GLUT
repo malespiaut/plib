@@ -18,8 +18,8 @@ work without GLUT.
 Without GLUT, PUI can also not create the default PUI fonts from the
 seven GLUT bitmap fonts like it normally would. Instead, it tries to load
 some textured fonts in the puInit routine. Hence, you have to ensure that
-the typewriter.txf, times_bold.txf and helvetica_bold.txf files from
-examples/src/fnt/data/old are in the current directory when using the
+the Courier.txf, Times-Roman.txf and Helvetica.txf files from
+examples/src/fnt/data/ are in the current directory when using the
 GLUT-free PUI library.
 
 
