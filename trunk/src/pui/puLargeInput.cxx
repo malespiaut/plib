@@ -1134,7 +1134,7 @@ void puLargeInput::wrapText ( void )
   // Wrap the text in "text" and put it in "wrapped_text"
 
   int l_len = strlen (text) ;
-  if ( wrapped_text ) delete [] wrapped_text ;
+  delete [] wrapped_text ;
   wrapped_text = new char[l_len + 1] ;
   memcpy(wrapped_text, text, l_len + 1) ;
 
