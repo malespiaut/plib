@@ -2284,7 +2284,9 @@ ssgLight *ssgGetLight ( int i ) ;
 char *ssgShowStats () ;
 void  ssgDelete ( ssgBranch *br ) ;
 char *ssgGetVersion () ;
-char * ssgGetAPOM();
+char * ssgGetAPOM(); // get actual path of (last loaded) model
+char * ssgGetANOM(); // get name of model
+
 
 void ssgSetLoadOFFTranslucent ( int i );
 
