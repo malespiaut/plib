@@ -18,7 +18,6 @@
 #include "ssgLoadMDL.h"
 
 #define DEF_SHININESS 50
-#define MSFS_MAX_STATES 256
 
 // Define DEBUG if you want some debug info
 /*#define DEBUG 1*/
@@ -69,6 +68,8 @@ static ssgSelector              *moving_parts_[NUM_MOVING_PARTS];
 static char                     curr_tex_name_[15];
 static int			num_tex_states_, start_idx_, last_idx_;
 static int                      curr_color_, curr_pal_id_;
+static float                    curr_alpha_;
+static bool                     curr_cull_face_;
 
 static bool			has_normals_, vtx_dirty_, join_children_;
 static FILE*                    model_file_;
@@ -134,6 +135,99 @@ void _MDLPart::removeUnnecessaryVertices(void) {
 }
 
 //===========================================================================
+static void readIfIn1() {
+  int i;
+  unsigned short var;
+  short offset, high, low, next_op;
+  offset  = ulEndianReadLittle16(model_file_);
+  var     = ulEndianReadLittle16(model_file_);
+  low     = ulEndianReadLittle16(model_file_);
+  high    = ulEndianReadLittle16(model_file_);
+  next_op = ulEndianReadLittle16(model_file_);
+
+  int part_idx, kid_idx;
+
+  // for moving parts except propeller, this seems
+  // to work
+  kid_idx = ( next_op == 0x000d ) ? 0 : 1;
+
+  switch (var) {
+  case 0x0052:
+  case 0x006c:
+    part_idx = PART_FLAPS; break;
+  case 0x0054:
+  case 0x006e:
+    part_idx = PART_GEAR; break;
+  case 0x005a:
+  case 0x0074:
+    part_idx = PART_PROP; break;
+  case 0x005c:
+  case 0x0076:
+    part_idx = PART_LIGHTS; break;
+  case 0x005e:
+  case 0x0078:
+    part_idx = PART_STROBE; break;
+  case 0x0062:
+  case 0x007c:
+    part_idx = PART_SPOILERS; break;
+  default:
+    part_idx = -1; break;
+  }
+
+  /*
+    DEBUGPRINT( "IfVarRange(" << std::hex << offset << " " << var
+    << " " << low << " " << high << ")"
+    << "   (next op " << next_op << ", kid_idx "
+    << kid_idx << ")" << 
+    std::dec << std::endl );
+  */
+
+  char nodename[64];
+
+  if (part_idx == -1) {
+    curr_branch_ = model_;
+  } else {
+    if (moving_parts_[part_idx] == NULL) {
+      moving_parts_[part_idx] = new ssgSelector;
+      model_->addKid(moving_parts_[part_idx]);	      	   
+      moving_parts_[part_idx]->setName( PART_NAME[part_idx] );
+      //moving_parts_[part_idx]->select(1);
+    }
+
+    // nasty special case for prop
+    if (part_idx == PART_PROP) {
+      sprintf(nodename, "PROP_%d_%d", low, high);
+      i = 0;
+      for (ssgEntity* propkid=moving_parts_[PART_PROP]->getKid(0);
+	   propkid != NULL; 
+	   propkid = moving_parts_[PART_PROP]->getNextKid(), i++) {
+	if ( propkid->getName() != NULL ) {
+	  if ( strcmp(nodename, propkid->getName()) == 0 ) {
+	    break;
+	  }
+	}
+      }
+
+      kid_idx = i;
+    } else {
+      sprintf(nodename, "%s_%s", 
+	      moving_parts_[part_idx]->getName(),
+	      (kid_idx == 0)?"TRUE":"FALSE");		      
+    }
+
+    //DEBUGPRINT( nodename << " " << kid_idx << std::endl );
+
+    while (moving_parts_[part_idx]->getKid(kid_idx) == NULL)
+      moving_parts_[part_idx]->addKid( new ssgBranch() );
+
+    curr_branch_ = (ssgBranch*)moving_parts_[part_idx]->
+      getKid(kid_idx);
+    curr_branch_->setName(nodename);
+  }
+
+  // now move back the file pointer 16 bits (we have peeked at the next op)
+  fseek( model_file_, -2, SEEK_CUR );
+}
 
 static bool findPart(FILE* fp)
 {
@@ -164,16 +258,16 @@ static bool findPart(FILE* fp)
       if(match1 == 4)
 	{
 	  fseek(fp, -4, SEEK_CUR);
-	  DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) 
-		      << std::dec << std::endl);
+	  //DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) 
+	  //	      << std::dec << std::endl);
 	  return true;
 	}
 
       else if(match2 == 4)
 	{
 	  fseek(fp, -4, SEEK_CUR);
-	  DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) 
-		      << std::dec << std::endl);
+	  //DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) 
+	  //      << std::dec << std::endl);
 	  return true;
 	}
       else if(matchpos >= 0) 
@@ -184,91 +278,8 @@ static bool findPart(FILE* fp)
 
 	  long pos = ftell(fp);
 
-	  unsigned short var;
-	  short offset, high, low, next_op;
 	  fseek(fp, -2+matchpos, SEEK_CUR);
-	  offset = ulEndianReadLittle16(model_file_);
-	  var    = ulEndianReadLittle16(model_file_);
-	  low    = ulEndianReadLittle16(model_file_);
-	  high   = ulEndianReadLittle16(model_file_);
-	  next_op = ulEndianReadLittle16(model_file_);
-
-	  int part_idx, kid_idx;
-
-	  // for moving parts except propeller, this seems
-	  // to work
-	  kid_idx = ( next_op == 0x000d ) ? 0 : 1;
-
-	  switch (var) {
-	  case 0x0052:
-	  case 0x006c:
-	    part_idx = PART_FLAPS; break;
-	  case 0x0054:
-	  case 0x006e:
-	    part_idx = PART_GEAR; break;
-	  case 0x005a:
-	  case 0x0074:
-	    part_idx = PART_PROP; break;
-	  case 0x005c:
-	  case 0x0076:
-	    part_idx = PART_LIGHTS; break;
-	  case 0x005e:
-	  case 0x0078:
-	    part_idx = PART_STROBE; break;
-	  case 0x0062:
-	  case 0x007c:
-	    part_idx = PART_SPOILERS; break;
-	  default:
-	    part_idx = -1; break;
-	  }
-
-	  DEBUGPRINT( "IfVarRange(" << std::hex << offset << " " << var
-		      << " " << low << " " << high << ")"
-		      << "   (next op " << next_op << ", kid_idx "
-		      << kid_idx << ")" << 
-		      std::dec << std::endl );
-
-	  char nodename[64];
-
-	  if (part_idx == -1) {
-	    curr_branch_ = model_;
-	  } else {
-	    if (moving_parts_[part_idx] == NULL) {
-	      moving_parts_[part_idx] = new ssgSelector;
-	      model_->addKid(moving_parts_[part_idx]);	      	   
-	      moving_parts_[part_idx]->setName( PART_NAME[part_idx] );
-	      moving_parts_[part_idx]->select(1);
-	    }
-
-	    // nasty special case for prop
-	    if (part_idx == PART_PROP) {
-	      sprintf(nodename, "PROP_%d_%d", low, high);
-	      i = 0;
-	      for (ssgEntity* propkid=moving_parts_[PART_PROP]->getKid(0);
-		   propkid != NULL; 
-		   propkid = moving_parts_[PART_PROP]->getNextKid(), i++) {
-		if ( propkid->getName() != NULL ) {
-		  if ( strcmp(nodename, propkid->getName()) == 0 ) {
-		    break;
-		  }
-		}
-	      }
-
-	      kid_idx = i;
-	    } else {
-	      sprintf(nodename, "%s_%s", 
-		      moving_parts_[part_idx]->getName(),
-		      (kid_idx == 0)?"TRUE":"FALSE");		      
-	    }
-
-	    while (moving_parts_[part_idx]->getKid(kid_idx) == NULL)
-	      moving_parts_[part_idx]->addKid( new ssgBranch() );
-
-	    curr_branch_ = (ssgBranch*)moving_parts_[part_idx]->
-	      getKid(kid_idx);
-	    curr_branch_->setName(nodename);
-	  }
-
+	  readIfIn1();
 	  fseek(fp, pos, SEEK_SET);
 	}
       
@@ -280,6 +291,7 @@ static bool findPart(FILE* fp)
 
   return false;
 }
+
 
 
 
@@ -318,7 +330,7 @@ static void readVector(FILE* fp, sgVec3 v)
 //===========================================================================
 
 static void recalcNormals( _MDLPart *part ) {
-  DEBUGPRINT( "Calculating normals." << std::endl);
+  //DEBUGPRINT( "Calculating normals." << std::endl);
   sgVec3 n;
 
   for (int i = 0; i < part->idx->getNum() / 3; i++) {
@@ -487,7 +499,7 @@ static bool readTexIndices(int numverts, const sgVec3 s_norm, bool flip_y)
     
       if((curr_tc[0] >= FLT_MAX - 1 && curr_tc[1] >= FLT_MAX - 1))
 	{
-	  DEBUGPRINT( "." );
+	  //DEBUGPRINT( "." );
 	  sgCopyVec2(tex_coords_->get(tex_idx), tc);
 	}
 
@@ -497,7 +509,7 @@ static bool readTexIndices(int numverts, const sgVec3 s_norm, bool flip_y)
 	  // so we have to copy this vertex and create a new index for it
 	  // to get the correct texture mapping.
 
-	  DEBUGPRINT( "duplicating texture coordinate!\n");
+	  //DEBUGPRINT( "duplicating texture coordinate!\n");
        
 	  int idx = ix - start_idx_ + last_idx_;
 	  tex_idx = curr_part_->vtx->getNum();
@@ -543,8 +555,7 @@ static bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
       unsigned short ix;
       ix = ulEndianReadLittle16(model_file_);
       ixarr.add(ix - start_idx_ + last_idx_);
-      DEBUGPRINT( "ix[" << v << "] = " << *ixarr.get(v) << std::endl);
-      //ixarr.insert(v, ix - start_idx_);
+      //DEBUGPRINT( "ix[" << v << "] = " << *ixarr.get(v) << std::endl);
     }
 
   createTriangIndices(&ixarr, numverts, s_norm);
@@ -558,8 +569,8 @@ static ssgSimpleState* createMaterialState(int color, int pal_id)
 { 
   ssgSimpleState* state = new ssgSimpleState();
     
-  float r, g, b, a;
-  if(pal_id == 0x68) 
+  float r, g, b;
+  if (curr_alpha_ < 1.0f) 
     {
       state->setTranslucent();
 
@@ -569,7 +580,6 @@ static ssgSimpleState* createMaterialState(int color, int pal_id)
       r = (float)(fsAltPalette[color].r)/255.0;
       g = (float)(fsAltPalette[color].g)/255.0;
       b = (float)(fsAltPalette[color].b)/255.0;
-      a = 0.3f;
     }
   else 
     {
@@ -581,7 +591,6 @@ static ssgSimpleState* createMaterialState(int color, int pal_id)
       r = (float)(fsAcPalette[color].r)/255.0;
       g = (float)(fsAcPalette[color].g)/255.0;
       b = (float)(fsAcPalette[color].b)/255.0;
-      a = 1.0;
     }
      
   state->setShadeModel (GL_SMOOTH);
@@ -592,13 +601,13 @@ static ssgSimpleState* createMaterialState(int color, int pal_id)
   state->disable       (GL_COLOR_MATERIAL);
 
   state->setShininess  (DEF_SHININESS);
-  state->setMaterial   (GL_AMBIENT , r   , g   , b   , a   );
-  state->setMaterial   (GL_DIFFUSE , r   , g   , b   , a   );
-  state->setMaterial   (GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
-  state->setMaterial   (GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
+  state->setMaterial   (GL_AMBIENT , r   , g   , b   , curr_alpha_ );
+  state->setMaterial   (GL_DIFFUSE , r   , g   , b   , curr_alpha_ );
+  state->setMaterial   (GL_SPECULAR, 1.0f, 1.0f, 1.0f, curr_alpha_ );
+  state->setMaterial   (GL_EMISSION, 0.0f, 0.0f, 0.0f, curr_alpha_ );
 
-  DEBUGPRINT( "  Creating non-textured state: color = (" << r << ", " << g <<
-	      ", " << b << ")" << std::endl);
+  //DEBUGPRINT( "  Creating non-textured state: color = (" << r << ", " << g <<
+  //      ", " << b << ")" << std::endl);
 
   return state;
 }
@@ -612,25 +621,37 @@ static ssgSimpleState* createTextureState(char *name)
 
   strcpy(curr_tex_name_, name);
  
-  state->setOpaque();
   state->setShadeModel (GL_SMOOTH);
+
+  if (curr_alpha_ < 1.0f) 
+    {
+      state->setTranslucent();
+
+      state->enable    (GL_BLEND);
+      state->enable    (GL_ALPHA_TEST);
+    }
+  else 
+    {
+      state->setOpaque();
+
+      state->disable   (GL_BLEND);
+      state->disable   (GL_ALPHA_TEST);
+    }
 
   state->enable        (GL_LIGHTING);
   state->enable        (GL_TEXTURE_2D);
 
   state->disable       (GL_COLOR_MATERIAL);
-  state->disable       (GL_BLEND);
-  state->disable       (GL_ALPHA_TEST);
 
   state->setShininess  (DEF_SHININESS);
-  state->setMaterial   (GL_AMBIENT , 1.0f, 1.0f, 1.0f, 1.0f);
-  state->setMaterial   (GL_DIFFUSE , 1.0f, 1.0f, 1.0f, 1.0f);
-  state->setMaterial   (GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
-  state->setMaterial   (GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
+  state->setMaterial   (GL_AMBIENT , 1.0f, 1.0f, 1.0f, curr_alpha_);
+  state->setMaterial   (GL_DIFFUSE , 1.0f, 1.0f, 1.0f, curr_alpha_);
+  state->setMaterial   (GL_SPECULAR, 1.0f, 1.0f, 1.0f, curr_alpha_);
+  state->setMaterial   (GL_EMISSION, 0.0f, 0.0f, 0.0f, curr_alpha_);
 
   state->setTexture( current_options -> createTexture(name, FALSE, FALSE) ) ;
 
-  DEBUGPRINT( "  Creating texture state: name = " << name << std::endl);
+  //DEBUGPRINT( "  Creating texture state: name = " << name << std::endl);
 
   return state;
 }
@@ -692,6 +713,8 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
   normal_array_ = new ssgNormalArray();
   vertex_array_ -> ref();
   normal_array_ -> ref();
+
+  curr_alpha_    = 1.0f;
  
   tex_coords_ = new ssgTexCoordArray();
  
@@ -713,79 +736,40 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
   while(!feof(model_file_) && !done) 
     {
       unsigned short opcode;
+      unsigned int   skip_offset = 0;
 
       opcode = ulEndianReadLittle16(model_file_);
 
       switch(opcode)
 	{
+	case 0x0:	// EOF
+	case 0x22: 	// BGL return
+	  {
+	    //DEBUGPRINT( "BGL return\n");
+
+	    curr_branch_ = model_;
+	    findPart(model_file_);
+	  }
+	  break;
+
 	case 0x02:      // NOOP
 	  break;
 
-	case 0x1a: 	// RESLIST (point list with no normals)
+	case 0x08: 	// CLOSURE
 	  {
-	    start_idx_ = ulEndianReadLittle16(model_file_);
+	    //DEBUGPRINT( "CLOSURE\n\n");
 
-	    has_normals_ = false;
-	    vtx_dirty_   = true;
-
-	    unsigned short numpoints;
-	    numpoints = ulEndianReadLittle16(model_file_);
-
-	    DEBUGPRINT( "New group (unlit): start_idx = " << start_idx_ 
-		 << ", num vertices = " << numpoints << std::endl);
-
-	    sgVec3 null_normal;
-	    sgSetVec3(null_normal, 0.0f, 0.0f, 0.0f);
-
-	    delete curr_vtx_ ;
-	    delete curr_norm_;
-	    curr_vtx_  = new ssgVertexArray();
-	    curr_norm_ = new ssgNormalArray();
-
-	    for(int i = 0; i < numpoints; i++) 
-	      {
-		sgVec3 p;
-		readPoint(model_file_, p);
-		curr_vtx_ ->add(p);
-		curr_norm_->add(null_normal);
-	      }
+	    curr_branch_ = model_;
+	    findPart(model_file_);
+	    continue;
 	  }
 	  break;
-	
-	case 0x29: 	// GORAUD RESLIST (point list with normals)
-	  {
-	    start_idx_ = ulEndianReadLittle16(model_file_);
 
-	    has_normals_ = true;
-	    vtx_dirty_   = true;
-
-	    unsigned short numpoints;
-	    numpoints = ulEndianReadLittle16(model_file_);
-
-	    DEBUGPRINT( "New group (goraud): start_idx = " << start_idx_
-		 << ", num vertices = " << numpoints << std::endl);
-
-	    delete curr_vtx_ ;
-	    delete curr_norm_;
-	    curr_vtx_  = new ssgVertexArray();
-	    curr_norm_ = new ssgNormalArray();
-
-	    for(int i = 0; i < numpoints; i++) 
-	      {
-		sgVec3 p, v;
-		readPoint(model_file_, p);
-		readVector(model_file_, v);
-		curr_vtx_ ->add(p);
-		curr_norm_->add(v);
-	      }
-	  }
-	  break;
-	
 	case 0x0f:	// STRRES: Start line definition
 	  {
 	    unsigned short idx;
 	    idx = ulEndianReadLittle16(model_file_);
-	    DEBUGPRINT( "Start line: idx = " << idx << std::endl);
+	    //DEBUGPRINT( "Start line: idx = " << idx << std::endl);
 	    if(vtx_dirty_)
 	      {
 		last_idx_ = vertex_array_->getNum();
@@ -817,7 +801,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    ssgSimpleState* st = createMaterialState(curr_color_, 
 						     curr_pal_id_) ;
 	    
-	    vtab -> setCullFace ( TRUE ) ;
+	    vtab -> setCullFace ( curr_cull_face_ ) ;
 	    vtab -> setState ( st ) ;
 	    
 	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
@@ -832,11 +816,226 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	  {
 	    unsigned short idx;
 	    idx = ulEndianReadLittle16(model_file_);
-	    DEBUGPRINT( "Cont. line: idx = " << idx << std::endl);
+	    //DEBUGPRINT( "Cont. line: idx = " << idx << std::endl);
 	    curr_part_->idx->add(idx - start_idx_ + last_idx_);
 	  }
 	  break;
+
+	case 0x18: 	// Set texture
+	  {
+	    unsigned short id, dx, scale, dy;
+	    id    = ulEndianReadLittle16(model_file_);
+	    dx    = ulEndianReadLittle16(model_file_);
+	    scale = ulEndianReadLittle16(model_file_);
+	    dy    = ulEndianReadLittle16(model_file_);
+	    char tex_name[14];
+	    fread(tex_name, 1, 14, model_file_);
+	    int j = 0;
+	    for(int i = 0; i < 14; i++) 
+	      {
+		if(!isspace(tex_name[i]))
+		  curr_tex_name_[j++] = tolower(tex_name[i]);
+	      }
+	    // for some reason, MSFS likes to store an '_' instead
+	    // of the '.' before the file extension (!)
+	    //curr_tex_name_[j-4] = '.';
+	    curr_tex_name_[j] = '\0';
+	    //DEBUGPRINT( "Set texture: name = " << curr_tex_name_ << 
+	    //	", id = " << id << ", dx = " << dx << ", dy = " << 
+	    //	dy << ", scale = " << scale << std::endl);
+	  }
+	  break;
 	  
+	case 0x1a: 	// RESLIST (point list with no normals)
+	  {
+	    start_idx_ = ulEndianReadLittle16(model_file_);
+
+	    has_normals_ = false;
+	    vtx_dirty_   = true;
+
+	    unsigned short numpoints;
+	    numpoints = ulEndianReadLittle16(model_file_);
+
+	    //DEBUGPRINT( "New group (unlit): start_idx = " << start_idx_ 
+	    // << ", num vertices = " << numpoints << std::endl);
+
+	    sgVec3 null_normal;
+	    sgSetVec3(null_normal, 0.0f, 0.0f, 0.0f);
+
+	    delete curr_vtx_ ;
+	    delete curr_norm_;
+	    curr_vtx_  = new ssgVertexArray();
+	    curr_norm_ = new ssgNormalArray();
+
+	    for(int i = 0; i < numpoints; i++) 
+	      {
+		sgVec3 p;
+		readPoint(model_file_, p);
+		curr_vtx_ ->add(p);
+		curr_norm_->add(null_normal);
+	      }
+	  }
+	  break;
+
+	case 0x24:      // BGL_IFIN1
+	  readIfIn1();
+	  break;
+	
+	case 0x29: 	// GORAUD RESLIST (point list with normals)
+	  {
+	    start_idx_ = ulEndianReadLittle16(model_file_);
+
+	    has_normals_ = true;
+	    vtx_dirty_   = true;
+
+	    unsigned short numpoints;
+	    numpoints = ulEndianReadLittle16(model_file_);
+
+	    //DEBUGPRINT( "New group (goraud): start_idx = " << start_idx_
+	    // << ", num vertices = " << numpoints << std::endl);
+
+	    delete curr_vtx_ ;
+	    delete curr_norm_;
+	    curr_vtx_  = new ssgVertexArray();
+	    curr_norm_ = new ssgNormalArray();
+
+	    for(int i = 0; i < numpoints; i++) 
+	      {
+		sgVec3 p, v;
+		readPoint(model_file_, p);
+		readVector(model_file_, v);
+		curr_vtx_ ->add(p);
+		curr_norm_->add(v);
+	      }
+	  }
+	  break;
+
+	case 0x2a:	// Goraud shaded ABCD Facet
+	case 0x3e:	// FACETN (no texture)
+	  {
+	    if(vtx_dirty_)
+	      {
+		last_idx_ = vertex_array_->getNum();
+		for(int i = 0; i < curr_vtx_->getNum(); i++)
+		  {
+		    vertex_array_->add(curr_vtx_->get(i));
+		    normal_array_->add(curr_norm_->get(i));
+		  }
+		vtx_dirty_ = false;
+	      }
+	  
+	    curr_part_ = new _MDLPart;
+	    curr_part_->type = GL_TRIANGLE_FAN ;
+	    curr_part_->vtx  = vertex_array_;
+	    curr_part_->nrm  = normal_array_;
+	    curr_part_->crd  = NULL;
+	    curr_part_->idx  = new ssgIndexArray;
+
+	    unsigned short numverts;
+	    numverts = ulEndianReadLittle16(model_file_);
+	    //DEBUGPRINT( "New part: (no tex), num indices = " << numverts 
+	    //<< std::endl);
+
+	    // Surface normal
+	    sgVec3 v;
+	    readVector(model_file_, v);
+
+	    curr_cull_face_ = ulEndianReadLittle32(model_file_) >= 0;
+
+	    // Read vertex indices
+	    readIndices(model_file_, numverts, v);
+
+	    if(!has_normals_)
+	      {
+		for(int i = 0; i < curr_part_->idx->getNum(); i++)
+		  sgCopyVec3(normal_array_->get(*curr_part_->idx->get(i)), v);
+		recalcNormals(curr_part_);
+	      }
+
+	    curr_part_->removeUnnecessaryVertices();
+	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
+						  curr_part_->vtx,
+						  curr_part_->nrm,
+						  NULL,
+						  NULL,
+						  curr_part_->idx ) ;
+	    
+	    ssgSimpleState* st = createMaterialState(curr_color_, 
+						     curr_pal_id_) ;
+	    
+	    vtab -> setCullFace ( curr_cull_face_ ) ;
+	    vtab -> setState ( st ) ;
+	    
+	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
+	    char lname[5];
+	    sprintf(lname, "%X%X", curr_color_, curr_pal_id_);
+	    leaf -> setName(lname);
+	    curr_branch_->addKid(leaf);
+	  }
+	  break;
+		
+	case 0x43:      // TEXTURE2
+	  {
+	    ulEndianReadLittle16(model_file_);  // record length
+	    ulEndianReadLittle16(model_file_);  // must be zero
+	    get_byte();  // flags, ignored
+	    get_byte();  // checksum, must be zero
+	    curr_color_  = get_byte();
+	    curr_pal_id_ = get_byte();
+	    ulEndianReadLittle16(model_file_);  // ??
+
+	    int i;
+	    for (i = 0; (curr_tex_name_[i] = get_byte()) != '\0'; i++);
+	    
+	    if (i % 2 == 0) get_byte();  // padd to even length
+	  
+	    //DEBUGPRINT( "Set texture: name = " << curr_tex_name_ <<
+	    //	"color: " << (int)curr_color_ << " (" << std::hex <<
+	    //	curr_pal_id_ << std::dec << ")\n");
+	  }
+	  break;
+	
+#ifdef DEBUG
+	case 0x46:      // POINT_VICALL (rotate-translate)
+	  {
+	    DEBUGPRINT( "BGL_POINT_VICALL\t" );
+	    DEBUGPRINT( ulEndianReadLittle16( model_file_ ) << "\n" );
+	    sgCoord rot;
+	    unsigned short hpr_vars[3];
+	    readPoint( model_file_, rot.xyz );
+
+	    DEBUGPRINT( rot.xyz[0] << "\t" << rot.xyz[1] << "\t" <<
+			rot.xyz[2] << "\n\t" );
+	  
+	    for (int i = 0; i < 3; i++) {
+	      rot.hpr [i] = (float)ulEndianReadLittle16( model_file_ ) / 65536;
+	      hpr_vars[i] = ulEndianReadLittle16       ( model_file_ );
+	      DEBUGPRINT( rot.hpr[i] << "(" << hpr_vars[i] << ")\t" );
+	    }
+
+	    DEBUGPRINT( "\n" );
+	  }
+
+	  break;
+#endif	
+	case 0x50: 	// GCOLOR (Goraud shaded color)
+	case 0x51:	// LCOLOR (Line color)
+	case 0x52:     	// SCOLOR (Light source shaded surface color)
+	  {
+	    curr_color_  = get_byte();
+	    curr_pal_id_ = get_byte();
+
+	    if(curr_pal_id_ == 0x68) {
+	      curr_alpha_ = 0.3f;
+	    } else {
+	      curr_alpha_ = 1.0f;
+	    }
+	      
+	    //DEBUGPRINT( "Set color = " << (int)curr_color_ << " (" << 
+	    //     std::hex << curr_pal_id_ << std::dec << ")\n");
+	  }
+	  break;
+
 	case 0x7a: 	// Goraud shaded Texture-mapped ABCD Facet
 	  {
 	    if(vtx_dirty_)
@@ -859,14 +1058,14 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 
 	    unsigned short numverts;
 	    numverts = ulEndianReadLittle16(model_file_);
-	    DEBUGPRINT( "New part: (goraud/texture), num indices = " << numverts << std::endl);
+	    //DEBUGPRINT( "New part: (goraud/texture), num indices = " << 
+	    //	numverts << std::endl);
 
 	    // Unused data
 	    sgVec3 v;
 	    readVector(model_file_, v);
 	    //	  v *= -1.0;
-	    unsigned int d;
-	    fread(&d, 4, 1, model_file_);  // we don't care about endian here
+	    curr_cull_face_ = ulEndianReadLittle32(model_file_) >= 0;
 
 	    // Read vertex inidices and texture coordinates
 	    char *texture_extension = 
@@ -892,7 +1091,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    
 	    ssgSimpleState* st = createTextureState(curr_tex_name_) ;
 	    
-	    vtab -> setCullFace ( TRUE ) ;
+	    vtab -> setCullFace ( curr_cull_face_ ) ;
 	    vtab -> setState ( st ) ;
 	    
 	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
@@ -900,330 +1099,58 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
+
+	case 0x8F:
+	  {
+	    int value  = ulEndianReadLittle32( model_file_ );
+	    if ( value == 0 ) {
+	      curr_alpha_ = 1.0f;
+	    } else {
+	      /* Scenery SDK is a bit fuzzy here, but this works fairly well */
+	      curr_alpha_ = 0.3f;
+	    }
+	  }
+
+	  break;
        
-	case 0x3e:	// FACETN (no texture)
-	case 0x2a:	// Goraud shaded ABCD Facet
-	  {
-	    if(vtx_dirty_)
-	      {
-		last_idx_ = vertex_array_->getNum();
-		for(int i = 0; i < curr_vtx_->getNum(); i++)
-		  {
-		    vertex_array_->add(curr_vtx_->get(i));
-		    normal_array_->add(curr_norm_->get(i));
-		  }
-		vtx_dirty_ = false;
-	      }
-	  
-	    curr_part_ = new _MDLPart;
-	    curr_part_->type = GL_TRIANGLE_FAN ;
-	    curr_part_->vtx  = vertex_array_;
-	    curr_part_->nrm  = normal_array_;
-	    curr_part_->crd  = NULL;
-	    curr_part_->idx  = new ssgIndexArray;
-
-	    unsigned short numverts;
-	    numverts = ulEndianReadLittle16(model_file_);
-	    DEBUGPRINT( "New part: (no tex), num indices = " << numverts << std::endl);
-
-	    // Surface normal
-	    sgVec3 v;
-	    readVector(model_file_, v);
-
-	    ulEndianReadLittle32(model_file_);  // dummy data
-
-	    // Read vertex indices
-	    readIndices(model_file_, numverts, v);
-
-	    if(!has_normals_)
-	      {
-		for(int i = 0; i < curr_part_->idx->getNum(); i++)
-		  sgCopyVec3(normal_array_->get(*curr_part_->idx->get(i)), v);
-		recalcNormals(curr_part_);
-	      }
-
-	    curr_part_->removeUnnecessaryVertices();
-	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
-						  curr_part_->vtx,
-						  curr_part_->nrm,
-						  NULL,
-						  NULL,
-						  curr_part_->idx ) ;
-	    
-	    ssgSimpleState* st = createMaterialState(curr_color_, 
-						     curr_pal_id_) ;
-	    
-	    vtab -> setCullFace ( TRUE ) ;
-	    vtab -> setState ( st ) ;
-	    
-	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
-	    char lname[5];
-	    sprintf(lname, "%X%X", curr_color_, curr_pal_id_);
-	    leaf -> setName(lname);
-	    curr_branch_->addKid(leaf);
-	  }
-	  break;
-	
-	case 0x18: 	// Set texture
-	  {
-	    unsigned short id, dx, scale, dy;
-	    id    = ulEndianReadLittle16(model_file_);
-	    dx    = ulEndianReadLittle16(model_file_);
-	    scale = ulEndianReadLittle16(model_file_);
-	    dy    = ulEndianReadLittle16(model_file_);
-	    char tex_name[14];
-	    fread(tex_name, 1, 14, model_file_);
-	    int j = 0;
-	    for(int i = 0; i < 14; i++) 
-	      {
-		if(!isspace(tex_name[i]))
-		  curr_tex_name_[j++] = tolower(tex_name[i]);
-	      }
-	    // for some reason, MSFS likes to store an '_' instead
-	    // of the '.' before the file extension (!)
-	    //curr_tex_name_[j-4] = '.';
-	    curr_tex_name_[j] = '\0';
-	    DEBUGPRINT( "Set texture: name = " << curr_tex_name_ << 
-			", id = " << id << ", dx = " << dx << ", dy = " << 
-			dy << ", scale = " << scale << std::endl);
-	  }
-	  break;
-
-	case 0x43:      // TEXTURE2
-	  {
-	    ulEndianReadLittle16(model_file_);  // record length
-	    ulEndianReadLittle16(model_file_);  // must be zero
-	    get_byte();  // flags, ignored
-	    get_byte();  // checksum, must be zero
-	    curr_color_  = get_byte();
-	    curr_pal_id_ = get_byte();
-	    ulEndianReadLittle16(model_file_);  // ??
-
-	    int i;
-	    for (i = 0; (curr_tex_name_[i] = get_byte()) != '\0'; i++);
-	    
-	    if (i % 2 == 0) get_byte();  // padd to even length
-	  
-	    DEBUGPRINT( "Set texture: name = " << curr_tex_name_ <<
-			"color: " << (int)curr_color_ << " (" << std::hex <<
-			curr_pal_id_ << std::dec << ")\n");
-	  }
-	  break;
-	
-	
-	
-	case 0x50: 	// GCOLOR (Goraud shaded color)
-	case 0x51:	// LCOLOR (Line color)
-	case 0x52:     	// SCOLOR (Light source shaded surface color)
-	  {
-	    curr_color_  = get_byte();
-	    curr_pal_id_ = get_byte();
-	    DEBUGPRINT( "Set color = " << (int)curr_color_ << " (" << std::hex << 
-			curr_pal_id_ << std::dec << ")\n");
-	  }
-	  break;
-
-	case 0x08: 	// CLOSURE
-	  {
-	    DEBUGPRINT( "CLOSURE\n\n");
-
-	    findPart(model_file_);
-	    continue;
-	  }
-	  break;
-	  
-	case 0x0:	// EOF
-	case 0x22: 	// BGL return
-	  {
-	    DEBUGPRINT( "BGL return\n\n");
-
-	    findPart(model_file_);
-	  }
-	  break;
-
 	  //-------------------------------------------
 	  // The rest of the codes are either ignored
 	  // or for experimental use..
 	  //-------------------------------------------
-
-	  // These have no endian handling, since they are ignored
-	
-	case 0x23:	// BGL Call subroutine
+	case 0x03:
 	  {
-	    unsigned short rel_addr;
-	    fread(&rel_addr, 2, 1, model_file_);
+	    //DEBUGPRINT( "BGL_CASE\n" );
+	    unsigned short number_cases = ulEndianReadLittle16(model_file_);
+	    skip_offset = 6 + 2 * number_cases;
 	  }
 	  break;
 
-	case 0x24:      // BGL_IFIN1 -- currently ignored
+	default: // Unknown opcode
 	  {
-	    ulEndianReadLittle16(model_file_);   // jump offset
-	    ulEndianReadLittle16(model_file_);   // variable
-	    ulEndianReadLittle16(model_file_);   // lower bound
-	    ulEndianReadLittle16(model_file_);   // upper bound
-	  }
-	  break;
-	  
-	case 0x39:      	// Relative Jump 
-	  {
-	    unsigned short rel_addr, var_offset, mask;
-	    fread(&rel_addr, 2, 1, model_file_);
-	    fread(&var_offset, 2, 1, model_file_);
-	    fread(&mask, 2, 1, model_file_);
-	    /*
-	      long pos = ftell(model_file_);
-	      fseek(model_file_, var_offset-5, SEEK_CUR);
-	      fread(&var, 2, 1, model_file_);
-	    */
-	    DEBUGPRINT( "JumpOnVar = " << std::hex << var_offset << 
-			std::dec << std::endl);
-	    /*
-	      fseek(model_file_, pos, SEEK_SET);
-	    
-	      if((var & mask) == 0)
-	      {
-	      DEBUGPRINT( "JUMP " << rel_addr << " bytes\n");
-	      long pos = ftell(model_file_);
-	      addr_stack_.insertFirst(pos);
-	      fseek(model_file_, rel_addr, SEEK_CUR);
+	    if (opcode < 256) {
+	      if ( opcodes[opcode].size != -1) {
+		DEBUGPRINT( opcodes[opcode].name << " (size " <<
+			    opcodes[opcode].size << ")" << std::endl );
+		skip_offset = opcodes[opcode].size - 2; // opcode already read
+	      } else {
+		DEBUGPRINT( "Unhandled opcode " << opcodes[opcode].name
+			    << " (" << std::hex << opcode << std::dec << ")" <<
+			    std::endl );
+		findPart(model_file_);
 	      }
-	    */
+	    } else {
+	      DEBUGPRINT( "Op-code out of range: " << std::hex << opcode <<
+			  std::dec << std::endl );
+	      findPart(model_file_);
+	    }
 	  }
 	  break;
-	
-	case 0x1c:	// IfVarRange2
-	  {
-	    unsigned short offset, var1, minval1, maxval1, var2, minval2, maxval2;
-	    fread(&offset,  2, 1, model_file_);
-	    fread(&var1,    2, 1, model_file_);
-	    fread(&minval1, 2, 1, model_file_);
-	    fread(&maxval1, 2, 1, model_file_);
-	    fread(&var2,    2, 1, model_file_);
-	    fread(&minval2, 2, 1, model_file_);
-	    fread(&maxval2, 2, 1, model_file_);
-	  
-	    DEBUGPRINT( "offset: " << offset << ", var1 = " << var1
-		 << ", range1 = [ " << minval1 << ", " << maxval1 << " ], var2 = " << var2 
-		 << ", range2 = [ " << minval2 << ", " << maxval2 << " ]\n");
-	  }
-	  break;
-	
-	case 0x41:	// SHADOW VINSTANCE -- ignored
-	  {
-	    unsigned char param[4];
-	    fread(param, 1, 4, model_file_);
-	  }
-	  break;
-
-	case 0x68: 	// TMAP LIGHT SOURCE SHADE - ignored
-	  {
-	    sgVec3 v;
-	    readVector(model_file_, v);
-	  }
-	  break;
-	
-	case 0x38:	// CONCAVE override -- ignored
-	  {
-	    ;
-	  }
-	  break;
-
-	case 0x35:	// PNTROW -- ignored
-	  {
-	    sgVec3 p;
-	    readPoint(model_file_, p);
-	    readPoint(model_file_, p);
-	    unsigned short reserve;
-	    fread(&reserve, 2, 1, model_file_);
-	  }
-	  break;
-	
-	case 0x34:	// SUPER_SCALE -- not used 
-	  {
-	    unsigned short offset, v1, v2, sx;
-	    fread(&offset, 2, 1, model_file_);
-	    fread(&v1, 2, 1, model_file_);
-	    fread(&v2, 2, 1, model_file_);
-	    fread(&sx, 2, 1, model_file_);
-	    DEBUGPRINT( "offset = " << offset << std::endl);
-	    DEBUGPRINT( "v1 = " << v1 << ", v2 = " << v2 << ", sx = " << sx << std::endl);
-	    DEBUGPRINT( "scale = " << (double)(1 << sx)/65536.0 << std::endl);
-	  }
-	  break;
-	
-	case 0x3a:	// BGL VPOSITION -- ignored
-	  {
-	    unsigned char param[10];
-	    fread(param, 1, 10, model_file_);
-	    //	  unsigned short addr;
-	    //	  fread(&addr, 2, 1, model_file_);
-	    //	  DEBUGPRINT( "vpoint addr = " << addr << std::endl);
-	  }
-	  break;
-
-	case 0x3b:	// VINSTANCE Call --ignored
-	  {
-	    unsigned char param[4];
-	    fread(param, 1, 4, model_file_);
-	  }
-	  break;
-	
-	case 0x12:	// GSTRRES -- Ignored
-	  {
-	    unsigned short var;
-	    fread(&var, 2, 1, model_file_);
-	  }
-	  break;
-
-	case 0x7d: 	// PERSPECTIVE OVERRIDE
-	  {
-	    ;
-	  }
-	  break;
-	
-	case 0x04:	// DEBUG
-	  {
-	    ;
-	  }
-	  break;
-
-	case 0x81:	// ANTI-ALIAS on/off
-	  {
-	    unsigned short val;
-	    fread(&val, 2, 1, model_file_);
-	  }
-	  break;
-	
-	case 0x82:	// SHADOW Position -- ignored
-	  {
-	    char pos[18];
-	    fread(pos, 1, 18, model_file_);
-	  }
-	  break;
-	
-	case 0x88:      // JUMP32 -- ignored
-	  {
-	    ulEndianReadLittle32(model_file_);
-	  }
-	  break;
-
-	case 0x8A:	// BGL Call subroutine
-	  {
-	    unsigned short rel_addr;
-	    fread(&rel_addr, 4, 1, model_file_);
-	  }
-	  break;
-       
-	default: // Unknown opcode, bail out
-	  {
-	    done = true;
-	    ulSetError( UL_WARNING, "ssgLoadMDL: Unknown opcode = %X. " \
-			"Aborting.", opcode);
-	  }
-	  break;
-	}       
+	}
+      if (skip_offset > 0) {
+	fseek( model_file_, skip_offset, SEEK_CUR );
+      }
     }
-  
+   
   fclose(model_file_);
   
   delete curr_vtx_;
