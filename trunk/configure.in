@@ -48,14 +48,6 @@ case "${host}" in
 *-*-cygwin* | *-*-mingw32*)
   dnl CygWin under Windoze.
 
-#  dnl gcc specs for latest Cygwin need this
-#  touch $$.c
-#  if `${CC} -c -mwin32 $$.c >/dev/null 2>&1`; then
-#    CFLAGS="-mwin32 $CFLAGS"
-#    CXXFLAGS="-mwin32 $CXXFLAGS"
-#  fi
-#  rm -f $$.o
-
   dnl OpenGL libraries
   LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32"
 	;;
