@@ -634,7 +634,7 @@ need to set the colours individually.
 Please note that these routines only affect the appearance of the widget
 itself in case of widgets that contain subwidgets (currently <a href="#puDialogBox">puDialogBox</a>,
 <a href="#puFileSelector">puFileSelector</a>, <a href="#puLargeInput">puLargeInput</a>, <a href="#puMenuBar">puMenuBar</a>, <a href="#puPopup">puPopup</a>, <a href="#puPopupMenu">puPopupMenu</a>,
-<a href="#puVerticalMenu">puVerticalMenu)</a> and the obsolete <a href="#puFilePicker">puFilePicker</a> class).
+<a href="#puVerticalMenu">puVerticalMenu</a> and the obsolete <a href="#puFilePicker">puFilePicker</a> class).
 <p>
 However, these classes are all derived directly or indirectly from
 <a href="#puGroup">puGroup</a>, and thus you can use the appropiate <a href="#puGroup">puGroup</a> functions in
@@ -1284,8 +1284,8 @@ a <a href="#puLargeInput">puLargeInput</a> widget, which is derived from puGroup
 a <a href="#puFrame">puFrame</a>, two <a href="#puSlider">puSlider</a> and up to four <a href="#puArrowButton">puArrowButton</a> widgets):
 <pre>
 
-  inputbox->setChildStyle ( PUCLASS_ARROW, PUSTYLE_BOXED ) ;
-  inputbox->setChildColour ( PUCLASS_ARROW | PUCLASS_FRAME,
+  inputbox -> setChildStyle ( PUCLASS_ARROW, PUSTYLE_BOXED ) ;
+  inputbox -> setChildColour ( PUCLASS_ARROW | PUCLASS_FRAME,
                              PUCOL_HIGHLIGHT, 1.0, 1.0, 1.0 ) ;
 
 </pre>
