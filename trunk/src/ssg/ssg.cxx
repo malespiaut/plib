@@ -264,6 +264,9 @@ ssgEntity *ssgLoad ( char *fname, ssgHookFunc hookfunc )
   if ( _ssgStrNEqual ( extn, ".tri", 4 ) )
     return ssgLoadTRI ( fname, hookfunc ) ;
 
+  if ( _ssgStrNEqual ( extn, ".obj", 4 ) )
+    return ssgLoadOBJ ( fname, hookfunc ) ;
+
   return NULL ;
 }
 
@@ -292,6 +295,9 @@ int ssgSave ( char *fname, ssgEntity *ent )
 
   if ( _ssgStrNEqual ( extn, ".tri", 4 ) )
     return ssgSaveTRI ( fname, ent ) ;
+
+  if ( _ssgStrNEqual ( extn, ".obj", 4 ) )
+    return ssgSaveOBJ ( fname, ent ) ;
 
   return FALSE ;
 }

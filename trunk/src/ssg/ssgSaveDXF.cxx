@@ -9,7 +9,8 @@ static FILE *fileout ;
 
 static void save_vtx_table ( ssgVtxTable *vt )
 {
-  if ( vt -> getGLtype () == GL_LINES )
+  GLenum mode = vt -> getGLtype () ;
+  if ( mode == GL_LINES )
   {
     int num_vert = vt -> getNumVertices () ;
     num_vert = num_vert - ( num_vert & 1 ) ; //discard odd vertex
@@ -38,7 +39,9 @@ static void save_vtx_table ( ssgVtxTable *vt )
       fprintf ( fileout, "%f\n", vert2[2] );
     }
   }
-  else   //assume this is triangle based
+  else if ( mode == GL_TRIANGLES ||
+    mode == GL_TRIANGLE_FAN ||
+    mode == GL_TRIANGLE_STRIP )
   {
     int num_face = vt -> getNumTriangles () ;
     for ( int j = 0; j < num_face; j++ )
