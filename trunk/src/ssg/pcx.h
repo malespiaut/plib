@@ -55,13 +55,13 @@ static int ReadPCXBody(UByte*& buffer, pcxHeaderType *ppcxHeader, UByte * pBody)
 		UByte color = READ_BYTE;
 		if ((color &0xC0) != 0xC0)			// uncompressed?
 		{
+			*pBody++ = color;
+			x++;
 			if (x >= width) 
 			{ x=0; y++; 	// next line
 				if(y > ppcxHeader->ymax-ppcxHeader->y)
 					break;
 			}
-			*pBody++ = color;
-			x++;
 		}
 		else				
 		{
@@ -69,16 +69,17 @@ static int ReadPCXBody(UByte*& buffer, pcxHeaderType *ppcxHeader, UByte * pBody)
 			color = READ_BYTE;
 			for (counter=0; counter<length; counter++)
 			{
+				*pBody++ = color;
+				x++;
 				if (x >= width) 
 				{ x=0; y++; // next line
+					counter=length;
 					if(y > ppcxHeader->ymax-ppcxHeader->y)
-						break;
+						break; // breaks for (counter=0; counte...
 				}
-				x++;
-				*pBody++ = color;
 			}
 			if(y > ppcxHeader->ymax-ppcxHeader->y)
-				break;
+				break; // breaks for(;;)
 		}
 	}
 	return TRUE;
