@@ -33,6 +33,8 @@
 #    include <dlfcn.h>
 #  endif
 
+//lint -save -e506 -e1023
+
 
 #include <assert.h>
 
@@ -496,7 +498,7 @@ public:
 
   void *getFuncAddress ( const char *funcname )
   {
-    return (void *) GetProcAddress ( handle, funcname ) ;
+    return (void *) GetProcAddress ( handle, funcname ) ; //lint !e611
   }
 
   ~ulDynamicLibrary ()
@@ -647,6 +649,7 @@ public:
 
 #endif /* if defined(WIN32) */
 
+//lint -restore
 
 #endif
 
