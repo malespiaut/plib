@@ -284,6 +284,10 @@ SOURCE=.\ssgLoadFLT.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadIV.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadM.cxx
 # End Source File
 # Begin Source File
@@ -336,11 +340,11 @@ SOURCE=.\ssgLoadTRI.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgLoadVRML.cxx
+SOURCE=.\ssgLoadVRML.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgLoadVRML.h
+SOURCE=.\ssgLoadVRML1.cxx
 # End Source File
 # Begin Source File
 
@@ -457,6 +461,14 @@ SOURCE=.\ssgTexture.cxx
 # Begin Source File
 
 SOURCE=.\ssgTransform.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgTween.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgTweenController.cxx
 # End Source File
 # Begin Source File
 
