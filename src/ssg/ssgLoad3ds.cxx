@@ -233,13 +233,15 @@ static _3dsMat default_material= { "ssgLoad3ds default material",
    3ds file. */
 struct _ssg3dsStructureNode {
   _ssg3dsStructureNode() {
-    id     = -1;
-    object = NULL;
-    next   = NULL;
+    id            = -1;
+    object        = NULL;
+    has_been_used = false;
+    next          = NULL;
   }
 
   short id;
   ssgBranch *object;
+  bool has_been_used;
   _ssg3dsStructureNode *next;
 };
 
@@ -786,7 +788,7 @@ static int parse_map_list( unsigned int length ) {
 
   for (int i = 0; i < num_v; i++) {
     texcrd_list[i][0] = ulEndianReadLittleFloat(model);
-    texcrd_list[i][1] = 1.0f - ulEndianReadLittleFloat(model);
+    texcrd_list[i][1] = ulEndianReadLittleFloat(model);
   }
 
   return PARSE_OK;
@@ -832,8 +834,9 @@ static int parse_tra_matrix( unsigned int length ) {
 
 static void add_leaf( _3dsMat *material, int listed_faces, 
 		      unsigned short *face_indices ) {
-  int is_ds       = material->flags & IS_DOUBLESIDED;
-  int has_texture = material->tex_name != NULL;
+  int is_ds          = material->flags & IS_DOUBLESIDED;
+  int has_texture    = material->tex_name != NULL;
+  int flip_texture_y = FALSE;
   ssgVertexArray   *vertices = new ssgVertexArray();
   ssgNormalArray   *normals  = new ssgNormalArray();
   ssgTexCoordArray *texcrds  = NULL;
@@ -843,6 +846,12 @@ static void add_leaf( _3dsMat *material, int listed_faces,
       ulSetError(UL_WARNING, "ssgLoad3ds: Texture coords missing.");
     } else {
       texcrds = new ssgTexCoordArray();
+
+      /* flip textures y-coord if texture is a BMP */
+      char *texture_extension = 
+	material->tex_name + strlen(material->tex_name) - 3;
+      
+      flip_texture_y = _ssgStrEqual( texture_extension, "BMP" );
     }
   }
 
@@ -876,6 +885,11 @@ static void add_leaf( _3dsMat *material, int listed_faces,
       for (int j = 0; j < num_texcrds; j++) {
         _texcrds[j][0] *= material->tex_scale[0];
         _texcrds[j][1] *= material->tex_scale[1];
+
+	if (flip_texture_y) {
+	  _texcrds[j][1] = 1.0f - _texcrds[j][1];
+	}
+
         sgAddVec2( _texcrds[j], material->tex_offset );
 	texcrds->add( _texcrds[j] );
       }
@@ -1041,9 +1055,11 @@ static int parse_frame_objname( unsigned int length ) {
 		  "not match any defined objects.", parent_id );      
     } else {
       parent -> object -> addKid( current_structure_node -> object );
+      current_structure_node -> has_been_used = true;
     }
   } else {
     top_object -> addKid( current_structure_node -> object );
+    current_structure_node -> has_been_used = true;
   }
 
   delete objname;
@@ -1182,6 +1198,9 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   }
 
   for ( _ssg3dsStructureNode *n = object_list, *temp; n != NULL; n = temp ) {
+    if ( !n -> has_been_used ) {
+      top_object -> addKid( n -> object );
+    }
     temp = n -> next;
     delete n;
   }
