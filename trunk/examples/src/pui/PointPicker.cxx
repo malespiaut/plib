@@ -229,10 +229,10 @@ void point_no_up_cb ( puObject *ob )
 
 void point_no_active_cb ( puObject *ob )
 {
-  int viewport[4] ;  // Viewport
+  GLint viewport[4] ;  // Viewport
   glGetIntegerv ( GL_VIEWPORT, viewport ) ;
 
-  unsigned int buffer[512];
+  GLuint buffer[512];
   glSelectBuffer ( 512L, buffer );    // Set up the buffer to put hits into
   glRenderMode ( GL_SELECT ) ;      // Go into Select mode
 
