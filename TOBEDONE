@@ -82,8 +82,6 @@ Bugs:
   or relative path. Load another object from the same path. It has 
   happened to me that plib now doesn't find the textures. I will look 
   into this.
-- Review and apply Curts patch from his last post under the subject 
-  "plib/sl audio bug"
 - Sam wrote:
   Has anyone here debugged with plib under Windoze 2000 and MSVC++?
   I get a whole bunch of
@@ -121,7 +119,7 @@ Bugs:
   says "place a copy of that part over here"? 
 
   Culling seems to be disabled
-- Only one loader uses ssgLoaderOptions::begin. Don't all have to?
+- Not all loaders use ssgLoaderOptions::begin. Don't all have to?
   See also the Thread:
    "num_shared_textures, was Crash in new .MDL loader fixed."
 
@@ -142,7 +140,6 @@ Misc:
   because of performance issues we need a warning in the docs and 
   IMHO PLIB should "write out" a warning if an unallowed matrix is
   sent to it.
-- Rename CGlobalSimpleStateList in plib and ppe.
 - Dave McClurgs new Net stuff: 
   One of the Linux persons should make it compilable and 
   test it.
