@@ -43,8 +43,11 @@ static const OpcodeDecode opcodeDecode [] =
   { "PUSH_INT_CONSTANT"  , OPCODE_PUSH_INT_CONSTANT  , sizeof(int)   },
   { "PUSH_FLOAT_CONSTANT", OPCODE_PUSH_FLOAT_CONSTANT, sizeof(float) },
   { "PUSH_STRING_CONSTANT",OPCODE_PUSH_STRING_CONSTANT, 0 },
-  { "POP_INTO_VARIABLE"  , OPCODE_POP_VARIABLE       , 1 },
   { "PUSH_VARIABLE"      , OPCODE_PUSH_VARIABLE      , 1 },
+
+  { "DUPLICATE"          , OPCODE_STACK_DUPLICATE    , 0 },
+
+  { "POP_INTO_VARIABLE"  , OPCODE_POP_VARIABLE       , 1 },
   { "POP"                , OPCODE_POP                , 0 },
 
   /* Variable creation */
@@ -220,7 +223,7 @@ int pslCompiler::printInstruction ( FILE *fd, int addr ) const
 
     case OPCODE_JUMP_FALSE :
     case OPCODE_JUMP_TRUE  :
-      fprintf ( fd, "\t%d", code[addr+1] + ( code[addr+2] << 8 ) ) ;
+      fprintf ( fd, "\t\t%d", code[addr+1] + ( code[addr+2] << 8 ) ) ;
       break ;
 
     case OPCODE_JUMP :
