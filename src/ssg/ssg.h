@@ -1135,6 +1135,9 @@ public:
   int preTravTests ( int *test_needed, int which ) ;
   void postTravTests ( int which ) ;
 
+  virtual void getNetTransform     ( sgMat4 xform ) ;
+  virtual void getLastNetTransform ( sgMat4 xform ) ;
+
   /* for backward compatibility */
   virtual ssgCallback getCallback ( int cb_type ) ;
   virtual void setCallback ( int cb_type, ssgCallback cb ) ;
@@ -1833,7 +1836,7 @@ protected:
   double get_time() const
   {
     if (time_mode == SSG_ANIM_FRAME)
-      return static_cast<float>( ssgGetFrameCounter() );
+      return (double) ssgGetFrameCounter() ;
     else
       return ck.update(), ck.getAbsTime();
   }
@@ -1993,6 +1996,9 @@ public:
   virtual void setTransform ( sgCoord *xform ) ;
   virtual void setTransform ( sgCoord *xform, float sx, float sy, float sz ) ;
   virtual void setTransform ( sgMat4 xform ) ;
+
+  virtual void getNetTransform     ( sgMat4 xform ) ;
+  virtual void getLastNetTransform ( sgMat4 xform ) ;
 
   virtual const char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;

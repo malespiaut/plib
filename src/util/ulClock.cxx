@@ -24,46 +24,44 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#if defined(WIN32)
-#include <windows.h>
-#include <mmsystem.h>
- #ifdef __CYGWIN__
+#include "ul.h"
+
+#ifdef UL_CYGWIN
   typedef long long _int64;
   #define LARGEINTEGER _int64
-//  #include <largeint.h>
- #endif
 #else
 #include <sys/time.h>
 #endif
+
 #include <time.h>
 
-#include "ul.h"
+#ifdef UL_WIN32
 
-#if defined(WIN32)
 double ulClock::res ;
 int ulClock::perf_timer = -1;
 
 void ulClock::initPerformanceTimer ()
 {
-	if( perf_timer == -1 ) {
-		/* Use Performance Timer if it's available, mmtimer if not.  */
+  if ( perf_timer == -1 )
+  {
+    /* Use Performance Timer if it's available, mmtimer if not.  */
 
-		__int64 frequency ;
+    __int64 frequency ;
 
-		perf_timer = QueryPerformanceFrequency ( (LARGE_INTEGER *) & frequency ) ;
+    perf_timer = QueryPerformanceFrequency ( (LARGE_INTEGER *) & frequency ) ;
 
-		if ( perf_timer )
-		{
-			res = 1.0 / (double) frequency ;
-			perf_timer = 1 ;
-		}
-	}
+    if ( perf_timer )
+    {
+      res = 1.0 / (double) frequency ;
+      perf_timer = 1 ;
+    }
+  }
 }
 #endif
 
 double ulClock::getRawTime () const
 {
-#if defined(WIN32)
+#ifdef UL_WIN32
 
   /* Use Performance Timer if it's available, mmtimer if not.  */
 

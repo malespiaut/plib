@@ -30,121 +30,75 @@
 #include <stdlib.h>
 #include <string.h> // -dw- for memcpy
 
-#ifdef macintosh
+#define _JS_MAX_AXES 16
+
+#ifdef UL_MACINTOSH
 #  include <InputSprocket.h>
 #endif
 
-/*
-  FreeBSD port - courtesy of Stephen Montgomery-Smith
-  <stephen@math.missouri.edu>
-
-  NetBSD mods - courtesy Rene Hexel.
-
-  The next lines are to define BSD
-  see http://www.freebsd.org/handbook/porting.html for why we do this
-*/
-//lint -save -e620
-
-#if (defined(__unix__) || defined(unix)) && !defined(USG)
-#include <sys/param.h>
-#endif
-
-#ifdef WIN32
-#  include <windows.h>
-#  if defined( __CYGWIN32__ ) || defined( __CYGWIN__ )
-#    define NEAR /* */
-#    define FAR  /* */
-#  endif
-#  include <mmsystem.h>
-#  include <regstr.h>
-#  include <string.h>
-#else
-
-#  include <unistd.h>
-#  include <fcntl.h>
-
-#  if defined(__FreeBSD__) || defined(__NetBSD__)
+#ifdef UL_BSD
 #    include <machine/joystick.h>
 #    define JS_DATA_TYPE joystick
 #    define JS_RETURN (sizeof(struct JS_DATA_TYPE))
-#  elif defined(__linux__)
+#endif
+
+#ifdef UL_LINUX 
 #    include <sys/ioctl.h>
 #    include <linux/joystick.h>
-#    include <errno.h>
 
-     /* check the joystick driver version */
+/* check the joystick driver version */
 
-#    ifdef JS_VERSION
-#      if JS_VERSION >= 0x010000
-#        define JS_NEW
-#      endif
-#    endif
+#if defined(JS_VERSION) && JS_VERSION >= 0x010000
+#  define JS_NEW
+#else
 
-#  else
-#    ifndef JS_DATA_TYPE
+ /*
+   We'll put these values in and that should
+   allow the code to at least compile when there is
+   no support. The JS open routine should error out
+   and shut off all the code downstream anyway
+ */
 
-      /*
-        Not Windoze and no joystick driver...
+  struct JS_DATA_TYPE
+  {
+    int buttons ;
+    int x ;
+    int y ;
+  } ;
 
-        Well - we'll put these values in and that should
-        allow the code to at least compile. The JS open
-        routine should error out and shut off all the code
-        downstream anyway
-      */
-
-       struct JS_DATA_TYPE
-       {
-         int buttons ;
-         int x ;
-         int y ;
-       } ;
-
-#      define JS_RETURN (sizeof(struct JS_DATA_TYPE))
-#    endif
-#  endif
+#  define JS_RETURN (sizeof(struct JS_DATA_TYPE))
+#endif
 #endif
 
 #define JS_TRUE  1
 #define JS_FALSE 0
 
-#ifdef WIN32
-#  define _JS_MAX_AXES 8  /* X,Y,Z,R,U,V,POV_X,POV_Y */
-#elif defined (macintosh)
-#  define _JS_MAX_AXES 9
-#else
-#  if defined(__FreeBSD__) || defined(__NetBSD__)
-#  define _JS_MAX_AXES 2
-#  else
-#  define _JS_MAX_AXES 9
-#  endif
-#endif
-
 
 class jsJoystick
 {
-#ifdef macintosh
-#  define  isp_num_axis   9
-#  define  isp_num_needs  41
+  int          id ;
 
+#if defined(UL_MACINTOSH)
+
+#define  isp_num_axis   9
+#define  isp_num_needs  41
   ISpElementReference isp_elem  [ isp_num_needs ] ;
   ISpNeed             isp_needs [ isp_num_needs ] ;
-#endif
-
-/*#if defined(__FreeBSD__) || defined(__NetBSD__)
-  int          id ;
-#endif*/
-#ifdef WIN32
+#elif defined(UL_WIN32)
   JOYCAPS      jsCaps ;
   JOYINFOEX    js     ;
   UINT         js_id  ;
+  bool getOEMProductName ( char *buf, int buf_sz ) ;
 #else
-# ifdef JS_NEW
+
+#ifdef JS_NEW
   js_event     js          ;
   int          tmp_buttons ;
   float        tmp_axes [ _JS_MAX_AXES ] ;
 # else
   JS_DATA_TYPE js ;
 # endif
+
   char         fname [ 128 ] ;
   int          fd ;
 #endif
@@ -160,9 +114,6 @@ class jsJoystick
   float max       [ _JS_MAX_AXES ] ;
   float min       [ _JS_MAX_AXES ] ;
 
-#ifdef WIN32
-  bool getOEMProductName ( char *buf, int buf_sz ) ;
-#endif
 
   void open () ;
   void close () ;
@@ -193,697 +144,11 @@ public:
   void getMaxRange ( float *axes ) const { memcpy ( axes, max   , num_axes * sizeof(float) ) ; }
   void getCenter   ( float *axes ) const { memcpy ( axes, center, num_axes * sizeof(float) ) ; }
 
-  void read ( int *buttons, float *axes ) ;
+  void read    ( int *buttons, float *axes ) ;
   void rawRead ( int *buttons, float *axes ) ;
 } ;
 
 extern void jsInit () ;
-
-
-#ifdef WIN32
-
-// Inspired by
-// http://msdn.microsoft.com/archive/en-us/dnargame/html/msdn_sidewind3d.asp
-inline bool jsJoystick::getOEMProductName ( char *buf, int buf_sz )
-{
-  if ( error )
-    return false ;
-
-  union
-  {
-    char key   [ 256 ] ;
-    char value [ 256 ] ;
-  } ;
-  char OEMKey [ 256 ] ;
-
-  HKEY  hKey ;
-  DWORD dwcb ;
-  LONG  lr ;
-
-  // Open .. MediaResources\CurrentJoystickSettings
-  sprintf ( key, "%s\\%s\\%s",
-            REGSTR_PATH_JOYCONFIG, jsCaps.szRegKey,
-            REGSTR_KEY_JOYCURR ) ;
-
-  lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_QUERY_VALUE, &hKey) ;
-
-  if ( lr != ERROR_SUCCESS ) return false ;
-
-  // Get OEM Key name
-  dwcb = sizeof(OEMKey) ;
-
-  // JOYSTICKID1-16 is zero-based; registry entries for VJOYD are 1-based.
-  sprintf ( value, "Joystick%d%s", js_id + 1, REGSTR_VAL_JOYOEMNAME ) ;
-
-  lr = RegQueryValueEx ( hKey, value, 0, 0, (LPBYTE) OEMKey, &dwcb);
-  RegCloseKey ( hKey ) ;
-
-  if ( lr != ERROR_SUCCESS ) return false ;
-
-  // Open OEM Key from ...MediaProperties
-  sprintf ( key, "%s\\%s", REGSTR_PATH_JOYOEM, OEMKey ) ;
-
-  lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_QUERY_VALUE, &hKey ) ;
-
-  if ( lr != ERROR_SUCCESS ) return false ;
-
-  // Get OEM Name
-  dwcb = buf_sz ;
-
-  lr = RegQueryValueEx ( hKey, REGSTR_VAL_JOYOEMNAME, 0, 0, (LPBYTE) buf,
-                           &dwcb ) ;
-  RegCloseKey ( hKey ) ;
-
-  if ( lr != ERROR_SUCCESS ) return false ;
-
-  return true ;
-}
-
-#endif
-
-
-#ifdef macintosh
-
-inline void jsJoystick::open ()
-{
-  name [0] = '\0' ;
-
-  /*
-    FIXME: get joystick name in Mac
-  */
-
-  OSStatus err ;
-
-  err = ISpStartup () ;
-
-  if ( err == noErr )
-  {
-#define ISP_CHECK_ERR(x) if ( x != noErr ) { setError () ; return ; }
-
-    setError () ;
-
-    // initialize the needs structure
-    ISpNeed temp_isp_needs[isp_num_needs] =
-    {
-      { "\pX-Axis",    128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-      { "\pY-Axis",    128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-      { "\pZ-Axis",    128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-      { "\pR-Axis",    128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-      { "\pAxis   4",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-      { "\pAxis   5",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-      { "\pAxis   6",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-      { "\pAxis   7",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-      { "\pAxis   8",  128, 0, 0, kISpElementKind_Axis,   kISpElementLabel_None, 0, 0, 0, 0 },
-
-      { "\pButton 0",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 1",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 2",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 3",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 4",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 5",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 6",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 7",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 8",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 9",  128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 10", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 11", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 12", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 13", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 14", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 15", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 16", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 17", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 18", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 19", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 20", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 21", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 22", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 23", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 24", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 25", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 26", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 27", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 28", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 29", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 30", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-      { "\pButton 31", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
-    } ;
-
-    memcpy ( isp_needs, temp_isp_needs, sizeof(temp_isp_needs) ) ;
-
-
-    // next two calls allow keyboard and mouse to emulate other input
-    // devices (gamepads, joysticks, etc)
-
-    /*
-      err = ISpDevices_ActivateClass ( kISpDeviceClass_Keyboard ) ;
-      ISP_CHECK_ERR(err)
-
-
-      err = ISpDevices_ActivateClass ( kISpDeviceClass_Mouse ) ;
-      ISP_CHECK_ERR(err)
-    */
-
-    err = ISpElement_NewVirtualFromNeeds ( isp_num_needs, isp_needs, isp_elem, 0 ) ;
-    ISP_CHECK_ERR(err)
-
-    err = ISpInit ( isp_num_needs, isp_needs, isp_elem, 'PLIB', nil, 0, 128, 0 ) ;
-    ISP_CHECK_ERR(err)
-
-    num_buttons = isp_num_needs - isp_num_axis ;
-    num_axes    = isp_num_axis ;
-
-    for ( int i = 0 ; i < num_axes ; i++ )
-    {
-      dead_band [ i ] = 0 ;
-      saturate  [ i ] = 1 ;
-      center    [ i ] = kISpAxisMiddle ;
-      max       [ i ] = kISpAxisMaximum ;
-      min       [ i ] = kISpAxisMinimum ;
-    }
-
-    error = false ;
-  }
-  else
-  {
-    setError () ;
-    num_buttons = num_axes = 0 ;
-  }
-}
-
-#elif defined( WIN32 )
-
-inline void jsJoystick::open ()
-{
-  name [0] = '\0' ;
-
-  js . dwFlags = JOY_RETURNALL ;
-  js . dwSize  = sizeof ( js ) ;
-
-  memset ( &jsCaps, 0, sizeof(jsCaps) ) ;
-
-  error = ( joyGetDevCaps( js_id, &jsCaps, sizeof(jsCaps) )
-                 != JOYERR_NOERROR ) ;
-  if ( jsCaps.wNumAxes == 0 )
-  {
-    num_axes = 0 ;
-    setError () ;
-  }
-  else
-  {
-    // Device name from jsCaps is often "Microsoft PC-joystick driver",
-    // at least for USB.  Try to get the real name from the registry.
-    if ( ! getOEMProductName ( name, sizeof(name) ) )
-    {
-      ulSetError ( UL_WARNING,
-                   "JS: Failed to read joystick name from registry" ) ;
-
-      strncpy ( name, jsCaps.szPname, sizeof(name) ) ;
-    }
-
-    // Windows joystick drivers may provide any combination of
-    // X,Y,Z,R,U,V,POV - not necessarily the first n of these.
-    if ( jsCaps.wCaps & JOYCAPS_HASPOV )
-    {
-      num_axes = _JS_MAX_AXES ;
-      min [ 7 ] = -1.0 ; max [ 7 ] = 1.0 ;  // POV Y
-      min [ 6 ] = -1.0 ; max [ 6 ] = 1.0 ;  // POV X
-    }
-    else
-      num_axes = 6 ;
-
-    min [ 5 ] = (float) jsCaps.wVmin ; max [ 5 ] = (float) jsCaps.wVmax ;
-    min [ 4 ] = (float) jsCaps.wUmin ; max [ 4 ] = (float) jsCaps.wUmax ;
-    min [ 3 ] = (float) jsCaps.wRmin ; max [ 3 ] = (float) jsCaps.wRmax ;
-    min [ 2 ] = (float) jsCaps.wZmin ; max [ 2 ] = (float) jsCaps.wZmax ;
-    min [ 1 ] = (float) jsCaps.wYmin ; max [ 1 ] = (float) jsCaps.wYmax ;
-    min [ 0 ] = (float) jsCaps.wXmin ; max [ 0 ] = (float) jsCaps.wXmax ;
-  }
-
-  for ( int i = 0 ; i < num_axes ; i++ )
-  {
-    center    [ i ] = ( max[i] + min[i] ) / 2.0f ;
-    dead_band [ i ] = 0.0f ;
-    saturate  [ i ] = 1.0f ;
-  }
-}
-
-#else
-
-inline void jsJoystick::open ()
-{
-  name [0] = '\0' ;
-
-  /* Default for older Linux systems. */
-
-  num_axes    =  2 ;
-  num_buttons = 32 ;
-
-#  ifdef JS_NEW
-  for ( int i = 0 ; i < _JS_MAX_AXES ; i++ )
-    tmp_axes [ i ] = 0.0f ;
-
-  tmp_buttons = 0 ;
-#  endif
-
-  // fd = ::open ( fname, O_RDONLY | O_NONBLOCK ) ;
-  fd = ::open ( fname, O_RDONLY ) ;
-
-  error = ( fd < 0 ) ;
-
-  if ( error )
-    return ;
-
-#  if defined(__FreeBSD__) || defined(__NetBSD__)
-
-  /*
-    FIXME: get joystick name for BSD
-  */
-
-  FILE *joyfile ;
-  char joyfname [ 1024 ] ;
-  int noargs, in_no_axes ;
-
-  float axes  [ _JS_MAX_AXES ] ;
-  int buttons [ _JS_MAX_AXES ] ;
-
-  rawRead ( buttons, axes ) ;
-  error = axes[0] < -1000000000.0f ;
-  if ( error )
-    return ;
-
-  sprintf( joyfname, "%s/.joy%drc", ::getenv ( "HOME" ), id ) ;
-
-  joyfile = fopen ( joyfname, "r" ) ;
-  error = joyfile == NULL ;
-  if ( error )
-    return ;
-
-  noargs = fscanf ( joyfile, "%d%f%f%f%f%f%f", &in_no_axes,
-                    &min [ 0 ], &center [ 0 ], &max [ 0 ],
-                    &min [ 1 ], &center [ 1 ], &max [ 1 ] ) ;
-  error = noargs != 7 || in_no_axes != _JS_MAX_AXES ;
-  fclose ( joyfile ) ;
-  if ( error )
-    return ;
-
-  for ( int i = 0 ; i < _JS_MAX_AXES ; i++ )
-  {
-    dead_band [ i ] = 0.0f ;
-    saturate  [ i ] = 1.0f ;
-  }
-
-#  else
-
-  /*
-    Set the correct number of axes for the linux driver
-  */
-
-#  ifdef JS_NEW
-  ioctl ( fd, JSIOCGAXES   , &num_axes    ) ;
-  ioctl ( fd, JSIOCGBUTTONS, &num_buttons ) ;
-  ioctl ( fd, JSIOCGNAME ( sizeof(name) ), name ) ;
-  fcntl ( fd, F_SETFL      , O_NONBLOCK   ) ;
-
-  if ( num_axes > _JS_MAX_AXES )
-    num_axes = _JS_MAX_AXES ;
-#   endif
-
-  /*
-    The Linux driver seems to return 512 for all axes
-    when no stick is present - but there is a chance
-    that could happen by accident - so it's gotta happen
-    on both axes for at least 100 attempts.
-  */
-
-#ifndef JS_NEW
-  int counter = 0 ;
-
-  do
-  {
-    rawRead ( NULL, center ) ;
-    counter++ ;
-  } while ( ! error &&
-              counter < 100 &&
-              center[0] == 512.0f &&
-              center[1] == 512.0f ) ;
-
-  if ( counter >= 100 )
-    setError() ;
-#endif
-
-  for ( int i = 0 ; i < _JS_MAX_AXES ; i++ )
-  {
-#ifdef JS_NEW
-    max [ i ] = 32767.0f ;
-    center [ i ] = 0.0f ;
-    min [ i ] = -32767.0f ;
-#else
-    max [ i ] = center [ i ] * 2.0f ;
-    min [ i ] = 0.0f ;
-#endif
-    dead_band [ i ] = 0.0f ;
-    saturate  [ i ] = 1.0f ;
-  }
-
-#  endif
-}
-
-#endif
-
-
-inline void jsJoystick::close ()
-{
-#if !defined( WIN32 ) && !defined( macintosh )
-  if ( ! error )
-    ::close ( fd ) ;
-#endif
-
-#ifdef macintosh
-  ISpSuspend  () ;
-  ISpStop     () ;
-  ISpShutdown () ;
-#endif
-}
-
-
-inline float jsJoystick::fudge_axis ( float value, int axis ) const
-{
-  if ( value < center[axis] )
-  {
-    float xx = (      value    - center[ axis ] ) /
-               ( center [ axis ] - min [ axis ] ) ;
-
-    if ( xx < -saturate [ axis ] )
-                              return -1.0f ;
-
-    if ( xx > -dead_band [ axis ] )
-                              return 0.0f ;
-
-    xx = (        xx         + dead_band [ axis ] ) /
-         ( saturate [ axis ] - dead_band [ axis ] ) ;
-
-    return ( xx < -1.0f ) ? -1.0f : xx ;
-  }
-  else
-  {
-    float xx = (     value    - center [ axis ] ) /
-               ( max [ axis ] - center [ axis ] ) ;
-
-    if ( xx > saturate [ axis ] )
-                              return 1.0f ;
-
-    if ( xx < dead_band [ axis ] )
-                              return 0.0f ;
-
-    xx = (        xx         - dead_band [ axis ] ) /
-         ( saturate [ axis ] - dead_band [ axis ] ) ;
-
-    return ( xx > 1.0f ) ? 1.0f : xx ;
-  }
-}
-
-
-inline jsJoystick::jsJoystick ( int ident )
-{
-#ifdef WIN32
-  switch ( ident )
-  {
-    case 0  : js_id = JOYSTICKID1 ; open () ; break ;
-    case 1  : js_id = JOYSTICKID2 ; open () ; break;
-    default :    num_axes = 0 ; setError () ; break ;
-  }
-
-#else
-#  if defined(__FreeBSD__) || defined(__NetBSD__)
-  //id = ident;
-  sprintf ( fname, "/dev/joy%d", ident ) ;
-#  elif defined(__linux__)
-  sprintf ( fname, "/dev/input/js%d", ident ) ;
-  if ( access ( fname, F_OK ) != 0 )
-    sprintf ( fname, "/dev/js%d", ident ) ;
-#  else
-  sprintf ( fname, "/dev/js%d", ident ) ; /* FIXME */
-#  endif
-  open () ;
-#endif
-}
-
-
-inline void jsJoystick::read ( int *buttons, float *axes )
-{
-  if ( error )
-  {
-    if ( buttons )
-      *buttons = 0 ;
-
-    if ( axes )
-      for ( int i = 0 ; i < num_axes ; i++ )
-        axes[i] = 0.0f ;
-  }
-
-  float raw_axes [ _JS_MAX_AXES ] ;
-
-  rawRead ( buttons, raw_axes ) ;
-
-  if ( axes )
-    for ( int i = 0 ; i < num_axes ; i++ )
-      axes[i] = fudge_axis ( raw_axes[i], i ) ;
-}
-
-
-#ifdef macintosh
-
-inline void jsJoystick::rawRead ( int *buttons, float *axes )
-{
-  if ( error )
-  {
-    if ( buttons )
-      *buttons = 0 ;
-
-    if ( axes )
-      for ( int i = 0 ; i < num_axes ; i++ )
-        axes[i] = 1500.0f ;
-
-    return ;
-  }
-
-  int i ;
-  int err ;
-  UInt32 state ;
-
-  if ( buttons != NULL )
-  {
-    *buttons = 0;
-
-    for ( i = 0 ; i < num_buttons ; i++ )
-    {
-      err = ISpElement_GetSimpleState ( isp_elem [ i + isp_num_axis ], &state) ;
-      ISP_CHECK_ERR(err)
-
-       *buttons |= state << i ;
-    }
-  }
-
-  if ( axes != NULL )
-  {
-     for ( i = 0 ; i < num_axes ; i++ )
-     {
-       err = ISpElement_GetSimpleState ( isp_elem [ i ], &state ) ;
-       ISP_CHECK_ERR(err)
-
-       axes [i] = (float) state ;
-     }
-  }
-}
-
-#elif defined ( WIN32 )
-
-inline void jsJoystick::rawRead ( int *buttons, float *axes )
-{
-  if ( error )
-  {
-    if ( buttons )
-      *buttons = 0 ;
-
-    if ( axes )
-      for ( int i = 0 ; i < num_axes ; i++ )
-        axes[i] = 1500.0f ;
-
-    return ;
-  }
-
-  MMRESULT status = joyGetPosEx ( js_id, &js ) ;
-
-  if ( status != JOYERR_NOERROR )
-  {
-    setError() ;
-    return ;
-  }
-
-  if ( buttons != NULL )
-    *buttons = (int) js.dwButtons ;
-
-  if ( axes != NULL )
-  {
-    /* WARNING - Fall through case clauses!! */
-//lint -save -e616
-
-    switch ( num_axes )
-    {
-      case 8:
-        // Generate two POV axes from the POV hat angle.
-        // Low 16 bits of js.dwPOV gives heading (clockwise from ahead) in
-        //   hundredths of a degree, or 0xFFFF when idle.
-
-        if ( ( js.dwPOV & 0xFFFF ) == 0xFFFF )
-        {
-          axes [ 6 ] = 0.0 ;
-          axes [ 7 ] = 0.0 ;
-        }
-        else
-        {
-          // This is the contentious bit: how to convert angle to X/Y.
-          //    wk: I know of no define for PI that we could use here:
-          //    SG_PI would pull in sg, M_PI is undefined for MSVC
-          // But the accuracy of the value of PI is very unimportant at
-          // this point.
-
-          float s = (float) sin ( ( js.dwPOV & 0xFFFF ) * ( 0.01 * 3.1415926535f / 180 ) ) ;
-          float c = (float) cos ( ( js.dwPOV & 0xFFFF ) * ( 0.01 * 3.1415926535f / 180 ) ) ;
-
-          // Convert to coordinates on a square so that North-East
-          // is (1,1) not (.7,.7), etc.
-          // s and c cannot both be zero so we won't divide by zero.
-          if ( fabs ( s ) < fabs ( c ) )
-          {
-            axes [ 6 ] = ( c < 0.0 ) ? -s/c  : s/c  ;
-            axes [ 7 ] = ( c < 0.0 ) ? -1.0f : 1.0f ;
-          }
-          else
-          {
-            axes [ 6 ] = ( s < 0.0 ) ? -1.0f : 1.0f ;
-            axes [ 7 ] = ( s < 0.0 ) ? -c/s  : c/s  ;
-          }
-        }
-
-      case 6: axes[5] = (float) js . dwVpos ;
-      case 5: axes[4] = (float) js . dwUpos ;
-      case 4: axes[3] = (float) js . dwRpos ;
-      case 3: axes[2] = (float) js . dwZpos ;
-      case 2: axes[1] = (float) js . dwYpos ;
-      case 1: axes[0] = (float) js . dwXpos ;
-              break;
-
-      default:
-        ulSetError ( UL_WARNING, "PLIB_JS: Wrong num_axes. Joystick input is now invalid" ) ;
-    }
-//lint -restore
-  }
-}
-
-#else
-
-inline void jsJoystick::rawRead ( int *buttons, float *axes )
-{
-  if ( error )
-  {
-    if ( buttons )
-      *buttons = 0 ;
-
-    if ( axes )
-      for ( int i = 0 ; i < num_axes ; i++ )
-        axes[i] = 1500.0f ;
-
-    return ;
-  }
-
-# ifdef JS_NEW
-
-  while (1)
-  {
-    int status = ::read ( fd, &js, sizeof(js_event) ) ;
-
-    if ( status != sizeof(js_event) )
-    {
-      /* use the old values */
-
-      if ( buttons != NULL ) *buttons = tmp_buttons ;
-      if ( axes    != NULL )
-        memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
-
-      if ( errno == EAGAIN )
-        return ;
-
-      perror( fname ) ;
-      setError () ;
-      return ;
-    }
-
-    switch ( js.type & ~JS_EVENT_INIT )
-    {
-      case JS_EVENT_BUTTON :
-        if ( js.value == 0 ) /* clear the flag */
-          tmp_buttons &= ~(1 << js.number) ;
-        else
-          tmp_buttons |=  (1 << js.number) ;
-        break ;
-
-      case JS_EVENT_AXIS:
-        if ( js.number < num_axes )
-        {
-          tmp_axes [ js.number ] = (float) js.value ;
-
-          if ( axes )
-            memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
-        }
-        break ;
-
-      default:
-        ulSetError ( UL_WARNING, "PLIB_JS: Unrecognised /dev/js return!?!" ) ;
-
-        /* use the old values */
-
-        if ( buttons != NULL ) *buttons = tmp_buttons ;
-        if ( axes    != NULL )
-          memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
-
-        return ;
-    }
-
-    if ( buttons != NULL )
-      *buttons = tmp_buttons ;
-  }
-
-# else
-
-  int status = ::read ( fd, &js, JS_RETURN ) ;
-
-  if ( status != JS_RETURN )
-  {
-    perror ( fname ) ;
-    setError () ;
-    return ;
-  }
-
-  if ( buttons != NULL )
-#  if defined(__FreeBSD__) || defined(__NetBSD__)
-    *buttons = ( js.b1 ? 1 : 0 ) | ( js.b2 ? 2 : 0 ) ;
-#  else
-    *buttons = js.buttons ;
-#  endif
-
-  if ( axes != NULL )
-  {
-    axes[0] = (float) js.x ;
-    axes[1] = (float) js.y ;
-  }
-# endif
-}
-
-#endif
-
-//lint -restore
 
 #endif
 
