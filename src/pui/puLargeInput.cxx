@@ -31,7 +31,7 @@ UL_RTTI_DEF1(puLargeInput,puGroup)
 
 static void puLargeInputHandleRightSlider ( puObject * slider )
 {
-  float val = ((puRange *)slider)->getMaxValue () - slider->getFloatValue () ;
+  float val = ((puScrollBar *)slider)->getMaxValue () - slider->getFloatValue () ;
 
   puLargeInput* text = (puLargeInput*) slider->getUserData () ;
   //int lines_in_window = text->getLinesInWindow () ; 
