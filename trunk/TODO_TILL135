@@ -1,23 +1,7 @@
 - Search for todo, fix, fixme, kludge.
   I would suggest we mark things we have looked at and want to 
   do later with "NIV14" or "NIV135".
-- Document ssgStats, getNumLines and getLine.
+- Document ssgStats
 - Document the new path handling and ssgLoaderOptions
-- Any other new stuff that isn't documented yet?
 - Check that all console output has been changed to ulSetError.
-- AFAIK the define PROXY_TEXTURES_ARE_NOT_BROKEN is not yet added 
-  to the makefiles.
-  Fixed: Hardcoded it in the source. OK? /Marten
-- Test all the examples and all the games+apps, that they compile.
-  Besides the apps/games mentioned on the PLIB homepage, there is toobular.
-- Testing on "non-standard" operating systems and hardware.
-  Especially interesting are 64 bit machines. And computers with
-  the other endianess (sp?). That means mainly MACs, doesn't it?
-  Darrell, are you listening ;-)?
-- Update docs to the new state:
-  Change version numbers.
-  Create change history (?).
-  Change "In the cvs you will find" to
-  "In 1.3.5 you will find"
-- Do the file release
 - Finalize and test the path handling.
