@@ -1,0 +1,18 @@
+
+PLIB 1.1.x Project files for CodeWarrior
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   From: Darrell Walisser <dwaliss1@purdue.edu>
+
+
+I hope some people find these projects useful!
+
+These project files require CodeWarrior 5.x. Contains targets for MacOS and
+Carbon. Build instructions included.
+
+No special requirements for extracting, these are self-extracting bin-hexed
+archives.
+
+This archive has just the projects and necessary support files:
+
+    plib.cw5.sea.hqx
+

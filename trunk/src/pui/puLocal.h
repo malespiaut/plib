@@ -9,6 +9,8 @@
 #  include <unistd.h>
 #  ifndef macintosh
 #    include <GL/glx.h>
+#  else
+#    include <agl.h>
 #  endif
 #endif
 

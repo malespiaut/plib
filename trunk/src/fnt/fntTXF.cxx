@@ -3,6 +3,8 @@
 #ifndef WIN32
 #  ifndef macintosh
 #    include <GL/glx.h>
+#  else
+#    include <agl.h>
 #  endif
 #endif
 
