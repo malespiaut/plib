@@ -25,6 +25,7 @@
 #    ifdef GLUT_IS_PRESENT
 #      include <GL/glut.h>
 #    else
+#      error "no glut"
        /* No GLUT?!? */
 #    endif
 #  endif
