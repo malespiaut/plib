@@ -2,6 +2,7 @@
 #ifndef _INCLUDED_SSG_H_
 #define _INCLUDED_SSG_H_
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
