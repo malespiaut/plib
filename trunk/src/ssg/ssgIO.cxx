@@ -263,6 +263,8 @@ int _ssgStrNEqual ( const char *s1, const char *s2, int len )
   return TRUE ;
 }
 
+
+
 enum { MAX_SHARED_TEXTURES = 100, MAX_SHARED_STATES = 1000 };
 static ssgTexture* shared_textures [ MAX_SHARED_TEXTURES ] ;
 static ssgSimpleState* shared_states [ MAX_SHARED_STATES ] ;
@@ -492,8 +494,7 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
 
   for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
     if ( f->loadfunc != NULL &&
-	 //_ssgStrEqual ( extn, f->extension ) )
-         _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
+	       _ssgStrEqual ( extn, f->extension ) )
       return f->loadfunc( fname, options ) ;
 
   ulSetError ( UL_WARNING, "ssgLoad: Unrecognised file type '%s'", extn ) ;
@@ -516,7 +517,7 @@ int ssgSave ( const char *fname, ssgEntity *ent )
 
   for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
     if ( f->savefunc != NULL &&
-         _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
+         _ssgStrEqual ( extn, f->extension ) )
       return f->savefunc( fname, ent ) ;
 
   ulSetError ( UL_WARNING, "ssgSave: Unrecognised file type '%s'", extn ) ;
