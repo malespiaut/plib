@@ -33,7 +33,7 @@ class pslFile
   FILE *fd ;
   char *fname ;
 
-  char ungetStack [ MAX_UNGET_CHAR ] ;
+  int  ungetStack [ MAX_UNGET_CHAR ] ;
   int  ungetSP  ;
 
   int  line_no ;
