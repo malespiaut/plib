@@ -77,7 +77,7 @@ static sgVec3 cvec;
 static sgVec3 scale_vec;
 static float rot_angle;
 static char* block_name;
-static color_index ;
+static int color_index ;
 
 static float dxf_colors [256][3] =
 {
@@ -339,7 +339,7 @@ static float dxf_colors [256][3] =
   { 1.0000f, 1.0000f, 1.0000f },
 };
 
-static copy_vert ( dxfVert& dst, const dxfVert& src )
+static void copy_vert ( dxfVert& dst, const dxfVert& src )
 {
   dst.color_index = src.color_index ;
   sgCopyVec3 ( dst.pos, src.pos ) ;
