@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ul.h ..\..\ul.h
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ul.h ..\..\ul.h	copy ulRTTI.h ..\..\ulRTTI.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ul - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ul.h ..\..\ul.h
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ul.h ..\..\ul.h	copy ulRTTI.h ..\..\ulRTTI.h
 # End Special Build Tool
 
 !ENDIF 
@@ -119,6 +119,10 @@ SOURCE=.\ulList.cxx
 # Begin Source File
 
 SOURCE=.\ulLocal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ulRTTI.h
 # End Source File
 # End Target
 # End Project
