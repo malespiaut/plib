@@ -2690,6 +2690,10 @@ public:
   void   setVel   ( sgVec3 v ) { sgCopyVec3 ( vel  , v ) ; }
   void   setForce ( sgVec3 f ) { sgCopyVec3 ( force, f ) ; }
 
+  void   setPos   ( float x, float y, float z ) { sgSetVec3 ( pos  ,x,y,z ) ; }
+  void   setVel   ( float x, float y, float z ) { sgSetVec3 ( vel  ,x,y,z ) ; }
+  void   setForce ( float x, float y, float z ) { sgSetVec3 ( force,x,y,z ) ; }
+
   void   setOneOverMass ( float oom ) { ooMass = oom ; }
 
   void   setMass ( float m )

@@ -29,6 +29,25 @@ sgSpringDamper *spring   [ 20 ] ;
 int num_particles ;
 int num_springs ;
 
+void resetSMD ()
+{
+  particle [ 0 ] -> setPos ( 2.0f, -4.0f, 0.0f ) ;
+  particle [ 1 ] -> setPos ( 2.4f,  0.0f, 6.0f ) ;
+  particle [ 2 ] -> setPos ( 2.0f,  4.0f, 0.0f ) ;
+  particle [ 3 ] -> setPos ( 4.0f, -4.0f, 0.0f ) ;
+  particle [ 4 ] -> setPos ( 0.0f, -4.0f, 0.0f ) ;
+  particle [ 5 ] -> setPos ( 4.0f,  4.0f, 0.0f ) ;
+  particle [ 6 ] -> setPos ( 0.0f,  4.0f, 0.0f ) ;
+
+  particle [ 0 ] -> setVel ( 0, 0, 0 ) ;
+  particle [ 1 ] -> setVel ( 0, 0, 30 ) ;
+  particle [ 2 ] -> setVel ( 0, 0, 0 ) ;
+  particle [ 3 ] -> setVel ( 0, 0, 0 ) ;
+  particle [ 4 ] -> setVel ( 0, 0, 0 ) ;
+  particle [ 5 ] -> setVel ( 0, 0, 0 ) ;
+  particle [ 6 ] -> setVel ( 0, 0, 0 ) ;
+}
+
 void initSMD ()
 {
   particle [ 0 ] = new sgParticle ( 1.0f,  2.0f, -4.0f, 4.0f ) ;
@@ -101,7 +120,12 @@ void updateSMD ( float dt )
     if ( particle [ i ] -> getPos()[2] <= 0.0f )
     {
       particle [ i ] -> getPos  ()[2] = 0.0f ;
-      particle [ i ] -> getVel  ()[2] = 0.0f ;
+
+      if ( particle [ i ] -> getVel  ()[2] < 0.0f )
+        particle [ i ] -> getVel  ()[2] = 0.0f ;
+
+      if ( particle [ i ] -> getForce ()[2] < 0.0f )
+        particle [ i ] -> getForce ()[2] = 0.0f ;
     }
 
     particle [ i ] -> update ( dt ) ;
@@ -155,6 +179,7 @@ static void keyboard ( unsigned char key, int, int )
   switch ( key )
   {
     case 0x03 : exit ( 0 ) ;
+    default : resetSMD () ; break ;
   }
 }
 
