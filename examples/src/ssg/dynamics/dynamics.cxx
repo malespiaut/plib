@@ -191,7 +191,7 @@ static void updateSMD ( float dt )
 }
 
 
-static const sgCoord campos = { { 0, -20, 8 }, { 0, -20, 0 } } ;
+static sgCoord campos = { { 0, -20, 8 }, { 0, -20, 0 } } ;
 
 static void update_motion ( int frameno )
 {

@@ -42,7 +42,7 @@ static ssgTransform   *tilegrid [ TILE_GRID_SIZE ][ TILE_GRID_SIZE ] ;
 
 static jsJoystick *js ;
 static float      *ax ;
-static const sgCoord tuxpos = { { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f } } ;
+static sgCoord tuxpos = { { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f } } ;
 
 #define ROT_SPEED 5.0f
 #define TRANS_SPEED 10.0f
