@@ -325,6 +325,7 @@ static ssgBase *createBase ()              { return new ssgBase             ; }
 static ssgBase *createVTable ()            { return new ssgVTable           ; }
 static ssgBase *createVtxTable ()          { return new ssgVtxTable         ; }
 static ssgBase *createVtxArray ()          { return new ssgVtxArray         ; }
+static ssgBase *createTween ()             { return new ssgTween            ; }
 static ssgBase *createBranch ()            { return new ssgBranch           ; }
 //static ssgBase *createBaseTransform ()     { return new ssgBaseTransform    ; }
 static ssgBase *createTransform ()         { return new ssgTransform        ; }
@@ -332,6 +333,7 @@ static ssgBase *createTexTrans ()          { return new ssgTexTrans         ; }
 static ssgBase *createSelector ()          { return new ssgSelector         ; }
 static ssgBase *createRangeSelector ()     { return new ssgRangeSelector    ; }
 static ssgBase *createTimedSelector ()     { return new ssgTimedSelector    ; }
+static ssgBase *createTweenController ()   { return new ssgTweenController  ; }
 static ssgBase *createRoot ()              { return new ssgRoot             ; }
 static ssgBase *createCutout ()            { return new ssgCutout           ; }
 static ssgBase *createInvisible ()         { return new ssgInvisible        ; }
@@ -361,23 +363,25 @@ static struct {
 
   { ssgTypeBase ()              , createBase              },
 
-  //{ ssgTypeEntity ()            , createEntity            },
-  //{ ssgTypeLeaf ()              , createLeaf              },
+//{ ssgTypeEntity ()            , createEntity            },
+//{ ssgTypeLeaf ()              , createLeaf              },
   { ssgTypeVTable ()            , createVTable            },
   { ssgTypeVtxTable ()          , createVtxTable          },
   { ssgTypeVtxArray ()          , createVtxArray          },
+  { ssgTypeTween ()             , createTween             },
   { ssgTypeBranch ()            , createBranch            },
-  //{ ssgTypeBaseTransform ()     , createBaseTransform     },
+//{ ssgTypeBaseTransform ()     , createBaseTransform     },
   { ssgTypeTransform ()         , createTransform         },
   { ssgTypeTexTrans ()          , createTexTrans          },
   { ssgTypeSelector ()          , createSelector          },
   { ssgTypeRangeSelector ()     , createRangeSelector     },
   { ssgTypeTimedSelector ()     , createTimedSelector     },
+  { ssgTypeTweenController ()   , createTweenController   },
   { ssgTypeRoot ()              , createRoot              },
   { ssgTypeCutout ()            , createCutout            },
   { ssgTypeInvisible ()         , createInvisible         },
   
-  //{ ssgTypeState ()             , createState             },
+//{ ssgTypeState ()             , createState             },
   { ssgTypeSimpleState ()       , createSimpleState       },
   { ssgTypeStateSelector ()     , createStateSelector     },
   
@@ -420,6 +424,7 @@ ssgBase *ssgCreateOfType ( int type )
 {
   // XXX linear search
   int i ;
+
   for ( i = 0 ; table[i].type != 0 && table[i].type != type ; i++ )
     ;
 
