@@ -44,6 +44,10 @@
 #include <malloc.h>
 #endif
 
+#if defined(__MINGW32__)
+#include <libiberty.h>
+#endif
+
 #undef ABS
 #undef MIN
 #undef MAX
