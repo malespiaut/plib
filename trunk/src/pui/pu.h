@@ -22,12 +22,7 @@
 #  ifdef FREEGLUT_IS_PRESENT
 #    include <GL/freeglut.h>
 #  else
-#    ifdef GLUT_IS_PRESENT
-#      include <GL/glut.h>
-#    else
-#      error "no glut"
-       /* No GLUT?!? */
-#    endif
+#    include <GL/glut.h>
 #  endif
 #endif
 
