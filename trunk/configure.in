@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/js/js.h)
-AM_INIT_AUTOMAKE(plib, 1.7.0)
+AM_INIT_AUTOMAKE(plib, 1.8.0)
 
 # This AC_PREFIX_DEFAULT will place the library files
 # into /usr/lib - but will put the include files into
@@ -382,14 +382,14 @@ AC_OUTPUT( \
 	src/Makefile \
 	src/js/Makefile \
 	src/util/Makefile \
-	src/pui/Makefile \
-	src/puAux/Makefile \
 	src/sg/Makefile \
 	src/sl/Makefile \
 	src/psl/Makefile \
 	src/ssg/Makefile \
 	src/ssgAux/Makefile \
 	src/fnt/Makefile \
+	src/pui/Makefile \
+	src/puAux/Makefile \
 	src/pw/Makefile \
 	src/net/Makefile )
 

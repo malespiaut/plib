@@ -2,6 +2,11 @@
 PLIB_Examples Change Log.
 =========================
 
+PLIB_Examples v1.8.0 (March 19th 2004)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Added examples for PW, PSL, ssgAux and puAux.
+
+
 PLIB_Examples v1.6.1 (Sept 4th 2002)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Added missing files from the 'water/data' directory.
