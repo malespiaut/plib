@@ -2,6 +2,21 @@
 PLIB Change Log.
 ================
 
+PLIB v1.8.3 (April 6th 2004)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * NET now allows a NULL argument to netSocket::accept
+
+  * Added #include <stdio.h> to all top level header files
+    in order to ensure that NULL is defined.
+
+  * Added ssgaScreenDump into ssgAux.dsp
+
+  * Cleaned up some warnings from MSVC.
+
+  * Added Christos Dimitrakakis' fixes to SL to prevent
+    crackling in certain envelope conditions.
+
 PLIB v1.8.2 (March 26th 2004)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
