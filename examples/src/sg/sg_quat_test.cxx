@@ -26,7 +26,11 @@
 
   Written by Michael Kurth (kurth@futurekill.com) (negative0@earthlink.net)
 */
-
+#ifdef WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 #include <GL/glut.h>
 
 #include "plib/sg.h"
