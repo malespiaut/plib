@@ -50,6 +50,8 @@ ssgContext::ssgContext ()
   basicState->shade_model = GL_SMOOTH ;
   basicState->shininess   = 0.0f ;
   basicState->alpha_clamp = 0.01f ;
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
