@@ -2,6 +2,23 @@
 PLIB Change Log.
 ================
 
+PLIB v1.4.1 (June 25th 2001)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Converted MSVC project files to 'BINARY' in the CVS archive
+    because some versions of MSVC don't line UNIX-style line endings.
+
+  * Many improvements and bug fixes to puFileSelector and puListBox.
+
+  * Minor fix to NET to accomodate Solaris users.
+
+  * Fixed puMenuBar so it highlights as you drag the mouse across it.
+
+  * Fixed ulOpenDir so it returns NULL on error on non-MSVC systems
+
+  * Changed colour of text on buttons in documentation to make them
+    easier to read by colour-blind users.
+
 PLIB v1.4.0 (June 20th 2001)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

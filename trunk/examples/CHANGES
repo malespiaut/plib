@@ -2,6 +2,12 @@
 PLIB_Examples Change Log.
 =========================
 
+PLIB_Examples v1.4.1  (June 25th 2001)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Changes are now reported in main 'PLIB' CHANGES
+    file.
+
 PLIB_Examples v1.1.8  (Jan 23rd 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Updated examples and documents to
