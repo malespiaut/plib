@@ -208,8 +208,8 @@ static void load_materials ( const char* fname )
 {
   num_mat = 0 ;
 
-  char path[256];
-  ulMakePath(path,ssgGetCurrentOptions () -> getTextureDir(),fname) ;
+  char path [ 1024 ] ;
+  ssgGetCurrentOptions () -> makeModelPath ( path, fname ) ;
 
   FILE* filein = fopen (path,"r") ;
   if ( filein == 0 )
@@ -287,9 +287,9 @@ static void load_materials ( const char* fname )
 
       char tfname[MAX_LINE_LEN];
       count = sscanf ( next, "%s%n", tfname, &width ) ;
-      ulMakePath(path,ssgGetCurrentOptions () -> getTextureDir(),tfname) ;
 
       if ( count == 1 && index >= 0 ) {
+        ssgGetCurrentOptions () -> makeTexturePath ( path, tfname ) ;
         materials[ index ].tfname = new char [ strlen( path )+1 ] ;
         strcpy ( materials[ index ].tfname, path ) ;
         materials[ index ].tex = new ssgTexture ( path ) ;

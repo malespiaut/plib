@@ -75,7 +75,8 @@ int _ssgParser::openFile( const char* fname, const _ssgParserSpec* _spec )
   if ( !_spec ) _spec = &default_spec ;
   memset(this,0,sizeof(_ssgParser));
   memcpy( &spec, _spec, sizeof(spec) );
-  fileptr = fopen( ulMakePath(path,ssgGetCurrentOptions () -> getModelDir(),fname), "rb" );
+  ssgGetCurrentOptions () -> makeModelPath ( path, fname ) ;
+  fileptr = fopen( path, "rb" );
   if ( ! fileptr )
 	{
     error("cannot open file: %s",path);

@@ -2540,13 +2540,11 @@ static const char *FindFile(const char *file)
 {
    /* XXX fixme! */
    static char path[1024];
-   extern char *_ssgModelPath;
 
    if (ulFileExists((char *)file))
       return file;
 
-   ulMakePath(path, ssgGetCurrentOptions () -> getModelDir(), file);
-
+   ssgGetCurrentOptions () -> makeModelPath ( path, file ) ;
    if (ulFileExists(path))
       return path;
    
