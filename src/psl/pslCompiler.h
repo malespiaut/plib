@@ -34,9 +34,9 @@ struct pslFwdRef
     where = w ;
   }
 
-  pslAddress getWhere () { return where ; }
+  pslAddress getWhere () const { return where ; }
 
-  int matches ( const char *s )
+  int matches ( const char *s ) const
   {
     return symbol != NULL && strcmp ( s, symbol ) == 0 ;
   }
@@ -107,7 +107,8 @@ class pslCompiler
 
   pslAddress getCodeSymbol      ( const char *s, pslAddress fixupLoc ) ;
   void       setCodeSymbol      ( const char *s, pslAddress v ) ;
-  int        getExtensionSymbol ( const char *s ) ;
+
+  int        getExtensionSymbol ( const char *s ) const ;
 
 private:
 
