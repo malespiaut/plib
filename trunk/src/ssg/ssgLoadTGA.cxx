@@ -1,6 +1,8 @@
 
 #include "ssgLocal.h"
 
+#ifdef SSG_LOAD_TGA_SUPPORTED
+
 #include <sys/stat.h>
 
 /*
@@ -109,4 +111,13 @@ bool ssgLoadTGA ( const char *fname, ssgTextureInfo* info )
   return ssgMakeMipMaps ( texels, width, height, 4) ;
 }
 
+#else
 
+bool ssgLoadTGA ( const char *fname, ssgTextureInfo* info )
+{
+  ulSetError ( UL_WARNING,
+    "ssgLoadTexture: '%s' - TGA support not configured", fname ) ;
+  return false ;
+}
+
+#endif

@@ -21,6 +21,11 @@
   the following line.
  */
 
-#undef SSG_LOAD_PNG_SUPPORTED
+#undef  SSG_LOAD_PNG_SUPPORTED
+
+#define SSG_LOAD_SGI_SUPPORTED
+#define SSG_LOAD_TGA_SUPPORTED
+#define SSG_LOAD_BMP_SUPPORTED
+#define SSG_LOAD_MDL_SUPPORTED
 
 #endif
