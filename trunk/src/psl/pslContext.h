@@ -39,7 +39,7 @@ class pslContext
   void bumpErrors   () { num_errors++   ; }
   void bumpWarnings () { num_warnings++ ; }
  
-  const char *getProgName () { return program -> getProgName () ; }
+  const char *getProgName () const { return program -> getProgName () ; }
  
   void error   ( const char *fmt, ... ) ;
   void warning ( const char *fmt, ... ) ;                                       
