@@ -41,6 +41,8 @@ char lastModelFilePath [ PUSTRING_MAX ] ;
 char lastModelFileName [ PUSTRING_MAX ] ;
 
 void loadCB ( puObject * ) ;
+void scloadCB ( puObject * ) ;
+void bnloadCB ( puObject * ) ;
 
 puInput    *show_angle  ;
 puText     *message     ;
@@ -597,6 +599,56 @@ void bnpickfn ( puObject * )
 
 
 
+void scpickfn ( puObject * )
+{
+  char path  [ PUSTRING_MAX ] ;
+  char fname [ PUSTRING_MAX ] ;
+
+  file_selector -> getValue ( path ) ;
+ 
+  puDeleteObject ( file_selector ) ;
+  file_selector = NULL ;
+
+  if ( path [ 0 ] == '\0' )
+    return ;
+
+  if ( strlen ( path ) >= 6 && strcmp(&path[strlen(path)-6], ".bones" ) == 0 )
+  {
+    fprintf ( stderr, "I think you tried to load a BONES file as 3D model.\n");
+    fprintf ( stderr, "Try again!\n");
+    scloadCB ( NULL ) ;
+    return ;
+  }
+
+  char *p = NULL ;
+
+  for ( int i = strlen(path) ; i >= 0 ; i-- )
+    if ( path[i] == '/' || path[i] == '\\' )
+    {
+      p = & ( path[i+1] ) ;
+      path[i] = '\0' ;
+      break ;
+    }
+
+  if ( p == NULL )
+  {
+    ssgModelPath   ( "." ) ;
+    ssgTexturePath ( "." ) ;
+    strcpy ( fname, path ) ;
+  }
+  else
+  {
+    ssgModelPath   ( path ) ;
+    ssgTexturePath ( path ) ;
+    strcpy ( fname, p ) ;
+  }
+
+  delete sceneScene ;
+  sceneScene = new ssgRoot ;
+  sceneScene -> addKid ( ssgLoad ( fname, NULL ) ) ;
+}
+
+
 void pickfn ( puObject * )
 {
   char path  [ PUSTRING_MAX ] ;
@@ -724,6 +776,18 @@ void bnsaveCB ( puObject * )
   }
 }
 
+
+
+void scloadCB ( puObject * )
+{
+  if ( file_selector == NULL )
+  {
+    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
+                                 ( 480 - 270 ) / 2,
+                                 320, 270, ARROWS_USED, "", "Load Scenery from..." ) ;
+    file_selector -> setCallback ( scpickfn ) ;
+  }
+}
 
 
 void loadCB ( puObject * )
@@ -1004,11 +1068,13 @@ char      *file_submenu    [] = {  "Exit",
                                    "------------", 
                                    "Save Bones As...",
                                    "Load Bones",
+                                   "Load Scenery",
                                    "Load Model",  NULL } ;
 puCallback file_submenu_cb [] = {  exitCB,
                                    NULL,
                                    bnsaveCB,
                                    bnloadCB,
+                                   scloadCB,
                                    loadCB,
                                    NULL } ;
 
