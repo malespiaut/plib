@@ -64,10 +64,15 @@ SG  -- Some Standard Geometry functions (vector and
        matrix math, spheres, boxes, frustra, etc)
 SL  -- A Games-oriented Sound Library.
 FNT -- OpenGL texture-mapped font Library.
+PW  -- A minimalist windowing library.
+PSL -- A C-like scripting language.
 SSG -- A Simple Scene Graph API built on top of OpenGL.
 NET -- Some Networking functions for games.
 UTIL-- Utilities - things that your OS would normally
        handle - but these functions are portable.
+
+SSGAUX -- Some optional additional high level features for SSG
+PUIAUX -- Some optional additional high level features for PUI
 
 
 DIRECTORY STRUCTURE:
@@ -90,19 +95,27 @@ yet been ported to all operating systems.
 
 JS  -- Currently Linux/Windows/BSD only.
 
-UTIL-- Should be portable to POSIX-compliant
+UL  -- Should be portable to POSIX-compliant
        OS's ... and Windows.
 
 SG  -- Totally portable, no dependancies.
 
-PUI -- Requires GLUT and OpenGL also FNT and SG.
-       There is now an option to compile PUI without
-       GLUT - but that is not the default.
+PUI -- Requires OpenGL also FNT and SG.
+       PUI also requires some kind of windowing
+       library - which could be PW - or GLUT,
+       freeglut, SDL, FLTK - or others.
+
+PSL -- Requires UL.
+
+PW  -- Requires UL.
 
 NET -- Should be portable to POSIX-compliant
        OS's.
 
-FNT and SSG -- Require OpenGL, SG and UTIL.
+FNT and SSG -- Require OpenGL, SG and UL.
+
+SSGAUX -- Requires SSG - and hence OpenGL, SG and UL.
+PUIAUX -- Requires PUI - and hence FNT and SG.
 
 SL  -- This has now been ported onto:
 
@@ -126,19 +139,6 @@ SL  -- This has now been ported onto:
        No other requirements.
 
 
-STABILITY AND RELIABILITY:
-
-SSG, SG, SL, JS and PUI have all been in use for a long time
-in a huge number of applications - so they are reliable
-and unlikely to change much in the future.
-
-UTIL and FNT are pretty simple and should be very stable.
-
-SSGAUX is still fairly new though - new features added
-to it should not destroy older features though - so
-you can use it with confidence.
-
-
 AUX LIBRARIES AND TOOLS:
 
 The 'tools' directory contains a number of useful tools
@@ -156,6 +156,9 @@ In your source code, add any combination of:
      #include <plib/fnt.h>
      #include <plib/pu.h>
      #include <plib/ssg.h>
+     #include <plib/pw.h>
+     #include <plib/puAux.h>
+     #include <plib/psl.h>
      #include <plib/sl.h>
      #include <plib/net.h>
      #include <plib/ssgAux.h>
@@ -163,12 +166,15 @@ In your source code, add any combination of:
 Add any of these to your link line:
 
   -lplibjs -lplibssgaux -lplibssg -lplibsl -lplibpu 
-  -lplibfnt -lplibnet -lplibsg -lplibul
+  -lplibpuaux -lplibpw -lplibpsl -lplibfnt -lplibnet
+  -lplibsg -lplibul
 
 Under UNIX/Linux, you'll also need:
 
-  -lglut -lGLU -lGL -L/usr/X11/lib -lX11 -lXext -lXmu -lm
+  -lGLU -lGL -L/usr/X11/lib -lX11 -lXext -lXmu -lm
  
+...and perhaps a -l for whatever windowing library
+you're using - unless it's the built-in PW library.
 
              Steve Baker.
              <sjbaker1@airmail.net>
