@@ -403,7 +403,7 @@ int ssgSimpleState::load ( FILE *fd )
 
 int ssgSimpleState::save ( FILE *fd )
 {
-  int    wrapu = getWrapU(), wrapv = getWrapV();
+  int    wrapu = TRUE /*getWrapU()*/, wrapv = TRUE /*getWrapV()*/; // FIXME, TODO
 
   _ssgWriteInt   ( fd, dont_care            ) ;
   _ssgWriteInt   ( fd, enables              ) ;
