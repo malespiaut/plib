@@ -11,7 +11,7 @@ static void clean_line (char* line)
   char* dst = line ;
   for ( char* src = line ; *src ; src ++ )
   {
-    char ch = *src ;
+    unsigned char ch = (unsigned char)(*src) ;
     if (ch==8 || ch==177)
     {
       // backspace

@@ -189,7 +189,9 @@ netChannel::poll (u32 timeout)
   int nwrites = 0 ;
   int ndeletes = 0 ;
   int nopen = 0 ;
-  for ( netChannel* ch = channels; ch != NULL; ch = ch -> next_channel )
+
+  netChannel* ch ;
+  for ( ch = channels; ch != NULL; ch = ch -> next_channel )
   {
     if ( ch -> should_delete )
     {
