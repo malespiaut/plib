@@ -1,0 +1,194 @@
+
+<HTML>
+<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+<H2>How to write plib-loaders and writers</H2>
+
+If you just use plib (including loaders and writers), you don't 
+really need to read this page. In some parts, this page was written for newbies.
+
+It is quite easy to adapt 
+3D-file-loaders and writers to ssg. There are already a lot of 
+loaders and writers you can use as examples. Plib comes with 
+both Makefiles (for Unix and for the CygWin-system under Windows)
+and workspace/project-files for Micro$oft Visual C++. If you 
+have both, please update, test and commit both.
+Otherwise, when committing, please tell the people that, for 
+example, you didnt update the workspace files and that some 
+kind soul should do so.
+<p>
+
+Both loaders and writers convert between ssg's internal geometry 
+representation and that of the file format. One of the main 
+differences is that when loading, you have to support all possibile 
+geometry-representations of the file-format, when writing only one.
+OTOH, during load you have to support just one possibile 
+geometry-representations of plib, during writing all.
+<p>
+
+Regarding plib's geometry-representations, there are only two on the highest
+level: <code>ssgVtxTable</code> and <code>ssgVtxArray</code>. Actually, there is also 
+ssgVTable, but that is deprecated.
+
+<code>ssgVtxArray</code> is newer, is derived
+from ssgVtxTable and uses a index-list. Apart from that they are quite
+similar, and both have an interface <code>getNumTriangles () ; </code> and
+<code>getTriangle ( i, ...); </code>
+For these reasons, it is easier to write a writer than a loader.
+
+
+For both ssgVtxTable and ssgVtxArray you need to choose a
+GL-type. I have to admit I was lazy and used <code>GL_TRIANGLES</code>.
+
+
+<H2>2.Loaders</H2>
+
+
+<H2>2.1 ssgLoaderOptions</H2>
+
+ssgLoaderOptions is a class that is defined in ssg.h.
+It is used to tell the loader some options.
+It is NOT used for user-setable options (yet?!).
+For example, one COULD create a member-variable in it
+telling the unit that one wants. The loader would then 
+be responsible to scale the object in such a way that
+the sizes are in that unit (for example meter, millimeter etc).
+
+<BR>
+<BR>
+Regarding the reason for the callbacks in ssgLoaderOptions, Steve
+wrote:
+<BR>
+<BR>
+Whenever a branch node is created.  The deal is that most file formats
+are
+missing important features at the Branch level - but many support
+comment
+fields - or long ASCII name strings or something.
+
+The idea was to allow the artists to attach an ARBITARY comment string
+in their modeller - and to have the loader trap these strings and pass
+them on to the application.
+
+Hence, if the hook function is defined then when a branch node needs
+to
+be created, we call the application's callback with the ASCII string
+that was embedded in the file and let the application construct the
+ssgBranch
+node.  Hence, you could put the string "~LOD: RANGE=100 meters"
+into the comment field in (say) the AC3D modeller.  (AC3D calls this a
+"Data"
+field)...the application could then say to itself: "Any comment that
+starts
+with a tilde ('~') is a command to the loader" and parse such
+'comments'
+as commands.  In this case, it would construct an ssgRangeSelector and
+set
+the transition range to 100m and return the application back to the
+loader.
+
+Check the TuxKart sources to see this in action.
+<BR>
+<BR>
+So much for the quote from Steve.
+<BR>
+<BR>
+I just copied all the ssgLoaderOptions-code from another loader 
+into my own.
+
+
+<H2>2.2 Ascii file formats</H2>
+A lexical analyzer for ascii-files is available in ssgParser.cxx and 
+ssgParser.h. It converts the file into a stream of tokens and 
+handles comments. Since this is quite new, only two formats (.ase 
+and .x) currently use it. 
+
+In a way, it has two APIs.
+One hides the line structure from the loader. The loader just has 
+to say "getNextToken".
+The other means you have to know the exact line structure.
+You do a getLine which reads all the tokens of that line into a 
+buffer and then you do a parseToken to get each token.
+
+Some members can be used for both APIs, for example
+
+<pre>
+	void openFile( const char* fname, const _ssgParserSpec* spec = 0 );
+</pre>
+Here you give the parser the specification of the format,
+for example you say what characters start a comment and 
+what are used for braces etc. Most important are the delimiters.
+These determine where one token ends and the next one begins.
+For example, the first token of the line
+
+<pre>
+1234,567
+</pre>
+
+is <code>1234</code> if <code>","</code> is a delimiter and <code>1234,567</code> else.
+The parser differentiates between skipable delimiters that
+are "swallowed" by the parser and non-skipable ones that are
+passed to the loader. So, regarding the example-line there 
+are three possibilities:
+<BR>
+<code>","</code> is not a delimiter => The line contains one token, namely
+<code>"1234,567"</code>
+<BR>
+<code>","</code> is a skipable delimiter => The line contains two tokens, namely
+<code>"1234"</code> and <code>"567"</code>
+<BR>
+<code>","</code> is a non-skipable delimiter => The line contains three tokens, 
+namely <code>"1234"</code>, <code>","</code> and <code>"567"</code>
+<BR>
+
+
+<H2>3. Writers</H2>
+For an example how to write out geometry and material, look at
+ssgSaveASE.
+
+For an easy example (geometry only), look at <code>ssgSaveDXF</code> or <code>ssgSaveTRI</code>.
+The function
+
+<pre>
+int ssgSaveXYZ ( const char *filename, ssgEntity *ent )
+</pre>
+
+normally calls a function 
+
+<pre>
+static void save_entities ( ssgEntity *e )
+</pre>
+
+which just recursively walks the scene graph.
+You should be able to use this function and just
+write a
+
+<pre>
+static void save_vtx_table ( ssgVtxTable *vt )
+</pre>
+
+which writes a <code>ssgVtxTable</code>. 
+
+
+
+<hr>
+<table width="100%">
+   	<tr>
+   		<td width="33%" align="left"><a href="non_class.html">&lt;= previous =</a></td>
+   		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
+   		<td width="33%" align="right"></td>
+   	</tr>
+</table>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+
