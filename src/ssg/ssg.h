@@ -1706,6 +1706,7 @@ public:
   void setCamera ( sgMat4 mat ) ;
   void setCamera ( sgCoord *coord ) ;
   void setCameraLookAt ( const sgVec3 eye, const sgVec3 center, const sgVec3 up ) ;
+  void setCameraLookAt ( const sgVec3 eye, const sgVec3 center ) ;
 
   void loadProjectionMatrix () ;
   void loadModelviewMatrix  () ;
@@ -1785,6 +1786,11 @@ inline void ssgSetCamera ( sgCoord *coord )
 inline void ssgSetCameraLookAt ( const sgVec3 eye, const sgVec3 center, const sgVec3 up )
 {
   _ssgCurrentContext-> setCameraLookAt ( eye, center, up ) ;
+}
+
+inline void ssgSetCameraLookAt ( const sgVec3 eye, const sgVec3 center )
+{
+  _ssgCurrentContext-> setCameraLookAt ( eye, center ) ;
 }
 
 inline void ssgLoadProjectionMatrix ()

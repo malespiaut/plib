@@ -144,7 +144,17 @@ void ssgContext::setCamera ( sgCoord *coord )
 void ssgContext::setCameraLookAt ( const sgVec3 eye, const sgVec3 center, const sgVec3 up )
 {
   sgMat4 mat ;
+  sgMakeLookAtMat4 ( mat, eye, center, up ) ;
 
+  setCamera ( mat ) ;
+}
+
+void ssgContext::setCameraLookAt ( const sgVec3 eye, const sgVec3 center )
+{
+  sgVec3 up ;
+  sgSetVec3 ( up, 0.0f, 0.0f, 1.0f ) ;
+
+  sgMat4 mat ;
   sgMakeLookAtMat4 ( mat, eye, center, up ) ;
 
   setCamera ( mat ) ;
