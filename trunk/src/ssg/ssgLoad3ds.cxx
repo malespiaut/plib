@@ -39,7 +39,7 @@
 /* Define DEBUG if you want debug output
    (this might be a nice way of looking at the
    structure of a 3DS file). */
-#define DEBUG 1
+// #define DEBUG 1
 
 
 #ifdef DEBUG
