@@ -56,6 +56,9 @@ int puButtonBox::checkHit ( int /*button*/, int updown, int x, int y )
     puDeactivateWidget () ;
   }
 
+  if ( updown != PU_DRAG )
+    puMoveToLast ( this );
+
   int i = num_kids - 1 - (( y - abox.min[1] - PUSTR_BGAP ) * num_kids ) /
                           ( abox.max[1] - abox.min[1] - PUSTR_BGAP - PUSTR_TGAP ) ;
 

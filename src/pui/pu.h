@@ -267,6 +267,8 @@ extern int puRefresh ;
 #define PUCLASS_FILEPICKER       0x00040000
 #define PUCLASS_BISLIDER         0x00080000
 #define PUCLASS_TRISLIDER        0x00100000
+#define PUCLASS_VERTMENU         0x00200000
+#define PUCLASS_LARGEINPUT       0x00400000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -296,6 +298,12 @@ class puDial             ;
 class puFilePicker       ;
 class puBiSlider         ;
 class puTriSlider        ;
+class puVerticalMenu     ;
+
+// Global function to move active object to the end of the "dlist"
+// so it is displayed in front of everything else
+
+void puMoveToLast ( puObject *ob ) ;
 
 typedef float puColour [ 4 ] ;  /* RGBA */
 
@@ -501,6 +509,7 @@ protected:
                                                y >= abox.min[1] &&
                                                y <= abox.max[1] &&
                                                window == puGetWindow () ; }
+
   virtual void doHit ( int button, int updown, int x, int y ) ;
 
 public:
@@ -680,6 +689,7 @@ void         puPopLiveInterface         ( puInterface *in = 0 ) ;
 int          puNoLiveInterface          ( void ) ;
 puInterface *puGetBaseLiveInterface     ( void ) ;
 puInterface *puGetUltimateLiveInterface ( void ) ;
+void         puRemoveEntireInterface    ( void ) ;
 
 /*
   The regular group stack is used for adding widgets
@@ -696,7 +706,14 @@ protected:
   int num_children ;
   puObject *dlist ;
 
+  int mouse_x ;    // Coordinates of mouse when right button pressed for
+  int mouse_y ;    // drag and drop
+
+  short mouse_active;  // Flag telling whether interface is presently being dragged
+
   void doHit       ( int button, int updown, int x, int y ) ;
+
+  short floating;   // Flag telling whether the interface floats in the window or stays put
 
 public:
 
@@ -705,6 +722,10 @@ public:
     type |= PUCLASS_GROUP ;
     dlist = NULL ;
     num_children = 0 ;
+    mouse_x = 0 ;
+    mouse_y = 0 ;
+    mouse_active = FALSE ;
+    floating = FALSE ;
     puPushGroup ( this ) ;
   }
 
@@ -713,6 +734,7 @@ public:
   void recalc_bbox ( void ) ;
   virtual void add    ( puObject *new_object ) ;
   virtual void remove ( puObject *old_object ) ;
+  virtual void empty ( void ) ;
 
   void draw        ( int dx, int dy ) ;
   int  checkHit    ( int button, int updown, int x, int y ) ;
@@ -728,6 +750,9 @@ public:
     else
       puPopGroup () ;
   }
+
+  void setFloating (short value) { floating = value; }
+  short getFloating () { return floating; }
 } ;
 
 
@@ -748,13 +773,32 @@ public:
 class puFrame : public puObject
 {
 protected:
-  virtual int  isHit ( int /* x */, int /* y */ ) { return FALSE ; }
+  int  isHit ( int x, int y ) { return isVisible() && isActive() &&
+                                               x >= abox.min[0] &&
+                                               x <= abox.max[0] &&
+                                               y >= abox.min[1] &&
+                                               y <= abox.max[1] &&
+                                               window == puGetWindow () ; }
 public:
   void draw ( int dx, int dy ) ;
   puFrame ( int minx, int miny, int maxx, int maxy ) :
              puObject ( minx, miny, maxx, maxy )
   {
     type |= PUCLASS_FRAME ;
+  }
+
+  void doHit ( int button, int updown, int x, int y )
+  {
+    if ( puActiveWidget() && ( this != puActiveWidget() ) )
+    {
+      // Active widget exists and is not this one; call its down callback if it exists
+
+      puActiveWidget() -> invokeDownCallback () ;
+      puDeactivateWidget () ;
+    }
+
+    if ( isHit ( x, y ) && ( updown != PU_DRAG ) )
+      puMoveToLast ( this -> parent );
   }
 } ;
 
@@ -1061,6 +1105,28 @@ public:
 } ;
 
 
+class puVerticalMenu : public puGroup
+{
+protected:
+public:
+  puVerticalMenu ( int x = -1, int y = -1 ) :
+
+  puGroup ( x < 0 ? puGetWindowWidth() -
+                     ( puGetStringWidth( puGetDefaultLegendFont(), " " )
+                       + PUSTR_TGAP + PUSTR_BGAP ) : x,
+            y < 0 ? puGetWindowHeight() -
+                     ( puGetStringHeight( puGetDefaultLegendFont() )
+                       + PUSTR_TGAP + PUSTR_BGAP ) : y)
+  {
+    floating = TRUE ;
+    type |= PUCLASS_VERTMENU ;
+  }
+
+  void add_submenu ( char *str, char *items[], puCallback cb[] ) ;
+  void close ( void ) ;
+} ;
+
+
 class puInput : public puObject
 {
   int accepting ;
@@ -1112,6 +1178,13 @@ public:
     select_end_position   = -1 ;
 
     setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
+  }
+
+  virtual void invokeDownCallback ( void )
+  {
+    rejectInput () ;
+    normalize_cursors () ;
+    if ( down_cb ) (*down_cb)(this) ;
   }
 } ;
 

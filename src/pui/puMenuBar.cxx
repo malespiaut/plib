@@ -1,7 +1,7 @@
 
 #include "puLocal.h"
 
-static void drop_down_the_menu ( puObject *b )
+void puMenuBar_drop_down_the_menu ( puObject *b )
 {
   puPopupMenu *p = (puPopupMenu *) b -> getUserData () ;
 
@@ -16,6 +16,11 @@ static void drop_down_the_menu ( puObject *b )
     if (( child -> getType() & PUCLASS_BUTTON    ) != 0 && child != b ) child -> clrValue () ;
     if (( child -> getType() & PUCLASS_POPUPMENU ) != 0 && child != p ) child -> hide     () ;
   }
+
+  // Move the popup menu to the last item in the "dlist" so it is drawn last
+  // (in front of everything else).
+
+  puMoveToLast ( p );
 }
 
 void puMenuBar::add_submenu ( const char *str, char *items[], puCallback cb[] )
@@ -24,13 +29,12 @@ void puMenuBar::add_submenu ( const char *str, char *items[], puCallback cb[] )
   getSize ( &w, &h ) ;
 
   puOneShot    *b = new puOneShot ( w+10, 0, str ) ;
-
   b -> setStyle ( PUSTYLE_SPECIAL_UNDERLINED ) ;
   b -> setColourScheme ( colour[PUCOL_FOREGROUND][0],
                          colour[PUCOL_FOREGROUND][1],
                          colour[PUCOL_FOREGROUND][2],
                          colour[PUCOL_FOREGROUND][3] ) ;
-  b -> setCallback ( drop_down_the_menu ) ;
+  b -> setCallback ( puMenuBar_drop_down_the_menu ) ;
   b -> setActiveDirn ( PU_UP_AND_DOWN ) ;
 
   puPopupMenu *p = new puPopupMenu ( w+10, 0 ) ;

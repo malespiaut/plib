@@ -226,6 +226,9 @@ void puObject::doHit ( int button, int updown, int /* x */, int /* y */ )
     puDeactivateWidget () ;
   }
 
+  if ( updown != PU_DRAG )
+    puMoveToLast ( this );
+
   if ( button == PU_LEFT_BUTTON )
   {
     if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )

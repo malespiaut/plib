@@ -155,14 +155,14 @@ void puTriSlider::draw ( int dx, int dy )
 
 void puTriSlider::doHit ( int button, int updown, int x, int y )
 {
-//  if ( updown != PU_DRAG )
-//    puMoveToLast ( this );
-
   if ( puActiveWidget() && ( this != puActiveWidget() ) )
   {
     puActiveWidget() -> invokeDownCallback () ;
     puDeactivateWidget () ;
   }
+
+  if ( updown != PU_DRAG )
+    puMoveToLast ( this );
 
   if ( button == PU_LEFT_BUTTON )
   {
