@@ -2,7 +2,7 @@
 #include "pslLocal.h"
 
 
-PSL_Address PSL_Parser::getVarSymbol ( char *s )
+PSL_Address PSL_Parser::setVarSymbol ( char *s )
 {
   for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
   {
@@ -19,10 +19,42 @@ PSL_Address PSL_Parser::getVarSymbol ( char *s )
     }
     else
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
+    {
+      ulSetError ( UL_WARNING, "PSL: Multiple definition of '%s'.", s ) ;
+      return symtab [ i ] . address ;
+    }
+  }
+
+  ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
+  return MAX_VARIABLE-1 ;
+}
+
+
+
+PSL_Address PSL_Parser::getVarSymbol ( char *s )
+{
+  for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
+  {
+    if ( symtab [ i ] . symbol == NULL )
+    {
+      ulSetError ( UL_WARNING, "PSL: Undefined symbol '%s'.", s ) ;
+
+      if ( next_var >= MAX_VARIABLE-1 )
+      {
+        ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
+        next_var-- ;
+      }
+
+      symtab [ i ] . set ( s, next_var++ ) ;
+      return symtab [ i ] . address ;
+    }
+    else
+    if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
       return symtab [ i ] . address ;
   }
 
-  ulSetError ( UL_WARNING, "PSL: Too many symbols." ) ;
+  ulSetError ( UL_WARNING, "PSL: Undefined symbol '%s'.", s ) ;
+  ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
   return MAX_VARIABLE-1 ;
 }
 

@@ -184,12 +184,20 @@ class PSL_Parser
   int  pushAssignmentStatement ( char *c ) ;
   int  pushCompoundStatement   () ;
   int  pushStatement           () ;
-  int  pushFunction            () ;
-  void pushProgram             () ;
+
+  int  pushFunctionDeclaration       ( char *fn ) ;
+  int  pushLocalVariableDeclaration  () ;
+  int  pushGlobalVariableDeclaration ( char *fn ) ;
+  int  pushStaticVariableDeclaration () ;
+
+  int  pushGlobalDeclaration         () ;
+  void pushProgram                   () ;
 
   void print_opcode ( FILE *fd, unsigned char op ) ;
 
   PSL_Address    getVarSymbol       ( char *s ) ;
+  PSL_Address    setVarSymbol       ( char *s ) ;
+
   PSL_Address    getCodeSymbol      ( char *s ) ;
   void           setCodeSymbol      ( char *s, PSL_Address v ) ;
   int            getExtensionSymbol ( char *s ) ;
