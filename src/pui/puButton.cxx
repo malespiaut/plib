@@ -63,20 +63,20 @@ void puButton::draw ( int dx, int dy )
       break ;
 
     case PUPLACE_RIGHT :
-      xx = abox.max[0] - abox.min[0] - puGetStringWidth ( legendFont, legend ) - PUSTR_LGAP ;
+      xx = abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) - PUSTR_LGAP ;
       break ;
 
     case PUPLACE_CENTERED :
     default :
       xx = ( abox.max[0] -
-               abox.min[0] - puGetStringWidth(legendFont,legend) ) / 2 ;
+               abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
       break ;
     }
 
       yy = ( abox.max[1] -
-               abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
+               abox.min[1] - legendFont.getStringHeight () ) / 2 ;
 
-    puDrawString ( legendFont, legend,
+    legendFont.drawString ( legend,
                   dx + abox.min[0] + xx,
                   dy + abox.min[1] + yy ) ;
   }

@@ -54,15 +54,15 @@ void puSlider::draw_slider_box ( int dx, int dy, float val, char *box_label )
     if ( isVertical () )  // Vertical slider, text goes to the right of it
     {
       xx = bx.max[0] + PUSTR_LGAP ;
-      yy = ( bx.max[1] + bx.min[1] - puGetStringHeight ( legendFont ) ) / 2 ;
+      yy = ( bx.max[1] + bx.min[1] - legendFont.getStringHeight () ) / 2 ;
     }
     else  // Horizontal slider, text goes above it
     {
-      xx = ( bx.max[0] + bx.min[0] - puGetStringWidth ( legendFont, box_label ) ) / 2 ;
+      xx = ( bx.max[0] + bx.min[0] - legendFont.getStringWidth ( box_label ) ) / 2 ;
       yy = bx.max[1] + PUSTR_BGAP ;
     }
 
-    puDrawString ( legendFont, box_label, dx + xx, dy + yy ) ;
+    legendFont.drawString ( box_label, dx + xx, dy + yy ) ;
   }
 }
 
@@ -95,10 +95,10 @@ void puSlider::draw ( int dx, int dy )
                   colour [ PUCOL_LEGEND ][2],
                   colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
 
-    int xx = ( abox.max[0] - abox.min[0] - puGetStringWidth(legendFont,legend) ) / 2 ;
-    int yy = ( abox.max[1] - abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
+    int xx = ( abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
+    int yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2 ;
 
-    puDrawString ( legendFont, legend,
+    legendFont.drawString ( legend,
                     dx + abox.min[0] + xx,
                     dy + abox.min[1] + yy ) ;
   }

@@ -99,7 +99,7 @@ void puListBox::draw ( int dx, int dy )
   else
   {
     int ysize = abox.max[1] - abox.min[1] + 1 ;
-    int yinc = puGetStringHeight(legendFont) + PUSTR_BGAP ;
+    int yinc = legendFont.getStringHeight () + PUSTR_BGAP ;
     int num_vis = (ysize - PUSTR_BGAP) / yinc ;
 
     int selected ;
@@ -131,7 +131,7 @@ void puListBox::draw ( int dx, int dy )
 
       while ( 1 )
       {
-        width = puGetStringWidth ( legendFont, (char *)str ) + PUSTR_LGAP ;
+        width = legendFont.getStringWidth ( (char *)str ) + PUSTR_LGAP ;
 
         if ( width < xsize )
           break ;
@@ -144,7 +144,7 @@ void puListBox::draw ( int dx, int dy )
         strcpy ( & str [ strlen(str) - 4 ], "..." ) ;
       }
 
-      puDrawString ( legendFont, (char*)str, xx, yy ) ;
+      legendFont.drawString ( (char*)str, xx, yy ) ;
     }
   }
 
@@ -166,7 +166,7 @@ void puListBox::doHit ( int button, int updown, int x, int y )
     {
       lowlight () ;
     
-      int yinc = puGetStringHeight(legendFont) + PUSTR_BGAP ;
+      int yinc = legendFont.getStringHeight () + PUSTR_BGAP ;
       int index = top + ( abox.max[1] - PUSTR_BGAP - y ) / yinc;
       if ( index < 0 )
         index = 0;

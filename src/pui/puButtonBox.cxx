@@ -134,9 +134,9 @@ void puButtonBox::draw ( int dx, int dy )
                     colour [ PUCOL_LEGEND ][2],
                     colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
 
-      puDrawString ( legendFont, button_labels[i],
+      legendFont.drawString ( button_labels[i],
                      dx + tbox.min[0] + PU_RADIO_BUTTON_SIZE + PUSTR_LGAP,
-                     dy + tbox.min[1] + puGetStringDescender(legendFont) + PUSTR_BGAP  + PUSTR_BGAP) ;
+                     dy + tbox.min[1] + legendFont.getStringDescender() + PUSTR_BGAP  + PUSTR_BGAP) ;
     }
   }
 
