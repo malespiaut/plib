@@ -1,0 +1,185 @@
+<HTML>
+<TITLE>PLIB: Downloading and Installing PLIB.</TITLE>
+<body text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
+ bgcolor="#005000" background="marble.png">
+<TABLE>
+<TR>
+<TD>
+<IMG SRC="plib_logo.png" ALT="PLIB Logo">
+<br>
+</TD>
+<TD>
+<center>
+<H1>
+     <FONT SIZE=9>S</FONT><FONT SIZE=5>TEVE'S</FONT>
+     <FONT SIZE=9>P</FONT><FONT SIZE=5>ORTABLE</FONT>
+     <FONT SIZE=9>G</FONT><FONT SIZE=5>AME</FONT>
+     <FONT SIZE=9>L</FONT><FONT SIZE=5>IBRARY.</FONT>
+</H1>
+</center>
+</TD>
+<TD>
+<ul>
+And Lo, the Lion and the Sheep shall lie down together - but the Sheep won't
+get much Sleep.
+<br>
+-- Woody Allen
+</ul>
+<center>
+<A href="http://sf.net"> 
+<IMG src="http://sf.net/sflogo.php?group_id=382&type=1" width="88" height="31" border="0" ALT="Sourceforge Logo"></A> 
+</center>
+</TD>
+</TR>
+</TABLE>
+
+<TABLE>
+<TR>
+<TD valign=top align=left>
+<A HREF="index.html">HOME</A><br>
+----------------<br>
+<A HREF="whats_inside.html">WHAT'S INSIDE PLIB?</A><br>
+----------------<br>
+<A HREF="license.html">OpenSource LICENSE</A><br>
+----------------<br>
+<A HREF="contacts.html">Contacts & Mailing Lists</A><br>
+----------------<br>
+<A HREF="requirements.html">Requirements & Portability</A><br>
+----------------<br>
+<A HREF="download.html">Download & Install</A><br>
+</TD>
+<TD>
+<H1>Downloading and Installing PLIB.</H1>
+<H2>The Short Answer (for Linux and CygWin users):</H2>
+Make sure you have OpenGL and GLUT installed.<br>
+Download this: <A HREF="dist/plib-1.4.0.tar.gz"> PLIB - Version 1.4.0</A>
+<br>
+Run this (as 'root'):
+<pre>
+     tar xzf plib-1.4.0.tar.gz
+     cd plib-1.4.0
+     ./configure ; make ; make install
+</pre>
+Tadaaaa!
+<p>
+<H2>The Long Answer: Downloading PLIB.</H2>
+You can get PLIB in various versions here. We follow the common Linux
+convention where the second digit in the version number is EVEN for
+stable versions and ODD for unstable and/or experimental versions.
+<p>
+End users should generally download the latest stable version but
+application developers may wish to periodically compile their code
+against the odd-numbered version so as to keep abreast of developments
+in PLIB.
+<p>
+<ul>
+<li><A HREF="dist/plib-1.5.0.tar.gz"> PLIB - Version 1.5.0 -- Experimental/Unstable</A>
+<li><A HREF="dist/plib-1.4.0.tar.gz"> PLIB - Version 1.4.0 -- Current/Stable</A>
+<li><A HREF="dist/plib-1.2.0.tar.gz"> PLIB - Version 1.2.0 -- Obsolete/Stable</A>
+<li><A HREF="dist/"> PLIB - Other versions</A>
+<li><A HREF="http://sf.net/project/?group_id=382"> PLIB - Latest development version (from CVS)</A>
+</ul>
+Download this using your browser by right-clicking on the name.  If you
+have InternetExplorer, you'll probably fall victim to it's stupid bug
+where it unzips the file automatically - but forgets to
+rename it to lose the '.gz' off the end.  Just rename it yourself
+before you try to un-tar it and all will be well.
+<p>
+PLIB documentation, example programs, fonts, etc are separated from
+PLIB itself to minimise your download time.
+<p>
+The <b>online</b> documentation attempts to always track the latest stable
+version of PLIB.  If you are using some other version, you may want to
+download the documentation appropriate to that release which comes with
+the plib_examples tarball.
+
+<ul>
+<li><A HREF="dist/plib_examples-1.4.0.tar.gz">
+             Example programs and Documentation for PLIB-1.4.0 or later.</A>
+<li><A HREF="dist/">PLIB_examples - Older versions</A>
+</ul>
+Un-tar this into a separate directory from PLIB itself - or else
+all the configuration and makefiles will clash.
+
+<H2>The Long Answer: Installing PLIB.</H2>
+On most Linux and other UNIX-like OS's, it's simply a matter of
+unpacking the tar-ball, changing directory into the plib_x.y.z
+directory that this creates and typing:
+<pre>
+
+   ./configure
+   make
+   make install
+
+</pre>
+Depending on the file permissions in /usr/local, you may need to
+be 'root' to perform the last step.  At the end of that process,
+you should have a set of header files in /usr/local/plib/include
+and a set of corresponding libraries in /usr/local/plib/lib. There
+are some example programs in the 'plib-x.y.z/examples' subdirectory.
+<p>
+WARNING: If you are using 'Mesa' instead of an 'Official' OpenGL,
+please make sure you followed the instructions in the Mesa installation
+notes that tell you to symbolically link /usr/lib/libGL.so
+and /usr/lib/libGLU.so to their Mesa equivelents.  More modern
+versions of Mesa may install directly into that location - but
+make sure that one way or another, /usr/lib/libGL.so points to your
+current OpenGL/Mesa library.
+<p>
+Some Linux distro's install OpenGL/Mesa in /usr/X11R6/lib - that
+is now officially deprecated - if your OpenGL/Mesa is installed
+there then I suggest you add symbolic links to make the
+files appear to be in /usr/lib.
+<p>
+If you are running some non-UNIX OS, (eg MS-Windows) there may be
+instructions on how to build PLIB in README.{OS name}.  If you
+have problems - or can offer to streamline the
+process, then please pass on your knowledge via the mailing list.
+In general, it isn't complicated to install - you usually just have
+to compile all of the source files in each directory and link
+each subdirectory into a separate library. Don't try to make
+PLIB into a M$ '.DLL' - it's not worth the effort!
+<p>
+If you have the Microsoft Visual C++ suite, you'll find a set
+of project files - one in each source directory - plus a master
+workspace at the top of the tree.
+<p>
+If you have all the Cygnus (CygWin) compiler/tools, then use
+the UNIX build instructions.
+<p>
+There is now a README.mac for Macintosh users.
+
+<H2> Where Does PLIB Install Itself? </H2>
+This is always a controversial topic.  In order to maintain
+our own sanity, we expect PLIB to be installed in one place
+and in one place only.
+<pre>
+
+  Libraries are in:    /usr/lib/libplibXXX.a
+
+  Headers are in:      /usr/include/plib/XXX.h
+
+</pre>
+(Where 'XXX' is the short acronym for the PLIB library in question -
+in lowercase).
+<p>
+The now *VERY* obsolete PLIB 1.0.* used to install itself
+into /usr/local/plib, but from version 1.1.0 onwards, the
+modern location was adopted following discussions with
+several Linux distributors.
+<p>
+Please don't even <b>think</b> about arguing about this decision,
+it has been the topic of long and arduous discussion and it's
+NEVER going to change!
+
+</TD>
+</TR>
+</TABLE>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,155 @@
+<HTML>
+<TITLE>PLIB: What's In PLIB</TITLE>
+<body text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
+ bgcolor="#005000" background="marble.png">
+<TABLE>
+<TR>
+<TD>
+<IMG SRC="plib_logo.png" ALT="PLIB Logo">
+<br>
+</TD>
+<TD>
+<center>
+<H1>
+     <FONT SIZE=9>S</FONT><FONT SIZE=5>TEVE'S</FONT>
+     <FONT SIZE=9>P</FONT><FONT SIZE=5>ORTABLE</FONT>
+     <FONT SIZE=9>G</FONT><FONT SIZE=5>AME</FONT>
+     <FONT SIZE=9>L</FONT><FONT SIZE=5>IBRARY.</FONT>
+</H1>
+</center>
+</TD>
+<TD>
+<ul>
+And Lo, the Lion and the Sheep shall lie down together - but the Sheep won't
+get much Sleep.
+<br>
+-- Woody Allen
+</ul>
+<center>
+<A href="http://sf.net"> 
+<IMG src="http://sf.net/sflogo.php?group_id=382&type=1" width="88" height="31" border="0" ALT="Sourceforge Logo"></A> 
+</center>
+</TD>
+</TR>
+</TABLE>
+
+<TABLE>
+<TR>
+<TD valign=top align=left>
+
+<A HREF="index.html">HOME</A><br>
+----------------<br>
+<A HREF="whats_inside.html">WHAT'S INSIDE PLIB?</A><br>
+----------------<br>
+<A HREF="license.html">OpenSource LICENSE</A><br>
+----------------<br>
+<A HREF="contacts.html">Contacts & Mailing Lists</A><br>
+----------------<br>
+<A HREF="requirements.html">Requirements & Portability</A><br>
+----------------<br>
+<A HREF="download.html">Download & Install</A><br>
+</TD>
+<TD>
+<H2>What's Inside PLIB?</H2>
+PLIB is comprised of a number of semi-autonomous libraries
+that you can pretty much mix and match - using as much or
+as little PLIB as you need.  The components libraries are:
+<p>
+<TABLE>
+<TR>
+  <TD><A HREF="pui/index.html">Picoscopic User Interface Library (PUI)</A></TD>
+  <TD>A fully portable set of GUI widgets that need only GLUT, OpenGL and C++
+      to operate.  Useful for games because rendering these widgets is
+      performed very quicly by your 3D hardware.</TD>
+</TR>
+<TR>
+  <TD><A HREF="sl/index.html">Sound Library (SL)</A></TD>
+  <TD>A fully portable Audio driver suited to C++, GLUT
+	and realtime applications that need low latency. Includes
+        a simple 'MOD' music loader/player.</TD>
+</TR>
+<TR>
+  <TD><A HREF="sg/index.html">Standard Geometry Library(SG)</A></TD>
+  <TD>A set of matrix and vector math functions that was
+	 specifically written to simplify the writing of efficient OpenGL
+	 programs. You need to include this code into any SSG applications.
+         Widely used within PLIB itself.
+  </TD>
+</TR>
+<TR>
+  <TD><A HREF="ssg/index.html">Simple Scene Graph Library (SSG)</A></TD>
+  <TD>A scene graph library layered on top of OpenGL. Also contains code to load and save lots of 3D file formats.</TD>
+</TR>
+<TR>
+  <TD><A HREF="ssgAux/index.html">SSG Auxiliary Library (SSGA)</A></TD>
+  <TD>Additional functionality layered onto SSG - not every SSG program
+      will need these but they can perhaps save you some effort.</TD>
+</TR>
+<TR>
+  <TD><A HREF="js/index.html">Joystick wrappers (JS)</A></TD>
+  <TD>Supports more Joysticks with more axes and buttons than GLUT.</TD>
+</TR>
+<TR>
+  <TD><A HREF="fnt/index.html">Fonts'n'Text Library (FNT)</A></TD>
+  <TD>Supports text output in OpenGL using texture mapped fonts.
+      These are much faster to render than GLUT's fonts.</TD>
+</TR>
+<TR>
+  <TD><A HREF="util/index.html">Utility Library (UL)</A></TD>
+  <TD>A simple portability library to hide basic operating system
+      incompatibilities. Widely used within PLIB itself.</TD>
+</TR>
+<TR>
+  <TD><A HREF="net/index.html">Pegasus Network Library (NET)</A></TD>
+  <TD>Pegasus is a C++ library for assist you in adding
+      networking to your games.</TD>
+</TR>
+</TABLE>
+<p>
+<H2> Goodies: Samples and Demo's </H2>
+There are quite a few example programs that each show off
+one aspect of PLIB's use.  We also distribute a set of demonstration
+programs. These tend to be more complete and usable applications - some
+games, some tools.  These also show off PLIB's features - but in a
+more holistic way than the example programs.
+
+<H2>Documentation.</H2>
+All documentation is available online (click on the package name
+in the section above) and distributed with PLIB in HTML.
+<p>
+There are some interdependencies between the PLIB components - all
+need the common utility library - many need the standard geometry
+library for matix operations:
+<TABLE>
+<TR>
+<TD>
+<ul>
+<li>UL is independent
+<li>JS depends only on UL
+<li>SL depends only on UL
+<li>SG depends only on UL
+<li>NET depends only on UL
+</ul>
+</TD>
+<TD>
+<ul>
+<li>FNT depends on UL and SG
+<li>SSG depends on UL and SG
+<li>SSGAUX depends on UL, SG and SSG
+<li>PUI depends on UL, SG and FNT
+</ul>
+</TD>
+</TR>
+</TABLE>
+
+</TD>
+</TR>
+</TABLE>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,119 @@
+<HTML>
+<TITLE>PLIB: Requirements & Portability.</TITLE>
+<body text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
+ bgcolor="#005000" background="marble.png">
+<TABLE>
+<TR>
+<TD>
+<IMG SRC="plib_logo.png" ALT="PLIB Logo">
+<br>
+</TD>
+<TD>
+<center>
+<H1>
+     <FONT SIZE=9>S</FONT><FONT SIZE=5>TEVE'S</FONT>
+     <FONT SIZE=9>P</FONT><FONT SIZE=5>ORTABLE</FONT>
+     <FONT SIZE=9>G</FONT><FONT SIZE=5>AME</FONT>
+     <FONT SIZE=9>L</FONT><FONT SIZE=5>IBRARY.</FONT>
+</H1>
+</center>
+</TD>
+<TD>
+<ul>
+And Lo, the Lion and the Sheep shall lie down together - but the Sheep won't
+get much Sleep.
+<br>
+-- Woody Allen
+</ul>
+<center>
+<A href="http://sf.net"> 
+<IMG src="http://sf.net/sflogo.php?group_id=382&type=1" width="88" height="31" border="0" ALT="Sourceforge Logo"></A> 
+</center>
+</TD>
+</TR>
+</TABLE>
+
+<TABLE>
+<TR>
+<TD valign=top align=left>
+<A HREF="index.html">HOME</A><br>
+----------------<br>
+<A HREF="whats_inside.html">WHAT'S INSIDE PLIB?</A><br>
+----------------<br>
+<A HREF="license.html">OpenSource LICENSE</A><br>
+----------------<br>
+<A HREF="contacts.html">Contacts & Mailing Lists</A><br>
+----------------<br>
+<A HREF="requirements.html">Requirements & Portability</A><br>
+----------------<br>
+<A HREF="download.html">Download & Install</A><br>
+</TD>
+<TD>
+<H2>Hardware Requirements for Running PLIB</H2>
+To do good 3D graphics, you'll need an OpenGL-compatible 3D graphics
+accellerator that your operating system supports.  Most systems can
+run OpenGL in software only - but performance is so poor as to be
+unusable in the kinds of application for which PLIB is intended.
+<p>
+If you want to hear sound effects and music, you'll obviously
+need a sound card and some speakers or headphones.
+
+<H2>Software Requirements for Running PLIB</H2>
+The PLIB team works hard to minimise our dependance on other
+libraries to make it easy for end-users to install application
+software without having to visit dozens of web sites to collect
+the libraries they need.  
+<ul>
+<li>3D/2D Graphics: OpenGL. If you aren't already set up to
+    run OpenGL, you should check:
+    <ul> 
+    <li> <A HREF="http://www.opengl.org">The OpenGL ARB</A> site.
+    <li> Or download <A HREF="http://www.mesa3d.org">Mesa</A>
+         (which is an excellent OpenGL clone by Brian Paul).
+    <li> If you are a Linux user, you may wish to check the
+         <A HREF="http://www.linux3d.org">Linux3D Site</A>.
+    <li> If you are a Windoze or Macintosh user, you should have
+         had a copy of OpenGL delivered with your operating
+         system.
+    </ul>
+<li>Windowing: <A HREF="http://www.opengl.org/Documentation/GLUT.html">GLUT</A>
+    (The OpenGL Utility Toolkit by Mark Kilgard) - fully portable
+    windowing library with support for mouse and keyboard.
+    As an alternative, there is an OpenSource clone of GLUT called
+    <A HREF="http://freeglut.sf.net">freeglut</A> - it
+    works very well with PLIB applications and is maintained by
+    many of the same people.
+    It's perfectly possible to write PLIB programs that don't use
+    GLUT - but the examples and demo's do require it.
+</ul>
+
+<H2>How Portable is PLIB?</H2>
+VERY!
+<ul>
+<li> All flavors of Win32 (Win 2000, WinME, WinNT, Win95 and Win98) are
+     supported, using either MSVC++ or CygWin for compilation.
+     Theoretically you could use Borland C++ also, but since there is little
+     user base these days, the necessary 'project' files to build PLIB
+     under Borland's IDE do tend to get outdated.
+<li> All flavors of Linux are supported - on any CPU platform that
+     supports Xfree86 and OpenGL.
+<li> Most other UNIX-like systems (at least BSD, IRIX, Solaris, OS-X).
+<li> MacOS now runs everything except the joystick library. I have yet to
+     hear of anyone who has a Mac with a joystick - so this isn't a great loss.
+<li> Support for BeOS is problematic - for some reason, people who are prepared
+     to help out with porting PLIB to BeOS are hard to find. However, since
+     BeOS (I'm told) has compatibility with GLUT, OpenGL and OSS, it should
+     be easy to port to.
+</ul>
+
+</TD>
+</TR>
+</TABLE>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
