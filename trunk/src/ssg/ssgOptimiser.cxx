@@ -757,9 +757,9 @@ static void safe_replace_kid ( ssgBranch *parent, ssgEntity *old_kid, ssgEntity 
 
   if ( parent == NULL )
   {
-    int num_parents = old_kid -> getNumParents () ;
-    for ( int i = 0 ; i < num_parents ; i++ )
-      safe_replace_kid ( old_kid -> getParent ( i ), old_kid, new_kid ) ;
+    int n = old_kid -> getNumParents () ;
+    while ( n-- > 0 )
+      safe_replace_kid ( old_kid -> getParent ( n ), old_kid, new_kid ) ;
     return ;
   }
 
@@ -835,7 +835,7 @@ static void strip ( ssgEntity *ent )
 
   default:
     if ( b_ent -> isDirtyBSphere () )
-      b_ent -> recalcBSphere () ; /* make the chance while cached */
+      b_ent -> recalcBSphere () ;
   }
 }
 
