@@ -37,6 +37,7 @@ higher level classes on top of the basic SSG classes.
 <li><A HREF="#ssgaParticleSystem">ssgaParticleSystem - Implements a spray of particles</A>
 <li><A HREF="#ssgaFire">ssgaFire - Simulates Fire</A>
 <li><A HREF="#ssgaLensFlare">ssgaLensFlare - Simulates Lens Flare for drawing bright lights.</A>
+<li><A HREF="#ssgaSky">ssgaSky - Model a sky with sun, moon, clouds, stars & planets.</A>
 </ul>
 </TD>
 <TD>
@@ -605,6 +606,264 @@ eg:
 It contains a (hard-coded) 256x128 texture map which is compiled
 into the code and shared between however many lens flares there
 are in the scene.
+<p>
+<A NAME="ssgaSky"></A>
+<H1>ssgaSky</H1>
+<TABLE>
+<TR>
+<TD width="40%" valign="top">
+The ssgaSky class models a blended sky dome, with methods to add celestial
+bodies, for example a haloed sun or a textured moon, and methods to add
+clouds, stars and planets.
+<p>
+The sky implements various time of day lighting effects, it plays well
+with fog and visibility effects, and implements scudded cloud fly-through
+effects. Additionally, you can wire in the output of the SimGear
+<a href="http://www.simgear.org/doxygen/classSGEphemeris.html">SGEphemeris</a>
+class to accurately position all the objects in the sky.
+<p>
+This sky dome code was based on the <a href="http://www.simgear.org/">SimGear</a>
+sky code, written by Curtis Olson, which is used in
+<a href="http://www.flightgear.org/">FlightGear</a>.
+The code was moved into PLIB for easier access, STL was removed and 'flat
+earth' methods added. The main reason the code was moved here was to allow
+the PLIB community to add their own extensions (not relevant to FlightGear),
+to build for example, 'un-realistic' sky domes, with green skies, purple
+clouds or multiple suns. This has not yet fully been achieved, but hopefully
+when someone finds the time or has the need, these features will be added.
+</TD>
+<TD>
+<center>
+<IMG SRC="ssgaSky.png" ALT="ssgaSky screenshots" WIDTH=400 HEIGHT=300>
+<br>
+ssgaSky screenshots
+</center>
+</TD>
+</TR>
+</TABLE>
+<pre>
+class ssgaSky
+{
+public:
+
+  ssgaSky( void );
+  ~ssgaSky( void );
+
+  void build( double h_radius, double v_radius,
+	  int nplanets, sgdVec3 *planet_data,
+	  int nstars, sgdVec3 *star_data);
+
+  ssgaCelestialBody* addBody( const char *body_tex_path, const char *halo_tex_path, double size, double dist, bool sun = false );
+  ssgaCelestialBody* addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double size, double dist, bool sun = false );
+  ssgaCelestialBody* getBody(int i) { return bodies.get(i); }
+  int getBodyCount() { return bodies.getNum(); }
+
+  ssgaCloudLayer* addCloud( const char *cloud_tex_path, float span, float elevation, float thickness, float transition );
+  ssgaCloudLayer* addCloud( ssgSimpleState *cloud_state, float span, float elevation, float thickness, float transition );
+  ssgaCloudLayer* getCloud(int i) { return clouds.get(i); }
+  int getCloudCount() { return clouds.getNum(); }
+
+  bool repositionFlat( sgVec3 view_pos, double spin, double dt );
+  bool reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up,
+                   double lon, double lat, double alt, double spin, double gst, double dt );
+
+  bool repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, double sun_angle,
+	  int nplanets, sgdVec3 *planet_data,
+	  int nstars, sgdVec3 *star_data );
+
+  void modifyVisibility( float alt, float time_factor );
+
+  void preDraw();
+  void postDraw( float alt );
+
+  void enable();
+  void disable();
+
+  float getVisibility();
+  void setVisibility( float v );
+} ;
+</pre>
+<H2>Building the sky</H2>
+Once you have created an instance of ssgaSky you must call the
+build() method. The arguments you pass to the build() method
+allow you to specify the size of your sky dome, a number of planets,
+and a multitude of stars. For the planets and stars you pass in
+an array of right ascensions, declinations, magnitudes, and the
+distance from the view point. 
+<H2>Celestial Bodies</H2>
+Celestial bodies (eg. sun, moon or even mars if you like) can be
+added or modified individually. To add a body use the addBody()
+method. The arguments allow you to specify the body texture, the
+halo texture, the size of the body, the body distance (usually the
+sky dome size) and a boolean flag to indicate if the body should
+be used as a reference to 'spin' the dome based on the bodies rotation
+for correct sunrise and sunset effects (nb. the sun reference is only used
+by repositionFlat() so the user does not need to calculate the spin
+parameter). There is an additional form of this method that allows
+you to specify your own ssgSimpleState for drawing the body and halo
+texture.
+<p>
+Body accessor methods are available to:
+<ul>
+<li> set body right ascension and declination
+<li> get body position and color
+</ul>
+note: body angle and rotation are calculated internally (by
+ssgaSky::repositionFlat() only) for sunrise and sunset effects.
+<pre>
+class ssgaCelestialBody
+{
+...
+  void getPosition ( sgCoord* p );
+
+  void setAngle ( double angle );
+  double getAngle ();
+
+  void setRotation ( double rotation );
+  double getRotation ();
+
+  void setRightAscension ( double ra );
+  double getRightAscension ();
+
+  void setDeclination ( double decl );
+  double getDeclination ();
+
+  void setDist ( double dist );
+  double getDist ();
+
+  float *getColor();
+} ;
+</pre>
+<H2>Cloud Layers</H2>
+Cloud layers can be added or modified individually. To add a cloud
+layer use the addCloud() method. The arguments allow you to specify
+cloud texture, the size of the cloud object, base height above sea
+level, layer thickness and a transition zone for entering/leaving
+the cloud layer. There is an additional form of this method that
+allows you to specify your own ssgSimpleState for drawing the cloud
+layer texture.
+<p>
+Cloud accessor methods are available to:
+<ul>
+<li> enable/disable clouds
+<li> set elevation above sea level
+<li> set thickness and transition - used to simulate cloud 'puffs'
+<li> set speed and direction - used to simulate cloud movement
+</ul>
+<pre>
+class ssgaCloudLayer
+{
+...
+  void enable();
+  void disable();
+  bool isEnabled();
+
+  float getElevation ();
+  void  setElevation ( float elevation );
+
+  float getThickness ();
+  void  setThickness ( float thickness );
+
+  float getTransition ();
+  void  setTransition ( float transition );
+
+  float getSpeed ();
+  void  setSpeed ( float val );
+
+  float getDirection ();
+  void  setDirection ( float val );
+} ;
+</pre>
+<H2>Repainting the Sky</H2>
+As the sun circles the globe, you can call the repaint() method to
+re-color the sky objects to simulate sunrise and sunset effects,
+visibility, and other lighting changes. The arguments allow you
+to specify a base sky color (for the top of the dome), a fog color
+(for the horizon), a cloud color (for blending clouds with the fog
+color), the sun angle with the horizon (for sunrise/sunset effects),
+and new star and planet data so that we can optionally change the
+magnitude of these (for day/night transitions).
+<H2>Positioning Sky Objects</H2>
+As time progresses and as you move across the surface of the earth,
+the apparent position of the objects and the various lighting effects
+can change. At this point you may wish to call celestial body
+setRightAscension() and setDeclination() methods to update the
+position of your bodies (SimGear
+<a href="http://www.simgear.org/doxygen/classSGEphemeris.html">SGEphemeris</a>
+can be used if you wish to place bodies correctly).
+<p>
+Once you have specified the positions of all the sky objects, you must
+call the repositionFlat() or reposition() method to allow you to specify
+your view position.
+<p>
+The repositionFlat() arguments allow you to specify view position for
+a 'flat earth' model. A 'spin' angle can be specified for orienting
+the sky with the sun position so sunset and sunrise effects look correct.
+If you specified a body to be the sun reference on addBody() you do not
+need to specify the 'spin' angle. You may specify the amount of elapsed
+time since the sky was last updated (used to animate cloud movement).
+<p>
+The reposition() arguments allow you to specify your view position in
+world Cartesian coordinates, the zero elevation position in world
+Cartesian coordinates (your longitude, your latitude, sea level),
+the 'up' vector in world Cartesian coordinates, current longitude,
+latitude, and altitude. A 'spin' angle can be specified for
+orienting the sky with the sun position so sunset and sunrise
+effects look correct. You must specify GMT side real time. You may
+specify the amount of elapsed time since the sky was last updated
+(used to animate cloud movement).
+<H2>Rendering the Sky</H2>
+The sky is designed to be rendered in two stages. The first stage
+renders the parts that form your back drop - the sky dome, the
+stars, the planets and the celestial bodies. These should be
+rendered before the rest of your scene by calling the preDraw()
+method. The second stage renders the clouds which are likely to be
+translucent and should be drawn after your scene has been rendered.
+Use the postDraw() method to draw the second stage of the sky. 
+<p>
+A typical application might do the following: 
+<pre>
+thesky->preDraw(); 
+ssgCullAndDraw ( myscene ) ; 
+thesky->postDraw( my_altitude ); 
+</pre>
+The current altitude in meters is passed to the postDraw()
+method so the clouds layers can be rendered correctly from
+most distant to closest. 
+<H2>Visibility Effects</H2>
+Visibility and fog is important for correctly rendering the sky.
+You can inform ssgaSky of the current visibility by calling
+the setVisibility() method.
+<p>
+When transitioning through clouds, it is nice to pull in the
+fog as you get close to the cloud layer to hide the fact that
+the clouds are drawn as a flat polygon. As you get nearer to
+the cloud layer it is also nice to temporarily pull in the
+visibility to simulate the effects of flying in and out of
+the puffy edge of the cloud. These effects can all be
+accomplished by calling the modifyVisibility() method. The
+arguments allow you to specify your current altitude
+(which is then compared to the altitudes of the various
+cloud layers). You can also specify a time factor which
+should be the length in seconds since the last time you
+called modifyVisibility(). The time_factor value allows the
+puffy cloud effect to be calculated correctly.
+<p>
+The modifyVisibility() method alters the ssgaSky's internal
+idea of visibility, so you should subsequently call
+getVisibility() to get the actual modified visibility.
+You should then make the appropriate glFog() calls to
+setup fog properly for your scene.
+<H2>Accessor Methods</H2>
+Once an instance of ssgaSky has been successfully
+initialized, there are a couple accessor methods you
+can use such as getBodyCount() to return the number
+of celestial bodies, getBody(i) to return body number
+i, getCloudCount() to return the number
+of cloud layers, getCloud(i) to return cloud
+layer number i, getVisibility() to return the actual
+visibility as modified by the sky/cloud model.
+<p>
 <hr>
 <table>
 <tr>
