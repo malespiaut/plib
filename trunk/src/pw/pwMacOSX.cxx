@@ -13,9 +13,9 @@ void defaultExitFunc ()
   exit ( 0 ) ;
 }
 
-void pwOpenWindow ( pwKeybdFunc    *kb, pwMouseFunc *ms,
-                    pwMousePosFunc *mp, pwResizeCB *rcb,
-                    pwExitCB *ecb )
+void pwSetCallbacks ( pwKeybdFunc    *kb, pwMouseFunc *ms,
+                      pwMousePosFunc *mp, pwResizeCB *rcb,
+                      pwExitCB *ecb )
 {
   fprintf ( stderr, "PW: ***** NOT IMPLEMENTED FOR OS-X YET!! *****\n" ) ;
 }

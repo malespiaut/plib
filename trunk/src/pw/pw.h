@@ -15,9 +15,9 @@ void pwInit ( int x, int y, int w, int h,
               int multisample,
               char *title, int border, int num_samples ) ;
 
-void pwOpenWindow ( pwKeybdFunc    *kb = NULL, pwMouseFunc *ms = NULL,
-                    pwMousePosFunc *mp = NULL, pwResizeCB *rcb = NULL,
-                    pwExitCB      *ecb = NULL ) ;
+void pwSetCallbacks ( pwKeybdFunc    *kb = NULL, pwMouseFunc *ms = NULL,
+                      pwMousePosFunc *mp = NULL, pwResizeCB *rcb = NULL,
+                      pwExitCB      *ecb = NULL ) ;
 
 int  pwGetModifiers  () ;
 void pwSwapBuffers   () ;

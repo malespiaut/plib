@@ -55,7 +55,7 @@ int main ( int, char ** )
 {
   pwInit ( 100, 100, 640, 480, false, "PLIB Window Demo", true, 0 ) ;
 
-  pwOpenWindow ( kbFunc, msFunc, mpFunc, rsFunc, exFunc ) ;
+  pwSetCallbacks ( kbFunc, msFunc, mpFunc, rsFunc, exFunc ) ;
 
   while ( 1 )
   {

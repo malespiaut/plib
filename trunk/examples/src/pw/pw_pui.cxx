@@ -60,7 +60,7 @@ int main ( int, char ** )
   b -> setLegend   ( "Say Hello" ) ;
   b -> setCallback ( button_cb ) ;
 
-  pwOpenWindow ( kbFunc, msFunc, mpFunc, rsFunc, exFunc ) ;
+  pwSetCallbacks ( kbFunc, msFunc, mpFunc, rsFunc, exFunc ) ;
   while ( 1 )
   {
     glClearColor ( 0.5, 0.1, 0.1, 1.0 ) ;

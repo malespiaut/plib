@@ -65,9 +65,9 @@ Then, initialise other PLIB components such as PUI.  When initialisation
 is complete, call this function:
 <pre>
 
-void pwOpenWindow ( pwKeybdFunc    *kb = NULL, pwMouseFunc *ms = NULL,
-                    pwMousePosFunc *mp = NULL, pwResizeCB *rcb = NULL,
-                    pwExitCB      *ecb = NULL ) ;
+void pwCallbacks ( pwKeybdFunc    *kb = NULL, pwMouseFunc *ms = NULL,
+                   pwMousePosFunc *mp = NULL, pwResizeCB *rcb = NULL,
+                   pwExitCB      *ecb = NULL ) ;
 
 </pre>
 These parameters are callback functions for (repectively)
@@ -79,9 +79,8 @@ PW also calls the exit function when it detects a fatal error that
 occurs after the window has been successfully opened.
 <p>
 Your application has to be prepared for these callbacks to be invoked
-at any time after pwOpenWindow.  PW doesn't guarantee that the window
-won't be opened before pwOpenWindow - but the window will certainly
-be opened after it returns.
+at any time after pwCallbacks.  PW allows you to issue OpenGL calls
+any time after pwInit().
 <p>
 The specifications of these various callbacks are:
 <pre>
