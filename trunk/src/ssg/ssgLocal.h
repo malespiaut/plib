@@ -128,3 +128,7 @@ void  _ssgSetCurrentTweenMode  ( int   tweenmode  ) ;
 */
 int _ssgSaveObject ( FILE * , ssgBase * ) ;
 int _ssgLoadObject ( FILE * , ssgBase ** , int type_mask = 0 ) ;
+
+extern ssgStatistics _ssgCurrStatistics ;
+
+

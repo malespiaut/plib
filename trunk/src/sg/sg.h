@@ -1382,8 +1382,14 @@ int sgIsectInfLineInfLine   ( sgVec3 dst,
 SGfloat sgIsectLinesegPlane ( sgVec3 dst,
                               sgVec3 v1, sgVec3 v2,
                               sgVec4 plane ) ;
-bool sgPointInTriangle      ( sgVec3 point, sgVec3 tri[3] );
 
+bool sgPointInTriangle3     ( sgVec3 point, sgVec3 tri[3] ) ;
+bool sgPointInTriangle2     ( sgVec2 point, sgVec2 tri[3] ) ;
+
+inline bool sgPointInTriangle ( sgVec3 point, sgVec3 tri[3] )
+{
+  return sgPointInTriangle3 ( point, tri ) ;
+}
 
 
 

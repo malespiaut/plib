@@ -370,6 +370,9 @@ void ssgVTable::pick ( int baseName )
 
 void ssgVTable::draw_geometry ()
 {
+  _ssgCurrStatistics . bumpVertexCount ( num_vertices ) ;
+  _ssgCurrStatistics . bumpLeafCount   ( 1 ) ;
+
   if ( indexed )
   {
     glBegin ( gltype ) ;

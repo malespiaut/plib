@@ -226,129 +226,165 @@ SGfloat sgIsectLinesegPlane ( sgVec3 dst, sgVec3 v1, sgVec3 v2, sgVec4 plane )
 
 
 // return the sign of a value
-static inline const int SG_SIGN( const SGfloat x ) {
-	return x < 0 ? -1 : 1;
+
+static inline const int SG_SIGN( const SGfloat x )
+{
+  return x < 0 ? -1 : 1;
 }
+
 
 // return the minimum of two values
-static inline SGfloat SG_MIN2( const SGfloat a, const SGfloat b ) {
-	return a < b ? a : b;
+
+static inline SGfloat SG_MIN2( const SGfloat a, const SGfloat b )
+{
+  return a < b ? a : b ;
 }
+
 
 // return the minimum of three values
-static inline SGfloat SG_MIN3( const SGfloat a, const SGfloat b, const SGfloat c) {
-	return ( a < b ? SG_MIN2(a, c) : SG_MIN2(b, c) );
+
+static inline SGfloat SG_MIN3 ( const SGfloat a,
+                                const SGfloat b, const SGfloat c )
+{
+  return ( a < b ? SG_MIN2(a, c) : SG_MIN2(b, c) );
 }
 
+
 // return the minimum and maximum of three values
+
 static void SG_MIN_MAX3 ( SGfloat &min, SGfloat &max, const SGfloat &a,
-						  const SGfloat &b, const SGfloat &c)
+                                    const SGfloat &b, const SGfloat &c )
 {
-	if( a > b ) {
-		if( a > c ) {
-			max = a;
-			min = SG_MIN2( b,  c );
-		} else {
-			max = c;
-			min = SG_MIN2( a, b );
-		}
-	} else {
-		if( b > c ) {
-			max = b;
-			min = SG_MIN2( a, c );
-		} else {
-			max = c;
-			min = SG_MIN2( a, b );
-		}
-	}
+  if( a > b )
+  {
+    if( a > c ) { max = a; min = SG_MIN2( b, c ); } else
+                { max = c; min = SG_MIN2( a, b ); }
+  }
+  else
+  {
+    if( b > c ) { max = b; min = SG_MIN2( a, c ); } else
+                { max = c; min = SG_MIN2( a, b ); }
+  }
 }
 
 /*
  * Given a point and a triangle lying on the same plane
  * check to see if the point is inside the triangle
  */
-bool sgPointInTriangle( sgVec3 point, sgVec3 tri[3] )
+
+bool sgPointInTriangle3 ( sgVec3 point, sgVec3 tri[3] )
 {
-	sgVec3 dif;
+  sgVec3 dif ;
 
-	int i;
-	for( i=0; i<3; i++ ) {
-		SGfloat min, max;
-		SG_MIN_MAX3 ( min, max, tri[0][i], tri[1][i], tri[2][i] );
-		// punt if outside bouding cube
-		if( (point[i] < min) || (point[i] > max) )
-			return false;
-		dif[i] = max - min;
-	}
+  /* Early-out if point is not in bounding cube of triangle */
 
-	// drop the smallest dimension so we only have to work in 2d.
-	SGfloat min_dim = SG_MIN3 (dif[0], dif[1], dif[2]);
-	SGfloat x1, y1, x2, y2, x3, y3, rx, ry;
-	if ( fabs(min_dim-dif[0]) <= FLT_EPSILON ) {
-		// x is the smallest dimension
-		x1 = point[1];
-		y1 = point[2];
-		x2 = tri[0][1];
-		y2 = tri[0][2];
-		x3 = tri[1][1];
-		y3 = tri[1][2];
-		rx = tri[2][1];
-		ry = tri[2][2];
-	} else
-	if ( fabs(min_dim-dif[1]) <= FLT_EPSILON ) {
-		// y is the smallest dimension
-		x1 = point[0];
-		y1 = point[2];
-		x2 = tri[0][0];
-		y2 = tri[0][2];
-		x3 = tri[1][0];
-		y3 = tri[1][2];
-		rx = tri[2][0];
-		ry = tri[2][2];
-	} else
-	if ( fabs(min_dim-dif[2]) <= FLT_EPSILON ) {
-		// z is the smallest dimension
-		x1 = point[0];
-		y1 = point[1];
-		x2 = tri[0][0];
-		y2 = tri[0][1];
-		x3 = tri[1][0];
-		y3 = tri[1][1];
-		rx = tri[2][0];
-		ry = tri[2][1];
-	} else {
-		// all dimensions are really small so lets call it close
-		// enough and return a successful match
-		return true;
-	}
+  for( int i = 0 ; i < 3 ; i++ )
+  {
+    SGfloat min, max ;
 
-	// check if intersection point is on the same side of p1 <-> p2 as p3  
-	SGfloat tmp = (y2 - y3) / (x2 - x3);
-	int side1 = SG_SIGN (tmp * (rx - x3) + y3 - ry);
-	int side2 = SG_SIGN (tmp * (x1 - x3) + y3 - y1);
-	if ( side1 != side2 ) {
-		// printf("failed side 1 check\n");
-		return false;
-	}
+    SG_MIN_MAX3 ( min, max, tri[0][i], tri[1][i], tri[2][i] ) ;
 
-	// check if intersection point is on correct side of p2 <-> p3 as p1
-	tmp = (y3 - ry) / (x3 - rx);
-	side1 = SG_SIGN (tmp * (x2 - rx) + ry - y2);
-	side2 = SG_SIGN (tmp * (x1 - rx) + ry - y1);
-	if ( side1 != side2 ) {
-		// printf("failed side 2 check\n");
-		return false;
-	}
+    if( point[i] < min || point[i] > max )
+      return false ;
 
-	// check if intersection point is on correct side of p1 <-> p3 as p2
-	tmp = (y2 - ry) / (x2 - rx);
-	side1 = SG_SIGN (tmp * (x3 - rx) + ry - y3);
-	side2 = SG_SIGN (tmp * (x1 - rx) + ry - y1);
-	if ( side1 != side2 ) {
-		// printf("failed side 3  check\n");
-		return false;
-	}
+    dif[i] = max - min ;  /* Calc size of bounding cube */
+  }
 
-	return true;
+  /* Drop the smallest dimension so we only have to work in 2d. */
+
+  sgVec2 p, a, b, c ;
+
+  if ( dif[0] <= dif[1] && dif[0] <= dif[2] )
+  {
+    p[0] = point[1]  ; p[1] = point[2]  ;
+    a[0] = tri[0][1] ; a[1] = tri[0][2] ;
+    b[0] = tri[1][1] ; b[1] = tri[1][2] ;
+    c[0] = tri[2][1] ; c[1] = tri[2][2] ;
+  }
+  else
+  if ( dif[1] <= dif[0] && dif[1] <= dif[2] )
+  {
+    p[0] = point[0]  ; p[1] = point[2]  ;
+    a[0] = tri[0][0] ; a[1] = tri[0][2] ;
+    b[0] = tri[1][0] ; b[1] = tri[1][2] ;
+    c[0] = tri[2][0] ; c[1] = tri[2][2] ;
+  }
+  else
+  {
+    p[0] = point[0]  ; p[1] = point[1]  ;
+    a[0] = tri[0][0] ; a[1] = tri[0][1] ;
+    b[0] = tri[1][0] ; b[1] = tri[1][1] ;
+    c[0] = tri[2][0] ; c[1] = tri[2][1] ;
+  }
+
+  /*
+    Check if the intersection point is on the same side of
+    each edge of the triangle as the remaining point.
+  */
+
+  sgVec3 le ;  /* Line Equation */
+
+  sgMake2DLine ( le, a, b ) ;
+
+  if ( SG_SIGN ( le[0]*c[0] + le[1]*c[1] + le[2] ) !=
+       SG_SIGN ( le[0]*p[0] + le[1]*p[1] + le[2] ) ) return false ;
+
+  sgMake2DLine ( le, b, c ) ;
+
+  if ( SG_SIGN ( le[0]*a[0] + le[1]*a[1] + le[2] ) !=
+       SG_SIGN ( le[0]*p[0] + le[1]*p[1] + le[2] ) ) return false ;
+
+  sgMake2DLine ( le, c, a ) ;
+
+  if ( SG_SIGN ( le[0]*b[0] + le[1]*b[1] + le[2] ) !=
+       SG_SIGN ( le[0]*p[0] + le[1]*p[1] + le[2] ) ) return false ;
+
+  return true ;
 }
+
+
+
+bool sgPointInTriangle2 ( sgVec2 point, sgVec2 tri[3] )
+{
+  SGfloat min, max ;
+
+  /* Early-out if outside bounding box */
+
+  SG_MIN_MAX3 ( min, max, tri[0][0], tri[1][0], tri[2][0] );
+  if ( point[0] < min || point[0] > max ) return false ;
+
+  SG_MIN_MAX3 ( min, max, tri[0][1], tri[1][1], tri[2][1] );
+  if ( point[1] < min || point[1] > max ) return false ;
+
+  sgVec2 a, b, c ;
+
+  sgCopyVec2 ( a, tri[0] ) ;
+  sgCopyVec2 ( b, tri[1] ) ;
+  sgCopyVec2 ( c, tri[2] ) ;
+
+  /*
+    Check if the intersection point is on the same side of
+    each edge of the triangle as the remaining point.
+  */
+
+  sgVec3 le ;  /* Line Equation */
+
+  sgMake2DLine ( le, a, b ) ;
+
+  if ( SG_SIGN ( le[0]*c[0]     + le[1]*c[1]     + le[2] ) !=
+       SG_SIGN ( le[0]*point[0] + le[1]*point[1] + le[2] ) ) return false ;
+
+  sgMake2DLine ( le, b, c ) ;
+
+  if ( SG_SIGN ( le[0]*a[0]     + le[1]*a[1]     + le[2] ) !=
+       SG_SIGN ( le[0]*point[0] + le[1]*point[1] + le[2] ) ) return false ;
+
+  sgMake2DLine ( le, c, a ) ;
+
+  if ( SG_SIGN ( le[0]*b[0]     + le[1]*b[1]     + le[2] ) !=
+       SG_SIGN ( le[0]*point[0] + le[1]*point[1] + le[2] ) ) return false ;
+
+  return true ;
+}
+
 
