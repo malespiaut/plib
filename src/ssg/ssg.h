@@ -317,14 +317,20 @@ protected:
   unsigned int limit   ;  /* The current limit on number of things  */
   unsigned int size_of ;  /* The size of each thing */
   char         *list   ;  /* The list. */
+  bool         own_mem ;  /* Do we own the list memory ? */
 
-  void sizeChk (void)
+  void sizeChk ( unsigned int n )
   {
-    if ( total >= limit )
+    if ( (total+n) > limit )
     {
-      limit += limit ;
+      /* how big should we make the list? */
+      limit += limit ;  /* double it */
 			if ( limit <= 0 )
 				limit = 3;
+      if ( (total+n) > limit )
+        limit = (total+n) ;
+
+      /* re-allocate the list */
       char *nlist = new char [ limit * size_of ] ;
       memmove ( nlist, list, total * size_of ) ;
       delete [] list ;
@@ -343,24 +349,37 @@ _SSG_PUBLIC:
     size_of = 0 ;
     total = 0 ;
     list = NULL ;
+    own_mem = true ;
   }
 
 public:
 
-  ssgSimpleList ( int sz, int init = 3 )
+  ssgSimpleList ( int sz, int init = 3, char* things = 0 )
   {
     type |= SSG_TYPE_SIMPLELIST ;
     limit = init ;
     size_of = sz ;
-    total = 0 ;
-    list = new char [ limit * size_of ] ;
+    if ( things )
+    {
+      total = init ;
+      list = things ;
+      own_mem = false ;
+    }
+    else
+    {
+      total = 0 ;
+      list = new char [ limit * size_of ] ;
+      own_mem = true ;
+    }
   }
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
 
   virtual ~ssgSimpleList (void)
   {
-    delete [] list ;
+    if ( own_mem )
+      delete [] list ;
+    list = NULL ;
   } ;
 
   char *raw_get ( unsigned int n )
@@ -370,9 +389,16 @@ public:
 
   void raw_add ( char *thing )
   {
-    sizeChk () ;
+    sizeChk ( 1 ) ;
     memcpy ( & list [ size_of * total++ ], thing, size_of ) ;
   } ;
+
+  void raw_add ( char *things, unsigned int n )
+  {
+    sizeChk ( n ) ;
+    memcpy ( & list [ size_of * total ], things, size_of * n ) ;
+    total += n ;
+  }
 
   void raw_set ( char *thing, unsigned int n  )
   {
@@ -395,6 +421,16 @@ public:
   int getSizeOf (void) { return size_of ; }
   int getNum (void) { return total ; }
 
+  void setNum ( unsigned int n )
+  {
+    if ( total < n )
+    {
+      sizeChk ( n ) ;
+      memset ( & list [ size_of * total ], 0, size_of * (n-total) ) ;
+      total = n ;
+    }
+  }
+
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -407,7 +443,8 @@ class ssgVertexArray : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgVertexArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init )
+  ssgVertexArray ( int init = 3, sgVec3* things = 0 )
+    : ssgSimpleList ( sizeof(sgVec3), init, (char*)things )
   {
     type |= SSG_TYPE_VERTEXARRAY ;
   } 
@@ -424,7 +461,8 @@ class ssgNormalArray : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgNormalArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init )
+  ssgNormalArray ( int init = 3, sgVec3* things = 0 )
+    : ssgSimpleList ( sizeof(sgVec3), init, (char*)things )
   {
     type |= SSG_TYPE_NORMALARRAY ;
   }
@@ -441,7 +479,8 @@ class ssgTexCoordArray : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgTexCoordArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec2), init )
+  ssgTexCoordArray ( int init = 3, sgVec2* things = 0 )
+    : ssgSimpleList ( sizeof(sgVec2), init, (char*)things )
   {
     type |= SSG_TYPE_TEXCOORDARRAY ;
   }
@@ -458,7 +497,8 @@ class ssgColourArray : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgColourArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec4), init )
+  ssgColourArray ( int init = 3, sgVec4* things = 0 )
+    : ssgSimpleList ( sizeof(sgVec4), init, (char*)things )
   {
     type |= SSG_TYPE_COLOURARRAY ;
   }
@@ -474,7 +514,8 @@ class ssgIndexArray : public ssgSimpleList
 {
 public:
 
-  ssgIndexArray ( int init = 3 ) : ssgSimpleList ( sizeof(short), init )
+  ssgIndexArray ( int init = 3, short* things = 0 )
+    : ssgSimpleList ( sizeof(short), init, (char*)things )
   {
     type |= SSG_TYPE_INDEXARRAY ;
   }
@@ -490,7 +531,8 @@ class ssgTransformArray : public ssgSimpleList
 public:
   int selection ;  /* used to remember last transform selected */
 
-  ssgTransformArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgMat4), init )
+  ssgTransformArray ( int init = 3, sgMat4* things = 0 )
+    : ssgSimpleList ( sizeof(sgMat4), init, (char*)things )
   {
     type |= SSG_TYPE_TRANSFORMARRAY ;
     selection = 0 ;
@@ -514,7 +556,8 @@ class ssgInterleavedArray : public ssgSimpleList
 {
 public:
 
-  ssgInterleavedArray ( int init = 3 ) : ssgSimpleList ( sizeof(ssgInterleavedArrayElement), init )
+  ssgInterleavedArray ( int init = 3, ssgInterleavedArrayElement* things = 0 )
+    : ssgSimpleList ( sizeof(ssgInterleavedArrayElement), init, (char*)things )
   {
     type |= SSG_TYPE_INTERLEAVEDARRAY ;
   }
