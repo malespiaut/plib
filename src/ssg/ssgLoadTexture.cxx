@@ -238,7 +238,6 @@ bool ssgConvertTexture( char * fname_output, const char * fname_input )
   char command [ 1024 ] ;
 	sprintf(command, "imconvert -verbose %s sgi:%s", fname_input, fname_output);
 	unsigned int ui = WinExec(command, SW_HIDE );	
-	printf("WinExec!\n");
 	if ( ui < 32 )
 	{	ulSetError(UL_WARNING, "Couldn't convert texture '%s'. Did you install ImageMagick?"
 		                       " You may also convert it manually to '%s' and reload the model.", 
@@ -246,9 +245,10 @@ bool ssgConvertTexture( char * fname_output, const char * fname_input )
 		return false;
 	}
 #else
-  ulSetError(UL_WARNING, "Converting textures not yet implemented. Please convert %s manually.",
-		    fname_output);
-	//sprintf(command, "-verbose %s sgi:%s", fname_input, fname_output);
+	ulSetError(UL_WARNING, "Converting textures not yet implemented under Linux."
+		                     "You may convert '%s' manually to '%s' and reload the model.", 
+													 fname_input, fname_output);
+  //sprintf(command, "-verbose %s sgi:%s", fname_input, fname_output);
 	//execlp ( "convert", "convert",  command, NULL ) ;
 
 #endif
