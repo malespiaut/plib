@@ -1,18 +1,14 @@
 #ifndef _PU_H_
 #define _PU_H_ 1
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "sg.h"
+#include "fnt.h"
 
-#ifdef PU_NOT_USING_GLUT
-#  include <windows.h>
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#else
-#  ifdef WIN32
-#    include <windows.h>
-#  endif
+/*
+  Include GLUT
+ */
+
+#ifndef PU_NOT_USING_GLUT
 #  ifdef FREEGLUT_IS_PRESENT
 #    include <GL/freeglut.h>
 #  else
@@ -22,14 +18,6 @@
        /* No GLUT?!? */
 #    endif
 #  endif
-#endif
-
-#include "sg.h"
-#include "fnt.h"
-
-#ifndef TRUE
-#define TRUE  1
-#define FALSE 0
 #endif
 
 /*

@@ -1,7 +1,7 @@
 
 #include "ssgLocal.h"
 
-#ifdef USE_GLPNG
+#ifdef _SSG_USE_GLPNG
 #include "glpng.h"
 #endif
 
@@ -770,7 +770,7 @@ static void loadTextureBMP ( char *fname )
 
 void loadTexturePNG ( char *fname )
 {
-#ifdef USE_GLPNG
+#ifdef _SSG_USE_GLPNG
   pngInfo info;
   if (!pngLoad(fname, PNG_BUILDMIPMAP, PNG_ALPHA, &info)) {
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname ) ;

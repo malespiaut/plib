@@ -27,6 +27,67 @@
 
 #include <assert.h>
 
+#include <limits.h>
+#include <math.h>
+
+/* the next lines are to define BSD */
+/* see http://www.freebsd.org/handbook/porting.html for why we do this */
+
+#if (defined(__unix__) || defined(unix)) && !defined(USG)
+#include <sys/param.h>
+#endif
+ 
+#ifdef BSD
+#include <float.h>
+#endif
+#ifdef __MWERKS__
+#include <float.h>
+#endif
+#ifdef WIN32
+#include <float.h>
+#endif
+#ifdef __CYGWIN__
+#include <float.h>
+#endif
+
+#include <GL/gl.h>
+
+#ifndef WIN32
+#  ifndef macintosh
+#    include <GL/glx.h>
+#  else
+#    include <agl.h>
+#  endif
+#endif
+
+#include <GL/glu.h>
+
+
+/*
+  glGetCurrentContext()
+*/
+
+#ifdef WIN32
+#  define glGetCurrentContext() wglGetCurrentContext()
+#else
+#  if defined(macintosh)
+#     define glGetCurrentContext() aglGetCurrentContext()
+#  else
+#     define glGetCurrentContext() glXGetCurrentContext()
+#  endif
+#endif
+
+
+/* SGI machines seem to suffer from a lack of FLT_EPSILON so... */
+
+#ifndef FLT_EPSILON
+#define FLT_EPSILON 1.19209290e-07f        
+#endif
+
+#ifndef DBL_EPSILON
+#define DBL_EPSILON 1.19209290e-07f
+#endif
+
 #ifndef TRUE
 #define TRUE  1
 #define FALSE 0

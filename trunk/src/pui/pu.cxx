@@ -2,7 +2,6 @@
 #include "puLocal.h"
 
 #ifdef PU_NOT_USING_GLUT
-#include <assert.h>
 #include <iostream.h>
 #endif
 
@@ -112,15 +111,7 @@ void puInit ( void )
 
   if ( firsttime )
   {
-#ifdef WIN32
-    if ( wglGetCurrentContext () == NULL )
-#else
-#if defined(macintosh)
-    if ( aglGetCurrentContext () == NULL )
-#else
-    if ( glXGetCurrentContext () == NULL )
-#endif
-#endif
+    if ( glGetCurrentContext () == NULL )
     {
       fprintf ( stderr,
       "FATAL: puInit called without a valid OpenGL context.\n");

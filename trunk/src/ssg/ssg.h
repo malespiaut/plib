@@ -6,27 +6,19 @@
 #include "sg.h"
 
 /*
-  OpenGL includes
-*/
-
-#include <GL/gl.h>
-
-#ifndef WIN32
-#  ifndef macintosh
-#    include <GL/glx.h>
-#  else
-#    include <agl.h>
-#  endif
-#endif
-
-#include <GL/glu.h>
-
-/*
   Configuration
 */
 
 #define _SSG_USE_PICK   1
 #define _SSG_USE_DLIST  1
+
+/*
+  For optional use of PNG textures, download the glpng library from
+  http://www.wyatt100.freeserve.co.uk/download.htm and un-comment
+  the following line.
+ */
+
+//#define _SSG_USE_GLPNG  1
 
 #ifndef _SSG_PUBLIC
 #define _SSG_PUBLIC  protected
