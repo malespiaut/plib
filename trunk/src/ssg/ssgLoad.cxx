@@ -177,29 +177,23 @@ void ssgLoaderOptions::makeTexturePath ( char *path, const char *fname ) const
 ssgLeaf* ssgLoaderOptions::createLeaf ( ssgLeaf* leaf,
                                         const char* parent_name )
 {
-  
-  /* is this just a sharing 'reset' */
-  if ( leaf == NULL )
+  if ( leaf != NULL )
   {
-    shared_textures.removeAll () ;
-    shared_states.removeAll () ;
-    return NULL ;
+    /* try to do some state sharing */
+    ssgState* st = leaf -> getState () ;
+    if ( st != NULL && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+    {
+      ssgSimpleState *ss = (ssgSimpleState*) st ;
+      ssgSimpleState *match = shared_states.findMatch ( ss ) ;
+      if ( match != NULL )
+        leaf -> setState ( match ) ;
+      else
+        shared_states.add ( ss ) ;
+    }
   }
-  
-  /* try to do some state sharing */
-  ssgState* st = leaf -> getState () ;
-  if ( st != NULL && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
-  {
-    ssgSimpleState *ss = (ssgSimpleState*) st ;
-    ssgSimpleState *match = shared_states.findMatch ( ss ) ;
-    if ( match != NULL )
-      leaf -> setState ( match ) ;
-    else
-      shared_states.add ( ss ) ;
-  }
-
   return leaf ;
 }
+
 
 ssgTexture* ssgLoaderOptions::createTexture ( char* tfname,
 						     int wrapu,
@@ -305,7 +299,11 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
   {
     if ( f->loadfunc != NULL &&
 	       ulStrEqual ( extn, f->extension ) )
-      return f->loadfunc( fname, options ) ;
+    {
+      ssgEntity* entity = f -> loadfunc( fname, options ) ;
+      ssgGetCurrentOptions () -> endLoad () ;
+      return entity ;
+    }
   }
 
   ulSetError ( UL_WARNING, "ssgLoad: Unrecognised file type '%s'", extn ) ;
