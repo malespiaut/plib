@@ -2642,5 +2642,139 @@ void sgdTriangleSolver_ASStoSAA(SGDfloat  angB,SGDfloat  lenA,SGDfloat  lenB,
 void sgdTriangleSolver_SAAtoASS(SGDfloat  lenA,SGDfloat  angB,SGDfloat  angA,
                                 SGDfloat *angC,SGDfloat *lenB,SGDfloat *lenC ) ;
 
+/*
+  SPRING-MASS-DAMPER (with simple Euler integrator)
+*/
+
+
+extern sgVec3 _sgGravity ;
+
+void   sgSetGravity     ( float  g ) { sgSetVec3 ( _sgGravity, 0.0f, 0.0f, -g ) ; }
+void   sgSetGravityVec3 ( sgVec3 g ) { sgCopyVec3 ( _sgGravity, g ) ; }
+float *sgGetGravityVec3 () { return   _sgGravity    ; }
+float  sgGetGravity     () { return - _sgGravity[2] ; }
+
+
+class sgParticle
+{
+  float ooMass ;  /* One-over-mass */
+  sgVec3 pos   ;
+  sgVec3 vel   ;
+  sgVec3 force ;
+
+public:
+
+  sgParticle ( float mass )
+  {
+    setMass ( mass ) ;
+    sgZeroVec3 (  pos  ) ;
+    sgZeroVec3 (  vel  ) ;
+    sgZeroVec3 ( force ) ;
+  }
+
+  float *getPos         () { return pos      ; }
+  float *getVel         () { return vel      ; }
+  float *getForce       () { return force    ; }
+  float *getOneOverMass () { return ooMass   ; }
+  float *getMass        () { return 1.0f / ooMass ; }
+
+  void   setPos      ( sgVec3 p ) { sgCopyVec3 ( pos  , p ) ; }
+  void   setVel      ( sgVec3 v ) { sgCopyVec3 ( vel  , v ) ; }
+  void   setForce    ( sgVec3 f ) { sgCopyVec3 ( force, f ) ; }
+
+
+  void   setOneOverMass ( float oom ) { ooMass = oom ; }
+
+  void   setMass     ( float  m )
+  {
+    assert ( m > 0.0f ) ;
+    ooMass = 1.0f / m ;
+  }
+
+  void zeroForce   ()           { sgZeroVec3   ( force ) ; }
+  void addForce    ( sgVec3 f ) { sgAddVec3    ( force, f ) ; }
+  void gravityOnly ()           { sgScaleVec3  ( force, sgGetGravity (), ooMass ) ; }
+
+  void update ( float dt )
+  {
+    sgAddScaledVec3 ( vel, force, dt * ooMass ) ;
+    sgAddScaledVec3 ( pos, vel, dt ) ;
+  }
+} ;
+
+
+class sgSpringDamper
+{
+  sgParticle *p0 ;
+  sgParticle *p1 ;
+
+  float restLength ;
+  float stiffness  ;
+  float damping    ;
+
+public:
+
+  sgSpringDamper ()
+  {
+    p0 = p1 = NULL ;
+    stiffness  = 1.0f ;
+    damping    = 1.0f ;
+    restLength = 1.0f ;
+  }
+
+  sgSpringDamper ( sgParticle *_p0, sgParticle *_p1,
+                   float _stiffness, float _damping,
+                   float _restLength = -1.0f )
+  {
+    p0 = _p0 ;
+    p1 = _p1 ;
+    stiffness = _stiffness ;
+    damping   = _damping   ;
+
+    if ( _restLength < 0.0f )
+    {
+      if ( p0 != NULL && p1 != NULL )
+        restLength = sgDistanceVec3 ( p0->getPos(), p1->getPos() ) ;
+      else
+        restLength = _restLength ;
+    }
+    else
+      restLength = 1.0f ;
+  }
+
+  float       getRestLength () { return restLength ; }
+  float       getStiffness  () { return stiffness  ; }
+  float       getDamping    () { return damping    ; }
+
+  sgParticle *getParticle   ( int which ) { return ( which == 0 ) ? p0 : p1 ; }
+
+
+  void setParticles ( sgParticle *_p0, sgParticle *_p1 ) { p0 = _p0 ; p1 = _p1 ; }
+  void setParticle  ( int which, sgParticle *p ) { if ( which == 0 ) p0 = p ; else p1 = p ; }
+
+  void setRestLength () { restLength = sgDistanceVec3 ( p0->getPos(), p1->getPos() ) ; }
+
+  void setRestLength ( float l ) { restLength = l ; }
+  void setStiffness  ( float s ) { stiffness  = s ; }
+  void setDamping    ( float d ) { damping    = d ; }
+
+  void update ()
+  {
+    sgVec3 dP ; sgSubVec3 ( dP, p0->getPos(), p1->getPos() ) ;
+    sgVec3 dV ; sgSubVec3 ( dV, p0->getVel(), p1->getVel() ) ;
+
+    float  L = sgLengthVec3 ( dP ) ; if ( L == 0.0f ) L = 0.0000001 ;
+    float  H = ( L - restLength ) * stiffness ;
+    float  D = sgScalarProductVec3 ( dV, dP ) * damping / L ;
+
+    sgVec3 F ; sgScaleVec3 ( dP, - ( H + D ) / L ) ;
+
+    p0 -> addForce ( F ) ;
+    p1 -> addForce ( F ) ;
+  }
+
+} ;
+
+
 #endif
 
