@@ -92,6 +92,8 @@ public:
   float getWindSpeed     () { return windSpeed   ; }
   float getWindDirn      () { return windHeading ; }
   float getEdgeFlatten   () { return edgeFlatten ; }
+  float getTexScaleU () { return tu ; }
+  float getTexScaleV () { return tv ; }
 
   void  setDepthCallback ( ssgaWSDepthCallback cb ) { gridGetter  = cb ; } 
   void  setWindSpeed     ( float speed            ) { windSpeed   = speed ; }

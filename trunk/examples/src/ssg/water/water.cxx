@@ -30,6 +30,8 @@ puDial      *viewPitchDial      = (puDial      *) NULL ;
 puSlider    *viewRangeSlider    = (puSlider    *) NULL ;
 puButton    *viewWireframeButton= (puButton    *) NULL ;
 
+puOneShot   *writeButton        = (puOneShot   *) NULL ;
+
 puSlider    *waveTextureSlider  = (puSlider    *) NULL ;
 puSlider    *waveSizeSlider     = (puSlider    *) NULL ;
 puSlider    *wavePolycountSlider= (puSlider    *) NULL ;
@@ -63,6 +65,43 @@ int   wireframe  = FALSE ;
 float cam_range  = 25.0f ;
 
 sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
+
+void writeCplusplusCode ()
+{
+  printf ( "\n" ) ;
+  printf ( "ssgaWaveSystem *makeWaveSystem ()\n" ) ;
+  printf ( "{\n" ) ;
+  printf ( "  ssgaWaveTrain  *wavetrain ;\n" ) ;
+  printf ( "  ssgaWaveSystem *ocean ;\n" ) ;
+  printf ( "  sgVec4 WHITE = { 1,1,1,1 } ;\n" ) ;
+  printf ( "  ocean =  new ssgaWaveSystem ( %d ) ;\n", ocean->getNumTris() ) ;
+  printf ( "  ocean -> setSize            ( %g ) ;\n", ocean->getSize()[0] ) ;
+  printf ( "  ocean -> setTexScale      ( %g, %g ) ;\n",
+                                                     ocean->getTexScaleU (),
+                                                     ocean->getTexScaleV () ) ;
+  printf ( "  ocean -> setWindSpeed     ( 10.0f ) ;\n\n" ) ;
+
+  for ( int i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
+  {
+    if ( ocean -> getWaveTrain ( i ) != NULL )
+    {
+      printf ( "  wavetrain = new ssgaWaveTrain () ;\n" ) ;
+
+      printf ( "  wavetrain->setSpeed      ( %g ) ;\n",trains[i].getSpeed ());
+      printf ( "  wavetrain->setLength     ( %g ) ;\n",trains[i].getLength ());
+      printf ( "  wavetrain->setLambda     ( %g ) ;\n",trains[i].getLambda ());
+      printf ( "  wavetrain->setHeading    ( %g ) ;\n",trains[i].getHeading ());
+      printf ( "  wavetrain->getWaveHeight ( %g ) ;\n",trains[i].getWaveHeight());
+
+      printf ( "  ocean -> setWaveTrain ( %d, wavetrain ) ;\n\n", i ) ;
+    }
+  }
+
+  printf ( "  ocean -> regenerate () ;\n" ) ;
+  printf ( "  return ocean ;\n" ) ;
+  printf ( "}\n" ) ;
+  printf ( "\n" ) ;
+}
 
 
 void waveTextureSlider_cb ( puObject *ob )
@@ -160,6 +199,12 @@ void trainDisableButton_cb ( puObject *ob )
     ocean -> setWaveTrain ( i, NULL ) ;
 
   trainEnableButton -> setValue ( 0 ) ;
+}
+
+void writeButton_cb ( puObject *ob )
+{
+  if ( ob -> getIntegerValue () )
+    writeCplusplusCode () ;
 }
 
 void trainEnableButton_cb ( puObject *ob )
@@ -461,24 +506,28 @@ void load_database ()
 
   /* Set up some interesting defaults. */
 
+  trains[0] . setSpeed      (  3.1f ) ;
+  trains[0] . setLength     (  0.8f ) ;
+  trains[0] . setLambda     (  0.6f ) ;
+  trains[0] . setHeading    ( 47.0f ) ;
   trains[0] . setWaveHeight (  0.2f ) ;
-  trains[0] . setHeading    (  0.0f ) ;
-  trains[1] . setSpeed      ( 10.0f ) ;
 
+  trains[1] . setSpeed      (  4.6f ) ;
+  trains[1] . setLength     (  0.8f ) ;
+  trains[1] . setLambda     (  1.0f ) ;
+  trains[1] . setHeading    ( 36.0f ) ;
   trains[1] . setWaveHeight (  0.1f ) ;
-  trains[1] . setHeading    ( 25.0f ) ;
-  trains[1] . setSpeed      ( 17.0f ) ;
-  trains[2] . setLength     (  1.2f ) ;
 
-  trains[2] . setWaveHeight (  0.1f ) ;
-  trains[2] . setHeading    ( 45.0f ) ;
-  trains[2] . setSpeed      ( 10.0f ) ;
+  trains[2] . setSpeed      (  8.5f ) ;
   trains[2] . setLength     (  0.6f ) ;
+  trains[2] . setLambda     (  1.0f ) ;
+  trains[2] . setHeading    ( 65.0f ) ;
+  trains[2] . setWaveHeight (  0.1f ) ;
 
   ocean   =  new ssgaWaveSystem ( 10000 ) ;
   ocean   -> setColour        ( WHITE ) ;
-  ocean   -> setSize          ( 50 ) ;
-  ocean   -> setTexScale      ( 8, 8 ) ;
+  ocean   -> setSize          ( 100 ) ;
+  ocean   -> setTexScale      ( 3, 3 ) ;
   ocean   -> setCenter        ( pos ) ;
   ocean   -> setDepthCallback ( getDepth ) ;
   ocean   -> setKidState      ( sea_state ) ;
@@ -632,6 +681,10 @@ void init_gui ()
   viewWireframeButton= new puButton ( 400, VIEW_GUI_BASE, "Wireframe" ) ;
   viewWireframeButton->setCallback  ( viewWireframeButton_cb ) ;
   viewWireframeButton->setValue     ( FALSE ) ;
+
+  writeButton = new puOneShot ( 400, VIEW_GUI_BASE + 20, "Write C++" ) ;
+  writeButton->setCallback  ( writeButton_cb ) ;
+  writeButton->setValue     ( FALSE ) ;
 
   waveTextureSlider = new puSlider ( 500, VIEW_GUI_BASE   , 90, false, 20 ) ;
   waveTextureSlider->setValue      ( 1.0f ) ;
