@@ -35,7 +35,7 @@
 #include "pw.h"
 
 static int             initialised  = 0 ;
-
+static int             modifiers    = 0 ;
 static int             origin [2]   = {   0,   0 } ;
 static int             size   [2]   = { 640, 480 } ;
 
@@ -58,6 +58,16 @@ void defaultExitFunc ()
 }
 
 
+static void refreshModifiers ()
+{
+  modifiers = 0 ;
+
+  if( ( GetKeyState ( VK_SHIFT )   & 0x8000 ) != 0 ) modifiers |= PW_SHIFT ;
+  if( ( GetKeyState ( VK_CONTROL ) & 0x8000 ) != 0 ) modifiers |= PW_CTRL  ;
+  if( ( GetKeyState ( VK_MENU )    & 0x8000 ) != 0 ) modifiers |= PW_ALT   ;
+}
+
+
 LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
   int key = -1 ;
@@ -66,6 +76,8 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
   static int mb = 0 ;
   static int lastx = 0 ;
   static int lasty = 0 ;
+
+  refreshModifiers () ;
 
   switch (uMsg)
   {
@@ -359,6 +371,12 @@ void pwSetOrigin ( int x, int y )
 void pwSetSizeOrigin ( int x, int y, int w, int h )
 {
   SetWindowPos ( currWnd, HWND_TOP, x, y, w, h, 0 ) ;
+}
+
+
+int pwGetModifiers ()
+{
+  return modifiers ;
 }
 
 
