@@ -21,7 +21,7 @@
 #define MSFS_MAX_STATES 256
 
 // Define DEBUG if you want some debug info
-//#define DEBUG 1
+/*#define DEBUG 1*/
 
 #ifdef DEBUG
 #include <iostream>
@@ -36,6 +36,8 @@ struct _MDLPart {
   ssgNormalArray   *nrm;
   ssgIndexArray    *idx;
   ssgTexCoordArray *crd;
+
+  void _MDLPart::removeUnnecessaryVertices(void);
 };
 
 static const int PART_GEAR     = 0;
@@ -137,8 +139,62 @@ static unsigned char get_byte() {
 
 //===========================================================================
 
+void _MDLPart::removeUnnecessaryVertices(void) {
+  int i;
+  short j;
+  ssgVertexArray *vtxnew;
+  ssgNormalArray *nrmnew;
+  ssgTexCoordArray *crdnew = NULL;
+  ssgIndexArray *idxnew;
+  
+  if ( type == GL_LINES ) 
+    return;
+  
+  assert(vtx!=NULL);
+  assert(nrm!=NULL);
+  assert(idx!=NULL);  
+  assert(vtx->getNum()==nrm->getNum());
+  
+  if(crd!=NULL) {
+       assert(vtx->getNum()==crd->getNum());
+  }
+
+  vtxnew = new ssgVertexArray();
+  nrmnew = new ssgNormalArray();
+
+  if(crd != NULL) {
+    crdnew = new ssgTexCoordArray();
+  }
+
+  idxnew = new ssgIndexArray();
+  
+  // This may generate "double vertices" and can therefore be 
+  // optimized even more.
+  for ( i=0; i<idx->getNum(); i++) {
+    j=*idx->get(i);
+    vtxnew->add(vtx->get(j));
+    nrmnew->add(nrm->get(j));
+    if ( crd != NULL )
+      crdnew->add(crd->get(j));
+    
+    idxnew->add(i);
+  }
+  assert(idx->getNum()==idxnew->getNum());
+  assert(idx->getNum()==vtxnew->getNum());
+  vtx = vtxnew;
+  nrm = nrmnew;
+  idx = idxnew;
+  if ( crd != NULL ) {
+       crd = crdnew;
+  }
+}
+
+//===========================================================================
+
 static bool findPart(FILE* fp)
 {
+  int i;
+
   curr_branch_ = model_;
 
   unsigned char pattern1[4] = { 0x1a, 0x00, 0x01, 0x00 };
@@ -153,7 +209,7 @@ static bool findPart(FILE* fp)
       int match2 = 0;
       int matchpos = -1;
 
-      for(int i = 0; i < 4; i++)
+      for(i = 0; i < 4; i++)
 	{
 	  if(pattern[i] == pattern1[i]) match1++;
 	  if(pattern[i] == pattern2[i]) match2++;
@@ -186,7 +242,7 @@ static bool findPart(FILE* fp)
 
 	  unsigned short var;
 	  short offset, high, low, next_op;
-	  fseek(fp, -3+matchpos, SEEK_CUR);
+	  fseek(fp, -2+matchpos, SEEK_CUR);
 	  offset = get_word();
 	  var    = get_word();
 	  low    = get_word();
@@ -197,30 +253,26 @@ static bool findPart(FILE* fp)
 
 	  // for moving parts except propeller, this seems
 	  // to work
-	  kid_idx = ( (next_op & 0xff00) == 0x0d00 ) ? 0 : 1;
+	  kid_idx = ( next_op == 0x000d ) ? 0 : 1;
 
 	  switch (var) {
-	  case 0x5200:
-	  case 0x6c00:
+	  case 0x0052:
+	  case 0x006c:
 	    part_idx = PART_FLAPS; break;
-	  case 0x5400:
-	  case 0x6e00:
+	  case 0x0054:
+	  case 0x006e:
 	    part_idx = PART_GEAR; break;
-	  case 0x5a00:
-	  case 0x7400:
-	    part_idx = PART_PROP;
-	    /* I'm not sure if the division always occurs at
-	       low == 0. Perhaps other RPM settings are possible. /PL */
-	    kid_idx  = (low == 0) ? 0 : 1;
-	    break;
-	  case 0x5c00:
-	  case 0x7600:
+	  case 0x005a:
+	  case 0x0074:
+	    part_idx = PART_PROP; break;
+	  case 0x005c:
+	  case 0x0076:
 	    part_idx = PART_LIGHTS; break;
-	  case 0x5e00:
-	  case 0x7800:
+	  case 0x005e:
+	  case 0x0078:
 	    part_idx = PART_STROBE; break;
-	  case 0x6200:
-	  case 0x7c00:
+	  case 0x0062:
+	  case 0x007c:
 	    part_idx = PART_SPOILERS; break;
 	  default:
 	    part_idx = -1; break;
@@ -232,6 +284,8 @@ static bool findPart(FILE* fp)
 		      << kid_idx << ")" << 
 		      std::dec << std::endl );
 
+	  char nodename[64];
+
 	  if (part_idx == -1) {
 	    curr_branch_ = model_;
 	  } else {
@@ -242,11 +296,33 @@ static bool findPart(FILE* fp)
 	      moving_parts_[part_idx]->select(1);
 	    }
 
+	    // nasty special case for prop
+	    if (part_idx == PART_PROP) {
+	      sprintf(nodename, "PROP_%d_%d", low, high);
+	      i = 0;
+	      for (ssgEntity* propkid=moving_parts_[PART_PROP]->getKid(0);
+		   propkid != NULL; 
+		   propkid = moving_parts_[PART_PROP]->getNextKid(), i++) {
+		if ( propkid->getName() != NULL ) {
+		  if ( strcmp(nodename, propkid->getName()) == 0 ) {
+		    break;
+		  }
+		}
+	      }
+
+	      kid_idx = i;
+	    } else {
+	      sprintf(nodename, "%s_%s", 
+		      moving_parts_[part_idx]->getName(),
+		      (kid_idx == 0)?"TRUE":"FALSE");		      
+	    }
+
 	    while (moving_parts_[part_idx]->getKid(kid_idx) == NULL)
 	      moving_parts_[part_idx]->addKid( new ssgBranch() );
 
 	    curr_branch_ = (ssgBranch*)moving_parts_[part_idx]->
 	      getKid(kid_idx);
+	    curr_branch_->setName(nodename);
 	  }
 
 	  fseek(fp, pos, SEEK_SET);
@@ -672,16 +748,13 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
  
   tex_coords_ = new ssgTexCoordArray();
  
-  fseek(model_file_, 0x0040, SEEK_SET); // 0x11fc
-  unsigned short offset = get_word();
-  DEBUGPRINT( "BGL section start: " << std::hex << offset << 
-	      std::dec << std::endl );
-  fseek(model_file_, offset, SEEK_SET);
-
+  /* I have not found any good references on where actual BGL
+     data starts in a MDL file, but this seems like a good guess
+     from looking at a few MDL files in a hex editor :-O  /PL */
+  fseek(model_file_, 0x10a4, SEEK_SET); // 0x11fc in Thomas' original code
   unsigned int code_len;
   code_len = get_dword();
-  code_len -= 0x12;  
-  DEBUGPRINT( "code length = " << code_len << " bytes\n");
+  DEBUGPRINT( "Code length: " << code_len << " bytes\n");
   
   start_idx_ = 0;
   last_idx_  = 0;
@@ -786,6 +859,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 
 	    curr_part_->idx->add(idx - start_idx_ + last_idx_);
 
+	    curr_part_->removeUnnecessaryVertices();
 	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
 						  curr_part_->vtx,
 						  curr_part_->nrm,
@@ -858,6 +932,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 		recalcNormals(curr_part_);
 	      }
 	    
+	    curr_part_->removeUnnecessaryVertices();
 	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
 						  curr_part_->vtx,
 						  curr_part_->nrm,
@@ -917,6 +992,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 		recalcNormals(curr_part_);
 	      }
 
+	    curr_part_->removeUnnecessaryVertices();
 	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
 						  curr_part_->vtx,
 						  curr_part_->nrm,
