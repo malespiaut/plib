@@ -438,6 +438,18 @@ int _ssgParser::parseString(char *&retVal, const char* name ) // returns TRUE on
   return TRUE;
 }
 
+int _ssgParser::parseDouble( double &retVal, const char* name )
+// returns TRUE on success
+{
+  char *endptr, *token = parseToken(name);
+  retVal = strtod( token, &endptr);
+	if ( (endptr == NULL) || (*endptr == 0))
+    return TRUE;
+	else
+	{ error("The field %s should contain a floating point number but contains %s",name, token) ;
+		return FALSE;
+	}
+}
 
 int _ssgParser::parseFloat( SGfloat &retVal, const char* name )
 // returns TRUE on success
