@@ -1,3 +1,6 @@
+
+SUBDIRS = data
+
 noinst_PROGRAMS = viewer
 
 viewer_SOURCES = viewer.cxx
