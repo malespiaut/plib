@@ -175,7 +175,6 @@ void keyboard ( unsigned char k, int, int )
 
 void redraw ()
 {
-  glutWarpPointer ( 320, 240 ) ;
   update_motion () ;
 
   glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
