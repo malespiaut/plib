@@ -81,8 +81,8 @@ extern void setStatusWidgets ( WidgetList *wid ) ;
 extern int properties_window;
 
 // Definitions
-  #define RESIZING_BORDER_WIDTH   5
-  #define RESIZING_CORNER_BORDER_WIDTH   4
+#define RESIZING_BORDER_WIDTH   5
+#define RESIZING_CORNER_BORDER_WIDTH   4
   /** 4 seems to be the best number for this define... this makes sure  *
    *  that the default widget size allows you to still resize along the *
    *  X axis without difficulty -  23 Jan 03 JCJ                       **/

@@ -50,6 +50,8 @@ puInput *object_size_y ;
 puInput *object_position_x ;
 puInput *object_position_y ;
 
+static puFrame *widget_section_frame ;
+
 static puInput *object_label ;
 static puComboBox *object_vert_label_place ;
 static puComboBox *object_horz_label_place ;
@@ -60,9 +62,20 @@ static puComboBox *object_horz_legend_place ;
 static puInput *object_name ;
 static puButtonBox *object_callbacks ;
 
+static puFrame *layer_manipulation_frame ;
 static puButtonBox *object_visible ;
 static puOneShot *reveal_all_objects ;
-static puInput *object_layer ;
+static puOneShot *hide_all_objects ;
+
+static puOneShot *reveal_all_layer ;
+static puOneShot *hide_all_layer ;
+
+static puSpinBox *layer_to_act_on ;
+static puSpinBox *object_layer ;
+
+static puText *object_layer_text ;
+static puFrame *layer_to_act_on_frame ;
+static puFrame *layer_all_frame ;
 
 puInput *window_name ;
 puInput *window_size_x ;
@@ -178,7 +191,7 @@ void setStatusWidgets ( WidgetList *wid )
 
     object_visible->setValue ( wid->visible ? 1 : 0 ) ;
     autolock_toggle->setValue ( autolock );
-    object_layer->setValue ( wid->layer ) ;
+    object_layer->setValue ( (int) wid->layer ) ;
   }
   else
   {
@@ -840,6 +853,41 @@ static void reveal_all_cb ( puObject *ob )
   }
 }
 
+static void hide_all_cb ( puObject *ob )
+{
+  extern WidgetList *widgets ;
+  WidgetList *wid = widgets ;
+  while ( wid )
+  {
+    wid->visible = false ;
+    wid = wid->next ;
+  }
+}
+
+static void hide_all_layer_cb ( puObject *ob )
+{
+  extern WidgetList *widgets ;
+  WidgetList *wid = widgets ;
+  while ( wid )
+    {
+      if ( wid->layer == layer_to_act_on->getIntegerValue() )
+        wid->visible = false ;
+      wid = wid->next;
+    }
+}
+
+static void reveal_all_layer_cb ( puObject *ob )
+{
+  extern WidgetList *widgets ;
+  WidgetList *wid = widgets ;
+  while ( wid )
+    {
+      if ( wid->layer == layer_to_act_on->getIntegerValue() )
+        wid->visible = true ;
+      wid = wid->next;
+    }
+}  
+
 static void visible_cb ( puObject *ob )
 {
   if ( active_widget ) active_widget->visible = ( ob->getIntegerValue () != 0 ) ;
@@ -895,8 +943,13 @@ int define_status_window ()
   }
   menubar -> close() ;
 
+  widget_section_frame = new puFrame ( 0, 1, 500, 250 ) ;
+  widget_section_frame->setLegendFont ( PUFONT_HELVETICA_18 ) ;
+  widget_section_frame->setLegend ( "Widget Options:" ) ;
+  widget_section_frame->setLegendPlace ( PUPLACE_TOP_LEFT ) ;
+
   object_size_x = new puInput ( 380, 10, 430, 30 ) ;
-  object_size_x->setLabel ( "Object Size :" ) ;
+  object_size_x->setLabel ( "Object Size:" ) ;
   object_size_x->setLabelPlace ( PUPLACE_LEFT ) ;
   object_size_x->setCallback ( object_size_cb ) ;
   object_size_x->setDownCallback ( object_size_cb ) ;
@@ -906,7 +959,7 @@ int define_status_window ()
   object_size_y->setDownCallback ( object_size_cb ) ;
 
   object_position_x = new puInput ( 160, 10, 210, 30 ) ;
-  object_position_x->setLabel ( "Object Position :" ) ;
+  object_position_x->setLabel ( "Object Position:" ) ;
   object_position_x->setLabelPlace ( PUPLACE_LEFT ) ;
   object_position_x->setCallback ( object_position_cb ) ;
   object_position_x->setDownCallback ( object_position_cb ) ;
@@ -921,8 +974,8 @@ int define_status_window ()
 
   static char *horz_place_entries [] = { "Left", "Center", "Right", NULL } ;
 
-  object_label = new puInput ( 60, 40, 260, 60 ) ;
-  object_label->setLabel ( "Label" ) ;
+  object_label = new puInput ( 65, 40, 260, 60 ) ;
+  object_label->setLabel ( "Label:" ) ;
   object_label->setLabelPlace ( PUPLACE_LEFT ) ;
   object_label->setCallback ( label_cb ) ;
   object_label->setDownCallback ( label_cb ) ;
@@ -935,8 +988,8 @@ int define_status_window ()
   object_horz_label_place = new puComboBox ( 400, 40, 490, 60, horz_place_entries, FALSE ) ;
   object_horz_label_place->setCallback ( label_place_cb ) ;
 
-  object_legend = new puInput ( 60, 70, 260, 90 ) ;
-  object_legend->setLabel ( "Legend" ) ;
+  object_legend = new puInput ( 65, 70, 260, 90 ) ;
+  object_legend->setLabel ( "Legend:" ) ;
   object_legend->setLabelPlace ( PUPLACE_LEFT ) ;
   object_legend->setCallback ( legend_cb ) ;
   object_legend->setDownCallback ( legend_cb ) ;
@@ -949,46 +1002,83 @@ int define_status_window ()
   object_horz_legend_place = new puComboBox ( 400, 70, 490, 90, horz_place_entries, FALSE ) ;
   object_horz_legend_place->setCallback ( legend_place_cb ) ;
 
-  object_name = new puInput ( 110, 100, 310, 120 ) ;
-  object_name->setLabel ( "Widget Name:" ) ;
+  object_name = new puInput ( 65, 195, 260, 215 ) ;
+  object_name->setLabel ( "Name:" ) ;
   object_name->setValidData("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789");
   object_name->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   object_name->setCallback ( name_cb ) ;
   object_name->setDownCallback ( name_cb ) ;
 
   static char *callback_entries [] = { "Up", "Active", "Down", NULL } ;
-  object_callbacks = new puButtonBox ( 10, 140, 150, 210, callback_entries, FALSE ) ;
-  object_callbacks->setLabel ( "Widget Callbacks" ) ;
+  object_callbacks = new puButtonBox ( 120, 100, 260, 170, callback_entries, FALSE ) ;
+  object_callbacks->setLabel ( "Widget Callbacks:" ) ;
   object_callbacks->setLabelPlace ( PUPLACE_TOP_LEFT ) ;
   object_callbacks->setCallback ( callback_cb ) ;
 
-  static char *autolock_entries [] = { "Autolock", NULL } ;
-  autolock_toggle = new puButtonBox ( 370, 240, 490, 270, autolock_entries, FALSE ) ;
-  autolock_toggle->setCallback ( autolock_cb ) ;
-
   static char *visible_entries [] = { "Visible", NULL } ;
-  object_visible = new puButtonBox ( 370, 200, 490, 230, visible_entries, FALSE ) ;
+  object_visible = new puButtonBox ( 10, 140, 115, 170, visible_entries, FALSE ) ;
   object_visible->setCallback ( visible_cb ) ;
 
-  reveal_all_objects = new puOneShot ( 330, 130, 490, 150 ) ;
-  reveal_all_objects->setLegend ( "Reveal All Widgets" ) ;
-  reveal_all_objects->setCallback ( reveal_all_cb ) ;
-
-  object_layer = new puInput ( 400, 170, 490, 190 ) ;
-  object_layer->setLabel ( "Widget Layer" ) ;
-  object_layer->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
+  object_layer = new puSpinBox ( 65, 100, 115, 120) ;
+  object_layer->setMinValue(0.0);
+  object_layer->setMaxValue(999.0);
+  object_layer->setStepSize(1.00f);
+  object_layer->setValue(0.0f);
   object_layer->setCallback ( layer_cb ) ;
   object_layer->setDownCallback ( layer_cb ) ;
 
+  object_layer_text = new puText( 65, 112 );
+  object_layer_text->setLabel ( "Layer:" ) ;
+  object_layer_text->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
+
+  static char *autolock_entries [] = { "Autolock", NULL } ;
+  autolock_toggle = new puButtonBox ( 370, 252, 490, 282, autolock_entries, FALSE ) ;
+  autolock_toggle->setCallback ( autolock_cb ) ;
+
+  layer_manipulation_frame = new puFrame (300, 120, 495, 215) ;
+  layer_manipulation_frame->setLegend ( "Layer Manipulation" );
+  layer_manipulation_frame->setLegendFont ( PUFONT_HELVETICA_12 ) ;
+  layer_manipulation_frame->setLegendPlace ( PUPLACE_TOP_CENTERED );
+
+  layer_to_act_on_frame = new puFrame ( 300, 145, 495, 190 );
+  layer_to_act_on_frame->setLegend ( "Affect Single Layer:" ) ;
+  layer_to_act_on_frame->setLegendPlace ( PUPLACE_TOP_CENTERED ) ;
+
+  layer_all_frame = new puFrame ( 300, 121, 495, 148 );
+      
+  hide_all_objects = new puOneShot ( 360, 124, 420, 144 ) ;
+  hide_all_objects->setLegend ( "Hide" ) ;
+  hide_all_objects->setLabel ( "All:" ) ;
+  hide_all_objects->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;  
+  hide_all_objects->setCallback ( hide_all_cb ) ;  
+  
+  reveal_all_objects = new puOneShot ( 425, 124, 485, 144 ) ;
+  reveal_all_objects->setLegend ( "Reveal" ) ;
+  reveal_all_objects->setCallback ( reveal_all_cb ) ;
+
+  layer_to_act_on = new puSpinBox ( 310, 150, 355, 170 ) ;
+  layer_to_act_on->setMinValue(0.0);
+  layer_to_act_on->setMaxValue(999.0);
+  layer_to_act_on->setStepSize(1.00f);
+  layer_to_act_on->setValue(0.0f);
+
+  hide_all_layer = new puOneShot ( 360, 150, 420, 170 ) ;
+  hide_all_layer->setLegend ( "Hide" ) ;
+  hide_all_layer->setCallback ( hide_all_layer_cb ) ;
+
+  reveal_all_layer = new puOneShot ( 425, 150, 485, 170 ) ;
+  reveal_all_layer->setLegend ( "Reveal" ) ;
+  reveal_all_layer->setCallback ( reveal_all_layer_cb ) ;
+  
   window_name = new puInput ( 130, 340, 430, 360 ) ;
   window_name->setValue( main_window_name );
-  window_name->setLabel ( "Window Name :" ) ;
+  window_name->setLabel ( "Window Name:" ) ;
   window_name->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   window_name->setCallback ( window_name_cb ) ;
   window_name->setDownCallback ( window_name_cb ) ;
 
   window_size_x = new puInput ( 130, 310, 180, 330 ) ;
-  window_size_x->setLabel ( "Window Size :" ) ;
+  window_size_x->setLabel ( "Window Size:" ) ;
   window_size_x->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   window_size_x->setCallback ( window_size_cb ) ;
   window_size_x->setDownCallback ( window_size_cb ) ;
@@ -1000,7 +1090,7 @@ int define_status_window ()
   extern int main_window_x, main_window_y ;
 
   window_position_x = new puInput ( 130, 285, 180 , 305 ) ;
-  window_position_x->setLabel ( "Position :" ) ;
+  window_position_x->setLabel ( "Position:" ) ;
   window_position_x->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   window_position_x->setValuator ( &main_window_x ) ;
 
@@ -1011,7 +1101,7 @@ int define_status_window ()
                main_window_color_b, main_window_color_a ;
 
   window_color_label = new puText (340, 320) ;
-  window_color_label->setLabel ( "Color: " ) ;
+  window_color_label->setLabel ( "Color:" ) ;
 
   window_color_r = new puSpinBox ( 270, 285, 320, 305 ) ;
   window_color_r->setMinValue(0.0);
