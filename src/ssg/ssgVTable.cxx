@@ -164,7 +164,7 @@ int ssgVTable::getNumTriangles ()
 }
 
 
-void ssgVTable::transform ( sgMat4 m )
+void ssgVTable::transform ( const sgMat4 m )
 {
   int i ;
 

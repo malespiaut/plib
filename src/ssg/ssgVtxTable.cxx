@@ -196,7 +196,7 @@ int ssgVtxTable::getNumTriangles ()
 }
 
 
-void ssgVtxTable::transform ( sgMat4 m )
+void ssgVtxTable::transform ( const sgMat4 m )
 {
   int i ;
 
