@@ -48,8 +48,6 @@
 #  endif
 #endif
 
-#define puColor                 puColour
-
 #ifdef PU_NOT_USING_GLUT
 
 #define PU_LEFT_BUTTON          0
@@ -347,6 +345,7 @@ class puLargeInput       ;
 void puMoveToLast ( puObject *ob ) ;
 
 typedef float puColour [ 4 ] ;  /* RGBA */
+typedef puColour puColor ;
 
 struct puBox
 {
