@@ -2,8 +2,6 @@
 #include "ssgLocal.h"
 
 
-#ifdef _SSG_USE_DLIST
-
 enum _ssgDListType
 {
   SSG_DLIST_LEAF,
@@ -224,5 +222,3 @@ void _ssgDrawLeaf ( ssgLeaf *l )
   else
     dlist [ next_dlist++ ] . setDrawLeaf ( l ) ;
 }
-
-#endif // #ifdef _SSG_USE_DLIST

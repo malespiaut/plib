@@ -120,10 +120,7 @@ void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
       _ssgLights [ i ] . setup () ;
 
   _ssgCurrentContext->cull(r) ;
-
-#ifdef _SSG_USE_DLIST
   _ssgDrawDList () ;
-#endif
 
   glMatrixMode ( GL_MODELVIEW ) ;
   glLoadIdentity () ;
@@ -161,10 +158,7 @@ void ssgCullAndDraw ( ssgRoot *r )
       _ssgLights [ i ] . setup () ;
 
   _ssgCurrentContext->cull(r) ;
-
-#ifdef _SSG_USE_DLIST
   _ssgDrawDList () ;
-#endif
 
   glMatrixMode ( GL_MODELVIEW ) ;
   glLoadIdentity () ;
