@@ -848,9 +848,11 @@ int sgFrustum::contains ( const sgBox *b ) const
 SGfloat sgDistSquaredToLineVec3 ( const sgLine3 line, const sgVec3 pnt )
 {
   sgVec3 r ; sgSubVec3 ( r, pnt, line.point_on_line ) ;
+
+  float projectedDistance = sgScalarProductVec3(r,line.direction_vector);
  
   return sgScalarProductVec3 ( r, r ) -
-         sgScalarProductVec3 ( r, line.direction_vector ) ;
+         projectedDistance * projectedDistance; 
 }
 
 
