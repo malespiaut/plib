@@ -203,6 +203,8 @@ void puObject::recalc_bbox ( void )
 
 void puObject::draw_legend ( int dx, int dy )
 {
+  if ( getStyle () == PUSTYLE_RADIO ) return ;
+
   int xx, yy ;
 
   int lgap = PUSTR_LGAP ;
