@@ -1396,9 +1396,9 @@ public:
   virtual void recalcBSphere () ;
   virtual void draw () ;
 
-  virtual void isect_triangles ( sgSphere  *s, sgMat4 m, int test_needed ) ;
-  virtual void hot_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void isect_triangles ( sgSphere *s, sgMat4 m, int test_needed ) ;
+  virtual void hot_triangles   ( sgVec3    s, sgMat4 m, int test_needed ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2);
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
