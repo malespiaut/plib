@@ -32,17 +32,13 @@ dnl Command line arguments
 dnl for Loring Holden's Solaris system
 
 AC_ARG_WITH(GL,
-[  --with-GL=DIR         set the prefix directory where GL resides],
+AC_HELP_STRING([--with-GL=DIR], [set the prefix directory where GL resides]),
 GL_PREFIX=$withval, GL_PREFIX=auto)
 
 if test "x$GL_PREFIX" != "xauto"; then
-    LIBS="$LIBS -L$GL_PREFIX/lib"
-    CXXFLAGS="$CXXFLAGS -I$GL_PREFIX/include"
+    LDFLAGS="$LDFLAGS -L$GL_PREFIX/lib"
+    CPPFLAGS="$CPPFLAGS -I$GL_PREFIX/include"
 fi
-
-dnl AC_CHECK_HEADER uses CPPFLAGS
-
-export CPPFLAGS="$CXXFLAGS"
 
 dnl Checks for header files.
 
@@ -86,7 +82,9 @@ case "${host}" in
 
     AC_PATH_XTRA
 
-    x_suffix="$X_LIBS $X_PRE_LIBS -lX11 -lXi -lXext -lXmu $X_EXTRA_LIBS -lm"
+    LDFLAGS="$LDFLAGS $X_LIBS"
+
+    x_suffix="$X_PRE_LIBS -lX11 -lXi -lXext -lXmu $X_EXTRA_LIBS -lm"
 
 dnl =========================================================
 dnl    if test "x$x_includes" != "x"; then
@@ -117,7 +115,14 @@ dnl =========================================================
     if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xno" ; then
         dnl if no freeglut, check for Real GLUT
         AC_CHECK_LIB(glut, glutGetModifiers,,,$opengl_LIBS)
+
+        if test "x$ac_cv_lib_glut_glutGetModifiers" = "xno" ; then
+                AC_MSG_ERROR([could not find working GLUT library])
+        fi
     fi
+
+    CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+    LDFLAGS="$LDFLAGS -L/usr/local/lib"
 
     WFLAG="-Wall"
     case "$host" in
@@ -125,11 +130,11 @@ dnl =========================================================
         if test "x$CXX" = "xCC"; then
             WFLAG="-fullwarn";
         fi
-        ;;
+	;;
     esac
 
-    CFLAGS="$CFLAGS $WFLAG -I/usr/local/include -L/usr/local/lib"
-    CXXFLAGS="$CXXFLAGS $WFLAG -I/usr/local/include -L/usr/local/lib"
+    CFLAGS="$CFLAGS $WFLAG"
+    CXXFLAGS="$CXXFLAGS $WFLAG"
 
     LIBS="$LIBS $x_suffix"
 	;;
@@ -137,8 +142,8 @@ esac
 fi
 
 dnl Check SGI audio library
-
 AC_CHECK_LIB(audio, ALopenport)
+
 if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
   dnl this is an SGI machine...
   LIBS="$LIBS -laudio"
@@ -159,9 +164,9 @@ AC_TRY_COMPILE([
 #include <sys/socket.h>
 int accept (int, struct sockaddr *, size_t *);
 ],[],[
-AC_MSG_RESULT(size_t)  
+AC_MSG_RESULT(size_t)
 AC_DEFINE(socklen_t,size_t)], [
-AC_MSG_RESULT(int)   
+AC_MSG_RESULT(int)
 AC_DEFINE(socklen_t,int)])])
 
 AC_OUTPUT( \
