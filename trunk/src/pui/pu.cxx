@@ -193,41 +193,27 @@ void puDeleteObject ( puObject *ob )
 
   puGroup *parent = ob->getParent () ;
 
-  /*if ( !ob->IsItSubWidget() )
-  {*/
-      /* Add object to linked list to be deleted */
-      if ( objects_to_delete == NULL )
-        objects_to_delete = ob ;
-      else
-      {
-        /* Ensure that objects are deleted in the order of puDeleteObject calls */
+  /* Add object to linked list to be deleted */
+  if ( objects_to_delete == NULL )
+    objects_to_delete = ob ;
+  else
+  {
+    /* Ensure that objects are deleted in the order of puDeleteObject calls */
 
-        puObject *last ;
+    puObject *last ;
 
-        for ( last = objects_to_delete ;
-              last -> getNextObject() != NULL ;
-              last = last -> getNextObject() )
-          /* Find last object. */ ;
+    for ( last = objects_to_delete ;
+          last -> getNextObject() != NULL ;
+          last = last -> getNextObject() )
+      /* Find last object. */ ;
 
-        last -> setNextObject ( ob ) ;
-      }
-      /* Remove from parent interface */
+    last -> setNextObject ( ob ) ;
+  }
+
+  /* Remove from parent interface */
  
-     if ( parent != ob && parent != NULL )
-        parent -> remove ( ob ) ;  /* Sets object's next and previous pointers to null as well */
-
-      /* If it is a group, then delete all child objects as well */
-     if ( ob->getType () & PUCLASS_GROUP ) 
-     {
-       puObject *child = ((puGroup *)ob)->getFirstChild () ;
-       while ( child )
-        {
-            puObject *next = child->getNextObject () ;
-            puDeleteObject ( child ) ;
-            child = next ;
-        }
-     }
-  /*}*/
+  if ( parent != ob && parent != NULL )
+     parent -> remove ( ob ) ;  /* Sets object's next and previous pointers to null as well */
 }
 
 
