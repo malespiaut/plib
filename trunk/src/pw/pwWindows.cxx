@@ -154,7 +154,7 @@ void pwSetCallbacks ( pwKeybdFunc *kb, pwMouseFunc *ms,
 
 void pwInit ( int multisample, int num_samples )
 {
-  pwInit ( 0, 0, -1, -1, multisample, "NoName", FALSE, num_samples,
+  pwInit ( 0, 0, -1, -1, multisample, "NoName", FALSE, num_samples ) ;
 }
 
 

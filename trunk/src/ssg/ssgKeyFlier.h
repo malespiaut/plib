@@ -156,9 +156,9 @@ public:
     return & curr_pos ;
   }
 
-  void set_coord ( sgCoord *pos )
+  void set_coord ( sgCoord *pos, int noStop = 0 )
   {
-    stop_all () ;
+    if ( ! noStop ) stop_all () ;
     sgCopyCoord ( & last_pos, pos ) ;
     update   () ;
   }
