@@ -362,14 +362,21 @@ Class Descriptions</h2>
 puFont</h3>
 A puFont is a simple class which can be constructed in one of two ways:
 <h4>
-A GLUT Font.</h4>
+1.) Using a GLUT bitmap font:</h4>
 
 <pre>  puFont::puFont ( void *glut_font ) ;
+  puFont::puFont () ;
 
 </pre>
-Where 'glut_font' is GLUT_BITMAP font. Since there are only seven GLUT_BITMAP
-fonts, these have all been pre-declared within PUI (mainly for backwards
-compatability with PLIB versions before 1.0.7).
+Where 'glut_font' is a GLUT_BITMAP font.
+<p>
+In case of the second constructor which does not take any arguments
+at all, a puFont is created from the GLUT_BITMAP_8_BY_13 fixed font,
+which can be considered as the default PUI font.
+<p>
+Since there are only seven GLUT_BITMAP fonts, these have all been
+pre-declared within PUI (mainly for backwards compatability with
+PLIB versions before 1.0.7).
 <pre>  extern puFont PUFONT_8_BY_13 ;        - 8x13 Fixed width
   extern puFont PUFONT_9_BY_15 ;        - 9x15 Fixed width
   extern puFont PUFONT_TIMES_ROMAN_10 ; - 10-point Proportional
@@ -385,7 +392,7 @@ If you wish to use PLIB on a software-only OpenGL implementation (Good
 Luck!) then you'll want to use these GLUT fonts since glBitMap is usually
 faster than texture-mapped text.
 <h4>
-Using a pre-built FNT font</h4>
+2.) Using a pre-built FNT font:</h4>
 
 <pre>  puFont::puFont ( fntTexFont *tex_font,
                    float pointsize, float slant = 0 ) ;
@@ -395,6 +402,30 @@ Where 'tex_font' is texture-based font created using the
 <a href="../fnt/index.html">FNT
 library</a> and setting the pointsize and optional italic slant (both measured
 in pixels).
+<p><br>
+After the puFont has been constructed, you can retrieve the height or
+width of a certain amount of text:
+<pre>  int puFont::getStringHeight () ;
+  int puFont::getStringHeight ( const char *str ) ;
+  int puFont::getStringWidth ( const char *str ) ;
+
+</pre>
+The getStringHeight routine that does not take any parameters returns
+the height of the "K" character.
+<p>
+Note that always the height <b>excluding</b> the descender is returned.
+There is another function which allows you to determine the font
+descender:
+<pre>  int puFont::getStringDescender () ;
+
+</pre>
+The following function can be used to draw some text at a specific
+position:
+<pre>  void puFont::drawString ( const char *str, int x, int y ) ;
+
+</pre>
+However, this is not the recommended way of positioning text on the
+user interface. Instead, have a look at the <a href="#puText">puText</a> widget.
 <a NAME="puObject"></a>
 <h3>
 puObject</h3>
@@ -1635,7 +1666,8 @@ the <a href="#puMenuBar">puMenuBar</a> widget.
 <a NAME="puListBox"></a>
 <h3>
 puListBox</h3>
-The puListBox widget is a multiple-line text widget which was designed
+<img SRC="puListBox.png" ALT="view of puListBox widget" height=127 width=188 align=RIGHT>The
+puListBox widget is a multiple-line text widget which was designed
 to support the <a href="#puFileSelector">puFileSelector</a> widget.  It
 is derived from the <a href="#puButton">puButton</a> widget and supports
 that widget's entire API.  You create a puListBox by invoking the
