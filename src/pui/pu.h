@@ -558,7 +558,7 @@ public:
     puPostRefresh () ;
   }
 
-  void setValue ( const char *s ) ;
+  virtual void setValue ( const char *s ) ;
 
   void getValue ( int   *i ) { re_eval () ; *i = *getIntegerp () ; }
   void getValue ( float *f ) { re_eval () ; *f = *getFloaterp () ; }
@@ -1236,8 +1236,8 @@ class puBiSlider : public puSlider
   
 
 protected:
-  int current_max ;
-  int current_min ;
+  float current_max ;
+  float current_min ;
 
   int active_button ;  // Zero for none, one for min, two for max
 public:
@@ -1249,8 +1249,8 @@ public:
     type |= PUCLASS_BISLIDER ;
     setMaxValue(1.0f) ;
     setMinValue(0.0f) ;
-    current_max = 1 ;
-    current_min = 0 ;
+    current_max = 1.0 ;
+    current_min = 0.0 ;
     active_button = 0 ;
   }
 
@@ -1262,8 +1262,8 @@ public:
     type |= PUCLASS_BISLIDER ;
     setMaxValue(1.0f) ;
     setMinValue(0.0f) ;
-    current_max = 1 ;
-    current_min = 0 ;
+    current_max = 1.0 ;
+    current_min = 0.0 ;
     active_button = 0 ;
   }
 
@@ -1282,11 +1282,13 @@ public:
     puPostRefresh () ;
   }
 
-  void setCurrentMax ( int i ) { current_max = i ; puPostRefresh () ; }
-  int getCurrentMax ( void ) const { return current_max ; }
+  void setCurrentMax ( int i ) { current_max = i ; puPostRefresh () ; } /* DEPRECATED */
+  void setCurrentMax ( float f ) { current_max = f ; puPostRefresh () ; }
+  float getCurrentMax ( void ) const { return current_max ; }
 
-  void setCurrentMin ( int i ) { current_min = i ; puPostRefresh () ; }
-  int getCurrentMin ( void ) const { return current_min ; }
+  void setCurrentMin ( int i ) { current_min = i ; puPostRefresh () ; } /* DEPRECATED */
+  void setCurrentMin ( float f ) { current_min = f ; puPostRefresh () ; }
+  float getCurrentMin ( void ) const { return current_min ; }
 
   void setActiveButton ( int i ) { active_button = i ; }
   int getActiveButton ( void ) const { return active_button ; }
@@ -1595,14 +1597,13 @@ public :
       /* Push the right side out by scalar to ensure all the arrow area can be clicked */
       if (arrow_position == 0)
       {
-        int size = (int)(( inbox_height ) * ( arrow_height ));
-        //int iw = ibox->max[0]-ibox->min[0]
+        int size = (int)(( inbox_height ) * ( arrow_height ));      
 	int ih = ibox->max[1]-ibox->min[1] , ix = 0, iy = 0 ;
         input_box->getPosition(&ix, &iy);
         input_box->setPosition(abox.min[0] + size, iy) ;
         input_box->setSize(abox.max[0]-abox.min[0] - size, ih) ;
       } else {
-        abox.max[0] += (int)(inbox_height * (getArrowHeight() - 0.5) + inbox_height/2) ;
+	abox.max[0] += int(inbox_height * (getArrowHeight() - 0.5) + inbox_height/2) ;
       }
       recalc_bbox() ;
   }
@@ -1715,14 +1716,14 @@ public:
   }
 
   puFilePicker ( int x, int y, int arrows,
-                 const char* dir, const char *title = "Pick a file" ) :
+                 const char *dir, const char *title = "Pick a file" ) :
      puDialogBox ( x, y )
   {
-    puFilePickerInit ( x, y, arrows, 220, 170, dir, title ) ;
+    puFilePickerInit ( x, y, 220, 170, arrows, dir, title ) ;
   }
 
   puFilePicker ( int x, int y,
-                 const char* dir, const char *title = "Pick a file" ) :
+                 const char *dir, const char *title = "Pick a file" ) :
      puDialogBox ( x, y )
   {
     puFilePickerInit ( x, y, 220, 170, 1, dir, title ) ;

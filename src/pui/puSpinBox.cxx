@@ -37,8 +37,7 @@ void puSpinBox::draw ( int dx, int dy )
   {
     //input_box->draw ( dx, dy ) ;
 
-    int size = ( inbox_height ) * getArrowHeight() ;
-    int scalar = ( inbox_height ) * ( getArrowHeight() - 0.5 );
+    int size = int(inbox_height * getArrowHeight()) ;
     int pos_y = dy + abox.min[1] + size / 2 ;
     int pos_x = dx ;
     if ( getArrowPosition() == 1 ) {
@@ -84,8 +83,7 @@ void puSpinBox::doHit ( int button, int updown, int x, int y )
 
   if ( button == PU_LEFT_BUTTON && updown == PU_UP )
   {
-    int size = ( inbox_height ) * getArrowHeight() ;
-    int scalar = ( inbox_height ) * ( getArrowHeight() - 0.5 );
+    int size = int( inbox_height * getArrowHeight()) ;
     if ( ( x < abox.max[0] - size ) && ( getArrowPosition() == 1 ) ||
          ( x > abox.min[0] + size ) && ( getArrowPosition() == 0 ) )  
     {/* User clicked in the input box */

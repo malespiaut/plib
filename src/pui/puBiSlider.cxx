@@ -107,7 +107,7 @@ void puBiSlider::doHit ( int button, int updown, int x, int y )
 
     next_value = (next_value < 0.0f) ? 0.0f : (next_value > 1.0) ? 1.0f : next_value ;
 
-    float new_value = getMinValue() + ( next_value * ( getMaxValue() - getMinValue() ) + 0.5 ) ;
+    float new_value = getMinValue() + next_value * ( getMaxValue() - getMinValue() ) ;
 
     if ( ( getActiveButton() == 0 ) || ( updown == PU_DOWN ) )  // No currently-active slider, set whichever is closest
     {
