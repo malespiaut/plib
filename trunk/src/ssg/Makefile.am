@@ -1,3 +1,5 @@
+if BUILD_SSG
+
 lib_LIBRARIES = libplibssg.a
 
 include_HEADERS = ssg.h ssgconf.h ssgMSFSPalette.h ssgKeyFlier.h
@@ -25,6 +27,8 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 
 INCLUDES = -I$(top_srcdir)/src/sg
 INCLUDES += -I$(top_srcdir)/src/util
+
+endif
 
 EXTRA_DIST = ssg.dsp
 

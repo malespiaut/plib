@@ -1,3 +1,5 @@
+if BUILD_SL
+
 lib_LIBRARIES = libplibsl.a libplibsm.a
 
 include_HEADERS = sl.h slPortability.h sm.h
@@ -12,8 +14,9 @@ libplibsm_a_SOURCES = slPortability.h smMixer.cxx
 
 INCLUDES = -I$(top_srcdir)/src/util
 
+endif
+
 EXTRA_DIST = README.freebsd README.linux \
 	README.openbsd README.sgi README.unix README.win \
         sl.dsp
-
 
