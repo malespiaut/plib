@@ -33,54 +33,6 @@
 
 UL_RTTI_DEF1(puaCompass,puObject)
 
-
-/* Function to rotate a vector through a given quaternion using the formula
- * R = Q r Q-1 -- this gives the components of a ROTATED vector in a STATIONARY
- * coordinate system.  We assume that Q is a unit quaternion.
- */
-void sgRotateVecQuat ( sgVec3 vec, sgQuat q )
-{
-  sgVec3 rot ;
-  sgFloat qwqw = q[SG_W] * q[SG_W] ;
-  sgFloat qwqx = q[SG_W] * q[SG_X] ;
-  sgFloat qwqy = q[SG_W] * q[SG_Y] ;
-  sgFloat qwqz = q[SG_W] * q[SG_Z] ;
-  sgFloat qxqx = q[SG_X] * q[SG_X] ;
-  sgFloat qxqy = q[SG_X] * q[SG_Y] ;
-  sgFloat qxqz = q[SG_X] * q[SG_Z] ;
-  sgFloat qyqy = q[SG_Y] * q[SG_Y] ;
-  sgFloat qyqz = q[SG_Y] * q[SG_Z] ;
-  sgFloat qzqz = q[SG_Z] * q[SG_Z] ;
-  rot[SG_X] = ( qwqw + qxqx - qyqy - qzqz ) * vec[SG_X] + 2.0f * ( qxqy - qwqz ) * vec[SG_Y] + 2.0f * ( qxqz + qwqy ) * vec[SG_Z] ;
-  rot[SG_Y] = ( qwqw - qxqx + qyqy - qzqz ) * vec[SG_Y] + 2.0f * ( qyqz - qwqx ) * vec[SG_Z] + 2.0f * ( qxqy + qwqz ) * vec[SG_X] ;
-  rot[SG_Z] = ( qwqw - qxqx - qyqy + qzqz ) * vec[SG_Z] + 2.0f * ( qxqz - qwqy ) * vec[SG_X] + 2.0f * ( qyqz + qwqx ) * vec[SG_Y] ;
-  sgCopyVec3 ( vec, rot ) ;
-}
-
-/* Function to rotate a vector through a given quaternion using the formula
- * R = Q-1 r Q -- this gives the components of a STATIONARY vector in a ROTATED
- * coordinate system.  We assume that Q is a unit quaternion.
- */
-void sgRotateCoordQuat ( sgVec3 vec, sgQuat q )
-{
-  sgVec3 rot ;
-  sgFloat qwqw = q[SG_W] * q[SG_W] ;
-  sgFloat qwqx = q[SG_W] * q[SG_X] ;
-  sgFloat qwqy = q[SG_W] * q[SG_Y] ;
-  sgFloat qwqz = q[SG_W] * q[SG_Z] ;
-  sgFloat qxqx = q[SG_X] * q[SG_X] ;
-  sgFloat qxqy = q[SG_X] * q[SG_Y] ;
-  sgFloat qxqz = q[SG_X] * q[SG_Z] ;
-  sgFloat qyqy = q[SG_Y] * q[SG_Y] ;
-  sgFloat qyqz = q[SG_Y] * q[SG_Z] ;
-  sgFloat qzqz = q[SG_Z] * q[SG_Z] ;
-  rot[SG_X] = ( qwqw + qxqx - qyqy - qzqz ) * vec[SG_X] + 2.0f * ( qxqy + qwqz ) * vec[SG_Y] + 2.0f * ( qxqz - qwqy ) * vec[SG_Z] ;
-  rot[SG_Y] = ( qwqw - qxqx + qyqy - qzqz ) * vec[SG_Y] + 2.0f * ( qyqz + qwqx ) * vec[SG_Z] + 2.0f * ( qxqy - qwqz ) * vec[SG_X] ;
-  rot[SG_Z] = ( qwqw - qxqx - qyqy + qzqz ) * vec[SG_Z] + 2.0f * ( qxqz + qwqy ) * vec[SG_X] + 2.0f * ( qyqz - qwqx ) * vec[SG_Y] ;
-  sgCopyVec3 ( vec, rot ) ;
-}
-
-
 #define SET_ARC_COLOUR1(value)  \
   if ( getIntegerValue () == value ) \
     glColor4fv ( colour [ PUCOL_LEGEND ] ) ; \
@@ -232,53 +184,6 @@ void puaCompass::draw ( int dx, int dy )
   }
 
   draw_label ( dx, dy ) ;
-}
-
-sgFloat sgDistSquaredToLineLineSegment ( const sgLineSegment3 seg, const sgLine3 line )
-{
-  /* Convert the line segment to a line.  We will deal with the segment limits later. */
-  sgLine3 line2 ;
-  sgLineSegment3ToLine3 ( &line2, seg ) ;
-
-  /* Get the dot product of the two direction vectors */
-  sgFloat t1_dot_t2 = sgScalarProductVec3 ( line.direction_vector, line2.direction_vector ) ;
-
-  /* If the lines are parallel, distance is just the distance from a point to the other line */
-  if ( fabs ( t1_dot_t2 ) >= 1.0 )
-    return sgDistSquaredToLineVec3 ( line, seg.a ) ;
-
-  /* Get the parametric coordinates of the closest points on the two lines.  The first line
-   * is parameterized by r = r1 + t1 u while the second is parameterized by r = r2 + t2 v.
-   * The square of the distance between them is [ ( r1 + t1 u ) - ( r2 + t2 v ) ] dot
-   * [ ( r1 + t1 u ) - ( r2 + t2 v ) ].  Differentiating this dot product with respect to
-   * u and v and setting the derivatives to zero gives a matrix equation:
-   * [ 1         -(t1 dot t2) ] [ u ] = [  ( r1 - r2 ) dot t1 ]
-   * [ -(t1 dot t2)         1 ] [ v ]   [ -( r1 - r2 ) dot t2 ]
-   * We invert the matrix to get the equations below.
-   */
-  sgVec3 r1_minus_r2 ;
-  sgSubVec3 ( r1_minus_r2, line.point_on_line, line2.point_on_line ) ;
-
-  /* t1_t2_t2_minus_t1 = ( t1 dot t2 ) t2 - t1
-   * t2_minus_t1_t2_t1 = t2 - ( t1 dot t2 ) t1
-   */
-  sgVec3 t1_t2_t2_minus_t1, t2_minus_t1_t2_t1 ;
-  sgAddScaledVec3 ( t1_t2_t2_minus_t1, line.direction_vector, line2.direction_vector, -t1_dot_t2 ) ;
-  sgNegateVec3 ( t1_t2_t2_minus_t1 ) ;
-  sgAddScaledVec3 ( t2_minus_t1_t2_t1, line2.direction_vector, line.direction_vector, -t1_dot_t2 ) ;
-
-  sgFloat u = sgScalarProductVec3 ( r1_minus_r2, t1_t2_t2_minus_t1 ) / ( 1.0f - t1_dot_t2 * t1_dot_t2 ) ;
-  sgFloat v = sgScalarProductVec3 ( r1_minus_r2, t2_minus_t1_t2_t1 ) / ( 1.0f - t1_dot_t2 * t1_dot_t2 ) ;
-
-  /* Since line 2 is a line segment, we limit "v" to between 0 and the distance between the points. */
-  sgFloat length = sgDistanceVec3 ( seg.a, seg.b ) ;
-  if ( v < 0.0 ) v = 0.0 ;
-  if ( v > length ) v = length ;
-
-  sgVec3 point1, point2 ;
-  sgAddScaledVec3 ( point1, line.point_on_line, line.direction_vector, u ) ;
-  sgAddScaledVec3 ( point2, line2.point_on_line, line2.direction_vector, v ) ;
-  return sgDistanceSquaredVec3 ( point1, point2 ) ;
 }
 
 
