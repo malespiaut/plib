@@ -11,6 +11,16 @@
 #define cchar const char
 
 
+struct aseVertexBuffer
+{
+  bool use_flag ;
+  int index ;
+  sgVec3 v ;
+  sgVec2 tv ;
+  sgVec3 cv ;
+} ;
+
+
 struct aseFace
 {
    u32 v[3];
@@ -138,7 +148,7 @@ static aseMaterial* find_material( u32 mat_index, u32 sub_index )
 static ssgSimpleState* get_state( aseMaterial* mat )
 {
   ssgSimpleState *st = new ssgSimpleState () ;
-  
+
   st -> setMaterial ( GL_AMBIENT, mat -> amb ) ;
   st -> setMaterial ( GL_DIFFUSE, mat -> diff ) ;
   st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
@@ -527,15 +537,6 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
   if ( num_faces == 0 )
     return NULL;
 
-  struct aseVertex
-  {
-    bool use_flag ;
-    int index ;
-    sgVec3 v ;
-    sgVec2 tv ;
-    sgVec3 cv ;
-  } ;
-
   u32 i ;
 
   //allocate map_index array
@@ -543,10 +544,10 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
 
   //allocate the vertex list
   u32 max_verts = mesh -> num_verts + mesh -> num_faces * 3 ;
-  aseVertex* vert_list = new aseVertex [ max_verts ] ;
+  aseVertexBuffer* vert_list = new aseVertexBuffer [ max_verts ] ;
   
   //mark each vertex as *not* used
-  aseVertex* vert = vert_list ;
+  aseVertexBuffer* vert = vert_list ;
   for ( i=0; i < max_verts; i++, vert++ )
   {
     vert -> use_flag = false ;
@@ -795,7 +796,7 @@ static void parse_object()
           selector -> addKid ( leaf ) ;
       }
     }
-    selector -> setLimits ( 0, mesh_count - 1 );
+    selector -> setLimits ( 0, selector -> getNumKids()-1 );
     mesh_entity = selector ;
   }
   else if ( mesh_list [ 0 ] != NULL )

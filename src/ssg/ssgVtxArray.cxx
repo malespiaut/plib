@@ -19,7 +19,9 @@ ssgVtxArray::ssgVtxArray ( GLenum ty,
 {
   type |= SSG_TYPE_VTXARRAY ;
 
-  indices  = (il!=NULL) ? il : new ssgIndexArray () ;
+  indices = (il!=NULL) ? il : new ssgIndexArray () ;
+
+  indices -> ref () ;
 
   recalcBSphere () ;
 }
