@@ -365,8 +365,10 @@ void ulFindFile( char *filenameOutput, const char *path,
 
 char *ulStrDup ( const char *s )
 {
-  char *ret = new char [ strlen(s)+1 ] ;
-  strcpy ( ret, s ) ;
+  int s_sz = strlen ( s ) + 1 ;
+  char *ret = new char [ s_sz ] ;
+
+  memcpy ( ret, s, s_sz ) ;
   return ret ;
 }
 
