@@ -287,11 +287,6 @@ If the user will be able to reshape the window, include a window reshape
 function that adjusts the positions and sizes of the widgets.  If
 the user should not resize the window then the window reshape function
 should reset the window to its original size.</li>
-
-<li>
-Note that you can let the <a href="#puDisplay">puDisplay</a> function
-only redraw the widgets in a particular window, which is especially
-useful if you use the same display callback for multiple windows.</li>
 </ul>
  
 <table>
@@ -476,7 +471,7 @@ using:
 
   void puObject::getPosition ( int *x, int *y ) ;
   void puObject::getSize     ( int *w, int *h ) ;</pre>
-The bounding box is adjusted to fit around tha activity box and the label,
+The bounding box is adjusted to fit around the activity box and the label,
 if any.
 <p>
 <a NAME="getValue"></a>The following functions allow you to manipulate
@@ -617,7 +612,7 @@ For PUSTYLE_SPECIAL_UNDERLINED, a one pixel wide line is drawn.
 But please ensure only to call the setBorderThickness routine <b>after</b>
 specifying the widget's style, because the setStyle function sets the
 border thickness automatically according to the (different) default
-values for PUSTYLE_BOXED and PUSTYLE_SPECIAL_UNDERLINED. Thus, the border
+values for PUSTYLE_BOXED and PUSTYLE_SPECIAL_UNDERLINED. Hence, the border
 width which you have set would be overridden.
 <p>
 In addition, you can use the negation of the style to swap the appearance
@@ -1394,7 +1389,7 @@ In this case, we would have set the style of all arrow button subwidgets
 colour of both the frame and the arrow button subwidgets to be white.
 <p>
 Note that when you specify a child class in the bitmask, all childs
-derived from that class are also affected. Thus, using PUCLASS_OBJECT
+derived from that class are also affected. Hence, using PUCLASS_OBJECT
 as the first argument of these functions is an easy way to change the
 parameters of all child widgets.
 <p>
@@ -2091,13 +2086,12 @@ There are two portability functions:
 These return the most recent puSetWindowSize parameters under Marks raw
 WIN32 environment - and do a nice portable glutGet() on all other setups.
 <p>
-The GLUT-less PUI cannot switch fonts - it always uses the system font.
-It also requires the 'wgl' functions to be present in whichever OpenGL
-is being used.
-<p>
-There is a demo of this PUI setup in the puiAlone directory. Notice
-that this code is provided under somewhat different terms from the remainder
-of PUI - nothing too onerous though.
+Without GLUT, PUI can also not create the default fonts from the seven
+GLUT_BITMAP fonts like it normaly would. Instead, it tries to load
+some .txf fonts in the puInit routine. Hence, you have to ensure that
+the typewriter.txf, times_bold.txf and helvetica_bold.txf files
+from examples/src/fnt/data/ are in the current directory when using
+the GLUT-less PUI library.
 <hr>
 <address>
 <a href="http://web2.airmail.net/sjbaker1">Steve J. Baker.</a> &lt;<a href="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</a>></address>
