@@ -281,7 +281,7 @@ class pslCompiler
 
   char *progName ;
 
-  const char *getProgName () const { return progName ; }
+  char *getProgName () const { return progName ; }
 
   /* Major storage for symbols and byte-codes */
 
