@@ -80,7 +80,7 @@ void pslCompiler::pushIntConstant ( int i )
 
 void pslCompiler::pushIntConstant ( const char *c )
 {
-  int i = atoi ( c ) ; 
+  int i = strtol ( c, NULL, 0 ) ; 
   pushIntConstant ( i ) ;
 }
 
