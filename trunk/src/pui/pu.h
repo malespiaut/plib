@@ -258,9 +258,8 @@ extern int puRefresh ; /* Should not be used directly by applications any
 #define PUCLASS_LARGEINPUT       0x00400000
 #define PUCLASS_COMBOBOX         0x00800000
 #define PUCLASS_SELECTBOX        0x01000000
-#define PUCLASS_RANGE            0x02000000
-#define PUCLASS_SPINBOX          0x04000000
-#define PUCLASS_SCROLLBAR        0x08000000
+#define PUCLASS_SPINBOX          0x02000000
+#define PUCLASS_SCROLLBAR        0x04000000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -284,7 +283,6 @@ class puPopup            ;
 class puPopupMenu        ;
 class puMenuBar          ;
 class puInput            ;
-class puRange            ;
 class puSpinBox          ;
 class puSlider           ;
 class puListBox          ;
@@ -1059,7 +1057,7 @@ public:
   }
 } ;
 
-class puRange : public puObject
+class puRange
 {
   UL_TYPE_DATA
 
@@ -1075,52 +1073,48 @@ protected:
   {
     if ( maxval == minval )
     {
-      maxval = 1.0 ;
-      minval = 0.0 ;
+      maxval = 1.0f ;
+      minval = 0.0f ;
     }
 
     minimum_value = minval ;
     maximum_value = maxval ;
     step_size = step ;
-    getValue ( & last_cb_value ) ;  // was last_cb_value = -1.0f ;
+    last_cb_value = -1.0f ;
     cb_delta = 0.1f ;
     cb_mode = PUSLIDER_ALWAYS ;
   }
 
 public:
-    puRange ( int minx, int miny, int maxx, int maxy ) :
-     puObject ( minx, miny, maxx, maxy )
-               {
-                type |= PUCLASS_RANGE ;
+  puRange ()
+  {
+    puRange_init ( 0.0f, 1.0f, 0.0f ) ;
+  }
 
-                puRange_init ( 0.0, 1.0, 0.0 ) ;
-               }
+  puRange ( float minval, float maxval, float step = 0.0f )
+  {
+    puRange_init ( minval, maxval, step ) ;
+  }
 
-    puRange ( int minx, int miny, int maxx, int maxy, float minval, float maxval, float step = 0.0 ) :
-     puObject ( minx, miny, maxx, maxy )
-               {
-                type |= PUCLASS_RANGE ;
+  float getMaxValue ( void ) const     { return maximum_value ; }
+  virtual void setMaxValue ( float f ) { maximum_value = f    ; }
 
-                puRange_init ( minval, maxval, step ) ;
-               }
-
-  float getMaxValue ( void ) const { return maximum_value ; }
-  virtual void setMaxValue ( float f ) { maximum_value = f ; }
-
-  float getMinValue ( void ) const { return minimum_value ; }
-  virtual void setMinValue ( float f ) { minimum_value = f ; }
+  float getMinValue ( void ) const     { return minimum_value ; }
+  virtual void setMinValue ( float f ) { minimum_value = f    ; }
 
   float getStepSize ( void ) const { return step_size ; }
-  void setStepSize ( float f ) { step_size = f ; }
+  void setStepSize ( float f )     { step_size = f    ; }
 
   float checkStep ( float val_to_check ) const
   {
     float step = val_to_check ;
 
-    if ( getStepSize() > 0.0 )
+    if ( getStepSize () > 0.0f )
     {
-      step = val_to_check - (float) fmod ( val_to_check, getStepSize() ) ;
-      if ( ( val_to_check - step ) > ( step + getStepSize() - val_to_check ) ) step += getStepSize() ;
+      step = val_to_check - (float) fmod ( val_to_check, getStepSize () ) ;
+
+      if ( ( val_to_check - step ) > ( step + getStepSize() - val_to_check ) )
+        step += getStepSize () ;
     }
       
     return step ;
@@ -1133,7 +1127,7 @@ public:
   float getDelta ( void ) const { return cb_delta ; }
 } ;
 
-class puSlider : public puRange
+class puSlider : public puRange, public puObject
 {
   UL_TYPE_DATA
 
@@ -1153,7 +1147,8 @@ public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
   puSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
-     puRange  ( minx, miny, vertical ?
+     puRange (),
+     puObject  ( minx, miny, vertical ?
                ( minx + puGetDefaultLegendFont().getStringWidth ( "W" ) +
                         PUSTR_LGAP + PUSTR_RGAP ) :
                ( minx + sz ),
@@ -1169,14 +1164,15 @@ public:
 
   /* Blake Friesen - alternate constructor which lets you explicitly set width */
   puSlider ( int minx, int miny, int sz, int vertical, int width ) :
-     puRange  ( minx, miny, vertical ?
+     puRange (),
+     puObject  ( minx, miny, vertical ?
                              ( minx + width ) :
                              ( minx + sz ),
-                            vertical ?
+                             vertical ?
                              ( miny + sz ) :
                              ( miny + width ) 
-                            )
-     { 
+               )
+  { 
     puSlider_init ( vertical ) ;
   }
   
@@ -1362,7 +1358,7 @@ public:
 } ;
 
 
-class puDial : public puRange
+class puDial : public puRange, public puObject
 {
   UL_TYPE_DATA
 
@@ -1373,15 +1369,16 @@ public:
   void draw  ( int dx, int dy ) ;
 
   puDial ( int minx, int miny, int sz ) :
-     puRange ( minx, miny, minx+sz, miny+sz )
+     puRange (), puObject ( minx, miny, minx+sz, miny+sz )
   {
     type |= PUCLASS_DIAL ;
     setValue ( 0.0f ) ;
     wrap = TRUE ;
   }
 
-  puDial ( int minx, int miny, int sz, float minval, float maxval, float step = 0.0 ) :
-     puRange ( minx, miny, minx+sz, miny+sz, minval, maxval, step )
+  puDial ( int minx, int miny, int sz, float minval, float maxval, float step = 0.0f ) :
+     puRange ( minval, maxval, step ),
+     puObject ( minx, miny, minx+sz, miny+sz )
   {
     type |= PUCLASS_DIAL ;
     setValue ( 0.0f ) ;
@@ -1590,70 +1587,43 @@ public:
   int  inputDisabled ( void ) const { return input_disabled ; }
 } ;
 
-class puSpinBox : public puRange
+class puSpinBox : public puRange, public puGroup
 {
   UL_TYPE_DATA
 
 protected :
   puInput *input_box ;
+  puArrowButton *up_arrow ;
+  puArrowButton *down_arrow ;
 
-  int up_arrow_active, down_arrow_active, arrow_position, inbox_height ;
-  float arrow_height ;
+  int arrow_position ;
 
 public :
-  int checkKey ( int key, int updown ) ;
-  void doHit ( int button, int updown, int x, int y ) ;
-  void draw ( int dx, int dy ) ;
   /* Whether the arrows are on the LEFT of the input box (0) or RIGHT (1 DEFAULT) */
-  int getArrowPosition ( void ) { return arrow_position ; }
+  int getArrowPosition ( void ) const { return arrow_position ; }
   /* Offered as a proportion of the input box height. Default = 0.5 */
-  void setArrowHeight (float height ) { 
-      puBox *ibox = input_box->getABox() ;
-      abox.min[1] = ibox->min[1] ;
-      abox.max[1] = ibox->max[1] ;
-      abox.max[0] = ibox->max[0] ;
-      arrow_height = height ; 
-      abox.min[1] -= int(inbox_height * (getArrowHeight() - 0.5)) ;
-      abox.max[1] += int(inbox_height * (getArrowHeight() - 0.5)) ;
-      /* Push the right side out by scalar to ensure all the arrow area can be clicked */
-      if (arrow_position == 0)
-      {
-        int size = int(inbox_height * arrow_height) ;
-        int ih = ibox->max[1]-ibox->min[1] , ix = 0, iy = 0 ;
-        input_box->getPosition(&ix, &iy);
-        input_box->setPosition(abox.min[0] + size, iy) ;
-        input_box->setSize(abox.max[0]-abox.min[0] - size, ih) ;
-      } else {
-        abox.max[0] += int(inbox_height * (getArrowHeight() - 0.5) + inbox_height/2) ;
-      }
-      recalc_bbox() ;
-  }
-
-  float getArrowHeight ( void ) { return arrow_height ; }
-
-  puSpinBox ( int minx, int miny, int maxx, int maxy, int arrow_pos = 1 ) :
-       puRange ( minx, miny, maxx, maxy, 1.0f, 10.0f, 1.0f )
+  void setArrowHeight ( float height )
   {
-    extern void puSpinBox_handle_input(puObject* ob);
-    type |= PUCLASS_SPINBOX ;
-    if (arrow_pos==1)
-        input_box = new puInput ( minx, miny, maxx - (maxy-miny)/2, maxy ) ;
-    else
-        input_box = new puInput ( minx + (maxy-miny)/2, miny, maxx, maxy ) ;
-    up_arrow_active = down_arrow_active = 0 ;
-    arrow_position = arrow_pos ;
-    arrow_height = 0.5f ;
-    inbox_height = maxy - miny ;
-    input_box->setCallback(puSpinBox_handle_input) ;
-    input_box->setDownCallback(puSpinBox_handle_input) ;
-    input_box->setUserData(this) ;
-    parent->remove ( input_box ) ;
+    puBox *ibox = input_box->getABox() ;
+    int size = int(height * ( ibox->max[1] - ibox->min[1] )) ;
+    up_arrow->setSize ( size, size ) ;
+    down_arrow->setSize ( size, size ) ;
+    int xpos = getArrowPosition () ? ibox->max[0] : ibox->min[0] - size ;
+    int ymid = ( ibox->max[1] + ibox->min[1] ) / 2 ;
+    up_arrow->setPosition ( xpos, ymid ) ;
+    down_arrow->setPosition ( xpos, ymid - size ) ;
+    recalc_bbox() ;
   }
 
-  ~puSpinBox ()
+  float getArrowHeight ( void ) const
   {
-    puDeleteObject ( (puObject *)input_box ) ;
+    int awid, ahgt, iwid, ihgt ;
+    input_box->getSize ( &iwid, &ihgt ) ;
+    up_arrow->getSize ( &awid, &ahgt ) ;
+    return float(ahgt) / float(ihgt) ;
   }
+
+  puSpinBox ( int minx, int miny, int maxx, int maxy, int arrow_pos = 1 ) ;
 
   void setValue ( float f ) { puValue::setValue ( f ) ;  input_box->setValue ( f ) ; }
   void setValue ( int i ) { puValue::setValue ( i ) ;  input_box->setValue ( i ) ; }

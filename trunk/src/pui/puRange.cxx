@@ -23,5 +23,5 @@
 
 #include "puLocal.h"
 
-UL_RTTI_DEF1(puRange,puObject)
+UL_RTTI_DEF(puRange)
 
