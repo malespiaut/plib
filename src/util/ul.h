@@ -19,19 +19,19 @@
 #include <ctype.h>
 #include <assert.h>
 
-#ifdef WIN32
+#if defined (WIN32)
 #  include <windows.h>
 #  ifdef __CYGWIN__
 #    include <unistd.h>
 #  endif
-#else
-#  ifdef __BEOS__
+#elif defined (__BEOS__)
 #    include <be/kernel/image.h>
+#elif defined (macintosh)
+#  include <CodeFragments.h>
 #  else
 #    include <unistd.h>
 #    include <dlfcn.h>
 #  endif
-#endif
 
 
 #include <assert.h>
@@ -279,7 +279,7 @@ class ulTCPConnection
 */
 
 
-#ifdef WIN32
+#if defined (WIN32)
 
 class ulDynamicLibrary
 {
@@ -307,8 +307,66 @@ public:
   }
 } ;
 
-#else
-#  ifdef __BEOS__
+#elif defined (macintosh)
+
+class ulDynamicLibrary
+{
+    CFragConnectionID connection;
+    OSStatus          error;
+
+public:
+        
+    ulDynamicLibrary ( const char *libname )
+    {
+        Str63    pstr;
+        int        sz;
+        
+        sz = strlen (libname);
+     
+        if (sz < 64) {
+        
+            pstr[0] = sz;
+            memcpy (pstr+1, libname, sz);
+            
+            error = GetSharedLibrary (pstr, kPowerPCCFragArch, kReferenceCFrag,
+                                      &connection, NULL, NULL);                              
+        }
+        else 
+            error = 1;
+    }
+
+    ~ulDynamicLibrary ()
+    {
+        if ( ! error )
+            CloseConnection (&connection);
+    
+    }
+        
+    void* getFuncAddress (const char *funcname)
+    {
+        if ( ! error ) {
+        
+            char*  addr;
+            Str255 sym;
+            int    sz;
+            
+            sz = strlen (funcname);
+            if (sz < 256) {
+                
+                sym[0] = sz;
+                memcpy (sym+1, funcname, sz);
+
+                error = FindSymbol (connection, sym, &addr, 0);
+                if ( ! error )
+                    return addr;
+            }
+        }
+        
+        return NULL;
+    }
+};
+
+#elif defined (__BEOS__)
 
 class ulDynamicLibrary
 {
@@ -388,8 +446,7 @@ public:
   }
 } ;
 
-#  endif
-#endif
+#endif /* if defined(WIN32) */
 
 
 #endif

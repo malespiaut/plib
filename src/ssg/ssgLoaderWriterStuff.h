@@ -66,10 +66,10 @@ class ssgLoaderWriterMesh
 public:
 	class ssgVertexArray *PfuschGetTheVertices(void) { return theVertices; }; 
 	class ssgTexCoordArray *PfuschGettCPV(void) { return tCPV; } ;
-	void ssgLoaderWriterMesh::AddFaceFromCArray(int nNoOfVerticesForThisFace, 
+	void AddFaceFromCArray(int nNoOfVerticesForThisFace, 
 																						int *aiVertices);
 
-	void ssgLoaderWriterMesh::add2SSG(
+	void add2SSG(
 		class ssgSimpleState *currentstate, 
 		class ssgLoaderOptions* current_options,
 		class ssgBranch *curr_branch_);
