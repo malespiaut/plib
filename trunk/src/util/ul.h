@@ -44,50 +44,86 @@
 #include <ctype.h>
 #include <assert.h>
 
-#if !defined(WIN32) && (defined(_WIN32) || defined(__WIN32__) || \
-    defined(__CYGWIN__) || defined(_MSC_VER))
-#  define WIN32
+/**********************\
+*                      *
+*  Determine OS type   *
+*                      *
+\**********************/
+
+#if defined(__CYGWIN__)
+
+#define UL_WIN32     1
+#define UL_CYGWIN    1    /* Windoze AND Cygwin. */
+
+#elif defined(_WIN32) || defined(__WIN32__) || defined(_MSC_VER)
+
+#define UL_WIN32     1
+#define UL_MSVC      1    /* Windoze AND MSVC. */
+
+#elif defined(__BEOS__)
+
+#define UL_BEOS      1
+
+#elif defined( macintosh )
+
+#define UL_MACINTOSH 1
+
+#elif defined(__APPLE__)
+
+#define UL_MAX_OSX   1 
+
+#elif defined(__linux__)
+
+#define UL_LINUX     1
+
+#elif (defined(__unix__) || defined(unix)) && !defined(USG)
+
+#define UL_BSD       1
+
 #endif
 
-#if defined (WIN32)
-#  include <windows.h>
-#  ifdef __CYGWIN__
-#    include <unistd.h>
-#  endif
-#elif defined (__BEOS__)
-#    include <be/kernel/image.h>
-#elif defined (macintosh)
-#    include <CodeFragments.h>
-#elif defined (__APPLE__)
-/* Mac OS X: Not implemented (needs to use dyld)  */
-#    include <unistd.h>
-#else
-#    include <unistd.h>
-#    include <dlfcn.h>
-#  endif
+/*
+  Add specialised includes...
+*/
 
-//lint -save -e506 -e1023
+#ifdef UL_WIN32
+#include <windows.h>
+#include <mmsystem.h>
+#include <regstr.h>
+#endif
 
+#ifdef UL_CYGWIN
+#include <unistd.h>
+#endif
 
-#include <assert.h>
+#ifdef UL_BEOS
+#include <be/kernel/image.h>
+#endif
 
-#include <limits.h>
-#include <math.h>
+#ifdef UL_MACINTOSH
+#include <CodeFragments.h>
+#include <unistd.h>
+#endif
 
-/* the next lines are to define BSD */
-/* see http://www.freebsd.org/handbook/porting.html for why we do this */
+#ifdef UL_MAC_OSX
+#include <unistd.h>
+#endif
 
-#if (defined(__unix__) || defined(unix)) && !defined(USG)
+#if defined(UL_LINUX) || defined(UL_BSD)
+#include <unistd.h>
+#include <dlfcn.h>
+#include <fcntl.h>
+#endif
+
+#if defined(UL_BSD)
 #include <sys/param.h>
 #endif
 
-// Wk: Originally this was only included for BSD, WIN32,  __MWERKS__ (Macintosh) 
-// and __CYGWIN__. However, some Linux people couldn't compile because it was 
-// missing (see fgfs-User Mailing list). Should you, on the other hand get 
-// problems because of this line, then mail to the PLIB mailing list
-// or mail me (w_kuss@rz-online.de)
+#include <assert.h>
+#include <limits.h>
+#include <math.h>
 #include <float.h>
-
+#include <errno.h>
 
 /* PLIB version macros */
 
@@ -140,7 +176,7 @@ class ulClock
   double last_time ;
   double max_delta ;
   
-#ifdef WIN32
+#ifdef UL_WIN32
   static double res ;
   static int perf_timer ;
   void initPerformanceTimer () ;
@@ -154,8 +190,8 @@ public:
 
   void reset ()
   {
-#ifdef WIN32
-	  initPerformanceTimer () ;
+#ifdef UL_WIN32
+    initPerformanceTimer () ;
 #endif
     start     = getRawTime () ;
     now       = start ;
@@ -177,7 +213,7 @@ inline void ulSleep ( int seconds )
 {
   if ( seconds >= 0 )
   {
-#ifdef WIN32
+#ifdef UL_WIN32
     Sleep ( 1000 * seconds ) ;
 #else
     sleep ( seconds ) ;
@@ -190,7 +226,7 @@ inline void ulMilliSecondSleep ( int milliseconds )
 {
   if ( milliseconds >= 0 )
   {
-#ifdef WIN32
+#ifdef UL_WIN32
     Sleep ( milliseconds ) ;
 #else
     usleep ( milliseconds * 1000 ) ;
@@ -461,7 +497,7 @@ inline size_t ulEndianWriteBigFloat(FILE *f, float x) {
 */
 
 
-#if defined (WIN32)
+#ifdef UL_WIN32
 
 class ulDynamicLibrary
 {
@@ -489,7 +525,7 @@ public:
   }
 } ;
 
-#elif defined (macintosh)
+#elif defined (UL_MACINTOSH)
 
 class ulDynamicLibrary
 {
@@ -547,9 +583,8 @@ public:
     }
 };
 
-#elif defined (__APPLE__)
+#elif defined (UL_MAC_OSX)
 
-/* Mac OS X */
 
 class ulDynamicLibrary
 {
@@ -651,7 +686,7 @@ public:
   }
 } ;
 
-#endif /* if defined(WIN32) */
+#endif
 
 
 class ulList

@@ -24,4 +24,64 @@
 
 void jsInit () {}
 
+float jsJoystick::fudge_axis ( float value, int axis ) const
+{
+  if ( value < center[axis] )
+  {
+    float xx = (      value    - center[ axis ] ) /
+               ( center [ axis ] - min [ axis ] ) ;
+
+    if ( xx < -saturate [ axis ] )
+                              return -1.0f ;
+
+    if ( xx > -dead_band [ axis ] )
+                              return 0.0f ;
+
+    xx = (        xx         + dead_band [ axis ] ) /
+         ( saturate [ axis ] - dead_band [ axis ] ) ;
+
+    return ( xx < -1.0f ) ? -1.0f : xx ;
+  }
+  else
+  {
+    float xx = (     value    - center [ axis ] ) /
+               ( max [ axis ] - center [ axis ] ) ;
+
+    if ( xx > saturate [ axis ] )
+                              return 1.0f ;
+
+    if ( xx < dead_band [ axis ] )
+                              return 0.0f ;
+
+    xx = (        xx         - dead_band [ axis ] ) /
+         ( saturate [ axis ] - dead_band [ axis ] ) ;
+
+    return ( xx > 1.0f ) ? 1.0f : xx ;
+  }
+}
+
+
+void jsJoystick::read ( int *buttons, float *axes )
+{
+  if ( error )
+  {
+    if ( buttons )
+      *buttons = 0 ;
+
+    if ( axes )
+      for ( int i = 0 ; i < num_axes ; i++ )
+        axes[i] = 0.0f ;
+
+    return ;
+  }
+
+  float raw_axes [ _JS_MAX_AXES ] ;
+
+  rawRead ( buttons, raw_axes ) ;
+
+  if ( axes )
+    for ( int i = 0 ; i < num_axes ; i++ )
+      axes[i] = fudge_axis ( raw_axes[i], i ) ;
+}
+
 

@@ -199,6 +199,32 @@ void ssgTransform::setTransform ( sgMat4 xform )
 }
 
 
+void ssgTransform::getNetTransform ( sgMat4 xform )
+{
+  if ( getNumParents () > 0 )
+  {
+    getParent ( 0 ) -> getNetTransform ( xform ) ;
+    sgPreMultMat4 ( xform, transform ) ;
+  }
+  else 
+    sgCopyMat4 ( xform, transform ) ;
+}
+
+
+void ssgTransform::getLastNetTransform ( sgMat4 xform )
+{
+  sgMat4 last_xform ;
+  getLastTransform ( last_xform ) ;
+
+  if ( getNumParents () > 0 )
+  {
+    getParent ( 0 ) -> getLastNetTransform ( xform ) ;
+    sgPreMultMat4 ( xform, last_xform ) ;
+  }
+  else 
+    sgCopyMat4 ( xform, last_xform ) ;
+}
+
 
 int ssgTransform::load ( FILE *fd )
 {

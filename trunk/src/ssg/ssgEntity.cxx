@@ -379,3 +379,22 @@ int ssgEntity::save ( FILE *fd )
 }
 
 
+
+void ssgEntity::getNetTransform ( sgMat4 xform )
+{
+  if ( getNumParents () > 0 )
+    getParent ( 0 ) -> getNetTransform ( xform ) ;
+  else
+    sgMakeIdentMat4 ( xform ) ;
+}
+
+
+void ssgEntity::getLastNetTransform ( sgMat4 xform )
+{
+  if ( getNumParents () > 0 )
+    getParent ( 0 ) -> getLastNetTransform ( xform ) ;
+  else
+    sgMakeIdentMat4 ( xform ) ;
+}
+
+
