@@ -81,6 +81,12 @@ ulDir* ulOpenDir ( const char* dirname )
     }
 #else
     dir->dirp = opendir(dirname) ;
+
+    if ( dir->dirp == NULL )
+    {
+      delete dir ;
+      dir = NULL ;
+    }
 #endif
   }
   return dir;

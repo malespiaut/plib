@@ -45,9 +45,20 @@ puListBox::puListBox  ( int minx, int miny, int maxx, int maxy, char** _list ) :
 {
   type |= PUCLASS_LISTBOX ;
 
+  newList ( _list ) ;
+}
+
+
+void puListBox::newList ( char ** _list )
+{
   list = _list ;
-  for ( num = 0 ; list [ num ] != NULL ; num++ )
-    /* Count number of items */ ;
+
+  if ( list == NULL )
+    num = 0 ;
+  else
+    for ( num = 0 ; list [ num ] != NULL ; num++ )
+      /* Count number of items */ ;
+
   top = 0 ;
 
   /* Set index of selected item */
@@ -67,7 +78,7 @@ void puListBox::setTopItem( int item_index )
 
 void puListBox::draw ( int dx, int dy )
 {
-  if ( !visible || ( window != puGetWindow () ) ) return ;
+  if ( !visible || ( window != puGetWindow () ) || list == NULL ) return ;
 
   abox . draw ( dx, dy, style, colour, isReturnDefault() ) ;
 

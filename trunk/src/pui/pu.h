@@ -1049,11 +1049,12 @@ protected:
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
-  puListBox  ( int minx, int miny, int maxx, int maxy, char** list ) ;
+  puListBox  ( int minx, int miny, int maxx, int maxy, char** list = NULL ) ;
 
-  int getNumItems() const { return num ; }
-  int getTopItem() const { return top ; }
-  void setTopItem( int item_index ) ;
+  void newList     ( char ** _list ) ;
+  int  getNumItems () const { return num ; }
+  int  getTopItem  () const { return top ; }
+  void setTopItem  ( int item_index ) ;
 } ;
 
 
@@ -1285,11 +1286,19 @@ public:
 class puFilePicker : public puDialogBox
 {
   char** files;
+  char*  dflag;
   int num_files;
   int arrow_count ;
 
-  void find_files ( const char* dir ) ;
+  char startDir [ PUSTRING_MAX ] ;
+
+  void find_files () ;
   static void handle_select ( puObject* ) ;
+
+  puListBox *list_box ;
+  puSlider  *slider ;
+  puOneShot *cancel_button ;
+  puOneShot *ok_button ;
 
 protected:
   void puFilePickerInit ( int x, int y, int w, int h, int arrows, const char *dir, const char *title ) ;
