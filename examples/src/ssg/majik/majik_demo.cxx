@@ -20,6 +20,42 @@
 #define ONLINE_TERRAIN_RANGE ((float)(TILE_GRID_SIZE/2  )* TILE_SIZE ) /* cubits */
 #define VISUAL_RANGE         ((float)(TILE_GRID_SIZE/2-1)* TILE_SIZE ) /* cubits */
 
+/******* expose the private ssgSGIHeader interface from ssgImageLoader ******/
+
+/* Some magic constants in the file header. */
+
+#define SGI_IMG_MAGIC           0x01DA
+#define SGI_IMG_SWABBED_MAGIC   0xDA01   /* This is how it appears on a PC */
+#define SGI_IMG_VERBATIM        0
+#define SGI_IMG_RLE             1
+
+class ssgSGIHeader
+{
+public:    /* Yuk!  Need to hide some of this public stuff! */
+  unsigned short magic ;
+  int            max ;
+  int            min ;
+  int            colormap ;
+  char           type ;
+  char           bpp ;
+  unsigned int  *start ;
+  int           *leng ;
+  unsigned short dim ;
+  unsigned short xsize ;
+  unsigned short ysize ;
+  unsigned short zsize ;
+  int           tablen ;
+
+  ssgSGIHeader () ;
+  void makeConsistant () ;
+  void getRow   ( unsigned char *buf, int y, int z ) ;
+  void getPlane ( unsigned char *buf, int z ) ;
+  void getImage ( unsigned char *buf ) ;
+  void readHeader () ;
+} ;
+
+/***** *****/
+
 ssgSimpleState *state    = NULL ;
 ssgRoot        *scene    = NULL ;
 ssgTransform   *penguin  = NULL ;
