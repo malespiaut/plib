@@ -112,8 +112,17 @@ dnl =========================================================
         AC_CHECK_LIB(glut, glutGetModifiers,,,$opengl_LIBS)
     fi
 
-    CFLAGS="$CFLAGS -Wall -I/usr/local/include -L/usr/local/lib"
-    CXXFLAGS="$CXXFLAGS -Wall -I/usr/local/include -L/usr/local/lib"
+    WFLAG="-Wall"
+    case "$host" in
+    mips-sgi-irix*)
+        if test "x$CXX" = "xCC"; then
+            WFLAG="-fullwarn";
+        fi
+        ;;
+    esac
+
+    CFLAGS="$CFLAGS $WFLAG -I/usr/local/include -L/usr/local/lib"
+    CXXFLAGS="$CXXFLAGS $WFLAG -I/usr/local/include -L/usr/local/lib"
 
     LIBS="$LIBS $x_suffix"
 	;;
@@ -126,8 +135,8 @@ export CPPFLAGS="$CXXFLAGS"
 
 dnl Check SGI audio library
 
-AC_CHECK_LIB(audio, alOpenPort)
-if test "x$ac_cv_lib_audio_alOpenPort" = "xyes" ; then
+AC_CHECK_LIB(audio, ALopenport)
+if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
   dnl this is an SGI machine...
   LIBS="$LIBS -laudio"
 fi
