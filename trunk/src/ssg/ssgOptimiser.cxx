@@ -773,30 +773,35 @@ static void strip ( ssgEntity *ent )
 				 k = b_ent -> getNextKid () )
     strip ( k ) ;
 
-  if ( b_ent -> getNumKids () == 1 )
+  switch ( b_ent -> getNumKids () )
   {
-    ssgEntity *kid = b_ent -> getKid ( 0 ) ;
+  case 0:
+    if ( b_ent -> getUserData() == NULL )
+      safe_replace_kid ( NULL, b_ent, NULL ) ;
+    break;
 
+  case 1:
     if ( b_ent -> isA ( ssgTypeBranch () ) &&
 	 b_ent -> getUserData () == NULL )
-      safe_replace_kid ( NULL, b_ent, kid ) ;
-    
-    else if ( kid -> isA ( ssgTypeBranch () ) &&
-	      kid -> getUserData () == NULL &&
-	      ! b_ent -> isAKindOf ( ssgTypeSelector () ) )
     {
-      ssgBranch *b_kid = (ssgBranch *) kid ;
+      safe_replace_kid ( NULL, b_ent, b_ent -> getKid ( 0 ) ) ;
+    }
+    else if ( ! b_ent -> isAKindOf ( ssgTypeSelector () ) &&
+	      b_ent -> getKid ( 0 ) -> isA ( ssgTypeBranch () ) &&
+	      b_ent -> getKid ( 0 ) -> getUserData () == NULL )
+    {
+      ssgBranch *b_kid = (ssgBranch *) b_ent -> getKid ( 0 ) ;
       for ( ssgEntity *k = b_kid -> getKid ( 0 ) ; k != NULL ;
   	               k = b_kid -> getNextKid () )
         b_ent -> addKid ( k ) ;
       b_ent -> removeKid ( b_kid ) ;
+      b_ent -> recalcBSphere () ;
     }
-  }
+    break;
 
-  if ( b_ent -> getNumKids () == 0 )
-  {
-    if ( b_ent -> getUserData() == NULL )
-      safe_replace_kid ( NULL, b_ent, NULL ) ;
+  default:
+    if ( b_ent -> isDirtyBSphere () )
+      b_ent -> recalcBSphere () ; /* make the chance while cached */
   }
 }
 
@@ -940,7 +945,8 @@ void ssgFlatten ( ssgEntity *ent )
 	           kid = b_ent -> getNextKid () )
     strip ( kid ) ;
 
-  b_ent -> recalcBSphere () ;
+  if ( b_ent -> isDirtyBSphere () )
+    b_ent -> recalcBSphere () ;
 }
 
 
@@ -997,4 +1003,5 @@ void ssgTransTool ( ssgEntity *ent, const sgMat4 trans )
 	           kid = b_ent -> getNextKid () )
     strip ( kid ) ;
 
+  b_ent -> recalcBSphere () ;
 }
