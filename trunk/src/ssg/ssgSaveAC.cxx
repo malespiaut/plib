@@ -102,7 +102,7 @@ static int countVertices ( ssgEntity *e )
 }
 
 
-int ssgSaveAC ( char *filename, ssgEntity *ent )
+int ssgSaveAC ( const char *filename, ssgEntity *ent )
 {
   save_fd = fopen ( filename, "wa" ) ;
 

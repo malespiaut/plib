@@ -732,7 +732,7 @@ static int obj_read ( FILE *filein )
   return TRUE;
 }
 
-ssgEntity *ssgLoadOBJ ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadOBJ ( const char *fname, ssgHookFunc hookfunc )
 {
   current_hookFunc = hookfunc ;
   current_branch   = NULL ;

@@ -91,7 +91,7 @@ static void save_entities ( ssgEntity *e )
 
 /******************************************************************************/
 
-int ssgSaveDXF ( char *filename, ssgEntity *ent )
+int ssgSaveDXF ( const char *filename, ssgEntity *ent )
 
 /******************************************************************************/
 

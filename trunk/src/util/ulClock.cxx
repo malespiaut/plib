@@ -16,7 +16,7 @@
 #include "ul.h"
 
 
-double ulClock::getRawTime ()
+double ulClock::getRawTime () const
 {
 #if defined(WIN32)
 

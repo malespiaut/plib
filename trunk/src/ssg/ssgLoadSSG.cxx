@@ -44,7 +44,7 @@ void _ssgAddToList ( int key, ssgBase *b )
 }
 
 
-ssgEntity *ssgLoadSSG ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadSSG ( const char *fname, ssgHookFunc hookfunc )
 {
   delete[] _ssgInstanceList ;
   _ssgInstanceList = NULL ;
@@ -143,7 +143,7 @@ ssgEntity *ssgLoadSSG ( char *fname, ssgHookFunc hookfunc )
 }
 
 
-int ssgSaveSSG ( char *fname, ssgEntity *ent )
+int ssgSaveSSG ( const char *fname, ssgEntity *ent )
 {
   /* Uses the spare field in every entity to make sure
     we don't save the same thing twice */

@@ -4,9 +4,9 @@
 fntFont:: fntFont () {}
 fntFont::~fntFont () {}
 
-int fntTexFont::load ( char *fname, GLenum mag, GLenum min )
+int fntTexFont::load ( const char *fname, GLenum mag, GLenum min )
 {
-  char *p ;
+  const char *p ;
 
   for ( p = & fname [ strlen ( fname ) -1 ] ;
         p != fname && *p != '.' && *p != '/' ; p-- )
@@ -129,7 +129,7 @@ int fntTexFont::getGlyph ( char c,
 }
 
 
-void fntTexFont::getBBox ( char *s,
+void fntTexFont::getBBox ( const char *s,
                            float pointsize, float italic,
                            float *left, float *right,
                            float *bot , float *top  )
@@ -202,7 +202,7 @@ void fntTexFont::getBBox ( char *s,
 }
 
 
-void fntTexFont::puts ( sgVec3 curpos, float pointsize, float italic, char *s )
+void fntTexFont::puts ( sgVec3 curpos, float pointsize, float italic, const char *s )
 {
   SGfloat origx = curpos[0] ;
 	

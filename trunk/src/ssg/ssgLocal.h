@@ -81,7 +81,7 @@ void _ssgWriteMat4   ( FILE *fd, const sgMat4 var ) ;
 int _ssgReadError    ( void ) ;
 int _ssgWriteError   ( void ) ;
 
-int _ssgStrNEqual ( char *s1, char *s2, int len ) ;
+int _ssgStrNEqual ( const char *s1, const char *s2, int len ) ;
 
 ssgBase *_ssgGetFromList ( int key ) ;
 void     _ssgAddToList   ( int key, ssgBase *b ) ;

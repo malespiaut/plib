@@ -208,7 +208,7 @@ void _ssgWriteMat4 ( FILE *fd, const sgMat4 var ) { _ssgWriteFloat ( fd, 16, (fl
   offering:
 */
 
-int _ssgStrNEqual ( char *s1, char *s2, int len )
+int _ssgStrNEqual ( const char *s1, const char *s2, int len )
 {
   int l1 = (s1==NULL) ? 0 : strlen ( s1 ) ;
   int l2 = (s2==NULL) ? 0 : strlen ( s2 ) ;
@@ -436,14 +436,14 @@ void ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgCreateData *) )
    _ssgCreateFunc = cb ;
 }
 
-void ssgModelPath ( char *s )
+void ssgModelPath ( const char *s )
 {
   delete _ssgModelPath ;
   _ssgModelPath = new char [ strlen ( s ) + 1 ] ;
   strcpy ( _ssgModelPath, s ) ;
 }
 
-void ssgTexturePath ( char *s )
+void ssgTexturePath ( const char *s )
 {
   delete _ssgTexturePath ;
   _ssgTexturePath = new char [ strlen ( s ) + 1 ] ;
@@ -462,8 +462,8 @@ static char *file_extension ( char *fname )
 }
 
 
-typedef ssgEntity *_ssgLoader ( char *, ssgHookFunc ) ;
-typedef int         _ssgSaver ( char *, ssgEntity * ) ;
+typedef ssgEntity *_ssgLoader ( const char *, ssgHookFunc ) ;
+typedef int         _ssgSaver ( const char *, ssgEntity * ) ;
 
 struct _ssgFileFormat
 {
@@ -566,7 +566,7 @@ char* _ssgMakePath( char* path, const char* dir, const char* fname )
   offering:
 */
 
-int _ssgStrEqual ( char *s1, char *s2 )
+int _ssgStrEqual ( const char *s1, const char *s2 )
 {
   int l1 = (s1==NULL) ? 0 : strlen ( s1 ) ;
   int l2 = (s2==NULL) ? 0 : strlen ( s2 ) ;

@@ -54,7 +54,7 @@ static void save_entities ( ssgEntity *e )
 
 /******************************************************************************/
 
-int ssgSaveTRI ( char *filename, ssgEntity *ent )
+int ssgSaveTRI ( const char *filename, ssgEntity *ent )
 
 /******************************************************************************/
 

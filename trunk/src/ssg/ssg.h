@@ -406,7 +406,7 @@ public:
 } ;
 
 
-void ssgLoadTexture ( char *fname ) ;
+void ssgLoadTexture ( const char *fname ) ;
 int ssgGetNumTexelsLoaded () ;
 
 
@@ -1818,7 +1818,7 @@ int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 
 /* Weird private stuff */
 
-int _ssgStrEqual ( char *s1, char *s2 ) ;
+int _ssgStrEqual ( const char *s1, const char *s2 ) ;
 char* _ssgMakePath( char* path, const char* dir, const char* fname ) ;
 
 /* Load/Save functions */
@@ -1845,33 +1845,33 @@ public:
 
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
 
-int        ssgSave     ( char *fname, ssgEntity *ent ) ;
-int        ssgSaveAC   ( char *fname, ssgEntity *ent ) ;
-int        ssgSaveASE  ( char *fname, ssgEntity *ent ) ;
-int        ssgSaveSSG  ( char *fname, ssgEntity *ent ) ;
-int        ssgSaveDXF  ( char *fname, ssgEntity *ent ) ;
-int        ssgSaveTRI  ( char *fname, ssgEntity *ent ) ;
-int        ssgSaveOBJ  ( char *fname, ssgEntity *ent ) ;
+int        ssgSave     ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveAC   ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveASE  ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveSSG  ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveDXF  ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveTRI  ( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveOBJ  ( const char *fname, ssgEntity *ent ) ;
 
-ssgEntity *ssgLoad     ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadASE  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadTRI  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadOBJ  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoad     ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadVRML ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoad3ds  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadAC3D ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadSSG  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadASE  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadDXF  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadTRI  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadOBJ  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 /* For backwards compatibility */
 
-ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadAC   ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;
 
-void ssgModelPath   ( char *path ) ;
-void ssgTexturePath ( char *path ) ;
+void ssgModelPath   ( const char *path ) ;
+void ssgTexturePath ( const char *path ) ;
 
 ssgLight *ssgGetLight ( int i ) ;
 
