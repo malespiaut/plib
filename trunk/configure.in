@@ -36,12 +36,6 @@ AC_ARG_WITH(GL,
 [  --with-GL=DIR           set the prefix directory where GL resides],
 GL_PREFIX=$withval, GL_PREFIX=auto)
 
-
-AC_ARG_WITH(glut,
-[  --without-glut          build GLUT-free PUI library (highly experimental!)],,
-with_glut=yes)
-
-
 AC_ARG_ENABLE(fnt,
 [  --enable-fnt            build FNT library (OpenGL needed)       default: yes],,
 enable_fnt=yes)
@@ -59,7 +53,7 @@ AC_ARG_ENABLE(net,
 enable_net=yes)
 
 AC_ARG_ENABLE(pui,
-[  --enable-pui            build PUI library (OpenGL, GLUT needed) default: yes],,
+[  --enable-pui            build PUI library (OpenGL needed)       default: yes],,
 enable_pui=yes)
 
 AC_ARG_ENABLE(sg,
@@ -125,13 +119,6 @@ fi
 
 if test "x$enable_pui" = "xyes"; then
     need_opengl=yes
-
-    if test "x$with_glut" = "xno"; then
-        AC_DEFINE(PU_NOT_USING_GLUT,,
-        [If defined, PUI does not use GLUT (highly experimental)])
-    else
-        need_glut=yes
-    fi
 
     if test "x$enable_fnt" = "xno"; then
         AC_MSG_WARN([cannot build PUI library without FNT library enabled])
@@ -235,10 +222,6 @@ case "${host}" in
 
     if test "x$need_opengl" = "xyes"; then
         dnl OpenGL libraries
-
-        if test "x$need_glut" = "xyes"; then
-                LIBS="$LIBS -lglut32 -lglu32"
-        fi
         LIBS="$LIBS -lopengl32"
     fi
 	;;
@@ -247,10 +230,6 @@ case "${host}" in
 
     if test "x$need_opengl" = "xyes"; then
         dnl OpenGL libraries
-
-        if test "x$need_glut" = "xyes"; then
-                LIBS="$LIBS -framework GLUT -lobjc"
-        fi
         LIBS="$LIBS -framework OpenGL"
     fi
 
@@ -283,21 +262,6 @@ dnl =========================================================
                 AC_MSG_ERROR([could not find working GL library]))
         fi
 
-        if test "x$need_glut" = "xyes"; then
-                AC_CHECK_LIB(GLU, gluLookAt)
-                if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
-                        dnl if no GLU, check for MesaGLU
-                        AC_CHECK_LIB(MesaGLU, gluLookAt,,
-                        AC_MSG_ERROR([could not find working GLU library]))
-                fi
-
-                AC_CHECK_LIB(freeglut, glutGetModifiers)
-                if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xno" ; then
-                        dnl if no freeglut, check for real GLUT
-                        AC_CHECK_LIB(glut, glutGetModifiers,,
-                        AC_MSG_ERROR([could not find working GLUT library]))
-                fi
-        fi
     fi
 
     AC_CHECK_LIB(dl, dlclose)
@@ -323,38 +287,16 @@ if test "x$need_opengl" = "xyes"; then
 
         AC_CHECK_HEADER(GL/gl.h,,
         AC_MSG_ERROR([OpenGL header file not found]))
-
-        if test "x$need_glut" = "xyes"; then
-                AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
-                AC_MSG_ERROR([GLUT header file not found]))
-        fi
 		;;
     *-apple-darwin*)
         dnl Mac OS X
 
         AC_CHECK_HEADER(OpenGL/gl.h,,
         AC_MSG_ERROR([OpenGL header file not found]))
-
-        if test "x$need_glut" = "xyes"; then
-                AC_CHECK_HEADER(GLUT/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
-                AC_MSG_ERROR([GLUT header file not found]))
-        fi
 		;;
     *)
         AC_CHECK_HEADER(GL/gl.h,,
         AC_MSG_ERROR([OpenGL header file not found]))
-
-        if test "x$need_glut" = "xyes"; then
-                if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xyes"; then
-                        AC_CHECK_HEADER(GL/freeglut.h,
-                        AC_DEFINE(FREEGLUT_IS_PRESENT),
-                        AC_MSG_ERROR([freeglut header file not found]))
-                else
-                        AC_CHECK_HEADER(GL/glut.h,
-                        AC_DEFINE(GLUT_IS_PRESENT),
-                        AC_MSG_ERROR([GLUT header file not found]))
-                fi
-        fi
 		;;
     esac
 fi
@@ -428,20 +370,6 @@ AC_OUTPUT( \
 	src/pw/Makefile \
 	src/net/Makefile )
 
-if test "x$need_glut" = "xyes"; then
-    if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xyes"; then
-        glut_msg="yes (found freeglut)"
-    else
-        glut_msg="yes (found GLUT)"
-    fi
-else
-    if test "x$with_glut" = "xno"; then
-        glut_msg="no (experimental GLUT-free PUI, see README.GLUT)"
-    else
-        glut_msg="no"
-    fi
-fi
-
 AC_MSG_RESULT(
 [PLIB configuration information:
 
@@ -456,7 +384,5 @@ AC_MSG_RESULT(
   Building ssgAux library:  $enable_ssgaux
   Building PW library:      $enable_pw
   Building UTIL library:    $enable_ul
-
-  Need GLUT:                $glut_msg
 ])
 
