@@ -65,6 +65,25 @@ are normally '#define'd as 'float'. Common data types are:
          sgVec3 hpr ;
        } ;
 
+  sgLine3    -- An infinite line defined by a point
+                somewhere on the line and a normalized
+                direction vector.
+
+       struct sgLine3
+       {
+	 sgVec3 point_on_line ;
+	 sgVec3 direction_vector ;  /* Should be a unit vector */
+       } ;
+
+  sgLineSegment3 -- A finite line segment defined by it's
+                end-points.
+
+       struct sgLineSegment3
+       {
+	 sgVec3 a ;
+	 sgVec3 b ;
+       } ;
+
   sgQuat     -- An sgVec4 holding the values (x, y, z, w),
                 representing the quaternion w + xi + yj + zk.
 
@@ -106,10 +125,33 @@ There are generally two ways to specify a 3D line, either as
 two points that lie on the line - or as one point and a direction
 vector.
 <p>
-SG calls the first form a "line segment" (Lineseg) and the
-second form an "infinite line" (InfLine). Functions that
-take an infinite line as parameter accept the point first
-and the direction second.
+SG calls the first form a "line segment" (sgLineSegment3) and the
+second form an "infinite line" (sgLine3).
+<p>
+You can find the infinite line that is the extension of a line segment
+using:
+<pre>
+
+  void sgLineSegment3ToLine3 ( sgLine3 *line,
+                         const sgLineSegment3 lineseg ) ;
+
+</pre>
+You can also find the distance from a point to either a line
+or a line segment using:
+<pre>
+
+  SGfloat sgDistToLineVec3               ( const sgLine3 line,
+					   const sgVec3  pnt )
+  SGfloat sgDistToLineSegmentVec3        ( const sgLineSegment3 line,
+					   const sgVec3  pnt )
+  SGfloat sgDistSquaredToLineVec3        ( const sgLine3 line,
+					   const sgVec3  pnt ) ;
+  SGfloat sgDistSquaredToLineSegmentVec3 ( const sgLineSegment3 line,
+					   const sgVec3  pnt ) ;
+
+</pre>
+Try to use the 'Squared' versions if you can because you
+save a costly sqrt() function.
 <H3>sgMat4</H3>
 sgMat4 arrays are SM_float[4][4] arrays for convenience - but notice
 that the order of the elements is such that you can take the
@@ -118,13 +160,13 @@ SGD) and pass the result to any OpenGL matrix function. eg:
 <pre>
 
    sgMat4 m ;
-   sgSetIdentityMat4 ( m ) ;
+   sgMakeIdentMat4 ( m ) ;
    glLoadMatrixf ( (GMfloat *) m ) ;
 
 ...or...
 
    sgdMat4 m ;
-   sgdSetIdentityMat4 ( m ) ;
+   sgdMakeIdentMat4 ( m ) ;
    glLoadMatrixd ( (GMdouble *) m ) ;
 
 </pre>

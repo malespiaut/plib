@@ -179,7 +179,7 @@ static void displayfn (void)
 {
   /* Clear the screen */
 
-  glClearColor ( 0.4, 0.1, 0.1, 1.0 ) ;
+  glClearColor ( 0.1, 0.3, 0.5, 1.0 ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Draw the tumbling cube */
@@ -217,7 +217,7 @@ static void sliderdisplayfn (void)
 
   /* Clear the screen */
 
-  glClearColor ( 0.4, 0.1, 0.1, 1.0 ) ;
+  glClearColor ( 0.1, 0.3, 0.5, 1.0 ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Make PUI redraw the slider window */
@@ -242,7 +242,7 @@ static void savedisplayfn (void)
 
   /* Clear the screen */
 
-  glClearColor ( 0.0, 0.0, 1.0, 1.0 ) ;
+  glClearColor ( 0.1, 0.1, 5.0, 1.0 ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Make PUI redraw the save window */
@@ -267,7 +267,7 @@ static void coorddisplayfn (void)
 
   /* Clear the screen */
 
-  glClearColor ( 0.4, 0.1, 0.1, 1.0 ) ;
+  glClearColor ( 0.1, 0.3, 0.5, 1.0 ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   /* Make PUI redraw the slider window */
@@ -406,10 +406,10 @@ void exit_cb ( puObject * )
 
 /* Menu bar entries: */
 
-char      *file_submenu    [] = {  "Exit", "Close", "========", "Print - this is a long entry", "========", "Save", "New", NULL } ;
-puCallback file_submenu_cb [] = { exit_cb, exit_cb,       NULL, ni_cb  ,       NULL,  save_cb, ni_cb, NULL } ;
+char      *file_submenu    [] = {  "Exit", "Close", "------------", "Print - this is a long entry", "------------", "Save", "New", NULL } ;
+puCallback file_submenu_cb [] = { exit_cb, exit_cb, NULL, ni_cb, NULL, save_cb, ni_cb, NULL } ;
 
-char      *edit_submenu    [] = { "Do nothing.", NULL } ;
+char      *edit_submenu    [] = { "Do nothing", NULL } ;
 puCallback edit_submenu_cb [] = {     edit_cb, NULL } ;
 
 char      *help_submenu    [] = { "About...",  "Help", NULL } ;
@@ -453,11 +453,11 @@ int main ( int argc, char **argv )
   tim = new fntTexFont ;
   hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
   tim -> load ( "../fnt/data/times_medium.txf" ) ;
-  puFont helvetica ( hel, 12 ) ;
-  puFont times_medium ( tim, 15 ) ;
+  puFont helvetica ( hel, 15 ) ;
+  puFont times_medium ( tim, 13 ) ;
   puSetDefaultFonts        ( helvetica, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
-  puSetDefaultColourScheme ( 0.1, 0.8, 0.1, 1.0) ;
+  puSetDefaultColourScheme ( 0.3, 0.4, 0.6, 1.0) ;
 
   timer_text = new puText ( 300, 10 ) ;
   timer_text -> setColour ( PUCOL_LABEL, 1.0, 1.0, 1.0 ) ;
@@ -466,9 +466,9 @@ int main ( int argc, char **argv )
 
   hide_menu_button = new puButton     ( 10, 10, 150, 50 ) ;
   hide_menu_button->setValue          (    TRUE      ) ;
-  hide_menu_button->setLegend         ( "Hide\nthe Menu"  ) ;
+  hide_menu_button->setLegend         ( "Hide the Menu"  ) ;
   hide_menu_button->setCallback       ( hide_menu_cb ) ;
-  hide_menu_button->setLegendPlace    ( PUPLACE_RIGHT ) ;
+  // hide_menu_button->setLegendPlace    ( PUPLACE_CENTER ) ;
   hide_menu_button->makeReturnDefault (    TRUE      ) ;
 
   /* Make the menu bar */
