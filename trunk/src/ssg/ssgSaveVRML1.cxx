@@ -308,7 +308,8 @@ int ssgSaveVRML1( const char* fname, ssgEntity *ent ) {
 
 	  if ( (index1 < 0)||(index2 < 0)||(index3 < 0) )
 	  {
-            printf("Save error: index overflow, value won't fit in 16bits.\n");
+            ulSetError(UL_WARNING, "ssgSaveVRML1: Save error: index overflow, "
+                       "value won't fit in 16bits.");
 	  }
 	  else
 	  {
@@ -418,8 +419,8 @@ int ssgSaveVRML1( const char* fname, ssgEntity *ent ) {
 
                 if ( (index1 < 0)||(index2 < 0)||(index3 < 0) )
                 {
-                  printf("Save error: index overflow, value "
-                         "won't fit in 16bits.\n");
+                  ulSetError(UL_WARNING, "ssgSaveVRML1: Save error: index "
+                             "overflow, value won't fit in 16bits.");
                 }
                 else
                 {
