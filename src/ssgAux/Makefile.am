@@ -8,6 +8,8 @@ include_HEADERS = ssgAux.h             \
                   ssgaParticleSystem.h \
                   ssgaWaveSystem.h     \
                   ssgaScreenDump.h     \
+                  ssgaSky.h            \
+                  ssgaSphere.h         \
                   ssgaFire.h
 
 libplibssgaux_a_SOURCES = ssgAux.cxx               \
@@ -19,6 +21,12 @@ libplibssgaux_a_SOURCES = ssgAux.cxx               \
                           ssgaLensFlareTexture.cxx \
                           ssgaFire.cxx             \
                           ssgaScreenDump.cxx       \
+                          ssgaSphere.cxx           \
+                          ssgaCelestialBody.cxx    \
+                          ssgaCloudLayer.cxx       \
+                          ssgaStars.cxx            \
+                          ssgaSkyDome.cxx          \
+                          ssgaSky.cxx              \
                           ssgaTeapot.cxx
 
 INCLUDES = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/ssg
