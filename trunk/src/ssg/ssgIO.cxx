@@ -3,7 +3,13 @@
 
 static int  read_error = FALSE ;
 static int write_error = FALSE ;
-static char _ssgAPOM[1024]=""; // APOM = actual path of model (!=ModelPath)
+
+static char _ssgAPOM[16*1024]=""; // APOM = actual path of model (!=ModelPath)
+static char _ssgANOM[256]=""; // actual name of model
+
+char * ssgGetANOM()
+{ return _ssgANOM;
+}
 
 char * ssgGetAPOM()
 { return _ssgAPOM;
@@ -470,20 +476,106 @@ static _ssgFileFormat formats[] =
   { NULL  , NULL       , NULL       }
 } ;
 
+
+	// Changes 14.Feb.2001, Wolfram Kuss:
+	// I need this functionality *now* so that I can at last publish my homepage.
+	// This code *may* not be very elegant, but should be 
+	// portable and works.
+	// For more, see mailing list.
+	// I/we will decide on a final solution shortly.
+
+#if defined(WIN32) && !defined(__CYGWIN__)
+  #include "Shlwapi.h"
+	#include "assert.h"
+  #define appendPath(a, b) assert( PathAppend(a, b));
+#else
+//wk stop1
+
+void appendPath(char *a, char *b)
+// appends b to a
+{
+  if ( b[0] == '/' )
+    strcpy ( a, b ) ;  /* b is an absolute path - replace a by b */
+	else
+		if ( a[0] == 0 )
+			strcpy ( a, b ) ;
+		else 
+			// therefore strlen(a)>0
+			if ( a[ strlen(a)-1 ] == '/' )
+			{ if ( b[0] == '/' )
+					strcat ( a, &(b[1]) );
+				else
+					strcat ( a, b );
+			}
+			else
+			{ if ( b[0] == '/' )
+					strcat ( a, b );
+				else
+				{ strcat ( a, "/" );
+					strcat ( a, b );
+				}
+			}
+}
+
+#endif
   
+
 ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
 {
   if ( fname == NULL || *fname == '\0' )
     return NULL ;
 
 
-	// save path in _ssgAPOM (actual path of model)
+	// save path in _ssgAPOM (actual path of model):
+#ifdef EXPERIMENTAL_WINDOWS_APOM
+	// 14.Feb.2001:
+	// This is experimental code by Wolfram Kuss. It runs only on Windows.
+	// It will be removed in favour of a final version shortly.
+
+	// start alt + neu1
 	strncpy( _ssgAPOM, fname, 1024);
 	char *s_ptr;
 	s_ptr = &(_ssgAPOM[strlen(_ssgAPOM)-1]);
 	while ((s_ptr > _ssgAPOM) && (*s_ptr != '/') && (*s_ptr != '\\')) 
 		s_ptr--;
-	if ( s_ptr > _ssgAPOM ) *s_ptr = 0;
+	if ( s_ptr >= _ssgAPOM ) *s_ptr = 0;
+	// stop alt + neu1
+  // wk start neu1
+	char buffer[1024];
+  if ( NULL != _fullpath( buffer, _ssgAPOM, 1024 ))
+		strncpy( _ssgAPOM, buffer, 1024);
+	// stop neu1
+
+#else
+
+	// Changes 14.Feb.2001, Wolfram Kuss:
+	// This code accumulates all the relative pathes that make up
+	// _ssgAPOM. This code may not be very elegant, but should be 
+	// portable and avoid the problems with ssgGetAPOM.
+	// For more, see mailing list.
+	// I/we will decide on a final solution shortly.
+
+	char buffer[16*1024];
+	strncpy( buffer, fname, 16*1024);
+	char *s_ptr;
+	s_ptr = &(buffer[strlen(buffer)-1]);
+	while ((s_ptr > buffer) && (*s_ptr != '/') && (*s_ptr != '\\')) 
+		s_ptr--;
+// wk: Hint for wk :-): missing in Windows code:
+
+	if ((*s_ptr != '/') && (*s_ptr != '\\'))
+	  strcpy(_ssgANOM, s_ptr);
+	else
+		strcpy(_ssgANOM, &(s_ptr[1]));
+	if ( strchr(_ssgANOM, '.') != NULL )
+		strchr(_ssgANOM, '.')[0] = 0;
+//
+	if ( s_ptr >= buffer ) *s_ptr = 0;
+	appendPath(_ssgAPOM, buffer);
+#endif
+
+	// end of 14.Feb.2001 changes
+	
 
 
   // find appropiate loader and call its loadfunc
