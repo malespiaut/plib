@@ -602,14 +602,10 @@ void puLargeInput::draw ( int dx, int dy )
 
             while ( ( beg_pos < 0 ) && ( val < end_of_line ) )   // Step down line
             {                                                    // until it is in the window
-#ifdef PU_NOT_USING_GLUT
-              beg_pos += fontSize [ *val ] ;
-#else
               char chr = *(val+1) ;
               *(val+1) = '\0' ;
               beg_pos += legendFont.getStringWidth ( val ) ;
               *(val+1) = chr ;
-#endif
               val++ ;
             }
 

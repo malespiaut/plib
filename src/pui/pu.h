@@ -33,9 +33,8 @@
 
 #ifndef PU_NOT_USING_GLUT
 #define _PU_USE_GLUT   1
-#endif
-
 #define _PU_USE_GLUT_FONTS   1
+#endif
 
 /*
   Include GLUT
@@ -72,16 +71,6 @@
 
 #ifdef PU_NOT_USING_GLUT
 
-typedef void *puFont ;
-
-#define PUFONT_8_BY_13        ((void*)3)
-#define PUFONT_9_BY_15        ((void*)2)
-#define PUFONT_TIMES_ROMAN_10 ((void*)4)
-#define PUFONT_TIMES_ROMAN_24 ((void*)5)
-#define PUFONT_HELVETICA_10   ((void*)6)
-#define PUFONT_HELVETICA_12   ((void*)7)
-#define PUFONT_HELVETICA_18   ((void*)8)
-
 #define PU_LEFT_BUTTON          0
 #define PU_MIDDLE_BUTTON        1
 #define PU_RIGHT_BUTTON         2
@@ -89,6 +78,14 @@ typedef void *puFont ;
 #define PU_UP                   1
 
 #else
+
+#define PU_LEFT_BUTTON      GLUT_LEFT_BUTTON
+#define PU_MIDDLE_BUTTON    GLUT_MIDDLE_BUTTON
+#define PU_RIGHT_BUTTON     GLUT_RIGHT_BUTTON
+#define PU_DOWN             GLUT_DOWN
+#define PU_UP               GLUT_UP
+
+#endif
 
 #ifdef _PU_USE_GLUT_FONTS
 typedef void *GlutFont ;
@@ -121,6 +118,11 @@ public:
 
   puFont ( fntTexFont *tfh, float ps, float sl = 0 )
   {
+    initialize ( tfh, ps, sl ) ;
+  }
+
+  void initialize ( fntTexFont *tfh, float ps, float sl = 0 )
+  {
 #ifdef _PU_USE_GLUT_FONTS
     glut_font_handle = (GlutFont) 0 ;
 #endif
@@ -145,14 +147,6 @@ extern puFont PUFONT_TIMES_ROMAN_24 ;
 extern puFont PUFONT_HELVETICA_10   ;
 extern puFont PUFONT_HELVETICA_12   ;
 extern puFont PUFONT_HELVETICA_18   ;
-
-#define PU_LEFT_BUTTON      GLUT_LEFT_BUTTON
-#define PU_MIDDLE_BUTTON    GLUT_MIDDLE_BUTTON
-#define PU_RIGHT_BUTTON     GLUT_RIGHT_BUTTON
-#define PU_DOWN             GLUT_DOWN
-#define PU_UP               GLUT_UP
-
-#endif
 
 #define PU_UP_AND_DOWN   254
 #define PU_DRAG          255
@@ -295,6 +289,7 @@ void puSetWindowSize ( int width, int height ) ;
 void puSetResizeMode ( int mode ) ;
 
 int  puGetWindow       () ;
+void puSetWindow       ( int w ) ;
 int  puGetWindowHeight () ;
 int  puGetWindowWidth  () ;
 
