@@ -970,6 +970,8 @@ public:
   virtual float *getTexCoord ( int i ) = 0 ;
   virtual int  getNumTriangles () = 0 ;
   virtual void getTriangle ( int n, short *v1, short *v2, short *v3 ) = 0 ;
+  virtual int  getNumLines () = 0 ;
+  virtual void getLine ( int n, short *v1, short *v2 ) = 0 ;
 
   virtual void transform ( const sgMat4 m ) = 0 ;
 
@@ -1043,6 +1045,8 @@ public:
   int getNumTexCoords () { return num_texcoords ; }
   int getNumTriangles () ;
   void getTriangle ( int n, short *v1, short *v2, short *v3 ) ;
+  int  getNumLines () ;
+  void getLine ( int n, short *v1, short *v2 ) ;
 
   void getColourList ( void **list, unsigned short **idx )
   {
@@ -1142,8 +1146,10 @@ public:
   int getNumColours   () { return colours   -> getNum () ; }
   int getNumTexCoords () { return texcoords -> getNum () ; }
 
-  virtual int getNumTriangles () ;
+  int getNumTriangles () ;
   void getTriangle ( int n, short *v1, short *v2, short *v3 ) ;
+  int  getNumLines () ;
+  void getLine ( int n, short *v1, short *v2 ) ;
 
   void getVertexList   ( void **list ) { *list = vertices  -> get ( 0 ) ; }
   void getNormalList   ( void **list ) { *list = normals   -> get ( 0 ) ; } 
@@ -1208,8 +1214,10 @@ public:
   int getNumIndices () { return indices -> getNum () ; }
 
   int getNumTriangles () ;
-
   void getTriangle ( int n, short *v1, short *v2, short *v3 ) ;
+
+  int  getNumLines () ;
+  void getLine ( int n, short *v1, short *v2 ) ;
 
   void getIndexList ( void **list ) { *list = indices  -> get ( 0 ) ; }
 

@@ -228,9 +228,72 @@ int ssgVtxArray::getNumTriangles ()
     default : break ;
   }
 
-  return 0 ;   /* Should never get here...but you never know! */
+  return 0 ;   
 }
 
+int  ssgVtxArray::getNumLines ()
+{
+  switch ( getGLtype () )
+  {
+    case GL_POLYGON :
+    case GL_TRIANGLE_FAN :
+    case GL_TRIANGLES :
+    case GL_TRIANGLE_STRIP :
+    case GL_QUADS :
+    case GL_QUAD_STRIP :
+    case GL_POINTS :
+      return 0;
+		case GL_LINES :   
+			// wk: FIXME: check the 3 following formulas. I don't have an OpenGL bokk at hand currently :-(
+			return getNumIndices ()/2;
+    case GL_LINE_LOOP :
+    	return getNumIndices ();
+    case GL_LINE_STRIP :
+    	return getNumIndices ()-1;
+    default : break ;
+  }
+  assert(false); /* Should never get here  */
+  return 0 ;   
+}
+
+void ssgVtxArray::getLine ( int n, short *v1, short *v2 )
+{ 
+	assert( n>=0 );
+  switch ( getGLtype () )
+  {
+    case GL_POLYGON :
+    case GL_TRIANGLE_FAN :
+    case GL_TRIANGLES :
+    case GL_TRIANGLE_STRIP :
+    case GL_QUADS :
+    case GL_QUAD_STRIP :
+    case GL_POINTS :
+      assert(false);
+		case GL_LINES :   
+			// wk: FIXME: check the 3 following formulas. I don't have an OpenGL bokk at hand currently :-(
+			assert ( 2*n+1 < getNumIndices() );
+			*v1 = *getIndex( 2*n );
+			*v2 = *getIndex( 2*n+1 );
+			return ;
+    case GL_LINE_LOOP :
+			assert ( n < getNumIndices() );
+			*v1 = *getIndex( n );
+			if ( n == getNumIndices()-1 )
+			  *v2 = *getIndex( 0 );
+			else
+				*v2 = *getIndex( n+1 );
+			return ;
+    case GL_LINE_STRIP :
+    	assert ( n < getNumIndices()-1 );
+			*v1 = *getIndex( n );
+			*v2 = *getIndex( n+1 );
+			return;
+    default :
+			break ;
+  }
+  assert(false); /* Should never get here  */
+  return ;   
+}
 
 
 void ssgVtxArray::print ( FILE *fd, char *indent, int how_much )
