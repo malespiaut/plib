@@ -22,7 +22,8 @@
 
 #include "js.h"
 
-void jsInit () {}
+
+/// void jsInit () {}
 
 float jsJoystick::fudge_axis ( float value, int axis ) const
 {

@@ -24,7 +24,11 @@
 
 #if defined(UL_IRIX) || defined(UL_SOLARIS) || defined(UL_HPUX)
 
-/* check the joystick driver version */
+/*
+struct os_specific_s {
+}
+*/
+
 
 void jsJoystick::open ()
 {
@@ -33,10 +37,9 @@ void jsJoystick::open ()
 }
 
 
-
 void jsJoystick::close ()
 {
-  error = TRUE ;
+  // if (os) delete os;
 }
 
 
@@ -44,6 +47,7 @@ jsJoystick::jsJoystick ( int ident )
 {
   error = TRUE ;
   num_axes = num_buttons = 0 ;
+  os = NULL;
 }
 
 

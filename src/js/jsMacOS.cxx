@@ -25,8 +25,16 @@
 
 #ifdef UL_MACINTOSH
 
-#define _JS_MAX_AXES 9
+#include <InputSprocket.h>
 
+//#define _JS_MAX_AXES_MAC 9  // not used
+#define  isp_num_axis   9
+#define  isp_num_needs  41
+
+struct os_specific_s {
+  ISpElementReference isp_elem  [ isp_num_needs ] ;
+  ISpNeed             isp_needs [ isp_num_needs ] ;
+};
 
 void jsJoystick::open ()
 {
@@ -93,7 +101,7 @@ void jsJoystick::open ()
       { "\pButton 31", 128, 0, 0, kISpElementKind_Button, kISpElementLabel_Btn_Select, 0, 0, 0, 0 },
     } ;
 
-    memcpy ( isp_needs, temp_isp_needs, sizeof(temp_isp_needs) ) ;
+    memcpy ( os->isp_needs, temp_isp_needs, sizeof(temp_isp_needs) ) ;
 
 
     // next two calls allow keyboard and mouse to emulate other input
@@ -108,10 +116,10 @@ void jsJoystick::open ()
       ISP_CHECK_ERR(err)
     */
 
-    err = ISpElement_NewVirtualFromNeeds ( isp_num_needs, isp_needs, isp_elem, 0 ) ;
+    err = ISpElement_NewVirtualFromNeeds ( isp_num_needs, os->isp_needs, os->isp_elem, 0 ) ;
     ISP_CHECK_ERR(err)
 
-    err = ISpInit ( isp_num_needs, isp_needs, isp_elem, 'PLIB', nil, 0, 128, 0 ) ;
+    err = ISpInit ( isp_num_needs, os->isp_needs, os->isp_elem, 'PLIB', nil, 0, 128, 0 ) ;
     ISP_CHECK_ERR(err)
 
     num_buttons = isp_num_needs - isp_num_axis ;
@@ -141,13 +149,15 @@ void jsJoystick::close ()
   ISpSuspend  () ;
   ISpStop     () ;
   ISpShutdown () ;
+  delete os;
 }
 
 
 jsJoystick::jsJoystick ( int ident )
 {
   id = ident ;
-  sprintf ( fname, "/dev/js%d", ident ) ; /* FIXME */
+  os = new struct os_specific_s;
+  // sprintf ( fname, "/dev/js%d", ident ) ; /* FIXME */
   open () ;
 }
 
@@ -176,7 +186,7 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
 
     for ( i = 0 ; i < num_buttons ; i++ )
     {
-      err = ISpElement_GetSimpleState ( isp_elem [ i + isp_num_axis ], &state) ;
+      err = ISpElement_GetSimpleState ( os->isp_elem [ i + isp_num_axis ], &state) ;
       ISP_CHECK_ERR(err)
 
        *buttons |= state << i ;
@@ -187,7 +197,7 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
   {
      for ( i = 0 ; i < num_axes ; i++ )
      {
-       err = ISpElement_GetSimpleState ( isp_elem [ i ], &state ) ;
+       err = ISpElement_GetSimpleState ( os->isp_elem [ i ], &state ) ;
        ISP_CHECK_ERR(err)
 
        axes [i] = (float) state ;
@@ -195,4 +205,7 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
   }
 }
 
+void jsInit() {}
+
 #endif
+

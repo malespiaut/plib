@@ -29,6 +29,12 @@
 #include <sys/ioctl.h>
 #include <linux/joystick.h>
 
+struct os_specific_s {
+  JS_DATA_TYPE js ;
+  char         fname [ 128 ] ;
+  int          fd ;
+};
+
 void jsJoystick::open ()
 {
   name [0] = '\0' ;
@@ -36,9 +42,9 @@ void jsJoystick::open ()
   num_axes    =  2 ;   /* Default for older Linux systems. */
   num_buttons = 32 ;
 
-  fd = ::open ( fname, O_RDONLY ) ;
+  os->fd = ::open ( os->fname, O_RDONLY ) ;
 
-  error = ( fd < 0 ) ;
+  error = ( os->fd < 0 ) ;
 
   if ( error )
     return ;
@@ -79,18 +85,20 @@ void jsJoystick::open ()
 void jsJoystick::close ()
 {
   if ( ! error )
-    ::close ( fd ) ;
+    ::close ( os->fd ) ;
+  delete os;
 }
 
 
 jsJoystick::jsJoystick ( int ident )
 {
   id = ident ;
+  os = new struct os_specific_s;
+  
+  sprintf ( os->fname, "/dev/input/js%d", ident ) ;
 
-  sprintf ( fname, "/dev/input/js%d", ident ) ;
-
-  if ( access ( fname, F_OK ) != 0 )
-    sprintf ( fname, "/dev/js%d", ident ) ;
+  if ( access ( os->fname, F_OK ) != 0 )
+    sprintf ( os->fname, "/dev/js%d", ident ) ;
 
   open () ;
 }
@@ -110,24 +118,25 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
     return ;
   }
 
-  int status = ::read ( fd, &js, JS_RETURN ) ;
+  int status = ::read ( os->fd, &(os->js), JS_RETURN ) ;
 
   if ( status != JS_RETURN )
   {
-    perror ( fname ) ;
+    perror ( os->fname ) ;
     setError () ;
     return ;
   }
 
   if ( buttons != NULL )
-    *buttons = js.buttons ;
+    *buttons = os->js.buttons ;
 
   if ( axes != NULL )
   {
-    axes[0] = (float) js.x ;
-    axes[1] = (float) js.y ;
+    axes[0] = (float) os->js.x ;
+    axes[1] = (float) os->js.y ;
   }
 }
 
-#endif
+void jsInit() {}
 
+#endif

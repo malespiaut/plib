@@ -27,17 +27,23 @@
 
 // Since we use  joyGetPosEx to request the joystick values, 
 // we have never more than 8 axes to worry about:
-#undef _JS_MAX_AXES
-#define _JS_MAX_AXES 8  /* X,Y,Z,R,U,V,POV_X,POV_Y */
+#define _JS_MAX_AXES_WIN 8  /* X,Y,Z,R,U,V,POV_X,POV_Y */
+
+struct os_specific_s {
+  JOYCAPS      jsCaps ;
+  JOYINFOEX    js     ;
+  UINT         js_id  ;
+  static bool getOEMProductName ( jsJoystick* joy, char *buf, int buf_sz ) ;
+};
+
 
 
 // Inspired by
 // http://msdn.microsoft.com/archive/en-us/dnargame/html/msdn_sidewind3d.asp
 
-bool jsJoystick::getOEMProductName ( char *buf, int buf_sz )
+static bool getOEMProductName ( jsJoystick* joy, char *buf, int buf_sz )
 {
-  if ( error )
-    return false ;
+  if ( joy->error )  return false ;
 
   union
   {
@@ -52,7 +58,7 @@ bool jsJoystick::getOEMProductName ( char *buf, int buf_sz )
 
   // Open .. MediaResources\CurrentJoystickSettings
   sprintf ( key, "%s\\%s\\%s",
-            REGSTR_PATH_JOYCONFIG, jsCaps.szRegKey,
+            REGSTR_PATH_JOYCONFIG, joy->os->jsCaps.szRegKey,
             REGSTR_KEY_JOYCURR ) ;
 
   lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_QUERY_VALUE, &hKey) ;
@@ -63,7 +69,7 @@ bool jsJoystick::getOEMProductName ( char *buf, int buf_sz )
   dwcb = sizeof(OEMKey) ;
 
   // JOYSTICKID1-16 is zero-based; registry entries for VJOYD are 1-based.
-  sprintf ( value, "Joystick%d%s", js_id + 1, REGSTR_VAL_JOYOEMNAME ) ;
+  sprintf ( value, "Joystick%d%s", joy->os->js_id + 1, REGSTR_VAL_JOYOEMNAME ) ;
 
   lr = RegQueryValueEx ( hKey, value, 0, 0, (LPBYTE) OEMKey, &dwcb);
   RegCloseKey ( hKey ) ;
@@ -94,14 +100,14 @@ void jsJoystick::open ()
 {
   name [0] = '\0' ;
 
-  js . dwFlags = JOY_RETURNALL ;
-  js . dwSize  = sizeof ( js ) ;
+  os->js . dwFlags = JOY_RETURNALL ;
+  os->js . dwSize  = sizeof ( os->js ) ;
 
-  memset ( &jsCaps, 0, sizeof(jsCaps) ) ;
+  memset ( &(os->jsCaps), 0, sizeof(os->jsCaps) ) ;
 
-  error = ( joyGetDevCaps( js_id, &jsCaps, sizeof(jsCaps) )
+  error = ( joyGetDevCaps( os->js_id, &(os->jsCaps), sizeof(os->jsCaps) )
                  != JOYERR_NOERROR ) ;
-  if ( jsCaps.wNumAxes == 0 )
+  if ( os->jsCaps.wNumAxes == 0 )
   {
     num_axes = 0 ;
     setError () ;
@@ -110,31 +116,31 @@ void jsJoystick::open ()
   {
     // Device name from jsCaps is often "Microsoft PC-joystick driver",
     // at least for USB.  Try to get the real name from the registry.
-    if ( ! getOEMProductName ( name, sizeof(name) ) )
+    if ( ! getOEMProductName ( this, name, sizeof(name) ) )
     {
       ulSetError ( UL_WARNING,
                    "JS: Failed to read joystick name from registry" ) ;
 
-      strncpy ( name, jsCaps.szPname, sizeof(name) ) ;
+      strncpy ( name, os->jsCaps.szPname, sizeof(name) ) ;
     }
 
     // Windows joystick drivers may provide any combination of
     // X,Y,Z,R,U,V,POV - not necessarily the first n of these.
-    if ( jsCaps.wCaps & JOYCAPS_HASPOV )
+    if ( os->jsCaps.wCaps & JOYCAPS_HASPOV )
     {
-      num_axes = _JS_MAX_AXES ;
+      num_axes = _JS_MAX_AXES_WIN ;
       min [ 7 ] = -1.0 ; max [ 7 ] = 1.0 ;  // POV Y
       min [ 6 ] = -1.0 ; max [ 6 ] = 1.0 ;  // POV X
     }
     else
       num_axes = 6 ;
 
-    min [ 5 ] = (float) jsCaps.wVmin ; max [ 5 ] = (float) jsCaps.wVmax ;
-    min [ 4 ] = (float) jsCaps.wUmin ; max [ 4 ] = (float) jsCaps.wUmax ;
-    min [ 3 ] = (float) jsCaps.wRmin ; max [ 3 ] = (float) jsCaps.wRmax ;
-    min [ 2 ] = (float) jsCaps.wZmin ; max [ 2 ] = (float) jsCaps.wZmax ;
-    min [ 1 ] = (float) jsCaps.wYmin ; max [ 1 ] = (float) jsCaps.wYmax ;
-    min [ 0 ] = (float) jsCaps.wXmin ; max [ 0 ] = (float) jsCaps.wXmax ;
+    min [ 5 ] = (float) os->jsCaps.wVmin ; max [ 5 ] = (float) os->jsCaps.wVmax ;
+    min [ 4 ] = (float) os->jsCaps.wUmin ; max [ 4 ] = (float) os->jsCaps.wUmax ;
+    min [ 3 ] = (float) os->jsCaps.wRmin ; max [ 3 ] = (float) os->jsCaps.wRmax ;
+    min [ 2 ] = (float) os->jsCaps.wZmin ; max [ 2 ] = (float) os->jsCaps.wZmax ;
+    min [ 1 ] = (float) os->jsCaps.wYmin ; max [ 1 ] = (float) os->jsCaps.wYmax ;
+    min [ 0 ] = (float) os->jsCaps.wXmin ; max [ 0 ] = (float) os->jsCaps.wXmax ;
   }
 
   for ( int i = 0 ; i < num_axes ; i++ )
@@ -148,6 +154,7 @@ void jsJoystick::open ()
 
 void jsJoystick::close ()
 {
+	delete os;
 }
 
 
@@ -155,11 +162,12 @@ void jsJoystick::close ()
 jsJoystick::jsJoystick ( int ident )
 {
   id = ident ;
+  os = new struct os_specific_s;
 
   switch ( ident )
   {
-    case 0  : js_id = JOYSTICKID1 ; open () ; break ;
-    case 1  : js_id = JOYSTICKID2 ; open () ; break;
+    case 0  : os->js_id = JOYSTICKID1 ; open () ; break ;
+    case 1  : os->js_id = JOYSTICKID2 ; open () ; break;
     default :    num_axes = 0 ; setError () ; break ;
   }
 }
@@ -180,7 +188,7 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
     return ;
   }
 
-  MMRESULT status = joyGetPosEx ( js_id, &js ) ;
+  MMRESULT status = joyGetPosEx ( os->js_id, &(os->js) ) ;
 
   if ( status != JOYERR_NOERROR )
   {
@@ -189,7 +197,7 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
   }
 
   if ( buttons != NULL )
-    *buttons = (int) js.dwButtons ;
+    *buttons = (int) os->js.dwButtons ;
 
   if ( axes != NULL )
   {
@@ -202,7 +210,7 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
         // Low 16 bits of js.dwPOV gives heading (clockwise from ahead) in
         //   hundredths of a degree, or 0xFFFF when idle.
 
-        if ( ( js.dwPOV & 0xFFFF ) == 0xFFFF )
+        if ( ( os->js.dwPOV & 0xFFFF ) == 0xFFFF )
         {
           axes [ 6 ] = 0.0 ;
           axes [ 7 ] = 0.0 ;
@@ -215,8 +223,8 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
           // But the accuracy of the value of PI is very unimportant at
           // this point.
 
-          float s = (float) sin ( ( js.dwPOV & 0xFFFF ) * ( 0.01 * 3.1415926535f / 180 ) ) ;
-          float c = (float) cos ( ( js.dwPOV & 0xFFFF ) * ( 0.01 * 3.1415926535f / 180 ) ) ;
+          float s = (float) sin ( ( os->js.dwPOV & 0xFFFF ) * ( 0.01 * 3.1415926535f / 180 ) ) ;
+          float c = (float) cos ( ( os->js.dwPOV & 0xFFFF ) * ( 0.01 * 3.1415926535f / 180 ) ) ;
 
           // Convert to coordinates on a square so that North-East
           // is (1,1) not (.7,.7), etc.
@@ -233,12 +241,12 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
           }
         }
 
-      case 6: axes[5] = (float) js . dwVpos ;
-      case 5: axes[4] = (float) js . dwUpos ;
-      case 4: axes[3] = (float) js . dwRpos ;
-      case 3: axes[2] = (float) js . dwZpos ;
-      case 2: axes[1] = (float) js . dwYpos ;
-      case 1: axes[0] = (float) js . dwXpos ;
+      case 6: axes[5] = (float) os->js . dwVpos ;
+      case 5: axes[4] = (float) os->js . dwUpos ;
+      case 4: axes[3] = (float) os->js . dwRpos ;
+      case 3: axes[2] = (float) os->js . dwZpos ;
+      case 2: axes[1] = (float) os->js . dwYpos ;
+      case 1: axes[0] = (float) os->js . dwXpos ;
               break;
 
       default:
@@ -246,6 +254,8 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
     }
   }
 }
+
+void jsInit() {}
 
 #endif
 

@@ -35,6 +35,7 @@
  * an API extension, and to be useful for my devious purposes, FlightGear
  * would need to understand that.
  */
+
 #include "js.h"
 
 #if defined(UL_BSD)
@@ -494,5 +495,7 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
     memcpy ( axes, os->cache_axes, sizeof(float) * num_axes ) ;
 #endif
 }
+
+void jsInit () {}
 
 #endif
