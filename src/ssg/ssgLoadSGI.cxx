@@ -191,12 +191,13 @@ void ssgSGIHeader::getRow ( unsigned char *buf, int y, int z )
   {
     unsigned char *tmpp = rle_temp ;
     unsigned char *bufp = buf ;
+    int length = leng [ z * ysize + y ];
 
-    fread ( rle_temp, 1, leng [ z * ysize + y ], image_fd ) ;
+    fread ( rle_temp, 1, length, image_fd ) ;
 
     unsigned char pixel, count ;
 
-    while ( TRUE )
+    while ( tmpp < rle_temp + length )
     {
       pixel = *tmpp++ ;
 
