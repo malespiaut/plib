@@ -1221,12 +1221,6 @@ protected:
 
 public:
   void draw     ( int dx, int dy ) ;
-  int checkHit ( int button, int updown, int x, int y )
-  {
-    if ( input_disabled ) return FALSE ;
-    return puObject::checkHit ( button, updown, x, y ) ;
-  }
-
   void doHit    ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key, int updown ) ;
 

@@ -279,7 +279,7 @@ int puInput::checkKey ( int key, int /* updown */ )
   extern void puSetPasteBuffer ( char *ch ) ;
   extern char *puGetPasteBuffer () ;
 
-  if ( input_disabled || ! isAcceptingInput() || ! isActive () || ! isVisible () || ( window != puGetWindow () ) )
+  if ( ! isAcceptingInput() || ! isActive () || ! isVisible () || ( window != puGetWindow () ) )
     return FALSE ;
 
   if ( puActiveWidget() && ( this != puActiveWidget() ) )
@@ -312,84 +312,91 @@ int puInput::checkKey ( int key, int /* updown */ )
       puDeactivateWidget () ;
       break ;
 
-    case '\b' : /* Backspace */
-      if ( select_start_position != select_end_position )
-        removeSelectRegion () ;
-      else if ( cursor_position > 0 ) 
-        for ( p = & (getStringValue() [ --cursor_position ]) ; *p != '\0' ; p++ )
-          *p = *(p+1) ;
-      break ;
-
-    case 0x7F : /* DEL */
-      if ( select_start_position != select_end_position )
-        removeSelectRegion () ;
-      else if ( cursor_position != (int)strlen ( getStringValue() ) )
-        for ( p = & (getStringValue() [ cursor_position ]) ; *p != '\0' ; p++ )
-          *p = *(p+1) ;
-      break ;
-
-    case 0x15 /* ^U */ : (getStringValue() [ 0 ]) = '\0' ; break ;
-    case 0x03 /* ^C */ :
-    case 0x18 /* ^X */ :  /* Cut or copy selected text */
-      if ( select_start_position != select_end_position )
-      {
-        p = getStringValue () ;
-        char ch = p[select_end_position] ;
-        p[select_end_position] = '\0' ;
-        puSetPasteBuffer ( p + select_start_position ) ;
-        p[select_end_position] = ch ;
-
-        if ( key == 0x18 )  /* Cut, remove text from string */
-          removeSelectRegion () ;
-      }
-
-      break ;
-
-    case 0x16 /* ^V */ : /* Paste buffer into text */
-      if ( ( strlen ( getStringValue () ) + strlen ( puGetPasteBuffer () ) ) < PUSTRING_MAX - 1 )
-      {
-        if ( select_start_position != select_end_position )
-          removeSelectRegion () ;
-
-        p = new char [ PUSTRING_MAX ] ;
-        strcpy ( p, getStringValue() + cursor_position ) ;
-        *(getStringValue() + cursor_position) = '\0' ;
-        strcat ( getStringValue(), puGetPasteBuffer () ) ;
-        strcat ( getStringValue(), p ) ;
-        cursor_position += strlen ( puGetPasteBuffer () ) ;
-        delete p ;
-      }
-
-      break ;
-
     case PU_KEY_HOME   : cursor_position = 0 ; break ;
     case PU_KEY_END    : cursor_position = PUSTRING_MAX ; break ;
     case PU_KEY_LEFT   : cursor_position-- ; break ;
     case PU_KEY_RIGHT  : cursor_position++ ; break ;
-
-    default:
-      if ( key < ' ' || key > 127 ) return FALSE ;
-      if ( valid_data )
-      {
-        if ( !strchr ( valid_data, key ) ) return TRUE ;
-      }
-
-      if ( select_start_position != select_end_position ) // remove selected text
-        removeSelectRegion () ;
-
-      if ( strlen ( getStringValue() ) >= PUSTRING_MAX - 1 )
-        return FALSE ;
-
-      for ( p = & (getStringValue() [ strlen(getStringValue()) ]) ;
-               p != &(getStringValue()[cursor_position-1]) ; p-- )
-        *(p+1) = *p ;
-
-      *(p+1) = key ;
-      cursor_position++ ;
-      break ;
   }
 
-  setValue ( getStringValue() ) ;
+  if ( ! input_disabled )
+  {
+    switch ( key )
+    {
+      case '\b' : /* Backspace */
+        if ( select_start_position != select_end_position )
+          removeSelectRegion () ;
+        else if ( cursor_position > 0 ) 
+          for ( p = & (getStringValue() [ --cursor_position ]) ; *p != '\0' ; p++ )
+            *p = *(p+1) ;
+        break ;
+
+      case 0x7F : /* DEL */
+        if ( select_start_position != select_end_position )
+          removeSelectRegion () ;
+        else if ( cursor_position != (int)strlen ( getStringValue() ) )
+          for ( p = & (getStringValue() [ cursor_position ]) ; *p != '\0' ; p++ )
+            *p = *(p+1) ;
+        break ;
+
+      case 0x15 /* ^U */ : (getStringValue() [ 0 ]) = '\0' ; break ;
+      case 0x03 /* ^C */ :
+      case 0x18 /* ^X */ :  /* Cut or copy selected text */
+        if ( select_start_position != select_end_position )
+        {
+          p = getStringValue () ;
+          char ch = p[select_end_position] ;
+          p[select_end_position] = '\0' ;
+          puSetPasteBuffer ( p + select_start_position ) ;
+          p[select_end_position] = ch ;
+
+          if ( key == 0x18 )  /* Cut, remove text from string */
+            removeSelectRegion () ;
+        }
+
+        break ;
+
+      case 0x16 /* ^V */ : /* Paste buffer into text */
+        if ( ( strlen ( getStringValue () ) + strlen ( puGetPasteBuffer () ) ) < PUSTRING_MAX - 1 )
+        {
+          if ( select_start_position != select_end_position )
+            removeSelectRegion () ;
+
+          p = new char [ PUSTRING_MAX ] ;
+          strcpy ( p, getStringValue() + cursor_position ) ;
+          *(getStringValue() + cursor_position) = '\0' ;
+          strcat ( getStringValue(), puGetPasteBuffer () ) ;
+          strcat ( getStringValue(), p ) ;
+          cursor_position += strlen ( puGetPasteBuffer () ) ;
+          delete p ;
+        }
+
+        break ;
+
+      default:
+        if ( key < ' ' || key > 127 ) return FALSE ;
+        if ( valid_data )
+        {
+          if ( !strchr ( valid_data, key ) ) return TRUE ;
+        }
+
+        if ( select_start_position != select_end_position ) // remove selected text
+          removeSelectRegion () ;
+
+        if ( strlen ( getStringValue() ) >= PUSTRING_MAX - 1 )
+          return FALSE ;
+
+        for ( p = & (getStringValue() [ strlen(getStringValue()) ]) ;
+                 p != &(getStringValue()[cursor_position-1]) ; p-- )
+          *(p+1) = *p ;
+
+        *(p+1) = key ;
+        cursor_position++ ;
+        break ;
+    }
+
+    /* setValue ( getStringValue() ) ; */
+  }
+
   normalize_cursors () ;
   return TRUE ;
 }
