@@ -6,6 +6,7 @@
 A tasks and bugs are now being tracked by sourceforge. Please 
 goto: http://sourceforge.net/projects/plib/
 
+  * Have a look into known_bugs and fix them.
 
   * Lines in ASCII files are terminated...
 
@@ -22,10 +23,6 @@ goto: http://sourceforge.net/projects/plib/
     ASCII files in BINARY mode.
  
   * Array deletion requires '[]' after 'delete' on Mac.
-
-  * Scaling really makes a mess of SSG bounding sphere tests
-
-  * ssgLOS is really broken.
 
   * Some of the MSVC-project files for plib_examples seem to be 
     broken, for example some miss a "winmm.lib".
@@ -48,38 +45,32 @@ Bugs:
 - When creating fgfsTux, sometimes .ac, .dxf,
   .ase and .obj saved zero objects, although 
   there were objects. For example, PLIB 
-	created this .ac file:
-	----------- snip ------------
-	AC3Db
-	OBJECT world
-	kids 0
-	OBJECT group
-	kids 0
-	----------- snip ------------
-	This seems to happen after ssgFlatten.
+  created this .ac file:
+  ----------- snip ------------
+  AC3Db
+  OBJECT world
+  kids 0
+  OBJECT group
+  kids 0
+  ----------- snip ------------
+  This seems to happen after ssgFlatten.
 - WK: Create a sphere in ppe. Save it as .ASE. See that values like
   diffuse colour are cr*p. Try to load it. It crashes. This could be 
   one or - probably - two bugs. I don't think this is a ppe problem. 
   The loader complains that number of faces is -2.
   The problem seems to be the writer.
 
-	*new remark*: About the diffuse values: I think it has to do with
-	colour material, a loader (.ASE?) loading colours into a colour
+  *new remark*: About the diffuse values: I think it has to do with
+  colour material, a loader (.ASE?) loading colours into a colour
     list and writing colours from the ssgSimpleState where they are
     undefined. I think the same bug is in .AC Since I have uncommitted 
-	.AC stuff on my private computer, please don't start major changes 
-	to .AC loading/saving. But if someone wants to search for the bug 
-	and fix	it in .ASE, you are very welcome.
+  .AC stuff on my private computer, please don't start major changes 
+  to .AC loading/saving. But if someone wants to search for the bug 
+  and fix it in .ASE, you are very welcome.
 
 - WK: I have a crash in ssgFlatten if I load .ac files with 
   unused materials (not reproducable?)
 - Loading and saving lines in .OBJ doesn't work. Maybe NIV14.
-- WK: There is still at least one path bug, maybe in ppe. It works 
-  something like this (Grrr.. I should have written this down):
-  Load an object into ppe, specifying the directory with an absolute 
-  or relative path. Load another object from the same path. It has 
-  happened to me that plib now doesn't find the textures. I will look 
-  into this.
 - Sam wrote:
   Has anyone here debugged with plib under Windoze 2000 and MSVC++?
   I get a whole bunch of
@@ -94,9 +85,6 @@ Bugs:
           #define new DEBUG_NEW
       #endif
   #endif
-- I am aware of one bug in ssgStripify: since it rearranges and merges leaf
-  nodes, ssgSelectors are messed up. Perhaps this is not top priority - few
-  have complained about it.
 - MDL loader stuff: 
 
   It has a problem to correctly determine frontface/backface. 
@@ -135,7 +123,6 @@ a new bug.
 Misc:
 =====
 
-- Document ssgStats, getNumLines and getLine.
 - Look whether scaling works. [see current discussion]
   If not and if we can't/don't want to make it work, for example 
   because of performance issues we need a warning in the docs and 
@@ -145,9 +132,6 @@ Misc:
   enabled by uncommenting "radius *= sgLengthVec3(m[0])" in
   sgSphere::orthoXform. It is currently disabled because that extra
   calculation would degrade performance on non-scaled matrices.
-- Search for todo, fix, fixme, kludge, Pfusch.
-  I would suggest we mark things we have looked at and want to 
-  do later with "NIV14".
 - Reduce compiler warnings.
 - Reduce lint warnings. I (wk) will try to this until 1.4. 
   It is important. Lint is an error checking tool that gives warnings 
@@ -160,7 +144,6 @@ Misc:
   loading /writing .ssg files can't work 100% without it.
 - When saving, there is often a warning that "ref count doesn't 
   tally with parent count"
-- Change all console output to ulSetError.
 - Go through the mailing list for unfinished business.
 - I (wk) am not sure 2D file format conversion works. I will look
   into this and will shout for help if I need some.
@@ -168,7 +151,7 @@ Misc:
 - Someone, preferably a native english speaker with ssg-knowledge,
   should go through the new ssg-doc and fix any mistakes. It should be 
   fairly complete by now.
-- Add Per's new Formats to the doc.
+- Add Per's new Formats to the doc?
 - For the other parts of plib, people should bring the doc up to 
   date.
 - Go through both the task manager and the bug list on Sourceforge
@@ -176,11 +159,6 @@ Misc:
   mark the things already done as closed. For example, once we have 
   done the docs, we can close task number 18398 (for now).
   Has task number 18384 been done (Mac patches)?
-- Wk: There is some temporary code that compiles and works better 
-  than anything we had before, but isn't final. If you want to look
-  for it, search for "14.feb"
-- AFAIK the define PROXY_TEXTURES_ARE_NOT_BROKEN is not yet added 
-  to the makefiles.
 - There is a bug in the 3Dfx driver for Linux (tdfx_dri-4.0.1-1) that
   causes the "complex" example program to crash in "fxSetupBlend".
   Since there are no signs of updated 3Dfx drivers, it would be nice
