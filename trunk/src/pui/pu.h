@@ -59,11 +59,11 @@ typedef void *puFont ;
 #define PUFONT_HELVETICA_12   ((void*)7)
 #define PUFONT_HELVETICA_18   ((void*)8)
 
-#define PU_LEFT_BUTTON		0
-#define PU_MIDDLE_BUTTON	1
-#define PU_RIGHT_BUTTON		2
-#define PU_DOWN			0
-#define PU_UP		        1
+#define PU_LEFT_BUTTON          0
+#define PU_MIDDLE_BUTTON        1
+#define PU_RIGHT_BUTTON         2
+#define PU_DOWN                 0
+#define PU_UP                   1
 
 #else
 
@@ -138,27 +138,27 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PU_KEY_GLUT_SPECIAL_OFFSET  256
 
 #ifdef PU_NOT_USING_GLUT
-#define PU_KEY_F1        (1		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F2        (2		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F3        (3		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F4        (4	    + PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F5        (5		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F6        (6		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F7        (7		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F8        (8		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F9        (9		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F10       (10		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F11       (11		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_F12       (12		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_LEFT      (100		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_UP        (101		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_RIGHT     (102		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_DOWN      (103		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_PAGE_UP   (104		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_PAGE_DOWN (105		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_HOME      (106		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_END       (107		+ PU_KEY_GLUT_SPECIAL_OFFSET)
-#define PU_KEY_INSERT    (108		+ PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F1        (1             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F2        (2             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F3        (3             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F4        (4             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F5        (5             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F6        (6             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F7        (7             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F8        (8             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F9        (9             + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F10       (10            + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F11       (11            + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_F12       (12            + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_LEFT      (100           + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_UP        (101           + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_RIGHT     (102           + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_DOWN      (103           + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_PAGE_UP   (104           + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_PAGE_DOWN (105           + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_HOME      (106           + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_END       (107           + PU_KEY_GLUT_SPECIAL_OFFSET)
+#define PU_KEY_INSERT    (108           + PU_KEY_GLUT_SPECIAL_OFFSET)
 
 #else
 #define PU_KEY_F1        (GLUT_KEY_F1        + PU_KEY_GLUT_SPECIAL_OFFSET)
@@ -398,8 +398,6 @@ protected:
   void re_eval    () ;
   void update_res () ;
 
-  char *getStringValue () { return res_string ? res_string : string ; }
-
 public:
   puValue ()
   {
@@ -455,6 +453,10 @@ public:
   void getValue ( char  *s ) { re_eval () ; strcpy ( s, string ) ; }
 
   int  getValue ( void ) { re_eval () ; return integer ; }
+
+  float getFloatValue () { re_eval () ; return ( floater ) ; }
+  char getCharValue () { re_eval () ; return ( string[0] ) ; }
+  char *getStringValue () { return res_string ? res_string : string ; }
 } ;
 
 typedef void (*puCallback)(class puObject *) ;
@@ -591,7 +593,7 @@ public:
 
   void       setDownCallback ( puCallback c ) { down_cb = c ;    }
   puCallback getDownCallback ( void )               { return down_cb ; }
-  void       invokeDownCallback ( void ) { if ( down_cb ) (*down_cb)(this) ; }
+  virtual void invokeDownCallback ( void ) { if ( down_cb ) (*down_cb)(this) ; }
 
   void       setRenderCallback ( puRenderCallback c, void *d = NULL ) { r_cb = c ; render_data = d ; }
   puRenderCallback getRenderCallback ( void ) { return r_cb ; }
@@ -686,7 +688,6 @@ void         puPopLiveInterface         ( puInterface *in = 0 ) ;
 int          puNoLiveInterface          ( void ) ;
 puInterface *puGetBaseLiveInterface     ( void ) ;
 puInterface *puGetUltimateLiveInterface ( void ) ;
-void         puRemoveEntireInterface    ( void ) ;
 
 /*
   The regular group stack is used for adding widgets
@@ -1168,13 +1169,13 @@ public:
   {
     if ( valid_data )
     {
-      free ( valid_data ) ;
+      delete valid_data ;
       valid_data = NULL ;
     }
 
     if ( data )
     {
-      valid_data = (char *)malloc ( ( strlen ( data ) + 1 ) * sizeof(char) ) ;
+      valid_data = new char [ strlen ( data ) + 1 ] ;
       strcpy ( valid_data, data ) ;
     }
   }
@@ -1184,11 +1185,11 @@ public:
     int new_data_len = 1 ;
     if ( valid_data ) new_data_len += strlen ( valid_data ) ;
     if ( data )       new_data_len += strlen ( data ) ;
-    char *new_data = (char *)malloc ( new_data_len * sizeof(char) ) ;
+    char *new_data = new char [ new_data_len ] ;
     strcpy ( new_data, "\0" ) ;
     if ( valid_data ) strcat ( new_data, valid_data ) ;
     if ( data )       strcat ( new_data, data ) ;
-    free ( valid_data ) ;
+    delete valid_data ;
     valid_data = new_data ;
   }
 
@@ -1352,7 +1353,7 @@ public:
 
     if ( data )
     {
-      valid_data = (char *)malloc ( ( strlen ( data ) + 1 ) * sizeof(char) ) ;
+      valid_data = new char[strlen(data)+1] ;
       strcpy ( valid_data, data ) ;
     }
   }
@@ -1362,11 +1363,11 @@ public:
     int new_data_len = 1 ;
     if ( valid_data ) new_data_len += strlen ( valid_data ) ;
     if ( data )       new_data_len += strlen ( data ) ;
-    char *new_data = (char *)malloc ( new_data_len * sizeof(char) ) ;
+    char*new_data = new char[new_data_len] ;
     strcpy ( new_data, "\0" ) ;
     if ( valid_data ) strcat ( new_data, valid_data ) ;
     if ( data )       strcat ( new_data, data ) ;
-    free ( valid_data ) ;
+    delete valid_data ;
     valid_data = new_data ;
   }
 

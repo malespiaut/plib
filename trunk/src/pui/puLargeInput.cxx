@@ -1,4 +1,3 @@
-
 #include "puLocal.h"
 
 // Callbacks from the internal widgets
@@ -143,8 +142,8 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
 
 puLargeInput::~puLargeInput ()
 {
-  free ( text ) ;
-  if ( valid_data ) free ( valid_data ) ;
+  delete text ;
+  if ( valid_data ) delete valid_data ;
 
   if ( puActiveWidget() == this )
     puDeactivateWidget () ;
@@ -233,8 +232,8 @@ void  puLargeInput::addText ( char *l )
 
   if ( ( *(l+strlen(l)-1) == '\n' ) && ( text[select_end_position] == '\n' ) )
   {                 // Two carriage returns, only keep one
-    temp_text = (char *)malloc ( sizeof (char) * ( strlen(text) + strlen(l)
-                                    + select_start_position - select_end_position ) ) ;
+    temp_text = new char [ strlen(text) + strlen(l)
+                                    + select_start_position - select_end_position ] ;
     strncpy ( temp_text, text, select_start_position ) ;
     *(temp_text+select_start_position) = '\0' ;
     strcat ( temp_text, l ) ;
@@ -242,16 +241,16 @@ void  puLargeInput::addText ( char *l )
   }
   else if ( ( *(l+strlen(l)-1) == '\n' ) || ( text[select_end_position] == '\n' ) )
   {                 // Already have a trailing carriage return or positioned at carriage return
-    temp_text = (char *)malloc ( sizeof (char) * ( strlen(text) + strlen(l) + 1
-                                    + select_start_position - select_end_position ) ) ;
+    temp_text = new char [ strlen(text) + strlen(l) + 1
+                                    + select_start_position - select_end_position ] ;
     strncpy ( temp_text, text, select_start_position ) ;
     *(temp_text+select_start_position) = '\0' ;
     strcat ( temp_text, l ) ;
   }
   else
   {                 // Add a carriage return to the end of the string
-    temp_text = (char *)malloc ( sizeof (char) * ( strlen(text) + strlen(l) + 2
-                                    + select_start_position - select_end_position ) ) ;
+    temp_text = new char [ strlen(text) + strlen(l) + 2
+                                    + select_start_position - select_end_position ] ;
     strncpy ( temp_text, text, select_start_position ) ;
     *(temp_text+select_start_position) = '\0' ;
     strcat ( temp_text, l ) ;
@@ -260,6 +259,7 @@ void  puLargeInput::addText ( char *l )
 
   strcat ( temp_text, (text+select_end_position) ) ;  // All branches have the following code in common
   setText ( temp_text ) ;
+  delete temp_text ;
   setSelectRegion ( select_start_position,
                     select_start_position + strlen(l) ) ;
   setCursor ( select_end_position ) ;
@@ -274,7 +274,7 @@ void  puLargeInput::appendText ( char *l )
   int oldlen = strlen ( text ) ;
   if ( *(l+strlen(l)-1) == '\n' )
   {                 // Already have a trailing carriage return
-    temp_text = (char *)malloc ( sizeof (char) * ( oldlen + strlen(l) + 1 ) ) ;
+    temp_text = new char [ oldlen + strlen(l) + 1 ] ;
     if ( oldlen > 1 )  // More than just the empty carriage return
       strcpy ( temp_text, text ) ;
     else
@@ -284,7 +284,7 @@ void  puLargeInput::appendText ( char *l )
   }
   else
   {                 // Add a carriage return to the end of the string
-    temp_text = (char *)malloc ( sizeof (char) * ( oldlen + strlen(l) + 2 ) ) ;
+    temp_text = new char [ oldlen + strlen(l) + 2 ] ;
     if ( oldlen > 1 )  // More than just the empty carriage return
       strcpy ( temp_text, text ) ;
     else
@@ -296,14 +296,14 @@ void  puLargeInput::appendText ( char *l )
 
   setText ( temp_text ) ;
   setSelectRegion ( oldlen, strlen(temp_text) ) ;
-  free ( temp_text ) ;
+  delete temp_text ;
 }
 
 void  puLargeInput::setText ( char *l )
 {
   if ( text )
   {
-    free ( text ) ;
+    delete text ;
     text = NULL ;
   }
 
@@ -314,20 +314,20 @@ void  puLargeInput::setText ( char *l )
 
   if ( !l )
   {
-    text = (char *)malloc ( sizeof (char) * 2 ) ;
+    text = new char [ 2 ] ;
     strcpy ( text, "\n" ) ;
     return ;
   }
 
   if ( ( strlen(l) > 0 ) && ( *(l+strlen(l)-1) == '\n' ) )
   {                 // Already have a trailing carriage return
-    text = (char *)malloc ( sizeof (char) * ( strlen(l) + 1 ) ) ;
+    text = new char [ strlen(l) + 1 ] ;
     strcpy ( text, l ) ;
     strcat ( text, "\0" ) ;
   }
   else
   {                 // Add a carriage return to the end of the string
-    text = (char *)malloc ( sizeof (char) * ( strlen(l) + 2 ) ) ;
+    text = new char [ strlen(l) + 2 ] ;
     strcpy ( text, l ) ;
     strcat ( text, "\n" ) ;
     strcat ( text, "\0" ) ;
@@ -520,9 +520,9 @@ void puLargeInput::draw ( int dx, int dy )
       glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
     else
       glColor4f ( colour [ PUCOL_LEGEND ][0],
-		  colour [ PUCOL_LEGEND ][1],
-		  colour [ PUCOL_LEGEND ][2],
-		  colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
+                  colour [ PUCOL_LEGEND ][1],
+                  colour [ PUCOL_LEGEND ][2],
+                  colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
 
     char *val ;                   // Pointer to the actual text in the box
     val = getText () ;
@@ -566,7 +566,7 @@ void puLargeInput::draw ( int dx, int dy )
             val++ ;
           }
 
-          while ( end_pos >= box_width )  // Step up the line until it is in the window
+          while ( end_pos > box_width )  // Step up the line until it is in the window
           {
             *end_of_line = temp_char ;
             end_of_line--;
@@ -925,8 +925,8 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
     case '\b' :  // Backspace
       if ( select_start_position != select_end_position )
       {
-        p = (char *)malloc ( sizeof (char) * ( strlen ( old_text ) + 1 -
-                                 ( select_end_position - select_start_position ) ) ) ;
+        p = new char [ strlen ( old_text ) + 1 -
+                                 ( select_end_position - select_start_position ) ] ;
         strncpy ( p, old_text, select_start_position ) ;
         p [ select_start_position ] = '\0' ;
         strcat ( p, (old_text + select_end_position ) ) ;
@@ -936,20 +936,21 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
       }
       else if ( cursor_position > 0 )
       {
-        p = (char *)malloc ( sizeof (char) * ( strlen(old_text) ) ) ;
+        p = new char [ strlen(old_text) ] ;
         strncpy ( p, old_text, cursor_position ) ;
         p [ --cursor_position ] = '\0' ;
         strcat ( p, ( old_text + cursor_position + 1 ) ) ;
       }
 
       setText ( p ) ;
+      if ( p ) delete p ;
       break ;
 
     case 0x7F :  // DEL
       if ( select_start_position != select_end_position )
       {
-        p = (char *)malloc ( sizeof (char) * ( strlen ( old_text ) + 1 -
-                                 ( select_end_position - select_start_position ) ) ) ;
+        p = new char [ strlen ( old_text ) + 1 -
+                                 ( select_end_position - select_start_position ) ] ;
         strncpy ( p, old_text, select_start_position ) ;
         p [ select_start_position ] = '\0' ;
         strcat ( p, (old_text + select_end_position ) ) ;
@@ -959,13 +960,14 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
       }
       else if (cursor_position != (int)strlen ( old_text ) )
       {
-        p = (char *)malloc ( sizeof (char) * ( strlen(old_text) ) ) ;
+        p = new char [ strlen(old_text) ] ;
         strncpy ( p, old_text, cursor_position ) ;
         p [ cursor_position ] = '\0' ;
         strcat ( p, ( old_text + cursor_position + 1 ) ) ;
       }
 
       setText ( p ) ;
+      if ( p ) delete p ;
       break ;
 
     case 0x15          : string [ 0 ] = '\0' ; break ;  // ^U
@@ -982,20 +984,21 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
 
       if ( select_start_position != select_end_position ) // remove selected text
       {
-        p = (char *)malloc ( sizeof (char) * ( strlen ( old_text ) + 2 -
-                                 ( select_end_position - select_start_position ) ) ) ;
+        p = new char [ strlen ( old_text ) + 2 -
+                                 ( select_end_position - select_start_position ) ] ;
         strncpy ( p, old_text, select_start_position ) ;
         p [ select_start_position ] = key ;
         p [ select_start_position + 1 ] = '\0' ;
         strcat ( p, (old_text + select_end_position ) ) ;
         setText ( p ) ;
+        delete p ;
 
         cursor_position = ++select_start_position ;
         select_end_position = select_start_position ;
       }
       else
       {
-        p = (char *)malloc ( sizeof (char) * ( strlen(old_text) + 2 ) ) ;
+        p = new char [ strlen(old_text) + 2 ] ;
 
         strncpy ( p, old_text, cursor_position ) ;
 
@@ -1005,6 +1008,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
         strcat (p, ( old_text + cursor_position ) ) ;
 
         setText ( p ) ;
+        delete p ;
 
         cursor_position++ ;
       }

@@ -1,4 +1,3 @@
-
 #include "puLocal.h"
 
 #ifndef WIN32
@@ -54,18 +53,18 @@ int puGetWindow ()
 int puGetWindowHeight ()
 {
   if ( ! openGLSize )
-	return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ;
+        return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ;
   else
-	return puWindowHeight ;
+        return puWindowHeight ;
 }
 
 
 int puGetWindowWidth ()
 {
   if ( ! openGLSize )
-	return glutGet ( (GLenum) GLUT_WINDOW_WIDTH ) ;
+        return glutGet ( (GLenum) GLUT_WINDOW_WIDTH ) ;
   else
-	return puWindowWidth ;
+        return puWindowWidth ;
 }
 
 
@@ -199,7 +198,7 @@ static void puCleanUpJunk ()
 }
 
 
-puObject *active_widget ;  /* Widget which is currently receiving user input */
+static puObject *active_widget ;  /* Widget which is currently receiving user input */
 
 void puInit ( void )
 {
@@ -240,12 +239,12 @@ void puInit ( void )
       LPVOID lpMsgBuf ;
 
       FormatMessage ( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	              FORMAT_MESSAGE_FROM_SYSTEM,
-	              NULL,
-	              GetLastError(),
-	              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-	              (LPTSTR) &lpMsgBuf,
-	              0, NULL ) ;
+                      FORMAT_MESSAGE_FROM_SYSTEM,
+                      NULL,
+                      GetLastError(),
+                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                      (LPTSTR) &lpMsgBuf,
+                      0, NULL ) ;
 
       ulSetError ( UL_WARNING, "PUI: Error: %s", (char *)lpMsgBuf ) ;
       LocalFree ( lpMsgBuf ) ;
@@ -254,13 +253,6 @@ void puInit ( void )
     wglUseFontBitmaps ( hdc, 0, 256, fontBase ) ;
 #endif
   }
-}
-
-void puRemoveEntireInterface ()
-{
-  puInterface *interf = puGetUltimateLiveInterface () ;
-  interf->empty() ;
-  delete interf ;
 }
 
 static void puSetOpenGLState ( void )
