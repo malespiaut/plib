@@ -40,7 +40,7 @@
 /* Define DEBUG if you want debug output
    (this might be a nice way of looking at the
    structure of a 3DS file). */
-//#define DEBUG 1
+/*#define DEBUG 1*/
 
 
 #ifdef DEBUG
@@ -85,6 +85,9 @@ static int parse_uoffst( unsigned int length);
 static int parse_voffst( unsigned int length);
 static int parse_oneunit( unsigned int length);
 static int parse_version( unsigned int length);
+static int parse_frame  ( unsigned int length);
+static int parse_frame_objname  ( unsigned int length);
+static int parse_frame_hierarchy( unsigned int length);
 static int identify_face_materials( unsigned int length );
 
 struct _ssg3dsChunk {
@@ -158,8 +161,21 @@ static _ssg3dsChunk ObjMeshChunks[] =
   { 0, NULL, NULL }
 };
 
+static _ssg3dsChunk FrameChunks[] =
+{ { CHUNK_FRAME_OBJNAME  , NULL, parse_frame_objname    },
+  { CHUNK_FRAME_HIERARCHY, NULL, parse_frame_hierarchy  },
+  { 0, NULL, NULL }
+};
+
+static _ssg3dsChunk KeyframerChunks[] =
+{ { CHUNK_FRAMES       , NULL       , parse_frame       },
+  { CHUNK_KEYFRAME_MESH, FrameChunks, NULL              },
+  { 0, NULL, NULL }
+};
+
 static _ssg3dsChunk MainChunks[] =
-{ { CHUNK_OBJMESH, ObjMeshChunks, NULL                  },
+{ { CHUNK_OBJMESH,   ObjMeshChunks  , NULL              },
+  { CHUNK_KEYFRAMER, KeyframerChunks, NULL              },
   { CHUNK_VERSION, NULL,    parse_version               },
   { 0, NULL, NULL }
 };
@@ -180,10 +196,40 @@ struct _3dsMat {
   bool wrap_s, wrap_t;
 };
 
+static _3dsMat default_material= { "ssgLoad3ds default material",
+				   0,
+				   { { 1.0f, 1.0f, 1.0f },
+				     { 1.0f, 1.0f, 1.0f },
+				     { 0.0f, 0.0f, 0.0f },
+				     { 0.0f, 0.0f, 0.0f },
+				   },
+				   0.0f, 1.0f,
+				   NULL,
+				   {1.0f, 1.0f}, {0.0f, 0.0f},
+				   false, false };
+
 #define _3DSMAT_AMB 0
 #define _3DSMAT_DIF 1
 #define _3DSMAT_EMI 2
 #define _3DSMAT_SPE 3
+
+struct _ssg3dsStructureNode {
+  _ssg3dsStructureNode() {
+    id     = -1;
+    object = NULL;
+    next   = NULL;
+  }
+
+  short id;
+  ssgBranch *object;
+  _ssg3dsStructureNode *next;
+};
+
+static _ssg3dsStructureNode *object_list            = NULL;
+static short current_structure_id                   = -1;
+
+static _ssg3dsStructureNode *findStructureNode( char  *name );
+static _ssg3dsStructureNode *findStructureNode( short id    );
 
 static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length);
 static void add_leaf( _3dsMat *material, int listed_faces, 
@@ -194,7 +240,7 @@ FILE *model;
 static int num_objects, num_materials, num_textures;
 static int double_sided;     // is there some double sided material?
 
-static ssgBranch *top_object;
+static ssgBranch *top_object, *current_branch;
 
 static const ssgLoaderOptions* current_options = NULL ;
 
@@ -233,6 +279,26 @@ static char* get_string() {
   s[c] = 0;
 
   return s;
+}
+
+static _ssg3dsStructureNode *findStructureNode( char *name ) {
+  for (   _ssg3dsStructureNode *n = object_list; n != NULL; n = n->next ) {
+    if ( strcmp( n->object->getName(), name ) == 0 ) {
+      return n;
+    }
+  }
+
+  return NULL;
+}
+
+static _ssg3dsStructureNode *findStructureNode( short id ) {
+  for ( _ssg3dsStructureNode *n = object_list; n != NULL; n = n->next ) {
+    if ( n->id == id ) {
+      return n;
+    }
+  }
+
+  return NULL;
 }
 
 //==========================================================
@@ -477,7 +543,7 @@ static int parse_trimesh( unsigned int length ) {
 
   free_trimesh();
 
-  top_object -> addKid( current_transform );
+  current_branch -> addKid( current_transform );
 
   /* Before we parse CHUNK_FACEMAT, we have to know vertices and texture
      coordinates. To ensure this, we make a special pass of the Trimesh
@@ -823,9 +889,22 @@ static int parse_face_materials( unsigned int length ) {
 // OBJBLOCK PARSER
 
 static int parse_objblock( unsigned int length ) {
-  char *name = get_string();
-  DEBUGPRINT("%sObject block \"%s\"%s%s\n", name, "", "");
-  delete name;  // we don't use this for anything
+  char *object_name    = get_string();
+  current_branch = new ssgTransform;
+  current_branch -> setName( object_name );
+  
+  _ssg3dsStructureNode *object_node = new _ssg3dsStructureNode;
+  object_node -> object = current_branch;
+
+  if (object_list == NULL) {
+    object_list = object_node;
+  } else {
+    object_node -> next = object_list;
+    object_list = object_node;
+  }
+
+  DEBUGPRINT("%sObject block \"%s\"%s%s\n", object_name, "", "");
+  delete object_name;
 
   return PARSE_OK;
 }
@@ -848,6 +927,64 @@ static int parse_version( unsigned int length ) {
 #else
   ulEndianReadLittle32(model) ;
 #endif
+
+  return PARSE_OK;
+}
+
+//==========================================================
+// KEYFRAME CHUNK PARSER
+
+static int parse_frame( unsigned int length ) {
+#ifdef DEBUG
+  DEBUGPRINT("%sFrame start: %d, end: %d%s\n",
+	     ulEndianReadLittle32(model), ulEndianReadLittle32(model), "");
+#else
+  ulEndianReadLittle32(model);
+  ulEndianReadLittle32(model);
+#endif
+
+  return PARSE_OK;
+}
+
+static int parse_frame_objname( unsigned int length ) {
+  char *objname = get_string();
+  ulEndianReadLittle16(model);
+  ulEndianReadLittle16(model);
+  short parent_id = ulEndianReadLittle16(model);
+
+  DEBUGPRINT("%sObject name: %s, flag1: %d, parent: %d\n",
+	     objname, flag1, parent_id);
+
+  _ssg3dsStructureNode *current_structure_node = findStructureNode( objname );
+
+  if ( current_structure_node == NULL ) {
+    ulSetError( UL_WARNING, "ssgLoad3ds: Hierarchy entry \"%s\" does not " \
+		"match any defined objects.", objname );
+  } else {
+    current_structure_node -> id = current_structure_id;
+
+    if ( parent_id != -1 ) {
+      _ssg3dsStructureNode *parent = findStructureNode( parent_id );
+      if (parent == NULL) {
+	ulSetError( UL_WARNING, "ssgLoad3ds: Hierarchy entry \"%d\" does "\
+		    "not match any defined objects.", parent_id );      
+      } else {
+	parent -> object -> addKid( current_structure_node -> object );
+      }
+    } else {
+      top_object -> addKid( current_structure_node -> object );
+    }
+  }
+
+  delete objname;
+
+  return PARSE_OK;
+}
+
+static int parse_frame_hierarchy( unsigned int length ) {
+  current_structure_id = ulEndianReadLittle16(model);
+  DEBUGPRINT("%sThis object's hierarchy id: %d.%s%s\n", 
+	     current_structure_id, "", "");
 
   return PARSE_OK;
 }
@@ -914,7 +1051,6 @@ static int parse_chunks( _ssg3dsChunk *chunk_list, unsigned int length )
 }
 
 
-
 ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   int i;
   current_options = options? options: &_ssgDefaultOptions ;
@@ -933,17 +1069,18 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   }
   
   model = fopen ( filepath, "rb" );
-  fseek(model, 0, SEEK_END);
-  unsigned long size = ftell(model);
-  rewind(model);
-
   if ( model == NULL ) {
     ulSetError(UL_WARNING, "ssgLoad3ds: Failed to open '%s' for reading", 
 	       filepath ) ;
     return NULL ;
   }
 
+  fseek(model, 0, SEEK_END);
+  unsigned long size = ftell(model);
+  rewind(model);
+
   num_objects = num_materials = num_textures = 0;
+  object_list = NULL;
   vertex_list = NULL;
   texcrd_list = NULL;
   face_normals = NULL;
@@ -953,6 +1090,9 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   // initialize some storage room for materials
   // (ok, could be implemented as linked list, but...well I'm lazy)
   materials = new _3dsMat*[MAX_MATERIALS];
+  // strange enough, the 3ds file does not have to include any materials,
+  // in which case we will use this one.
+  materials[0] = & default_material;
   
   parse_chunks( TopChunk, size );
 
@@ -968,6 +1108,11 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
     }
 
     delete materials[i];
+  }
+
+  for ( _ssg3dsStructureNode *n = object_list, *temp; n != NULL; n = temp ) {
+    temp = n -> next;
+    delete n;
   }
 
   delete [] filepath;
