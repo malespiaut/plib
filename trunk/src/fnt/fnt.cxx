@@ -235,7 +235,7 @@ void fntTexFont::puts ( sgVec3 curpos, float pointsize, float italic, const char
     if (*s == '\n')
     {
       curpos[0]  = origx ;
-      curpos[1] -= pointsize * 1.333f ;
+      curpos[1] -= pointsize ;
     }
     else
       low_putch ( curpos, pointsize, italic, *s ) ;
