@@ -39,7 +39,7 @@ static sgVec3       *vlist ;
 static saveTriangle *tlist ;
 
 
-int ssgSaveLeaf ( ssgEntity *ent )
+static int ssgSaveLeaf ( ssgEntity *ent )
 { int i;
   assert ( ent -> isAKindOf ( ssgTypeLeaf() ) ) ;
 
@@ -143,7 +143,7 @@ int ssgSaveLeaf ( ssgEntity *ent )
 
 
 
-int ssgSaveACInner ( ssgEntity *ent )
+static int ssgSaveACInner ( ssgEntity *ent )
 {
   /* WARNING - RECURSIVE! */
 
