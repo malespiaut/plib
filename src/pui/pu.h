@@ -261,6 +261,7 @@ extern int puRefresh ;
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
+void puSetResizeMode ( bool mode ) ;
 
 int  puGetWindowHeight () ;
 int  puGetWindowWidth  () ;

@@ -10,10 +10,10 @@
 
 int puRefresh = TRUE ;
 
-#ifdef PU_NOT_USING_GLUT
-
 static int puWindowWidth  = 400 ;
 static int puWindowHeight = 400 ;
+
+#ifdef PU_NOT_USING_GLUT
 
 int puGetWindowHeight () { return puWindowHeight ; }
 int puGetWindowWidth  () { return puWindowWidth  ; }
@@ -28,12 +28,41 @@ static int fontBase = 0;
 static int fontSize[257];
 #else
 
-int puGetWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
-int puGetWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
+static bool openGLSize = false;
 
-void puSetWindowSize ( int /*width*/, int /*height*/ )
+
+void puSetResizeMode ( bool mode ) {
+  openGLSize = mode ;
+}
+
+
+int puGetWindowHeight ()
 {
+  if ( ! openGLSize )
+	return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ;
+  else
+	return puWindowHeight ;
+}
+
+
+int puGetWindowWidth ()
+{
+  if ( ! openGLSize )
+	return glutGet ( (GLenum) GLUT_WINDOW_WIDTH ) ;
+  else
+	return puWindowWidth ;
+}
+
+
+void puSetWindowSize ( int width, int height )
+{
+  if ( ! openGLSize )
   fprintf ( stderr, "PUI: puSetWindowSize shouldn't be used with GLUT.\n" ) ;
+  else
+  {
+    puWindowWidth  = width  ;
+    puWindowHeight = height ;
+  }
 }
 
 #endif
@@ -195,14 +224,20 @@ static void puSetOpenGLState ( void )
   int w = puGetWindowWidth  () ;
   int h = puGetWindowHeight () ;
 
+  if ( ! openGLSize )
+    glPushAttrib   ( GL_ENABLE_BIT | GL_TRANSFORM_BIT | GL_LIGHTING_BIT ) ;
+  else
   glPushAttrib   ( GL_ENABLE_BIT | GL_VIEWPORT_BIT | GL_TRANSFORM_BIT | GL_LIGHTING_BIT ) ;
+
   glDisable      ( GL_LIGHTING   ) ;
   glDisable      ( GL_FOG        ) ;
   glDisable      ( GL_TEXTURE_2D ) ;
   glDisable      ( GL_DEPTH_TEST ) ;
   glDisable      ( GL_CULL_FACE  ) ;
  
+  if ( ! openGLSize )
   glViewport     ( 0, 0, w, h ) ;
+ 
   glMatrixMode   ( GL_PROJECTION ) ;
   glPushMatrix   () ;
   glLoadIdentity () ;
