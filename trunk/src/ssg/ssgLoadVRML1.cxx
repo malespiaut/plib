@@ -1,4 +1,26 @@
+/*
+     PLIB - A Suite of Portable Game Libraries
+     Copyright (C) 2001  Steve Baker
+ 
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Library General Public
+     License as published by the Free Software Foundation; either
+     version 2 of the License, or (at your option) any later version.
+ 
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Library General Public License for more details.
+ 
+     You should have received a copy of the GNU Library General Public
+     License along with this library; if not, write to the Free
+     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ 
+     For further information visit http://plib.sourceforge.net
+*/
+
 // ssgLoadVRML1: loads vrml1 files into the scenegraph
+// Written by William Lachance (wlach@interlog.com)
 // known bugs/limitations:
 // - implicit texture mapping is not supported
 // - explicit normal definitions not supported (they are calculated automatically)
@@ -35,6 +57,7 @@ static _nodeIndex *definedNodes = NULL;
 static bool vrml1_parseSeparator( ssgBranch *parentBranch, _traversalState *parentData, char *defName );
 static bool vrml1_parseSwitch( ssgBranch *parentBranch, _traversalState *parentData, char *defName );
 static bool vrml1_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
+static bool vrml1_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 
 _parseTag vrmlTags [] =
 {
@@ -84,6 +107,8 @@ ssgEntity *ssgLoadVRML1( const char *fname, const ssgLoaderOptions* options )
    if( !vrml1_parseSeparator( (ssgBranch *)rootTransform, NULL, NULL ) )
      {
 	ulSetError ( UL_WARNING, "ssgLoadVRML: Failed to extract valid object(s) from %s", fname ) ;
+	delete( definedNodes );
+	delete( rootTransform );
 	return NULL ;
      }
    
@@ -131,7 +156,13 @@ static bool vrml1_parseSeparator( ssgBranch *parentBranch, _traversalState *pare
 	     token = vrmlParser.getNextToken( NULL );
 	     printf("USE: Found a use directive %s.\n", token);
 	     if( !vrml1_parseUseDirective( currentBranch, currentData, token, childDefName ) )
-	       return FALSE;
+	       {
+		  delete( currentBranch );
+		  delete( currentData );
+		  if( childDefName != NULL )
+		    delete [] childDefName;		  
+		  return FALSE;
+	       }
 	  }
 	else
 	  {  
@@ -141,7 +172,14 @@ static bool vrml1_parseSeparator( ssgBranch *parentBranch, _traversalState *pare
 		  if( !strcmp( token, vrmlTags[i].token ) )
 		    {
 		       if( !(vrmlTags[i].func( currentBranch, currentData, childDefName ) ) )
-			 return FALSE;
+			 {
+			    delete( currentBranch );
+			    delete( currentData );
+			    if( childDefName != NULL )
+			      delete [] childDefName;			    
+			    return FALSE;
+			 }
+		       
 		       tokenFound = TRUE;
 		    }
 		  i++;
@@ -195,15 +233,23 @@ static bool vrml1_parseSwitch( ssgBranch *parentBranch, _traversalState *parentD
 	  {
 	     token = vrmlParser.getNextToken( NULL );
 	     printf("DEF: Found an object definition %s.\n", token);
-	     childDefName = new char[50];
-	     strncpy( childDefName, token, 50);
+	     if( childDefName != NULL )
+	       delete [] childDefName;
+	     childDefName = new char[ strlen( token ) + 1];
+	     strcpy( childDefName, token );
 	  }
 	else if( !strcmp( token, "USE" ) )
 	  {
 	     token = vrmlParser.getNextToken( NULL );
 	     printf("USE: Found a use directive %s.\n", token);
 	     if( !vrml1_parseUseDirective( currentBranch, currentData, token, childDefName ) )
-	       return FALSE;
+	       {
+		  delete( currentBranch );
+		  delete( currentData );
+		  if( childDefName != NULL )
+		    delete [] childDefName;			    
+		  return FALSE;
+	       }
 	  }
 	else
 	  {  
@@ -213,7 +259,14 @@ static bool vrml1_parseSwitch( ssgBranch *parentBranch, _traversalState *parentD
 		  if( !strcmp( token, vrmlTags[i].token ) )
 		    {
 		       if( !(vrmlTags[i].func( currentBranch, currentData, childDefName ) ) )
-			 return FALSE;
+			 {
+			    delete( currentBranch );
+			    delete( currentData );
+			    if( childDefName != NULL )
+			      delete [] childDefName;			    
+			    return FALSE;
+			 }
+
 		       tokenFound = TRUE;
 		    }
 		  i++;
@@ -227,8 +280,7 @@ static bool vrml1_parseSwitch( ssgBranch *parentBranch, _traversalState *parentD
 
    parentBranch->addKid( currentBranch );
    
-   // delete the currentData structure (we may use its content, but not its form)
-   delete( currentData );
+   delete( currentData ); // delete the currentData structure (we may use its content, but not its form)
    
    return TRUE;
 }
@@ -424,16 +476,25 @@ static bool vrml1_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState 
 	if( !strcmp( token, "coordIndex" ) )
 	  {
 	     vrmlParser.expectNextToken("coordIndex");
-	     if( !vrml1_parseCoordIndex( loaderMesh, currentData ) )
-	       return FALSE;
+	     if( !vrml1_parseCoordIndex( loaderMesh, currentData ) ) 
+	       {
+		  delete( currentBranch );
+		  delete( loaderMesh );
+		  return FALSE;	     
+	       }
+	     
 	  }
 	
 	else if( !strcmp( token, "textureCoordIndex" ) )
 	  {
 	     texCoordIndexGiven = TRUE;
 	     vrmlParser.expectNextToken("textureCoordIndex");
-	     if( !vrml1_parseTextureCoordIndex( loaderMesh, currentData ) )
-	       return FALSE;
+	     if( !vrml1_parseTextureCoordIndex( loaderMesh, currentData ) ) 
+	       {
+		  delete( currentBranch );
+		  delete( loaderMesh );
+		  return FALSE;
+	       }
 	     
 	  }
 	else
@@ -488,7 +549,11 @@ static bool vrml1_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState 
      ss->disable( GL_CULL_FACE );
    
    if( !loaderMesh->checkMe() )
-     return FALSE;
+     {
+	delete( currentBranch );
+	delete( loaderMesh );
+	return FALSE;
+     }
    
    if( currentData->getTransform() != NULL )
      {
@@ -500,10 +565,12 @@ static bool vrml1_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState 
    
    parentBranch->addKid( currentBranch );
 
+   delete( loaderMesh );
+   
    return TRUE;
 }
 
-bool vrml1_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName )
+static bool vrml1_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName )
 {
    char *token;
    char *fileName = NULL; bool wrapU = FALSE, wrapV = FALSE;
@@ -515,11 +582,10 @@ bool vrml1_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData,
      {
 	if( !strcmp( token, "filename") )
 	  {
-	     // todo: handle quotes
 	     vrmlParser.expectNextToken("filename");
 	     token = vrmlParser.getNextToken( NULL );
-	     fileName = new char[50];
-	     strncpy( fileName, token, 50);
+	     fileName = new char[ strlen( token ) + 1];
+	     strcpy( fileName, token );
 	  }
 	else if( !strcmp( token, "wrapS") )
 	  {
@@ -549,7 +615,7 @@ bool vrml1_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData,
    currentData->setTexture( currentTexture );
    vrmlParser.expectNextToken("}");
 
-   delete( fileName );
+   delete [] fileName;
    
    return TRUE;
 }
