@@ -2,6 +2,8 @@
 <HTML>
 <HEAD>
    <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <META name="keywords" content="UL, PLIB, OpenGL, utility, library, portable, Baker, Steve, ulDir, ulClock, ulDynamicLibrary, ulList, ulLinkedList, ulHashTable, ulPropertySet, ulSleep, ulMilliSecondSleep, ulFindFile, ulFileExists, ulIsAbsolutePathName, ulGetCWD, ulMakePath, ulSetErrorCallback, ulGetErrorCallback, ulGetError, ulClearError, ulStrEqual, ulStrNEqual">
+   <META name="description" content="The PLIB Utility Library is targeted towards hiding common operating system functions behind a thin layer that makes them portable and provides some useful helper classes and routines.">
    <TITLE>The Utility Library.</TITLE>
 </HEAD>
 <BODY text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
@@ -9,72 +11,124 @@
 
 <H1>The PLIB general Utility Library.</H1>
 By Steve Baker
-<H2>Introduction.</H2>
-The 'UL' utility library is primarily targetted towards hiding common
+<H2>Introduction</H2>
+The 'UL' utility library is primarily targeted towards hiding common
 operating system functions behind a thin layer that makes them portable.
+Additionally, it provides some helper classes or routines that were
+usually written to support certain parts of the
+<a href="../index.html">PLIB</a> library, but at some point we felt that
+they could be useful for user applications as well.
 <p>
-For example, if you need to 'sleep' for 3 seconds, then under Linux/UNIX,
-you'd need to call:
-<pre>
+UL is a part of <a href="../index.html">PLIB</a>.
 
+<h2>Contents:</h2>
+<ul>
+<li><a href="#miscFunc">Misc. routines</a>
+<li><a href="#fileHandling">File handling</a>
+<li><a href="#dirHandling">Directory handling</a>
+<li><a href="#dataStorage">Data storage</a>
+<li><a href="#errorHandling">Error handling</a>
+<li><a href="#miscClasses">Misc. classes</a>
+<li><a href="#endianHandling">Endian handling</a>
+</ul>
+
+<h2>Quick reference:</h2>
+<table>
+<tr>
+<td><h3>Classes:</h3>
+<td colspan=2><h3>Non-class functions:</h3>
+
+<tr>
+<td>
+<ul>
+  <li><a href="#ulDir">ulDir</a>
+  <li><a href="#ulClock">ulClock</a>
+  <li><a href="#ulDynamicLibrary">ulDynamicLibrary</a>
+  <li><a href="#ulList">ulList</a>
+  <li><a href="#ulLinkedList">ulLinkedList</a>
+  <li><a href="#ulHashTable">ulHashTable</a>
+  <li><a href="#ulPropertySet">ulPropertySet</a>
+</ul>
+
+<td>
+<ul>
+  <li><a href="#ulSleep">ulSleep</a>, <a href="#ulMilliSecondSleep">ulMilliSecondSleep</a>
+  <li><a href="#ulFindFile">ulFindFile</a>
+  <li><a href="#ulFileExists">ulFileExists</a>
+  <li><a href="#ulIsAbsolutePathName">ulIsAbsolutePathName</a>
+  <li><a href="#ulGetCWD">ulGetCWD</a>
+  <li><a href="#ulMakePath">ulMakePath</a>
+  <li><a href="#ulSetErrorCallback">ulSetErrorCallback</a>, <a href="#ulGetErrorCallback">ulGetErrorCallback</a>
+</ul>
+
+<td valign="top">
+<ul>
+  <li><a href="#ulGetError">ulGetError</a>, <a href="#ulClearError">ulClearError</a>
+  <li><a href="#ulStrEqual">ulStrEqual</a>, <a href="#ulStrNEqual">ulStrNEqual</a>
+</ul>
+</table>
+
+<h2><a name="miscFunc">Misc. routines</a></h2>
+
+<h3><a name="ulSleep">ulSleep</a></h3>
+<pre><i>
+  void ulSleep ( int seconds ) ;
+</i></pre>
+Now comes a typical example of what the UL library does. If you need to
+'sleep' for, say, 3 seconds, then under Linux/UNIX, you'd need to call:
+<pre><i>
   sleep ( 3 ) ;
-
-</pre>
+</i></pre>
 But under MS-Windows, you have to say:
-<pre>
-
+<pre><i>
   Sleep ( 3000 ) ;
-
-</pre>
+</i></pre>
 In order to avoid writing non-portable code, you can instead call:
-<pre>
-
+<pre><i>
   ulSleep ( 3 ) ;
-
-...or...
-
-  ulMilliSecondSleep ( 3000 ) ;
-
-</pre>
+</i></pre>
 ...under either operating system.
+
 <p>
-One ultility function is:
-<pre>
-void ulFindFile( char *filenameOutput, const char *path, 
-											  const char * tfnameInput, const char *sAPOM ) 
-</pre>
-Basically, it adds tfnameInput to the path and puts this into the buffer filenameOutput.
-It handles special chars in path.
-<code>sAPOM</code> is used iff path contains "$(APOM)"
-These are the special chars:
-<BR>
-";;" is replaced by ";"
-<BR>
-"$$" is replaced by "$"
-<BR>
-"$(APOM)" is replaced by sAPOM
-<BR>
-If there are ";" in path, the path-variable is interpreted as several paths "segments",
-delimited by ";". The first file found by this function is returned.
-It looks from left to right.
-A segment may end in $(...). ulFindFile will then look in in this path and recursively in all the sub-paths
-<BR>
-<BR>
+<h3><a name="ulMilliSecondSleep">ulMilliSecondSleep</a></h3>
+<pre><i>
+  void ulMilliSecondSleep ( int milliseconds ) ;
+</i></pre>
+Same as <a href="#ulSleep">ulSleep</a>, except that it sleeps (as you
+may have guessed) a certain number of milliseconds instead of seconds.
 
+<h2><a name="fileHandling">File handling</a></h2>
+
+<h3><a name="ulFindFile">ulFindFile</a></h3>
+<pre><i>
+  void ulFindFile ( char *filenameOutput, const char *path, const char * tfnameInput, const char *sAPOM ) ;
+</i></pre>
+Basically, this utility function adds tfnameInput to the path and puts this
+into the buffer filenameOutput.
+<p>
+It handles special chars in path:
+<ul>
+<li>";;" is replaced by ";"
+<li>"$$" is replaced by "$"
+<li>"$(APOM)" is replaced by sAPOM
+</ul>
+If there are ";" in path, the path-variable is interpreted as several paths
+"segments", delimited by ";". The first file found by this function is
+returned. It looks from left to right. A segment may end in $(...). ulFindFile
+will then look in in this path and recursively in all the sub-paths.
+<p>
 Some examples:
-<BR>
-<BR>
-
+<p>
 To load *.MDl-models, it is very nice to set the texture path to
-$(APOM);$(APOM)/texture;$(APOM)/../texture
-This contains of three segments and tells ulFindFile to look in the 
-path of the model, in a subpath texture and in a path texture "besides" the path of the model
-Some *.mdl-models are shipped in a directory which conatins a "texture"-directory, a 
-"Model"-directory and others. In this case you find the texture in $(APOM)/../texture
-<BR>
-<BR>
-
-Another example: You have all your textures in a driectory-structure under /raumplan:
+"$(APOM);$(APOM)/texture;$(APOM)/../texture". This consists of three segments
+and tells ulFindFile to look in the path of the model, in a subpath texture
+and in a path texture "besides" the path of the model. Some *.mdl-models are
+shipped in a directory which contains a "texture"-directory, a
+"Model"-directory and others. In this case you find the texture in
+"$(APOM)/../texture".
+<p>
+Another example: You have all your textures in a directory-structure under
+/roomplan:
 <pre>
 textures --+-- Wallpapers
            |
@@ -84,23 +138,483 @@ textures --+-- Wallpapers
            ...
 </pre>
 Then you should simply use the following texture path:
-"/raumplan/$(...)"
-<BR>
+"/roomplan/$(...)"
 
-If you dont want all of the bells and whistles, just call:
-<pre>
-_ssgMakePath ( filenameOutput, path, tfnameInput ) ;
-</pre>
-instead.
 <p>
-UL is a part of <A HREF="../index.html">PLIB</A>.
+<h3><a name="ulFileExists">ulFileExists</a></h3>
+<pre><i>
+  bool ulFileExists ( const char *fileName ) ;
+</i></pre>
+Returns "true" if a file with the name 'fileName' exists, or "false" if
+it does not.
+
 <p>
+<h3><a name="ulIsAbsolutePathName">ulIsAbsolutePathName</a></h3>
+<pre><i>
+  int ulIsAbsolutePathName ( const char *pathname ) ;
+</i></pre>
+Returns '1' if 'pathname' is an absolute pathname or '0' if it is an
+relative one.
+
+<p>
+<h3><a name="ulGetCWD">ulGetCWD</a></h3>
+<pre><i>
+  char * ulGetCWD ( char *result, int maxlength ) ;
+</i></pre>
+Stores the current working directory in 'result', which has enough space
+for 'maxlength' characters, including the trailing '\0'. On success,
+'result' is returned.
+
+<p>
+<h3><a name="ulMakePath">ulMakePath</a></h3>
+<pre><i>
+  char * ulMakePath ( char *path, const char *dir, const char *fname ) ;
+</i></pre>
+Concatenates the strings 'dir' and 'fname', puts the system's slash character
+inbetween and stores stores the result in 'path'. Be sure that the buffer
+'path' is large enough to store 'strlen ( dir ) + strlen ( fname ) + 2'
+(slash and trailing '\0') characters.
+
+<h2><a name="dirHandling">Directory handling</a></h2>
+
+<h3><a name="ulDir">struct ulDir</a></h3>
+This structure provides a portable way to read directories. To allocate and
+initialize a new ulDir structure, call:
+<pre><i>
+  ulDir * ulOpenDir ( const char* dirname ) ;
+</i></pre>
+This function returns a pointer to a newly allocated ulDir structure on
+success or a NULL pointer if the specified directory could not be read.
+<p>
+After you have constructed an ulDir structure, the directory content can
+be read with subsequent calls to:
+<pre><i>
+  struct ulDirEnt
+  {
+    char d_name [ UL_NAME_MAX+1 ] ;
+    bool d_isdir ;
+  } ;
+  ulDirEnt * ulReadDir ( ulDir *dir ) ;
+</i></pre>
+This function returns a pointer to a ulDirEnt structure which resides in
+the corresponding ulDir structure and which has the above form. The "d_isdir"
+flag indicates if a directory entry is another directory. If the end of the
+directory has been reached, the function returns NULL.
+<p>
+To free an ulDir object and to close the associated directory stream,
+please call:
+<pre><i>
+  void ulCloseDir ( ulDir *dir ) ;
+</i></pre>
+
+<h2><a name="dataStorage">Data storage</a></h2>
+
+<h3><a name="ulList">class ulList</a></h3>
+<pre><i>
+  ulList::ulList ( int init_max = 1 ) ;
+</i></pre>
+This class stores a list of generic (void*) pointers using an
+automatically-growing array. Since the process of resizing the internal
+array is rather expensive, it is important that one picks a reasonable default
+array size (<i>init_max</i>) when constructing an ulList object if performance
+matters. Remember that a too large size means that some memory is wasted (but
+memory is cheap nowadays), while a too small one means that expensive array
+resize operations will be necessary later.
+<p>
+If you have absolutely no clue about how many entities will be stored,
+you should probably look at the <a href="#ulLinkedList">linked list class</a>
+below, which has it's own disadvantages, though.
+<p>
+Once you have constructed an ulList (hopefully with a good initial size),
+you can insert an element using one of the following methods:
+<pre><i>
+  void ulList::addEntity ( void *entity ) ;
+  void ulList::addBefore ( int n, void *entity ) ;
+</i></pre>
+While the first one simply adds the new entity to the tail of the list,
+the second one lets you specify an exact position (0 is the first element).
+Note that due to it's array implementation, inserting an entity at the head
+or the middle of the ulList requires that the following entities are all
+shifted one array slot to the right, which can be a rather expensive
+operation.
+<p>
+These functions automatically check whether there is room for one more element
+and double the internal array's size if necessary. However, as said
+previously, resizing the array is a rather expensive process, so it is not
+recommended that you rely too much on this behavior. Instead, pick a good
+initial array size.
+<p>
+Note that ulList allows you to have multiple entities with the same data
+value in the list. Please also note that ulList does not make it's own copy
+of the data pointed to by 'entity'. It is up to you to take care of that the
+memory region that 'entity' points to holds something useful as long as the
+ulList exists. Be especially careful with addresses of variables that have a
+limited lifetime.
+<p>
+To retrieve an entity, call:
+<pre><i>
+  void * ulList::getEntity ( unsigned int n ) ;
+</i></pre>
+Where 'n' is the position of the entity in the list. If 'n' is not a valid
+index, NULL is returned. Once you have called this function, you can use
+subsequent calls to
+<pre><i>
+  void * ulList::getNextEntity ( void ) ;
+</i></pre>
+in order to retrieve the following entities in the list. If there are no more
+entities, this function will return NULL.
+<p>
+To remove an entity, call one of:
+<pre><i>
+  void ulList::removeEntity ( unsigned int n ) ;
+  void ulList::removeEntity ( void *entity ) ;
+</i></pre>
+Where the second function removes the <b>first</b> entity with the specified
+data value in case there are multiple ones.
+<p>
+To replace the value of an entity, call one of:
+<pre><i>
+  void ulList::replaceEntity ( unsigned int n, void *new_entity ) ;
+  void ulList::replaceEntity ( void *old_entity, void *new_entity ) ;
+</i></pre>
+Where the second function will replace the value of the <b>first</b> entity
+with the specified old data value in case there are multiple ones.
+<p>
+And finally, you can retrieve the number of entities stored in the list
+(that's <b>not</b> necessarily the internal array's size), remove all
+entities or retrieve the position of an entity by specifying it's data
+value:
+<pre><i>
+  void ulList::getNumEntities ( void ) const ;
+  void ulList::removeAllEntities () ;
+  int  ulList::searchForEntity ( void *entity ) const ;
+</i></pre>
+Where the latter returns a negative value if no entity with the specified
+value was found in the list, and otherwise the position of the <b>first</b>
+entity with the specified data value.
+
+<p>
+<h3><a name="ulLinkedList">class ulLinkedList</a></h3>
+<pre><i>
+  ulLinkedList::ulLinkedList () ;
+</i></pre>
+The ulLinkedList class stores generic (void*) pointers using a linked list
+of nodes where each node maintains a pointer to the next node.
+<p>
+This technique has some advantages compared to an array implementation of a
+list like <a href="#ulList">ulList</a>.
+<ul>
+<li>
+No wasted memory. When storing data using arrays (as
+<a href="#ulList">ulList</a> does), it is a common practice to choose an array
+size that seems "large enough". Most of the time the number of entities stored
+will be smaller than the available array slots, so some memory space is wasted.
+With a linked list, we allocate single nodes. No memory is wasted (except a
+few bytes for each node's pointer to the next node).
+
+<li>
+Resizing an array is an expensive operation, since usually the whole array
+content has to be copied from the old to the new memory location. We do not
+have this problem with linked lists.
+
+<li>
+In contrast to arrays, it is a cheap operation to insert or remove entities
+to / from the head or middle of a linked list. While with an array, the
+following entities must all be shifted one slot to the left or right, we
+simply need to (re)connect a few pointers with a linked list.
+</ul>
+There are some disadvantages, though:
+<ul>
+<li>
+In contrast to an array, there is no cheap way to locate the n-th entity in a
+linked list. With an array, you simply have to add the desired position
+multiplied with the size of an element to the array's base address and
+look at the content of the memory at this location - a very simple operation.
+With a linked list, however, we need to iterate over all nodes 'n' times,
+so locating the 1000th node is a rather expensive operation.
+
+<li>
+One may argue that insertion operations are more expensive with linked lists
+than with arrays, since we allocate single nodes from the heap in contrast
+to an array, where the whole list is one huge allocated block of memory.
+Although allocation from the heap is indeed rather expensive, this is not
+true when it comes to insertions to the middle of a list, these are usually
+<b>way</b> more expensive with arrays. Furthermore, a list implemented using
+an array such as <a href="#ulList">ulList</a> may make resizes of the array
+necessary on insertions, which are again rather expensive.
+</ul>
+Decide yourself if a list implemented as an array such as
+<a href="#ulList">ulList</a> or a linked list implementation like this one fits
+your needs better.
+<p>
+Once you have constructed a ulLinkedList object, you can insert a node using
+one of:
+<pre><i>
+  void ulLinkedList::appendNode ( void *data ) ;
+  void ulLinkedList::prependNode ( void *data ) ;
+  void ulLinkedList::insertNode ( void *data, int pos ) ;
+</i></pre>
+While "appendNode" adds the new node at the tail of the list, "prependNode"
+will place the new node at the head of the list, and "insertNode" allows
+you to specify the desired position ('0' is the first node) yourself; 'pos'
+must be either '0' or a number between '0' and the number of nodes minus one.
+"prependNode" is equal to calling "insertNode" with pos == 0.
+<p>
+Note that ulLinkedList allows you to have two nodes with the same data in
+the list. Also note that just as <a href="#ulList">ulList</a>, ulLinkedList
+does not make it's own copy of the memory pointed to by 'data', so make sure
+that the corresponding memory location holds something useful as long as the
+list exists.
+<p>
+To retrieve the number of nodes in the list, call:
+<pre><i>
+  int ulLinkedList::getNumNodes ( void ) const ;
+</i></pre>
+<p>
+To retrieve the data of the node at a certain position in the list, call:
+<pre><i>
+  void * ulLinkedList::getNodeData ( int pos ) const ;
+</i></pre>
+Where 'pos' must be a number between '0' and the number of nodes minus one,
+again.
+<p>
+If you need to retrieve the position of a node in the list by specifying it's
+data value, call:
+<pre><i>
+  int ulLinkedList::getNodePosition ( void *data ) const ;
+</i></pre>
+If there is more than one node whose data value is 'data' in the list, this
+function will return the position of the <b>first</b> one. If there is no
+node with the specified data value in the list, this function will return a
+negative number to indicate failure.
+<p>
+Checking if the return value of "getNodePosition" is non-negative is also
+the recommended way to determine whether there exists at least one node with
+a certain data value in a list.
+<p>
+To remove a node from the list, call one of:
+<pre><i>
+  void ulLinkedList::removeNode ( void *data ) ;
+  void * ulLinkedList::removeNode ( int pos ) ;
+</i></pre>
+Where in case there is more than one node whose data value is 'data', the
+first function will remove the <b>first</b> one. With the second one, 'pos'
+has to be a number between '0' and the number of nodes minus one. The return
+value of the second function is a copy of the removed node's data value.
+<p>
+To iterate over the list (starting from the head) and to have a custom
+function being called for each node's data pointer, call:
+<pre><i>
+  typedef bool (*ulIterateFunc)( const void *data ) ;
+  void ulLinkedList::forEach ( ulIterateFunc fn ) const ;
+</i></pre>
+The iteration process will stop if your ulIterateFunc returns "false" or
+if the tail of the list is reached.
+<p>
+ulLinkedList allows you to maintain a sorted list as an option. To set up
+a sorted list, simply be sure to insert all nodes using the sorted insertion
+function as soon as there is at least one node in the list. It's prototype is:
+<pre><i>
+  typedef int (*ulCompareFunc)( const void *data1, const void *data2 ) ;
+  int ulList::insertSorted ( void *data, ulCompareFunc comparefn ) ;
+</i></pre>
+Where 'comparefn' is your custom comparison function that takes two
+data pointers, compares them and returns a memcmp / strcmp-like result:
+<ul>
+<li>
+A number <b>less than zero</b> if "data1" is "smaller" than "data2", that
+means if "data1" had to be inserted <b>before</b> "data2" in the list.
+
+<li>
+A number <b>equal to zero</b> if "data1" is equal to "data2", that means if
+"data" had to be inserted immediately before or after "data2" in the list.
+
+<li>
+A number <b>greater than zero</b> if "data1" is "greater" than "data2",
+that means if "data" had to be inserted <b>after</b> "data2" in the list.
+</ul>
+The return value of "insertSorted" is the position of the new node in the list
+on success, or a negative value if you tried to do a sorted insertion on a
+non-sorted list, that is a list which contains more than one node of which
+at least one was not inserted using the sorted insertion function. In the
+latter case, the new node would not have been inserted to the list.
+<p>
+To determine whether a list is sorted or not, call the following function:
+<pre><i>
+  bool ulLinkedList::isSorted ( void ) const ;
+</i></pre>
+<p>
+Finally, you can empty a list (remove all nodes) by calling:
+<pre><i>
+  typedef bool (*ulIterateFunc)( const void *data ) ;
+  void ulList::empty ( ulIterateFunc destroyfn = NULL ) ;
+</i></pre>
+Where "destroyfn" is an optionally specified function that will be called
+with a copy each destroyed node's data pointer as the argument. This is
+for example useful if the list entries are pointers to dynamically allocated
+objects that have to be freed on destruction of the list. The return value
+of the specified function is ignored.
+
+<p>
+<h3><a name="ulHashTable">ulHashTable</a></h3>
+Not yet.
+
+<h2><a name="errorHandling">Error handling</a></h2>
+
+<h3><a name="ulSetErrorCallback">ulSetErrorCallback</a></h3>
+<pre><i>
+  typedef void (*ulErrorCallback) ( enum ulSeverity severity, char* msg ) ;
+  void ulSetErrorCallback ( ulErrorCallback cb ) ;
+</i></pre>
+<a href="../index.html">PLIB</a> has an internal error handling system
+that the subsystems use to report debug, warning or error messages.
+An application can set up an error callback that PLIB will call whenever such
+a message occurs in addition to printing the message on the user's terminal.
+<p>
+ulSeverety indicates the importance of an message and is currently defined
+the following way:
+<pre><i>
+  enum ulSeverity
+  {
+    UL_DEBUG,
+    UL_WARNING,
+    UL_FATAL
+  } ;
+</i></pre>
+Where
+<ul>
+<li>UL_DEBUG are unimportant debug messages that can usually safely be ignored
+<li>UL_WARNING are important warning messages that should not be ignored
+<li>UL_FATAL are fatal errors that PLIB can not recover from
+</ul>
+
+<p>
+<h3><a name="ulGetErrorCallback">ulGetErrorCallback</a></h3>
+<pre><i>
+  typedef void (*ulErrorCallback) ( enum ulSeverity severity, char* msg ) ;
+  ulErrorCallback ulGetErrorCallback ( void ) ;
+</i></pre>
+Returns the current <a href="#ulSetErrorCallback">error callback</a> (if
+any, else NULL is returned).
+
+<p>
+<h3><a name="ulGetError">ulGetError</a></h3>
+<pre><i>
+  char * ulGetError ( void ) ;
+</i></pre>
+Returns a pointer to the error buffer, that is, the last error message or an
+empty string if there were not any error messages or if the error buffer has
+just been <a href="#ulClearError">cleared</a>.
+
+<p>
+<h3><a name="ulClearError">ulClearError</a></h3>
+<pre><i>
+  void ulClearError ( void ) ;
+</i></pre>
+Clears the <a href="#ulGetError">error buffer</a>.
+
+<h2><a name="miscClasses">Misc. classes</a></h2>
+
+<h3><a name="ulDynamicLibrary">class ulDynamicLibrary</a></h3>
+<pre><i>
+  ulDynamicLibrary::ulDynamicLibrary ( const char *libname ) ;
+</i></pre>
+This class provides a portable way to load a dynamic library and to retrieve
+the memory address of a specific function afterwards. When constructing an
+ulDynamicLibrary object, you have to specify the name of the dynamic library
+you want to operate on <b>without</b> the platform-specific file extension
+for dynamic libraries.
+<p>
+Afterwards, you can retrieve the memory address where a function / symbol of
+the library has been loaded by calling:
+<pre><i>
+  void * ulDynamicLibrary::getFuncAddress ( const char *funcname ) :
+</i></pre>
+This function returns NULL if the specified symbol was not found.
+
+<p>
+<h3><a name="ulClock">ulClock</a></h3>
+<pre><i>
+  ulClock::ulClock () ;
+</i></pre>
+No further documentation yet.
+
+<h3><a name="ulPropertySet">ulPropertySet</a></h3>
+Not yet.
+
+<h2><a name="stringHandling">String handling</a></h2>
+
+<h3><a name="ulStrEqual">ulStrEqual</a></h3>
+<pre><i>
+  int ulStrEqual ( const char *s1, const char *s2 ) ;
+</i></pre>
+This function provides a portable way to compare two strings while ignoring
+the case of the characters. We need it since half of the machines on the
+planet provide strcasecmp and the other half stricmp for this purpose.
+<p>
+In contrast to the libc string comparison routines, this routine returns '1'
+if the strings are <b>equal</b> and '0' if they are <b>not</b>.
+
+<p>
+<h3><a name="ulStrNEqual">ulStrNEqual</a></h3>
+<pre><i>
+  int ulStrNEqual ( const char *s1, const char *s2, int len ) ;
+</i></pre>
+Same as ulStrEqual, except that it only compares the first 'len' characters
+of the strings.
+
+<p>
+<h2><a name="endianHandling">Endian handling</a></h2>
+<pre><i>
+  bool ulIsLittleEndian ( void ) ;
+  bool ulIsBigEndian ( void ) ;
+
+  unsigned short ulEndianLittle16 ( unsigned short x ) ;
+  unsigned int ulEndianLittle32 ( unsigned int x ) ;
+  float ulEndianLittleFloat ( float x ) ;
+
+  unsigned short ulEndianBig16 ( unsigned short x ) ;
+  unsigned int ulEndianBig32 ( unsigned int x ) ;
+  float ulEndianBigFloat ( float x ) ;
+
+  void ulEndianLittleArray16 ( unsigned short *x, int length ) ;
+  void ulEndianLittleArray32 ( unsigned int *x, int length ) ;
+  void ulEndianLittleArrayFloat ( float *x, int length ) ;
+
+  void ulEndianBigArray16 ( unsigned short *x, int length ) ;
+  void ulEndianBigArray32 ( unsigned int *x, int length ) ;
+  void ulEndianBigArrayFloat ( float *x, int length ) ;
+
+  unsigned short ulEndianReadLittle16 ( FILE *f ) ;
+  unsigned int ulEndianReadLittle32 ( FILE *f ) ;
+  float ulEndianReadLittleFloat ( FILE *f ) ;
+
+  unsigned short ulEndianReadBig16 ( FILE *f ) ;
+  unsigned int ulEndianReadBig32 ( FILE *f ) ;
+  float ulEndianReadBigFloat ( FILE *f ) ;
+
+  size_t ulEndianWriteLittle16 ( FILE *f, unsigned short x ) ;
+  size_t ulEndianWriteLittle32 ( FILE *f, unsigned int x ) ;
+  size_t ulEndianWriteLittleFloat ( FILE *f, float x ) ;
+
+  size_t ulEndianWriteBig16 ( FILE *f, unsigned short x ) ;
+  size_t ulEndianWriteBig32 ( FILE *f, unsigned int x ) ;
+  size_t ulEndianWriteBigFloat ( FILE *f, float x ) ;
+</i></pre>
+No further documentation yet.
+
 <hr>
+<table>
+<tr>
+<td>
+<a href="http://validator.w3.org/check/referer"><img border="0" src="../valid-html40.png" alt="Valid HTML 4.0!" height="31" width="88"></a>
+<td>
 <ADDRESS>
 <A HREF="http://www.sjbaker.org">
 Steve J. Baker.</A>
 &lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
 </ADDRESS>
+</table>
 </BODY>
 </HTML>
 
