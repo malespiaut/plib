@@ -110,15 +110,17 @@ int  ssgBase::getSpare  ()         { return spare ; }
 
 void ssgBase::print ( FILE *fd, char *indent, int how_much )
 {
-
   if ( how_much > 2 )
-  {	fprintf ( fd, "%s%s: Ref Count=%d\n", indent, getTypeName(), getRef () ) ;
-		fprintf ( fd, "%s  Name = \"%s\"\n",  indent, getPrintableName() ) ;
-	}
-	else
-		fprintf ( fd, "%s%s: Name=%s\n", indent, getTypeName(), getPrintableName() ) ;
-	if ( how_much > 1 )
+  {
+    fprintf ( fd, "%s%s: Ref Count=%d\n", indent, getTypeName(), getRef () ) ;
+    fprintf ( fd, "%s  Name = \"%s\"\n",  indent, getPrintableName() ) ;
+  }
+  else
+    fprintf ( fd, "%s%s: Name=%s\n", indent, getTypeName(), getPrintableName());
+
+  if ( how_much > 1 )
     fprintf ( fd, "%s  Userdata = %p\n",  indent, getUserData() ) ;
+
   deadBeefCheck () ;
 }
 

@@ -29,8 +29,8 @@ void ssgTexture::copy_from ( ssgTexture *src, int clone_flags )
 {
   ssgBase::copy_from ( src, clone_flags ) ;
 
-  wrapu = src -> wrapu ;
-  wrapv = src -> wrapv ;
+  wrapu  = src -> wrapu  ;
+  wrapv  = src -> wrapv  ;
   mipmap = src -> mipmap ;
 
   setFilename ( src -> getFilename () ) ;
@@ -39,7 +39,7 @@ void ssgTexture::copy_from ( ssgTexture *src, int clone_flags )
   ssgTextureInfo info ;
   ssgLoadTexture( filename, &info ) ;
   has_alpha = (info.alpha != 0) ;
-	setDefaultGlParams(wrapu, wrapv, mipmap);
+  setDefaultGlParams(wrapu, wrapv, mipmap);
 }
 
 
@@ -53,15 +53,18 @@ ssgBase *ssgTexture::clone ( int clone_flags )
 
 void ssgTexture::setDefaultGlParams(int wrapu, int wrapv, int mipmap)
 {
-  glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ) ;
+  glTexEnvi       ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ) ;
   
   glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ) ;
   glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-    mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR ) ;
-  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapu ? GL_REPEAT : GL_CLAMP ) ;
-  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapv ? GL_REPEAT : GL_CLAMP ) ;
+                    mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                    wrapu ? GL_REPEAT : GL_CLAMP ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                    wrapv ? GL_REPEAT : GL_CLAMP ) ;
+
 #ifdef GL_VERSION_1_1
-  glBindTexture ( GL_TEXTURE_2D, 0 ) ;
+  glBindTexture   ( GL_TEXTURE_2D, 0 ) ;
 #else
   glBindTextureEXT ( GL_TEXTURE_2D, 0 ) ;
 #endif
@@ -77,16 +80,17 @@ ssgTexture::ssgTexture ()
   own_handle = FALSE ;
   handle = 0 ;
 
-	wrapu = TRUE ;
+  wrapu = TRUE ;
   wrapv = TRUE ;
   mipmap = TRUE ;
   has_alpha = false ;
 }
 
 
-ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize, int zsize, 
-		     int _wrapu, int _wrapv )
-// fname is used when saving the ssgSimpleState to disc.
+ssgTexture::ssgTexture ( const char *fname, GLubyte *image,
+                         int xsize, int ysize, int zsize, 
+		         int _wrapu, int _wrapv )
+// fname is used when saving the ssgSimpleState to disk.
 // If there is no associated file, you can use a dummy name.
 {
   type = ssgTypeTexture () ;
@@ -96,7 +100,7 @@ ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize
   own_handle = FALSE ;
   handle = 0 ;
 
-	wrapu = _wrapu ;
+  wrapu = _wrapu ;
   wrapv = _wrapv ;
   mipmap = TRUE ;
 
@@ -109,9 +113,9 @@ ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize
   has_alpha = (info.alpha != 0) ;
 #else
   has_alpha = (zsize == 4) ;
-	ssgMakeMipMaps ( image, xsize, ysize, zsize );
+  ssgMakeMipMaps ( image, xsize, ysize, zsize );
 #endif
-	setDefaultGlParams(wrapu, wrapv, TRUE);
+  setDefaultGlParams(wrapu, wrapv, TRUE);
 }
 
 
@@ -124,8 +128,8 @@ ssgTexture::ssgTexture ( const char *fname, int _wrapu, int _wrapv, int _mipmap 
   own_handle = FALSE ;
   handle = 0 ;
 
-	wrapu = _wrapu ;
-  wrapv = _wrapv ;
+  wrapu  = _wrapu  ;
+  wrapv  = _wrapv  ;
   mipmap = _mipmap ;
 
   setFilename ( fname ) ;
@@ -134,7 +138,7 @@ ssgTexture::ssgTexture ( const char *fname, int _wrapu, int _wrapv, int _mipmap 
   ssgTextureInfo info ;
   ssgLoadTexture( filename, &info ) ;
   has_alpha = (info.alpha != 0) ;
-	setDefaultGlParams(wrapu, wrapv, mipmap);
+  setDefaultGlParams(wrapu, wrapv, mipmap);
 }
 
 
@@ -210,7 +214,7 @@ int ssgTexture::load ( FILE *fd )
   ssgTextureInfo info ;
   ssgLoadTexture( filename, &info ) ;
   has_alpha = (info.alpha != 0) ;
-	setDefaultGlParams(wrapu, wrapv, mipmap);
+  setDefaultGlParams(wrapu, wrapv, mipmap);
 
   return ssgBase::load ( fd ) ;
 }
@@ -251,7 +255,9 @@ ssgTexture* ssgTextureArray::findByFilename ( const char* fname )
   {
     ssgTexture *tex = get (i) ;
     if ( ulStrEqual ( fname, tex->getFilename() ) )
-	    return tex ;
+      return tex ;
   }
   return NULL ;
 }
+
+
