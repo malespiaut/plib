@@ -33,6 +33,11 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
 
   if ( b -> getValue () )
   {
+/*
+  SJBL Test hack.
+*/
+    puDeactivateWidget () ;
+
     p->reveal () ;   // Reveal the submenu
 
     // If the parent floats in its own window, and the submenu drops off the window,

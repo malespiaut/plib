@@ -50,7 +50,6 @@
 #define strncasecmp strnicmp 
 #endif
 
-
 /*
  * Define Basic types
  */
