@@ -398,8 +398,8 @@ void  puShowCursor     ( void ) ;
 int   puCursorIsHidden ( void ) ;
 void  puDeleteObject   ( puObject *ob ) ;
 
-int  puNeedRefresh    ( void ) { return puRefresh ; }
-void puPostRefresh    ( void ) { puRefresh = TRUE ; }
+int  puNeedRefresh     ( void ) ;
+void puPostRefresh     ( void ) ;
 
 
 // Active widget functions
