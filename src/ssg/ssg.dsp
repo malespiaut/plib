@@ -110,6 +110,10 @@ SOURCE=.\ssgBranch.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgconf.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgContext.cxx
 # End Source File
 # Begin Source File
@@ -127,10 +131,6 @@ SOURCE=.\ssgDList.cxx
 # Begin Source File
 
 SOURCE=.\ssgEntity.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\ssgImageLoader.cxx
 # End Source File
 # Begin Source File
 
@@ -167,6 +167,10 @@ SOURCE=.\ssgLoadAC.cxx
 # Begin Source File
 
 SOURCE=.\ssgLoadASE.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgLoadBMP.cxx
 # End Source File
 # Begin Source File
 
@@ -210,11 +214,23 @@ SOURCE=.\ssgLoadOFF.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadPNG.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgLoadSGI.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadSSG.cxx
 # End Source File
 # Begin Source File
 
 SOURCE=.\ssgLoadStrip.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgLoadTGA.cxx
 # End Source File
 # Begin Source File
 
@@ -331,6 +347,10 @@ SOURCE=.\ssgTexTrans.cxx
 # Begin Source File
 
 SOURCE=.\ssgTexture.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgTextureManager.cxx
 # End Source File
 # Begin Source File
 
