@@ -157,47 +157,14 @@ int ssgLeaf::preDraw ()
 
 int ssgLeaf::load ( FILE *fd )
 {
-  int key, t ;
-
   _ssgReadInt ( fd, &cull_face ) ;
-  _ssgReadInt ( fd, & t ) ;
 
-  
-  if ( t == SSG_BACKWARDS_REFERENCE )
-  {
-    _ssgReadInt ( fd, & key ) ;
+  ssgState *st;
 
-    if ( key == 0 )
-      //~~ T.G. set state includes ref()
-      setState  ( NULL );  
-    else
-      //~~ T.G. set state includes ref()
-      setState  ( (ssgState *) _ssgGetFromList ( key ) );
-  }
-  else
-  if ( t == ssgTypeSimpleState() )
-  {
-    //~~ T.G. set state includes ref()
-    setState  ( new ssgSimpleState ); 
+  if ( ! _ssgLoadObject ( fd, (ssgBase **) &st, ssgTypeState () ) )
+     return FALSE ;
 
-    if ( ! state -> load ( fd ) )
-      return FALSE ;
-  }
-  else
-  if ( t == ssgTypeStateSelector() )
-  {
-    //~~ T.G. set state includes ref()
-	setState  ( new ssgSimpleState ); 
-
-    if ( ! state -> load ( fd ) )
-      return FALSE ;
-  }
-  else
-  {
-    ulSetError ( UL_WARNING, "ssgLeaf::load - Unrecognised ssgState type 0x%08x", t ) ;
-    state = NULL ;
-  }
-
+  setState ( st ) ;
 
   return ssgEntity::load(fd) ;
 }
@@ -205,26 +172,10 @@ int ssgLeaf::load ( FILE *fd )
 
 int ssgLeaf::save ( FILE *fd )
 {
-  _ssgWriteInt   ( fd, cull_face ) ;
+  _ssgWriteInt ( fd, cull_face ) ;
 
-  if ( state == NULL )
-  {
-    _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
-    _ssgWriteInt ( fd, 0 ) ;
-  }
-  else
-  if ( state -> getSpare () > 0 )
-  {
-    _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
-    _ssgWriteInt ( fd, state -> getSpare () ) ;
-  }
-  else
-  {
-    _ssgWriteInt ( fd, state->getType() ) ;
-
-    if ( ! state -> save ( fd ) )
-      return FALSE ;
-  }
+  if ( ! _ssgSaveObject ( fd, getState () ) )
+     return FALSE ;
 
   return ssgEntity::save(fd) ;
 }

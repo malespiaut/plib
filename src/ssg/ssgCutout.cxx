@@ -122,18 +122,12 @@ int ssgCutout::load ( FILE *fd )
 {
   _ssgReadInt ( fd, & point_rotate ) ;
 
-  int reserved[4];
-  _ssgReadInt ( fd, 4, reserved ) ;
-
   return ssgBranch::load(fd) ;
 }
 
 int ssgCutout::save ( FILE *fd )
 {
   _ssgWriteInt ( fd, point_rotate ) ;
-
-  int reserved[4] = { 0, 0, 0, 0 } ;
-  _ssgWriteInt ( fd, 4, reserved ) ;
 
   return ssgBranch::save(fd) ;
 }

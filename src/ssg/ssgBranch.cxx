@@ -289,43 +289,10 @@ int ssgBranch::load ( FILE *fd )
 
   for ( int i = 0 ; i < nkids ; i++ )
   {
-    int key, t ;
     ssgEntity *kid ;
 
-    _ssgReadInt ( fd, & t ) ;
-
-    if ( t == SSG_BACKWARDS_REFERENCE )
-    {
-      _ssgReadInt ( fd, & key ) ;
-      kid = (ssgEntity *) _ssgGetFromList ( key ) ; 
-    }
-    else
-    {
-      if ( t == ssgTypeVTable       () ) kid = new ssgVTable       () ; else
-      if ( t == ssgTypeVtxTable     () ) kid = new ssgVtxTable     () ; else
-      if ( t == ssgTypeVtxArray     () ) kid = new ssgVtxArray     () ; else
-      if ( t == ssgTypeBranch       () ) kid = new ssgBranch       () ; else
-      if ( t == ssgTypeTransform    () ) kid = new ssgTransform    () ; else
-      if ( t == ssgTypeTexTrans     () ) kid = new ssgTexTrans     () ; else
-      if ( t == ssgTypeSelector     () ) kid = new ssgSelector     () ; else
-      if ( t == ssgTypeRangeSelector() ) kid = new ssgRangeSelector() ; else
-      if ( t == ssgTypeTimedSelector() ) kid = new ssgTimedSelector() ; else
-      if ( t == ssgTypeCutout       () ) kid = new ssgCutout       () ; else
-      if ( t == ssgTypeInvisible    () ) kid = new ssgInvisible    () ; else
-      if ( t == ssgTypeRoot         () ) kid = new ssgRoot         () ; else
-      {
-        ulSetError ( UL_WARNING, "loadSSG: Unrecognised Entity type 0x%08x", t ) ;
-        return FALSE ;
-      }
-
-      if ( ! kid -> load ( fd ) )
-      {
-        ulSetError ( UL_WARNING, "loadSSG: Failed to read child object." ) ;
-        return FALSE ;
-      }
-
-      kid -> recalcBSphere () ;
-    }
+    if ( ! _ssgLoadObject ( fd, (ssgBase **) &kid, ssgTypeEntity () ) )
+      return FALSE ;
 
     addKid ( kid ) ;
   }
@@ -343,25 +310,8 @@ int ssgBranch::save ( FILE *fd )
 
   for ( int i = 0 ; i < getNumKids() ; i++ )
   {
-    ssgEntity *kid = getKid ( i ) ;
-
-    /* Has this child node already been written out? */
-
- 
-    if ( kid -> getSpare () > 0 )
-    {
-      _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
-      _ssgWriteInt ( fd, kid -> getSpare () ) ;
-    }
-    else
-    { _ssgWriteInt ( fd, kid->getType() ) ;
-
-			if ( ! kid -> save ( fd ) )
-			{
-				ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
-				return FALSE ;
-			}
-    }
+    if ( ! _ssgSaveObject ( fd, getKid ( i ) ) )
+       return FALSE ;
   }
 
   return TRUE ;

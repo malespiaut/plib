@@ -2,67 +2,171 @@
 
 #include "ssgLocal.h"
 
-static int _ssgInstanceListLength = 0 ;
-static ssgBase **_ssgInstanceList = NULL ;
-static int _ssgNextInstanceKey = 0 ;
-
 // used for reading only:
 int _ssgFileVersionNumber = 0 ;
 
-int _ssgGetNextInstanceKey ()
-{
-  return ++_ssgNextInstanceKey ;
-}
 
-ssgBase *_ssgGetFromList ( int key )
-{
+/*
+  Feb 6 2001:
+  Previously the spare field was used to determine whether a particular object 
+  had been saved already. When that was fine for the ssgEntities, it did not 
+  work for other kinds of objects because their spare fields were not cleared.
+  Therefore an external list is now used for the same purpose.
+  Some kind of hashing could be added to speed up saving if needed.
+  A corresponding list is built when the file is loaded back.
+*/
 
-	if ( _ssgInstanceListLength <= key ) 
-	{
-		ulSetError ( UL_WARNING, "Invalid key encountered while reading a .ssg-file.\n") ; 
-		return (ssgBase *) NULL ;
-	}
-	else
-		return _ssgInstanceList[key] ;
-}
-
-void _ssgAddToList ( int key, ssgBase *b )
+// very simple list of ssgBase derived objects:
+struct _ssgBaseList 
 {
-	if (key == 0 ) // wk: I dont think key 0 is permissible here.
-		ulSetError ( UL_WARNING, "Key zero encountered while reading a .ssg-file.\n") ; 
-	if ( _ssgInstanceListLength <= key )
+  int num ;
+  int len ;
+  ssgBase **arr ;
+
+  _ssgBaseList() 
   {
-    int temp_length = _ssgInstanceListLength ;
-    ssgBase **temp = _ssgInstanceList ;
-    int new_length = (_ssgInstanceListLength * 2 < key) ? (key + 128) :
-                                          (_ssgInstanceListLength * 2) ;
-		if ( new_length == 0 )
-			if (key == 0 ) // Did already warn user
-				new_length = 10;
-		assert ( new_length != 0 );
-		_ssgInstanceListLength = new_length ;
+    num = 0 ;
+    len = 16 ;
+    arr = (ssgBase **) malloc ( sizeof(ssgBase *) * len ) ;
+  }
 
-    _ssgInstanceList = new ssgBase *[ new_length ] ;
-    memset ( _ssgInstanceList, 0, new_length * sizeof(ssgBase *) ) ;
+  ~_ssgBaseList() 
+  {
+    free ( arr ) ;
+  }
 
-    if ( temp_length > 0 )
+  ssgBase *get ( int index )
+  {
+    return index >= 0 && index < num ? arr[index] : NULL ;
+  }
+
+  int find ( ssgBase *obj ) 
+  {
+    for ( int i = 0 ; i < num ; i++ )
+      if ( arr[i] == obj )
+	return i ;
+    return -1 ;
+  }
+
+  void add ( ssgBase *obj ) 
+  {
+    if ( num >= len ) 
     {
-      memcpy ( _ssgInstanceList, temp, temp_length * sizeof(ssgBase *) ) ;
-      delete[] temp ;
+      len += len ;
+      arr = (ssgBase **) realloc ( arr, sizeof(ssgBase *) * len ) ;
+    }
+    arr[num++] = obj ;
+  }
+
+};
+
+// list of ssgBase objects for instance referencing:
+static _ssgBaseList *_ssgInstanceList ;
+
+
+int _ssgLoadObject ( FILE *f, ssgBase **objp, int type_mask )
+{
+  int type = 0, key = 0;
+  ssgBase *obj;
+  
+  _ssgReadInt ( f, &type ) ;
+  
+  if ( type == SSG_BACKWARDS_REFERENCE ) 
+  {
+    _ssgReadInt ( f, &key ) ;
+    
+    obj = _ssgInstanceList -> get ( key ) ;
+    if ( obj == NULL )
+    {
+      if ( key != 0 )
+      {
+	ulSetError ( UL_WARNING, 
+		     "ssgLoadObject: Unexpected null object for key %d.", key ) ;
+	return FALSE ;
+      }
+    }
+    else if ( ! obj -> isAKindOf ( type_mask ) )
+    {
+      ulSetError ( UL_WARNING, "ssgLoadObject: Bad type %#x (%s), expected %#x.", 
+		   obj -> getType (), obj -> getTypeName (), type_mask ) ;
+      return FALSE ;
+    }
+  }
+  else
+  {
+    if ( ( type & type_mask ) != type_mask )
+    {
+      ulSetError ( UL_WARNING, "ssgLoadObject: Bad type %#x, expected %#x.",
+		   type, type_mask ) ;
+      return FALSE ;
+    }
+    
+    obj = ssgCreateOfType ( type ) ;
+    if ( obj == NULL )
+       return FALSE ;
+
+    _ssgInstanceList -> add ( obj ) ;
+    
+    if ( ! obj -> load ( f ) )
+    {
+      ulSetError ( UL_DEBUG, "ssgLoadObject: Failed to load object of type %s.",
+		   obj -> getTypeName () ) ;
+      return FALSE ;
+    }
+
+    if ( obj -> isAKindOf ( ssgTypeEntity () ) )
+    {
+      ((ssgEntity *) obj) -> recalcBSphere () ;
+    }
+  }
+  
+  if ( _ssgReadError () )
+  {
+    ulSetError ( UL_WARNING, "ssgLoadObject: Read error." ) ;
+    return FALSE ;
+  }
+  
+  *objp = obj ;
+  
+  return TRUE ;
+}
+
+
+int _ssgSaveObject ( FILE *f, ssgBase *obj )
+{
+  int key = _ssgInstanceList -> find ( obj ) ;
+
+  if ( key >= 0 )
+  {
+    _ssgWriteInt ( f, SSG_BACKWARDS_REFERENCE ) ;
+    _ssgWriteInt ( f, key ) ;
+  }
+  else
+  {
+    _ssgWriteInt ( f, obj -> getType () ) ;
+
+    _ssgInstanceList -> add ( obj ) ;
+    
+    if ( ! obj -> save ( f ) )
+    {
+      ulSetError ( UL_DEBUG, "ssgSaveObject: Failed to save object of type %s.", 
+		   obj -> getTypeName () ) ;
+      return FALSE ;
     }
   }
 
-  _ssgInstanceList [ key ] = b ;
+  if ( _ssgWriteError () )
+  {
+    ulSetError ( UL_WARNING, "ssgSaveObject: Write error." ) ;
+    return FALSE ;
+  }
+
+  return TRUE ;
 }
 
 
 ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
 {
-  delete[] _ssgInstanceList ;
-  _ssgInstanceList = NULL ;
-  _ssgInstanceListLength = 0 ;
-	_ssgNextInstanceKey = 0 ;
-  
   char filename [ 1024 ] ;
 
   if ( fname [ 0 ] != '/' &&
@@ -82,12 +186,11 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
   {
     perror ( filename ) ;
     ulSetError ( UL_WARNING, 
-      "ssgLoadSSG: Failed to open '%s' for reading\n", filename ) ;
+		 "ssgLoadSSG: Failed to open '%s' for reading.", filename ) ;
     return NULL ;
   }
 
   int magic ;
-  int t ;
   ssgEntity *kid ;
 
   _ssgReadInt ( fd, & magic ) ;
@@ -97,9 +200,9 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
     if (((magic & 0x0000FF)>> 0)==((SSG_FILE_MAGIC_NUMBER & 0xFF000000)>>24) &&
         ((magic & 0x00FF00)>> 8)==((SSG_FILE_MAGIC_NUMBER & 0x00FF0000)>>16) &&
         ((magic & 0xFF0000)>>16)==((SSG_FILE_MAGIC_NUMBER & 0x0000FF00)>> 8) ) 
-    	ulSetError ( UL_WARNING, "ssgLoadSSG: File appears to be byte swapped!\n" ) ;
+      ulSetError ( UL_WARNING, "ssgLoadSSG: File appears to be byte swapped!" ) ;
     else
-    	ulSetError ( UL_WARNING, "ssgLoadSSG: File has incorrect magic number!\n" ) ;
+      ulSetError ( UL_WARNING, "ssgLoadSSG: File has incorrect magic number!" ) ;
 
     return NULL ;
   }
@@ -109,70 +212,48 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
   */
 
   int oldFileVersion = _ssgFileVersionNumber ;
-
   _ssgFileVersionNumber = ( magic & 0xFF ) ;
-
 
   if ( _ssgFileVersionNumber == 0 )
   {
     ulSetError ( UL_WARNING, 
-            "ssgLoadSSG: SSG file format version zero is no longer supported, sorry! For more, see the docs.\n" ) ;
+		 "ssgLoadSSG: SSG file format version zero is no longer supported, sorry! For more, see the docs." ) ;
     _ssgFileVersionNumber = oldFileVersion ;
     return NULL ;
   }
-	if ( _ssgFileVersionNumber > SSG_FILE_VERSION )
+
+  if ( _ssgFileVersionNumber > SSG_FILE_VERSION )
   {
     ulSetError ( UL_WARNING, 
-            "ssgLoadSSG: This version of SSG is too old to load this file!\n" ) ;
+		 "ssgLoadSSG: This version of SSG is too old to load this file!" ) ;
     _ssgFileVersionNumber = oldFileVersion ;
     return NULL ;
   }
 
-  _ssgReadInt ( fd, & t ) ;
+  _ssgBaseList *oldInstanceList = _ssgInstanceList ; // in case of recursive loads
+  _ssgInstanceList = new _ssgBaseList ;
+  _ssgInstanceList -> add ( NULL ) ; // index 0 --> NULL
 
-  if ( t == ssgTypeVTable       () ) kid = new ssgVTable       () ; else
-  if ( t == ssgTypeVtxTable     () ) kid = new ssgVtxTable     () ; else
-  if ( t == ssgTypeVtxArray     () ) kid = new ssgVtxArray     () ; else
-  if ( t == ssgTypeBranch       () ) kid = new ssgBranch       () ; else
-  if ( t == ssgTypeTransform    () ) kid = new ssgTransform    () ; else
-  if ( t == ssgTypeTexTrans     () ) kid = new ssgTexTrans     () ; else
-  if ( t == ssgTypeSelector     () ) kid = new ssgSelector     () ; else
-  if ( t == ssgTypeRangeSelector() ) kid = new ssgRangeSelector() ; else
-  if ( t == ssgTypeTimedSelector() ) kid = new ssgTimedSelector() ; else
-  if ( t == ssgTypeCutout       () ) kid = new ssgCutout       () ; else
-  if ( t == ssgTypeInvisible    () ) kid = new ssgInvisible    () ; else
-  if ( t == ssgTypeRoot         () ) kid = new ssgRoot         () ; else
+  int success = _ssgLoadObject ( fd, (ssgBase **) &kid, ssgTypeEntity () ) ;
+
+  if ( ! success )
   {
-    ulSetError ( UL_WARNING, 
-      "loadSSG: Unrecognised Entity type 0x%08x\n", t ) ;
-    _ssgFileVersionNumber = oldFileVersion ;
-    return NULL ;
+    ulSetError ( UL_WARNING, "ssgLoadSSG: Failed to load object." ) ;
+    kid = NULL ;
   }
 
-  if ( ! kid -> load ( fd ) )
-  {
-    ulSetError ( UL_WARNING, 
-      "loadSSG: Failed to read child object.\n" ) ;
-    _ssgFileVersionNumber = oldFileVersion ;
-    return NULL ;
-  }
-
-  kid -> recalcBSphere () ;
+  delete _ssgInstanceList ;
+  _ssgInstanceList = oldInstanceList ;
+  _ssgFileVersionNumber = oldFileVersion ;
 
   fclose ( fd ) ;
-  _ssgFileVersionNumber = oldFileVersion ;
+
   return kid ;
 }
 
 
 int ssgSaveSSG ( const char *fname, ssgEntity *ent )
 {
-  /* Uses the spare field in every entity to make sure
-    we don't save the same thing twice */
-
-  _ssgNextInstanceKey = 0 ;
-  ent -> zeroSpareRecursive () ;
-
   char filename [ 1024 ] ;
 
   if ( fname [ 0 ] != '/' &&
@@ -192,25 +273,27 @@ int ssgSaveSSG ( const char *fname, ssgEntity *ent )
   {
     perror ( filename ) ;
     ulSetError ( UL_WARNING, 
-      "ssgSaveSSG: Failed to open '%s' for writing\n", filename ) ;
+		 "ssgSaveSSG: Failed to open '%s' for writing.", filename ) ;
     return FALSE ;
   }
 
+  _ssgBaseList *oldInstanceList = _ssgInstanceList ; // for recursive saves
+  _ssgInstanceList = new _ssgBaseList ;
+  _ssgInstanceList -> add ( NULL ) ; // index 0 --> NULL
+
   _ssgWriteInt ( fd, SSG_FILE_MAGIC_NUMBER ) ;
 
-  
-	
-	
-	_ssgWriteInt ( fd, ent->getType() ) ;
+  int success = _ssgSaveObject ( fd, ent ) ;
 
-	if ( ! ent -> save ( fd ) )
-	{
-		ulSetError ( UL_WARNING, 
-    	"ssgSaveSSG: Failed to write child object.\n" ) ;
-		return FALSE ;
-	}
-  fclose ( fd ) ;
-  return TRUE ;
+  if ( ! success ) 
+    ulSetError ( UL_WARNING, "ssgSaveSSG: Failed to write object." ) ;
+
+  delete _ssgInstanceList ;
+  _ssgInstanceList = oldInstanceList ;
+
+  fclose ( fd ) ;  
+
+  return success ;
 }
 
 

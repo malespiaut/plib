@@ -215,3 +215,127 @@ char *ssgVertexArray  ::getTypeName (void) { return "ssgVertexArray"   ; }
 char *ssgNormalArray  ::getTypeName (void) { return "ssgNormalArray"   ; }
 char *ssgInterleavedArray::getTypeName (void) { return "ssgInterleavedArray"; }
 
+
+
+static ssgBase *createBase ()              { return new ssgBase             ; }
+
+//static ssgBase *createEntity ()            { return new ssgEntity           ; }
+//static ssgBase *createLeaf ()              { return new ssgLeaf             ; }
+static ssgBase *createVTable ()            { return new ssgVTable           ; }
+static ssgBase *createVtxTable ()          { return new ssgVtxTable         ; }
+static ssgBase *createVtxArray ()          { return new ssgVtxArray         ; }
+static ssgBase *createBranch ()            { return new ssgBranch           ; }
+//static ssgBase *createBaseTransform ()     { return new ssgBaseTransform    ; }
+static ssgBase *createTransform ()         { return new ssgTransform        ; }
+static ssgBase *createTexTrans ()          { return new ssgTexTrans         ; }
+static ssgBase *createSelector ()          { return new ssgSelector         ; }
+static ssgBase *createRangeSelector ()     { return new ssgRangeSelector    ; }
+static ssgBase *createTimedSelector ()     { return new ssgTimedSelector    ; }
+static ssgBase *createRoot ()              { return new ssgRoot             ; }
+static ssgBase *createCutout ()            { return new ssgCutout           ; }
+static ssgBase *createInvisible ()         { return new ssgInvisible        ; }
+
+//static ssgBase *createState ()             { return new ssgState            ; }
+static ssgBase *createSimpleState ()       { return new ssgSimpleState      ; }
+static ssgBase *createStateSelector ()     { return new ssgStateSelector    ; }
+
+static ssgBase *createSimpleList ()        { return new ssgSimpleList       ; }
+static ssgBase *createVertexArray ()       { return new ssgVertexArray      ; }
+static ssgBase *createNormalArray ()       { return new ssgNormalArray      ; }
+static ssgBase *createTexCoordArray ()     { return new ssgTexCoordArray    ; }
+static ssgBase *createColourArray ()       { return new ssgColourArray      ; }
+static ssgBase *createIndexArray ()        { return new ssgIndexArray       ; }
+static ssgBase *createTransformArray ()    { return new ssgTransformArray   ; }
+static ssgBase *createInterleavedArray ()  { return new ssgInterleavedArray ; }
+
+static ssgBase *createTexture ()           { return new ssgTexture          ; }
+
+
+static struct {
+
+  int type ;
+  ssgBase * ( *func ) () ;
+
+} table[256] = {
+
+  { ssgTypeBase ()              , createBase              },
+
+  //{ ssgTypeEntity ()            , createEntity            },
+  //{ ssgTypeLeaf ()              , createLeaf              },
+  { ssgTypeVTable ()            , createVTable            },
+  { ssgTypeVtxTable ()          , createVtxTable          },
+  { ssgTypeVtxArray ()          , createVtxArray          },
+  { ssgTypeBranch ()            , createBranch            },
+  //{ ssgTypeBaseTransform ()     , createBaseTransform     },
+  { ssgTypeTransform ()         , createTransform         },
+  { ssgTypeTexTrans ()          , createTexTrans          },
+  { ssgTypeSelector ()          , createSelector          },
+  { ssgTypeRangeSelector ()     , createRangeSelector     },
+  { ssgTypeTimedSelector ()     , createTimedSelector     },
+  { ssgTypeRoot ()              , createRoot              },
+  { ssgTypeCutout ()            , createCutout            },
+  { ssgTypeInvisible ()         , createInvisible         },
+  
+  //{ ssgTypeState ()             , createState             },
+  { ssgTypeSimpleState ()       , createSimpleState       },
+  { ssgTypeStateSelector ()     , createStateSelector     },
+  
+  { ssgTypeSimpleList ()        , createSimpleList        },
+  { ssgTypeVertexArray ()       , createVertexArray       },
+  { ssgTypeNormalArray ()       , createNormalArray       },
+  { ssgTypeTexCoordArray ()     , createTexCoordArray     },
+  { ssgTypeColourArray ()       , createColourArray       },
+  { ssgTypeIndexArray ()        , createIndexArray        },
+  { ssgTypeTransformArray ()    , createTransformArray    },
+  { ssgTypeInterleavedArray ()  , createInterleavedArray  },
+  
+  { ssgTypeTexture ()           , createTexture           },
+  
+  { 0, NULL }
+
+};
+
+void ssgRegisterType ( int type, ssgBase * ( *func ) () )
+{
+  if ( type == 0 || func == NULL ) 
+  {
+    ulSetError ( UL_WARNING, "ssgRegisterType: Bad arguments (type %#x, func %p).",
+		 type, func ) ;
+    return ;
+  }
+
+  int i ;
+  for ( i = 0 ; table[i].type != 0 && table[i].type != type ; i++ )
+    ;
+
+  if ( table[i].type == type && table[i].func != func )
+    ulSetError ( UL_WARNING, "ssgRegisterType: Type %#x redefined differently.", type ) ;
+
+  table[i].type = type ;
+  table[i].func = func ;
+}
+
+ssgBase *ssgCreateOfType ( int type )
+{
+  // XXX linear search
+  int i ;
+  for ( i = 0 ; table[i].type != 0 && table[i].type != type ; i++ )
+    ;
+
+  if ( table[i].type == 0 ) 
+  {
+    ulSetError ( UL_WARNING, "ssgCreateOfType: Unrecognized type %#x.", type ) ;
+    return NULL ;
+  }
+
+  ssgBase *obj = (*table[i].func) () ;
+
+  if ( obj == NULL )
+    ulSetError ( UL_WARNING, "ssgCreateOfType: Got NULL object for type %#x.", type ) ;
+  else if ( obj -> getType () != type )
+    ulSetError ( UL_WARNING,
+		 "ssgCreateOfType: Object has wrong type #%x (%s), expected %#x.",
+		 obj -> getType (), obj -> getTypeName (), type ) ;
+
+  return obj ;
+}

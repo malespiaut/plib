@@ -702,3 +702,59 @@ void ssgaCylinder::regenerate ()
 
 
 
+// XXX really need these (and ssgLocal.h is not accessible):
+extern int _ssgLoadObject ( FILE *, ssgBase **, int ) ;
+extern int _ssgSaveObject ( FILE *, ssgBase * ) ;
+
+
+#define load_field(fp, name) (fread(&(name), 1, sizeof(name), fp) == sizeof(name))
+#define save_field(fp, name) (fwrite(&(name), 1, sizeof(name), fp) == sizeof(name))
+
+
+int ssgaShape::load ( FILE *fp )
+{
+   return ( load_field ( fp, corrupted ) && 
+	    load_field ( fp, colour ) &&
+	    load_field ( fp, center ) &&
+	    load_field ( fp, size ) &&
+	    load_field ( fp, ntriangles ) &&
+	    _ssgLoadObject ( fp, (ssgBase **) &kidState, ssgTypeState () ) &&
+	    ssgBranch::load ( fp ) ) ;
+}
+
+int ssgaShape::save ( FILE *fp )
+{
+   return ( save_field ( fp, corrupted ) &&
+	    save_field ( fp, colour ) &&
+	    save_field ( fp, center ) &&
+	    save_field ( fp, size ) &&
+	    save_field ( fp, ntriangles ) &&
+	    _ssgSaveObject ( fp, kidState ) &&
+	    ssgBranch::save ( fp ) ) ;
+}
+
+
+int ssgaSphere::load ( FILE *fp )
+{
+   return ( load_field ( fp, latlong_style ) &&
+	    ssgaShape::load ( fp ) ) ;
+}
+
+int ssgaSphere::save ( FILE *fp )
+{
+   return ( save_field ( fp, latlong_style ) &&
+	    ssgaShape::save ( fp ) ) ;
+}
+
+
+int ssgaCylinder::load ( FILE *fp )
+{
+   return ( load_field ( fp, capped ) &&
+	    ssgaShape::load ( fp ) ) ;
+}
+
+int ssgaCylinder::save ( FILE *fp )
+{
+   return ( save_field ( fp, capped ) &&
+	    ssgaShape::save ( fp ) ) ;
+}

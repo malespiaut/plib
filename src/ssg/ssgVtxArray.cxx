@@ -313,16 +313,12 @@ void ssgVtxArray::print ( FILE *fd, char *indent, int how_much )
 
 int ssgVtxArray::load ( FILE *fd )
 {
-  if ( ! ssgVtxTable::load(fd) )
+  if ( ! ssgVtxTable::load(fd) ||
+       ! _ssgLoadObject ( fd, (ssgBase **) &indices, ssgTypeIndexArray () ) )
     return FALSE ;
 
-  indices = new ssgIndexArray () ; indices -> ref () ;
-
-  if ( ! indices -> load ( fd ) )
-  {
-    ulSetError ( UL_WARNING, "loadSSG: Failed to read index array." ) ;        
-    return FALSE ;
-  }
+  if ( indices != NULL)
+    indices -> ref () ;
 
   return TRUE ;
 }
@@ -330,16 +326,9 @@ int ssgVtxArray::load ( FILE *fd )
 
 int ssgVtxArray::save ( FILE *fd )
 {
-  ssgVtxTable::save(fd) ;
-
-  if ( ! indices -> save ( fd ) )
-  {
-    ulSetError ( UL_WARNING, "saveSSG: Failed to write index array." ) ;        
+  if ( ! ssgVtxTable::save(fd) ||
+       ! _ssgSaveObject ( fd, indices ) )
     return FALSE ;
-  }
-
+   
   return TRUE ;
 }
-
-
-
