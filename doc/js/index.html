@@ -31,13 +31,18 @@ of joysticks it supports - although in actuality, most
 implementations will simply sit on top of an underlying
 driver provided by the Operating System.
 <p>
-Calling JS a 'library' is something of an exaggeration,
-since it is actually just a single header file with all
-the functionality 'inlined'.
+You should include the JS header file '/usr/include/plib/js.h'
+and link to the JS library '/usr/lib/libjs.a'.
 <p>
-JS doesn't really do much for you - it's essentially
-just a wrapper to make the various underlying OS mechanisms
-look the same to application code.
+Before using any JS functions, you should initialise the
+library by calling:
+<pre>
+
+    jsInit () ;
+
+</pre>
+JS is essentially just a wrapper to make the various
+underlying OS mechanisms look the same to application code.
 <pre>
 
   class jsJoystick
