@@ -200,12 +200,18 @@ ssgEntity *ssgBranch::getByPath ( char *path )
 void ssgBranch::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {
   int cull_result = cull_test ( f, m, test_needed ) ;
-
+  
   if ( cull_result == SSG_OUTSIDE )
     return ;
-
+  
+  if ( preDrawCB != NULL && ! (*preDrawCB)(this) )
+    return ;
+  
   for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid() )
     e -> cull ( f, m, cull_result != SSG_INSIDE ) ;
+  
+  if ( postDrawCB != NULL )
+    (*postDrawCB)(this) ;
 }
 
 
