@@ -24,6 +24,38 @@
 
 #include "sg.h"
 
+/* Type-casted sqrt and sin/cos/tan/asin/acos/atan2 ARGUMENTS IN DEGREES */
+
+inline SGDfloat sgdASin ( SGDfloat s )
+                { return (SGDfloat) asin ( s ) * SGD_RADIANS_TO_DEGREES ; }
+inline SGDfloat sgdACos ( SGDfloat s )
+                { return (SGDfloat) acos ( s ) * SGD_RADIANS_TO_DEGREES ; }
+inline SGDfloat sgdATan ( SGDfloat s )
+                { return (SGDfloat) atan ( s ) * SGD_RADIANS_TO_DEGREES ; }
+inline SGDfloat sgdATan2 ( SGDfloat y, SGDfloat x )
+                { return (SGDfloat) atan2 ( y,x ) * SGD_RADIANS_TO_DEGREES ; }
+inline SGDfloat sgdSin ( SGDfloat s )
+                { return (SGDfloat) sin ( s * SGD_DEGREES_TO_RADIANS ) ; }
+inline SGDfloat sgdCos ( SGDfloat s )
+                { return (SGDfloat) cos ( s * SGD_DEGREES_TO_RADIANS ) ; }
+inline SGDfloat sgdTan ( SGDfloat s )
+                { return (SGDfloat) tan ( s * SGD_DEGREES_TO_RADIANS ) ; }
+
+inline SGfloat sgASin ( SGfloat s )
+                { return (SGfloat) asin ( s ) * SG_RADIANS_TO_DEGREES ; }
+inline SGfloat sgACos ( SGfloat s )
+                { return (SGfloat) acos ( s ) * SG_RADIANS_TO_DEGREES ; }
+inline SGfloat sgATan ( SGfloat s )
+                { return (SGfloat) atan ( s ) * SG_RADIANS_TO_DEGREES ; }
+inline SGfloat sgATan2 ( SGfloat y, SGfloat x )
+                { return (SGfloat) atan2 ( y,x ) * SG_RADIANS_TO_DEGREES ; }
+inline SGfloat sgSin ( SGfloat s )
+                { return (SGfloat) sin ( s * SG_DEGREES_TO_RADIANS ) ; }
+inline SGfloat sgCos ( SGfloat s )
+                { return (SGfloat) cos ( s * SG_DEGREES_TO_RADIANS ) ; }
+inline SGfloat sgTan ( SGfloat s )
+                { return (SGfloat) tan ( s * SG_DEGREES_TO_RADIANS ) ; }
+
 void sgVectorProductVec3 ( sgVec3 dst, const sgVec3 a, const sgVec3 b )
 {
   dst[0] = a[1] * b[2] - a[2] * b[1] ;
@@ -793,8 +825,8 @@ void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat
   }
   else
   {
-    sh = (SGfloat) sin( h * SG_DEGREES_TO_RADIANS ) ;
-    ch = (SGfloat) cos( h * SG_DEGREES_TO_RADIANS ) ;
+    sh = sgSin ( h ) ;
+    ch = sgCos ( h ) ;
   }
 
   if ( p == SG_ZERO )
@@ -804,8 +836,8 @@ void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat
   }
   else
   {
-    sp = (SGfloat) sin( p * SG_DEGREES_TO_RADIANS ) ;
-    cp = (SGfloat) cos( p * SG_DEGREES_TO_RADIANS ) ;
+    sp = sgSin ( p ) ;
+    cp = sgCos ( p ) ;
   }
 
   if ( r == SG_ZERO )
@@ -818,8 +850,8 @@ void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat
   }
   else
   {
-    sr   = (SGfloat) sin( r * SG_DEGREES_TO_RADIANS ) ;
-    cr   = (SGfloat) cos( r * SG_DEGREES_TO_RADIANS ) ;
+    sr   = sgSin ( r ) ;
+    cr   = sgCos ( r ) ;
     srsp = sr * sp ;
     crsp = cr * sp ;
     srcp = sr * cp ;
@@ -883,11 +915,11 @@ void sgSetCoord ( sgCoord *dst, const sgMat4 src )
   }
 
   sgScaleMat4 ( mat, src, SG_ONE / s ) ;
-    
-  dst->hpr[1] = (SGfloat) asin ( _sgClampToUnity ( mat[1][2] ) ) ;
 
-  SGfloat cp = (SGfloat) cos ( dst->hpr[1] ) ;
-    
+  dst->hpr[1] = sgASin ( _sgClampToUnity ( mat[1][2] ) ) ;
+
+  SGfloat cp = sgCos ( dst->hpr[1] ) ;
+ 
   /* If pointing nearly vertically up - then heading is ill-defined */
 
   if ( cp > -0.00001 && cp < 0.00001 )
@@ -896,7 +928,7 @@ void sgSetCoord ( sgCoord *dst, const sgMat4 src )
     SGfloat sr = _sgClampToUnity (-mat[2][1] ) ;
 
     dst->hpr[0] = SG_ZERO ;
-    dst->hpr[2] = (SGfloat) atan2 ( sr, cr ) ;
+    dst->hpr[2] = sgATan2 ( sr, cr ) ;
   }
   else
   {
@@ -914,12 +946,10 @@ void sgSetCoord ( sgCoord *dst, const sgMat4 src )
       dst->hpr[0] = SG_ZERO ;
     }
     else
-      dst->hpr[0] = (SGfloat) atan2 ( sh, ch ) ;
+      dst->hpr[0] = sgATan2 ( sh, ch ) ;
 
-    dst->hpr[2] = (SGfloat) atan2 ( sr, cr ) ;
+    dst->hpr[2] = sgATan2 ( sr, cr ) ;
   }
-
-  sgScaleVec3 ( dst->hpr, SG_RADIANS_TO_DEGREES ) ;
 }
 
 
@@ -1163,10 +1193,9 @@ void sgHPRfromVec3 ( sgVec3 hpr, const sgVec3 src )
   sgVec3 tmp ;
   sgCopyVec3 ( tmp, src ) ;
   sgNormaliseVec3 ( tmp ) ;
-  hpr[0] = -(SGfloat) atan2 ( tmp [ 0 ], tmp [ 1 ] ) * SG_RADIANS_TO_DEGREES ;
-  hpr[1] = -(SGfloat) atan2 ( tmp [ 2 ], sqrt ( sgSquare ( tmp [ 0 ] ) +
-                                                sgSquare ( tmp [ 1 ] ) ) ) *
-                                                SG_RADIANS_TO_DEGREES ;
+  hpr[0] = - sgATan2 ( tmp [ 0 ], tmp [ 1 ] ) ;
+  hpr[1] = - sgATan2 ( tmp [ 2 ], sgSqrt ( sgSquare ( tmp [ 0 ] ) +
+                                           sgSquare ( tmp [ 1 ] ) ) ) ;
   hpr[2] = SG_ZERO ;
 }
 
@@ -1198,7 +1227,7 @@ void sgQuatToAngleAxis ( SGfloat *angle, sgVec3 axis, const sgQuat src )
 {
   SGfloat a = (SGfloat) acos ( src[SG_W] ) ;
   SGfloat s = (SGfloat) sin  ( a ) ;
-
+ 
   *angle = a * SG_RADIANS_TO_DEGREES * SG_TWO ;
 
   if ( s == SG_ZERO )
@@ -1250,7 +1279,7 @@ void sgMatrixToQuat( sgQuat quat, const sgMat4 m )
   // check the diagonal
   if (tr > SG_ZERO )
   {
-    s = (SGfloat) sqrt (tr + SG_ONE);
+    s = (SGfloat) sgSqrt (tr + SG_ONE);
     quat[SG_W] = s / SG_TWO;
     s = SG_HALF / s;
     quat[SG_X] = (m[1][2] - m[2][1]) * s;
@@ -1265,7 +1294,7 @@ void sgMatrixToQuat( sgQuat quat, const sgMat4 m )
     if (m[2][2] > m[i][i]) i = 2;
     j = nxt[i];
     k = nxt[j];
-    s = (SGfloat) sqrt ((m[i][i] - (m[j][j] + m[k][k])) + SG_ONE);
+    s = (SGfloat) sgSqrt ((m[i][i] - (m[j][j] + m[k][k])) + SG_ONE);
     q[i] = s * SG_HALF;
             
     if (s != SG_ZERO) s = SG_HALF / s;
@@ -1361,7 +1390,7 @@ void sgQuatToEuler( sgVec3 hpr, const sgQuat quat )
 {
   SGfloat matrix[3][3];
   SGfloat cx,sx;
-  SGfloat cy,sy,yr;
+  SGfloat cy,sy;
   SGfloat cz,sz;
 
   // CONVERT QUATERNION TO MATRIX - I DON'T REALLY NEED ALL OF IT
@@ -1385,9 +1414,9 @@ void sgQuatToEuler( sgVec3 hpr, const sgQuat quat )
                         - (SG_TWO * quat[SG_Y] * quat[SG_Y]);
 
   sy = -matrix[2][0];
-  cy = (SGfloat)sqrt(SG_ONE - (sy * sy));
-  yr = (SGfloat)atan2(sy,cy);
-  hpr[1] = yr * SG_RADIANS_TO_DEGREES ;
+  cy = (SGfloat)sgSqrt(SG_ONE - (sy * sy));
+
+  hpr[1] = sgATan2 ( sy, cy ) ;
 
   // AVOID DIVIDE BY ZERO ERROR ONLY WHERE Y= +-90 or +-270 
   // NOT CHECKING cy BECAUSE OF PRECISION ERRORS
@@ -1395,11 +1424,11 @@ void sgQuatToEuler( sgVec3 hpr, const sgQuat quat )
   {
     cx = matrix[2][2] / cy;
     sx = matrix[2][1] / cy;
-    hpr[0] = ((SGfloat)atan2(sx,cx)) * SG_RADIANS_TO_DEGREES ;
+    hpr[0] = sgATan2 ( sx, cx ) ;
 
     cz = matrix[0][0] / cy;
     sz = matrix[1][0] / cy;
-    hpr[2] = ((SGfloat)atan2(sz,cz)) * SG_RADIANS_TO_DEGREES ;
+    hpr[2] = sgATan2 ( sz, cz ) ;
   }
   else
   {
@@ -1414,11 +1443,11 @@ void sgQuatToEuler( sgVec3 hpr, const sgQuat quat )
 
     cx =  matrix[1][1];
     sx = -matrix[1][2];
-    hpr[0] = ((SGfloat)atan2(sx,cx)) * SG_RADIANS_TO_DEGREES ;
+    hpr[0] = sgATan2 ( sx, cx ) ;
 
     cz = SG_ONE ;
     sz = SG_ZERO ;
-    hpr[2] = ((SGfloat)atan2(sz,cz)) * SG_RADIANS_TO_DEGREES ;
+    hpr[2] = sgATan2 ( sz, cz ) ;
   }
 }
 
@@ -1666,3 +1695,144 @@ int sgClassifyMat4 ( const sgMat4 m )
 
   return flags ;
 }
+
+ 
+SGfloat sgTriangleSolver_ASAtoArea ( SGfloat angA, SGfloat lenB, SGfloat angC )
+{
+  /* Get the third angle */
+
+  SGfloat angB = SG_180 - angA - angC ;
+
+  /* Use Sine Rule to get length of a second side - then use SAStoArea. */
+
+  SGfloat sinB = sgSin ( angB ) ;
+
+  if ( sinB == SG_ZERO )
+    return SG_ZERO ;
+
+  SGfloat lenA = lenB * sgSin(angA) / sinB ;
+
+  return sgTriangleSolver_SAStoArea ( lenA, angC, lenB ) ;
+}
+
+
+SGfloat sgTriangleSolver_SAStoArea ( SGfloat lenA, SGfloat angB, SGfloat lenC )
+{
+  return SG_HALF * lenC * lenA * sgSin ( angB ) ;
+}
+
+
+SGfloat sgTriangleSolver_SSStoArea ( SGfloat lenA, SGfloat lenB, SGfloat lenC )
+{
+  /* Heron's formula */
+
+  SGfloat s = ( lenA + lenB + lenC ) / SG_TWO ;
+  SGfloat q = s * (s-lenA) * (s-lenB) * (s-lenC) ;
+
+  /* Ikky illegal triangles generate zero areas. */
+
+  return ( q <= SG_ZERO ) ? SG_ZERO : sgSqrt ( q ) ;
+}
+
+
+void sgTriangleSolver_SSStoAAA ( SGfloat  lenA, SGfloat  lenB, SGfloat  lenC,
+                                 SGfloat *angA, SGfloat *angB, SGfloat *angC )
+{
+  SGfloat twoK = SG_TWO * sgTriangleSolver_SSStoArea ( lenA, lenB, lenC ) ;
+  SGfloat aa, bb, cc ;
+
+  int flag =  ( lenA == SG_ZERO )     |
+             (( lenB == SG_ZERO )<<1) |
+             (( lenC == SG_ZERO )<<2) ;
+
+  /* Ikky zero-sized triangles generate zero/90 angles appropriately. */
+  /* Ikky triangles with all lengths zero generate 60 degree angles. */
+  /* Ikky impossible triangles generate all zero angles. */
+
+  switch ( flag )
+  {
+    case 0 :  /* no zero-lengthed sides */
+     aa = sgASin ( twoK / ( lenB * lenC ) ) ;
+     bb = sgASin ( twoK / ( lenC * lenA ) ) ;
+     cc = sgASin ( twoK / ( lenA * lenB ) ) ;
+     break ;
+
+    case 1 :  /* lenA is zero */
+     aa = SG_ZERO ;
+     bb = cc = SG_90 ;
+     break ;
+
+    case 2 : /* lenB is zero */
+     bb = SG_ZERO ;
+     aa = cc = SG_90 ;
+     break ;
+
+    case 4 : /* lenC is zero */
+      cc = SG_ZERO ;
+      aa = bb = SG_90 ;
+      break ;
+
+    case 3 : /* Two lengths are zero and the third isn't?!? */
+    case 5 :
+    case 6 :
+      aa = bb = cc = SG_ZERO ;
+      break ;
+
+    default : /* All three sides are zero length */
+      aa = bb = cc = SG_60 ;
+      break ;
+  }
+
+  if ( angA ) *angA = aa ;
+  if ( angB ) *angB = bb ;
+  if ( angC ) *angC = cc ;
+}
+
+void sgTriangleSolver_SAStoASA ( SGfloat  lenA, SGfloat  angB, SGfloat  lenC,
+                                 SGfloat *angA, SGfloat *lenB, SGfloat *angC )
+{
+  /* Get third side using Cosine Rule */
+
+  SGfloat s = lenC * lenC +
+              lenA * lenA - SG_TWO * lenC * lenA * sgCos( angB ) ;
+
+  SGfloat lb = ( s <= SG_ZERO ) ? SG_ZERO : sqrt ( s ) ;
+
+  if ( lenB ) *lenB = lb ;
+
+  /* Get Area using SAStoArea */
+
+  SGfloat twoK = SG_TWO * sgTriangleSolver_SAStoArea ( lenA, angB, lenC ) ;
+
+  if ( angA ) *angA = (lb*lenC == SG_ZERO ) ? SG_ZERO :
+                                  sgASin ( twoK / ( lb * lenC ) ) ;
+  if ( angC ) *angC = (lb*lenA == SG_ZERO ) ? SG_ZERO :
+                                  sgASin ( twoK / ( lb * lenA ) ) ;
+}
+
+
+void sgTriangleSolver_ASAtoSAS ( SGfloat  angA, SGfloat  lenB, SGfloat  angC,
+                                 SGfloat *lenA, SGfloat *angB, SGfloat *lenC )
+{
+  /* Find the missing angle */
+
+  SGfloat bb = SG_180 - angA - angC ;
+
+  if ( angB ) *angB = bb ;
+
+  /* Use Sine Rule */
+
+  SGfloat sinB = sgSin ( bb ) ;
+
+  if ( sinB == SG_ZERO )
+  {
+    if ( lenA ) *lenA = lenB / SG_TWO ;  /* One valid interpretation */
+    if ( lenC ) *lenC = lenB / SG_TWO ;
+  }
+  else
+  {
+    if ( lenA ) *lenA = lenB * sgSin(angA) / sinB ;
+    if ( lenC ) *lenC = lenB * sgSin(angC) / sinB ;
+  }
+}
+
