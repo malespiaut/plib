@@ -135,7 +135,7 @@ void ssgLeaf::print ( FILE *fd, char *indent, int how_much )
     char in [ 100 ] ;
     sprintf ( in, "%s  ", indent );
 		if ( how_much == 1 )
-			fprintf ( fd, "%s  State: %p\n", indent , state) ;
+			fprintf ( fd, "%s  %s: %p\n", indent , state->getTypeName(), state) ;
 		else
       state -> print ( fd, in, how_much ) ;
   }
