@@ -576,23 +576,6 @@ variable to store the widget's state.
 Each widget can also retain a pointer to user-supplied data:
 <pre>  void  puObject::setUserData ( void *data ) ;
   void *puObject::getUserData () ;</pre>
-A puObject contains pointers to the previous and next puObject which you
-can retrieve:
-<pre>  puObject * puObject::getPrevObject ( void ) ;
-  puObject * puObject::getNextObject ( void ) ;
-
-</pre>
-These routines will always return NULL unless the widget is a member
-of a <a href="#puGroup">puGroup</a>. If the widget is a child of a puGroup,
-the functions will return a pointer to the previous or the next object
-in the puGroup according to the order of the child widgets' creation.
-If the object is the first child inside the puGroup, getPrevObject returns
-NULL, if it is the last one, getNextObject will return a NULL pointer
-as well.
-<p>
-Normally, these functions are only used by PUI, although a programmer
-may find it useful to iterate over the childs of a <a href="#puGroup">puGroup</a> himself.
-<p>
 There is another function which returns the <a href="#puGroup">puGroup</a> in which a puObject
 resides or NULL if the widget is not in a group:
 <pre>  puGroup * puObject::getParent ( void ) ;
@@ -1446,18 +1429,6 @@ widgets to the puGroup, you call:
 puGroup widgets can be placed inside other puGroup widgets to an arbitrary
 depth. When a puGroup is delete'ed, it will automatically delete everything
 that it contains.
-<p>
-Widgets can even be added later, and you can remove a child from a
-puGroup:
-<pre>
-
-  void puGroup::add ( <a href="#puObject">puObject</a> *object ) ;
-  void puGroup::remove ( <a href="#puObject">puObject</a> *object ) ;
-
-</pre>
-Where 'object' is either a pointer to a new widget which should be added
-to the group, or a pointer to an existing widget inside the group that
-should be removed.
 <p>
 It is also possible to retrieve the number of childs, and there is a
 function which returns the first child inside a puGroup (or NULL
