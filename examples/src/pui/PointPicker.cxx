@@ -347,7 +347,6 @@ int main ( int argc, char **argv )
   point_no->setCallback ( point_no_up_cb ) ;
   point_no->setActiveCallback ( point_no_active_cb ) ;
   point_no->setDownCallback ( point_no_down_cb ) ;
-  point_no->setDeactivateWhenLeaving ( FALSE ) ;
 
   move_point = new puOneShot     ( 10, 10, 250, 50 ) ;
   move_point->setLegend         ( "Move Selected Point"  ) ;
