@@ -186,6 +186,7 @@ typedef unsigned int uint;
 
 #if !defined(BYTE_ORDER) || BYTE_ORDER != BIG_ENDIAN
 
+#ifdef PROBE_ENDIAN
 static void _swab16(const void *src, void *dst, int n)
 {
    ushort *s = (ushort *)src;
@@ -196,6 +197,7 @@ static void _swab16(const void *src, void *dst, int n)
 	      ((t & 0x00ffU) << 8));
    }
 }
+#endif
 
 static void _swab32(const void *src, void *dst, int n)
 {
