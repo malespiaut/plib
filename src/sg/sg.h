@@ -2855,9 +2855,9 @@ public:
     sgZeroVec3 ( force ) ;
   }
 
-  const SGfloat *getPos   () const { return pos      ; }
-  const SGfloat *getVel   () const { return vel      ; }
-  const SGfloat *getForce () const { return force    ; }
+  SGfloat *getPos   () const { return pos      ; }
+  SGfloat *getVel   () const { return vel      ; }
+  SGfloat *getForce () const { return force    ; }
 
   float  getOneOverMass () { return ooMass   ; }
   float  getMass        () { return 1.0f / ooMass ; }
