@@ -1,6 +1,6 @@
 lib_LIBRARIES = libplibfnt.a
 
-include_HEADERS = fnt.h fntLocal.h
+include_HEADERS = fnt.h
 
 libplibfnt_a_SOURCES = fnt.cxx fntTXF.cxx fntLocal.h
 
