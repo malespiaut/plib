@@ -178,7 +178,7 @@ void sgdSphere::extend ( const sgdVec3 v )
   if ( isEmpty () )
   {
     sgdCopyVec3 ( center, v ) ;
-    radius = 0.0f ;
+    radius = SGD_ZERO ;
     return ;
   }
 
@@ -187,7 +187,7 @@ void sgdSphere::extend ( const sgdVec3 v )
   if ( d <= radius )  /* Point is already inside sphere */
     return ;
 
-  SGDfloat new_radius = (radius + d) / 2.0f ;  /* Grow radius */
+  SGDfloat new_radius = (radius + d) / SGD_TWO ;  /* Grow radius */
 
   SGDfloat ratio = (new_radius - radius) / d ;
 
@@ -207,7 +207,7 @@ void sgdSphere::extend ( const sgdBox *b )
   if ( isEmpty() )
   {
     sgdAddVec3   ( center, b->getMin(), b->getMax() ) ;
-    sgdScaleVec3 ( center, 0.5f ) ;
+    sgdScaleVec3 ( center, SGD_HALF ) ;
     radius = sgdDistanceVec3 ( center, b->getMax() ) ;
     return ;
   }
@@ -291,7 +291,7 @@ void sgdSphere::extend ( const sgdSphere *s )
     triangles
   */
 
-  SGDfloat new_radius = (radius + d + s->getRadius() ) / 2.0f ;
+  SGDfloat new_radius = (radius + d + s->getRadius() ) / SGD_TWO ;
 
   SGDfloat ratio = ( new_radius - radius ) / d ;
 
@@ -942,7 +942,7 @@ void sgdHPRfromVec3 ( sgdVec3 hpr, sgdVec3 src )
   hpr[1] = -atan2 ( tmp [ 2 ], sqrt ( sgdSquare ( tmp [ 0 ] ) +
                                       sgdSquare ( tmp [ 1 ] ) ) ) *
                                              SGD_RADIANS_TO_DEGREES ;
-  hpr[2] = 0.0f ;
+  hpr[2] = SGD_ZERO ;
 }
 
 
@@ -951,12 +951,13 @@ void sgdHPRfromVec3 ( sgdVec3 hpr, sgdVec3 src )
   Quaternion routines are Copyright (C) 1999
   Kevin B. Thompson <kevinbthompson@yahoo.com>
   Modified by Sylvan W. Clebsch <sylvan@stanford.edu>
+  Largely rewritten by "Negative0" <negative0@earthlink.net>
 */
 
 
 void sgdQuatToAngleAxis ( SGDfloat *angle,
-                          SGDfloat *x, SGDfloat *y, SGDfloat *z,
-                          const sgdQuat *src )
+                         SGDfloat *x, SGDfloat *y, SGDfloat *z,
+                         const sgdQuat src )
 {
   sgdVec3 axis ;
 
@@ -968,10 +969,10 @@ void sgdQuatToAngleAxis ( SGDfloat *angle,
 }
 
 
-void sgdQuatToAngleAxis ( SGDfloat *angle, sgdVec3 axis, const sgdQuat *src )
+void sgdQuatToAngleAxis ( SGDfloat *angle, sgdVec3 axis, const sgdQuat src )
 {
-  SGDfloat a = acos ( src->w ) ;
-  SGDfloat s = sin  ( a ) ;
+  SGDfloat a = (SGDfloat) acos ( src[SGD_W] ) ;
+  SGDfloat s = (SGDfloat) sin  ( a ) ;
 
   *angle = a * SGD_RADIANS_TO_DEGREES * SGD_TWO ;
 
@@ -979,114 +980,235 @@ void sgdQuatToAngleAxis ( SGDfloat *angle, sgdVec3 axis, const sgdQuat *src )
     sgdSetVec3 ( axis, SGD_ZERO, SGD_ZERO, SGD_ONE );
   else
   {
-    sgdSetVec3   ( axis, src->x, src->y, src->z ) ;
+    sgdSetVec3   ( axis, src[SGD_X], src[SGD_Y], src[SGD_Z] ) ;
     sgdScaleVec3 ( axis, SGD_ONE / s ) ;
   }
 }
 
 
-void sgdMakeQuat ( sgdQuat *dst, const sgdVec3 hpr )
+void sgdAngleAxisToQuat ( sgdQuat dst,
+                         const SGDfloat angle,
+                         const SGDfloat x, const SGDfloat y, const SGDfloat z )
 {
-  /* SWC - added double version */
-  sgdVec3 temp_hpr;
-
-  temp_hpr[0] = hpr[0] * SG_DEGREES_TO_RADIANS / SG_TWO ;
-  temp_hpr[1] = hpr[1] * SG_DEGREES_TO_RADIANS / SG_TWO ;
-  temp_hpr[2] = hpr[2] * SG_DEGREES_TO_RADIANS / SG_TWO ;
-
-  SGDfloat sh = -(SGDfloat) sin ( temp_hpr[0] ) ; SGDfloat ch = (SGDfloat) cos ( temp_hpr[0] ) ;
-  SGDfloat sp = -(SGDfloat) sin ( temp_hpr[1] ) ; SGDfloat cp = (SGDfloat) cos ( temp_hpr[1] ) ;
-  SGDfloat sr = -(SGDfloat) sin ( temp_hpr[2] ) ; SGDfloat cr = (SGDfloat) cos ( temp_hpr[2] ) ;
-
-  SGDfloat cpch = cp * ch;
-  SGDfloat spsh = sp * sh;
-
-  dst->w = cr * cpch + sr * spsh;
-  dst->x = sr * cpch - cr * spsh;
-  dst->y = cr * sp * ch + sr * cp * sh;
-  dst->z = cr * cp * sh - sr * sp * ch;
+  sgdVec3 axis ; 
+  sgdSetVec3 ( axis, x, y, z ) ;
+  sgdAngleAxisToQuat ( dst, angle, axis ) ;
 }
 
 
-void sgdMakeQuat ( sgdQuat *dst, const SGDfloat angle, const SGDfloat x, const SGDfloat y, const SGDfloat z )
+void sgdAngleAxisToQuat ( sgdQuat dst, const SGDfloat angle, const sgdVec3 axis )
 {
   SGDfloat temp_angle = angle * SGD_DEGREES_TO_RADIANS / SGD_TWO ;
 
-  SGDfloat s = sin ( temp_angle ) ;
+  sgdVec3 ax ;
+  sgdNormaliseVec3 ( ax, axis ) ;
 
-  dst->w = cos ( temp_angle ) ;
-  dst->x = s * x ;
-  dst->y = s * y ;
-  dst->z = s * z ;
+  SGDfloat s = - (SGDfloat) sin ( temp_angle ) ;
+
+  dst[SGD_W] = (SGDfloat) cos ( temp_angle ) ;
+  sgdScaleVec3 ( dst, ax, s ) ;
 }
 
 
-void sgdMakeQuat ( sgdQuat *dst, const SGDfloat angle, const sgdVec3 axis )
+//from gamasutra.com
+//by nb
+
+void sgdMatrixToQuat( sgdQuat quat, sgdMat4 m )
 {
-  sgdMakeQuat ( dst, angle, axis[0], axis[1], axis[2] ) ;
+  SGDfloat tr, s, q[4] ;
+  int   i, j, k ;
+
+  int nxt[3] = {1, 2, 0};
+
+  tr = m[0][0] + m[1][1] + m[2][2];
+
+  // check the diagonal
+  if (tr > SGD_ZERO )
+  {
+    s = (SGDfloat) sqrt (tr + SGD_ONE);
+    quat[SGD_W] = s / SGD_TWO;
+    s = SGD_HALF / s;
+    quat[SGD_X] = (m[1][2] - m[2][1]) * s;
+    quat[SGD_Y] = (m[2][0] - m[0][2]) * s;
+    quat[SGD_Z] = (m[0][1] - m[1][0]) * s;
+  }
+  else
+  {		
+    // diagonal is negative
+   	i = 0;
+    if (m[1][1] > m[0][0]) i = 1;
+    if (m[2][2] > m[i][i]) i = 2;
+    j = nxt[i];
+    k = nxt[j];
+    s = sqrt ((m[i][i] - (m[j][j] + m[k][k])) + SGD_ONE);
+    q[i] = s * SGD_HALF;
+            
+    if (s != SGD_ZERO) s = SGD_HALF / s;
+
+    q[3] = (m[j][k] - m[k][j]) * s;
+    q[j] = (m[i][j] + m[j][i]) * s;
+    q[k] = (m[i][k] + m[k][i]) * s;
+
+    quat[SGD_X] = q[0];
+    quat[SGD_Y] = q[1];
+    quat[SGD_Z] = q[2];
+    quat[SGD_W] = q[3];
+  }
 }
 
 
-void sgdMultQuat ( sgdQuat *dst, const sgdQuat *a, const sgdQuat *b )
+void sgdMultQuat ( sgdQuat dst, const sgdQuat a, const sgdQuat b )
 {
   /* [ ww' - v.v', vxv' + wv' + v'w ] */
 
-#if 0
-  dst->w = a->w * b->w - (a->x * b->x + a->y * b->y + a->z * b->z) ;
-  dst->x = a->y * b->z -  a->z * b->y + a->w * b->x + b->w * a->x ;
-  dst->y = a->z * b->x -  a->x * b->z + a->w * b->y + b->w * a->y ;
-  dst->z = a->x * b->y -  a->y * b->x + a->w * b->z + b->w * a->z ;
-#else
-  /* SWC - Reduce from 16 to 12 muls */
   SGDfloat t[8];
 
-  t[0] = (a->w + a->x) * (b->w + b->x);
-  t[1] = (a->z - a->y) * (b->y - b->z);
-  t[2] = (a->x - a->w) * (b->y - b->z);
-  t[3] = (a->y + a->z) * (b->x - b->w);
-  t[4] = (a->x + a->z) * (b->x + b->y);
-  t[5] = (a->x - a->z) * (b->x - b->y);
-  t[6] = (a->w + a->y) * (b->w - b->z);
-  t[7] = (a->w - a->y) * (b->w + b->z);
+  t[0] = (a[SGD_W] + a[SGD_X]) * (b[SGD_W] + b[SGD_X]);
+  t[1] = (a[SGD_Z] - a[SGD_Y]) * (b[SGD_Y] - b[SGD_Z]);
+  t[2] = (a[SGD_X] - a[SGD_W]) * (b[SGD_Y] + b[SGD_Z]);
+  t[3] = (a[SGD_Y] + a[SGD_Z]) * (b[SGD_X] - b[SGD_W]);
+  t[4] = (a[SGD_X] + a[SGD_Z]) * (b[SGD_X] + b[SGD_Y]);
+  t[5] = (a[SGD_X] - a[SGD_Z]) * (b[SGD_X] - b[SGD_Y]);
+  t[6] = (a[SGD_W] + a[SGD_Y]) * (b[SGD_W] - b[SGD_Z]);
+  t[7] = (a[SGD_W] - a[SGD_Y]) * (b[SGD_W] + b[SGD_Z]);
 
-  dst->w =  t[1] + ((-t[4] - t[5] + t[6] + t[7]) * 0.5f);
-  dst->x =  t[0] - (( t[4] + t[5] + t[6] + t[7]) * 0.5f);
-  dst->y = -t[2] + (( t[4] - t[5] + t[6] - t[7]) * 0.5f);
-  dst->z = -t[3] + (( t[4] - t[5] - t[6] + t[7]) * 0.5f);
-#endif
+  dst[SGD_W] =  t[1] + ((-t[4] - t[5] + t[6] + t[7]) * SGD_HALF);
+  dst[SGD_X] =  t[0] - (( t[4] + t[5] + t[6] + t[7]) * SGD_HALF);
+  dst[SGD_Y] = -t[2] + (( t[4] - t[5] + t[6] - t[7]) * SGD_HALF);
+  dst[SGD_Z] = -t[3] + (( t[4] - t[5] - t[6] + t[7]) * SGD_HALF);
+}
+
+//from gamasutra.com
+//by nb@netcom.ca 
+
+void sgdMultQuat2 ( sgdQuat dst, const sgdQuat a, const sgdQuat b )
+{
+  SGDfloat A, B, C, D, E, F, G, H;
+
+  A = (a[SGD_W] + a[SGD_X]) * (b[SGD_W] + b[SGD_X]) ;
+  B = (a[SGD_Z] - a[SGD_Y]) * (b[SGD_Y] - b[SGD_Z]) ;
+  C = (a[SGD_X] - a[SGD_W]) * (b[SGD_Y] + b[SGD_Z]) ;
+  D = (a[SGD_Y] + a[SGD_Z]) * (b[SGD_X] - b[SGD_W]) ;
+  E = (a[SGD_X] + a[SGD_Z]) * (b[SGD_X] + b[SGD_Y]) ;
+  F = (a[SGD_X] - a[SGD_Z]) * (b[SGD_X] - b[SGD_Y]) ;
+  G = (a[SGD_W] + a[SGD_Y]) * (b[SGD_W] - b[SGD_Z]) ;
+  H = (a[SGD_W] - a[SGD_Y]) * (b[SGD_W] + b[SGD_Z]) ;
+
+
+  dst[SGD_W] =  B + (-E - F + G + H) / SGD_TWO ;
+  dst[SGD_X] =  A - ( E + F + G + H) / SGD_TWO ; 
+  dst[SGD_Y] = -C + ( E - F + G - H) / SGD_TWO ;
+  dst[SGD_Z] = -D + ( E - F - G + H) / SGD_TWO ;
+}
+
+//from gamasutra.com
+//by nb@netcom.ca 
+
+void sgdEulerToQuat(sgdQuat quat, sgdVec3 ypr )
+{
+  SGDfloat cr, cp, cy, sr, sp, sy, cpcy, spsy;
+
+// calculate trig identities
+  cr = (SGDfloat) cos(ypr[2]/SGD_TWO);
+  cp = (SGDfloat) cos(ypr[1]/SGD_TWO);
+  cy = (SGDfloat) cos(ypr[0]/SGD_TWO);
+
+  sr = (SGDfloat) sin(ypr[2]/SGD_TWO);
+  sp = (SGDfloat) sin(ypr[1]/SGD_TWO);
+  sy = (SGDfloat) sin(ypr[0]/SGD_TWO);
+  
+  cpcy = cp * cy;
+  spsy = sp * sy;
+
+  quat[SGD_W] = cr * cpcy + sr * spsy;
+  quat[SGD_X] = sr * cpcy - cr * spsy;
+  quat[SGD_Y] = cr * sp * cy + sr * cp * sy;
+  quat[SGD_Z] = cr * cp * sy - sr * sp * cy;
+}
+
+//from darwin3d.com
+// jeffl@darwin3d.com
+
+void sgdQuatToEuler( sgdVec3 euler, const sgdQuat quat )
+{
+  float matrix[3][3];
+  float cx,sx;
+  float cy,sy,yr;
+  float cz,sz;
+
+  // CONVERT QUATERNION TO MATRIX - I DON'T REALLY NEED ALL OF IT
+
+  matrix[0][0] = SGD_ONE - (SGD_TWO * quat[SGD_Y] * quat[SGD_Y])
+                        - (SGD_TWO * quat[SGD_Z] * quat[SGD_Z]);
+//matrix[0][1] = (SGD_TWO * quat->x * quat->y) - (SGD_TWO * quat->w * quat->z);
+//matrix[0][2] = (SGD_TWO * quat->x * quat->z) + (SGD_TWO * quat->w * quat->y);
+
+  matrix[1][0] = (SGD_TWO * quat[SGD_X] * quat[SGD_Y]) +
+                          (SGD_TWO * quat[SGD_W] * quat[SGD_Z]);
+//matrix[1][1] = SGD_ONE - (SGD_TWO * quat->x * quat->x)
+//                      - (SGD_TWO * quat->z * quat->z);
+//matrix[1][2] = (SGD_TWO * quat->y * quat->z) - (SGD_TWO * quat->w * quat->x);
+
+  matrix[2][0] = (SGD_TWO * quat[SGD_X] * quat[SGD_Z]) -
+                 (SGD_TWO * quat[SGD_W] * quat[SGD_Y]);
+  matrix[2][1] = (SGD_TWO * quat[SGD_Y] * quat[SGD_Z]) +
+                 (SGD_TWO * quat[SGD_W] * quat[SGD_X]);
+  matrix[2][2] = SGD_ONE - (SGD_TWO * quat[SGD_X] * quat[SGD_X])
+                        - (SGD_TWO * quat[SGD_Y] * quat[SGD_Y]);
+
+  sy = -matrix[2][0];
+  cy = sqrt(SGD_ONE - (sy * sy));
+  yr = (SGDfloat)atan2(sy,cy);
+  euler[1] = yr * SGD_RADIANS_TO_DEGREES ;
+
+  // AVOID DIVIDE BY ZERO ERROR ONLY WHERE Y= +-90 or +-270 
+  // NOT CHECKING cy BECAUSE OF PRECISION ERRORS
+  if (sy != SGD_ONE && sy != -SGD_ONE)	
+  {
+    cx = matrix[2][2] / cy;
+    sx = matrix[2][1] / cy;
+    euler[0] = ((SGDfloat)atan2(sx,cx)) * SGD_RADIANS_TO_DEGREES ;
+
+    cz = matrix[0][0] / cy;
+    sz = matrix[1][0] / cy;
+    euler[2] = ((SGDfloat)atan2(sz,cz)) * SGD_RADIANS_TO_DEGREES ;
+  }
+  else
+  {
+    // SINCE Cos(Y) IS 0, I AM SCREWED.  ADOPT THE STANDARD Z = 0
+    // I THINK THERE IS A WAY TO FIX THIS BUT I AM NOT SURE.  EULERS SUCK
+    // NEED SOME MORE OF THE MATRIX TERMS NOW
+
+    matrix[1][1] = SGD_ONE - (SGD_TWO * quat[SGD_X] * quat[SGD_X])
+                          - (SGD_TWO * quat[SGD_Z] * quat[SGD_Z]);
+    matrix[1][2] = (SGD_TWO * quat[SGD_Y] * quat[SGD_Z]) -
+                   (SGD_TWO * quat[SGD_W] * quat[SGD_X]);
+
+    cx =  matrix[1][1];
+    sx = -matrix[1][2];
+    euler[0] = ((SGDfloat)atan2(sx,cx)) * SGD_RADIANS_TO_DEGREES ;
+
+    cz = SGD_ONE ;
+    sz = SGD_ZERO ;
+    euler[2] = ((SGDfloat)atan2(sz,cz)) * SGD_RADIANS_TO_DEGREES ;
+  }
 }
 
 
-void sgdMakeRotMat4 ( sgdMat4 dst, const sgdQuat *q )
+void sgdQuatToMatrix ( sgdMat4 dst, sgdQuat q )
 {
-#if 0
-  SGDfloat two_xx = SGD_TWO * q->x * q->x ;
-  SGDfloat two_xy = SGD_TWO * q->x * q->y ;
-  SGDfloat two_xz = SGD_TWO * q->x * q->z ;
+  SGDfloat two_xx = q[SGD_X] * (q[SGD_X] + q[SGD_X]) ;
+  SGDfloat two_xy = q[SGD_X] * (q[SGD_Y] + q[SGD_Y]) ;
+  SGDfloat two_xz = q[SGD_X] * (q[SGD_Z] + q[SGD_Z]) ;
 
-  SGDfloat two_wx = SGD_TWO * q->w * q->x ;
-  SGDfloat two_wy = SGD_TWO * q->w * q->y ;
-  SGDfloat two_wz = SGD_TWO * q->w * q->z ;
+  SGDfloat two_wx = q[SGD_W] * (q[SGD_X] + q[SGD_X]) ;
+  SGDfloat two_wy = q[SGD_W] * (q[SGD_Y] + q[SGD_Y]) ;
+  SGDfloat two_wz = q[SGD_W] * (q[SGD_Z] + q[SGD_Z]) ;
 
-  SGDfloat two_yy = SGD_TWO * q->y * q->y ;
-  SGDfloat two_yz = SGD_TWO * q->y * q->z ;
+  SGDfloat two_yy = q[SGD_Y] * (q[SGD_Y] + q[SGD_Y]) ;
+  SGDfloat two_yz = q[SGD_Y] * (q[SGD_Z] + q[SGD_Z]) ;
 
-  SGDfloat two_zz = SGD_TWO * q->z * q->z ;
-#else
-  /* SWC - Reduce from 18 to 9 muls */
-  SGDfloat two_xx = q->x * (q->x + q->x) ;
-  SGDfloat two_xy = q->x * (q->y + q->y) ;
-  SGDfloat two_xz = q->x * (q->z + q->z) ;
-
-  SGDfloat two_wx = q->w * (q->x + q->x) ;
-  SGDfloat two_wy = q->w * (q->y + q->y) ;
-  SGDfloat two_wz = q->w * (q->z + q->z) ;
-
-  SGDfloat two_yy = q->y * (q->y + q->y) ;
-  SGDfloat two_yz = q->y * (q->z + q->z) ;
-
-  SGDfloat two_zz = q->z * (q->z + q->z) ;
-#endif
+  SGDfloat two_zz = q[SGD_Z] * (q[SGD_Z] + q[SGD_Z]) ;
 
   sgdSetVec4 ( dst[0], SGD_ONE-(two_yy+two_zz), two_xy-two_wz, two_xz+two_wy, SGD_ZERO ) ;
   sgdSetVec4 ( dst[1], two_xy+two_wz, SGD_ONE-(two_xx+two_zz), two_yz-two_wx, SGD_ZERO ) ;
@@ -1095,13 +1217,88 @@ void sgdMakeRotMat4 ( sgdMat4 dst, const sgdQuat *q )
 }
 
 
-void sgdSlerpQuat( sgdQuat *dst, const sgdQuat *from, const sgdQuat *to, const SGDfloat t )
+//from gamasutra.com
+//by nb@netcom.ca 
+void sgdMakeRotMat42( sgdMat4 m, sgdQuat quat ){
+  float wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
+
+  // calculate coefficients
+  x2 = quat[SGD_X] + quat[SGD_X]; y2 = quat[SGD_Y] + quat[SGD_Y]; 
+  z2 = quat[SGD_Z] + quat[SGD_Z];
+  xx = quat[SGD_X] * x2;   xy = quat[SGD_X] * y2;   xz = quat[SGD_X] * z2;
+  yy = quat[SGD_Y] * y2;   yz = quat[SGD_Y] * z2;   zz = quat[SGD_Z] * z2;
+  wx = quat[SGD_W] * x2;   wy = quat[SGD_W] * y2;   wz = quat[SGD_W] * z2;
+
+  m[0][0] = SGD_ONE- (yy + zz); 	m[0][1] = xy - wz;
+  m[0][2] = xz + wy;		m[0][3] = SGD_ZERO ;
+ 
+  m[1][0] = xy + wz;		m[1][1] = SGD_ONE- (xx + zz);
+  m[1][2] = yz - wx;		m[1][3] = SGD_ZERO ;
+
+  m[2][0] = xz - wy;		m[2][1] = yz + wx;
+  m[2][2] = SGD_ONE- (xx + yy);		m[2][3] = SGD_ZERO ;
+
+  m[3][0] = 0;			m[3][1] = 0;
+  m[3][2] = 0;			m[3][3] = 1;
+}
+
+
+
+//from gamasutra.com
+//by nb@netcom.ca 
+void sgdSlerpQuat2( sgdQuat dst, const sgdQuat from, const sgdQuat to, const float t )
 {
-  SGDfloat    sign, co, scale0, scale1;
+	float           to1[4];
+	double        omega, cosom, sinom, scale0, scale1;
 
-  /* SWC - Interpolate between two quaternions */
+        // calc cosine
+        cosom = from[SGD_X] * to[SGD_X] + from[SGD_Y] * to[SGD_Y] + from[SGD_Z] * to[SGD_Z]
+			       + from[SGD_W] * to[SGD_W];
 
-  co = from->x * to->x + from->y * to->y + from->z * to->z + from->w * to->w;
+        // adjust signs (if necessary)
+        if ( cosom <SGD_ZERO  ){ 
+			cosom = -cosom; 
+			to1[0] = - to[SGD_X];
+		to1[1] = - to[SGD_Y];
+		to1[2] = - to[SGD_Z];
+		to1[3] = - to[SGD_W];
+        } else  {
+		to1[0] = to[SGD_X];
+		to1[1] = to[SGD_Y];
+		to1[2] = to[SGD_Z];
+		to1[3] = to[SGD_W];
+        }
+
+        // calculate coefficients
+#define DELTA SGD_ZERO 
+       if ( (SGD_ONE- cosom) > DELTA ) {
+                // standard case (slerp)
+                omega = acos(cosom);
+                sinom = sin(omega);
+                scale0 = sin((SGD_ONE- t) * omega) / sinom;
+                scale1 = sin(t * omega) / sinom;
+
+        } else {        
+    // "from" and "to" quaternions are very close 
+	    //  ... so we can do a linear interpolation
+                scale0 = SGD_ONE- t;
+                scale1 = t;
+        }
+	// calculate final values
+	dst[SGD_X] = scale0 * from[SGD_X] + scale1 * to1[0];
+	dst[SGD_Y] = scale0 * from[SGD_Y] + scale1 * to1[1];
+	dst[SGD_Z] = scale0 * from[SGD_Z] + scale1 * to1[2];
+	dst[SGD_W] = scale0 * from[SGD_W] + scale1 * to1[3];
+}
+
+void sgdSlerpQuat( sgdQuat dst, const sgdQuat from, const sgdQuat to, const SGDfloat t )
+{
+  SGDfloat sign, co, scale0, scale1;
+
+  /* SWC - Interpolate between to quaternions */
+
+  co = from[SGD_X] * to[SGD_X] + from[SGD_Y] * to[SGD_Y] + from[SGD_X] * to[SGD_Z] + 
+	  from[SGD_W] * to[SGD_W];
 
   if( co < SGD_ZERO )
   {
@@ -1125,9 +1322,11 @@ void sgdSlerpQuat( sgdQuat *dst, const sgdQuat *from, const sgdQuat *to, const S
     scale1 = t;
   }
 
-  dst->x = scale0 * from->x + scale1 * ((sign > SGD_ZERO) ? to->w : -to->w);
-  dst->y = scale0 * from->y + scale1 * ((sign > SGD_ZERO) ? to->w : -to->x);
-  dst->z = scale0 * from->z + scale1 * ((sign > SGD_ZERO) ? to->w : -to->y);
-  dst->w = scale0 * from->w + scale1 * ((sign > SGD_ZERO) ? to->w : -to->z);
+  dst[SGD_X] = scale0 * from[SGD_X] + scale1 * ((sign > SGD_ZERO) ? to[SGD_X] : -to[SGD_X]);
+  dst[SGD_Y] = scale0 * from[SGD_Y] + scale1 * ((sign > SGD_ZERO) ? to[SGD_Y] : -to[SGD_Y]);
+  dst[SGD_Z] = scale0 * from[SGD_Z] + scale1 * ((sign > SGD_ZERO) ? to[SGD_Z] : -to[SGD_Z]);
+  dst[SGD_W] = scale0 * from[SGD_W] + scale1 * ((sign > SGD_ZERO) ? to[SGD_W] : -to[SGD_W]);
 }
+
+
 
