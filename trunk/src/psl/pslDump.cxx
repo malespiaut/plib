@@ -89,6 +89,8 @@ static const OpcodeDecode opcodeDecode [] =
   { "AND",             OPCODE_AND         , 0 },
   { "XOR",             OPCODE_XOR         , 0 },
 
+  { "SHIFT_LEFT",      OPCODE_SHIFTLEFT   , 0 },
+  { "SHIFT_RIGHT",     OPCODE_SHIFTRIGHT  , 0 },
   /* Boolean operators */
 
   { "LESS",            OPCODE_LESS        , 0 },

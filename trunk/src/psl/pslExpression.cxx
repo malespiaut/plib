@@ -30,7 +30,7 @@ int pslCompiler::pushPrimitive ()
   char c [ MAX_TOKEN ] ;
   getToken ( c ) ;
 
-  if ( c [ 0 ] == '(' )
+  if ( strcmp ( c, "(" ) == 0 )
   {
     if ( ! pushExpression () )
     {
@@ -40,7 +40,7 @@ int pslCompiler::pushPrimitive ()
 
     getToken ( c ) ;
 
-    if ( c [ 0 ] != ')' )
+    if ( strcmp ( c, ")" ) == 0 )
     {
       ungetToken ( c ) ;
       return error ( "Missing ')' (found '%s')", c );
@@ -49,7 +49,7 @@ int pslCompiler::pushPrimitive ()
     return TRUE ;
   }
 
-  if ( c [ 0 ] == '+' )    /* Skip over any unary '+' symbols */
+  if ( strcmp ( c, "+" ) == 0 )    /* Skip over any unary '+' symbols */
   {
     if ( pushPrimitive () )
       return TRUE ;
@@ -60,7 +60,7 @@ int pslCompiler::pushPrimitive ()
     }
   }
 
-  if ( c [ 0 ] == '!' )  /* Unary NOT */
+  if ( strcmp ( c, "!" ) == 0 )    /* Skip over any unary '!' symbols */
   {
     if ( pushPrimitive () )
     {
@@ -74,7 +74,7 @@ int pslCompiler::pushPrimitive ()
     }
   }
 
-  if ( c [ 0 ] == '~' )  /* Unary Twiddle */
+  if ( strcmp ( c, "~" ) == 0 )    /* Skip over any unary '~' symbols */
   {
     if ( pushPrimitive () )
     {
@@ -88,7 +88,7 @@ int pslCompiler::pushPrimitive ()
     }
   }
 
-  if ( c [ 0 ] == '-' )  /* Unary minus */
+  if ( strcmp ( c, "-" ) == 0 )    /* Unary '-' */
   {
     if ( pushPrimitive () )
     {
@@ -145,7 +145,9 @@ int pslCompiler::pushMultExpression ()
 
     getToken ( c ) ;
 
-    if ( c [ 0 ] != '*' && c [ 0 ] != '/' && c [ 0 ] != '%' )
+    if ( strcmp ( c, "*" ) != 0 &&
+         strcmp ( c, "/" ) != 0 &&
+         strcmp ( c, "%" ) != 0 )
     {
       ungetToken ( c ) ;
       return TRUE ;
@@ -154,10 +156,10 @@ int pslCompiler::pushMultExpression ()
     if ( ! pushPrimitive () )
       return FALSE ;
 
-    if ( c [ 0 ] == '*' )
+    if ( strcmp ( c, "*" ) == 0 )
       pushMultiply () ;
     else
-    if ( c [ 0 ] == '/' )
+    if ( strcmp ( c, "/" ) == 0 )
       pushDivide () ;
     else
       pushModulo () ;
@@ -178,7 +180,8 @@ int pslCompiler::pushAddExpression ()
 
     getToken ( c ) ;
 
-    if ( c [ 0 ] != '+' && c [ 0 ] != '-' )
+    if ( strcmp ( c, "+" ) != 0 &&
+         strcmp ( c, "-" ) != 0 )
     {
       ungetToken ( c ) ;
       return TRUE ;
@@ -187,7 +190,7 @@ int pslCompiler::pushAddExpression ()
     if ( ! pushMultExpression () )
       return FALSE ;
 
-    if ( c [ 0 ] == '+' )
+    if ( strcmp ( c, "+" ) == 0 )
       pushAdd () ;
     else
       pushSubtract () ;
@@ -196,7 +199,8 @@ int pslCompiler::pushAddExpression ()
 
 
 
-int pslCompiler::pushBitwiseExpression ()
+
+int pslCompiler::pushShiftExpression ()
 {
   if ( ! pushAddExpression () )
     return FALSE ;
@@ -207,7 +211,8 @@ int pslCompiler::pushBitwiseExpression ()
 
     getToken ( c ) ;
 
-    if ( c [ 0 ] != '|' && c [ 0 ] != '&' && c [ 0 ] != '^' )
+    if ( strcmp ( c, "<<" ) != 0 &&
+         strcmp ( c, ">>" ) != 0 )
     {
       ungetToken ( c ) ;
       return TRUE ;
@@ -216,10 +221,41 @@ int pslCompiler::pushBitwiseExpression ()
     if ( ! pushAddExpression () )
       return FALSE ;
 
-    if ( c [ 0 ] == '|' )
+    if ( strcmp ( c, "<<" ) == 0 )
+      pushShiftLeft () ;
+    else
+      pushShiftRight () ;
+  }
+}
+
+
+
+int pslCompiler::pushBitwiseExpression ()
+{
+  if ( ! pushShiftExpression () )
+    return FALSE ;
+
+  while ( TRUE )
+  {
+    char c [ MAX_TOKEN ] ;
+
+    getToken ( c ) ;
+
+    if ( strcmp ( c, "|" ) != 0 &&
+         strcmp ( c, "&" ) != 0 &&
+         strcmp ( c, "^" ) != 0 )
+    {
+      ungetToken ( c ) ;
+      return TRUE ;
+    }
+
+    if ( ! pushShiftExpression () )
+      return FALSE ;
+
+    if ( strcmp ( c, "|" ) == 0 )
       pushOr () ;
     else
-    if ( c [ 0 ] == '&' )
+    if ( strcmp ( c, "&" ) == 0 )
       pushAnd () ;
     else
       pushXor () ;
@@ -240,56 +276,26 @@ int pslCompiler::pushRelExpression ()
 
     getToken ( c ) ;
 
-    if ( c [ 0 ] != '<' &&
-         c [ 0 ] != '>' &&
-         c [ 0 ] != '!' &&
-         c [ 0 ] != '=' )
+    if ( strcmp ( c, "<"  ) != 0 &&
+         strcmp ( c, ">"  ) != 0 &&
+         strcmp ( c, "<=" ) != 0 &&
+         strcmp ( c, ">=" ) != 0 &&
+         strcmp ( c, "!=" ) != 0 &&
+         strcmp ( c, "==" ) != 0 )
     {
       ungetToken ( c ) ;
       return TRUE ;
     }
 
-    char c2 [ MAX_TOKEN ] ;
-
-    getToken ( c2 ) ;
-
-    if ( c2 [ 0 ] == '=' )
-    {
-      c[1] = '=' ;
-      c[2] = '\0' ;
-    }
-    else
-      ungetToken ( c2 ) ;
-
-    if (( c [ 0 ] == '!' || c [ 0 ] == '=' ) && c [ 1 ] != '=' )
-    {
-      ungetToken ( c2 ) ;
-      return TRUE ;
-    }
-
-    if ( ! pushMultExpression () )
+    if ( ! pushBitwiseExpression () )
       return FALSE ;
 
-    if ( c [ 0 ] == '<' )
-    {
-      if ( c [ 1 ] == '=' )
-        pushLessEqual () ;
-      else
-        pushLess () ;
-    }
-    else
-    if ( c [ 0 ] == '>' )
-    {
-      if ( c [ 1 ] == '=' )
-        pushGreaterEqual () ;
-      else
-        pushGreater () ;
-    }
-    else
-    if ( c [ 0 ] == '!' )
-      pushNotEqual () ;
-    else
-      pushEqual () ;
+    if ( strcmp ( c, "<"  ) == 0 ) pushLess         () ; else
+    if ( strcmp ( c, ">"  ) == 0 ) pushGreater      () ; else
+    if ( strcmp ( c, "<=" ) == 0 ) pushLessEqual    () ; else
+    if ( strcmp ( c, ">=" ) == 0 ) pushGreaterEqual () ; else
+    if ( strcmp ( c, "!=" ) == 0 ) pushNotEqual     () ; else
+    if ( strcmp ( c, "==" ) == 0 ) pushEqual        () ;
   }
 }
 
