@@ -148,11 +148,6 @@ void ssgInit ()
   ssgAddModelFormat ( ".mdl",   ssgLoadMDL  , NULL       ) ;
 #endif
 
-#ifdef SSG_LOAD_BGL_SUPPORTED
-  ssgAddModelFormat ( ".bgl",   ssgLoadBGL  , NULL       ) ;
-  ssgAddModelFormat ( ".bgb",   ssgLoadBGLBatch  , NULL       ) ;
-#endif
-
 #ifdef SSG_LOAD_TGA_SUPPORTED
   ssgAddTextureFormat ( ".tga" ,   ssgLoadTGA ) ;
 #endif
@@ -173,7 +168,7 @@ void ssgInit ()
   ssgAddTextureFormat ( ".bw" ,    ssgLoadSGI ) ;
 #endif
 
-#if defined(SSG_LOAD_MDL_SUPPORTED) || defined(SSG_LOAD_BGL_SUPPORTED) || defined(SSG_LOAD_MDL_BGL_TEXTURE_SUPPORTED)
+#if defined(SSG_LOAD_MDL_SUPPORTED) || defined(SSG_LOAD_MDL_BGL_TEXTURE_SUPPORTED)
   ssgAddTextureFormat ( ".0af" ,   ssgLoadMDLTexture ) ;
   ssgAddTextureFormat ( ".1af" ,   ssgLoadMDLTexture ) ;
   ssgAddTextureFormat ( ".2af" ,   ssgLoadMDLTexture ) ;
