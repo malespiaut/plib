@@ -188,7 +188,7 @@ class jsJoystick
               REGSTR_PATH_JOYCONFIG, jsCaps.szRegKey,
               REGSTR_KEY_JOYCURR ) ;
 
-    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_ALL_ACCESS, &hKey) ;
+    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_QUERY_VALUE, &hKey) ;
 
     if ( lr != ERROR_SUCCESS ) return false ;
 
@@ -206,7 +206,7 @@ class jsJoystick
     // Open OEM Key from ...MediaProperties
     sprintf ( key, "%s\\%s", REGSTR_PATH_JOYOEM, OEMKey ) ;
 
-    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_ALL_ACCESS, &hKey ) ;
+    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_QUERY_VALUE, &hKey ) ;
 
     if ( lr != ERROR_SUCCESS ) return false ;
 
