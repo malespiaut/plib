@@ -472,7 +472,7 @@ static void puFilePickerSort ( char** list, char *flags, int size )
 }
 
 
-void puFilePicker::find_files ()
+void puFilePicker::find_files ( void )
 {
   if ( files != NULL )
   {
