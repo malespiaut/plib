@@ -276,7 +276,11 @@ static char *mystrchr( const char *string, int c )
 	if (string == NULL )
 		return NULL;
 	else
+#ifdef UL_BB
+		return strchr( (char*)string, c );
+#else
 		return strchr( string, c );
+#endif
 }
 
 

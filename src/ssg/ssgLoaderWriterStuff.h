@@ -51,7 +51,7 @@ class ssgListOfLists : public ssgSimpleList
 public:
 
    virtual ssgBase *clone ( int clone_flags = 0 ) { return NULL; }; // Fixme NIV14: 2do
-   ssgListOfLists ( int init = 3 ) : ssgSimpleList ( sizeof(class ssgSimpleList*), init ) {} 
+   ssgListOfLists ( int init = 3 ) : ssgSimpleList ( sizeof(ssgSimpleList*), init ) {} 
    class ssgSimpleList **get ( unsigned int n ) { return (class ssgSimpleList **) raw_get ( n ) ; }
    void   add ( class ssgSimpleList **thing ) { raw_add ( (char *) thing ) ; } ;
    void   set ( class ssgSimpleList **thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
@@ -67,7 +67,7 @@ class ssgSimpleStateList : public ssgSimpleList
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) { return NULL;  }; // Fixme NIV14: 2do
-  ssgSimpleStateList( int init = 3 ) : ssgSimpleList ( sizeof(class ssgSimpleState*), init ) {} 
+  ssgSimpleStateList( int init = 3 ) : ssgSimpleList ( sizeof(ssgSimpleState*), init ) {} 
   class ssgSimpleState **get ( unsigned int n ) { return (class ssgSimpleState **) raw_get ( n ) ; }
   void   add ( class ssgSimpleState **thing ) { raw_add ( (char *) thing ) ; } ;
   void   set ( class ssgSimpleState **thing, unsigned int n  ) { raw_set ( (char *) thing, n ) ; } ;

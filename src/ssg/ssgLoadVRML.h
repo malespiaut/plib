@@ -26,7 +26,7 @@ class ssgListOfNodes : public ssgSimpleList
 public:
 
    virtual ssgBase *clone ( int clone_flags = 0 ) { return NULL; }; // Fixme NIV14: 2do
-   ssgListOfNodes ( int init = 3 ) : ssgSimpleList ( sizeof(class ssgBase*), init ) {} 
+   ssgListOfNodes ( int init = 3 ) : ssgSimpleList ( sizeof(ssgBase*), init ) {} 
    class ssgBase *get ( unsigned int n ) { return *( (class ssgBase **) raw_get ( n ) ) ; }
    void   add ( class ssgBase *thing ) { raw_add ( (char *) &thing ) ; } ;
    void replace( class ssgBase *thing, unsigned int n ) { raw_set( (char *) &thing, n); }
