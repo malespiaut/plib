@@ -39,6 +39,8 @@
 #define SLDSP_DEFAULT_DEVICE "/dev/audio"
 #elif defined(UL_MACINTOSH) || defined(UL_MAC_OSX)
 #define SLDSP_DEFAULT_DEVICE "dsp" // dummy
+#elif defined(UL_HPUX)
+#define SLDSP_DEFAULT_DEVICE "/dev/audio"
 #else
 #error "Port me !"
 #endif
