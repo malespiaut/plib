@@ -87,8 +87,13 @@
 // or mail me (w_kuss@rz-online.de)
 #include <float.h>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
+#ifdef __APPLE__
+#  include <OpenGL/gl.h>
+#  include <OpenGL/glu.h>
+#else
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#endif
 
 /* SGI machines seem to suffer from a lack of FLT_EPSILON so... */
 
