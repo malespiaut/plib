@@ -357,7 +357,7 @@ float slDSP::secondsRemaining ()
    if ( error )
       return 0.0f ;
    
-   return 0.0f ;
+   return 10.0f ;
 }
 
 
@@ -557,7 +557,7 @@ void slDSP::write ( void *buffer, size_t length )
 
 float slDSP::secondsRemaining ()
 {
-    return 0.0f ;
+    return 10.0f ;
 }
 
 
@@ -721,7 +721,7 @@ float slDSP::secondsRemaining ()
   if ( error )
     return 0.0f ;
 
-  samples_remain = ALgetfillable(port) / 2 ;
+  samples_remain = ALgetfillable(port) ;
 
   return   (float) samples_remain / (float) rate ;
 }
@@ -1052,7 +1052,7 @@ float slDSP::secondsRemaining ()
     return 0.0f;
   
   // sl doesn't use this, so I didn't write it!
-  return secLeft;
+  return 10.0f;
 }
 
 float slDSP::secondsUsed ()
