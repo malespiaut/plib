@@ -2649,10 +2649,10 @@ void sgdTriangleSolver_SAAtoASS(SGDfloat  lenA,SGDfloat  angB,SGDfloat  angA,
 
 extern sgVec3 _sgGravity ;
 
-void   sgSetGravity     ( float  g ) { sgSetVec3 ( _sgGravity, 0.0f, 0.0f, -g ) ; }
-void   sgSetGravityVec3 ( sgVec3 g ) { sgCopyVec3 ( _sgGravity, g ) ; }
-float *sgGetGravityVec3 () { return   _sgGravity    ; }
-float  sgGetGravity     () { return - _sgGravity[2] ; }
+inline void   sgSetGravity     ( float  g ) { sgSetVec3 ( _sgGravity, 0.0f, 0.0f, -g ) ; }
+inline void   sgSetGravityVec3 ( sgVec3 g ) { sgCopyVec3 ( _sgGravity, g ) ; }
+inline float *sgGetGravityVec3 () { return   _sgGravity    ; }
+inline float  sgGetGravity     () { return - _sgGravity[2] ; }
 
 
 class sgParticle

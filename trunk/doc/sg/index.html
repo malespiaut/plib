@@ -870,6 +870,153 @@ The following routines interconvert between double precision
   void sgSetMat4 ( sgMat4 dst, sgdMat4 src ) ;
   void sgSetCoord ( sgCoord *dst, sgdCoord *src ) ;
 </pre>
+<H3>Spring/Mass/Damper model.</H3>
+Many applications can greatly benefit from some simple dynamics
+modelling.  SG includes two classes that taken together implement
+a standard Spring-Mass-Damper model with Euler integration.
+<pre>
+
+  class sgParticle ;
+  class sgSpringDamper ;
+
+</pre>
+The idea is that you connect up a bunch of 'particles' (which each have
+mass, position and velocity) using a collection of springs (actually, these
+are combinations springs and dampers).  Then, each frame, you can apply
+forces to some or all of the particles - and perhaps forcably reposition
+some of them - then loop around updating all of the spring-damper models
+to see what forces they apply to the particles as a result. Finally, you
+should call the 'upadate' function for each particle to see where it ends
+up some short time later.
+<pre>
+
+class sgParticle
+{
+  sgParticle ( float mass ) ;
+ 
+  float *getPos         () ;
+  float *getVel         () ;
+  float *getForce       () ;
+  float  getMass        () ;
+ 
+  void   setPos      ( sgVec3 p ) ;
+  void   setVel      ( sgVec3 v ) ;
+  void   setForce    ( sgVec3 f ) ;
+  void   setMass     ( float  m ) ;
+ 
+  void zeroForce   ()           ;
+  void addForce    ( sgVec3 f ) ;
+  void gravityOnly ()           ;
+ 
+  void update ( float dt ) ;
+} ;
+
+</pre>
+Aside from the obvious set/get routines that allow you to set or get the
+particles mass, position, velocity and the total force that's applied to it,
+you can also zero the force (a usual thing to do at the start of each cycle)
+or set the force equal to normal gravity, or you can add a force to whatever
+is currently being applied.
+<pre>
+
+class sgSpringDamper
+{
+  sgSpringDamper () ;
+  sgSpringDamper ( sgParticle *_p0, sgParticle *_p1,
+                   float _stiffness, float _damping,
+                   float _restLength = -1.0f ) ;
+ 
+  float       getRestLength () ;
+  float       getStiffness  () ;
+  float       getDamping    () ;
+  sgParticle *getParticle   ( int which ) ;
+ 
+  void setParticles ( sgParticle *_p0, sgParticle *_p1 ) ;
+  void setParticle  ( int which, sgParticle *p ) ;
+ 
+  void setRestLength () ;
+ 
+  void setRestLength ( float l ) ;
+  void setStiffness  ( float s ) ;
+  void setDamping    ( float d ) ;
+ 
+  void update () ;
+ 
+} ;
+
+</pre>
+Each spring/damper is connected to two sgParticle's.  It has a stiffness 
+and a damping factor plus a 'rest' length (ie how long it is when no
+forces are applied to the system).  If you omit the rest length, it will be
+calculated from the current positions of the two particles.
+<p>
+Apart from the usual set/get functions, there is a single 'update' routine
+which calculates the forces on the two particles and calls 'addForce' to
+each.
+<p>
+A typical application will look like this:
+<p>
+Initialisation:
+<ul>
+   <li> Construct all the sgParticle's
+   <li> Construct all the sgSpringDamper's and connect them to the particles.
+</ul>
+Initialisation:
+Each frame...
+<ul>
+   <li> For each particle: Set up all the EXTERNAL forces that apply to it:
+     <ul>
+     <li> <code>particle->zeroForce () ;</code>   ...or...
+     <li> <code>particle->gravityOnly () ;</code>   ...or...
+     <li> <code>particle->setForce ( something ) ;</code>
+     </ul>
+     Don't ever just allow the previous frame's forces to continue to be
+     applied.
+
+   <li> For each spring/damper add in the forces it applies to
+        the particles it's connected to: <code>spring -> update () ;</code>
+
+   <li> For each particle: Update it's velocity and position: <code>particle -> update ( dt )</code>
+      (where 'dt' is the elapsed time since the previous frame).
+</ul>
+As always with these systems, if you set the spring stiffness too high, or the
+damping coefficient too low, these equations will tend to <b>explode</b> - generating
+unreasonably large forces and velocities.  The only way to fix this is to back
+off the numbers - or call both sets of 'update' functions very frequently.
+<p>
+<b>You have been warned!</b>
+<p>
+By default, gravity is set to -9.8 meters/sec/sec in the Z direction - but this
+assumes you are on earth, using the metric (mks) system and have Z-is-up coordinates.
+<p>
+If any of those are not true, you can change the force that 'particle->gravityOnly()'
+applies using:
+<pre>
+
+  void   sgSetGravity     ( float  g ) ;
+  void   sgSetGravityVec3 ( sgVec3 g ) ;
+  float *sgGetGravityVec3 () ;
+  float  sgGetGravity     () ;
+
+</pre>
+Note that 'sgSetGravity' and 'sgGetGravity' use positive numbers for the
+accelleration due to gravity - and assume Z-is-up.  But the 'Vec3' versions
+make neither of those assumptions - so make sure the vector you give points
+DOWNWARDS!
+<p>
+eg
+<pre>
+
+    sgSetGravity ( 1.6 ) ;   /* On the Moon! */
+
+</pre>
+...but...
+<pre>
+
+    sgSetVec3 ( lunar_gravity, 0.0, 0.0, -1.6 ) ;   /* Note minus sign! */
+    sgSetGravityVec3 ( lunar_gravity ) ;
+
+</pre>
 <hr>
 <H2>Credits.</H2>
 Thanks to  <A HREF="mailto:kevinbthompson@yahoo.com">Kevin Thompson</A>
