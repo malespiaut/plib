@@ -285,30 +285,6 @@ void puFileSelector::setSize ( int w, int h )
   ok_button->setPosition ( (w<170)?(w/2+5):90, 10 ) ;
 }
 
-puFileSelector::puFileSelector ( int x, int y, int w, int h, int arrows, const char* dir, const char *title )
-                           : puDialogBox ( x, y )
-{
-  puFileSelectorInit ( x, y, w, h, arrows, dir, title ) ;
-}
-
-puFileSelector::puFileSelector ( int x, int y, int w, int h, const char* dir, const char *title )
-                           : puDialogBox ( x, y )
-{
-  puFileSelectorInit ( x, y, w, h, 1, dir, title ) ;
-}
-
-puFileSelector::puFileSelector ( int x, int y, int arrows, const char* dir, const char *title )
-                           : puDialogBox ( x, y )
-{
-  puFileSelectorInit ( x, y, arrows, 220, 170, dir, title ) ;
-}
-
-puFileSelector::puFileSelector ( int x, int y, const char* dir, const char *title )
-                           : puDialogBox ( x, y )
-{
-  puFileSelectorInit ( x, y, 220, 170, 1, dir, title ) ;
-}
-
 puFileSelector::~puFileSelector ()
 {
   delete [] startDir ;
