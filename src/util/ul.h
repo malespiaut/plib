@@ -56,28 +56,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#ifndef WIN32
-#  ifndef macintosh
-#    include <GL/glx.h>
-#  else
-#    include <agl.h>
-#  endif
-#endif
-
-/*
-  glGetCurrentContext()
-*/
-
-#ifdef WIN32
-#  define glGetCurrentContext() wglGetCurrentContext()
-#else
-#  if defined(macintosh)
-#     define glGetCurrentContext() aglGetCurrentContext()
-#  else
-#     define glGetCurrentContext() glXGetCurrentContext()
-#  endif
-#endif
-
 /* SGI machines seem to suffer from a lack of FLT_EPSILON so... */
 
 #ifndef FLT_EPSILON
@@ -215,6 +193,12 @@ struct ulDirEnt
 ulDir* ulOpenDir ( const char* dirname ) ;
 ulDirEnt* ulReadDir ( ulDir* dir ) ;
 void ulCloseDir ( ulDir* dir ) ;
+
+/*
+ ulGetCurrentContext function
+*/
+
+extern "C" int ulGetCurrentContext () ;
 
 /*
   UDP Networking Class NetWork Libriary
