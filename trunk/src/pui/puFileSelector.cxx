@@ -610,28 +610,30 @@ void puFileSelector::find_files ( void )
     return ;
   }
 
-  for ( ifile = 0 ;
-        (dp = ulReadDir(dirp)) != NULL && ifile < num_files ;
-        ifile++ )
+  ifile = 0 ;
+
+  while ( (dp = ulReadDir(dirp)) != NULL && ifile < num_files )
   {
     /* Skip over the "." entry... */
 
-    if ( strcmp ( dp->d_name, "." ) == 0 )
-      continue ;
-
-    dflag[ ifile ] = dp->d_isdir ;
-
-    if ( dflag[ ifile ] )
+    if ( strcmp ( dp->d_name, "." ) != 0 )
     {
-      files[ ifile ] = new char[ strlen(dp->d_name)+4 ] ;
-      strcpy ( files [ ifile ], "[" ) ;
-      strcat ( files [ ifile ], dp->d_name ) ;
-      strcat ( files [ ifile ], "]" ) ;
-    }
-    else
-    {
-      files[ ifile ] = new char[ strlen(dp->d_name)+1 ] ;
-      strcpy ( files [ ifile ], dp->d_name ) ;
+      dflag[ ifile ] = dp->d_isdir ;
+
+      if ( dflag[ ifile ] )
+      {
+        files[ ifile ] = new char[ strlen(dp->d_name)+4 ] ;
+        strcpy ( files [ ifile ], "[" ) ;
+        strcat ( files [ ifile ], dp->d_name ) ;
+        strcat ( files [ ifile ], "]" ) ;
+      }
+      else
+      {
+        files[ ifile ] = new char[ strlen(dp->d_name)+1 ] ;
+        strcpy ( files [ ifile ], dp->d_name ) ;
+      }
+
+      ifile++ ;
     }
   }
 
