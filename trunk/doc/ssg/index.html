@@ -623,6 +623,7 @@ class ssgBranch : public ssgEntity
   void       removeKid     ( int n ) ;
   void       removeKid     ( ssgEntity *entity ) ;
   void       removeAllKids (void) ;
+  void       replaceKid    ( ssgEntity *old_entity, ssgEntity *new_entity ) ;
 } ;
 
 </pre>
@@ -640,8 +641,9 @@ child nodes - the new node is added at the end of the list and will therefore
 have the highest numbered index.
 <code>ssgBranch::removeKid(n)</code> removes the n'th child node and renumbers
 any higher numbered children so there are never any gaps in the number range.
-<code>ssgBranch::removeKid(entity)</code> same as removeKid(searchKid(entity)).
+<code>ssgBranch::removeKid(entity)</code> same as removeKid(searchForKid(entity)).
 <code>ssgBranch::removeAllKids()</code> remove ALL child entities.
+<code>ssgBranch::replaceKid(old, new)</code> replaces <code>old</code> with <code>new</code>.
 If the entity removed by any of these commands has a ref count of
 zero, it will be deleted.
 
