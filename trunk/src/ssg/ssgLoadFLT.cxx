@@ -1103,24 +1103,24 @@ struct Vtx {
 };
 
 /* decompose a concave polygon */
-static void Concave(int x, int y, int ccw, int *w, int n, fltState *state)
+static void Concave(int x, int y, int *w, int n, fltState *state)
 {
 #ifdef USE_ALLOCA
    Vtx *buf = (Vtx *)alloca(sizeof(Vtx) * n);
 #else
    Vtx buf[n];
 #endif
-   Vtx *p0, *p1, *p2, *m0, *m1, *m2, *t0;
+   Vtx *p0, *p1, *p2, *m0, *m1, *m2, *t;
    int i, chk;
-   float a0, a1, a2, b0, b1, b2, c0, c1, c2, s0, s1, s2;
+   float a0, a1, a2, b0, b1, b2, c0, c1, c2;
 
+   /* put the vertices in a circular linked list */
    p0 = &buf[0]; // (Vtx *)alloca(sizeof(Vtx));
    p0->index = w[0];
    p0->x = state->coord[w[0]][x];
    p0->y = state->coord[w[0]][y];
    p1 = p0;
    p2 = 0;
-
    for (i = 1; i < n; i++) {
       p2 = &buf[i]; //(Vtx *)alloca(sizeof(Vtx));
       p2->index = w[i];
@@ -1137,8 +1137,8 @@ static void Concave(int x, int y, int ccw, int *w, int n, fltState *state)
    chk = 0;
 
    while (p0 != p2->next) {
-      /* Polygon is self-intersecting so punt */
       if (chk && m0 == p0 && m1 == p1 && m2 == p2) {
+	 /* no suitable vertex found.. */
          ulSetError(UL_WARNING, "[flt] Self-intersecting polygon (dropped).");
          return;
       }
@@ -1150,16 +1150,15 @@ static void Concave(int x, int y, int ccw, int *w, int n, fltState *state)
       b0 = p2->x - p1->x;
       b1 = p0->x - p2->x;
       b2 = p1->x - p0->x;
-      s0 = b0 * a2 - b2 * a0;
       
-      /* current angle is concave */
-      if ((ccw && s0 < 0.0f) || (!ccw && s0 > 0.0f)) {
+      if (b0 * a2 - b2 * a0 < 0) {
+	 /* current angle is concave */
          p0 = p1;
          p1 = p2;
          p2 = p2->next;
       }
-      /* current angle is convex */
       else {
+	 /* current angle is convex */
          float xmin = MIN3(p0->x, p1->x, p2->x);
          float xmax = MAX3(p0->x, p1->x, p2->x);
          float ymin = MIN3(p0->y, p1->y, p2->y);
@@ -1169,36 +1168,27 @@ static void Concave(int x, int y, int ccw, int *w, int n, fltState *state)
 	 c1 = p2->x * p0->y - p0->x * p2->y;
 	 c2 = p0->x * p1->y - p1->x * p0->y;
 
-         for (t0 = p2->next; t0 != p0; t0 = t0->next) {
-            if (xmin <= t0->x && t0->x <= xmax && 
-                ymin <= t0->y && t0->y <= ymax) {
-               
-               s0 = a0 * t0->x + b0 * t0->y + c0;
-               s1 = a1 * t0->x + b1 * t0->y + c1;
-               s2 = a2 * t0->x + b2 * t0->y + c2;
-               
-               if (( ccw && s0 > 0.0f && s1 > 0.0f && s2 > 0.0f) ||
-		   (!ccw && s0 < 0.0f && s1 < 0.0f && s2 < 0.0f))
-		  break;
-            }
-         }
+         for (t = p2->next; t != p0; t = t->next) {
+	    /* see if the triangle contains this vertex */
+            if (xmin <= t->x && t->x <= xmax && 
+                ymin <= t->y && t->y <= ymax &&
+		a0 * t->x + b0 * t->y + c0 > 0 &&
+		a1 * t->x + b1 * t->y + c1 > 0 &&		   
+		a2 * t->x + b2 * t->y + c2 > 0)
+	       break;
+	 }
 
-         if (t0 != p0) {
+         if (t != p0) {
             p0 = p1;
             p1 = p2;
             p2 = p2->next;
          }
          else {
+	    /* extract this triangle */
             AddTri(state, p0->index, p1->index, p2->index);
             
-#if 0
-            p0->next = p1->next;
-            p1 = p2;
-            p2 = p2->next;
-#else
 	    p0->next = p1 = p2;
 	    p2 = p2->next;
-#endif
             
             m0 = p0;
             m1 = p1;
@@ -1215,9 +1205,9 @@ static void Triangulate(int *w, int n, fltState *state)
 {
    sgVec3 *coord = state->coord;
    float *a, *b;
-   int i, j, x, y, flag;
+   int i, x, y;
 
-   /* trivial */
+   /* trivial case */
    if (n <= 3) {
       if (n == 3)
 	 AddTri(state, w[0], w[1], w[2]);
@@ -1227,13 +1217,17 @@ static void Triangulate(int *w, int n, fltState *state)
    /* compute areas */
    {
       float s[3], t[3];
-      s[0] = s[1] = s[2] = 0.0f;
-      for (j = n - 1, i = 0; i < n; j = i++) {
-	 a = coord[w[j]];
+      int swap;
+
+      s[0] = s[1] = s[2] = 0;
+      b = coord[w[n - 1]];
+
+      for (i = 0; i < n; i++) {
+	 a = b;
 	 b = coord[w[i]];
-	 s[0] += a[1]*b[2] - a[2]*b[1];
-	 s[1] += a[2]*b[0] - a[0]*b[2];
-	 s[2] += a[0]*b[1] - a[1]*b[0];
+	 s[0] += a[1] * b[2] - a[2] * b[1];
+	 s[1] += a[2] * b[0] - a[0] * b[2];
+	 s[2] += a[0] * b[1] - a[1] * b[0];
       }
    
       /* select largest area */
@@ -1241,36 +1235,29 @@ static void Triangulate(int *w, int n, fltState *state)
       t[1] = ABS(s[1]);
       t[2] = ABS(s[2]);
       i = t[0] > t[1] ? t[0] > t[2] ? 0 : 2 : t[1] > t[2] ? 1 : 2;
-      x = (i + 1) % 3;
-      y = (i + 2) % 3;
-      flag = (s[i] >= 0.0f);
+      swap = (s[i] < 0); /* swap coordinates if clockwise */
+      x = (i + 1 + swap) % 3;
+      y = (i + 2 - swap) % 3;
    }
 
    /* concave check */
    {
-      float x0, y0, x1, y1, s;
-      int ccw;
+      float x0, y0, x1, y1;
 
       a = coord[w[n - 2]];
       b = coord[w[n - 1]];
-      x0 = b[x] - a[x];
-      y0 = b[y] - a[y];
-      a = b;
-      b = coord[w[0]];
       x1 = b[x] - a[x];
       y1 = b[y] - a[y];
-      ccw = (x0*y1 - x1*y0 >= 0.0f);
 
-      for (i = 1; i < n; i++) {
+      for (i = 0; i < n; i++) {
 	 a = b;
 	 b = coord[w[i]];
 	 x0 = x1;
 	 y0 = y1;
 	 x1 = b[x] - a[x];
 	 y1 = b[y] - a[y];
-	 s = x0*y1 - x1*y0;
-	 if ((ccw && s < 0.0f) || (!ccw && s > 0.0f)) {
-	    Concave(x, y, flag, w, n, state);
+	 if (x0 * y1 - x1 * y0 < 0) {
+	    Concave(x, y, w, n, state);
 	    return;
 	 }
       }
