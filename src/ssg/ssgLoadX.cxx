@@ -3,7 +3,7 @@
 // .X is the 3D file format for Micro$ofts directX retained mode.
 // Written by Wolfram Kuss (Wolfram.Kuss@t-online.de) in Oct/Nov of 2000
 //
-#include "ssgLocal.h"
+#include "ssgLoaderWriterStuff.h" // "ssgLocal.h" called in ssgLoaderWriterStuff
 #include "ssgParser.h"
 
 #define u32 unsigned int
@@ -11,7 +11,7 @@
 typedef void HandlerFunctionType(const char *sName, const char *firstToken);
 char *globEmpty="";
 
-static ssgBranch                *curr_branch_;
+static ssgBranch *curr_branch_;
 
 struct EntityType
 {
@@ -159,23 +159,10 @@ void ParseEntity(char *token)
 
 #define MAX_NO_VERTICES_PER_FACE 1000
 
-class XMesh {
-public:
-  ssgVertexArray* vl;
-  ssgTexCoordArray* tl;
-	u32 m_nNoOfVertices, m_nNoOfFaces;
-	void ReInit ( int nNoOfVertices ) ;
-} currentMesh;
+class ssgLoaderWriterMesh currentMesh;
 
 ssgSimpleState *currentState;
-sgVec4 currentDiffuse;
-
-void XMesh::ReInit(int nNoOfVertices ) 
-{
-	m_nNoOfVertices = nNoOfVertices;
-  vl = new ssgVertexArray ( nNoOfVertices ) ;
-  tl = NULL ;
-}
+extern sgVec4 currentDiffuse;
 
 void HandleTextureFileName(const char *sName, const char *firstToken)
 {/*
@@ -183,11 +170,20 @@ void HandleTextureFileName(const char *sName, const char *firstToken)
     "../image/box_top.gif";
    } #TextureFilename
  */
-  currentState -> setTexture( current_options -> createTexture( (char *) firstToken) ) ;
+  char *filename_ptr, *filename = new char [ strlen(firstToken)+1 ] ;
+  strcpy ( filename, firstToken ) ;
+	filename_ptr = filename ;
+	
+	if ( filename_ptr[0] == '"' ) 
+		filename_ptr++;
+	if (filename_ptr[strlen(filename_ptr)-1] == '"')
+		filename_ptr[strlen(filename_ptr)-1] = 0;
+  currentState -> setTexture( current_options -> createTexture( filename_ptr ) );
   currentState -> enable( GL_TEXTURE_2D );
 
-	parser.expect(";");
-	parser.expect("}");
+	parser.expectNextToken(";");
+	parser.expectNextToken("}");
+	delete filename;
 }
 
 void HandleMaterial(const char *sName, const char *firstToken)
@@ -262,7 +258,8 @@ void HandleMaterial(const char *sName, const char *firstToken)
 	while(TRUE)
 	{ char *nextToken =parser.getNextToken(0);
 	  if (0==strcmp("}", nextToken))
-		{ return; // Material is finished. success
+		{ currentMesh.addMaterial( &currentState );
+			return; // Material is finished. success
 		}
 		
 		if ( 0!= strcmp("TextureFilename", nextToken) )
@@ -285,20 +282,20 @@ void HandleTextureCoords(const char *sName, const char *firstToken)
 	sName; // keep the compiler quiet
 	  
 	nNoOfVertices = atoi(firstToken); //Pfusch!! kludge
-	if ( nNoOfVertices != currentMesh.m_nNoOfVertices )
+	if ( nNoOfVertices != currentMesh.getNumVertices())
 	{ parser.error("No of vertices of mesh (%d) and no "
 	            "of texture coordinates (%d) do not match!\n" 
 							"Therefore the texture coordinates are ignored!",
-							( int ) currentMesh.m_nNoOfVertices, ( int ) nNoOfVertices );
+							( int ) currentMesh.getNumVertices(), ( int ) nNoOfVertices );
 	  IgnoreEntity ( 1 ); // ignores TC.
 		return;
 	}
-	currentMesh.tl = new ssgTexCoordArray ( nNoOfVertices ) ;
+	currentMesh.ThereAreNTCPV( nNoOfVertices ) ;
 
 	parser.expectNextToken(";");
 	for(i=0;i<nNoOfVertices;i++)
 	{ 
-		sgVec3 tv;
+		sgVec2 tv;
       
     tv[0]=parser.getNextFloat("x");
 		parser.expectNextToken(";");
@@ -309,7 +306,7 @@ void HandleTextureCoords(const char *sName, const char *firstToken)
 		else
 			parser.expectNextToken(",");
 
-		currentMesh.tl->add ( tv ) ;
+		currentMesh.addTCPV ( tv ) ;
 	}
 	parser.expectNextToken("}");
 	parser.error("Did read TC!\n");
@@ -323,25 +320,28 @@ void HandleMeshMaterialList(const char *sName, const char *firstToken)
 	  
 	nMaterials = atoi(firstToken); //Pfusch!! kludge
 	parser.expectNextToken(";");
+	currentMesh.ThereAreNMaterials( nMaterials );
 	nFaceIndexes = parser.getNextInt("number of Face Indexes");
+	currentMesh.ThereAreNMaterialIndexes( nFaceIndexes ) ;
 	parser.expectNextToken(";");
 
 
-	if ( nFaceIndexes > currentMesh.m_nNoOfFaces)
+	if ( nFaceIndexes > currentMesh.getNumFaces())
 	{ parser.error("No of face indexes of materiallist (%d) is greater than then no "
 	            "of faces (%d)!\n" 
 							"Therefore the material list is ignored!",
-							( int ) nFaceIndexes, ( int ) currentMesh.m_nNoOfFaces );
+							( int ) nFaceIndexes, ( int ) currentMesh.getNumFaces());
 	  IgnoreEntity ( 1 ); // ignores TC.
 		return;
 	}
-	if ( nFaceIndexes > currentMesh.m_nNoOfFaces)
-	  parser.message("Informationl: No of face indexes of materiallist (%d) is less than then no "
+	if ( nFaceIndexes > currentMesh.getNumFaces())
+	  parser.message("Informational: No of face indexes of materiallist (%d) is less than then no "
 	            "of faces (%d)\n" ,
-							( int ) nFaceIndexes, ( int ) currentMesh.m_nNoOfFaces );
+							( int ) nFaceIndexes, ( int ) currentMesh.getNumFaces());
 	for ( i=0 ; i<nFaceIndexes ; i++ )
 	{
 		int iIndex = parser.getNextInt("Face index");
+		currentMesh.addMaterialIndex ( iIndex ) ;
 		parser.expectNextToken(";");
 		if(i==nFaceIndexes -1)
 		{ if ( nFaceIndexes > 1 )  // this is important for files created by MSs convx, for example rocket1_new.x
@@ -370,28 +370,16 @@ void HandleMeshMaterialList(const char *sName, const char *firstToken)
 		ParseEntity(nextToken); // read "Material"
 		nMaterialsRead++;
 	}
+#ifdef WIN32
+	if ((currentMesh.getNumMaterials()==5) && ( nMaterials==5 ))
+		::MessageBox(0, "Beide 5", "Beide 5", 0);
+	else if (currentMesh.getNumMaterials()== nMaterials )
+		::MessageBox(0, "Beide gleich", "Beide glich", 0);
+	else
+		::MessageBox(0, "NumMat", "Fehler!!!", 0);
+#endif
 }
 
-static void recalcNormals( ssgIndexArray* il, ssgVertexArray* vl, ssgNormalArray *nl ) 
-{
-//  DEBUGPRINT( "Calculating normals." << std::endl);
-  sgVec3 v1, v2, n;
-
-  for (int i = 0; i < il->getNum() / 3; i++) {
-    short ix0 = *il->get(i*3    );
-    short ix1 = *il->get(i*3 + 1);
-    short ix2 = *il->get(i*3 + 2);
-
-    sgSubVec3(v1, vl->get(ix1), vl->get(ix0));
-    sgSubVec3(v2, vl->get(ix2), vl->get(ix0));
-    
-    sgVectorProductVec3(n, v1, v2);
-
-    sgCopyVec3( nl->get(ix0), n );
-    sgCopyVec3( nl->get(ix1), n );
-    sgCopyVec3( nl->get(ix2), n );
-  }
-}
 
 void HandleMesh(const char *sName, const char *firstToken)
 { u32 nNoOfVertices, nNoOfVerticesForThisFace, nNoOfFaces, i, j, iVertex;
@@ -405,7 +393,8 @@ void HandleMesh(const char *sName, const char *firstToken)
 	nNoOfVertices = atoi(firstToken); //Pfusch!! kludge
 	//parser.getNextInt("number of vertices");
 
-	currentMesh.ReInit ( nNoOfVertices );
+	currentMesh.ReInit ();
+	currentMesh.ThereAreNVertices( nNoOfVertices );
   
 	
 	parser.expectNextToken(";");
@@ -424,13 +413,12 @@ void HandleMesh(const char *sName, const char *firstToken)
 		else
 			parser.expectNextToken(",");
 
-		currentMesh.vl->add(vert);
+		currentMesh.addVertex(vert);
 	}
 	nNoOfFaces = parser.getNextInt("number of faces");
-	currentMesh.m_nNoOfFaces = nNoOfFaces;
+	currentMesh.ThereAreNFaces ( nNoOfFaces );
 
-  ssgIndexArray* il = new ssgIndexArray ( nNoOfFaces * 3 ) ;
-
+  
   
 	parser.expectNextToken(";");
 	for(i=0;i<nNoOfFaces;i++)
@@ -459,16 +447,7 @@ void HandleMesh(const char *sName, const char *firstToken)
 #ifdef NOT_PLIB
 		CreateFaceInMdi_Edit(vl, nNoOfVerticesForThisFace, aiVertices); // This line is for the "Mdi" 3D Editor, NOT for plib
 #else
-		for(j=0;j<nNoOfVerticesForThisFace;j++)
-		{ 
-			if (j<3)
-				il->add(aiVertices[j]);
-			else // add a complete triangle
-			{ il->add(aiVertices[0]);
-				il->add(aiVertices[j-1]);
-				il->add(aiVertices[j]);
-			}
-		}
+		currentMesh.AddFaceFromCArray(nNoOfVerticesForThisFace, aiVertices); 
 #endif
 	}
 	while(TRUE)
@@ -479,56 +458,15 @@ void HandleMesh(const char *sName, const char *firstToken)
 	}
 
 //
-	ssgColourArray* cl = NULL ;
-  
-  if ( currentState -> isEnabled ( GL_LIGHTING ) )
-  {
-    if ( cl == NULL )
-    {
-      cl = new ssgColourArray ( 1 ) ;
-      cl -> add ( currentDiffuse ) ;
-    }
-  
-  }
+	if ( currentState == NULL )
+		currentState = new ssgSimpleState();
 
+	currentMesh.add2SSG(
+		currentState // Pfusch
+		,
+		current_options,
+		curr_branch_);
 
-//start
-
-	//stop
-
-  ssgNormalArray *nl = new ssgNormalArray(currentMesh.vl->getNum());
-	for (i=0;i<currentMesh.vl->getNum();i++)
-		nl->add(currentMesh.vl->get(i));
-
-  
-	recalcNormals(il,currentMesh.vl, nl); // Pfusch kludge; only do this if there are no nmormals in the file
-fprintf(stdout, "nl->getNum()=%d\n",nl->getNum());
-for(i=0;i<nl->getNum();i++)
-{ float *f=nl->get(i);
-  fprintf(stdout, "n= %f, %f, %f\n", f[0], f[1], f[2]);
-}
-  ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES,
-    currentMesh.vl, nl , 
-		currentMesh.tl, cl, il ) ;
-  leaf -> setCullFace ( TRUE ) ;
-
-
-
-  float *af=currentState->getMaterial ( GL_DIFFUSE  );
-  parser.message("vor leaf-SetState: af[0] = %f, %f, %f, %f\n",
-	        af[0], af[1], af[2], af[3]);
-
-
-
-
-
-
-
-  leaf -> setState ( currentState ) ;
-  //return 
-	current_options -> createLeaf ( leaf, NULL) ;
-	curr_branch_->addKid(leaf);
-	  
 }
 
 static int TwoCharsToInt(char char1, char char2)
@@ -549,9 +487,15 @@ static int HeaderIsValid(char *firstToken)
     parser.error("not X format, invalid Header");
     return FALSE ;
   }
-	if (strcmp(&(token[4]),"txt"))
+	char *sp=&(token[4]);
+	if (strcmp(sp,"txt"))
   {
-    parser.error("not X format, invalid Header");
+    if (strcmp(sp,"bin"))
+			parser.error("not X format, invalid Header");
+		else
+			parser.error("Binary X format files are not supported. If you have access to Windows, "
+			             "please use Microsofts conversion-utility convx from the directX-SDK "
+									 "to convert to ascii.");
     return FALSE ;
   }
 	if (strncmp(token, "0302", 4))
