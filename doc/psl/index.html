@@ -5,7 +5,7 @@
    <meta name="keywords" content="PSL, PLIB, OpenGL, UI, portable, script, language, Baker, Steve">
    <meta name="description" content="The PLIB Scripting Language (PSL) Library is a lightweight scripting language that is well suited for games or other interactive programs.">
    <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
-   <title>The PLIB Scripting Language: Programmers Guide.</title>
+   <title>The PLIB Scripting Language.</title>
 </head>
 <body text="#B5A642" bgcolor="#005000" link="#8FFF8F" vlink="#18A515" alink="#20336B" background="../marble.png">
 &nbsp;
@@ -13,20 +13,39 @@
 <tr>
 <td>
 <center>
-<h1>
-PSL: PLIB's Scripting Language </h1></center>
-
-<center>
-<h1>
-Programmers Guide.</h1></center>
-
+<h1>PSL: PLIB's Scripting Language.</h1></center>
 <center>By Steve Baker</center>
 </td>
 </tr>
 </table>
 
-<h2>Introduction</h2>
-THIS DOCUMENT IS WORK IN PROGRESS!
+<H1>Introduction</H1>
+Whilst applications can use any suitable scripting
+language (Python, PERL, Lua, etc) in conjunction with PLIB, there are
+attractions to using PLIB's own scripting language: PSL.
+<p>
+In particular, in using PSL, you do not add any dependancies on
+your application.  If the end user has the correct version of PLIB
+installed - then the scripting language is already there - for sure.
+<p>
+PSL is a very light-weight C-like language with some features borrowed
+from C++.  It's also 'stackless' and very friendly to games applications.
+<p>
+There are two PSL documents:
+<ul>
+<li><a href="appl_guide.html">The PSL-enabled Applications Guide.</a>
+-- If you are planning on including a PSL interpreter into your program,
+(making it 'PSL-enabled') then you should read the Applications Guide.
+<li><a href="prog_guide.html">The PSL Programmers Guide.</a>
+-- If you are writing scripts for a PSL-enabled application, then you'll
+only need to read the Programmer's Guide.
+</ul>
+<p>
+Each application can extend PSL by providing additional built-in
+functions - so if you are a PSL programer then you'll probably need to 
+read the documentation for whatever PSL-enabled application
+you are writing for.  If you are writing a PSL-enabled application, then
+you'd better sit down and WRITE that document!
 <hr>
 <address>
 <a href="http://www.sjbaker.org">Steve J. Baker.</a> &lt;<a href="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</a>&gt;</address>

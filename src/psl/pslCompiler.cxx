@@ -38,28 +38,26 @@ int pslCompiler::compile ( const char *fname )
     return FALSE ;
   }
  
-  int res = compile ( fd ) ;
-  fclose ( fd ) ;
-  return res ;
+  return compile ( fd, fname ) ;
 }
  
  
-int pslCompiler::compile ( FILE *fd )
+int pslCompiler::compile ( FILE *fd, const char *fname )
 {
   init () ;
  
-  setDefaultFile ( fd ) ;
-  pushProgram () ;
+  pushDefaultFile ( fd, (fname == NULL) ? progName : fname ) ;
+  pushProgram     () ;
+  popDefaultFile  () ;
  
   if ( num_errors != 0 || num_warnings != 0 )
-    fprintf ( stderr, "PSL: Compiled with %d Warnings, %d Fatal Errors\n",
-             num_warnings, num_errors ) ;
+    fprintf ( stderr, "PSL: '%s' Compiled with %d Warnings, %d Fatal Errors\n",
+             progName, num_warnings, num_errors ) ;
  
   /* If there are errors, prevent the program from running. */
 
   if ( num_errors != 0 )
   {
-dump () ;
     next_code = 0 ;
     pushCodeByte ( OPCODE_HALT ) ;
   }

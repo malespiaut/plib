@@ -83,7 +83,7 @@ int main ()
   pslProgram *prog_1 = new pslProgram ( extensions, "code1" ) ;
 
   prog_1 -> compile ( "data/test.psl" ) ;
-  prog_1 -> dump () ;
+  // prog_1 -> dump () ;
 
   /* Clone program 2 from program 1 */
 

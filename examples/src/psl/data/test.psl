@@ -1,31 +1,37 @@
 
+#include <data/header.psh>
+
 void main ()
 {
   int i ;
 
   for ( i = 0 ; i < 20 ; i = i + 1 - 3 + 3 )
   {
-if ( i == 10 ) continue ;
-if ( i == 17 ) break ;
+    if ( i == 10 ) { printf ( "Continuing past TEN\n" ) ; continue ; }
+    if ( i == 17 ) { printf ( "Seventeen is enough!\n" ) ; break ; }
 
     switch ( i )
     {
       case 0 :
       case 1 :
       case 2 :
-        printf ( "Small! " ) ;
+        printf ( "Small!" ) ;
+        tab () ;
         break ;
       case 3 :
       case 4 :
       case 5 :
-        printf ( "Medium! " ) ;
+        printf ( "Medium!" ) ;
+        tab () ;
         break ;
       default:
-        printf ( "Huge! ", i ) ;
+        printf ( "Huge!" ) ;
+        tab () ;
         break ;
     }
 
-    printf ( "\n" ) ;
+    printf ( " ", i ) ;
+    newline () ;
   }
 }
 

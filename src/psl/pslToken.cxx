@@ -24,52 +24,136 @@
 
 #include "pslLocal.h"
 
-static FILE *defaultFile ;
 static char ungotten_token [ MAX_UNGET ][ MAX_TOKEN ] ;
-static int  unget_stack_depth = 0 ;
+static int  unget_token_stack_depth = 0 ;
 
-
-void pslCompiler::setDefaultFile ( FILE *fd )
+int pslCompiler::getChar ()
 {
-  defaultFile = fd ;
+  /*
+    If we got a newline then we have to test to see whether
+    a '#' preprocessor directive is on this line.
+  */
+ 
+  int c = ::getChar () ;
+
+  if ( c == '\n' )
+  {
+    int d = ::getChar () ;
+ 
+    if ( d == '#' )
+      return doPreProcessorCommand () ;
+
+    ::unGetChar ( d ) ;
+  }
+ 
+  /*
+    All done - return the character.
+  */
+ 
+  return c ;
 }
 
 
-int pslCompiler::getChar ( FILE *fd )
+void pslCompiler::doIncludeStatement ()
 {
-  int c = getc ( fd ) ;
+  char token [ MAX_TOKEN ] ;
+  char *p ;
 
-  if ( c == '\n' ) line_no++ ;
+  getToken ( token ) ;
+
+  if ( token[0] == '"' )
+    p = token + 1 ;
+  else
+  if ( token[0] == '<' )
+  {
+    p = token ;
+
+    do
+    {
+      *p = getChar () ;
+
+    } while ( *(p++) != '>' ) ;
+
+    *(p-1) = '\0' ;
+
+    p = token ;
+  }
+  else
+  {
+    error ( "Illegal character after '#include'" ) ;
+    return ;
+  }
+
+  /*
+    Skip to the end of this line of text BEFORE we hand
+    control over to the next file.
+  */
+
+  int c ;
+  do { c = getChar () ; } while ( c != '\n' && c != -1 ) ;
+
+  pushDefaultFile ( p ) ;
+}
+
+
+
+int pslCompiler::doPreProcessorCommand ()
+{
+  char token [ MAX_TOKEN ] ;
+
+  getToken ( token ) ;
+
+  /* #include?? */
+
+  if ( strcmp ( token, "include" ) == 0 )
+  {
+    doIncludeStatement () ;
+    return getChar () ;
+  }
+
+  if ( strcmp ( token, "define"  ) == 0 )
+  {
+  }
+  else
+  if ( strcmp ( token, "ifdef"   ) == 0 )
+  {
+  }
+  else
+  if ( strcmp ( token, "endif"   ) == 0 )
+  {
+  }
+  else
+  if ( strcmp ( token, "else"    ) == 0 )
+  {
+  }
+  else
+    error ( "Unrecognised preprocessor directive '%s'", token ) ;
+
+  /* Skip to the end of this line. */
+
+  int c ;
+
+  do { c = getChar () ; } while ( c != '\n' && c != -1 ) ; 
 
   return c ;
 }
 
 
-int pslCompiler::unGetChar ( int c, FILE *fd )
+void pslCompiler::getToken ( char *res )
 {
-  int res = ungetc ( c, fd ) ;
+  /* WARNING -- RECURSIVE -- WARNING -- RECURSIVE -- WARNING -- RECURSIVE */
 
-  if ( c == '\n' ) line_no-- ;
-
-  return res ;
-}
-
-
-void pslCompiler::getToken ( char *res, FILE *fd )
-{
-  if ( unget_stack_depth > 0 )
+  if ( unget_token_stack_depth > 0 )
   {
-    strcpy ( res, ungotten_token [ --unget_stack_depth ] ) ;
+    strcpy ( res, ungotten_token [ --unget_token_stack_depth ] ) ;
     return ;
   }
-
-  if ( fd == NULL ) fd = defaultFile ;
 
   int c ;
 
   do
   {
-    c = getChar ( fd ) ;
+    c = getChar () ;
 
     if ( c < 0 )
     {
@@ -79,13 +163,13 @@ void pslCompiler::getToken ( char *res, FILE *fd )
 
     if ( c == '/' )
     {
-      int d = getChar ( fd ) ;
+      int d = getChar () ;
 
       if ( d == '/' ) /* C++ style comment */
       {
         do
         {
-          d = getChar ( fd ) ;
+          d = getChar () ;
         } while ( d != '\n' && d != -1 ) ;
 
         c = ' ' ;
@@ -103,15 +187,15 @@ void pslCompiler::getToken ( char *res, FILE *fd )
 
           do
           {
-            d = getChar ( fd ) ;
+            d = getChar () ;
           } while ( d != '*' && d != -1 ) ;
 
-          c = getChar ( fd ) ;
+          c = getChar () ;
 
           /* If you get two stars in a row - unget the second one */
 
           if ( c == '*' )
-            unGetChar ( '*', fd ) ;
+            unGetChar ( '*' ) ;
 
         } while ( c != '/' ) ;
 
@@ -145,6 +229,7 @@ void pslCompiler::getToken ( char *res, FILE *fd )
         {
           case '0' : res [ tp++ ] = '\0' ; break ;
           case 'r' : res [ tp++ ] = '\r' ; break ;
+          case 't' : res [ tp++ ] = '\t' ; break ;
           case 'n' : res [ tp++ ] = '\n' ; break ;
           case 'f' : res [ tp++ ] = '\f' ; break ;
           case 'b' : res [ tp++ ] = '\b' ; break ;
@@ -157,7 +242,7 @@ void pslCompiler::getToken ( char *res, FILE *fd )
       else
         res [ tp++ ] = c ;
 
-      c = getChar ( fd ) ;
+      c = getChar () ;
 
       if ( tp >= MAX_TOKEN - 1 )
       {
@@ -178,7 +263,7 @@ void pslCompiler::getToken ( char *res, FILE *fd )
   while ( isalnum ( c ) || c == '.' || c == '_' )
   {
     res [ tp++ ] = c ;
-    c = getChar ( fd ) ;
+    c = getChar () ;
 
     if ( tp >= MAX_TOKEN - 1 )
     {
@@ -190,7 +275,7 @@ void pslCompiler::getToken ( char *res, FILE *fd )
 
   if ( tp > 0 )
   {
-    unGetChar ( c, fd ) ;
+    unGetChar ( c ) ;
     res [ tp ] = '\0' ;
   }
   else
@@ -203,13 +288,13 @@ void pslCompiler::getToken ( char *res, FILE *fd )
 
 void pslCompiler::ungetToken ( const char *s )
 {
-  if ( unget_stack_depth >= MAX_UNGET-1 )
+  if ( unget_token_stack_depth >= MAX_UNGET-1 )
   {
     error ( "Too many ungetTokens! This must be an *UGLY* PSL program!" ) ;
     exit ( -1 ) ;
   }
 
-  strcpy ( ungotten_token[unget_stack_depth++], s ) ;
+  strcpy ( ungotten_token[unget_token_stack_depth++], s ) ;
 }
 
 

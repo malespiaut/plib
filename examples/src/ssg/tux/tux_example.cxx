@@ -68,7 +68,7 @@ static void update_motion ()
   */
 
   sgSetCoord ( & campos, 0.0f, -5.0f, 1.0f, 25.0 * sin(frameno/100.0), 0.0f, 0.0f ) ;
-  sgSetCoord ( & tuxpos, 0.0f,  0.0f, 0.0f, frameno, 0.0f, 0.0f ) ;
+  sgSetCoord ( & tuxpos, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, frameno/100.0f ) ;
 
   ssgSetCamera ( & campos ) ;
   penguin -> setTransform ( & tuxpos ) ;
