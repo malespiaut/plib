@@ -752,8 +752,7 @@ inline void sgMakePlane ( sgVec4 dst, const sgVec3 a, const sgVec3 b, const sgVe
   dst [ 3 ] = - sgScalarProductVec3 ( dst, a ) ;
 }
 
-
-
+float sgTriArea( sgVec3 p0, sgVec3 p1, sgVec3 p2 );
 
 class sgSphere
 {

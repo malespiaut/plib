@@ -96,6 +96,44 @@ void sgMakeLookAtMat4 ( sgMat4 dst, const sgVec3 eye, const sgVec3 center, const
 #undef M
 }
 
+
+static float sgTriArea( sgVec3 p0, sgVec3 p1, sgVec3 p2 )
+{
+  /* 
+    From comp.graph.algorithms FAQ
+	2A(P) = abs(N.(sum_{i=0}^{n-1}(v_i x v_{i+1})))
+	This is an optimized version for a triangle
+	but easily extended for planar polygon's with more sides
+	by passing in the number of sides and the vv array
+	sgTriArea( int nsides, float **vv )
+	and changing the normal calculation and the for loop appropriately
+	sgMakeNormal( norm, vv[0], vv[1], vv[2] )
+	for( int i=0; i<n; i++ )
+  */
+
+	sgVec3 sum;
+	sgZeroVec3( sum );
+
+	sgVec3 norm;
+	sgMakeNormal( norm, p0, p1, p2 );
+
+	float *vv[3];
+	vv[0] = p0;
+	vv[1] = p1;
+	vv[2] = p2;
+
+	for( int i=0; i<3; i++ ) {
+		int ii = (i+1) % 3;
+		sum[0] += (vv[i][1] * vv[ii][2] - vv[i][2] * vv[ii][1]) ;
+		sum[1] += (vv[i][2] * vv[ii][0] - vv[i][0] * vv[ii][2]) ;
+		sum[2] += (vv[i][0] * vv[ii][1] - vv[i][1] * vv[ii][0]) ;
+	}
+
+	float area = sgAbs(sgScalarProductVec3( norm, sum ));
+	return( area / 2.0 );
+}
+
+
 /*********************\
 *    sgBox routines   *
 \*********************/
