@@ -141,6 +141,7 @@ inline int ssgTypeStateSelector() { return SSG_TYPE_STATESELECTOR | ssgTypeSimpl
 #define SSG_CLONE_TEXTURE         32
 
 int ssgGetFrameCounter () ;
+void ssgSetFrameCounter ( int fc ) ;
 
 class ssgList
 {
