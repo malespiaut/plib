@@ -27,6 +27,7 @@
 ssgList::ssgList ( int init )
 {
   total = 0 ;
+  next = 0 ;
   entity_list = new ssgEntity * [ limit = (init <= 0) ? 1 : init ] ;
 }
 

@@ -210,7 +210,7 @@ public:
 
   ssgEntity *getEntity ( unsigned int n )
   {
-    next = n ;
+    next = n + 1 ;
     return ( n >= total ) ? (ssgEntity *) NULL : entity_list [ n ] ;
   }
 
@@ -232,7 +232,7 @@ public:
   }
 
   int        getNumEntities    (void) { return total ; }
-  ssgEntity *getNextEntity     (void) { return getEntity ( next+1 ) ; }
+  ssgEntity *getNextEntity     (void) { return getEntity ( next ) ; }
   int        searchForEntity   ( ssgEntity *entity ) ;
 } ;
 
