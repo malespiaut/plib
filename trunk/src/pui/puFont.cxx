@@ -70,15 +70,15 @@ int puFont::getStringWidth ( const char *str ) const
     {
         if ( *str == '\n' )
         {
-            if ( res > max_res ) max_res = res;
-            res = 0;
+          if ( res > max_res ) max_res = res ;
+          res = 0 ;
         }
         else
-        {
-            res += glutBitmapWidth ( glut_font_handle, *str ) ;
-        }
+          res += glutBitmapWidth ( glut_font_handle, *str ) ;
+
         str++ ;
     }
+
     if ( res > max_res ) max_res = res;
 
     return max_res ;
@@ -120,14 +120,14 @@ int puFont::getStringHeight ( const char *s ) const
 #ifdef _PU_USE_GLUT_FONTS
   if ( glut_font_handle != (GlutFont) 0 )
   {
-    int i = getGLUTStringHeight ( glut_font_handle ) ;
+    int i = getGLUTStringHeight ( glut_font_handle ) + getStringDescender () ;
     int num_lines = 1 ;
 
     for ( const char *p = s ; *p != '\0' ; p++ )
       if ( *p == '\n' )
         num_lines++ ;
 
-    return i * num_lines ;
+    return ( i * num_lines ) - getStringDescender () ;
   }
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
@@ -188,7 +188,7 @@ void puFont::drawString ( const char *str, int x, int y )
     {
       if (*str == '\n')
       {
-        y -= getStringHeight() * 4 / 3 ;
+        y -= getStringHeight () + getStringDescender () ;
     	glRasterPos2f( (float)x, (float)y ) ; 
       }
       else
