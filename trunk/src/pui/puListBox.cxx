@@ -28,7 +28,7 @@ void puListBox::setTopItem( int item_index )
 
 void puListBox::draw ( int dx, int dy )
 {
-  if ( !visible ) return ;
+  if ( !visible || ( window != puGetWindow () ) ) return ;
 
   abox . draw ( dx, dy, style, colour, isReturnDefault() ) ;
 
