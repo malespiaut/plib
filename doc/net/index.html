@@ -35,7 +35,7 @@ name are Capitalised and NOT separated with underscores. Words
 within <code>#define</code> tokens may be separated with underscores
 to make them readable.
 <H2>Initialisation.</H2>
-The first Pegasus call in any program must always be netInit().
+The first NET call in any program must always be netInit().
 <H2>Classes</H2>
 The following class hierarchy makes up the core package - which
 can be extended to add functionality or to change some underlying
@@ -112,6 +112,35 @@ public:
   void print ( FILE *fd = stderr ) const ;
 };
 </pre>
+<H2><code>class netAddress</code></h2>
+This is the representation of an Internet-style machine address.
+<pre>
+class netAddress
+{
+public:
+  netAddress () ;
+  netAddress ( const char* host, int port ) ;
+
+  void set ( const char* host, int port ) ;
+
+  const char* getHost () const ;
+  int         getPort () const ;
+
+  static const char* getLocalHost () ;
+
+  bool getBroadcast () const ;
+} ;
+
+</pre>
+When reading from the network using one of the higher level classes,
+you can use a netAddress with an empty string as the 'host' to mean
+"accept data from any host". When writing to the network, the
+reserved host name '&lt;broadcast&gt;' (the &lt; and &gt; are literally
+there) will cause the message to be broadcast to all machines on your
+subnet.
+<p>
+Otherwise, use either the machines' network name - or it's IP address
+(as an ASCII string).
 <H2><code>class netSocket</code></h2>
 netSocket is the low-level socket class.
 <pre>
@@ -137,6 +166,49 @@ public:
   void  setBlocking ( bool blocking ) ;
 } ;
 </pre>
+<H3>Example:</H3>
+This example is stripped of error checking for clarity:
+<TABLE>
+<TR>
+<TD>
+<H4>Sender:</H4>
+<pre>
+  netInit () ;
+
+  netSocket *sock = new netSocket () ;
+  sock -> open        ( false ) ;
+  sock -> setBlocking ( false ) ;
+  sock -> connect     ( host, port ) ;
+
+  while ( !done )
+    sock -> send ( msg, len, 0 );
+
+  sock -> close () ;
+</pre>
+</TD>
+<TD>
+<H4>Reciever:</H4>
+<pre>
+  netInit () ;
+
+  netSocket *sock = new netSocket () ;
+  sock -> open        ( false ) ;
+  sock -> setBlocking ( false ) ;
+  sock -> bind        ( host, port ) ;
+
+  while ( !done )
+    if ( (len = sock -> recv(msg, maxlen, 0)) >= 0 )
+      ...use the data...
+
+  sock -> close () ;
+</pre>
+</TD>
+</TR>
+</TABLE>
+This code produces a 'Datagram' connection - which is fast but unreliable
+(using UDP protocol).  Passing a 'true' to sock->open() would produce a
+'Stream' connection (using TCP).
+
 <H2><code>class netChannel</code></h2>
 netChannel adds event-handling to the low-level
 netSocket class.  Otherwise, it can be treated as

@@ -64,7 +64,7 @@ netAddress::netAddress ( const char* host, int port )
 
 void netAddress::set ( const char* host, int port )
 {
-	memset(this, 0, sizeof(netAddress));
+  memset(this, 0, sizeof(netAddress));
 
   sin_family = AF_INET ;
   sin_port = htons (port);
@@ -74,12 +74,11 @@ void netAddress::set ( const char* host, int port )
   ** to do the work; the names "" and "<broadcast>" are special.
   */
 
-	if (host[0] == '\0') {
-		sin_addr = INADDR_ANY;
-	}
-	if (host[0] == '<' && strcmp(host, "<broadcast>") == 0) {
-		sin_addr = INADDR_BROADCAST;
-	}
+  if (host[0] == '\0')
+    sin_addr = INADDR_ANY;
+
+  if (host[0] == '<' && strcmp(host, "<broadcast>") == 0)
+    sin_addr = INADDR_BROADCAST;
   else
   {
 #if 0
@@ -144,15 +143,19 @@ const char* netAddress::getLocalHost ()
   memset(buf, 0, sizeof(buf));
   gethostname(buf, sizeof(buf)-1);
   const hostent *hp = gethostbyname(buf);
-	if (hp && *hp->h_addr_list)
+
+  if (hp && *hp->h_addr_list)
   {
-    in_addr addr = *((in_addr*)*hp->h_addr_list);
+    in_addr     addr = *((in_addr*)*hp->h_addr_list);
     const char* host = inet_ntoa(addr);
+
     if ( host )
       return host ;
-	}
+  }
+
   return "127.0.0.1" ;
 }
+
 
 bool netAddress::getBroadcast () const {
     return sin_addr == INADDR_BROADCAST;

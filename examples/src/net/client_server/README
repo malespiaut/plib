@@ -19,5 +19,7 @@ Usage:
 
 The default for the client is to use port 5501 on 'localhost'.
 The default to the server is to listen on port 5501 and to allow anyone
-to send to it.
+to send to it.  The name "<broadcast>" refers to the broadcast address.
+(To enter it on the command line, you'll need to escape the < and >
+symbols like this:   \<broadcast\>  )
 
