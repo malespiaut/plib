@@ -92,14 +92,20 @@ void ssgaSky::build( double h_radius, double v_radius,
   pre_transform = new ssgTransform;
   post_transform = new ssgTransform;
 
+  bodies_transform = new ssgTransform;
+  stars_transform = new ssgTransform;
+
   dome = new ssgaSkyDome;
   pre_transform -> addKid( dome->build( h_radius, v_radius ) );
 
   planets = new ssgaStars;
-  pre_transform -> addKid( planets->build( nplanets, planet_data, h_radius ) );
+  stars_transform -> addKid( planets->build( nplanets, planet_data, h_radius ) );
 
   stars = new ssgaStars;
-  pre_transform -> addKid( stars->build( nstars, star_data, h_radius ) );
+  stars_transform -> addKid( stars->build( nstars, star_data, h_radius ) );
+
+  pre_transform -> addKid( bodies_transform );
+  pre_transform -> addKid( stars_transform );
 
   pre_selector->addKid( pre_transform );
   pre_selector->clrTraversalMaskBits( SSGTRAV_HOT );
@@ -116,7 +122,7 @@ ssgaCelestialBody*
 ssgaSky::addBody( const char *body_tex_path, const char *halo_tex_path, double size, double dist, bool sun )
 {
   ssgaCelestialBody* body = new ssgaCelestialBody;
-  pre_transform->addKid( body->build( body_tex_path, halo_tex_path, size ) );
+  bodies_transform->addKid( body->build( body_tex_path, halo_tex_path, size ) );
   bodies.add( body );
 
   body -> setDist( dist );
@@ -132,7 +138,7 @@ ssgaCelestialBody*
 ssgaSky::addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double size, double dist, bool sun )
 {
   ssgaCelestialBody* body = new ssgaCelestialBody;
-  pre_transform->addKid( body->build( orb_state, halo_state, size ) );
+  bodies_transform->addKid( body->build( orb_state, halo_state, size ) );
   bodies.add( body );
 
   body -> setDist( dist );
@@ -164,7 +170,7 @@ ssgaSky::addCloud( ssgSimpleState *cloud_state, float span, float elevation, flo
 }
 
 
-bool ssgaSky::repositionFlat( sgVec3 view_pos, double spin )
+bool ssgaSky::repositionFlat( sgVec3 view_pos, double spin, double dt )
 {
   int i;
   double angle;
@@ -183,7 +189,7 @@ bool ssgaSky::repositionFlat( sgVec3 view_pos, double spin )
   }
 
   for ( i = 0; i < clouds.getNum (); i++ ) {
-    clouds.get(i)->repositionFlat( view_pos );
+    clouds.get(i)->repositionFlat( view_pos, dt );
   }
 
   planets->reposition( view_pos, 0 );
@@ -200,7 +206,7 @@ bool ssgaSky::repositionFlat( sgVec3 view_pos, double spin )
 }
 
 
-bool ssgaSky::reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up, double lon, double lat, double alt, double spin, double gst )
+bool ssgaSky::reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up, double lon, double lat, double alt, double spin, double gst, double dt )
 {
   int i;
 
@@ -212,7 +218,7 @@ bool ssgaSky::reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up, dou
     bodies.get(i)->reposition( view_pos, angle );
 
   for ( i = 0; i < clouds.getNum (); i++ )
-    clouds.get(i)->reposition( zero_elev, view_up, lon, lat, alt );
+    clouds.get(i)->reposition( zero_elev, view_up, lon, lat, alt, dt );
 
   planets->reposition( view_pos, angle );
   stars->reposition( view_pos, angle );
@@ -314,76 +320,80 @@ void ssgaSky::modifyVisibility( float alt, float time_factor )
   for ( int i = 0; i < clouds.getNum (); ++i ) {
 
     ssgaCloudLayer *cloud = clouds.get(i);
-    float asl = cloud->getElevation();
-    float thickness = cloud->getThickness();
-    float transition = cloud->getTransition();
 
-    float ratio = 1.0;
+    if ( cloud->isEnabled() ) {
 
-    if ( alt < asl - transition ) {
-      // below cloud layer
-      ratio = 1.0;
-	}
-	else if ( alt < asl ) {
-      // in lower transition
-      ratio = (asl - alt) / transition;
-	}
-	else if ( alt < asl + thickness ) {
-      // in cloud layer
-      ratio = 0.0;
-	}
-	else if ( alt < asl + thickness + transition ) {
-      // in upper transition
-      ratio = (alt - (asl + thickness)) / transition;
-    }
-	else {
-      // above cloud layer
-      ratio = 1.0;
-	}
+      float asl = cloud->getElevation();
+      float thickness = cloud->getThickness();
+      float transition = cloud->getTransition();
 
-    // accumulate effects from multiple cloud layers
-    effvis *= ratio;
+      float ratio = 1.0;
 
-    if ( ratio < 1.0 ) {
-      if ( ! in_puff ) {
-        // calc chance of entering cloud puff
-        double rnd = ssgaRandom();
-        double chance = rnd * rnd * rnd;
-        if ( chance > 0.95 ) { // * (diff - 25) / 50.0
-          in_puff = true;
-          puff_length = ssgaRandom() * 2.0; // up to 2 seconds
-          puff_progression = 0.0;
-		}
+      if ( alt < asl - transition ) {
+        // below cloud layer
+        ratio = 1.0;
+	  }
+	  else if ( alt < asl ) {
+        // in lower transition
+        ratio = (asl - alt) / transition;
+	  }
+	  else if ( alt < asl + thickness ) {
+        // in cloud layer
+        ratio = 0.0;
+	  }
+	  else if ( alt < asl + thickness + transition ) {
+        // in upper transition
+        ratio = (alt - (asl + thickness)) / transition;
+      }
+	  else {
+        // above cloud layer
+        ratio = 1.0;
 	  }
 
-      if ( in_puff ) {
-        // modify actual_visibility based on puff envelope
-        if ( puff_progression <= ramp_up ) {
-          double x = 0.5 * SGD_PI * puff_progression / ramp_up;
-          double factor = 1.0 - sin( x );
-          effvis = (float)(effvis * factor);
-	    }
-	    else if ( puff_progression >= ramp_up + puff_length ) {
-          double x = 0.5 * SGD_PI * 
-            (puff_progression - (ramp_up + puff_length)) /
-            ramp_down;
-          double factor = sin( x );
-          effvis = (float)(effvis * factor);
-	    }
-	    else {
-          effvis = 0.0;
+      // accumulate effects from multiple cloud layers
+      effvis *= ratio;
+
+      if ( ratio < 1.0 ) {
+        if ( ! in_puff ) {
+          // calc chance of entering cloud puff
+          double rnd = ssgaRandom();
+          double chance = rnd * rnd * rnd;
+          if ( chance > 0.95 ) { // * (diff - 25) / 50.0
+            in_puff = true;
+            puff_length = ssgaRandom() * 2.0; // up to 2 seconds
+            puff_progression = 0.0;
+		  }
 	    }
 
-        puff_progression += time_factor;
+        if ( in_puff ) {
+          // modify actual_visibility based on puff envelope
+          if ( puff_progression <= ramp_up ) {
+            double x = 0.5 * SGD_PI * puff_progression / ramp_up;
+            double factor = 1.0 - sin( x );
+            effvis = (float)(effvis * factor);
+	      }
+	      else if ( puff_progression >= ramp_up + puff_length ) {
+            double x = 0.5 * SGD_PI * 
+              (puff_progression - (ramp_up + puff_length)) /
+              ramp_down;
+            double factor = sin( x );
+            effvis = (float)(effvis * factor);
+	      }
+	      else {
+            effvis = 0.0;
+	      }
 
-        if ( puff_progression > puff_length + ramp_up + ramp_down) {
-          in_puff = false; 
-		}
-	  }
+          puff_progression += time_factor;
 
-      // never let visibility drop below 25 meters
-      if ( effvis <= 25.0 ) {
-        effvis = 25.0;
+          if ( puff_progression > puff_length + ramp_up + ramp_down) {
+            in_puff = false; 
+		  }
+	    }
+
+        // never let visibility drop below 25 meters
+        if ( effvis <= 25.0 ) {
+          effvis = 25.0;
+	    }
 	  }
 	}
   } // for

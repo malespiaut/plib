@@ -48,12 +48,14 @@ ssgSimpleState *sgCloudMakeState( const char* path );
 ssgaCloudLayer::ssgaCloudLayer( void ) :
   layer_root(new ssgRoot),
   layer_transform(new ssgTransform),
+  enabled(true),
   layer_span(0.0),
   layer_asl(0.0),
   layer_thickness(0.0),
   layer_transition(0.0),
   scale(4000.0),
-  enabled(true),
+  speed(0.0),
+  direction(0.0),
   last_lon(0.0),
   last_lat(0.0),
   last_x(0.0),
@@ -104,6 +106,7 @@ ssgaCloudLayer::build( ssgSimpleState *cloud_state, float span, float elevation,
 
   const float layer_scale = layer_span / scale;
   const float mpi = SG_PI/4;
+  const float alt_diff = layer_asl * 1.5f;
 
   for (int i = 0; i < 4; i++) {
     if ( layer[i] != NULL ) {
@@ -115,7 +118,7 @@ ssgaCloudLayer::build( ssgSimpleState *cloud_state, float span, float elevation,
     tl[i] = new ssgTexCoordArray( 10 );
 
     sgSetVec3( vertex, layer_span*(i-2)/2, -layer_span,
-      (float)(500 * (sin(i*mpi) - 2)) );
+      (float)(alt_diff * (sin(i*mpi) - 2)) );
 
     sgSetVec2( tc, base[0] + layer_scale * i/4, base[1] );
 
@@ -128,7 +131,7 @@ ssgaCloudLayer::build( ssgSimpleState *cloud_state, float span, float elevation,
     for (int j = 0; j < 4; j++) {
 
       sgSetVec3( vertex, layer_span*(i-1)/2, layer_span*(j-2)/2,
-        (float)(500 * (sin((i+1)*mpi) + sin(j*mpi) - 2)) );
+        (float)(alt_diff * (sin((i+1)*mpi) + sin(j*mpi) - 2)) );
 
       sgSetVec2( tc, base[0] + layer_scale * (i+1)/4,
         base[1] + layer_scale * j/4 );
@@ -142,7 +145,7 @@ ssgaCloudLayer::build( ssgSimpleState *cloud_state, float span, float elevation,
       tl[i]->add( tc );
 
       sgSetVec3( vertex, layer_span*(i-2)/2, layer_span*(j-1)/2,
-        (float)(500 * (sin(i*mpi) + sin((j+1)*mpi) - 2)) );
+        (float)(alt_diff * (sin(i*mpi) + sin((j+1)*mpi) - 2)) );
 
       sgSetVec2( tc, base[0] + layer_scale * i/4,
         base[1] + layer_scale * (j+1)/4 );
@@ -156,7 +159,7 @@ ssgaCloudLayer::build( ssgSimpleState *cloud_state, float span, float elevation,
     }
 
     sgSetVec3( vertex, layer_span*(i-1)/2, layer_span, 
-      (float)(500 * (sin((i+1)*mpi) - 2)) );
+      (float)(alt_diff * (sin((i+1)*mpi) - 2)) );
 
     sgSetVec2( tc, base[0] + layer_scale * (i+1)/4,
     base[1] + layer_scale );
@@ -178,7 +181,7 @@ ssgaCloudLayer::build( ssgSimpleState *cloud_state, float span, float elevation,
 }
 
 
-bool ssgaCloudLayer::repositionFlat( sgVec3 p )
+bool ssgaCloudLayer::repositionFlat( sgVec3 p, double dt )
 {
   sgMat4 T1;
 
@@ -203,10 +206,23 @@ bool ssgaCloudLayer::repositionFlat( sgVec3 p )
   layer_transform->setTransform( &layerpos );
 
   // now calculate update texture coordinates
-  if ( p[SG_X] != last_x || p[SG_Y] != last_y ) {
+  double sp_dist = speed*dt;
 
-    float xoff = (float)((p[SG_X] - last_x) / (2 * scale));
-    float yoff = (float)((p[SG_Y] - last_y) / (2 * scale));
+  if ( p[SG_X] != last_x || p[SG_Y] != last_y || sp_dist != 0 ) {
+
+    // calculate cloud movement
+    double ax = 0.0, ay = 0.0, bx = 0.0, by = 0.0;
+
+    ax = p[SG_X] - last_x;
+    ay = p[SG_Y] - last_y;
+
+    if (sp_dist > 0) {
+      bx = cos(-direction * SGD_DEGREES_TO_RADIANS) * sp_dist;
+      by = sin(-direction * SGD_DEGREES_TO_RADIANS) * sp_dist;
+    }
+
+    float xoff = (float)((ax + bx) / (2 * scale));
+    float yoff = (float)((ay + by) / (2 * scale));
 
     const float layer_scale = layer_span / scale;
 
@@ -267,7 +283,7 @@ bool ssgaCloudLayer::repositionFlat( sgVec3 p )
 }
 
 
-bool ssgaCloudLayer::reposition( sgVec3 p, sgVec3 up, double lon, double lat, double alt )
+bool ssgaCloudLayer::reposition( sgVec3 p, sgVec3 up, double lon, double lat, double alt, double dt )
 {
   sgMat4 T1, LON, LAT;
   sgVec3 axis;
@@ -311,16 +327,33 @@ bool ssgaCloudLayer::reposition( sgVec3 p, sgVec3 up, double lon, double lat, do
     last_lat = lat;
   }
 
-  if ( lon != last_lon || lat != last_lat ) {
+  double sp_dist = speed*dt;
 
-	sgVec2 start, dest;
-    double course, dist;
-	sgSetVec2(start, (float)last_lon, (float)last_lat);
-	sgSetVec2(dest, (float)lon, (float)lat);
-    calc_gc_course_dist( dest, start, &course, &dist );
+  if ( lon != last_lon || lat != last_lat || sp_dist != 0 ) {
 
-    float xoff = (float)(cos( course ) * dist / (2 * scale));
-    float yoff = (float)(sin( course ) * dist / (2 * scale));
+    double course = 0.0, dist = 0.0;
+	if ( lon != last_lon || lat != last_lat ) {
+	    sgVec2 start, dest;
+	    sgSetVec2(start, (float)last_lon, (float)last_lat);
+	    sgSetVec2(dest, (float)lon, (float)lat);
+		calc_gc_course_dist( dest, start, &course, &dist );
+	}
+
+    // calculate cloud movement
+    double ax = 0.0, ay = 0.0, bx = 0.0, by = 0.0;
+
+    if (dist > 0.0) {
+      ax = cos(course) * dist;
+      ay = sin(course) * dist;
+    }
+
+    if (sp_dist > 0) {
+      bx = cos(-direction * SGD_DEGREES_TO_RADIANS) * sp_dist;
+      by = sin(-direction * SGD_DEGREES_TO_RADIANS) * sp_dist;
+    }
+
+    float xoff = (float)((ax + bx) / (2 * scale));
+    float yoff = (float)((ay + by) / (2 * scale));
 
     const float layer_scale = layer_span / scale;
 

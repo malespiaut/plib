@@ -41,7 +41,7 @@ static int ssgaStarPreDraw( ssgEntity *e )
 
   glPushAttrib( GL_DEPTH_BUFFER_BIT | GL_FOG_BIT );
 
-  glDisable( GL_DEPTH_TEST );
+  //glDisable( GL_DEPTH_TEST );
   glDisable( GL_FOG );
   // glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
 
