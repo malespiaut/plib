@@ -92,7 +92,7 @@ private:
 #endif
 
 
-#ifndef WIN32 && !defined(macintosh)
+#if !defined(WIN32) && !defined(macintosh)
   int ioctl ( int cmd, int param = 0 )
   {
     if ( error ) return param ;

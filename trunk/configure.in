@@ -96,7 +96,7 @@ dnl Checks for header files.
 
 AC_HEADER_STDC
 
-CPPFLAGS="$CPPFLAGS $X_CFLAGS"                                                  
+dnl CPPFLAGS="$CPPFLAGS $X_CFLAGS"                                                  
 
 AC_CHECK_HEADERS(GL/gl.h GL/glu.h)
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
