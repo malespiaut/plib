@@ -1,7 +1,7 @@
 
 #include "ul.h"
 
-static char            _ulErrorBuffer [ 256 ] = { '\0' } ;
+static char            _ulErrorBuffer [ 1024 ] = { '\0' } ;
 static ulErrorCallback _ulErrorCB = 0 ;
 
 static const char* _ulSeverityText [ UL_MAX_SEVERITY ] =
