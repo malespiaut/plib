@@ -122,6 +122,8 @@ int main ()
   fprintf(stderr, "%fs runtime elapsed\n", ck.getDeltaTime () ) ;
 
   exit ( 0 ) ;
+
+  return 0 ;
 }
 
 
