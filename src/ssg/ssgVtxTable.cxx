@@ -407,7 +407,9 @@ void ssgVtxTable::transform ( const sgMat4 m )
   */
 
 
-  for ( i = 0 ; i < getNumVertices() ; i++ )
+  int num_vertices = getNumVertices () ;
+  int num_normals = getNumNormals () ;
+  for ( i = 0 ; i < num_vertices ; i++ )
     sgXformPnt3 ( vertices->get(i), vertices->get(i), m ) ;
 
 
@@ -444,17 +446,17 @@ void ssgVtxTable::transform ( const sgMat4 m )
       sgScaleVec3 ( w[2], m[2], scale ) ;
     }
 
-    for ( i = 0 ; i < getNumNormals() ; i++ )
+    for ( i = 0 ; i < num_normals ; i++ )
       sgXformVec3 ( normals->get(i), normals->get(i), w ) ;
   }
   else
-    for ( i = 0 ; i < getNumNormals() ; i++ )
+    for ( i = 0 ; i < num_normals ; i++ )
       sgXformVec3 ( normals->get(i), normals->get(i), m ) ;
 
 
   if ( ( flags & SG_NONORTHO ) )
   {
-    for ( i = 0 ; i < getNumNormals() ; i++ )
+    for ( i = 0 ; i < num_normals ; i++ )
       sgNormaliseVec3 ( normals->get(i) ) ;
   }
 
@@ -468,7 +470,8 @@ void ssgVtxTable::recalcBSphere ()
   emptyBSphere () ;
   bbox . empty () ;
 
-  for ( int i = 0 ; i < getNumVertices() ; i++ )
+  int num_vertices  = getNumVertices () ;
+  for ( int i = 0 ; i < num_vertices ; i++ )
     bbox . extend ( vertices->get(i) ) ;
 
   extendBSphere ( & bbox ) ;

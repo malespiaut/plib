@@ -195,13 +195,13 @@ void ssgVtxArray::removeUnusedVertices()
     return;
   }
   if(normals)
-    if(normals->getNum() != 0)
+    if(1 < normals->getNum())
       doNormals = TRUE;
   if(texcoords)
-    if(texcoords->getNum() != 0)
+    if(1 < texcoords->getNum())
       doTexCoords = TRUE;
   if(colours)
-    if(colours->getNum() != 0)
+    if(1 < colours->getNum())
       doColours = TRUE;
   
   long * oldIndex2NewIndex = new long[vertices->getNum()];

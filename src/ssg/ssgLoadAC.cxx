@@ -23,34 +23,42 @@
 
 
 #include "ssgLocal.h"
+#include "ssgVertSplitter.h"
 
 static FILE *loader_fd ;
 
 struct _ssgMaterial
 {
+  sgVec4 rgba ;
   sgVec4 spec ;
   sgVec4 emis ;
-  sgVec4 rgb  ; // Should be named rgba instead - Bram
+  sgVec4 amb  ;
   float  shi  ;
 } ;
 
 static int num_materials = 0 ;
-static sgVec3 *vtab = NULL ;
 
-static ssgLoaderOptions* current_options = NULL ;
-static _ssgMaterial    *current_material = NULL ;
-static sgVec4          *current_colour   = NULL ;
-static ssgBranch       *current_branch   = NULL ;
-static char            *current_tfname   = NULL ;
-static char            *current_data     = NULL ;
+static ssgLoaderOptions *current_options        = NULL ;
+static int               current_materialind    = 0 ;
+static ssgBranch        *current_branch         = NULL ;
+static ssgVertexArray   *current_vertexarray    = NULL ;
+static ssgTexCoordArray *current_texcoordarray  = NULL ;
+static ssgIndexArray    *current_triindexarray  = NULL ;
+static ssgIndexArray    *current_matindexarray  = NULL ;
+static ssgIndexArray    *current_flagsarray     = NULL ;
+static char             *current_tfname         = NULL ;
+static char             *current_data           = NULL ;
+static float             current_crease         = 61.0 ;
 
 #define MAX_MATERIALS 1000    /* This *ought* to be enough! */
 static _ssgMaterial   *mlist    [ MAX_MATERIALS ] ;
-static sgVec4         *clist    [ MAX_MATERIALS ] ;
 
 static sgMat4 current_matrix ;
 static sgVec2 texrep ;
 static sgVec2 texoff ;
+
+static sgVec2 invalidTexture = { 1e30, } ;
+static sgVec3 zero = { 0.0, } ;
 
 static int do_material ( char *s ) ;
 static int do_object   ( char *s ) ;
@@ -206,9 +214,10 @@ static ssgState *get_state ( _ssgMaterial *mat )
 
   ssgSimpleState *st = new ssgSimpleState () ;
 
-  st -> setMaterial ( GL_DIFFUSE,  mat -> rgb ) ;
-  st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
+  st -> setMaterial ( GL_DIFFUSE,  mat -> rgba ) ;
+  st -> setMaterial ( GL_AMBIENT,  mat -> amb ) ;
   st -> setMaterial ( GL_EMISSION, mat -> emis ) ;
+  st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
   st -> setShininess ( mat -> shi ) ;
 
   st -> enable ( GL_COLOR_MATERIAL ) ;
@@ -231,7 +240,7 @@ static ssgState *get_state ( _ssgMaterial *mat )
     st -> disable( GL_TEXTURE_2D ) ;
   }
 
-  if ( mat -> rgb[3] < 0.99 || has_alpha )
+  if ( mat -> rgba[3] < 0.99 || has_alpha )
   {
     st -> disable ( GL_ALPHA_TEST ) ;
     st -> enable  ( GL_BLEND ) ;
@@ -251,7 +260,7 @@ static ssgState *get_state ( _ssgMaterial *mat )
 static int do_material ( char *s )
 {
   char name [ 1024 ] ;
-  sgVec4 rgb  ;
+  sgVec4 rgba ;
   sgVec4 amb  ;
   sgVec4 emis ;
   sgVec4 spec ;
@@ -261,7 +270,7 @@ static int do_material ( char *s )
   if ( sscanf ( s,
   "%s rgb %f %f %f amb %f %f %f emis %f %f %f spec %f %f %f shi %d trans %f",
     name,
-    &rgb [0], &rgb [1], &rgb [2],
+    &rgba [0], &rgba [1], &rgba [2],
     &amb [0], &amb [1], &amb [2],
     &emis[0], &emis[1], &emis[2],
     &spec[0], &spec[1], &spec[2],
@@ -278,24 +287,21 @@ static int do_material ( char *s )
     skip_quotes ( &nm ) ;
 
     amb [ 3 ] = emis [ 3 ] = spec [ 3 ] = 1.0f ;
-    rgb [ 3 ] = 1.0f - trans ;
+    rgba [ 3 ] = 1.0f - trans ;
 
     mlist [ num_materials ] = new _ssgMaterial ;
-    clist [ num_materials ] = new sgVec4 [ 1 ] ;
-
-    sgCopyVec4 ( clist [ num_materials ][ 0 ], rgb ) ;
-
+    _ssgMaterial  *current_material ;
     current_material = mlist [ num_materials ] ;
-    sgCopyVec4 ( current_material -> spec, spec ) ;
-    sgCopyVec4 ( current_material -> emis, emis ) ;
-    sgCopyVec4 ( current_material -> rgb , rgb  ) ;
+    sgCopyVec4 ( current_material -> rgba , rgba  ) ;
+    sgCopyVec4 ( current_material -> amb  , amb   ) ;
+    sgCopyVec4 ( current_material -> emis , emis  ) ;
+    sgCopyVec4 ( current_material -> spec , spec  ) ;
     current_material -> shi = (float) shi ;
   }
 
   num_materials++ ;
   return PARSE_CONT ;
 }
-
 
 static int do_object   ( char *  /* s */ )
 {
@@ -322,9 +328,181 @@ static int do_object   ( char *  /* s */ )
   current_branch -> addKid ( tr ) ;
   current_branch = tr ;
 
+  current_matindexarray = new ssgIndexArray ;
+  current_flagsarray    = new ssgIndexArray ;
+  current_texcoordarray = new ssgTexCoordArray ;
+  current_vertexarray   = new ssgVertexArray ;
+  current_triindexarray = new ssgIndexArray ;
+
   while ( fgets ( buffer, 1024, loader_fd ) != NULL )
     if ( search ( object_tags, buffer ) == PARSE_POP )
       break ;
+
+  // If he have read some surfaces belonging to that object,
+  // compute normals and distribute the triangels across the materials.
+  int ntris = current_triindexarray -> getNum () / 3;
+  if ( 0 < ntris ) {
+    int i;
+    int nvert = current_vertexarray -> getNum () ;
+
+    // Put the triangles and the current crease angle into the vertex splitter ...
+    ssgVertSplitter split( nvert, ntris );
+    split.setSharpAngle ( current_crease );
+    
+    for ( i = 0 ; i < nvert ; i++ )
+      sgCopyVec3 ( split.vert ( i ), current_vertexarray -> get ( i ) ) ;
+    for ( i = 0 ; i < ntris ; i++ )
+      split.setTri ( i,
+                     * ( current_triindexarray -> get ( 3*i ) ),
+                     * ( current_triindexarray -> get ( 3*i+1 ) ),
+                     * ( current_triindexarray -> get ( 3*i+2 ) ) );
+
+    // ... and let it compute the normals.
+    split.splitAndCalcNormals () ;
+
+    // Cycle through all ssgState/colour combinations and emit leafs from them.
+    for ( int cullface = 0 ; cullface < 2 ; cullface++ ) {
+      for ( int material = 0 ; material < num_materials ; material++ ) {
+        ssgVertexArray* vertexarray = (ssgVertexArray *) current_vertexarray -> clone () ;
+        vertexarray -> ref () ;
+        ssgNormalArray* normalarray = new ssgNormalArray ( nvert ) ;
+        normalarray -> ref () ;
+        ssgTexCoordArray* texcoordarray = (ssgTexCoordArray *) current_texcoordarray -> clone () ;
+        texcoordarray -> ref () ;
+        ssgIndexArray* triindexarray = new ssgIndexArray ( nvert ) ;
+        triindexarray -> ref () ;
+        // Mark all normals as unset using a zero vector. 
+        for ( i = 0 ; i < nvert ; i++ )
+          normalarray -> add ( zero ) ;
+        
+        bool has_texture = current_tfname != NULL ;
+
+        // For every material/state cycle through all triangles and pick
+        // out those ones with that maternial/state.
+        for ( int tri = 0 ; tri < ntris ; tri++ ) {
+          int triMatindex = * ( current_matindexarray -> get ( tri ) ) ;
+          int triFlags = * ( current_flagsarray -> get ( tri ) ) ;
+          int triCullface = ! ( triFlags & 0x20 ) ;
+
+          if ( triMatindex == material && triCullface == cullface ) {
+            // get the original indices
+            int* triind = split.getTri ( tri ) ;
+            int origtriind[3];
+            for ( int k = 0 ; k < 3 ; k++ )
+              origtriind[k] = triind[k] < nvert ? triind[k] : split.origVert( triind[k] - nvert ) ;
+
+            // Note that copying those values prevents us from a race condion
+            // which occurs when doing something like:
+            // texcoordarray -> add ( texcoordarray -> get ( origtriind[i] ) ) ;
+          
+            // make a local copy of texcoords ...
+            sgVec2 texcoords[3];
+            for ( i = 0 ; i < 3 ; i++ )
+              sgCopyVec2 ( texcoords[i], texcoordarray -> get ( origtriind[i] ) ) ;
+
+            // ... of vertices ...
+            sgVec3 vertices[3];
+            for ( i = 0 ; i < 3 ; i++ )
+              sgCopyVec3 ( vertices[i], split.vert ( origtriind[i] ) ) ;
+
+            int triSmooth = ( triFlags & 0x10 ) ;
+            
+            // ... and of normals.
+            sgVec3 normals[3];
+            if ( triSmooth ) {
+              for ( i = 0 ; i < 3 ; i++ )
+                sgCopyVec3 ( normals[i], split.norm ( triind[i] ) ) ;
+            } else {
+              // If we have flat shading, compute one normal for all.
+              sgSubVec3 ( normals[1], vertices[1], vertices[0] ) ;
+              sgSubVec3 ( normals[2], vertices[2], vertices[0] ) ;
+              sgVectorProductVec3 ( normals[0], normals[1], normals[2] ) ;
+              sgNormaliseVec3 ( normals[0] ) ;
+              sgCopyVec3 ( normals[1], normals[0] ) ;
+              sgCopyVec3 ( normals[2], normals[0] ) ;
+            }
+                      
+
+            for ( i = 0 ; i < 3 ; i++ ) {
+              
+              if ( sgEqualVec3 ( normalarray -> get ( origtriind[i] ), zero ) ) {
+                // Case: not yet initialized. 
+                
+                sgCopyVec3 ( normalarray -> get ( origtriind[i] ), normals[i] ) ;
+                
+                triindexarray -> add ( origtriind[i] ) ;
+                
+              } else if ( sgEqualVec3 ( normalarray -> get ( origtriind[i] ), normals[i] ) ) {
+                // Case: initialized and the same as before. 
+                
+                triindexarray -> add ( origtriind[i] ) ;
+                
+              } else {
+                // Case: initialized and different.
+                
+                // Scan for a vertex/normal/texcoord triple matching the required one.
+                // If there exist one, use that.
+                int num = vertexarray -> getNum () ;
+                int replind = -1 ;
+                for ( int l = nvert ; l < num ; l++ ) {
+                  if ( sgEqualVec3( vertices[i], vertexarray -> get ( l ) ) &&
+                       ( !has_texture || sgEqualVec2( texcoordarray -> get ( origtriind[i] ), texcoordarray -> get ( l ) ) ) &&
+                       sgEqualVec3( normals[i], normalarray -> get ( l ) ) ) {
+                    replind = l ;
+                  }
+                }
+                
+                // If we have not yet the required triple in our dataset, add it.
+                if ( replind < 0 ) {
+                  vertexarray -> add ( vertices[i] ) ;
+                  normalarray -> add ( normals[i] ) ;
+                  texcoordarray -> add ( texcoords[i] ) ;
+                  replind = num ;
+                }
+                triindexarray -> add ( replind ) ;
+              }
+            }
+          }
+        }
+        
+        if ( 0 < triindexarray -> getNum () ) {
+          ssgColourArray *colour = new ssgColourArray ( 1 ) ;
+          colour -> add ( mlist [ material ] -> rgba ) ;
+          ssgVtxArray* v = new ssgVtxArray ( GL_TRIANGLES,
+                                             vertexarray,
+                                             normalarray,
+                                             has_texture ? texcoordarray : 0,
+                                             colour,
+                                             triindexarray ) ;
+          v -> removeUnusedVertices();
+          v -> setState ( get_state ( mlist [ material ] ) ) ;
+          v -> setCullFace ( cullface ) ;
+          ssgLeaf* leaf = current_options -> createLeaf ( v, 0 ) ;
+          if ( leaf )
+            tr -> addKid ( leaf ) ;
+        }
+        
+        ssgDeRefDelete ( vertexarray ) ;
+        ssgDeRefDelete ( normalarray ) ;
+        ssgDeRefDelete ( texcoordarray ) ;
+        ssgDeRefDelete ( triindexarray ) ;
+      }
+    }
+  }
+
+  // Cleanup
+  delete current_matindexarray ;
+  current_matindexarray = NULL ;
+  delete current_flagsarray ;
+  current_flagsarray    = NULL ;
+  delete current_vertexarray ;
+  current_vertexarray   = NULL ;
+  delete current_texcoordarray ;
+  current_texcoordarray = NULL ;
+  delete current_triindexarray ;
+  current_triindexarray = NULL ;
+
+  // Process child nodes
 
   int num_kids = last_num_kids ;
 
@@ -335,6 +513,7 @@ static int do_object   ( char *  /* s */ )
   }
 
   current_branch = (ssgBranch *) old_cb ;
+
   return PARSE_CONT ;
 }
 
@@ -418,8 +597,7 @@ static int do_crease ( char *s )
 {
   // the crease angle is not yet used. However, reading the crease line correctly means 
   // *.ac lines with "crease" can now be read.
-  float creaseAngle;
-  if ( sscanf ( s, "%f", & creaseAngle ) != 1 )
+  if ( sscanf ( s, "%f", & current_crease ) != 1 )
     ulSetError ( UL_WARNING, "ac_to_gl: Illegal crease angle." ) ;
 
   return PARSE_CONT ;
@@ -470,23 +648,22 @@ static int do_numvert  ( char *s )
 
   int nv = strtol ( s, NULL, 0 ) ;
  
-  delete [] vtab ;
-
-  vtab = new sgVec3 [ nv ] ;
-
   for ( int i = 0 ; i < nv ; i++ )
   {
+    sgVec3 v;
     fgets ( buffer, 1024, loader_fd ) ;
 
-    if ( sscanf ( buffer, "%f %f %f",
-                          &vtab[i][0], &vtab[i][1], &vtab[i][2] ) != 3 )
+    if ( sscanf ( buffer, "%f %f %f", &v[0], &v[1], &v[2] ) != 3 )
     {
       ulSetError ( UL_FATAL, "ac_to_gl: Illegal vertex record." ) ;
     }
 
-    float tmp  =  vtab[i][1] ;
-    vtab[i][1] = -vtab[i][2] ;
-    vtab[i][2] = tmp ;
+    float tmp  =  v[1] ;
+    v[1] = -v[2] ;
+    v[2] = tmp ;
+
+    current_vertexarray -> add ( v ) ;
+    current_texcoordarray -> add ( invalidTexture ) ;
   }
 
   return PARSE_CONT ;
@@ -525,12 +702,56 @@ static int do_mat ( char *s )
 {
   int mat = strtol ( s, NULL, 0 ) ;
 
-  current_material = mlist [ mat ] ;
-  current_colour   = clist [ mat ] ;
+  current_materialind = mat ;
 
   return PARSE_CONT ;
 }
 
+static void add_textured_vertex_edge ( short ind, sgVec2 tex )
+{
+  // Add a new triangle edge. For that, check for a vertex/texcoord
+  // pair already in the current dataset. Use the already present index if present.
+
+  bool has_texture = current_tfname != NULL ;
+  if ( sgEqualVec2( tex, current_texcoordarray -> get ( ind ) ) || !has_texture ) {
+    // In this case, we have that vertex/texcoord pair already at the index 
+    // within the ac file.
+
+    current_triindexarray -> add ( ind ) ;
+
+  } else if ( sgEqualVec2( invalidTexture, current_texcoordarray -> get ( ind ) ) ) {
+    // In this case, we have not yet stored a valid texture coordinate
+    // for the vertex at the given index. Just copy the texturecoordinate
+    // value into that place.
+
+    sgCopyVec2( current_texcoordarray -> get ( ind ), tex ) ;
+
+    current_triindexarray -> add ( ind ) ;
+
+  } else {
+    // Texture coordinate do not match the prevous texcoords stored for this vertex.
+    // Search for a vertex/texcoord pair matching the requested one, if not
+    // yet present, add a new one.
+  
+    int num = current_vertexarray -> getNum () ;
+    for ( int i = 0 ; i < num ; i++ ) {
+      if ( ( !has_texture || sgEqualVec2( tex, current_texcoordarray -> get ( i ) ) ) &&
+           sgEqualVec3( current_vertexarray -> get ( ind ), current_vertexarray -> get ( i ) ) ) {
+        current_triindexarray -> add ( i ) ;
+        return ;
+      }
+    }
+
+    // Need to copy that before, else we run into a racecondition where
+    // we copy from an location which is already freed.
+    sgVec3 vertex ;
+    sgCopyVec3 ( vertex, current_vertexarray -> get ( ind ) ) ;
+    current_vertexarray -> add ( vertex ) ;
+    current_texcoordarray -> add ( tex ) ;
+
+    current_triindexarray -> add ( num ) ;
+  }
+}
 
 static int do_refs     ( char *s )
 {
@@ -539,72 +760,93 @@ static int do_refs     ( char *s )
 
   if ( nrefs == 0 )
     return PARSE_POP ;
-
-  ssgVertexArray   *vlist = new ssgVertexArray ( nrefs ) ;
-  ssgTexCoordArray *tlist = new ssgTexCoordArray ( nrefs ) ;
- 
-  for ( int i = 0 ; i < nrefs ; i++ )
-  {
-    fgets ( buffer, 1024, loader_fd ) ;
-
-    int vtx ;
-    sgVec2 tc ;
-
-    if ( sscanf ( buffer, "%d %f %f", &vtx,
-                                      &tc[0],
-                                      &tc[1] ) != 3 )
-    {
-      ulSetError ( UL_FATAL, "ac_to_gl: Illegal ref record." ) ;
-    }
-
-    tc[0] *= texrep[0] ;
-    tc[1] *= texrep[1] ;
-    tc[0] += texoff[0] ;
-    tc[1] += texoff[1] ;
-
-    tlist -> add ( tc ) ;
-    vlist -> add ( vtab[vtx] ) ;
-  }
-
-  ssgNormalArray *nrm = new ssgNormalArray ( 1 ) ;
-  ssgColourArray *col = new ssgColourArray ( 1 ) ;
-
-  col -> add ( *current_colour ) ;
-
-  sgVec3 nm ;
-
-  if ( nrefs < 3 )
-    sgSetVec3 ( nm, 0.0f, 0.0f, 1.0f ) ;
-  else
-    sgMakeNormal ( nm, vlist->get(0), vlist->get(1), vlist->get(2) ) ;
-
-  nrm -> add ( nm ) ;
-
+  
   int type = ( current_flags & 0x0F ) ;
-  if ( type >= 0 && type <= 2 )
-  {
-    GLenum gltype = GL_TRIANGLES ;
-    switch ( type )
+
+  // Handle line type objects by creating a single leaf for each line segment.
+  if ( type == 1 || type == 2 ) {
+    ssgIndexArray *ind = new ssgIndexArray ;
+    for ( int i = 0 ; i < nrefs ; i++ )
     {
-      case 0 : gltype = GL_TRIANGLE_FAN ;
-               break ;
-      case 1 : gltype = GL_LINE_LOOP ;
-               break ;
-      case 2 : gltype = GL_LINE_STRIP ;
-               break ;
-    }
+      fgets ( buffer, 1024, loader_fd ) ;
 
-    ssgVtxTable* vtab = new ssgVtxTable ( gltype,
-      vlist, nrm, tlist, col ) ;
-    vtab -> setState ( get_state ( current_material ) ) ;
-    vtab -> setCullFace ( ! ( (current_flags>>4) & 0x02 ) ) ;
+      int vtx ;
+      float dummy ;
 
-    ssgLeaf* leaf = current_options -> createLeaf ( vtab, 0 ) ;
+      if ( sscanf ( buffer, "%d %f %f", &vtx, &dummy, &dummy ) != 3 )
+      {
+        ulSetError ( UL_FATAL, "ac_to_gl: Illegal ref record." ) ;
+      }
 
+      ind -> add ( vtx ) ;
+    }    
+
+    ssgColourArray *col = new ssgColourArray ( 1 ) ;
+    col -> add ( mlist [ current_materialind ] -> rgba ) ;
+
+    GLenum gltype = ( type == 1 ) ? GL_LINE_LOOP : GL_LINE_STRIP ;
+    ssgVtxArray *va = new ssgVtxArray ( gltype, (ssgVertexArray *)current_vertexarray -> clone (),
+                                        0, 0, col, ind );
+    va -> removeUnusedVertices();
+    va -> setState ( get_state ( mlist [ current_materialind ] ) ) ;
+
+    ssgLeaf *leaf = current_options -> createLeaf ( va, 0 ) ;
     if ( leaf )
-       current_branch -> addKid ( leaf ) ;
+      current_branch -> addKid ( leaf ) ;
   }
 
+  if ( type == 0 ) {
+    // Handle surface datatypes.
+    // Each surface is triangulated and each triangle is put
+    // into the index array current_triindexarray.
+    int first_vertind = -1 ;
+    int prev_vertind  = 0 ;
+    sgVec2 first_texcoord ;
+    sgVec2 prev_texcoord ;
+    for ( int i = 0 ; i < nrefs ; i++ )
+      {
+        fgets ( buffer, 1024, loader_fd ) ;
+        
+        int vertind ;
+        sgVec2 texcoord ;
+        
+        if ( sscanf ( buffer, "%d %f %f", &vertind,
+                      &texcoord[0],
+                      &texcoord[1] ) != 3 )
+          {
+            ulSetError ( UL_FATAL, "ac_to_gl: Illegal ref record." ) ;
+          }
+        
+        texcoord[0] *= texrep[0] ;
+        texcoord[1] *= texrep[1] ;
+        texcoord[0] += texoff[0] ;
+        texcoord[1] += texoff[1] ;
+        
+        // Store the first index texcoord pair.
+        // This one is referenced for every triangle.
+        if ( first_vertind < 0 ) {
+          first_vertind = vertind ;
+          sgCopyVec2( first_texcoord, texcoord );
+        }
+        
+        // When we have read the third vertex index we can emit the first triangle.
+        if ( 2 <= i ) {
+          // Store the edges of the triangle
+          add_textured_vertex_edge ( first_vertind, first_texcoord ) ;
+          add_textured_vertex_edge ( prev_vertind, prev_texcoord ) ;
+          add_textured_vertex_edge ( vertind, texcoord ) ;
+          
+          // Store the material and flags for this surface. 
+          current_matindexarray -> add ( current_materialind );
+          current_flagsarray -> add ( current_flags );
+        }
+        
+        // Copy current -> previous
+        prev_vertind = vertind ;
+        sgCopyVec2( prev_texcoord, texcoord );
+      }
+  }
+  
   return PARSE_POP ;
 }
 
@@ -628,7 +870,6 @@ ssgEntity *ssgLoadAC3D ( const char *fname, const ssgLoaderOptions* options )
   ssgBranch *model = new ssgBranch () ;
   model -> addKid ( obj ) ;
   ssgFlatten      ( obj ) ;
-  ssgStripify   ( model ) ;
   return model ;
 }
 
@@ -645,12 +886,11 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
   current_options -> makeModelPath ( filename, fname ) ;
 
   num_materials = 0 ;
-  vtab = NULL ;
 
-  current_material = NULL ;
-  current_colour   = NULL ;
   current_tfname   = NULL ;
   current_branch   = NULL ;
+
+  current_crease = 61.0 ;
 
   sgSetVec2 ( texrep, 1.0, 1.0 ) ;
   sgSetVec2 ( texoff, 0.0, 0.0 ) ;
@@ -698,7 +938,6 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
 
   delete [] current_tfname ;
   current_tfname = NULL ;
-  delete [] vtab ;
   fclose ( loader_fd ) ;
 
   return current_branch ;
