@@ -625,8 +625,8 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;E</td>
     <td>&nbsp;D</td>
     <td>&nbsp;E</td>
-	<td>&nbsp;D/C</td>
-	<td>&nbsp;A</td>
+		<td>&nbsp;E</td>
+		<td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
     <td>&nbsp;A</td>
@@ -647,7 +647,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;D(?)</td>
     <td>&nbsp;D(?)</td>
     <td>&nbsp;E</td>
-	<td>&nbsp;D/C</td>
+		<td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
@@ -669,7 +669,7 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;D(?)</td>
     <td>&nbsp;-</td>
     <td>&nbsp;A</td>
-	<td>&nbsp;-</td>
+		<td>&nbsp;E</td>
     <td>&nbsp;A</td>
     <td>&nbsp;A</td>
     <td>&nbsp;E</td>
@@ -836,6 +836,19 @@ But then you may only use one poly per node. Also, you can not mix 3 and 4 sided
 may dissappear when saving into DXF files.
 <BR><BR>
 Additional info on some formats:
+
+<BR><BR>
+ATG:
+<BR>
+ATG stands for ascii TerraGear. Loading of TriStrips and TriFans not implemented yet.
+Untextured parts are lost, for example when you save and load
+Steve Bakers Tuxedo, you will loose the feet, since they are not
+textured.
+The files written are not optimal, they use no strips/fans, 
+only have triangles etc.
+Also, one vertex that needs several texture coords is written out several
+times.
+
 
 <BR><BR>
 3ds-writer:
