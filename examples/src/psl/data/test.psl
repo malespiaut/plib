@@ -1,15 +1,13 @@
 
-void xxx ( int a, float b, string c )
-{
-  printf ( "Hello", a, b, c, "\n" ) ;
-  printf ( " ",  2 << 2 | 1 ) ;
-  printf ( " ",  2 << 2 + 1 ) ;
-}
-
 
 void main ()
 {
-  xxx ( 1234, 567.89, "Weee!!!" ) ;
-  xxx ( 9876, 543.21, "AGAIN!!!" ) ;
+  int x = 1 ;
+
+  x += 11 ;   printf ( "12 ", x ) ;
+  x *=  2 ;   printf ( "24 ", x ) ;
+  x /=  6 ;   printf ( "4  ", x ) ;
+  x <<= 1 ;   printf ( "8  ", x ) ;
+  x >>= 1 ;   printf ( "4  ", x ) ;
 }
 

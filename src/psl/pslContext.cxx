@@ -466,10 +466,114 @@ pslResult pslContext::step ()
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
 
+
+    case OPCODE_POP_ADD_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        if ( v -> getType () == PSL_INT )
+          v -> set ( v -> getInt() + stack[--sp].getInt()) ;
+        else
+          v -> set ( v -> getFloat() + stack[--sp].getFloat()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+    case OPCODE_POP_SUB_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        if ( v -> getType () == PSL_INT )
+          v -> set ( v -> getInt() - stack[--sp].getInt()) ;
+        else
+          v -> set ( v -> getFloat() - stack[--sp].getFloat()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+    case OPCODE_POP_MUL_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        if ( v -> getType () == PSL_INT )
+          v -> set ( v -> getInt() * stack[--sp].getInt()) ;
+        else
+          v -> set ( v -> getFloat() * stack[--sp].getFloat()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+    case OPCODE_POP_DIV_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        if ( v -> getType () == PSL_INT )
+          v -> set ( v -> getInt() / stack[--sp].getInt()) ;
+        else
+          v -> set ( v -> getFloat() / stack[--sp].getFloat()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+    case OPCODE_POP_AND_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        v -> set ( v -> getInt() & stack[--sp].getInt()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+    case OPCODE_POP_OR_VARIABLE  :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        v -> set ( v -> getInt() | stack[--sp].getInt()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+    case OPCODE_POP_XOR_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        v -> set ( v -> getInt() ^ stack[--sp].getInt()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+    case OPCODE_POP_SHL_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        v -> set ( v -> getInt() << stack[--sp].getInt()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+    case OPCODE_POP_SHR_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+
+        v -> set ( v -> getInt() >> stack[--sp].getInt()) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
     case OPCODE_POP_VARIABLE :
       popNumber ( & variable [ code[++pc] ] ) ;
       pc++ ;
       return PSL_PROGRAM_CONTINUE ;
+
 
     case OPCODE_SET_INT_VARIABLE :
       variable [ code[++pc] ] . setType ( PSL_INT ) ;

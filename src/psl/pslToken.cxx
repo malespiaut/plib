@@ -405,6 +405,8 @@ void pslCompiler::getToken ( char *res, int define_sub )
 
         c = ' ' ;
       }
+      else
+        _pslUnGetChar ( d ) ;
     }
   } while ( isspace ( c ) ) ;
 

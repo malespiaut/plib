@@ -143,6 +143,86 @@ void pslCompiler::pushAssignment ( const char *c )
   pushCodeByte ( a ) ;
 } 
 
+void pslCompiler::pushAddAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_ADD_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
+void pslCompiler::pushSubAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_SUB_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
+void pslCompiler::pushMulAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_MUL_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
+void pslCompiler::pushDivAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_DIV_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
+void pslCompiler::pushAndAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_AND_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
+void pslCompiler::pushOrAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_OR_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
+void pslCompiler::pushXorAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_XOR_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
+void pslCompiler::pushSHLAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_SHL_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
+void pslCompiler::pushSHRAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_SHR_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
 
 void pslCompiler::pushCall ( const char *c, int argc )
 {

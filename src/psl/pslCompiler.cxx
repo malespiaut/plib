@@ -491,7 +491,16 @@ int pslCompiler::pushAssignmentStatement ( const char *var )
 
   getToken ( c ) ;
 
-  if ( c [ 0 ] != '=' )
+  if ( strcmp ( c, "="   ) != 0 && 
+       strcmp ( c, "+="  ) != 0 && 
+       strcmp ( c, "-="  ) != 0 && 
+       strcmp ( c, "/="  ) != 0 && 
+       strcmp ( c, "*="  ) != 0 && 
+       strcmp ( c, "&="  ) != 0 && 
+       strcmp ( c, "|="  ) != 0 && 
+       strcmp ( c, "^="  ) != 0 && 
+       strcmp ( c, "<<=" ) != 0 && 
+       strcmp ( c, ">>=" ) != 0 )
   {
     ungetToken ( c ) ;
     pushFunctionCall ( var ) ;
@@ -501,7 +510,17 @@ int pslCompiler::pushAssignmentStatement ( const char *var )
 
   if ( pushExpression () )
   {
-    pushAssignment ( var ) ;
+    if ( strcmp ( c, "="   ) == 0 ) pushAssignment    ( var ) ; else
+    if ( strcmp ( c, "+="  ) == 0 ) pushAddAssignment ( var ) ; else
+    if ( strcmp ( c, "-="  ) == 0 ) pushSubAssignment ( var ) ; else
+    if ( strcmp ( c, "*="  ) == 0 ) pushMulAssignment ( var ) ; else
+    if ( strcmp ( c, "/="  ) == 0 ) pushDivAssignment ( var ) ; else
+    if ( strcmp ( c, "&="  ) == 0 ) pushAndAssignment ( var ) ; else
+    if ( strcmp ( c, "|="  ) == 0 ) pushOrAssignment  ( var ) ; else
+    if ( strcmp ( c, "^="  ) == 0 ) pushXorAssignment ( var ) ; else
+    if ( strcmp ( c, "<<=" ) == 0 ) pushSHLAssignment ( var ) ; else
+    if ( strcmp ( c, ">>=" ) == 0 ) pushSHRAssignment ( var ) ;
+
     return TRUE ; 
   }
 
@@ -560,7 +579,7 @@ int pslCompiler::pushStatement ()
   if ( strcmp ( c, "switch"   ) == 0 ) return pushSwitchStatement    () ;
   if ( strcmp ( c, "while"    ) == 0 ) return pushWhileStatement     () ;
   if ( strcmp ( c, "if"       ) == 0 ) return pushIfStatement        () ;
-  if ( isalnum ( c [ 0 ] )           ) return pushAssignmentStatement(c);
+  if ( isalnum ( c [ 0 ] )           ) return pushAssignmentStatement ( c ) ;
   if ( c [ 0 ] == '{'                ) return pushCompoundStatement  () ;
 
   if ( strcmp ( c, "case"     ) == 0 || strcmp ( c, "default" ) == 0 )
@@ -622,7 +641,7 @@ int pslCompiler::pushLocalVarDecl ( pslType t )
  
   getToken ( c ) ;
 
-  if ( c[0] == '=' )
+  if ( strcmp ( c, "=" ) == 0 )
   {
     ungetToken ( c ) ;
     pushAssignmentStatement ( s ) ;
