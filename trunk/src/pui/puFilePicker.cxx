@@ -223,37 +223,33 @@ static void puFilePickerHandleOk ( puObject* b )
 
 void puFilePicker::setSize ( int w, int h )
 {
-  puObject *ob ;
-  for ( ob = dlist; ob != NULL; ob = ob->next )
+  // Resize the frame widget
+  frame->setSize ( w, h ) ;
+
+  // Resize and position the slider
+  slider->setPosition ( w-30, 40+20*arrow_count ) ;
+  slider->setSize ( 20, h-70-40*arrow_count ) ;
+
+  // Position the arrow buttons
+  if ( up_arrow )
   {
-    if ( ob->getType() & PUCLASS_FRAME )  /* Resize the frame */
-      ob->setSize ( w, h ) ;
-    else if ( ob->getType() & PUCLASS_SLIDER )  /* Resize and position the slider */
-    {
-      ob->setPosition ( w-30, 40+20*arrow_count ) ;
-      ob->setSize ( 20, h-70-40*arrow_count ) ;
-    }
-    else if ( ob->getType() & PUCLASS_ARROW )  /* Position the arrow buttons */
-    {
-      int type = ((puArrowButton *)ob)->getArrowType () ;
-      if ( type == PUARROW_DOWN )
-        ob->setPosition ( w-30, 20+20*arrow_count ) ;
-      else if ( type == PUARROW_FASTDOWN )
-        ob->setPosition ( w-30, 40 ) ;
-      else if ( type == PUARROW_UP )
-        ob->setPosition ( w-30, h-30-20*arrow_count ) ;
-      else  /* fast up */
-        ob->setPosition ( w-30, h-50 ) ;
-    }
-    else if ( ob->getType() & PUCLASS_LISTBOX )  /* Resize the list box */
-      ob->setSize ( w-40, h-70 ) ;
-    else  /* One-shot widgets, need to distinguish between them */
-    {
-      ob->setSize ( (w<170)?(w/2-15):70, 20 ) ;  /* Both buttons are the same size */
-      if ( *( ob->getLegend () ) == 'O' )  /* "Ok" button */
-        ob->setPosition ( (w<170)?(w/2+5):90, 10 ) ;
-    }
+    up_arrow->setPosition ( w-30, h-30-20*arrow_count ) ;
+    down_arrow->setPosition ( w-30, 20+20*arrow_count ) ;
   }
+
+  if ( fastup_arrow )
+  {
+    fastup_arrow->setPosition ( w-30, h-50 ) ;
+    fastdown_arrow->setPosition ( w-30, 40 ) ;
+  }
+
+  // Resize the list box
+  list_box->setSize ( w-40, h-70 ) ;
+
+  // Resoze and position the buttons
+  cancel_button->setSize ( (w<170)?(w/2-15):70, 20 ) ;
+  ok_button->setSize ( (w<170)?(w/2-15):70, 20 ) ;
+  ok_button->setPosition ( (w<170)?(w/2+5):90, 10 ) ;
 }
 
 puFilePicker::puFilePicker ( int x, int y, int w, int h, int arrows, const char* dir, const char *title )
@@ -345,26 +341,29 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
   ok_button -> setCallback ( puFilePickerHandleOk ) ;
 //  ok_button->makeReturnDefault ( TRUE ) ;
 
+  up_arrow = (puArrowButton *)NULL ;  down_arrow = (puArrowButton *)NULL ;
+  fastup_arrow = (puArrowButton *)NULL ;  fastdown_arrow = (puArrowButton *)NULL ;
+
   if ( arrows > 0 )
   {
-    puArrowButton *down_arrow = new puArrowButton ( w-30, 20+20*arrows, w-10, 40+20*arrows, PUARROW_DOWN ) ;
+    down_arrow = new puArrowButton ( w-30, 20+20*arrows, w-10, 40+20*arrows, PUARROW_DOWN ) ;
     down_arrow->setUserData ( slider ) ;
     down_arrow->setCallback ( puFilePickerHandleArrow ) ;
 
-    puArrowButton *up_arrow = new puArrowButton ( w-30, h-30-20*arrows, w-10, h-10-20*arrows, PUARROW_UP ) ;
+    up_arrow = new puArrowButton ( w-30, h-30-20*arrows, w-10, h-10-20*arrows, PUARROW_UP ) ;
     up_arrow->setUserData ( slider ) ;
     up_arrow->setCallback ( puFilePickerHandleArrow ) ;
   }
 
   if ( arrows == 2 )
   {
-    puArrowButton *down_arrow = new puArrowButton ( w-30, 40, w-10, 60, PUARROW_FASTDOWN ) ;
-    down_arrow->setUserData ( slider ) ;
-    down_arrow->setCallback ( puFilePickerHandleArrow ) ;
+    fastdown_arrow = new puArrowButton ( w-30, 40, w-10, 60, PUARROW_FASTDOWN ) ;
+    fastdown_arrow->setUserData ( slider ) ;
+    fastdown_arrow->setCallback ( puFilePickerHandleArrow ) ;
 
-    puArrowButton *up_arrow = new puArrowButton ( w-30, h-50, w-10, h-30, PUARROW_FASTUP ) ;
-    up_arrow->setUserData ( slider ) ;
-    up_arrow->setCallback ( puFilePickerHandleArrow ) ;
+    fastup_arrow = new puArrowButton ( w-30, h-50, w-10, h-30, PUARROW_FASTUP ) ;
+    fastup_arrow->setUserData ( slider ) ;
+    fastup_arrow->setCallback ( puFilePickerHandleArrow ) ;
   }
 
   close  () ;

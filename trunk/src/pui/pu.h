@@ -1290,6 +1290,10 @@ class puFilePicker : public puDialogBox
   puSlider  *slider        ;
   puOneShot *cancel_button ;
   puOneShot *ok_button     ;
+  puArrowButton *up_arrow       ;
+  puArrowButton *down_arrow     ;
+  puArrowButton *fastup_arrow   ;
+  puArrowButton *fastdown_arrow ;
 
 protected:
   void puFilePickerInit ( int x, int y, int w, int h,
@@ -1337,6 +1341,10 @@ class puFileSelector : public puDialogBox
   puOneShot *cancel_button ;
   puOneShot *ok_button     ;
   puInput   *input         ;
+  puArrowButton *up_arrow       ;
+  puArrowButton *down_arrow     ;
+  puArrowButton *fastup_arrow   ;
+  puArrowButton *fastdown_arrow ;
 
 protected:
   void puFileSelectorInit ( int x, int y, int w, int h,
