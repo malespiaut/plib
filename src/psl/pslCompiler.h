@@ -51,6 +51,8 @@ class pslProgram ;
 
 class pslCompiler
 {
+  int ref_count; // reference count.  Clean up when this reaches zero
+
   /* File I/O and preprocessor */
 
   int  getChar               () ;
@@ -313,6 +315,7 @@ public:
                 const pslExtension *_extn,
                 const char   *_progName )
   {
+    ref_count = 1;
     program  = prog ;
     progName = ulStrDup ( _progName ) ;
 
@@ -341,6 +344,21 @@ public:
       delete [] symtab      [ i ] . symbol ; symtab      [ i ] . symbol = NULL ;
       delete [] code_symtab [ i ] . symbol ; code_symtab [ i ] . symbol = NULL ;
       delete [] forward_ref [ i ] . symbol ; forward_ref [ i ] . symbol = NULL ;
+    }
+  }
+
+  void ref()
+  {
+    ref_count++;
+  }
+
+  void deref()
+  {
+    ref_count--;
+    if(ref_count < 1)
+    {
+      delete [] code;
+      delete this;
     }
   }
 
