@@ -1522,7 +1522,7 @@ public:
   void setValidData ( const char *data )
   {
     delete [] valid_data ;
-    valid_data = data != NULL ? ulStrDup ( data ) : NULL ;
+    valid_data = ( data != NULL ) ? ulStrDup ( data ) : NULL ;
   }
   void addValidData ( const char *data ) ;
 
@@ -1538,7 +1538,7 @@ public:
   void disableInput ( void ) { input_disabled = TRUE  ; }
   int  inputDisabled ( void ) const { return input_disabled ; }
 
-  puInputBase ( puObject *wgt )
+  puInputBase ( void )
   {
     accepting = FALSE ;
     cursor_position = 0 ;
@@ -1546,7 +1546,7 @@ public:
     select_end_position = -1 ;
     valid_data = NULL;
 
-    widget = wgt ;
+    widget = (puObject *)NULL ;
 
     input_disabled = FALSE ;
   }
@@ -1572,12 +1572,14 @@ public:
   }
 
   puInput ( int minx, int miny, int maxx, int maxy ) :
-     puInputBase ( this ), puObject ( minx, miny, maxx, maxy )
+     puInputBase (), puObject ( minx, miny, maxx, maxy )
   {
     type |= PUCLASS_INPUT ;
 
     setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
     setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; /* Colour of 'I' bar cursor */
+
+    widget = this ;
   }
 } ;
 

@@ -66,7 +66,7 @@ void puLargeInput::removeSelectRegion ( void )
 // Public functions from the widget itself
 
 puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text ) :
-    puInputBase ( this ), puGroup ( x, y )
+    puInputBase (), puGroup ( x, y )
 {
   setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; // Colour of the 'I' bar cursor
 
@@ -79,6 +79,8 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
                     ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
   top_line_in_window = 0 ;
   max_width = 0 ;
+
+  widget = this ;
 
   // Set up the widgets
 
