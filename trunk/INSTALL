@@ -51,6 +51,22 @@ The simplest way to compile this package is:
      all sorts of other programs in order to regenerate files that came
      with the distribution.
 
+OpenGL Configure
+================
+
+Configure is not able to find the OpenGL headers and libraries. In this
+case please add
+
+./configure --with-gl=PREFIX
+
+Examples
+
+./configure --with-gl=/usr/local
+
+This will look in the /usr/local/include for headers (GL/ is not needed) 
+and /usr/local/lib for the libraries.
+
+
 Compilers and Options
 =====================
 
