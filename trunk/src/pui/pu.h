@@ -505,6 +505,8 @@ typedef void (*puRenderCallback)(class puObject *, int dx, int dy, void *) ;
 
 void puSetDefaultStyle ( int  style ) ;
 int  puGetDefaultStyle ( void ) ;
+void puSetDefaultBorderThickness ( int t ) ;
+int  puGetDefaultBorderThickness ( void ) ;
 void puSetDefaultFonts ( puFont  legendFont, puFont  labelFont ) ;
 void puGetDefaultFonts ( puFont *legendFont, puFont *labelFont ) ;
 
@@ -703,7 +705,16 @@ public:
   {
     style = which ;
 
-    setBorderThickness ( ( abs(style) == PUSTYLE_SPECIAL_UNDERLINED ? 1 : 2 ) );
+    if ( abs(style) == PUSTYLE_SPECIAL_UNDERLINED )
+      border_thickness = 1 ;
+    else if ( ( abs(style) == PUSTYLE_SMALL_BEVELLED ) ||
+              ( abs(style) == PUSTYLE_SMALL_SHADED ) ||
+              ( abs(style) == PUSTYLE_BOXED ) )
+      border_thickness = 2 ;
+    else if ( ( abs(style) == PUSTYLE_BEVELLED ) ||
+              ( abs(style) == PUSTYLE_SHADED ) ||
+              ( abs(style) == PUSTYLE_DROPSHADOW ) )
+      border_thickness = 5 ;
 
     recalc_bbox () ;
     puPostRefresh() ;

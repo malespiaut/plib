@@ -51,12 +51,30 @@ static void load_colour_scheme ( float col[][4], float r, float g,
 
 
 static int    defaultStyle = PUSTYLE_DEFAULT ;
+static int    defaultBorderThickness = 5 ;
 static puFont defaultLegendFont ;
 static puFont defaultLabelFont  ;
 static float  defaultColourScheme [ 4 ] ;
 
-void puSetDefaultStyle ( int  style ) { defaultStyle = style ; }
+void puSetDefaultStyle ( int  style )
+{
+  defaultStyle = style ;
+
+  if ( abs(style) == PUSTYLE_SPECIAL_UNDERLINED )
+    defaultBorderThickness = 1 ;
+  else if ( ( abs(style) == PUSTYLE_SMALL_BEVELLED ) ||
+            ( abs(style) == PUSTYLE_SMALL_SHADED ) ||
+            ( abs(style) == PUSTYLE_BOXED ) )
+    defaultBorderThickness = 2 ;
+  else if ( ( abs(style) == PUSTYLE_BEVELLED ) ||
+            ( abs(style) == PUSTYLE_SHADED ) ||
+            ( abs(style) == PUSTYLE_DROPSHADOW ) )
+    defaultBorderThickness = 5 ;
+}
 int  puGetDefaultStyle ( void ) { return defaultStyle ; }
+
+void puSetDefaultBorderThickness ( int t ) { defaultBorderThickness = t ;    }
+int  puGetDefaultBorderThickness ( void )  { return defaultBorderThickness ; }
 
 void puSetDefaultFonts ( puFont legendFont, puFont labelFont )
 {
@@ -117,7 +135,7 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   active_cb   = NULL ;
   down_cb     = NULL ;
   r_cb        = NULL ;
-  border_thickness = 2 ;
+  border_thickness = defaultBorderThickness ;
   render_data = NULL ;
   user_data   = NULL ;
   next = prev = NULL ;

@@ -43,7 +43,7 @@ void puSlider::draw_slider_box ( int dx, int dy, float val, const char *box_labe
   bx.min [ od ] = abox.min [ od ] + 2 ;
   bx.max [ od ] = abox.max [ od ] - 2 ;
 
-  bx.draw ( dx, dy, PUSTYLE_SMALL_SHADED, colour, FALSE, border_thickness ) ;
+  bx.draw ( dx, dy, PUSTYLE_SMALL_SHADED, colour, FALSE, 2 ) ;
 
   if ( box_label )
   {
@@ -68,9 +68,11 @@ void puSlider::draw ( int dx, int dy )
 {
   if ( !visible || ( window != puGetWindow () ) ) return ;
 
-  abox.draw ( dx, dy, (style==PUSTYLE_BEVELLED||
-                       style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
-                       colour, FALSE, border_thickness ) ;
+  if ( ( style == PUSTYLE_BEVELLED ) ||
+       ( style == PUSTYLE_SHADED ) )
+    abox.draw ( dx, dy, -PUSTYLE_BOXED, colour, FALSE, 2 ) ;
+  else
+    abox.draw ( dx, dy, -style, colour, FALSE, border_thickness ) ;
 
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;
