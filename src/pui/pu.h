@@ -1603,6 +1603,7 @@ protected:
   puArrowButton *arrow_btn ;
   puPopupMenu *popup_menu  ;
 
+  static void input_down_cb ( puObject *inp   ) ;
   static void handle_arrow ( puObject *arrow  ) ;
   static void handle_popup ( puObject *popupm ) ;
 
