@@ -57,7 +57,7 @@ public:
   ssgaShape (void) ;
   ssgaShape ( int numtris ) ;
   virtual ~ssgaShape (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
 
   void makeCorrupt () { corrupted = TRUE ; }
   int  isCorrupt   () { return corrupted ; }
@@ -107,7 +107,7 @@ public:
   ssgaCube (void) ;
   ssgaCube ( int numtris ) ;
   virtual ~ssgaCube (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void regenerate () ;
 } ;
 
@@ -140,7 +140,7 @@ public:
   void getControlPoint ( int s, int t, sgVec3 xyz, sgVec2 uv, sgVec4 rgba ) ;
 
   virtual ~ssgaPatch (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void regenerate () ;
 
   virtual int load ( FILE * ) ;
@@ -160,7 +160,7 @@ public:
   ssgaTeapot (void) ;
   ssgaTeapot ( int numtris ) ;
   virtual ~ssgaTeapot (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void regenerate () ;
 
   virtual int load ( FILE * ) ;
@@ -182,7 +182,7 @@ public:
   ssgaSphere (void) ;
   ssgaSphere ( int numtris ) ;
   virtual ~ssgaSphere (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void regenerate () ;
 
   void setLatLongStyle ( int ll ) { latlong_style = ll ; regenerate () ; }
@@ -205,7 +205,7 @@ public:
   ssgaCylinder (void) ;
   ssgaCylinder ( int numtris ) ;
   virtual ~ssgaCylinder (void) ;
-  virtual char *getTypeName(void) ;
+  virtual const char *getTypeName(void) ;
   virtual void regenerate () ;
 
   void makeCapped ( int c ) { capped = c ; regenerate () ; }

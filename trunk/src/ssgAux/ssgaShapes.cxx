@@ -173,12 +173,12 @@ ssgaTeapot  ::~ssgaTeapot   (void) {}
 ssgaSphere  ::~ssgaSphere   (void) {}
 ssgaCylinder::~ssgaCylinder (void) {}
 
-char *ssgaShape   ::getTypeName(void) { return "ssgaShape"    ; }
-char *ssgaCube    ::getTypeName(void) { return "ssgaCube"     ; }
-char *ssgaSphere  ::getTypeName(void) { return "ssgaSphere"   ; }
-char *ssgaCylinder::getTypeName(void) { return "ssgaCylinder" ; }
-char *ssgaPatch   ::getTypeName(void) { return "ssgaPatch"    ; }
-char *ssgaTeapot  ::getTypeName(void) { return "ssgaTeapot"   ; }
+const char *ssgaShape   ::getTypeName(void) { return "ssgaShape"    ; }
+const char *ssgaCube    ::getTypeName(void) { return "ssgaCube"     ; }
+const char *ssgaSphere  ::getTypeName(void) { return "ssgaSphere"   ; }
+const char *ssgaCylinder::getTypeName(void) { return "ssgaCylinder" ; }
+const char *ssgaPatch   ::getTypeName(void) { return "ssgaPatch"    ; }
+const char *ssgaTeapot  ::getTypeName(void) { return "ssgaTeapot"   ; }
 
 
 void ssgaCube    ::regenerate ()
