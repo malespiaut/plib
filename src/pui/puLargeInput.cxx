@@ -747,8 +747,7 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
     // Get the line number and position on the line of the mouse
 
     char *strval = bottom_slider ? getText () : getWrappedText () ;
-    char *tmpval = new char [ strlen(strval) + 1 ] ;
-    strcpy ( tmpval, strval ) ;
+    char *tmpval = ulStrDup ( strval ) ;
 
     int i = strlen ( tmpval ) ;
 
@@ -821,10 +820,11 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
         select_end_position = select_start_position ;
         select_start_position = i ;
       }
-
     }
     else
       highlight () ;
+
+    delete [] tmpval ;
   }
   else
     lowlight () ;

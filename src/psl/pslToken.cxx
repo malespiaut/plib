@@ -235,10 +235,8 @@ void pslCompiler::doDefineStatement ()
       error ( "Too many #define's\n" ) ;
     else
     {
-      define_token       [ next_define ] = new char [ strlen ( token ) + 1 ] ;
-      define_replacement [ next_define ] = new char [ strlen ( subst ) + 1 ] ;
-      strcpy ( define_token       [ next_define ], token ) ;
-      strcpy ( define_replacement [ next_define ], subst ) ;
+      define_token       [ next_define ] = ulStrDup ( token ) ;
+      define_replacement [ next_define ] = ulStrDup ( subst ) ;
       next_define++ ;
     }
   }
