@@ -216,17 +216,17 @@ void ulFindFile( char *filenameOutput, const char *path,
 //
 // Some examples:
 //
-// for load *.MDl-models, it is very nice to set the texture path to
+// for loading *.MDl-models, it is very nice to set the texture path to
 // $(APOM);$(APOM)/texture;$(APOM)/../texture
-// This contains of three segments and tells ulFindFile to look in the 
+// This consits of three segments and tells ulFindFile to look in the 
 // path of the model, in a subpath texture and in a path texture "besides" the path of the model
 // Some *.mdl-models are shipped in a directory which conatins a "texture"-directory, a 
 // "Model"-directory and others. In this case you find the texture in $(APOM)/../texture
 //
-// Another example: You have all your textures in a driectory-structure under /raumplan.
-// For example brick is under /raumplan/bricks, wood is under /raumplan/wood, oak is 
-// under /raumplan/wood/oak. Then you should use the following texture path:
-// "/raumplan/$(...)"
+// Another example: You have all your textures in a directory-structure under /roomplan.
+// For example brick is under /roomplan/bricks, wood is under /roomplan/wood, oak is 
+// under /roomplan/wood/oak. Then you should use the following texture path:
+// "/roomplan/$(...)"
 //
 // If you dont want all of the bells and whistles, just call:
 // _ssgMakePath ( filenameOutput, path, tfnameInput ) ;
