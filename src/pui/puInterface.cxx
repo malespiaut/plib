@@ -73,7 +73,7 @@ puInterface *puGetUltimateLiveInterface ( void )
 {
   if ( currLiveInterface < 0 )
   {
-    ulSetError ( UL_WARNING, "PUI: No Live Interface!\n" ) ;
+    ulSetError ( UL_FATAL, "PUI: No Live Interface! Forgot to call puInit ?\n" ) ;
     return NULL ;
   }
 
@@ -85,7 +85,7 @@ puInterface *puGetBaseLiveInterface ( void )
 {
   if ( currLiveInterface < 0 )
   {
-    ulSetError ( UL_WARNING, "PUI: No Live Interface!\n" ) ;
+    ulSetError ( UL_FATAL, "PUI: No Live Interface! Forgot to call puInit ?\n" ) ;
     return NULL ;
   }
 
