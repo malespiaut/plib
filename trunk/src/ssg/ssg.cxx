@@ -145,7 +145,7 @@ void ssgInit ()
   ssgAddModelFormat ( ".atg"  , ssgLoadATG  , ssgSaveATG ) ;
   ssgAddModelFormat ( ".qhi"  , NULL        , ssgSaveQHI ) ;
   ssgAddModelFormat ( ".wrl",   ssgLoadVRML1, ssgSaveVRML1 ) ;
-  ssgAddModelFormat ( ".iv", ssgLoadIV      , NULL ) ;
+  ssgAddModelFormat ( ".iv",    ssgLoadIV   , ssgSaveIV  ) ;
   ssgAddModelFormat ( ".asc",   NULL        , ssgSaveASC ) ;
 //ssgAddModelFormat ( ".pov",   NULL        , ssgSavePOV ) ;
 	
