@@ -252,8 +252,8 @@ static void update_motion ()
   sky -> repositionFlat ( campos.xyz, 0, dt );
   sky -> modifyVisibility ( campos.xyz[SG_Z], dt );
 
-  double sun_angle = bodies[0]->getAngle();
-  double sky_brightness = (1.0 + cos(sun_angle))/2.0; // 0.0 - 1.0
+  double sol_angle = bodies[0]->getAngle();
+  double sky_brightness = (1.0 + cos(sol_angle))/2.0; // 0.0 - 1.0
   double scene_brightness = pow(sky_brightness,0.5);
 
   /* set sky color */
@@ -269,12 +269,12 @@ static void update_motion ()
   cloud_color[3] = fog_color[3] = base_fog_color[3];
 
   /* repaint the sky */
-  sky -> repaint ( sky_color, fog_color, cloud_color, sun_angle, nplanets, planet_data, nstars, star_data );
+  sky -> repaint ( sky_color, fog_color, cloud_color, sol_angle, nplanets, planet_data, nstars, star_data );
 
   /* set light source */
-  sgCoord sunpos;
-  bodies[0] -> getPosition ( & sunpos );
-  ssgGetLight ( 0 ) -> setPosition ( sunpos.xyz ) ;
+  sgCoord solpos;
+  bodies[0] -> getPosition ( & solpos );
+  ssgGetLight ( 0 ) -> setPosition ( solpos.xyz ) ;
 
   scene_ambient[0] = base_ambient[0] * scene_brightness;
   scene_ambient[1] = base_ambient[1] * scene_brightness;
@@ -456,9 +456,9 @@ static void init_graphics ()
 
   /* Set up the Sun */
 
-  sgVec3 sunposn ;
-  sgSetVec3 ( sunposn, 0, 0, 0 ) ;
-  ssgGetLight ( 0 ) -> setPosition ( sunposn ) ;
+  sgVec3 solposn ;
+  sgSetVec3 ( solposn, 0, 0, 0 ) ;
+  ssgGetLight ( 0 ) -> setPosition ( solposn ) ;
 }
 
 
