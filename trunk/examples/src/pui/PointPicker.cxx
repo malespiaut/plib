@@ -73,12 +73,12 @@ void drawSinglePickableObject ( int i, float x, float y, float z )
 
   glPointSize ( 10.0f ) ;
   glBegin ( GL_POINTS ) ;
-  glNormal3f ( 1.0, 0.0, 0.0 ) ;  // Needed so the points show color
+  glNormal3f ( 1.0f, 0.0f, 0.0f ) ;  // Needed so the points show color
 
   if ( i == picked_point )
-    glColor4f ( 1.0, 0.0, 0.0, 1.0 ) ;
+    glColor4f ( 1.0f, 0.0f, 0.0f, 1.0f ) ;
   else
-    glColor4f ( 0.0, 1.0, 0.0, 1.0 ) ;
+    glColor4f ( 0.0f, 1.0f, 0.0f, 1.0f ) ;
 
   glVertex3f ( x, y, z ) ;
 
