@@ -4,21 +4,7 @@
 
 #include "ul.h"
 #include "sg.h"
-
-/*
-  Configuration
-*/
-
-#define _SSG_USE_PICK   1
-#define _SSG_USE_DLIST  1
-
-/*
-  For optional use of PNG textures, download the glpng library from
-  http://www.wyatt100.freeserve.co.uk/download.htm and un-comment
-  the following line.
- */
-
-//#define _SSG_USE_GLPNG  1
+#include "ssgconf.h"
 
 #ifndef _SSG_PUBLIC
 #define _SSG_PUBLIC  protected
@@ -578,8 +564,96 @@ public:
 } ;
 
 
-void ssgLoadTexture ( const char *fname ) ;
-int ssgGetNumTexelsLoaded () ;
+struct _ssgTextureFormat
+{
+  const char *extension ;
+  void (*loadfunc) ( const char * ) ;
+} ;
+
+
+class ssgTextureManager : public ssgBase
+{
+  enum { MAX_FORMATS = 100 } ;
+  _ssgTextureFormat formats [ MAX_FORMATS ] ;
+  int num_formats ;
+
+  char current_path [ 512 ] ;
+  FILE* current_fp ;
+  int is_swapped ;
+  int has_alpha ;
+
+  int total_texels_loaded ;
+
+  static ssgTextureManager *current ;
+
+public:
+
+  static ssgTextureManager *get () { return current ; }
+  static void set ( ssgTextureManager *tm )
+  {
+    ssgDeRefDelete ( current ) ;
+
+    current = tm ;
+    if ( tm != NULL )
+      tm -> ref () ;
+  }
+
+  ssgTextureManager ()
+  {
+    num_formats = 0 ;
+    current_path [ 0 ] = 0 ;
+    current_fp = 0 ;
+    is_swapped = FALSE ;
+    has_alpha = FALSE ;
+    total_texels_loaded = 0 ;
+  }
+
+  void addFormat ( const char* extension,
+    void (*loadfunc) ( const char* fname ) ) ;
+
+  void load ( const char* fname ) ;
+
+  int getNumTexelsLoaded () const { return total_texels_loaded ; }
+
+  /*
+   * used by loaders
+   */
+  const char* getPath () { return current_path ; }
+  FILE* getFilePtr () { return current_fp ; }
+  FILE* openFile ( const char* fname, const char* mode ) ;
+  void closeFile () ;
+  int getAlpha () const { return has_alpha ; }
+  void setAlpha ( int flag ) { has_alpha = flag ; }
+  int getSwap () const { return is_swapped ; }
+  void setSwap ( int flag ) { is_swapped = flag ; }
+  void swapIntArray ( int *x, int leng ) ;
+  void swapShort ( unsigned short* x ) ;
+  unsigned char readByte () ;
+  unsigned short readShort () ;
+  unsigned int readInt () ;
+  void loadDummy () ;
+  void make_mip_maps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
+
+  //void findFile ( ) ;
+  //void onLoad ( ) ;
+} ;
+
+
+inline int ssgGetNumTexelsLoaded ()
+{
+  ssgTextureManager::get () -> getNumTexelsLoaded () ;
+}
+
+inline void ssgLoadTexture ( const char *fname )
+{
+  ssgTextureManager::get () -> load ( fname ) ;
+}
+
+void ssgLoadPNG ( const char *fname ) ;
+void ssgLoadSGI ( const char *fname ) ;
+void ssgLoadBMP ( const char *fname ) ;
+void ssgLoadMDLTexture ( const char *fname ) ;
+void ssgLoadTGA ( const char *fname ) ;
 
 
 class ssgTexture : public ssgBase
@@ -1195,7 +1269,6 @@ extern sgVec4 _ssgColourWhite ;
 extern sgVec3 _ssgNormalUp    ;
 extern sgVec2 _ssgTexCoord00  ;
 extern short  _ssgIndex0      ;
-extern bool   _ssgAlphaFlag   ;
 
 
 class ssgVTable : public ssgLeaf
