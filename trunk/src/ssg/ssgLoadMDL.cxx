@@ -56,7 +56,7 @@ static char		        *curr_tex_name_;
 static ssgAxisTransform	        *curr_xfm_;
 
 // File Address Stack
-static const int                MAX_STACK_DEPTH = 32;
+static const int                MAX_STACK_DEPTH = 64; // wk: 32 is too small
 static long       	        stack_        [MAX_STACK_DEPTH];
 static int                      stack_depth_;
 
