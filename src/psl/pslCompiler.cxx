@@ -23,7 +23,7 @@
 
 
 #include "pslLocal.h"
-
+#include "ul.h"
 
  
 int pslCompiler::compile ( const char *fname )
@@ -44,6 +44,8 @@ int pslCompiler::compile ( const char *fname )
  
 int pslCompiler::compile ( FILE *fd, const char *fname )
 {
+  char *dump_env = getenv ( "PSL_DUMP" ) ;
+
   init () ;
  
   _pslPushDefaultFile ( fd, (fname == NULL) ? progName : fname ) ;
@@ -58,13 +60,21 @@ int pslCompiler::compile ( FILE *fd, const char *fname )
 
   if ( num_errors != 0 )
   {
+    if ( dump_env != NULL &&
+         ulStrEqual ( dump_env, "on_error" ) )
+      dump () ;
+
     next_code = 0 ;
     pushCodeByte ( OPCODE_HALT ) ;
   }
+  else
+  if ( dump_env != NULL &&
+       ulStrEqual ( dump_env, "always" ) )
+    dump () ;
 
   return num_errors ;
 }
-                                                                                
+
 
 
 int pslCompiler::pushReturnStatement ()

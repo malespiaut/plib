@@ -18,10 +18,12 @@ libsimon.a : simon_api.o
  
 install: libsimon.a simon.h simon
 	mkdir -p /usr/local/simon
-	cp simon libsimon.a simon.h /usr/local/simon
+	cp libsimon.a simon.h /usr/local/simon
+	cp simon /usr/local/bin
 
 uninstall:
 	rm -r /usr/local/simon
+	rm /usr/local/bin/simon
 
 clean:
 	rm -f simon libsimon.a *.o

@@ -228,6 +228,8 @@ class pslProgram
 
   char *progName ;
 
+  int force_trace ;
+
 public:
 
    pslProgram ( const pslExtension *ext, const char *_progName = NULL ) ;

@@ -25,6 +25,25 @@
 #include <simon.h>
 #include <plib/psl.h>
 
+
+pslValue my_print ( int argc, pslValue *argv, pslProgram *p )
+{
+  for ( int i = 0 ; i < argc ; i++ )
+  {
+    switch ( argv[i].getType () )
+    {
+      case PSL_INT    : printf ( "%d ", argv[i].getInt    () ) ; break ;
+      case PSL_FLOAT  : printf ( "%f ", argv[i].getFloat  () ) ; break ;
+      case PSL_STRING : printf ( "%s ", argv[i].getString () ) ; break ;
+      case PSL_VOID   : printf ( "(void) " ) ; break ;
+    }
+  }
+ 
+  pslValue ret ;
+  return ret ;                                                                  
+}
+
+
 pslValue my_siJoystickUD ( int, pslValue *, pslProgram * )
 {
   pslValue ret ;
@@ -142,6 +161,7 @@ pslExtension extensions [] =
   { "siJoystickL" , 0, my_siJoystickL  },
   { "siJoystickR" , 0, my_siJoystickR  },
   { "fabs"        , 1, my_fabs         },
+  { "print"       ,-1, my_print        },
   { NULL, 0, NULL }
 } ;
 

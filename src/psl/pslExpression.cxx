@@ -337,27 +337,29 @@ int pslCompiler::pushBoolExpression ()
   if ( ! pushRelExpression () )
     return FALSE ;
 
-  while ( TRUE )
+  char c [ MAX_TOKEN ] ;
+  int  shortcut ;
+
+  getToken ( c ) ;
+
+  if ( strcmp ( c, "&&"  ) == 0 )
+    shortcut = pushPeekJumpIfFalse ( 0 ) ;
+  else
+  if ( strcmp ( c, "||"  ) == 0 )
+    shortcut = pushPeekJumpIfTrue ( 0 ) ;
+  else
   {
-    char c [ MAX_TOKEN ] ;
-
-    getToken ( c ) ;
-
-    if ( strcmp ( c, "&&"  ) != 0 &&
-         strcmp ( c, "||"  ) != 0 )
-    {
-      ungetToken ( c ) ;
-      return TRUE ;
-    }
-
-    if ( ! pushRelExpression () )
-      return FALSE ;
-
-    if ( strcmp ( c, "&&"  ) == 0 )
-      pushAndAnd () ;
-    else
-      pushOrOr   () ;
+    ungetToken ( c ) ;
+    return TRUE ;
   }
+
+  if ( ! pushBoolExpression () )
+    return error ( "Missing expression following '&&' or '||'" ) ;
+
+  code [ shortcut   ] =   next_code        & 0xFF ;
+  code [ shortcut+1 ] = ( next_code >> 8 ) & 0xFF ;
+
+  return TRUE ;
 }
 
 

@@ -62,6 +62,10 @@ public:
   void pushString ( const char      *x ) { stack [ sp++ ] . set ( x ) ; }
   void pushNumber ( const pslNumber *x ) { stack [ sp++ ] . set ( x ) ; }
 
+  int    peekInt    () { return stack [ sp-1 ] . getInt    () ; }
+  float  peekFloat  () { return stack [ sp-1 ] . getFloat  () ; }
+  char  *peekString () { return stack [ sp-1 ] . getString () ; }
+
   void   popVoid    ( int n = 1 ) { sp -= n ; }
   int    popInt     () { return stack [ --sp ] . getInt    () ; }
   float  popFloat   () { return stack [ --sp ] . getFloat  () ; }

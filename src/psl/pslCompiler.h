@@ -98,6 +98,8 @@ class pslCompiler
   void pushGreaterEqual () ;
   void pushNotEqual     () ;
   void pushEqual        () ;
+  int  pushPeekJumpIfFalse ( int l ) ;
+  int  pushPeekJumpIfTrue  ( int l ) ;
   int  pushJumpIfFalse  ( int l ) ;
   int  pushJumpIfTrue   ( int l ) ;
   int  pushJump         ( int l ) ;
