@@ -130,6 +130,11 @@
 #  endif
 #endif
 
+#ifdef __BORLANDC__
+# ifdef USE_ALLOCA
+#  include <malloc.h>
+# endif
+#endif
 
 #ifndef O_BINARY
 # define O_BINARY 0
