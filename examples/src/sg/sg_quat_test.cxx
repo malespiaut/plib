@@ -125,7 +125,7 @@ void DrawCube( )
   glDrawElements( GL_QUADS, 4, GL_UNSIGNED_BYTE, bottomIndices ) ;
 }
 
-void Display( void )
+void Redisplay( void )
 {
   sgMat4 matrix ;
   
@@ -163,7 +163,7 @@ void Display( void )
 void Idle( )
 {
   static int lastTime = 0;
-  int time = glutGet(GLUT_ELAPSED_TIME);
+  int time = glutGet((GLenum)GLUT_ELAPSED_TIME);
   if (time > lastTime + 10)
   {
     RotateQuatCube( ) ;
@@ -253,7 +253,7 @@ void Init( void )
   Reshape( XSIZE, YSIZE ) ;
 }
 
-void  main( int argc, char **argv )
+int main( int argc, char **argv )
 {
   glutInit( &argc, argv ) ;
   glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH ) ;
@@ -262,11 +262,12 @@ void  main( int argc, char **argv )
   
   Init( ) ;
   
-  glutDisplayFunc( Display ) ;
+  glutDisplayFunc( Redisplay ) ;
   glutReshapeFunc( Reshape ) ;
   glutKeyboardFunc( Keyboard ) ;
   glutIdleFunc( Idle ) ;
   
   glutShowWindow( ) ;
   glutMainLoop( ) ;
+  return 0 ;
 }
