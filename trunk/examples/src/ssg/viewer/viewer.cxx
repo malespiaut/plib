@@ -262,11 +262,32 @@ static void set_anim_frame( ssgEntity *e )
         int num = ta -> getNum () ;
         if ( num > 0 )
         {
+#ifdef DISCREET_STEPS
           int frame = anim_frame ;
           if ( frame >= num )
             frame = num-1 ;
           ta -> selection = frame ;
           p -> setTransform ( *( ta -> get ( ta -> selection ) ) ) ;
+#else
+          /* fluid motion */
+          int curr_time = glutGet((GLenum)GLUT_ELAPSED_TIME); // in ms
+          int nFrame = curr_time / 1000;
+          int frac = curr_time -1000*nFrame;
+          float tFrame, tFrameP1;
+          tFrame = frac / 1000.0f;
+          tFrameP1 = 1.0 - tFrame;
+          nFrame = nFrame - (num-1) * (nFrame/(num-1));
+          assert(nFrame<num-1);
+          {
+            sgMat4 XForm, *pmFrame;
+            pmFrame = ta -> get ( nFrame );
+            sgMat4 *pmFrameP1 = ta -> get ( nFrame+1 );
+            for(int i=0;i<4;i++)
+              for(int j=0; j<4; j++)
+                XForm[i][j] = tFrame * ((*pmFrame)[i][j]) + tFrameP1 * ((*pmFrameP1)[i][j]);
+            p -> setTransform ( XForm );
+          }
+#end
         }
       }
     }
