@@ -676,6 +676,9 @@ public:
   virtual void setStyle ( int which )
   {
     style = which ;
+
+    setBorderThickness ( ( style == PUSTYLE_SPECIAL_UNDERLINED ? 1 : 2 ) );
+
     recalc_bbox () ;
     puRefresh = TRUE ;
   }
