@@ -141,6 +141,15 @@ void ssgContext::setCamera ( sgCoord *coord )
   sgPreMultMat4   ( cameraMatrix, viewmat ) ;
 }
 
+void ssgContext::setCameraLookAt ( const sgVec3 eye, const sgVec3 center, const sgVec3 up )
+{
+  sgMat4 mat ;
+
+  sgMakeLookAtMat4 ( mat, eye, center, up ) ;
+
+  setCamera ( mat ) ;
+}
+
 void ssgContext::loadProjectionMatrix()
 {
   glLoadIdentity () ;

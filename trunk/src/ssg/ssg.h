@@ -1207,28 +1207,40 @@ public:
 
 class ssgSelector : public ssgBranch
 {
-  unsigned int selection ;
+  unsigned char* selection ;
 
 protected:
+  int max_kids ;
+
   virtual void copy_from ( ssgSelector *src, int clone_flags ) ;
 
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgSelector (void) ;
+  ssgSelector ( int max_kids = 32 ) ;
   virtual ~ssgSelector (void) ;
 
   void selectStep ( unsigned int s )
   {
-    selection = (1<<s) ;
+    memset ( selection, 0, max_kids ) ;
+    selection [s] = 1 ;
   }
 
   void select ( unsigned int s )
   {
-    selection = s ;
+    for ( int i=0; i<max_kids && i<32; i++ ) 
+      selection [i] = ( (1<<i) & s ) != 0 ; 
   }
 
-  unsigned int getSelect () { return selection ; }
+  unsigned int getSelect ()
+  {
+    unsigned int s = 0 ;
+    for ( int i=0; i<max_kids && i<32; i++ ) 
+      if ( selection [i] ) s |= (1<<i) ;
+    return s ;
+  }
+
+  int getMaxKids (void) const { return max_kids ; }
 
   virtual char *getTypeName(void) ;
   virtual int load ( FILE *fd ) ;
@@ -1303,7 +1315,7 @@ _SSG_PUBLIC:
   float start_time    ;
   float pause_time    ;
   float loop_time     ;
-  float times [ 32 ]  ;
+  float* times  ;
   int   curr  ;
   int   start ;
   int   end   ;
@@ -1321,7 +1333,7 @@ protected:
 public:
 
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
-  ssgTimedSelector (void) ;
+  ssgTimedSelector ( int max_kids = 32 ) ;
   virtual ~ssgTimedSelector (void) ;
 
   virtual char *getTypeName(void) ;
@@ -1332,10 +1344,10 @@ public:
 
   void setDuration ( float ti, int i = -1 )
   {
-    if ( i >= 0 && i < 32 )
+    if ( i >= 0 && i < max_kids )
       times [ i ] = ti ;
     else
-    for ( int j = 0 ; j < 32 ; j++ )
+    for ( int j = 0 ; j < max_kids ; j++ )
       times [ j ] = ti ;
 
     compute_loop_time () ;
@@ -1693,6 +1705,7 @@ public:
   void getCameraPosition ( sgVec3 pos ) ;
   void setCamera ( sgMat4 mat ) ;
   void setCamera ( sgCoord *coord ) ;
+  void setCameraLookAt ( const sgVec3 eye, const sgVec3 center, const sgVec3 up ) ;
 
   void loadProjectionMatrix () ;
   void loadModelviewMatrix  () ;
@@ -1769,18 +1782,9 @@ inline void ssgSetCamera ( sgCoord *coord )
   _ssgCurrentContext-> setCamera ( coord ) ;
 }
 
-inline void ssgLookAt ( SGfloat eyex, SGfloat eyey, SGfloat eyez,
-  SGfloat centerx, SGfloat centery, SGfloat centerz,
-  SGfloat upx, SGfloat upy, SGfloat upz )
+inline void ssgSetCameraLookAt ( const sgVec3 eye, const sgVec3 center, const sgVec3 up )
 {
-  sgVec3 eye, center, up ;
-  sgSetVec3 ( eye, eyex, eyey, eyez ) ;
-  sgSetVec3 ( center, centerx, centery, centerz ) ;
-  sgSetVec3 ( up, upx, upy, upz ) ;
-
-  sgMat4 mat ;
-  sgMakeLookAtMat4 ( mat, eye, center, up ) ;
-  _ssgCurrentContext-> setCamera ( mat ) ;
+  _ssgCurrentContext-> setCameraLookAt ( eye, center, up ) ;
 }
 
 inline void ssgLoadProjectionMatrix ()
