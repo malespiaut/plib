@@ -29,6 +29,8 @@
 #  include <agl.h>
 #elif defined(UL_MAC_OSX)
 #  include <OpenGL/CGLCurrent.h>
+#elif defined(UL_WIN32)
+   /* Nothing */
 #else
 #  include <GL/glx.h>
 #endif
