@@ -92,5 +92,9 @@ SOURCE=.\sg.h
 
 SOURCE=.\sgd.cxx
 # End Source File
+# Begin Source File
+
+SOURCE=.\sgIsect.cxx
+# End Source File
 # End Target
 # End Project
