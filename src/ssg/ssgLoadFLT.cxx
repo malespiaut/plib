@@ -99,6 +99,13 @@
 # endif
 #endif
 
+#ifdef __MWERKS__
+#  ifdef USE_ALLOCA
+#    include <alloca.h>
+#  endif
+#endif
+
+
 #ifndef O_BINARY
 # define O_BINARY 0
 #endif
@@ -146,7 +153,7 @@ typedef unsigned int uint;
 
 #if !defined(BYTE_ORDER) || BYTE_ORDER != BIG_ENDIAN
 
-static inline void bswap16(const void *src, void *dst, int n)
+static void bswap16(const void *src, void *dst, int n)
 {
    ushort *s = (ushort *)src;
    ushort *d = (ushort *)dst;
@@ -157,7 +164,7 @@ static inline void bswap16(const void *src, void *dst, int n)
    }
 }
 
-static inline void bswap32(const void *src, void *dst, int n)
+static void bswap32(const void *src, void *dst, int n)
 {
    uint *s = (uint *)src;
    uint *d = (uint *)dst;
@@ -170,7 +177,7 @@ static inline void bswap32(const void *src, void *dst, int n)
    }
 }
 
-static inline void bswap64(const void *src, void *dst, int n)
+static void bswap64(const void *src, void *dst, int n)
 {
    /* XXX how to check if 64-bit integers are available?? */
    uint *s = (uint *)src;
@@ -193,17 +200,17 @@ static inline void bswap64(const void *src, void *dst, int n)
 
 #if !defined(BYTE_ORDER) || BYTE_ORDER != LITTLE_ENDIAN
 
-static inline void bcopy16(const void *src, void *dst, int n)
+static void bcopy16(const void *src, void *dst, int n)
 {
    memcpy(dst, src, 2*n);
 }
 
-static inline void bcopy32(const void *src, void *dst, int n)
+static void bcopy32(const void *src, void *dst, int n)
 {
    memcpy(dst, src, 4*n);
 }
 
-static inline void bcopy64(const void *src, void *dst, int n)
+static void bcopy64(const void *src, void *dst, int n)
 {
    memcpy(dst, src, 8*n);
 }
@@ -215,12 +222,12 @@ static inline void bcopy64(const void *src, void *dst, int n)
 
 /* big endian */
 
-static inline uint get16u(const void *ptr)
+inline uint get16u(const void *ptr)
 {
    return *(ushort *)ptr;
 }
 
-static inline uint get32u(const void *ptr)
+inline uint get32u(const void *ptr)
 {
    return *(uint *)ptr;
 }
@@ -233,14 +240,14 @@ static inline uint get32u(const void *ptr)
 
 /* little endian */
 
-static inline uint get16u(const void *ptr)
+inline uint get16u(const void *ptr)
 {
    ushort tmp = *(ushort *)ptr;
    return (((tmp & 0xff00U) >> 8) |
 	   ((tmp & 0x00ffU) << 8));
 }
 
-static inline uint get32u(const void *ptr)
+inline uint get32u(const void *ptr)
 {
    uint tmp = *(uint *)ptr;
    return (((tmp & 0xff000000U) >> 24) |
@@ -257,14 +264,14 @@ static inline uint get32u(const void *ptr)
 
 /* any endian */
 
-static inline uint get16u(const void *ptr)
+inline uint get16u(const void *ptr)
 {
    ubyte *u = (ubyte *)ptr;
    return (((uint)u[0] << 8) | 
 	   ((uint)u[1] << 0));
 }
 
-static inline uint get32u(const void *ptr)
+inline uint get32u(const void *ptr)
 {
    ubyte *u = (ubyte *)ptr;
    return (((uint)u[0] << 24) | 
@@ -496,7 +503,7 @@ struct fltTexture {
    char *file;
    ssgState *state; /* user-defined state */
    ssgTexture *tex;
-   int alpha;
+   GLint alpha;   /* -dw- please use GL types for values passed to GL functions */
 };
 
 struct fltState {
@@ -822,14 +829,13 @@ static ssgEntity *Build(fltState *state)
    qsort(arr, num, sizeof(fltTriangle), tricmp);
 
 #ifdef USE_ALLOCA
-   int *index = (int *)alloca(sizeof(int) * state->vnum);
+   int *index = (int *)alloca(sizeof(index[0]) * state->vnum);
+   int *vertex = (int *)alloca(sizeof(vertex[0]) * 32768);
 #else
    int index[state->vnum];
-#endif
    int vertex[32768];
-   //index = (int *)alloca(sizeof(index[0]) * state->vnum);
-   //vertex = (int *)alloca(sizeof(vertex[0]) * 32768);
-
+#endif
+   
    for (i = 0; i < num; ) {
 
       ssgVertexArray *va;
@@ -2704,12 +2710,12 @@ static const char *FindFile(const char *file)
    static char path[1024];
    extern char *_ssgModelPath;
 
-   if (access(file, R_OK) == 0)
+   if (ulFileExists((char *)file))
       return file;
 
    _ssgMakePath(path, _ssgModelPath, file);
 
-   if (access(path, R_OK) == 0)
+   if (ulFileExists(path))
       return path;
    
    ulSetError(UL_WARNING, "[flt] %s not found.", file);

@@ -37,7 +37,7 @@ struct _MDLPart {
   ssgIndexArray    *idx;
   ssgTexCoordArray *crd;
 
-  void _MDLPart::removeUnnecessaryVertices(void);
+  void removeUnnecessaryVertices(void);
 };
 
 static const int PART_GEAR     = 0;
