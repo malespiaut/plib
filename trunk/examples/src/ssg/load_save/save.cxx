@@ -3,26 +3,35 @@
 #include <ctype.h>
 #include <string.h>
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 #include <math.h>
 #include <plib/ssg.h>
-#include <GL/glut.h>
 
-ssgRoot      *scene   = NULL ;
-ssgTransform *object  = NULL ;
-ssgEntity    *obj_obj = NULL ;
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
+static ssgRoot      *scene   = NULL ;
+static ssgTransform *object  = NULL ;
+static ssgEntity    *obj_obj = NULL ;
 
 
-void redraw ()
+static void redraw ()
 {
   return ;
 }
 
 
-void init_graphics ()
+static void init_graphics ()
 {
   int   fake_argc = 1 ;
   char *fake_argv[3] ;
@@ -49,7 +58,7 @@ void init_graphics ()
 }
 
 
-void load_database ()
+static void load_database ()
 {
   /*
     Set up the path to the data files
@@ -81,7 +90,7 @@ void load_database ()
 }
 
 
-void save_database ()
+static void save_database ()
 {
   ssgSaveSSG ( "data/tuxedo.ssg", object ) ;
 }

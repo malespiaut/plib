@@ -3,14 +3,23 @@
 #include <ctype.h>
 #include <string.h>
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 #include <math.h>
 #include <plib/ssg.h>
 #include <plib/ssgAux.h>
-#include <GL/glut.h>
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
 
 #define GUI_BASE      80
 #define VIEW_GUI_BASE 20
@@ -18,20 +27,20 @@
 #define DEEPEST_HELL  -10000.0
 #define HOT_TOLERANCE  1.0
 
-ssgRoot            *scene        = NULL ;
-ssgaWaveSystem     *ocean        = NULL ;
-ssgSimpleState     *sea_state    = NULL ;
-ssgSimpleState     *cube_state   = NULL ;
+static ssgRoot            *scene        = NULL ;
+static ssgaWaveSystem     *ocean        = NULL ;
+static ssgSimpleState     *sea_state    = NULL ;
+static ssgSimpleState     *cube_state   = NULL ;
 
-ssgaWaveTrain trains [ 3 ] ;
+static ssgaWaveTrain trains [ 3 ] ;
 
-ssgTransform   *cube     [ 10 ] ;
-sgParticle     *particle [ 10 ] ;
-sgSpringDamper *spring   [ 20 ] ;
-int num_particles ;
-int num_springs ;
+static ssgTransform   *cube     [ 10 ] ;
+static sgParticle     *particle [ 10 ] ;
+static sgSpringDamper *spring   [ 20 ] ;
+static int num_particles ;
+static int num_springs ;
 
-void resetSMD ()
+static void resetSMD ()
 {
   particle [ 0 ] -> setPos ( 2.0f, -4.0f, 0.0f ) ;
   particle [ 1 ] -> setPos ( 2.4f,  0.0f, 6.0f ) ;
@@ -50,7 +59,7 @@ void resetSMD ()
   particle [ 6 ] -> setVel ( 0, 0, 0 ) ;
 }
 
-void initSMD ()
+static void initSMD ()
 {
   particle [ 0 ] = new sgParticle ( 1.0f,  2.0f, -4.0f, 4.0f ) ;
   particle [ 1 ] = new sgParticle ( 1.0f,  2.4f,  0.0f, 6.0f ) ;
@@ -101,7 +110,7 @@ void initSMD ()
 
 
  
-float getHeightAndNormal ( sgVec3 my_position, sgVec3 normal )
+static float getHeightAndNormal ( sgVec3 my_position, sgVec3 normal )
 {
   /* Look for the nearest polygon *beneath* my_position */
  
@@ -146,7 +155,7 @@ float getHeightAndNormal ( sgVec3 my_position, sgVec3 normal )
 #define RESTITUTION 0.9f
 
 
-void updateSMD ( float dt )
+static void updateSMD ( float dt )
 {
 	int i;
   for ( i = 0 ; i < num_particles ; i++ )
@@ -182,9 +191,9 @@ void updateSMD ( float dt )
 }
 
 
-sgCoord campos = { { 0, -20, 8 }, { 0, -20, 0 } } ;
+static const sgCoord campos = { { 0, -20, 8 }, { 0, -20, 0 } } ;
 
-void update_motion ( int frameno )
+static void update_motion ( int frameno )
 {
   ssgSetCamera ( & campos ) ;
 
@@ -249,7 +258,7 @@ static void mousefn ( int button, int updown, int x, int y )
   The GLUT redraw event
 */
 
-void redraw ()
+static void redraw ()
 {
 static int frameno = 0 ;
 frameno++ ;
@@ -268,7 +277,7 @@ frameno++ ;
 
 
 
-void init_graphics ()
+static void init_graphics ()
 {
   int   fake_argc = 1 ;
   char *fake_argv[3] ;
@@ -319,7 +328,7 @@ void init_graphics ()
 }
 
 
-void init_states ()
+static void init_states ()
 {
   cube_state = new ssgSimpleState () ;
   cube_state -> setTexture        ( "data/mg.rgb" ) ;
@@ -348,7 +357,7 @@ void init_states ()
 
 
 
-void load_database ()
+static void load_database ()
 {
   /* Set up the path to the data files */
 

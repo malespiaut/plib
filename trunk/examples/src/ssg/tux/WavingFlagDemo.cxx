@@ -1,10 +1,20 @@
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
-#include <GL/glut.h>
-#include "plib/ssg.h"
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
+#include <plib/ssg.h>
 #include "WavingFlag.h"
 
 
@@ -16,7 +26,7 @@ static ssgRoot* scene = NULL ;
   The GLUT window reshape event
 */
 
-void reshape ( int w, int h )
+static void reshape ( int w, int h )
 {
   glViewport ( 0, 0, w, h ) ;
 }
@@ -27,14 +37,14 @@ void reshape ( int w, int h )
   The GLUT keyboard event
 */
 
-void keyboard ( unsigned char, int, int )
+static void keyboard ( unsigned char, int, int )
 {
   exit ( 0 ) ;
 }
 
 
 
-void idle ()
+static void idle ()
 {
   static int lastTime = 0;
   int time = glutGet((GLenum)GLUT_ELAPSED_TIME);
@@ -49,7 +59,7 @@ void idle ()
   The GLUT redraw event
 */
 
-void redraw ()
+static void redraw ()
 {
   sgCoord campos ;
   sgSetCoord ( & campos, 0.0f, -3.0f, 0.0f, 0.0f, 0.0f, 0.0f ) ;
@@ -67,7 +77,7 @@ void redraw ()
 
 
 
-void init_graphics ()
+static void init_graphics ()
 {
   int   fake_argc = 1 ;
   char *fake_argv[3] ;
@@ -123,7 +133,7 @@ void init_graphics ()
   Load a simple database
 */
 
-void load_database ()
+static void load_database ()
 {
   /*
     Set up the path to the data files
@@ -157,3 +167,4 @@ int main ( int, char ** )
   glutMainLoop  () ;
   return 0 ;
 }
+

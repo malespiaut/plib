@@ -3,14 +3,23 @@
 #include <ctype.h>
 #include <string.h>
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 #include <math.h>
 #include <plib/ssg.h>
 #include <plib/js.h>
-#include <GL/glut.h>
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
 
 #define TILE_SIZE                 2000.0f      /* cubits */
 #define LAMBDA                   (TILE_SIZE/48.0f)
@@ -22,23 +31,23 @@
 
 /***** *****/
 
-ssgSimpleState *state    = NULL ;
-ssgRoot        *scene    = NULL ;
-ssgTransform   *penguin  = NULL ;
-ssgTransform   *terrain  = NULL ;
-ssgTransform   *tilegrid [ TILE_GRID_SIZE ][ TILE_GRID_SIZE ] ;
+static ssgSimpleState *state    = NULL ;
+static ssgRoot        *scene    = NULL ;
+static ssgTransform   *penguin  = NULL ;
+static ssgTransform   *terrain  = NULL ;
+static ssgTransform   *tilegrid [ TILE_GRID_SIZE ][ TILE_GRID_SIZE ] ;
 
 #include "elevation_map.h"
 #include "image_map.h"
 
-jsJoystick *js ;
-float      *ax ;
-sgCoord tuxpos = { { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f } } ;
+static jsJoystick *js ;
+static float      *ax ;
+static const sgCoord tuxpos = { { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f } } ;
 
 #define ROT_SPEED 5.0f
 #define TRANS_SPEED 10.0f
 
-void update_motion ()
+static void update_motion ()
 {
   static int frameno = 0 ;
 
@@ -104,7 +113,7 @@ void update_motion ()
   The GLUT window reshape event
 */
 
-void reshape ( int w, int h )
+static void reshape ( int w, int h )
 {
   glViewport ( 0, 0, w, h ) ;
 }
@@ -115,7 +124,7 @@ void reshape ( int w, int h )
   The GLUT keyboard event
 */
 
-void keyboard ( unsigned char k, int, int )
+static void keyboard ( unsigned char k, int, int )
 {
   static int wireframe = FALSE ;
 
@@ -136,7 +145,7 @@ void keyboard ( unsigned char k, int, int )
   The GLUT redraw event
 */
 
-void redraw ()
+static void redraw ()
 {
   update_motion () ;
 
@@ -150,7 +159,7 @@ void redraw ()
 
 
 
-void init_graphics ()
+static void init_graphics ()
 {
   int   fake_argc = 1 ;
   char *fake_argv[3] ;
@@ -239,7 +248,7 @@ void init_graphics ()
 }
 
 
-ssgBranch *createTileLOD ( int x, int y, ssgSimpleState *state, int ntris, float z_off ) 
+static ssgBranch *createTileLOD ( int x, int y, ssgSimpleState *state, int ntris, float z_off ) 
 {
   sgVec4 *scolors = new sgVec4 [ (ntris+1) * (ntris+1) ] ;
   sgVec2 *tcoords = new sgVec2 [ (ntris+1) * (ntris+1) ] ;
@@ -304,7 +313,7 @@ ssgBranch *createTileLOD ( int x, int y, ssgSimpleState *state, int ntris, float
 }
 
 
-void createTile ( ssgTransform *tile, int x, int y, ssgSimpleState *state ) 
+static void createTile ( ssgTransform *tile, int x, int y, ssgSimpleState *state ) 
 {
   float rr[] = { 0.0f, 6000.0f, 7000.0f, 12000.0f } ;
   ssgRangeSelector *lod = new ssgRangeSelector () ;
@@ -322,7 +331,7 @@ void createTile ( ssgTransform *tile, int x, int y, ssgSimpleState *state )
   Load a simple database
 */
 
-void load_database ()
+static void load_database ()
 {
   /*
     Set up the path to the data files

@@ -27,26 +27,35 @@
   Written by Michael Kurth (kurth@futurekill.com) (negative0@earthlink.net)
 */
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
-#include <GL/glut.h>
 
-#include "plib/sg.h"
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
+#include <plib/sg.h>
 
 #define XSIZE 320
 #define YSIZE 320
 
-sgVec3 Euler ;
-sgVec3 EulerPos ;
-sgVec3 EulerRot ;
+static sgVec3 Euler ;
+static sgVec3 EulerPos ;
+static sgVec3 EulerRot ;
 
-sgVec3 Quat ;
-sgVec3 QuatPos ;
-sgQuat QuatRot ;
+static sgVec3 Quat ;
+static sgVec3 QuatPos ;
+static sgQuat QuatRot ;
 
-static GLfloat cube_vertices[] =
+static const GLfloat cube_vertices[] =
 {
  -1.0, -1.0,  1.0,  1.0, 0.0, 0.0,
   1.0, -1.0,  1.0,  0.5, 0.5, 0.0,
@@ -58,23 +67,23 @@ static GLfloat cube_vertices[] =
  -1.0,  1.0, -1.0,  0.5, 0.5, 0.0
 } ;
 
-static GLubyte frontIndices[] = { 0, 1, 2, 3 } ;
-static GLubyte backIndices[] = { 5, 4, 7, 6 } ;
+static const GLubyte frontIndices[] = { 0, 1, 2, 3 } ;
+static const GLubyte backIndices[] = { 5, 4, 7, 6 } ;
 
-static GLubyte rightIndices[] = { 1, 5, 6, 2 } ;
-static GLubyte leftIndices[] = { 4, 0, 3, 7 } ;
+static const GLubyte rightIndices[] = { 1, 5, 6, 2 } ;
+static const GLubyte leftIndices[] = { 4, 0, 3, 7 } ;
 
-static GLubyte topIndices[] = { 3, 2, 6, 7 } ;
-static GLubyte bottomIndices[] = { 4, 5, 1, 0 } ;
+static const GLubyte topIndices[] = { 3, 2, 6, 7 } ;
+static const GLubyte bottomIndices[] = { 4, 5, 1, 0 } ;
 
-void InitEulerCube( )
+static void InitEulerCube( )
 {
   sgSetVec3( Euler, 1, 1, 1 ) ;
   sgSetVec3( EulerRot, 0, 0, 0 ) ;
   sgSetVec3( EulerPos, -2, 0, -5 ) ;
 }
 
-void RotateEulerCube( )
+static void RotateEulerCube( )
 {
   if( Euler[ SG_X ] )
   {
@@ -99,14 +108,14 @@ void RotateEulerCube( )
   
 }
 
-void InitQuatCube( )
+static void InitQuatCube( )
 {
   sgSetVec3( Quat, 1, 1, 1 ) ;
   sgMakeIdentQuat( QuatRot ) ;
   sgSetVec3( QuatPos, 2, 0, -5 ) ;
 }
 
-void RotateQuatCube( )
+static void RotateQuatCube( )
 {
   if( Quat[ SG_X ] )
     sgRotQuat( QuatRot, 5.0, 1.0, 0.0, 0.0 ) ;
@@ -119,7 +128,7 @@ void RotateQuatCube( )
 }
 
 
-void DrawCube( )
+static void DrawCube( )
 {
   glDrawElements( GL_QUADS, 4, GL_UNSIGNED_BYTE, frontIndices ) ;
   glDrawElements( GL_QUADS, 4, GL_UNSIGNED_BYTE, backIndices ) ;
@@ -129,7 +138,7 @@ void DrawCube( )
   glDrawElements( GL_QUADS, 4, GL_UNSIGNED_BYTE, bottomIndices ) ;
 }
 
-void Redisplay( void )
+static void Redisplay( void )
 {
   sgMat4 matrix ;
   
@@ -164,7 +173,7 @@ void Redisplay( void )
   glutSwapBuffers( ) ;
 }
 
-void Idle( )
+static void Idle( )
 {
   static int lastTime = 0;
   int time = glutGet((GLenum)GLUT_ELAPSED_TIME);
@@ -178,7 +187,7 @@ void Idle( )
   glutPostRedisplay( ) ;
 }
 
-void Keyboard( unsigned char key, int xPos, int yPos )
+static void Keyboard( unsigned char key, int xPos, int yPos )
 {
   switch( key )
   {
@@ -218,7 +227,7 @@ void Keyboard( unsigned char key, int xPos, int yPos )
   }
 }
 
-void Reshape( int w, int h )
+static void Reshape( int w, int h )
 {
   
   if( h == 0 )
@@ -237,7 +246,7 @@ void Reshape( int w, int h )
   glLoadIdentity( ) ;
 }
 
-void Init( void )
+static void Init( void )
 {
   glClearColor( 0.0, 0.0, 0.0, 0.0 ) ;
   
@@ -275,3 +284,4 @@ int main( int argc, char **argv )
   glutMainLoop( ) ;
   return 0 ;
 }
+

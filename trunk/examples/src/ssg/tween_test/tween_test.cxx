@@ -3,24 +3,33 @@
 #include <ctype.h>
 #include <string.h>
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 #include <math.h>
 #include <plib/ssg.h>
 #include <plib/ssgAux.h>
-#include <GL/glut.h>
 
-ssgRoot            *scene      = NULL ;
-ssgTweenController *tween_ctrl = NULL ;
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
+static ssgRoot            *scene      = NULL ;
+static ssgTweenController *tween_ctrl = NULL ;
 
 
 /*
   Something to make some interesting motion
 */
 
-void update_motion ()
+static void update_motion ()
 {
   static int frameno = 0 ;
 
@@ -45,7 +54,7 @@ void update_motion ()
   The GLUT window reshape event
 */
 
-void reshape ( int w, int h )
+static void reshape ( int w, int h )
 {
   glViewport ( 0, 0, w, h ) ;
 }
@@ -56,7 +65,7 @@ void reshape ( int w, int h )
   The GLUT keyboard event
 */
 
-void keyboard ( unsigned char, int, int )
+static void keyboard ( unsigned char, int, int )
 {
   exit ( 0 ) ;
 }
@@ -67,7 +76,7 @@ void keyboard ( unsigned char, int, int )
   The GLUT redraw event
 */
 
-void redraw ()
+static void redraw ()
 {
   update_motion () ;
 
@@ -81,7 +90,7 @@ void redraw ()
 
 
 
-void init_graphics ()
+static void init_graphics ()
 {
   int   fake_argc = 1 ;
   char *fake_argv[3] ;
@@ -138,7 +147,7 @@ void init_graphics ()
   Load a simple database
 */
 
-void load_database ()
+static void load_database ()
 {
   /*
     Create a root node with a Tween controller beneath it.
@@ -261,6 +270,4 @@ int main ( int, char ** )
   glutMainLoop  () ;
   return 0 ;
 }
-
-
 

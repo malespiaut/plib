@@ -17,13 +17,21 @@
 #include <ctype.h>
 #include <string.h>
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 #include <math.h>
 
-#include <GL/glut.h>
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
 
 #include <plib/ssg.h>
 #include <plib/fnt.h>
@@ -41,22 +49,22 @@ Defines what type of arrows to uses with puFileSelector
 /*
 scene graph
 */
-ssgRoot *scene = NULL ;
-ssgEntity* camera_object = NULL ;
+static ssgRoot *scene = NULL ;
+static ssgEntity* camera_object = NULL ;
 
 /*
 font vars
 */
-fntRenderer *text ;
-fntTexFont *font ;
+static fntRenderer *text ;
+static fntTexFont *font ;
 
-puFileSelector* file_selector = 0 ;
+static puFileSelector* file_selector = 0 ;
 
 /*
 frame rate vars
 */
-int frame_counter = 0;
-float fps = 0;
+static int frame_counter = 0;
+static float fps = 0;
 
 /*
 animation vars
@@ -65,29 +73,29 @@ animation vars
 static const int speed_tab [] =
 { 0, 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60 };
 
-int speed_index = 0 ;
-int anim_delay = -1 ;
-int anim_frame ;
-int num_anim_frames ;
+static int speed_index = 0 ;
+static int anim_delay = -1 ;
+static int anim_frame ;
+static int num_anim_frames ;
 
 /*
 wire vars
 */
-int wire_flag = 0 ;
-sgVec4 wire_colour = { 1.0f, 1.0f, 1.0f, 1.0f } ;
+static int wire_flag = 0 ;
+static sgVec4 wire_colour = { 1.0f, 1.0f, 1.0f, 1.0f } ;
 
 /*
 spinner vars
 */
-int downx, downy;   /* for tracking mouse position */
-int downb = -1;     /* and button status */
+static int downx, downy;   /* for tracking mouse position */
+static int downb = -1;     /* and button status */
 
-GLfloat downDist, downEl, downAz, /* for saving state of things */
+static GLfloat downDist, downEl, downAz, /* for saving state of things */
 downEx, downEy, downEz;   /* when button is pressed */
 
-GLfloat dAz, dEl, lastAz, lastEl;  /* to calculate spinning w/ polar motion */
-GLfloat AzSpin = 0.0f, ElSpin = 0.0f;
-int     AdjustingAzEl = 0;
+static GLfloat dAz, dEl, lastAz, lastEl;  /* to calculate spinning w/ polar motion */
+static GLfloat AzSpin = 0.0f, ElSpin = 0.0f;
+static int     AdjustingAzEl = 0;
 
 /* Minimum spin to allow in polar (lower forced to zero) */
 #define MIN_AZSPIN 0.1f
@@ -104,18 +112,18 @@ int     AdjustingAzEl = 0;
 /*
 *  polar movement parameters
 */
-GLfloat EyeDist= 100.0f;
-GLfloat EyeAz  = 0.0f;
-GLfloat EyeEl  = 30.0f;
-GLfloat Ex     = 0.0f;
-GLfloat Ey     = 0.0f;
-GLfloat Ez     = 0.0f;
+static GLfloat EyeDist= 100.0f;
+static GLfloat EyeAz  = 0.0f;
+static GLfloat EyeEl  = 30.0f;
+static GLfloat Ex     = 0.0f;
+static GLfloat Ey     = 0.0f;
+static GLfloat Ez     = 0.0f;
 
 //#define FOV 60.0f
 #define FOV 45.0f
 
-int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
-int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
+static int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
+static int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
 
 static void begin2d ( void )
 {
@@ -155,7 +163,7 @@ static void end2d ( void )
 }
 
 
-void count_anim_frames( ssgEntity *e )
+static void count_anim_frames( ssgEntity *e )
 {
   if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
@@ -200,7 +208,7 @@ void count_anim_frames( ssgEntity *e )
 }
 
 
-void set_anim_frame( ssgEntity *e )
+static void set_anim_frame( ssgEntity *e )
 {
   if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
@@ -261,7 +269,7 @@ void set_anim_frame( ssgEntity *e )
 }
 
 
-int wire_draw ( ssgEntity* e )
+static int wire_draw ( ssgEntity* e )
 {
   if ( e -> isAKindOf ( ssgTypeLeaf() ) )
   {
@@ -272,7 +280,7 @@ int wire_draw ( ssgEntity* e )
 }
 
 
-void wire_update ( ssgEntity *e, int flag )
+static void wire_update ( ssgEntity *e, int flag )
 {
   if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
@@ -289,7 +297,7 @@ void wire_update ( ssgEntity *e, int flag )
 }
 
 
-void make_matrix( sgMat4 mat )
+static void make_matrix( sgMat4 mat )
 {
   SGfloat angle = -EyeAz * SG_DEGREES_TO_RADIANS ;
   sgVec3 eye ;
@@ -308,7 +316,7 @@ void make_matrix( sgMat4 mat )
 }
 
 
-bool get_camera_dir ( ssgEntity* e, sgVec3 eye, sgVec3 target )
+static bool get_camera_dir ( ssgEntity* e, sgVec3 eye, sgVec3 target )
 {
   if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
@@ -333,7 +341,7 @@ bool get_camera_dir ( ssgEntity* e, sgVec3 eye, sgVec3 target )
 }
 
 
-void follow_camera ( sgMat4 mat )
+static void follow_camera ( sgMat4 mat )
 {
   if ( camera_object != NULL )
   {
@@ -359,7 +367,7 @@ void follow_camera ( sgMat4 mat )
   The GLUT window reshape event
 */
 
-void reshape ( int w, int h )
+static void reshape ( int w, int h )
 {
   glViewport ( 0, 0, w, h ) ;
 }
@@ -369,7 +377,7 @@ void reshape ( int w, int h )
   The GLUT display event
 */
 
-void display(void)
+static void display(void)
 {
   glClearColor ( 0.2f, 0.7f, 1.0f, 1.0f ) ;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -474,7 +482,7 @@ void display(void)
 * but maybe it wouldn't be too hard to adapt things to let you go
 * upside down
 */
-int ConstrainEl(void)
+static int ConstrainEl(void)
 {
   if (EyeEl <= -90) {
     EyeEl = -89.99f;
@@ -490,7 +498,7 @@ int ConstrainEl(void)
 #define EL_SENS   0.5f
 #define AZ_SENS   0.5f
 
-void motion(int x, int y)
+static void motion(int x, int y)
 {
   puMouse ( x, y ) ;
   
@@ -538,7 +546,7 @@ void motion(int x, int y)
   }
 }
 
-void mouse(int button, int state, int x, int y)
+static void mouse(int button, int state, int x, int y)
 {
   puMouse ( button, state, x, y ) ;
   
@@ -586,7 +594,7 @@ void mouse(int button, int state, int x, int y)
   }
 }
 
-void special(int key, int x, int y)
+static void special(int key, int x, int y)
 {
   puKeyboard ( key + PU_KEY_GLUT_SPECIAL_OFFSET, PU_DOWN ) ;
   
@@ -604,7 +612,7 @@ void special(int key, int x, int y)
   }
 }
 
-void pick_cb ( puObject * )
+static void pick_cb ( puObject * )
 {
   char* str ;
   file_selector -> getValue ( &str ) ;
@@ -660,7 +668,7 @@ void pick_cb ( puObject * )
 }
 
 
-int get_delay( int speed_index )
+static int get_delay( int speed_index )
 {
   int fps = speed_tab[ speed_index ] ;
   if ( fps > 0 )
@@ -673,7 +681,7 @@ int get_delay( int speed_index )
   The GLUT keyboard event
 */
 
-void keyboard(unsigned char key, int, int)
+static void keyboard(unsigned char key, int, int)
 {
   puKeyboard ( key, PU_DOWN ) ;
   
@@ -715,7 +723,7 @@ void keyboard(unsigned char key, int, int)
   }
 }
 
-void idle(void)
+static void idle(void)
 {
   EyeEl += ElSpin;
   EyeAz += AzSpin;
@@ -737,7 +745,7 @@ void idle(void)
   }
 }
 
-void init_graphics ()
+static void init_graphics ()
 {
   int   fake_argc = 1 ;
   char *fake_argv[3] ;

@@ -21,13 +21,23 @@
 #include <string.h>
 #include <time.h>
 #ifdef WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 #include <math.h>
-#include <GL/glut.h>
-#include "plib/pu.h"
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
+#include <plib/pu.h>
 
 //#define VOODOO 1
 
