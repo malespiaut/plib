@@ -651,18 +651,16 @@ int pslCompiler::genLocalVarDecl ( pslType t )
     return TRUE ;
   }
 
-  int v ;
-
   switch ( t )
   {
-    case PSL_FLOAT  : v = genMakeFloatVariable  ( s ) ; break ;
-    case PSL_STRING : v = genMakeStringVariable ( s ) ; break ;
-    default :         v = genMakeIntVariable    ( s ) ; break ;
+    case PSL_FLOAT  : genMakeFloatVariable  ( s ) ; break ;
+    case PSL_STRING : genMakeStringVariable ( s ) ; break ;
+    default :         genMakeIntVariable    ( s ) ; break ;
   }
 
   if ( strcmp ( c, "=" ) == 0 )
   {
-    genIntConstant ( v ) ;
+    genVariable ( s, FALSE ) ;
     genExpression () ;
     genAssignment () ;
     genPop        () ;
@@ -708,18 +706,16 @@ int pslCompiler::genGlobalVarDecl ( const char *s, pslType t )
   }
   else
   {
-    int v ;
-
     switch ( t )
     {
-      case PSL_FLOAT  : v = genMakeFloatVariable  ( s ) ; break ;
-      case PSL_STRING : v = genMakeStringVariable ( s ) ; break ;
-      default :         v = genMakeIntVariable    ( s ) ; break ;
+      case PSL_FLOAT  : genMakeFloatVariable  ( s ) ; break ;
+      case PSL_STRING : genMakeStringVariable ( s ) ; break ;
+      default :         genMakeIntVariable    ( s ) ; break ;
     }
  
     if ( strcmp ( c, "=" ) == 0 )
     {
-      genIntConstant ( v ) ;
+      genVariable ( s, FALSE ) ;
       genExpression () ;
       genAssignment () ;
       genPop        () ;

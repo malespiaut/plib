@@ -210,18 +210,20 @@ EFFECT: The second byte of the instruction is the index of
 <H3> OPCODE_POP_SHL_VARIABLE <\H3>
 <H3> OPCODE_POP_SHR_VARIABLE <\H3>
 INTRUCTION BYTES: 1 <br>
-EFFECT: Two things are on the stack when this function is called.
+EFFECT: Three things are on the stack when this function is called.
         The thing on top is the result of an expression evaluation.
         The thing beneath that is the index of a variable.
+        The thing beneath that is the dimension of the variable.
         The value is added to/subtracted from/multiplied by/etc
         the variable - and stored back into the variable.
         The new value of the variable is left on the stack.
 
 <H3> OPCODE_POP_VARIABLE <\H3>
 INTRUCTION BYTES: 1 <br>
-EFFECT: Two things are on the stack when this function is called.
+EFFECT: Three things are on the stack when this function is called.
         The thing on top is the result of an expression evaluation.
         The thing beneath that is the index of a variable.
+        The thing beneath that is the dimension of the variable.
         The value is stored into the variable.
         The new value of the variable is left on the stack.
 
@@ -252,20 +254,23 @@ EFFECT: The second byte of the instruction is the index of a variable.
 
 <H3> OPCODE_FETCH <\H3>
 INTRUCTION BYTES: 1 <br>
-EFFECT: The index of a variable is on top of the stack, replace it
-        with the value of that variable.
+EFFECT: The index of a variable is on top of the stack
+        The thing beneath that is the dimension of the variable.
+        Replace those with the value of that variable.
  
 <H3> OPCODE_INCREMENT_FETCH <\H3>
 <H3> OPCODE_DECREMENT_FETCH <\H3>
 INTRUCTION BYTES: 1 <br>
-EFFECT: The index of a variable is on top of the stack, replace it
+EFFECT: The index of a variable is on top of the stack
+        The thing beneath that is the dimension of the variable.
+        Replace those
         with the value of that variable. Post-increment/decrement the
         variable.
  
 <H3> OPCODE_INCREMENT_LVALUE <\H3>
 <H3> OPCODE_DECREMENT_LVALUE <\H3>
 INTRUCTION BYTES: 1 <br>
-EFFECT: The index of a variable is on top of the stack.
+EFFECT: The index and dimension of a variable is on top of the stack.
         Increment/decrement the variable leaving the stack
         contents undisturbed.
  

@@ -68,9 +68,6 @@ static const OpcodeDecode opcodeDecode [] =
   { "SET_STRING_VARIABLE", OPCODE_SET_STRING_VARIABLE, 1 },
   { "GET_PARAMETER"      , OPCODE_GET_PARAMETER      , 2 },
 
-  { "INC"                , OPCODE_INCREMENT          , 1 },
-  { "DEC"                , OPCODE_DECREMENT          , 1 },
-
   /* Flow Control */
 
   { "CALLEXT",         OPCODE_CALLEXT     , 2 },
