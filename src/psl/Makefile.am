@@ -10,7 +10,7 @@ libplibpsl_a_SOURCES = psl.cxx pslCodeGen.cxx pslContext.cxx \
                        pslCompiler.cxx pslSymbols.cxx pslToken.cxx \
                        pslExpression.cxx pslProgram.cxx pslDump.cxx
 
-INCLUDES = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/util
+INCLUDES = -I$(top_srcdir)/src/util
 
 endif
 
