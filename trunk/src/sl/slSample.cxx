@@ -50,13 +50,15 @@ void slSample::changeRate   ( int r )
 {
   if ( r == rate ) return ;
 
-  int    length1 = length / (getBps ()/8) ;
-  int    length2 = (int) ( (float) length1 * ( (float) r / (float) rate ) ) ;
+  int length2 = (int) ( (float) length * ( (float) r / (float) rate ) ) ;
   Uchar *buffer2 = new Uchar [ length2 ] ;
 
-  float step = (float) length1 / (float) length2 ;
+  int samps  = length / (getBps() / 8) ;
+  int samps2 = length2 / (getBps() / 8) ;
 
-  for ( int i = 0 ; i < length2 / (getBps()/8); i++ )
+  float step = (float) length / (float) length2 ;
+
+  for ( int i = 0 ; i < samps2 ; i++ )
   {
     float pos = (float) i * step ;
 
@@ -72,11 +74,11 @@ void slSample::changeRate   ( int r )
     float ratio = pos - (float) p1 ;
 
     float b1 = (getBps()==8) ?
-        (float)           buffer [(p1<0)?0:(p1>=length1)?length1-1:p1] :
-        (float) ((Ushort*)buffer)[(p1<0)?0:(p1>=length1)?length1-1:p1] ;
+        (float)           buffer [(p1<0)?0:(p1>=samps)?samps-1:p1] :
+        (float) ((Ushort*)buffer)[(p1<0)?0:(p1>=samps)?samps-1:p1] ;
     float b2 = (getBps()==8) ?
-        (float)           buffer [(p2<0)?0:(p2>=length1)?length1-1:p2] :
-        (float) ((Ushort*)buffer)[(p2<0)?0:(p2>=length1)?length1-1:p2] ;
+        (float)           buffer [(p2<0)?0:(p2>=samps)?samps-1:p2] :
+        (float) ((Ushort*)buffer)[(p2<0)?0:(p2>=samps)?samps-1:p2] ;
 
     float res = b1 * (1.0f-ratio) + b2 * ratio ;
 
