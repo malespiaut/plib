@@ -580,12 +580,17 @@ of a <a href="#puGroup">puGroup</a>. If the widget is a child of a <a href="#puG
 the functions will return a pointer to the previous or the next object
 in the puGroup according to the order of the child widgets' creation.
 If the object is the first child inside a puGroup, getPrevObject returns
-NULL, if it is the last one, puNextObject will return a NULL pointer
+NULL, if it is the last one, getNextObject will return a NULL pointer
 as well.
 <p>
 Normally, these functions are only used by PUI, although a programmer
 may find it useful to iterate over the childs of a <a href="#puGroup">puGroup</a> himself.
 <p>
+There is another function which returns the <a href="#puGroup">puGroup</a> in which a puObject
+resides or NULL if the widget is not in a <a href="#puGroup">puGroup</a>:
+<pre>  puGroup * puObject::getParent ( void ) ;
+
+</pre>
 When the widget is drawn, the application has control of the drawing style
 and the colours in which the widget is drawn. Reasonable defaults are provided
 by PUI if you don't set them:
@@ -997,6 +1002,7 @@ In addition, you can get/set the direction of the arrow in mid-run:
   void puArrowButton::setArrowType ( int i ) ;
 
 </pre>
+A puArrowButton widget does not have a legend.
 <a NAME="puOneShot"></a>
 <h3>
 puOneShot</h3>
@@ -1368,6 +1374,7 @@ Additionally, you can let a puLargeInput widget reject all input, which is usefu
   int  puLargeInput::inputDisabled () ; /* Returns FALSE if the text can be modifed and TRUE if it can not */
 
 </pre>
+puLargeInput widgets do not have a legend.
 <a NAME="puGroup"></a>
 <h3>
 puGroup</h3>
@@ -1545,6 +1552,8 @@ and that indicates no buttons pushed.
 In the one_button==TRUE case, setting the value to something out of
 range will result in none of the radio buttons being highlighted.
 <p>
+The puButtonBox widget does not have a legend.
+<p>
 <a NAME="puPopup"></a>
 <h3>
 puPopup</h3>
@@ -1642,6 +1651,8 @@ Each item that you add will be translated into an appropriately sized,
 styled and coloured puOneShot (which is only visible to the application
 when passed to the callback function).
 <p>
+A puPopupMenu does not have a label or a legend.
+<p>
 <a NAME="puMenuBar"></a>
 <h3>
 puMenuBar</h3>
@@ -1701,6 +1712,7 @@ Example:
   menu->close () ;
 
 </pre>
+A puMenuBar does not have a label or a legend.
 <a NAME="puVerticalMenu"></a>
 <h3>
 puVerticalMenu</h3>
@@ -1717,6 +1729,8 @@ where using a default value for "x" will place the menu on the left-hand
 side of its window and using a default value for "y" will place it on the
 top of its window.  Its behavior is essentially the same as that of
 the <a href="#puMenuBar">puMenuBar</a> widget.
+<p>
+A puVerticalMenu does not have a label or a legend.
 <p>
 <a NAME="puListBox"></a>
 <h3>
@@ -1755,6 +1769,8 @@ API.  They are as follows:
 </pre>
 If the text is too wide for the box, it'll be truncated with "..." displayed
 to the right of it to show the user that there is some missing text.
+<p>
+A puListBox widget does not have a legend.
 <a NAME="puFilePicker"></a>
 <h3>
 puFilePicker</h3>
@@ -1767,9 +1783,12 @@ puFileSelector class is derived from <a href="#puDialogBox">puDialogBox</a>.
 FileSelector creates a dialog box for selecting a file.  The puFileSelector
 widget contains:
 <ul>
-<li>A <a href="#puText">puText</a> widget for some text at the top of
-    the dialog box.
+<li>A <a href="#puListBox">puFrame</a> widget of the puFileSelector's
+    desired size.
 <li>A <a href="#puListBox">puListBox</a> widget for listing the files.
+    It's label is placed at the top of it (PUPLACE_TOP_LEFT) and can
+    be set through the 'title' argument of the puFileSelector
+    constructor.
 <li>A <a href="#puSlider">puSlider</a> widget with zero, two, or four
     <a href="#puArrowButton">puArrowButton</a> widgets (depending
     on what you ask for) to scroll the file list.
@@ -1826,6 +1845,10 @@ Sets the initial value within the type-in area of the widget.  This
 is generally a simple file name - but it could be a full path
 either relative to the 'dir' you specified in the constructor or
 or an absolute path.
+<p>
+The puFileSelector widget does not have a legend or a label. Instead, you
+can specify the title which is displayed at the top of the widget
+when constructing it.
 <h2>
 Non-Class Functions.</h2>
 The following functions are not a part of any classes:
