@@ -131,10 +131,10 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   for ( int i = 0 ; i < PUCOL_MAX ; i++ )
     puSetColour ( colour[i], _puDefaultColourTable[i] ) ;
 
+  parent = NULL ;
+
   if ( ! puNoGroup() )
     puGetCurrGroup() -> add ( this ) ;
-  else
-    parent = NULL ;
 
   puPostRefresh() ;
 }
