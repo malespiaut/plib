@@ -90,9 +90,143 @@ int pslCompiler::pushReturnStatement ()
 }
 
 
+int pslCompiler::pushDoWhileStatement ()
+{
+  /* Remember place to jump back to */
+
+  int start_loc = next_code ;
+
+  if ( ! pushStatement () )
+  {
+    error ( "Missing statement for 'do/while'" ) ;
+    return FALSE ;
+  }
+
+  char c [ MAX_TOKEN ] ;
+
+  getToken ( c ) ;    /* The final ';' of the action */
+
+  getToken ( c ) ;    /* Hopefully, the word 'while' */
+  
+  if ( strcmp ( c, "while" ) != 0 )
+  {
+    error ( "Missing 'while' for 'do/while'" ) ;
+    return FALSE ;
+  }
+
+  if ( ! pushExpression () )
+  {
+    error ( "Missing expression for 'while' in a 'do/while'" ) ;
+    return FALSE ;
+  }
+
+  pushJumpIfTrue ( start_loc ) ;
+  return TRUE ;
+}
+
+
+int pslCompiler::pushForStatement ()
+{
+  char c [ MAX_TOKEN ] ;
+
+  getToken ( c ) ;    /* The initial '(' of the action */
+
+  if ( c [ 0 ] != '(' )
+  {
+    error ( "Missing '(' for 'for' loop" ) ;
+    return FALSE ;
+  }
+
+  if ( ! pushStatement () )
+  {
+    error ( "Missing initialiser for 'if'" ) ;
+    return FALSE ;
+  }
+
+  getToken ( c ) ;    /* The ';' after the initialiser */
+
+  if ( c [ 0 ] != ';' )
+  {
+    error ( "Missing ';' after 'for' loop initialisation" ) ;
+    return FALSE ;
+  }
+
+  /* Remember place to jump back to */
+
+  int start_loc = next_code ;
+
+  /* The test */
+
+  if ( ! pushExpression () )
+  {
+    error ( "Missing test for 'for' loop" ) ;
+    return FALSE ;
+  }
+
+  getToken ( c ) ;    /* The ';' after the initialiser */
+
+  if ( c [ 0 ] != ';' )
+  {
+    error ( "Missing ';' after 'for' loop test" ) ;
+    return FALSE ;
+  }
+
+  char saved [ MAX_UNGET ][ MAX_TOKEN ] ;
+  int next_saved    = 0 ;
+  int paren_counter = 0 ;
+
+  do
+  {
+    getToken ( saved [ next_saved ] ) ;
+
+    if ( saved [ next_saved ][ 0 ] == '(' ) paren_counter++ ;
+    if ( saved [ next_saved ][ 0 ] == ')' ) paren_counter-- ;
+
+    if ( next_saved >= MAX_UNGET-1 )
+    {
+      error ( "Too many tokens in 'increment' part of 'for' loop" ) ;
+      return FALSE ;
+    }
+
+    next_saved++ ;
+
+  } while ( paren_counter >= 0 ) ;
+ 
+  next_saved-- ;  /* Throw away the ')' */
+
+  int label_loc = pushJumpIfFalse ( 0 ) ;
+
+  if ( ! pushStatement () )
+  {
+    error ( "Missing action body for 'for' loop" ) ;
+    return FALSE ;
+  }
+ 
+  getToken ( c ) ;   /* Throw away the ';' */
+
+  /* Put the increment test back onto the token stream */
+
+  ungetToken ( ";" ) ;    
+
+  for ( int i = next_saved-1 ; i >= 0 ; i-- )
+    ungetToken ( saved[i] ) ;    
+
+  if ( ! pushStatement () )
+  {
+    error ( "Missing 'increment' part of 'for' loop" ) ;
+    return FALSE ;
+  }
+
+  pushJump ( start_loc ) ;
+
+  code [ label_loc   ] = next_code & 0xFF ;
+  code [ label_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
+  return TRUE ;
+}
+
+
 int pslCompiler::pushWhileStatement ()
 {
-
   /* Remember place to jump back to */
 
   int start_loc = next_code ;
@@ -299,6 +433,12 @@ int pslCompiler::pushStatement ()
 
   if ( strcmp ( c, "pause" ) == 0 )
     return pushPauseStatement () ;
+
+  if ( strcmp ( c, "for" ) == 0 )
+    return pushForStatement () ;
+
+  if ( strcmp ( c, "do" ) == 0 )
+    return pushDoWhileStatement () ;
 
   if ( strcmp ( c, "while" ) == 0 )
     return pushWhileStatement () ;

@@ -44,6 +44,7 @@
 #define MAX_CODE     512
 #define MAX_STACK    256 
 #define MAX_NESTING   32 
+#define MAX_UNGET     64
 #define MAX_SYMBOL  (MAX_VARIABLE + MAX_LABEL)
 
 typedef unsigned short pslAddress  ;

@@ -315,6 +315,13 @@ pslResult pslContext::step ()
     case OPCODE_HALT :
       return PSL_PROGRAM_END ;   /* Note: PC is *NOT* incremented. */
 
+    case OPCODE_JUMP_TRUE :
+      if ( popInt () )
+        pc = code [ pc + 1 ] + ( code [ pc + 2 ] << 8 ) ;
+      else
+        pc += 3 ;
+      return PSL_PROGRAM_CONTINUE ;
+
     case OPCODE_JUMP_FALSE :
       if ( popInt () )
         pc += 3 ;

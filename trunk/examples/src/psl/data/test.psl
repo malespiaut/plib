@@ -1,39 +1,11 @@
 
-
-int x = 0.0 ;
-
-int wibble ()
-{
-  x = x + 1 ;
-  identify () ;
-  return 123 ;
-}
-
-float y = 987.654 ;
-
-/*
-  C style Comments...
-*/
-
-// ...and C++ style both work...
-
 void main ()
 {
-  x = 0 ;
+  int i ;
 
-  printf ( "X,Y=", x, y ) ;
-
+  for ( i = 0 ; i < 20 ; i = i + 1 - 3 + 3 )
   {
-    int x = wibble() ;
-
-    printf ( "X=", x ) ;
-
-    {
-      int x = 456.0 ; 
-      printf ( "Local X=", x ) ;
-    }
-
-    printf ( "X=", x ) ;
+    printf ( "I=", i ) ;
   }
 }
 

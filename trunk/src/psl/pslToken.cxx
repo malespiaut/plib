@@ -24,8 +24,6 @@
 
 #include "pslLocal.h"
 
-#define MAX_UNGET   16
-
 static FILE *defaultFile ;
 static char ungotten_token [ MAX_UNGET ][ MAX_TOKEN ] ;
 static int  unget_stack_depth = 0 ;
