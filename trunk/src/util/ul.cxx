@@ -29,7 +29,7 @@
 
 #if defined(__CYGWIN__) || !defined(WIN32)
 #include <dirent.h>
-#elif defined(_MSC_VER)
+#elif defined(WIN32)
 #include <direct.h>
 #endif
 
@@ -475,7 +475,7 @@ char *ulGetCWD ( char *result, int maxlength )
     has enough space for 'maxlength-1' characters and a '\0'.
   */
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW__)
   return _getcwd ( result, maxlength ) ;
 #else
   return getcwd ( result, maxlength ) ;
