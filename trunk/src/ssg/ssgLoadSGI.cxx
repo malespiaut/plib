@@ -265,9 +265,13 @@ ssgSGIHeader::ssgSGIHeader ( const char *fname, ssgTextureInfo* info )
   leng = NULL ;
 
   bool success=openFile(fname);
-  
-  if(!success) return;
-   
+
+  if ( !success )
+  {
+    loadSGI_bool = false ;
+    return ;
+  }
+
   GLubyte *image = new GLubyte [ sgihdr->xsize *
                                  sgihdr->ysize *
                                  sgihdr->zsize ] ;
