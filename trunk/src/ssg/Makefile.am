@@ -9,18 +9,18 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgSelector.cxx ssgSimpleState.cxx ssgState.cxx ssgStateTables.cxx \
 	ssgStats.cxx  ssgTexTrans.cxx ssgTexture.cxx ssgTransform.cxx \
 	ssgStateSelector.cxx ssgRangeSelector.cxx ssgLoadTexture.cxx \
-  ssgLoadBMP.cxx ssgLoadSGI.cxx ssgLoadPNG.cxx ssgLoadTGA.cxx \
-  ssgInvisible.cxx ssgLoadSSG.cxx ssgVTable.cxx \
-  ssgSimpleList.cxx ssgVtxTable.cxx ssgIO.cxx ssgLoad3ds.cxx \
-  ssgSaveASE.cxx ssgLoadASE.cxx ssgParser.cxx ssgParser.h \
-  ssgLoadDXF.cxx ssgSaveDXF.cxx ssgLoadTRI.cxx ssgSaveTRI.cxx \
-  ssgLoadOBJ.cxx ssgSaveOBJ.cxx ssgVtxArray.cxx ssgLoadMD2.cxx \
+	ssgLoadBMP.cxx ssgLoadSGI.cxx ssgLoadPNG.cxx ssgLoadTGA.cxx \
+	ssgInvisible.cxx ssgLoadSSG.cxx ssgVTable.cxx \
+	ssgSimpleList.cxx ssgVtxTable.cxx ssgIO.cxx ssgLoad3ds.cxx \
+	ssgSaveASE.cxx ssgLoadASE.cxx ssgParser.cxx ssgParser.h \
+	ssgLoadDXF.cxx ssgSaveDXF.cxx ssgLoadTRI.cxx ssgSaveTRI.cxx \
+	ssgLoadOBJ.cxx ssgSaveOBJ.cxx ssgVtxArray.cxx ssgLoadMD2.cxx \
 	ssgLoadMDL.cxx ssgLoadX.cxx ssgSaveX.cxx ssgLoaderWriterStuff.cxx \
 	ssgLoadFLT.cxx ssgLoadM.cxx ssgSaveM.cxx ssgLoadStrip.cxx \
 	ssgLoadOFF.cxx ssgSaveOFF.cxx ssgSaveQHI.cxx \
 	ssgLoaderWriterStuff.h ssgMSFSPalette.h ssg3ds.h ssgLoadMDL.h \
 	ssgSave3ds.cxx ssgAxisTransform.cxx ssgLoadATG.cxx ssgSaveATG.cxx\
-  ssgLoad.cxx
+	ssgLoad.cxx
 
 INCLUDES += -I$(top_srcdir)/src/sg
 INCLUDES += -I$(top_srcdir)/src/util
