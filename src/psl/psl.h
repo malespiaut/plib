@@ -21,6 +21,8 @@
      $Id$
 */
 
+#ifndef _PSL_H
+#define _PSL_H 1
 
 #include "ul.h"
 
@@ -265,4 +267,5 @@ public:
 void pslInit () ;
 void pslSetErrorCallback ( void (*CB) ( pslProgram *, int, char *, int, char * ) ) ;
 
+#endif
 
