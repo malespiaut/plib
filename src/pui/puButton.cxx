@@ -115,8 +115,8 @@ void puButton::draw ( int dx, int dy )
 
         glBegin ( GL_POLYGON ) ;
         for ( theta = -SG_PI ; theta <= SG_PI ; theta += dtheta )
-          glVertex2f ( dx + abox.min[0] + rad + (rad * cos ( theta )),
-                       dy + abox.min[1] + rad + (rad * sin ( theta )) ) ;
+          glVertex2f ( dx + abox.min[0] + rad + (rad * float(cos ( theta ))),
+                       dy + abox.min[1] + rad + (rad * float(sin ( theta ))) ) ;
         glEnd () ;
 
         if ( getIntegerValue () ^ highlighted )
@@ -137,8 +137,8 @@ void puButton::draw ( int dx, int dy )
 
           glBegin ( GL_POLYGON ) ;
           for ( theta = -SG_PI ; theta <= SG_PI ; theta += dtheta )
-            glVertex2f ( dx + abox.min[0] + rad*2 + (rad * cos ( theta )),
-                         dy + abox.min[1] + rad*2 + (rad * sin ( theta )) ) ;
+            glVertex2f ( dx + abox.min[0] + rad*2 + (rad * float(cos ( theta ))),
+                         dy + abox.min[1] + rad*2 + (rad * float(sin ( theta ))) ) ;
           glEnd () ;
         }
 
@@ -220,7 +220,13 @@ void puButton::doHit ( int button, int updown, int x, int y )
       invokeCallback () ;
     }
     else
-      highlight () ;
+    {
+      /* If the mouse is over the widget, highlight it; otherwise lowlight it */
+      if ( ( abox.min[0] <= x ) && ( abox.max[0] >= x ) && ( abox.min[1] <= y ) && ( abox.max[1] >= y ) )
+        highlight () ;
+      else
+        lowlight () ;
+    }
   }
   else
     lowlight () ;
