@@ -6,14 +6,16 @@
 #include "ssgLocal.h"
 
 static FILE *fileout ;
+static int total_vert ;
+static int total_normal ;
 
 static void save_vtx_table ( ssgVtxTable *vt )
 {
-  int   total_vert = 0 ;
-  int   total_normal = 0 ;
   float w = 1.0f ;
 
   GLenum mode = vt -> getGLtype () ;
+	//fprintf ( fileout, "g test\n" ); wk: Pfusch fixme: is this necessary?
+  
   if ( mode == GL_LINES )
   {
     int num_vert = vt -> getNumVertices () ;
@@ -165,6 +167,9 @@ int ssgSaveOBJ ( const char *filename, ssgEntity *ent )
   fprintf ( fileout, "\n" );
   fprintf ( fileout, "g SSG\n" );
   fprintf ( fileout, "\n" );
+
+  total_vert = 0 ;
+  total_normal = 0 ;
 
   save_entities ( ent ) ;
 
