@@ -1,0 +1,18 @@
+It's definitely a tool of the "duct tape and fishing line" variety.  :)
+It expects to find a ghostscript interpreter and ImageMagick's "mogrify"
+program on the command line, takes a .afm font metrics file as its sole
+argument, and expects that the font therein is accessible to ghostscript.
+Basically, it should work out of the box on most linux distributions,
+and nowhere else without a lot of work.
+
+If you have a TrueType font that you want to generate:
+
+  export GS_FONTPATH=<wherever the font is>
+  ttf2afm yourfont.ttf > whatever.afm
+  font.pl whatever.afm
+
+Wait for a while (at 16x downsampling, this takes 1-2 minutes on my
+Athlon 1800+), and the .txf file will appear in the current directory.
+It will have the Postscript language name of the font.
+
+Andy
