@@ -29,6 +29,11 @@ void ssgVtxTable::copy_from ( ssgVtxTable *src, int clone_flags )
   else
     colours = src -> colours ;
 
+  if ( vertices  != NULL ) vertices  -> ref () ;
+  if ( normals   != NULL ) normals   -> ref () ;
+  if ( texcoords != NULL ) texcoords -> ref () ;
+  if ( colours   != NULL ) colours   -> ref () ;
+
   recalcBSphere () ;
 }
 

@@ -2,6 +2,15 @@
 PLIB Change Log.
 ================
 
+PLIB v1.2.0 (Feb xx 2000)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Added a unique ID field to every node in the scene graph.
+    This helps out some picking algorithms in PPE.
+
+  * Added some more ifdefs to make PLIB Audio/JS components
+    to make them work under NetBSD. (They already work with
+    FreeBSD and OpenBSD).  Many thanks to Rene Hexel!
+
 PLIB v1.1.11 (Feb 9th 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Fixed a tiny problem with double-sided polygons.
