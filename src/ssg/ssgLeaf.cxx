@@ -123,8 +123,9 @@ void ssgLeaf::isect ( sgSphere *s, sgMat4 m, int test_needed )
 
 void ssgLeaf::print ( FILE *fd, char *indent, int how_much )
 {
-	if ( how_much == 0 ) 
-		return; // dont print anything
+  if ( how_much == 0 ) 
+    return ;
+
   ssgEntity::print ( fd, indent, how_much  ) ;
 
   if ( getNumParents () != getRef () )
@@ -134,9 +135,10 @@ void ssgLeaf::print ( FILE *fd, char *indent, int how_much )
   {
     char in [ 100 ] ;
     sprintf ( in, "%s  ", indent );
-		if ( how_much == 1 )
-			fprintf ( fd, "%s  %s: %p\n", indent , state->getTypeName(), state) ;
-		else
+
+    if ( how_much == 1 )
+      fprintf ( fd, "%s  %s: %p\n", indent , state->getTypeName(), state) ;
+    else
       state -> print ( fd, in, how_much ) ;
   }
   else

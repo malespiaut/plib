@@ -432,7 +432,6 @@ const netRoom* netRoomServer::getInfo ()
   room.num_games = games . getNum () ;
   room.num_players = players . getNum () ;
   room.num_openings = 0 ;
-  int	num_occupied = 0;
 
   int id ;
 
