@@ -24,7 +24,7 @@
 
 #include "ssgLocal.h"
 
-#include <ssgVertSplitter.h>
+#include "ssgVertSplitter.h"
 
 static float optimise_vtol [3] =
 {
