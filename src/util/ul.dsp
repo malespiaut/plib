@@ -122,6 +122,10 @@ SOURCE=.\ulLocal.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ulRTTI.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ulRTTI.h
 # End Source File
 # End Target
