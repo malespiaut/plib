@@ -203,7 +203,7 @@ class pslCompiler
 
   int        getExtensionSymbol ( const char *s ) const ;
 
-  pslExtension *extensions ;
+  const pslExtension *extensions ;
 
   /* Forward references to code symbols that are not yet defined */
 
@@ -289,7 +289,7 @@ public:
 
   pslCompiler ( pslProgram   *prog,
                 pslOpcode    *_code,
-                pslExtension *_extn,
+                const pslExtension *_extn,
                 const char   *_progName )
   {
     program  = prog ;
@@ -322,7 +322,7 @@ public:
     }
   }
 
-  pslExtension *getExtensions () const { return extensions ; }
+  const pslExtension *getExtensions () const { return extensions ; }
 
   int printInstruction ( FILE *fd, int addr ) const ;
 

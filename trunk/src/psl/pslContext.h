@@ -24,9 +24,9 @@
 
 class pslContext
 {
-  pslOpcode    *code       ;
-  pslExtension *extensions ;
-  pslProgram   *program    ;
+  pslOpcode          *code       ;
+  const pslExtension *extensions ;
+  pslProgram         *program    ;
 
   pslVariable  variable [ MAX_VARIABLE ] ;
   pslValue     stack    [ MAX_STACK    ] ; 
