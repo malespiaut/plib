@@ -69,7 +69,7 @@ static int countTriangles ( ssgEntity *e )
       count += countTriangles ( br -> getKid ( i ) ) ;
   }
   else
-  if ( e -> isAKindOf ( SSG_TYPE_VTABLE ) )
+  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
   {
     ssgVTable *vt = (ssgVTable *) e ;
     count += vt -> getNumTriangles () ;
@@ -92,7 +92,7 @@ static int countVertices ( ssgEntity *e )
       count += countVertices ( br -> getKid ( i ) ) ;
   }
   else
-  if ( e -> isAKindOf ( SSG_TYPE_VTABLE ) )
+  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
   {
     ssgVTable *vt = (ssgVTable *) e ;
     count += vt -> getNumVertices () ;
