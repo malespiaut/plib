@@ -34,6 +34,10 @@ extern char pguide_current_directory [ PUSTRING_MAX ] ;
 
 extern bool main_window_changed ;
 
+extern char main_window_name [ PUSTRING_MAX ] ;
+
+extern bool autolock ;
+
 // Status window parameters
 int status_window = 0 ;  // Window handle
 extern int main_window ;
@@ -71,7 +75,10 @@ puSpinBox *window_color_g ;
 puSpinBox *window_color_b ;
 puSpinBox *window_color_a ;
 
+puButtonBox *autolock_toggle ;
+
 puDialogBox *dialog = (puDialogBox *)NULL ;
+puInput *newname = (puInput *)NULL ;
 
 puMenuBar *menubar ;
 
@@ -80,6 +87,9 @@ puMenuBar *menubar ;
 puFileSelector *file_selector ;
 
 int write_window = 0 ;
+
+// Extra needed prototyping
+void dupname_ok_cb ( puObject *ob ) ;
 
 // Function to set the widgets from the active object
 
@@ -166,6 +176,7 @@ void setStatusWidgets ( WidgetList *wid )
     object_callbacks->setValue ( wid->callbacks ) ;
 
     object_visible->setValue ( wid->visible ? 1 : 0 ) ;
+    autolock_toggle->setValue ( autolock );
     object_layer->setValue ( wid->layer ) ;
   }
   else
@@ -188,6 +199,7 @@ void setStatusWidgets ( WidgetList *wid )
     object_callbacks->setValue ( 0 ) ;
 
     object_visible->setValue ( 0 ) ;
+    autolock_toggle->setValue ( autolock );
     object_layer->setValue ( 0 ) ;
   }
 }
@@ -270,99 +282,13 @@ void write_window_reshapefn ( int w, int h )
   file_selector->setSize ( w, h ) ;
 }
 
-void write_code_cb ( puObject *ob )
-{
-  int w = 320, h = 270 ;
-  if ( write_window )
-    glutSetWindow ( write_window ) ;
-  else
-  {
-    write_window = glutCreateWindow ( "Writing " ) ;
-    glutDisplayFunc       ( selection_window_displayfn ) ;
-    glutKeyboardFunc      ( status_window_keyfn     ) ;
-    glutSpecialFunc       ( status_window_specialfn ) ;
-    glutMouseFunc         ( status_window_mousefn   ) ;
-    glutMotionFunc        ( status_window_motionfn  ) ;
-    glutPassiveMotionFunc ( status_window_motionfn  ) ;
-    glutIdleFunc          ( selection_window_displayfn ) ;
-    glutReshapeFunc       ( write_window_reshapefn ) ;
-  }
-
-  glutShowWindow () ;
-  glutReshapeWindow ( w, h ) ;
-  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
-
-  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick File to Write To" ) ;
-  file_selector -> setCallback ( write_code ) ;
-  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
-  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
-  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
-}
-
-void saveProject_cb ( puObject *ob )
-{
-  int w = 320, h = 270 ;
-  if ( write_window )
-    glutSetWindow ( write_window ) ;
-  else
-  {
-    write_window = glutCreateWindow ( "Saving " ) ;
-    glutDisplayFunc       ( selection_window_displayfn ) ;
-    glutKeyboardFunc      ( status_window_keyfn     ) ;
-    glutSpecialFunc       ( status_window_specialfn ) ;
-    glutMouseFunc         ( status_window_mousefn   ) ;
-    glutMotionFunc        ( status_window_motionfn  ) ;
-    glutPassiveMotionFunc ( status_window_motionfn  ) ;
-    glutIdleFunc          ( selection_window_displayfn ) ;
-    glutReshapeFunc       ( write_window_reshapefn ) ;
-  }
-
-  glutShowWindow () ;
-  glutReshapeWindow ( w, h ) ;
-  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
-
-  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick .XML File to Save To" ) ;
-  file_selector -> setCallback ( saveProject ) ;
-  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
-  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
-  file_selector->setInitialValue(".xml");
-  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
-}
-
-void loadProject_cb ( puObject *ob )
-{
-  int w = 320, h = 270 ;
-  if ( write_window )
-    glutSetWindow ( write_window ) ;
-  else
-  {
-    write_window = glutCreateWindow ( "Loading " ) ;
-    glutDisplayFunc       ( selection_window_displayfn ) ;
-    glutKeyboardFunc      ( status_window_keyfn     ) ;
-    glutSpecialFunc       ( status_window_specialfn ) ;
-    glutMouseFunc         ( status_window_mousefn   ) ;
-    glutMotionFunc        ( status_window_motionfn  ) ;
-    glutPassiveMotionFunc ( status_window_motionfn  ) ;
-    glutIdleFunc          ( selection_window_displayfn ) ;
-    glutReshapeFunc       ( write_window_reshapefn ) ;
-  }
-
-  glutShowWindow () ;
-  glutReshapeWindow ( w, h ) ;
-  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
-
-  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick P-Guide .XML File to load" ) ;
-  file_selector -> setCallback ( loadProject ) ;
-  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
-  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
-  file_selector->setInitialValue("*.xml");
-  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
-}
-
 // Clear Objects callbacks
 
-void clear_ok_cb ( puObject *ob )
+void window_wiper ( puObject *ob )
 {
+
+  // Prepare to clear the properties window 
+  extern int properties_window ;
   // Clear the widget list
   extern WidgetList *widgets ;
 
@@ -391,13 +317,132 @@ void clear_ok_cb ( puObject *ob )
   window_position_x->setValue(0) ;
   window_position_y->setValue(0) ;
   main_window_changed = false ;
+  autolock = false ;
+  autolock_toggle->setValue(0);
 
   glutSetWindow ( main_window ) ;
   glutReshapeWindow ( 600, 600 ) ;
+
+  if (properties_window)
+  {
+      extern puGroup *properties_group; 
+      /* Delete the widgets */
+      puDeleteObject( properties_group );
+      glutDestroyWindow( properties_window );
+      properties_window = 0;
+  }
+
   glutSetWindow ( status_window ) ;
 
   setStatusWidgets ( active_widget ) ;
+}
 
+void write_code_cb ( puObject *ob )
+{
+  int w = 320, h = 270 ;
+  if ( write_window )
+  {
+    glutSetWindow ( write_window ) ;
+    glutSetWindowTitle( "Writing " );
+  }
+  else
+  {
+    write_window = glutCreateWindow ( "Writing " ) ;
+    glutDisplayFunc       ( selection_window_displayfn ) ;
+    glutKeyboardFunc      ( status_window_keyfn     ) ;
+    glutSpecialFunc       ( status_window_specialfn ) ;
+    glutMouseFunc         ( status_window_mousefn   ) ;
+    glutMotionFunc        ( status_window_motionfn  ) ;
+    glutPassiveMotionFunc ( status_window_motionfn  ) ;
+    glutIdleFunc          ( selection_window_displayfn ) ;
+    glutReshapeFunc       ( write_window_reshapefn ) ;
+  }
+
+  glutShowWindow () ;
+  glutReshapeWindow ( w, h ) ;
+  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
+
+  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick File to Write To" ) ;
+  file_selector -> setCallback ( write_code ) ;
+  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
+  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
+  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
+}
+
+void saveProject_cb ( puObject *ob )
+{
+  int w = 320, h = 270 ;
+  if ( write_window )
+  {
+    glutSetWindow ( write_window ) ;
+    glutSetWindowTitle( "Saving " );
+  }
+  else
+  {
+    write_window = glutCreateWindow ( "Saving " ) ;
+    glutDisplayFunc       ( selection_window_displayfn ) ;
+    glutKeyboardFunc      ( status_window_keyfn     ) ;
+    glutSpecialFunc       ( status_window_specialfn ) ;
+    glutMouseFunc         ( status_window_mousefn   ) ;
+    glutMotionFunc        ( status_window_motionfn  ) ;
+    glutPassiveMotionFunc ( status_window_motionfn  ) ;
+    glutIdleFunc          ( selection_window_displayfn ) ;
+    glutReshapeFunc       ( write_window_reshapefn ) ;
+  }
+
+  glutShowWindow () ;
+  glutReshapeWindow ( w, h ) ;
+  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
+
+  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick .XML File to Save To" ) ;
+  file_selector -> setCallback ( saveProject ) ;
+  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
+  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
+  file_selector->setInitialValue(".xml");
+  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
+}
+
+void loadProject_ok_cb ( puObject *ob )
+{
+  puDeleteObject ( dialog ) ;  // Delete the dialog box
+  dialog = (puDialogBox *)NULL ;
+
+  window_wiper( ob );
+
+  int w = 320, h = 270 ;
+  if ( write_window )
+  {
+    glutSetWindow ( write_window ) ;
+    glutSetWindowTitle( "Loading " );
+  }
+  else
+  {
+    write_window = glutCreateWindow ( "Loading " ) ;
+    glutDisplayFunc       ( selection_window_displayfn ) ;
+    glutKeyboardFunc      ( status_window_keyfn     ) ;
+    glutSpecialFunc       ( status_window_specialfn ) ;
+    glutMouseFunc         ( status_window_mousefn   ) ;
+    glutMotionFunc        ( status_window_motionfn  ) ;
+    glutPassiveMotionFunc ( status_window_motionfn  ) ;
+    glutIdleFunc          ( selection_window_displayfn ) ;
+    glutReshapeFunc       ( write_window_reshapefn ) ;
+  }
+
+  glutShowWindow () ;
+  glutReshapeWindow ( w, h ) ;
+  glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
+
+  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick P-Guide .XML File to load" ) ;
+  file_selector -> setCallback ( loadProject ) ;
+  file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
+  file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
+  file_selector->setInitialValue("*.xml");
+  file_selector->setChildColour ( PUCLASS_SLIDER, 0, 0.5, 0.5, 0.5 ) ;
+}
+
+void clear_ok_cb ( puObject *ob )
+{
+  window_wiper( ob );
   puDeleteObject ( dialog ) ;  // Delete the dialog box
   dialog = (puDialogBox *)NULL ;
 }
@@ -427,6 +472,25 @@ void clear_cb ( puObject *ob )
   }
   else
     clear_ok_cb ( (puObject *)NULL ) ;
+}
+
+void loadProject_cb ( puObject *ob )
+{
+  if ( main_window_changed )
+  {
+    dialog = new puDialogBox ( 50, 300 ) ;
+    new puFrame ( 0, 0, 125, 70 ) ;
+    puText *text = new puText ( 10, 40 ) ;
+    text->setLabel ( "Are you sure?" ) ;
+    puOneShot *ok = new puOneShot ( 10, 10, "Yes" ) ;
+    ok->setCallback ( loadProject_ok_cb ) ;
+    puOneShot *cancel = new puOneShot ( 60, 10, "Cancel" ) ;
+    cancel->setCallback ( cancel_cb ) ;
+    dialog->close () ;
+    dialog->reveal () ;
+  }
+  else
+    loadProject_ok_cb ( (puObject *)NULL ) ;
 }
 
 void quit_ok_cb ( puObject *ob )
@@ -513,8 +577,6 @@ void window_size_cb ( puObject *ob )
 
 void window_name_cb ( puObject *ob )
 {
-  extern char main_window_name [ PUSTRING_MAX ] ;
-
   extern int main_window ;
 
   glutSetWindow ( main_window ) ;
@@ -527,7 +589,8 @@ void label_cb ( puObject *ob )
 {
   //if ( active_widget )
   //{
-    delete active_widget->label_text ;
+    if (active_widget->label_text)
+        delete active_widget->label_text ;
     active_widget->label_text = new char [ strlen ( ob->getStringValue () ) + 1 ] ;
     strcpy ( active_widget->label_text, ob->getStringValue () ) ;
     active_widget->obj->setLabel ( active_widget->label_text ) ;
@@ -620,7 +683,8 @@ void legend_cb ( puObject *ob )
 {
   if ( active_widget )
   {
-    delete active_widget->legend_text ;
+    if (active_widget->legend_text)
+        delete active_widget->legend_text ;
     active_widget->legend_text = new char [ strlen ( ob->getStringValue () ) + 1 ] ;
     strcpy ( active_widget->legend_text, ob->getStringValue () ) ;
   }
@@ -705,7 +769,8 @@ void name_cb ( puObject *ob )
 {
   if ( active_widget )
   {
-    strcpy ( active_widget->object_name, ob->getStringValue () ) ;
+    //strcpy ( active_widget->object_name, ob->getStringValue () ) ; 
+    strcpy ( active_widget->object_name, object_name->getStringValue () ) ;/* Because ob is not _always_ the right puInput! */
 
     // Remove spaces from the widget name
     char *spc = strchr ( active_widget->object_name, ' ' ) ;
@@ -714,7 +779,48 @@ void name_cb ( puObject *ob )
       *spc = '_' ;
       spc = strchr ( active_widget->object_name, ' ' ) ;
     }
+    /* Make sure the widget's name doesn't already exist. If so, prompt user */
+    /* This really should be made to use the chk_dupname function from LoadSave.cxx */
+    extern WidgetList *widgets ;
+    WidgetList *wid = widgets ;
+    while ( wid )
+    {
+        if ( (strcmp(active_widget->object_name,wid->object_name) == 0) && (active_widget != wid) )
+        {
+            /* Popup a dialog telling user something's bad!  */
+            dialog = new puDialogBox ( 20, 20 ) ;
+            new puFrame ( 0, 0, 460, 120 ) ;
+            puText *text = new puText ( 80, 85 ) ;
+            text->setLabel ( "ERROR: Name already used." ) ;
+            text->setLabelFont(PUFONT_TIMES_ROMAN_24);
+            puText *directions = new puText ( 90, 65 ) ;
+            directions->setLabel ( "Please type in a new, unique name to continue." ) ;
+            directions->setLabelFont(PUFONT_HELVETICA_12);
+            puInput *newname = new puInput (20,40,440,60) ;
+            newname->setValuator(active_widget->object_name);
+            newname->setValidData("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_012345679");
+            puOneShot *ok = new puOneShot ( 200, 10, "Accept" ) ;
+            ok->setCallback ( dupname_ok_cb ) ;
+            dialog->close () ;
+            dialog->reveal () ;
+            break ;
+        }
+        wid = wid->next ;
+    }
+    ob->setValue(active_widget->object_name);
   }
+}
+
+void dupname_ok_cb ( puObject *ob )
+{
+  /* The user's new name from the dialog has already been set to the object_name*/
+  /* Close dialogbox and update main window ...*/
+  puDeleteObject ( dialog ) ;
+  dialog = (puDialogBox *)NULL ;
+  newname = (puInput *)NULL ;
+  setStatusWidgets(active_widget);
+  /*but force a recheck afterwards to ensure it's an okay substitution. */
+  name_cb(ob);
 }
 
 void callback_cb ( puObject *ob )
@@ -748,6 +854,14 @@ void layer_cb ( puObject *ob )
   }
 }
 
+void autolock_cb ( puObject *ob )
+{
+    if ( ob->getIntegerValue () == 1 )
+        autolock = true ;
+    else
+        autolock = false ;
+}
+
 // Setup Menubar
 
 char      *file_submenu    [] = {  "Exit", "------------", "Export Code", "------------", "Save Project", "Load Project", "New Project", NULL } ;
@@ -759,7 +873,9 @@ int define_status_window ()
 {
   status_window = glutCreateWindow      ( "Status Window"  ) ;
 
-  glutPositionWindow    ( 420, 300 ) ;
+  int total_screen_width = glutGet( GLUT_SCREEN_WIDTH ) ;
+
+  glutPositionWindow    ( total_screen_width-520, 266 ) ;
   glutReshapeWindow     ( 500, 380 ) ;
   glutDisplayFunc       ( status_window_displayfn ) ;
   glutKeyboardFunc      ( status_window_keyfn     ) ;
@@ -834,32 +950,37 @@ int define_status_window ()
 
   object_name = new puInput ( 110, 100, 310, 120 ) ;
   object_name->setLabel ( "Widget Name:" ) ;
+  object_name->setValidData("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789");
   object_name->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   object_name->setCallback ( name_cb ) ;
   object_name->setDownCallback ( name_cb ) ;
 
   static char *callback_entries [] = { "Up", "Active", "Down", NULL } ;
-  object_callbacks = new puButtonBox ( 10, 160, 150, 230, callback_entries, FALSE ) ;
+  object_callbacks = new puButtonBox ( 10, 140, 150, 210, callback_entries, FALSE ) ;
   object_callbacks->setLabel ( "Widget Callbacks" ) ;
   object_callbacks->setLabelPlace ( PUPLACE_TOP_LEFT ) ;
   object_callbacks->setCallback ( callback_cb ) ;
 
+  static char *autolock_entries [] = { "Autolock", NULL } ;
+  autolock_toggle = new puButtonBox ( 370, 240, 490, 270, autolock_entries, FALSE ) ;
+  autolock_toggle->setCallback ( autolock_cb ) ;
+
   static char *visible_entries [] = { "Visible", NULL } ;
-  object_visible = new puButtonBox ( 350, 160, 490, 190, visible_entries, FALSE ) ;
+  object_visible = new puButtonBox ( 370, 200, 490, 230, visible_entries, FALSE ) ;
   object_visible->setCallback ( visible_cb ) ;
 
-  reveal_all_objects = new puOneShot ( 350, 130, 490, 150 ) ;
+  reveal_all_objects = new puOneShot ( 330, 130, 490, 150 ) ;
   reveal_all_objects->setLegend ( "Reveal All Widgets" ) ;
   reveal_all_objects->setCallback ( reveal_all_cb ) ;
 
-  object_layer = new puInput ( 400, 210, 490, 230 ) ;
+  object_layer = new puInput ( 400, 170, 490, 190 ) ;
   object_layer->setLabel ( "Widget Layer" ) ;
   object_layer->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   object_layer->setCallback ( layer_cb ) ;
   object_layer->setDownCallback ( layer_cb ) ;
 
-
   window_name = new puInput ( 130, 340, 430, 360 ) ;
+  window_name->setValue( main_window_name );
   window_name->setLabel ( "Window Name :" ) ;
   window_name->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   window_name->setCallback ( window_name_cb ) ;
@@ -898,6 +1019,7 @@ int define_status_window ()
   window_color_r->setLabel ( "Red" ) ;
   window_color_r->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_r->setValuator ( &main_window_color_r ) ;
+  window_color_r->setValue(1.0f);
 
   window_color_g = new puSpinBox ( 320, 285, 370, 305 ) ;
   window_color_g->setMinValue(0.0);
@@ -906,6 +1028,7 @@ int define_status_window ()
   window_color_g->setLabel ( "Green" ) ;
   window_color_g->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_g->setValuator ( &main_window_color_g ) ;
+  window_color_g->setValue(1.0f);
   
   window_color_b = new puSpinBox ( 370, 285, 420, 305 ) ;
   window_color_b->setMinValue(0.0);
@@ -914,6 +1037,7 @@ int define_status_window ()
   window_color_b->setLabel ( "Blue" ) ;
   window_color_b->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_b->setValuator ( &main_window_color_b ) ;
+  window_color_b->setValue(1.0f);
 
   window_color_a = new puSpinBox ( 420, 285, 470, 305 ) ;
   window_color_a->setMinValue(0.0);
@@ -922,6 +1046,7 @@ int define_status_window ()
   window_color_a->setLabel ( "Alpha" ) ;
   window_color_a->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_a->setValuator ( &main_window_color_a ) ;
+  window_color_a->setValue(1.0f);
 
   status_group->close () ;
 

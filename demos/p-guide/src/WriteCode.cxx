@@ -34,6 +34,7 @@ extern int main_window_width  ;
 extern int main_window_height ;
 
 extern char main_window_name [ PUSTRING_MAX ] ;
+extern char pguide_current_directory [ PUSTRING_MAX ] ;
 
 extern int main_window_x ;
 extern int main_window_y ;
@@ -63,6 +64,15 @@ void write_code ( puObject *ob )
       glutSetWindow ( status_window ) ;
       return ;
   }        
+
+    /* Save the new current directory */
+    strcpy(pguide_current_directory, filename) ;
+    int i = strlen(pguide_current_directory);
+    while (pguide_current_directory[i] != '\\') { 
+        if (i>0) i-- ;
+        else break ;
+    }
+    pguide_current_directory[i+1] = '\0' ;
 
   /* If they didn't give an extension, then tack ".cxx" onto the end. */
   if(!strstr(filename, "."))
@@ -243,9 +253,280 @@ void write_code ( puObject *ob )
         ob->getPosition ( &x, &y ) ;
         ob->getSize ( &w, &h ) ;
 
-        // TO DO:  Customize this on a widget-type-by-widget-type basis.
-        fprintf ( out, "  %s = new %s ( %d, %d, %d, %d ) ;\n", wid->object_name,
-                  wid->object_type_name, x, y, x+w, y+h ) ;
+        /* Customize widget's constructor and extra details */
+        /*         fprintf ( out, "  %s = new %s ( %d, %d, %d, %d ) ;\n", wid->object_name,
+                  wid->object_type_name, x, y, x+w, y+h ) ;    */
+
+        /* General minx, miny, maxx, maxy constructor */
+          if ( (wid->object_type == PUCLASS_FRAME)  || 
+               (wid->object_type == PUCLASS_BUTTON) || 
+               (wid->object_type == PUCLASS_INPUT ) )
+          {
+            fprintf ( out, "  %s = new %s (%d, %d, %d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h) ;
+          } 
+  
+                /* General minx, miny constructor */
+          if (wid->object_type == PUCLASS_TEXT)
+          {
+              /* Add in font properties? */
+            fprintf ( out, "  %s = new %s (%d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y) ;
+          } 
+  
+          if (wid->object_type == PUCLASS_ONESHOT)
+          {
+              /*
+              Add support for both constructors! 
+              puButton::puButton ( int minx, int miny, const char *legend ) ;
+              puButton::puButton ( int minx, int miny, int maxx, int maxy ) ;
+
+              */
+            fprintf ( out, "  %s = new %s (%d, %d, %d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h) ;
+          } 
+
+          if ( (wid->object_type == PUCLASS_MENUBAR) || 
+               (wid->object_type == PUCLASS_VERTMENU) ) {
+ 
+            if (wid->items)
+            {
+                char *temp_items = wid->items ;
+                char *cr = strchr(temp_items, '\n');
+                while ( cr != '\0' )
+                {
+                    char *spc = strchr ( temp_items, ' ' ) ;
+                    while ( spc )
+                    {
+                      *spc = '_' ;
+                      spc = strchr ( temp_items, ' ' ) ;
+                    }
+                    spc = strchr ( temp_items, ':' ) ;
+                    while ( spc )
+                    {
+                      *spc = '_' ;
+                      spc = strchr ( temp_items, ':' ) ;
+                    }
+                    spc = strchr ( temp_items, ';' ) ;
+                    while ( spc )
+                    {
+                      *spc = '_' ;
+                      spc = strchr ( temp_items, ';' ) ;
+                    }
+                    spc = strchr ( temp_items, ',' ) ;
+                    while ( spc )
+                    {
+                      *spc = '_' ;
+                      spc = strchr ( temp_items, ',' ) ;
+                    }
+                    spc = strchr ( temp_items, '.' ) ;
+                    while ( spc )
+                    {
+                      *spc = '_' ;
+                      spc = strchr ( temp_items, '.' ) ;
+                    }
+                    *cr = '\0';
+                    fprintf ( out, "  static char *%s_%s_submenu [] = { \"Filler\", NULL } ;\n", wid->object_name, temp_items) ;
+                    fprintf ( out, "  /* TODO: You need to create your own callbacks here, such as { \"exit_cb\",\"delete_cb\",NULL } */ \n") ;
+                    fprintf ( out, "  puCallback %s_%s_submenu_cb [] = { NULL, NULL } ;\n\n", wid->object_name, temp_items) ;
+                    *cr = '\n';
+                    temp_items = cr + 1;
+                    cr = strchr(temp_items, '\n');
+                }
+            }
+
+            if (wid->object_type == PUCLASS_MENUBAR) {
+                /* TODO: add in "height" support */
+                fprintf ( out, "  %s = new %s ( ) ;\n", wid->object_name, wid->object_type_name) ;
+            }
+
+            if (wid->object_type == PUCLASS_VERTMENU) {
+            /* TODO: add in "lock to corner" support */
+                fprintf ( out, "  %s = new %s (%d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y) ;
+            }
+    
+            if (wid->items)
+            {
+                char *temp_items = wid->items ;
+                char unspaced_items[PUSTRING_MAX];
+                char *cr = strchr(temp_items, '\n');
+                fprintf ( out, "  {\n") ;
+                while ( cr != '\0' )
+                {
+                    *cr = '\0';
+                    strcpy(unspaced_items, temp_items);
+                    /* Put back the space */
+                    char *spc = strchr ( temp_items, '_' ) ;
+                    while ( spc )
+                    {
+                      *spc = ' ' ;
+                      spc = strchr ( temp_items, '_' ) ;
+                    }
+                    /* Now "unspaced_items" writes "I_have_no_spaces" while temp_items writes "I have no spaces" (AND LIES!) */
+                    fprintf ( out, "    %s->add_submenu (\"%s\", %s_%s_submenu, %s_%s_submenu_cb ) ;\n", wid->object_name, temp_items, wid->object_name, unspaced_items, wid->object_name, unspaced_items ) ;
+                    *cr = '\n';
+                    temp_items = cr + 1;
+                    cr = strchr(temp_items, '\n');
+                }
+                fprintf ( out, "  }\n") ;
+            }
+            fprintf ( out, "  %s->close() ;\n", wid->object_name) ;
+          }
+  
+          if ( (wid->object_type == PUCLASS_LISTBOX)    ||
+               (wid->object_type == PUCLASS_COMBOBOX)   ||
+               (wid->object_type == PUCLASS_SELECTBOX)  ||
+               (wid->object_type == PUCLASS_BUTTONBOX)  )
+          {
+            char data[1024]; 
+            char onedata[PUSTRING_MAX]; 
+
+            if (wid->items)
+            {
+                char *temp_items = wid->items ;
+                char *cr = strchr(temp_items, '\n');
+                sprintf ( data, " ");
+                while ( cr != '\0' )
+                {
+                    *cr = '\0';
+                    sprintf ( onedata, "\"%s\",", temp_items);
+                    *cr = '\n';
+                    temp_items = cr + 1;
+                    cr = strchr(temp_items, '\n');
+                    strcat(data, onedata);
+                }
+            }
+
+            fprintf ( out, "  static char *%s_entries [] = { %s NULL } ;\n", wid->object_name, data) ;
+            if (wid->object_type == PUCLASS_LISTBOX)
+                fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name) ;
+            if (wid->object_type == PUCLASS_BUTTONBOX)
+                fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name, wid->boolval1) ;
+            if (wid->object_type == PUCLASS_COMBOBOX)
+            {
+                fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name, wid->boolval1) ;
+                fprintf ( out, "  %s->setCurrentItem(%d) ;\n", wid->object_name, wid->intval1) ;
+            }
+            if (wid->object_type == PUCLASS_SELECTBOX)
+            {
+                fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name) ;
+                fprintf ( out, "  %s->setCurrentItem(%d) ;\n", wid->object_name, wid->intval1) ;
+            }
+          }
+
+          if (wid->object_type == PUCLASS_POPUPMENU)
+          {
+            /* Allow a list of menu items, and remember to point out these are hidden when created, and must be reveal()ed. */
+            /* NOT CURRENTLY IMPLEMENTED */
+          } 
+
+          /* puRange */
+          if ( (wid->object_type == PUCLASS_SLIDER )       || 
+               (wid->object_type == PUCLASS_BISLIDER )     || 
+               (wid->object_type == PUCLASS_TRISLIDER )    || 
+               (wid->object_type == PUCLASS_DIAL )         || 
+               (wid->object_type == PUCLASS_SPINBOX )      || 
+               (wid->object_type == PUCLASS_SCROLLBAR )    )
+          {
+
+                /* Constructors */
+                if (  (wid->object_type == PUCLASS_SLIDER )       || 
+                      (wid->object_type == PUCLASS_BISLIDER )     || 
+                      (wid->object_type == PUCLASS_TRISLIDER )    || 
+                      (wid->object_type == PUCLASS_SCROLLBAR )    )
+                {
+                    /* Sliders */
+                    char orientation[10];
+                    if (wid->boolval2)
+                        strcpy(orientation,"true"); /* Vertical */
+                    else
+                        strcpy(orientation,"false"); /* Horizontal */
+                    fprintf ( out, "  %s = new %s (%d, %d, %d, %s, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, (wid->boolval2==1)?h:w, orientation, (wid->boolval2==1)?w:h) ;
+                    /* Slider value options */
+                    if (wid->object_type == PUCLASS_SLIDER )
+                        fprintf ( out, "  %s->setValue(%ff) ;\n", wid->object_name, wid->floatval4) ;
+                    if ( (wid->object_type == PUCLASS_BISLIDER ) || (wid->object_type == PUCLASS_TRISLIDER ) )
+                    {
+                        fprintf ( out, "  %s->setCurrentMax(%ff) ;\n", wid->object_name, wid->floatval4) ;
+                        fprintf ( out, "  %s->setCurrentMin(%ff) ;\n", wid->object_name, wid->floatval5) ;
+                        if (wid->object_type == PUCLASS_TRISLIDER )
+                        {
+                            if (!wid->boolval3)
+                                fprintf ( out, "  %s->setFreezeEnds(false) ;\n", wid->object_name ) ;
+                            fprintf ( out, "  %s->setValue(%ff) ;\n", wid->object_name, wid->floatval6) ;
+                            fprintf ( out, "  %s->setSliderFraction(0.1f) ;\n", wid->object_name) ;
+                            /*Allow setting the slider fraction?*/
+                        }
+                    }
+                } else if (wid->object_type == PUCLASS_DIAL )
+                {
+                    fprintf ( out, "  %s = new %s (%d, %d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, (h+w)/2) ;
+                    fprintf ( out, "  %s->setWrap(%d) ;\n", wid->object_name, wid->boolval2) ;
+             
+                } else if (wid->object_type == PUCLASS_SPINBOX )
+                {
+                    fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->boolval2 ) ;
+                    fprintf ( out, "  %s->setArrowHeight(%ff) ;\n", wid->object_name, wid->floatval4 ) ;
+                }
+                /* All puRange options */
+                fprintf ( out, "  %s->setMaxValue (%ff) ;\n", wid->object_name, wid->floatval1 ) ;
+                fprintf ( out, "  %s->setMinValue (%ff) ;\n", wid->object_name, wid->floatval2 ) ;
+                fprintf ( out, "  %s->setStepSize (%ff) ;\n", wid->object_name, wid->floatval3 ) ;
+                char cbmodetext[20] = "PUSLIDER_ALWAYS";
+                if (wid->boolval1)
+                    strcpy(cbmodetext,"PUSLIDER_ALWAYS");
+                else
+                    strcpy(cbmodetext,"PUSLIDER_CLICK");
+                fprintf ( out, "  %s->setCBMode (%s) ;\n", wid->object_name, cbmodetext) ;
+          } 
+  
+          if (wid->object_type == PUCLASS_DIALOGBOX)
+          {
+            /* Not yet implemented as a class */
+          } 
+  
+          if (wid->object_type == PUCLASS_ARROW)
+          {
+            char arr_name[20] = "PUARROW_UP";
+            if (wid->items)
+            {
+                if (strstr(wid->items,"Double-Up"))
+                    strcpy(arr_name, "PUARROW_FASTUP");
+                else if (strstr(wid->items,"Double-Down"))
+                    strcpy(arr_name, "PUARROW_FASTDOWN");
+                else if (strstr(wid->items,"Double-Left"))
+                    strcpy(arr_name, "PUARROW_FASTLEFT");
+                else if (strstr(wid->items,"Double-Right"))
+                    strcpy(arr_name, "PUARROW_FASTRIGHT");
+                else if (strstr(wid->items,"Up"))
+                    strcpy(arr_name, "PUARROW_UP");
+                else if (strstr(wid->items,"Down"))
+                    strcpy(arr_name, "PUARROW_DOWN");
+                else if (strstr(wid->items,"Left"))
+                    strcpy(arr_name, "PUARROW_LEFT");
+                else if (strstr(wid->items,"Right"))
+                    strcpy(arr_name, "PUARROW_RIGHT");
+            }    
+            fprintf ( out, "  %s = new puArrowButton (%d, %d, %d, %d, %s ) ;\n", wid->object_name, x, y, x+w, y+h, arr_name) ;
+          } 
+  
+          if (wid->object_type == PUCLASS_INPUT )
+          {
+            /*Already had its constructor defined by the general -- look up*/
+            if (wid->boolval1 == false)
+                fprintf ( out, "  %s->rejectInput() ;\n", wid->object_name ) ;
+            if ( wid->allowed)
+                fprintf ( out, "  %s->setValidData(\"%s\") ;\n", wid->object_name, wid->allowed ) ;
+          }
+
+          if ( wid->object_type == PUCLASS_LARGEINPUT )
+          {   
+            fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, w, h, wid->intval1, wid->intval2 ) ;
+            if (wid->boolval1 == false)
+                fprintf ( out, "  %s->rejectInput() ;\n", wid->object_name ) ;
+            if ( wid->allowed)
+                fprintf ( out, "  %s->setValidData(\"%s\") ;\n", wid->object_name, wid->allowed ) ;
+
+          }
+        /* Done custom constructor and extra details */
+
         if ( wid->callbacks & 0x01 )  // Up-callback defined
           fprintf ( out, "  %s->setCallback ( %s_cb ) ;\n", wid->object_name, wid->object_name ) ;
 
