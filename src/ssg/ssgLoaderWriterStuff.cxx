@@ -411,6 +411,7 @@ void ssgLoaderWriterMesh::reInit(void) // was: ReInit
    perFaceAndVertexTextureCoordinate2Lists = NULL ;
    theMaterials	= NULL ;
    perVertexTextureCoordinates2 = NULL ;
+	 name = NULL ;
    textureCoordinatesArePerVertex = TRUE ;
 }
 	
@@ -667,7 +668,20 @@ void ssgLoaderWriterMesh::addOneNodeToSSGFromPerVertexTextureCoordinates2( class
    
    ssgEntity *model = current_options -> createLeaf ( leaf, NULL)  ;
    assert( model != NULL );
+	 model->setName(name);
    curr_branch_->addKid(model);
+}
+
+void ssgLoaderWriterMesh::setName( const char *meshName )
+{
+	delete [] name;
+	if ( !meshName )
+		name = NULL;
+	else
+	{
+		name = new char [ strlen(meshName) + 1 ];
+		strcpy(name, meshName);
+	}
 }
 
 

@@ -77,6 +77,7 @@ public:
 class ssgLoaderWriterMesh
 {
    // ***** general ****
+	 char *name;
    // array of Vec3s:
    class ssgVertexArray *theVertices;
    // one index per face:
@@ -115,7 +116,8 @@ class ssgLoaderWriterMesh
    void setVertices( class ssgVertexArray *vertexArray );
    class ssgTexCoordArray *getPerVertexTextureCoordinates2(void) { return perVertexTextureCoordinates2; }
    void setPerVertexTextureCoordinates2( class ssgTexCoordArray *texCoordArray );
-	  
+	 void setName( const char *meshName ); 
+
    void addToSSG(
 		 class ssgSimpleState *currentstate, 
 		 class ssgLoaderOptions* currentOptions,
