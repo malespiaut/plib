@@ -1371,7 +1371,10 @@ public:
 
   int isValidCharacter ( char c ) const
   {
-    return ( ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ) ;
+    if ( valid_data != NULL )
+      return ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ;
+    else
+      return 1 ;
   }
 
   puInput ( int minx, int miny, int maxx, int maxy ) :
@@ -1651,7 +1654,10 @@ public:
 
   int isValidCharacter ( char c ) const
   {
-    return ( ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ) ;
+    if ( valid_data != NULL )
+      return ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ;
+    else
+      return 1 ;
   }
 
   void invokeDownCallback ( void )
