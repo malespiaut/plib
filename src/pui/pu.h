@@ -611,7 +611,10 @@ public:
 
   puGroup     *getParent     ( void ) { return parent ; }
   void        setParent      ( puGroup* p ) { parent = p ; }
+
+  void        setNextObject  ( puObject *obj ) { next = obj ; }
   puObject    *getNextObject ( void ) { return next   ; }
+  void        setPrevObject  ( puObject *obj ) { prev = obj ; }
   puObject    *getPrevObject ( void ) { return prev   ; }
 
   void       setCallback ( puCallback c ) { cb = c ;    }

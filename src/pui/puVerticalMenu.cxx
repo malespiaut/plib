@@ -93,7 +93,7 @@ void puVerticalMenu::close (void)
   // If the "puOneShot" has a user data of null, it is a single entry and its      
   // puPopup item is missing.
 
-  for ( ob = dlist ; ob != NULL ; ob = ob -> next )
+  for ( ob = dlist ; ob != NULL ; ob = ob -> getNextObject() )
   {
     int w, h ;
 
@@ -105,7 +105,7 @@ void puVerticalMenu::close (void)
     if (ob -> getUserData () )     
     {
 
-      ob = ob -> next ;
+      ob = ob -> getNextObject() ;
 
       // Reposition the submenu so it sits under the button
 
@@ -123,7 +123,7 @@ void puVerticalMenu::close (void)
   // all the vertical positions so that the (0,0) point will be the lower left-
   // hand corner.
 
-  for ( ob = dlist ; ob != NULL ; ob = ob -> next )
+  for ( ob = dlist ; ob != NULL ; ob = ob -> getNextObject() )
   {
     int x, y ;
 
@@ -135,7 +135,7 @@ void puVerticalMenu::close (void)
     if (ob -> getUserData () )      
     {
 
-      ob = ob -> next ;        
+      ob = ob -> getNextObject() ;
 
       // Reposition the submenu so it sits under the button
 

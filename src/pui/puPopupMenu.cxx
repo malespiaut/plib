@@ -58,14 +58,14 @@ void puPopupMenu::close ( void )
 
   int w, h ;
 
-  for ( ob = dlist ; ob != NULL ; ob = ob -> next )
+  for ( ob = dlist ; ob != NULL ; ob = ob -> getNextObject() )
   {
     ob -> getSize ( &w, &h ) ;
 
     if ( w > widest ) widest = w ;
   }
 
-  for ( ob = dlist ; ob != NULL ; ob = ob -> next )
+  for ( ob = dlist ; ob != NULL ; ob = ob -> getNextObject() )
   {
     ob -> getSize ( &w, &h ) ;
     ob -> setSize ( widest, h ) ;
@@ -92,7 +92,7 @@ int puPopupMenu::checkKey ( int key, int updown )
 
     /* Turn everything off ready for next time. */
 
-    for ( puObject *bo = dlist ; bo != NULL ; bo = bo->next )
+    for ( puObject *bo = dlist ; bo != NULL ; bo = bo -> getNextObject() )
       bo -> clrValue () ;
   }
 
@@ -103,10 +103,12 @@ int puPopupMenu::checkKey ( int key, int updown )
     the click order is the same as the DRAW order.
   */
 
-  for ( bo = dlist ; bo->next != NULL ; bo = bo->next )
+  for ( bo = dlist ;
+        bo -> getNextObject() != NULL ;
+        bo = bo -> getNextObject() )
     /* Find the last object in our list. */ ;
 
-  for ( ; bo != NULL ; bo = bo->prev )
+  for ( ; bo != NULL ; bo = bo -> getPrevObject() )
     if ( bo -> checkKey ( key, updown ) )
       return TRUE ;
 
@@ -162,7 +164,7 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
      * out of the menu.
      */
 
-    for ( puObject *bo = dlist ; bo != NULL ; bo = bo->next )
+    for ( puObject *bo = dlist ; bo != NULL ; bo = bo -> getNextObject() )
     {
       if ( ! hit )
         bo -> checkHit ( button, updown, x , y ) ;
@@ -186,13 +188,15 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
    * clear it
    */
 
-  for ( bo = dlist ; bo->next != NULL ; bo = bo->next )
+  for ( bo = dlist ;
+        bo -> getNextObject() != NULL ;
+        bo = bo -> getNextObject() )
     if ( updown == PU_DRAG && ! bo -> checkHit ( button, updown, x, y ) )
       bo -> clrValue () ;
 
     /* Find the last object in our list. */ ;
 
-  for ( ; bo != NULL ; bo = bo->prev )
+  for ( ; bo != NULL ; bo = bo -> getPrevObject() )
     if ( bo -> checkHit ( button, updown, x, y ) )
       return TRUE ;
 
