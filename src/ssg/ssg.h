@@ -597,7 +597,7 @@ public:
                                  { val ? enable(mode) : disable(mode) ; }
 
   virtual char *getTextureFilename(void) { return filename ; }
-  virtual void  setTextureFilename ( char *fname ) ;
+  virtual void  setTextureFilename ( const char *fname ) ;
   virtual void  setTexture ( char *fname,
                              int _wrapu = TRUE,
                              int _wrapv = TRUE,
