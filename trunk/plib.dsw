@@ -1,9 +1,33 @@
-Microsoft Developer Studio Workspace File, Format Version 5.00
+Microsoft Developer Studio Workspace File, Format Version 6.00
 # WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
 
 ###############################################################################
 
-Project: "complex"=".\examples\pui\complex.dsp" - Package Owner=<4>
+Project: "fnt"=.\src\fnt\fnt.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "js"=.\src\js\js.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "plib"=.\plib.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -13,153 +37,12 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name fnt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sg
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name pui
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "example"=".\examples\sl\example.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name sl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "fnt"=".\src\fnt\fnt.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "fnt_test"=".\examples\fnt\fnt_test.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name fnt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sg
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "js"=".\src\js\js.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "js_demo"=".\examples\js\js_demo.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name js
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "majik_demo"=".\examples\ssg\majik\majik_demo.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "mod_demo"=".\examples\sl\mod_demo.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name sl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "plib"=".\plib.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name complex
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name example
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name fnt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name fnt_test
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name js
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name js_demo
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mod_demo
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name sg
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sg_quat_test
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simple
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name sl
@@ -168,121 +51,13 @@ Package=<4>
     Project_Dep_Name ssg
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name test
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tux_example
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "pui"=".\src\pui\pui.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name sg
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "sg"=".\src\sg\sg.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "sg_quat_test"=".\examples\sg\sg_quat_test.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name sg
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "simple"=".\examples\pui\simple.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name sg
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name pui
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "sl"=".\src\sl\sl.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "ssg"=".\src\ssg\ssg.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "test"="..\plib-1.0.15\examples\pui\test.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name fnt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sg
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name pui
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "tux_example"=".\examples\ssg\tux\tux_example.dsp" - Package Owner=<4>
+Project: "pui"=.\src\pui\pui.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -293,9 +68,42 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name sg
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ssg
-    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sg"=.\src\sg\sg.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sl"=.\src\sl\sl.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ssg"=.\src\ssg\ssg.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
