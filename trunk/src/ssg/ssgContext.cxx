@@ -44,11 +44,11 @@ ssgContext::ssgContext ()
   makeCurrent () ;
   currentState     = NULL  ;
   basicState       = NULL  ;
-  //orthographic     = FALSE ;
+  //orthographic   = FALSE ;
   cullFace         = TRUE  ;
   ovTexture        = FALSE ;
   ovCullface       = FALSE ;
-
+  ovState          = NULL  ;
   sgCopyMat4 ( cameraMatrix, _ssgOpenGLAxisSwapMatrix ) ;
 
   frustum = new sgFrustum ;
@@ -66,6 +66,7 @@ ssgContext::ssgContext ()
   /* The order of the two following lines is essential.
      setTexture(NULL) currently sets the TEXTURE bit in
      dont_care... not the desired effect here. /PL */
+
   basicState->setTexture ( (ssgTexture*) NULL ) ;
   basicState->dont_care      = 0 ;
   basicState->colour_material_mode = GL_AMBIENT_AND_DIFFUSE ;
