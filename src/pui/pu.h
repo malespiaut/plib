@@ -2024,7 +2024,7 @@ public:
  * Window System Integration 
  * -------------------------
  *
- * PUI has direct support for GLUT, FLTK, SDL and GTK. All code is provided
+ * PUI has direct support for GLUT, PW, FLTK, SDL and GTK. All code is provided
  * inline, making PUI itself independent. There are several ways to choose
  * implementation, for instance:
  *
@@ -2062,13 +2062,16 @@ void puSetWindowFuncs ( puGetWindowCallback,
 // Choose implementation
 
 #if !defined(PU_USE_GLUT)   && \
+    !defined(PU_USE_PW)     && \
     !defined(PU_USE_FLTK)   && \
     !defined(PU_USE_SDL)    && \
     !defined(PU_USE_NATIVE) && \
     !defined(PU_USE_NONE)
 
 // Nothing selected. Try to figure out which one to use.
-#if defined(FL_MAJOR_VERSION)
+#if defined(PW_IS_PRESENT)
+# define PU_USE_PW
+#elif defined(FL_MAJOR_VERSION)
 # define PU_USE_FLTK
 #elif defined(SDL_MAJOR_VERSION)
 # define PU_USE_SDL
@@ -2084,6 +2087,9 @@ void puSetWindowFuncs ( puGetWindowCallback,
 #if defined(PU_USE_GLUT)
 # include "puGLUT.h"
 # define puInit  puInitGLUT
+#elif defined(PU_USE_PW)
+# include "puPW.h"
+# define puInit  puInitPW
 #elif defined(PU_USE_FLTK)
 # include "puFLTK.h"
 # define puInit  puInitFLTK

@@ -1,6 +1,8 @@
 #ifndef _PW_H_
 #define _PW_H_ 1
 
+#define PW_IS_PRESENT  1
+
 typedef void pwResizeCB ( int w, int h ) ;
 typedef void pwExitCB   () ;
 typedef void pwKeybdFunc    ( int key, int updown, int x, int y ) ;
