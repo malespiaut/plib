@@ -72,7 +72,7 @@ ssgLoaderWriterMesh. For example, this has a member function
 <pre>
 void ssgLoaderWriterMesh::AddFaceFromCArray(int nNoOfVerticesForThisFace, int *aiVertices);
 </pre>
-With this, you can add several n-sided polys to one mesh ("one node").
+With several calls, you can add several n-sided polys to one mesh ("one node").
 When you are done constructing the mesh from the file, you call
 <pre>
 void ssgLoaderWriterMesh::add2SSG(
@@ -84,7 +84,7 @@ and the class adds the information into the scene graph. It handles ssg's restri
 so, for example, if the polys of the mesh use 5 textures then at least 5 nodes will be 
 added to the scene graph.
 Unfortunately the class isn't completely implemented yet, I (Wolfram Kuss, w_kuss@rz-online.de)
-have just implemented those parts I needed for the ."my" loaders.
+have just implemented those parts I needed for "my" loaders.
 But I urge everyone and am willing to help everyone writing a new loader for a file format that doesnt hold 
 all ssg-restrictions to use this class. Then the loaders will become more consistent 
 and therefore easier to maintain and read. Also, there are a lot of optimizations that can be done
@@ -105,7 +105,11 @@ or do a <code>ReInit()</code>. To insert the data into the <code>ssgLoaderWriter
 you have to add vertices, faces, materials, materialindexes (saying what face uses what material)
 and, if applicable texture coordinates. For all of these, you <B>can</B> say in advance how many you have.
 If you know that you have 3712 vertices, call <code>ThereAreNVertices(3712)</code> and everything is allocated
-at once and the <code>addVertex</code> works very fast. Vertices are simply sgVec3s. Faces are simply
+at once and the <code>addVertex</code> works very fast. If you don't know in advance how many you have, you 
+still have to call <code>ThereAreNVertices</code>, as this also allocates the vertices. In this case, a certain amount of 
+vertices is reserved and if you use more, the list will dynamically grow.<p>
+
+Vertices are simply sgVec3s. Faces are simply
 lists/arrays of vertex indexes.
 For adding faces, use <code>addFace</code> if you already have a <code>ssgIndexArray</code> or use
 <code>AddFaceFromCArray</code> if you have the vertex indexes in a C(++) array.
@@ -118,26 +122,29 @@ ssg to use the <code>ssgSimpleState</code> ss for all faces:
 
 
 <BR>
-<code>
+<pre>
+
 	theMesh.ThereAreNMaterials( 1 );
 	theMesh.addMaterial( &ss );
 	theMesh.ThereAreNMaterialIndexes( _ssgNoFacesToRead ) ;
 	for(i=0;i<_ssgNoFacesToRead ;i++)
 	   theMesh.addMaterialIndex ( 0 ) ;
-</code>
+</pre>
 <BR>
 If the file format has texture coordinates, you have to find out whether it has them 
 per vertex or per vertex and face. If you look at a "straight forward" cube,
 having texture coordinates per vertex means you can have 8, but if you have
 texture coordinates per vertex and face, you can have 24 (each vertex is part of 3 faces).
-
-
-
+According to which of these two cases you have, you use the functions
+<pre>
 	void ThereAreNTCPFAV( int n = 3 ) ;
 	void addTCPFAV ( ssgTexCoordArray **tca ) ;
-
+</pre>
+or
+<pre>
 	void ThereAreNTCPV( int n = 3 ) ;
 	void addTCPV ( sgVec2 tc ) ;
+</pre>
 
 
 <H2>2.Loaders</H2>
