@@ -993,7 +993,7 @@ public:
   virtual int  getNumTriangles () = 0 ;
   virtual void getTriangle ( int n, short *v1, short *v2, short *v3 ) = 0 ;
 
-  virtual void transform ( sgMat4 m ) = 0 ;
+  virtual void transform ( const sgMat4 m ) = 0 ;
 
   void setCullFace ( int cf ) { cull_face = cf ; }
   int  getCullFace () { return cull_face ; }
@@ -1057,7 +1057,7 @@ public:
 #ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
 #endif
-  virtual void transform ( sgMat4 m ) ;
+  virtual void transform ( const sgMat4 m ) ;
 
   int getNumVertices  () { return num_vertices  ; }
   int getNumNormals   () { return num_normals   ; }
@@ -1149,7 +1149,7 @@ public:
 #ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
 #endif
-  virtual void transform ( sgMat4 m ) ;
+  virtual void transform ( const sgMat4 m ) ;
 
   void setPrimitiveType ( GLenum ty ) { gltype = ty ; }
   GLenum getPrimitiveType () { return gltype ; }
