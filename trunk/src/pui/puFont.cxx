@@ -55,13 +55,13 @@ puFont PUFONT_HELVETICA_18   ( &PUFONT_TXF_HELVETICA, 18 )  ;
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
 
-int puFont::getStringWidth ( const char *str ) const
+float puFont::getFloatStringWidth ( const char *str ) const
 {
   if ( str == NULL )
-    return 0 ;
+    return 0.0f ;
 
 #ifdef _PU_USE_GLUT_FONTS
-  if ( glut_font_handle != (GlutFont) 0 )
+  if ( glut_font_handle != NULL )
   {
     int res = 0 ;
     int max_res = 0 ;
@@ -81,7 +81,7 @@ int puFont::getStringWidth ( const char *str ) const
 
     if ( res > max_res ) max_res = res;
 
-    return max_res ;
+    return (float) max_res ;
   }
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
@@ -89,7 +89,7 @@ int puFont::getStringWidth ( const char *str ) const
   {
     float r, l ;
     fnt_font_handle -> getBBox ( str, pointsize, slant, &l, &r, NULL, NULL ) ;
-    return (int) ( r - l ) ;
+    return ( r - l ) ;
   }
 
   return 0 ;
