@@ -307,9 +307,6 @@ puGroup::~puGroup ()
     bo = bo -> getPrevObject() ;
     delete dlist  ;
   }
-
-  if ( this == puActiveWidget () )
-    puDeactivateWidget () ;
 }
 
 

@@ -323,9 +323,6 @@ puFileSelector::~puFileSelector ()
     delete[] files;
     delete[] dflag;
   }
-
-  if ( this == puActiveWidget () )
-    puDeactivateWidget () ;
 }
 
 void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h, 
