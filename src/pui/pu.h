@@ -198,6 +198,12 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUARROW_FASTLEFT   6
 #define PUARROW_FASTRIGHT  7
 
+#define PUBUTTON_NORMAL 0
+#define PUBUTTON_RADIO  1
+#define PUBUTTON_CIRCLE 2
+#define PUBUTTON_VCHECK 3 /* v-shaped checkmark */
+#define PUBUTTON_XCHECK 4 /* X checkmark */
+
 /* Rational Definitions of PUI Legend and Label Places */
 #define PUPLACE_TOP_LEFT          0
 #define PUPLACE_TOP_CENTERED      1
@@ -265,7 +271,7 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUSTYLE_DROPSHADOW 4
 #define PUSTYLE_SPECIAL_UNDERLINED 5
 #define PUSTYLE_SMALL_BEVELLED     6
-#define PUSTYLE_RADIO      7
+#define PUSTYLE_RADIO      7 /* deprecated ! */
 #define PUSTYLE_SHADED     8
 #define PUSTYLE_SMALL_SHADED   9
 #define PUSTYLE_MAX        10
@@ -941,9 +947,15 @@ public:
 class puButton : public puObject
 {
 protected:
+  int button_type ;
+
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
+
+  int  getButtonType ( void  )     { return button_type ;  }
+  void setButtonType ( int btype ) { button_type = btype ; }
+
   puButton   ( int minx, int miny, const char *l ) :
                  puObject ( minx, miny,
                             minx + puGetDefaultLegendFont().getStringWidth ( l ) + PUSTR_LGAP + PUSTR_RGAP,
@@ -953,10 +965,11 @@ public:
     setLegend ( l ) ;
   }
 
-  puButton   ( int minx, int miny, int maxx, int maxy ) :
+  puButton   ( int minx, int miny, int maxx, int maxy, int btype = PUBUTTON_NORMAL ) :
                  puObject ( minx, miny, maxx, maxy )
   {
     type |= PUCLASS_BUTTON ;
+    button_type = btype ;
   }
 } ;
 
