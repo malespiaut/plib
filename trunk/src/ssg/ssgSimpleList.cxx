@@ -28,7 +28,7 @@ void ssgSimpleList::copy_from ( ssgSimpleList *src, int clone_flags )
 {
   ssgBase::copy_from ( src, clone_flags ) ;
 
-  delete list ;
+  delete [] list ;
   size_of = src -> getSizeOf () ;
   total   = src -> getNum () ;
   limit   = total ;
@@ -149,7 +149,7 @@ void ssgSimpleList::print ( FILE *fd, char *indent, int how_much )
 
 int ssgSimpleList::load ( FILE *fd )
 {
-  delete list ;
+  delete [] list ;
   _ssgReadUInt ( fd, &size_of ) ;
   _ssgReadUInt ( fd, &total   ) ;
   limit = total ;

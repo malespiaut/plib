@@ -77,7 +77,7 @@ ssgBase::~ssgBase (void)
   deadBeefCheck () ;
   assert ( refc == 0 ) ;
 
-  delete name ;
+  delete [] name ;
 
   /*
     Set the type of deleted nodes to 0xDeadBeef so we'll
@@ -90,7 +90,7 @@ ssgBase::~ssgBase (void)
  
 void ssgBase::setName ( const char *nm )
 {
-  delete name ;
+  delete [] name ;
  
   if ( nm == NULL )
     name = NULL ;
@@ -126,7 +126,7 @@ void ssgBase::print ( FILE *fd, char *indent, int how_much )
 
 int ssgBase::load ( FILE *fd )
 { 
-  delete name ;
+  delete [] name ;
   name = NULL ;
   _ssgReadString ( fd, &name ) ;
   return ! _ssgReadError () ;

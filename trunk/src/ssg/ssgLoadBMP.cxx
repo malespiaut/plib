@@ -266,7 +266,7 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
         default : break ;
       }
 
-    delete data ;
+    delete [] data ;
   }
   else
   if ( bpp == 24 )

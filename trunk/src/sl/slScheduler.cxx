@@ -80,7 +80,7 @@ void slScheduler::initBuffers ()
   if ( notWorking () )
     return ;
 
-  delete mixer_buffer ;
+  delete [] mixer_buffer ;
   setMaxConcurrent ( 0 );
 
   mixer_buffer_size = getDriverBufferSize () ;
@@ -99,7 +99,7 @@ void slScheduler::setMaxConcurrent ( int mc )
            mixer_inputs[mi] = new Uchar [ mixer_buffer_size ] ;
     } else
     { if ( mixer_inputs[mi] != NULL )
-           delete mixer_inputs[mi] ;
+           delete [] mixer_inputs[mi] ;
            mixer_inputs[mi] = NULL;
     }
 }
@@ -115,7 +115,7 @@ int slScheduler::getMaxConcurrent ( void ) const
 
 slScheduler::~slScheduler ()
 {
-  delete mixer_buffer ;
+  delete [] mixer_buffer ;
   setMaxConcurrent(0);
   if ( current == this )
     current = NULL ;

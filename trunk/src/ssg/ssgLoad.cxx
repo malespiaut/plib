@@ -136,14 +136,14 @@ ssgSelector* ssgLoaderOptions::createSelector ( ssgSelector* s ) const
 
 void ssgLoaderOptions::setModelDir ( const char *s )
 {
-  delete model_dir ;
+  delete [] model_dir ;
   model_dir = new char [ strlen ( s ) + 1 ] ;
   strcpy ( model_dir, s ) ;
 }
 
 void ssgLoaderOptions::setTextureDir ( const char *s )
 {
-  delete texture_dir ;
+  delete [] texture_dir ;
   texture_dir = new char [ strlen ( s ) + 1 ] ;
   strcpy ( texture_dir, s ) ;
 }

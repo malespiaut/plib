@@ -64,7 +64,7 @@ public:
     if ( this == top )
       top = NULL ;
 
-    delete data ;
+    delete [] data ;
     delete next ;
   }
 
@@ -681,7 +681,7 @@ MODfile::~MODfile ()
   if ( broken )
     return ;
 
-  delete buffer ;
+  delete [] buffer ;
   memSongFree () ;
 }
 

@@ -367,7 +367,7 @@ int puInput::checkKey ( int key, int /* updown */ )
           strcat ( getStringValue(), puGetPasteBuffer () ) ;
           strcat ( getStringValue(), p ) ;
           cursor_position += strlen ( puGetPasteBuffer () ) ;
-          delete p ;
+          delete [] p ;
         }
 
         break ;

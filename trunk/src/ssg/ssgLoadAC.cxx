@@ -291,7 +291,7 @@ int do_object   ( char *  /* s */ )
   int obj_type = search ( obj_type_tags, s ) ;  
 */
 
-  delete current_tfname ;
+  delete [] current_tfname ;
   current_tfname = NULL ;
 
   char buffer [ 1024 ] ;
@@ -369,7 +369,7 @@ int do_texture  ( char *s )
 {
   skip_quotes ( &s ) ;
 
-  delete current_tfname ;
+  delete [] current_tfname ;
 
   if ( s == NULL || s[0] == '\0' )
     current_tfname = NULL ;
@@ -671,7 +671,7 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
       search ( top_tags, s ) ;
   }
 
-  delete current_tfname ;
+  delete [] current_tfname ;
   current_tfname = NULL ;
   delete [] vtab ;
   fclose ( loader_fd ) ;

@@ -103,7 +103,7 @@ void puLargeInput::removeSelectRegion ( void )
   p [ select_start_position ] = '\0' ;
   strcat ( p, (text + select_end_position ) ) ;
   strcpy ( text, p ) ;
-  delete p ;
+  delete [] p ;
 
   wrapText () ;
 
@@ -200,10 +200,10 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
 
 puLargeInput::~puLargeInput ()
 {
-  delete text ;
-  if ( wrapped_text ) delete wrapped_text ;
+  delete [] text ;
+  delete [] wrapped_text ;
 
-  if ( valid_data )   delete valid_data ;
+  delete [] valid_data ;
 
   if ( puActiveWidget() == this )
     puDeactivateWidget () ;
@@ -318,7 +318,7 @@ void  puLargeInput::addText ( const char *l )
   strcat ( temp_text, (text+select_end_position) ) ;
   int temp_select_start = select_start_position ;
   setText ( temp_text ) ;
-  delete temp_text ;
+  delete [] temp_text ;
   setSelectRegion ( temp_select_start,
                     temp_select_start + strlen(l) ) ;
   setCursor ( select_end_position ) ;
@@ -347,7 +347,7 @@ void  puLargeInput::appendText ( const char *l )
   setText ( temp_text ) ;
   setSelectRegion ( oldlen, strlen(temp_text) ) ;
   setCursor ( oldlen ) ;
-  delete temp_text ;
+  delete [] temp_text ;
 }
 
 void  puLargeInput::removeText ( int start, int end )
@@ -358,14 +358,14 @@ void  puLargeInput::removeText ( int start, int end )
   strcat ( temp_text, text+end ) ;
   setText ( temp_text ) ;
   setCursor ( start ) ;
-  delete temp_text ;
+  delete [] temp_text ;
 }
 
 void  puLargeInput::setText ( const char *l )
 {
   if ( text )
   {
-    delete text ;
+    delete [] text ;
     text = NULL ;
   }
 
@@ -1033,7 +1033,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
           strcat ( p, ( old_text + cursor_position + 1 ) ) ;
           setText ( p ) ;
           setCursor ( temp_cursor - 1 ) ;
-          delete p ;
+          delete [] p ;
         }
 
         break ;
@@ -1049,7 +1049,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
           strcat ( p, ( old_text + cursor_position + 1 ) ) ;
           setText ( p ) ;
           setCursor ( temp_cursor ) ;
-          delete p ;
+          delete [] p ;
         }
 
         break ;
@@ -1086,7 +1086,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
           temp_cursor += strlen ( puGetPasteBuffer () ) ;
           setText ( p ) ;
           setCursor ( temp_cursor ) ;
-          delete p ;
+          delete [] p ;
         }
 
         break ;
@@ -1119,7 +1119,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
 
         setText ( p ) ;
         setCursor ( temp_cursor + 1 ) ;
-        delete p ;
+        delete [] p ;
 
         break ;
     }
@@ -1134,7 +1134,7 @@ void puLargeInput::wrapText ( void )
   // Wrap the text in "text" and put it in "wrapped_text"
 
   int l_len = strlen (text) ;
-  if ( wrapped_text ) delete wrapped_text ;
+  if ( wrapped_text ) delete [] wrapped_text ;
   wrapped_text = new char[l_len + 1] ;
   memcpy(wrapped_text, text, l_len + 1) ;
 

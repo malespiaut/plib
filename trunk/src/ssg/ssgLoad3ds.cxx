@@ -989,7 +989,7 @@ static int parse_face_materials( unsigned int length ) {
 
   add_leaf(material, listed_faces, face_indices);
 
-  delete face_indices;
+  delete [] face_indices;
 
   return PARSE_OK;
 }
@@ -1210,10 +1210,10 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   // clean up the materials array
   for (i = 0; i < num_materials; i++) {
     if (materials[i] -> name != NULL) {
-      delete materials[i] -> name;
+      delete [] materials[i] -> name;
     }
     if (materials[i] -> tex_name != NULL) {
-      delete materials[i] -> tex_name;
+      delete [] materials[i] -> tex_name;
     }
 
     delete materials[i];

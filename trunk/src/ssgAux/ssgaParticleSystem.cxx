@@ -108,7 +108,7 @@ ssgaParticleSystem::~ssgaParticleSystem ()
       if ( particle [ i ] . time_to_live >= 0.0 )
   	(*particle_delete) ( this, i, & particle [ i ] ) ;
 
-  delete particle ;
+  delete [] particle ;
 }
 
 

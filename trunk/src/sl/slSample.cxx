@@ -89,7 +89,7 @@ void slSample::changeRate   ( int r )
 
   rate   = r ;
   length = length2 ;
-  delete buffer ;
+  delete [] buffer ;
   buffer = buffer2 ;
 }
 
@@ -126,7 +126,7 @@ void slSample::changeBps    ( int b )
     for ( int i = 0 ; i < length ; i++ )
       buffer2 [ i ] = ((Ushort *)buffer) [ i ] >> 8 ;
 
-    delete buffer ;
+    delete [] buffer ;
     buffer = buffer2 ;
     setBps ( b ) ;
   }
@@ -138,7 +138,7 @@ void slSample::changeBps    ( int b )
     for ( int i = 0 ; i < length ; i++ )
       buffer2 [ i ] = buffer [ i ] << 8 ;
 
-    delete buffer ;
+    delete [] buffer ;
     buffer = (Uchar *) buffer2 ;
     length *= 2 ;
     setBps ( b ) ;
@@ -159,7 +159,7 @@ void slSample::changeStereo ( int s )
        for ( int i = 0 ; i < length ; i++ )
          buffer2 [ i*2 ] = buffer2 [ i*2+1 ] = buffer [ i ] ;
 
-       delete buffer ;
+       delete [] buffer ;
        buffer = buffer2 ;
        length *= 2 ;
        setStereo ( SL_TRUE ) ;
@@ -171,7 +171,7 @@ void slSample::changeStereo ( int s )
        for ( int i = 0 ; i < length / 2 ; i++ )
          buffer2 [ i*2 ] = buffer2 [ i*2+1 ] = ((Ushort *) buffer) [ i ] ;
 
-       delete buffer ;
+       delete [] buffer ;
        buffer = (Uchar *)buffer2 ;
        length *= 2 ;
        setStereo ( SL_TRUE ) ;
@@ -186,7 +186,7 @@ void slSample::changeStereo ( int s )
        for ( int i = 0 ; i < (length-1)/2 ; i++ )
          buffer2 [ i ] = ((int)buffer [ i*2 ] + (int)buffer [ i*2 + 1 ] ) / 2 ;
 
-       delete buffer ;
+       delete [] buffer ;
        buffer = buffer2 ;
        length /= 2 ;
        setStereo ( SL_FALSE ) ;
@@ -199,7 +199,7 @@ void slSample::changeStereo ( int s )
          buffer2 [ i ] = ((int)((Ushort *)buffer) [ i*2 ] +
                           (int)((Ushort *)buffer) [ i*2 + 1 ] ) / 2 ;
 
-       delete buffer ;
+       delete [] buffer ;
        buffer = (Uchar *)buffer2 ;
        length /= 4 ;
        setStereo ( SL_FALSE ) ;
@@ -245,7 +245,7 @@ int slSample::loadWavFile ( const char *fname )
   int found_header   = SL_FALSE ;
   int needs_swabbing = SL_FALSE ;
 
-  delete buffer ;
+  delete [] buffer ;
   buffer = NULL ;
   length = 0 ;
 
@@ -387,7 +387,7 @@ int slSample::loadWavFile ( const char *fname )
 
 int slSample::loadAUFile ( const char *fname )
 {
-  delete buffer ;
+  delete [] buffer ;
   buffer = NULL ;
   length = 0 ;
 
@@ -458,7 +458,7 @@ int slSample::loadAUFile ( const char *fname )
 
   if ( hdr_length > 24 )
   {
-    delete comment ;
+    delete [] comment ;
     comment = new char [ hdr_length - 24 + 1 ] ;
 
     fread ( comment, 1, hdr_length - 24, fd ) ;
@@ -481,7 +481,7 @@ int slSample::loadAUFile ( const char *fname )
 
 int slSample::loadRawFile ( const char *fname )
 {
-  delete buffer ;
+  delete [] buffer ;
   buffer = NULL ;
   length = 0 ;
 

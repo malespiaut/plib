@@ -337,10 +337,10 @@ ssgSGIHeader::ssgSGIHeader ( const char *fname, ssgTextureInfo* info )
   fclose ( image_fd ) ;
   image_fd = NULL ;
 
-  delete rbuf   ;
-  delete gbuf   ;
-  delete bbuf   ;
-  delete abuf   ;
+  delete [] rbuf   ;
+  delete [] gbuf   ;
+  delete [] bbuf   ;
+  delete [] abuf   ;
 
   if ( info != NULL )
   {

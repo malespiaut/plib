@@ -241,7 +241,7 @@ public:
       __slPendingError =
         "slSample: FATAL ERROR - Application deleted a sample while it was playing." ;
 
-    delete buffer ;
+    delete [] buffer ;
   }
   
   void ref   () { ref_count++ ; }
@@ -253,7 +253,7 @@ public:
 
   void   setComment ( const char *nc )
   {
-    delete comment ;
+    delete [] comment ;
     comment = new char [ strlen ( nc ) + 1 ] ;
     strcpy ( comment, nc ) ;
   }
@@ -265,7 +265,7 @@ public:
 
   void   setBuffer ( const Uchar *buff, int leng )
   {
-    delete buffer ;
+    delete [] buffer ;
 
     buffer = new Uchar [ leng ] ;
 
@@ -402,8 +402,8 @@ public:
       __slPendingError =
       "slEnvelope: FATAL ERROR - Application deleted an envelope while it was playing.\n" ;
 
-    delete time ;
-    delete value ;
+    delete [] time ;
+    delete [] value ;
   }
 
   void ref   () { ref_count++ ; }

@@ -115,10 +115,10 @@ public:
   ~OptVertexList ()
   {
     for ( int i = 0 ; i < vnum ; i++ )
-      delete vlist [ i ] ;
+      delete [] vlist [ i ] ;
     
-    delete vlist ;
-    delete tlist ;
+    delete [] vlist ;
+    delete [] tlist ;
 
     if (state != NULL) ssgDeRefDelete(state); //~T.G.
   }
@@ -750,7 +750,7 @@ void ssgStripify ( ssgEntity *ent )
         new_colours  -> add ( list.vlist[new_vlist[m]]->colour   ) ;
       }
 
-      delete new_vlist ;
+      delete [] new_vlist ;
 
       ssgVtxTable *new_vtable = new ssgVtxTable ( GL_TRIANGLE_STRIP,
                     new_coords, new_normals, new_texcoords, new_colours ) ;
@@ -761,8 +761,8 @@ void ssgStripify ( ssgEntity *ent )
     }
   }
 
-  delete  slist ;
-  delete cflist ;
+  delete []  slist ;
+  delete [] cflist ;
 }
 
 
