@@ -446,4 +446,7 @@ void puSetPasteBuffer ( char *ch )
 
 char *puGetPasteBuffer ()  {  return input_paste_buffer ;  }
 
+int  puNeedRefresh ( void )  {  return puRefresh ;  }
+void puPostRefresh ( void )  {  puRefresh = TRUE ;  }
+
 
