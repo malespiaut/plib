@@ -156,10 +156,10 @@ void smMixer::setCDVolume     ( int left, int right )
    setVolume ( SOUND_MIXER_CD     , left, right ) ; 
 }
 
-#elif defined(__OpenBSD__)
+#elif defined(__NetBSD__) || defined(__OpenBSD__)
 
 /* ------------------------------------------------------------ */
-/* OpenBSD 2.3                                                  */
+/* NetBSD or OpenBSD 2.3                                        */
 /* ------------------------------------------------------------ */
 
 void smMixer::open ( char *device )
