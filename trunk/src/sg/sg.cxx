@@ -190,6 +190,106 @@ float sgTriArea( sgVec3 p0, sgVec3 p1, sgVec3 p2 )
 	return( area / 2.0f );
 }
 
+/***************************************************\
+*   functions to get the angle between two vectors  *
+\***************************************************/
+
+SGfloat sgAngleBetweenVec3 ( sgVec3 v1, sgVec3 v2 )
+{
+  sgVec3 nv1, nv2 ;
+
+  sgNormalizeVec3 ( nv1, v1 ) ;
+  sgNormalizeVec3 ( nv2, v2 ) ;
+  return sgAngleBetweenNormalizedVec3 ( nv1, nv2 ) ;
+}
+
+SGfloat sgAngleBetweenNormalizedVec3 (sgVec3 first, sgVec3 second, sgVec3 normal) { 
+ // result is in the range  0..2*pi
+ // Attention: first and second have to be normalized
+ // the normal is needed to decide between for example 0.123 looking "from one side"
+ // and -0.123 looking fomr the other
+
+  SGfloat myCos, abs1, abs2, SProduct, deltaAngle, myNorm;
+
+#ifdef _DEBUG
+	SGfloat tfA,tfB;
+
+	tfA = sgScalarProductVec3 (first, first);
+	tfB = sgScalarProductVec3 (second, second);
+	assert(tfA>0.99);
+	assert(tfA<1.01);
+	assert(tfB>0.99);
+	assert(tfB<1.01);
+#endif
+  
+	if((normal[0]==0) && (normal[1]==0) && (normal[2]==0))
+	{	
+		ulSetError ( UL_WARNING, "sgGetAngleBetweenVectors: Normal is zero.");
+		return 0.0;
+	}
+	sgVec3 temp;
+  sgVectorProductVec3( temp, first, second);
+  myNorm = sgLengthVec3 ( temp );
+  if ( (sgScalarProductVec3(temp, normal))<0 ) {
+    myNorm = -myNorm;
+  }
+
+  if ( myNorm < -0.99999 ) {
+    deltaAngle = -SG_PI*0.5;
+  }
+  else
+  {   if ( myNorm > 0.99999 ) {
+         deltaAngle = SG_PI*0.5;
+      }
+      else
+      {   deltaAngle = (SGfloat)asin((double)myNorm);
+      }
+  }
+	// deltaAngle is in the range -SG_PI*0.5 to +SG_PI*0.5 here
+	// However, the correct result could also be 
+	// deltaAngleS := pi - deltaAngle
+	// Please note that:
+	// cos(deltaAngleS)=cos(pi-deltaAngle)=-cos(deltaAngle)
+	// So, the question is whether + or - cos(deltaAngle)
+	// is sgScalarProductVec3(first, second)
+  
+  if ( deltaAngle < 0 ) 
+    deltaAngle = deltaAngle + 2*SG_PI; // unnessecary?
+  
+  SProduct = sgScalarProductVec3(first, second);
+  myCos = (SGfloat) cos(deltaAngle);
+  
+	abs1 = SProduct - myCos;
+  if ( abs1 < 0 ) 
+		abs1 = -abs1;
+  
+	abs2 = SProduct + myCos;
+  if ( abs2 < 0 ) 
+    abs2 = -abs2;
+  
+	assert( (abs1 < 0.1) || (abs2 < 0.1) );
+  if ( abs2 < abs1 ) { // deltaAngleS is the correct result
+    if ( deltaAngle <= SG_PI ) {
+      deltaAngle = SG_PI - deltaAngle;
+    }else {
+      deltaAngle = 3*SG_PI - deltaAngle;
+    }
+  }
+	assert(deltaAngle >= 0.0);
+	assert(deltaAngle <= 2.0*SG_PI);
+  return deltaAngle;
+}
+
+SGfloat sgAngleBetweenVec3 ( sgVec3 v1, sgVec3 v2, sgVec3 normal )
+// nornmal has to be normalized.
+{
+  sgVec3 nv1, nv2 ;
+
+  sgNormalizeVec3 ( nv1, v1 ) ;
+  sgNormalizeVec3 ( nv2, v2 ) ;
+  return sgAngleBetweenNormalizedVec3 ( nv1, nv2, normal ) ;
+}
+
 
 /*********************\
 *    sgBox routines   *
