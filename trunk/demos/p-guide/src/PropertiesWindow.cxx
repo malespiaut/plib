@@ -96,7 +96,7 @@ static void properties_window_displayfn ( void )
 
 // PUI Callback Functions:
 
-void cb_properties_close (puObject *obj)
+static void cb_properties_close (puObject *obj)
 {
     /* Save the changes ... Needed? */
     if ( puActiveWidget() )
@@ -111,7 +111,7 @@ void cb_properties_close (puObject *obj)
 
 // Data setting standard callbacks
 
-void cb_items (puObject *obj)
+static void cb_items (puObject *obj)
 {
     /*Set the Items*/
     if (active_widget)
@@ -123,7 +123,7 @@ void cb_items (puObject *obj)
         
 }
 
-void cb_allowed (puObject *obj)
+static void cb_allowed (puObject *obj)
 {
     /*Set the Allowed string*/
     if (active_widget)
@@ -133,19 +133,19 @@ void cb_allowed (puObject *obj)
         strcpy(active_widget->allowed, obj->getStringValue());
     }
 }
-void cb_int1 (puObject *obj)
+static void cb_int1 (puObject *obj)
 {
     /*Set the first integer storage value */
     if (active_widget)
         active_widget->intval1 = obj->getIntegerValue();
 }
-void cb_int2 (puObject *obj)
+static void cb_int2 (puObject *obj)
 {
     /*Set the second integer storage value */
     if (active_widget)
         active_widget->intval2 = obj->getIntegerValue();
 }
-void cb_bool1 (puObject *obj)
+static void cb_bool1 (puObject *obj)
 {
         /*Set the first boolean storage value */
     if (active_widget)
@@ -156,7 +156,7 @@ void cb_bool1 (puObject *obj)
             active_widget->boolval1 =  false ;
     }
 }
-void cb_bool2 (puObject *obj)
+static void cb_bool2 (puObject *obj)
 {
             /*Set the second boolean storage value */
     if (active_widget)
@@ -167,7 +167,7 @@ void cb_bool2 (puObject *obj)
             active_widget->boolval2 =  false ;
     }
 }
-void cb_bool3 (puObject *obj)
+static void cb_bool3 (puObject *obj)
 {
             /*Set the second boolean storage value */
     if (active_widget)
@@ -178,37 +178,37 @@ void cb_bool3 (puObject *obj)
             active_widget->boolval3 =  false ;
     }
 }
-void cb_float1 (puObject *obj)
+static void cb_float1 (puObject *obj)
 {
     /*Set the first floating storage value */
     if (active_widget)
         active_widget->floatval1 = obj->getFloatValue();
 }
-void cb_float2 (puObject *obj)
+static void cb_float2 (puObject *obj)
 {
     /*Set the first floating storage value */
     if (active_widget)
         active_widget->floatval2 = obj->getFloatValue();
 }
-void cb_float3 (puObject *obj)
+static void cb_float3 (puObject *obj)
 {
     /*Set the first floating storage value */
     if (active_widget)
         active_widget->floatval3 = obj->getFloatValue();
 }
-void cb_float4 (puObject *obj)
+static void cb_float4 (puObject *obj)
 {
     /*Set the first floating storage value */
     if (active_widget)
         active_widget->floatval4 = obj->getFloatValue();
 }
-void cb_float5 (puObject *obj)
+static void cb_float5 (puObject *obj)
 {
     /*Set the first floating storage value */
     if (active_widget)
         active_widget->floatval5 = obj->getFloatValue();
 }
-void cb_float6 (puObject *obj)
+static void cb_float6 (puObject *obj)
 {
     /*Set the first floating storage value */
     if (active_widget)

@@ -81,10 +81,10 @@ extern int main_window ;
 extern puFileSelector *file_selector ;
 
 // Duplication checking
-void chk_dupname ( WidgetList *new_wid ) ;
-puInput *dup_newname = (puInput *)NULL ;
-puDialogBox *dup_dialog = (puDialogBox *)NULL ;
-WidgetList *nextwid ;
+static void chk_dupname ( WidgetList *new_wid ) ;
+static puInput *dup_newname = (puInput *)NULL ;
+static puDialogBox *dup_dialog = (puDialogBox *)NULL ;
+static WidgetList *nextwid ;
 
 // Now our turn
 
@@ -126,7 +126,7 @@ void saveProject ( puObject *ob ) {
 
   /* Begin writing the XML */
 
-    char *autolock_text;
+    const char *autolock_text;
 
     if ( !autolock ) 
         autolock_text="FALSE";
@@ -150,25 +150,25 @@ void saveProject ( puObject *ob ) {
     /* Now begin spitting out the actual widget data. */
 
     WidgetList *wid = widgets ;
-    char *place_name [] = { "PUPLACE_TOP_LEFT", "PUPLACE_TOP_CENTERED", "PUPLACE_TOP_RIGHT",
-                            "PUPLACE_CENTERED_LEFT", "PUPLACE_CENTERED_RIGHT",
-                            "PUPLACE_BOTTOM_LEFT", "PUPLACE_BOTTOM_CENTERED", "PUPLACE_BOTTOM_RIGHT",
-                            "PUPLACE_CENTERED_CENTERED",
-                            "PUPLACE_ABOVE_LEFT", "PUPLACE_ABOVE_RIGHT",
-                            "PUPLACE_BELOW_LEFT", "PUPLACE_BELOW_RIGHT",
-                            "PUPLACE_UPPER_LEFT", "PUPLACE_UPPER_RIGHT",
-                            "PUPLACE_LOWER_LEFT", "PUPLACE_LOWER_RIGHT" } ;
+    const char *place_name [] = { "PUPLACE_TOP_LEFT", "PUPLACE_TOP_CENTERED", "PUPLACE_TOP_RIGHT",
+                                  "PUPLACE_CENTERED_LEFT", "PUPLACE_CENTERED_RIGHT",
+                                  "PUPLACE_BOTTOM_LEFT", "PUPLACE_BOTTOM_CENTERED", "PUPLACE_BOTTOM_RIGHT",
+                                  "PUPLACE_CENTERED_CENTERED",
+                                  "PUPLACE_ABOVE_LEFT", "PUPLACE_ABOVE_RIGHT",
+                                  "PUPLACE_BELOW_LEFT", "PUPLACE_BELOW_RIGHT",
+                                  "PUPLACE_UPPER_LEFT", "PUPLACE_UPPER_RIGHT",
+                                  "PUPLACE_LOWER_LEFT", "PUPLACE_LOWER_RIGHT" } ;
 
 
     while ( wid )
     {
         puObject *obj = wid->obj ;
         int x, y, w, h ;
-        char *hidden ;
-        char *locked ;
-        char *bool_one ;
-        char *bool_two ;
-        char *bool_three ;
+        const char *hidden ;
+        const char *locked ;
+        const char *bool_one ;
+        const char *bool_two ;
+        const char *bool_three ;
         obj->getPosition ( &x, &y ) ;
         obj->getSize ( &w, &h ) ;
 
@@ -259,11 +259,11 @@ void saveProject ( puObject *ob ) {
     fclose (out) ;
 }
 
-void gotoNextLine( char* buffer )
+/*static void gotoNextLine( char* buffer )
 {
     while (buffer != "\n")
         buffer++ ;
-}
+}*/
 
 void loadProject ( puObject *ob ) {
     extern puInput *window_name ;
@@ -707,7 +707,7 @@ void loadProject ( puObject *ob ) {
     /* Done checking name for duplication */
 }
 
-void chk_dupname_ok_cb ( puObject *ob )
+static void chk_dupname_ok_cb ( puObject *ob )
 {
   /* The user's new name from the dialog has already been set to the object_name*/
   /* Close dialogbox and update main window ...*/
@@ -719,7 +719,7 @@ void chk_dupname_ok_cb ( puObject *ob )
   chk_dupname(nextwid);
 }
 
-void chk_dupname ( WidgetList *new_wid )
+static void chk_dupname ( WidgetList *new_wid )
 {
     if (!new_wid)
         return;

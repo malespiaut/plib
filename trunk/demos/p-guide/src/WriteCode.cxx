@@ -547,14 +547,14 @@ void write_code ( puObject *ob )
 
         // TO DO:  Allow the user to customize colour and style
 
-        char *place_name [] = { "PUPLACE_TOP_LEFT", "PUPLACE_TOP_CENTERED", "PUPLACE_TOP_RIGHT",
-                                "PUPLACE_CENTERED_LEFT", "PUPLACE_CENTERED_RIGHT",
-                                "PUPLACE_BOTTOM_LEFT", "PUPLACE_BOTTOM_CENTERED", "PUPLACE_BOTTOM_RIGHT",
-                                "PUPLACE_CENTERED_CENTERED",
-                                "PUPLACE_ABOVE_LEFT", "PUPLACE_ABOVE_RIGHT",
-                                "PUPLACE_BELOW_LEFT", "PUPLACE_BELOW_RIGHT",
-                                "PUPLACE_UPPER_LEFT", "PUPLACE_UPPER_RIGHT",
-                                "PUPLACE_LOWER_LEFT", "PUPLACE_LOWER_RIGHT" } ;
+        const char *place_name [] = { "PUPLACE_TOP_LEFT", "PUPLACE_TOP_CENTERED", "PUPLACE_TOP_RIGHT",
+                                      "PUPLACE_CENTERED_LEFT", "PUPLACE_CENTERED_RIGHT",
+                                      "PUPLACE_BOTTOM_LEFT", "PUPLACE_BOTTOM_CENTERED", "PUPLACE_BOTTOM_RIGHT",
+                                      "PUPLACE_CENTERED_CENTERED",
+                                      "PUPLACE_ABOVE_LEFT", "PUPLACE_ABOVE_RIGHT",
+                                      "PUPLACE_BELOW_LEFT", "PUPLACE_BELOW_RIGHT",
+                                      "PUPLACE_UPPER_LEFT", "PUPLACE_UPPER_RIGHT",
+                                      "PUPLACE_LOWER_LEFT", "PUPLACE_LOWER_RIGHT" } ;
 
         if ( wid->label_text )
         {
