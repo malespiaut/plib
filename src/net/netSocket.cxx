@@ -44,6 +44,12 @@
 #define socklen_t int
 #endif
 
+/* Paul Wiltsey says we need this for Solaris 2.8 */
+ 
+#ifndef INADDR_NONE
+#define INADDR_NONE ((unsigned long)-1)
+#endif
+                                                                                               
 netAddress::netAddress ( cchar* host, int port )
 {
   set ( host, port ) ;
