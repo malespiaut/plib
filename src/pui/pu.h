@@ -1103,6 +1103,19 @@ public:
     active_button = 0 ;
   }
 
+  /* Alternate constructor which lets you explicitly set width */
+
+  puBiSlider ( int minx, int miny, int sz, int vertical, int width ) :
+     puSlider ( minx, miny, sz, vertical, width )
+  {
+    type |= PUCLASS_BISLIDER ;
+    max_value = 1 ;
+    min_value = 0 ;
+    current_max = 1 ;
+    current_min = 0 ;
+    active_button = 0 ;
+  }
+
   void setMaxValue ( int i )
   {
     max_value = i ;
@@ -1146,8 +1159,17 @@ public:
     freeze_ends = TRUE ;
   }
 
-   int getFreezeEnds () {  return freeze_ends ;  }
-   void setFreezeEnds ( int val ) {  freeze_ends = val ; puPostRefresh();  }
+  /* Alternate constructor which lets you explicitly set width */
+
+  puTriSlider ( int minx, int miny, int sz, int vertical, int width ) :
+     puBiSlider ( minx, miny, sz, vertical, width )
+  {
+    type |= PUCLASS_TRISLIDER ;
+    freeze_ends = TRUE ;
+  }
+
+  int getFreezeEnds () {  return freeze_ends ;  }
+  void setFreezeEnds ( int val ) {  freeze_ends = val ; puPostRefresh();  }
 } ;
 
 
