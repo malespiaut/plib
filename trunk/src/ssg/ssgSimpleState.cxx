@@ -421,7 +421,7 @@ int ssgSimpleState::save ( FILE *fd )
   return ssgState::save(fd) ;
 }
 
-void ssgSimpleState::setTextureFilename ( char *fname )
+void ssgSimpleState::setTextureFilename ( const char *fname )
 {
   delete filename ;
 
