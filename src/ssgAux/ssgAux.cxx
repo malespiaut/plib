@@ -1,9 +1,9 @@
 
 #include "ssgAux.h"
 
-static ssgBase *createCube ()      { return new ssgaCube     ; }
-static ssgBase *createSphere ()    { return new ssgaSphere   ; }
-static ssgBase *createCylinder ()  { return new ssgaCylinder ; }
+static ssgBase *createCube ()      { return new ssgaCube ( 0 )     ; }
+static ssgBase *createSphere ()    { return new ssgaSphere ( 0 )   ; }
+static ssgBase *createCylinder ()  { return new ssgaCylinder ( 0 ) ; }
 
 void ssgaInit ()
 {
