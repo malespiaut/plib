@@ -34,6 +34,7 @@
 ulList::ulList ( int init )
 {
   total = 0 ;
+  next = 0 ;
   entity_list = new void * [ limit = (init <= 0) ? 1 : init ] ;
 }                                                                               
 
