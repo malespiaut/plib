@@ -89,7 +89,7 @@ void getToken ( char *res, FILE *fd )
 }
 
 
-void ungetToken ( char *s )
+void ungetToken ( const char *s )
 {
   if ( unget_stack_depth >= MAX_UNGET-1 )
   {

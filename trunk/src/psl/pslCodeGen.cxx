@@ -65,7 +65,7 @@ void PSL_Parser::pushCodeAddr ( PSL_Address a )
 }
 
 
-void PSL_Parser::pushConstant ( char *c )
+void PSL_Parser::pushConstant ( const char *c )
 {
   float f = atof ( c ) ; 
   char *ff = (char *) & f ;

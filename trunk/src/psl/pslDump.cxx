@@ -27,7 +27,7 @@
 
 struct OpcodeDecode
 {
-  char *s ;
+  const char *s ;
   unsigned char opcode ;
 } ;
 
