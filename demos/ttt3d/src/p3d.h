@@ -33,10 +33,6 @@
 #endif
 #include <math.h>
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 #include <plib/ssg.h>
 
 #include <GL/glut.h>

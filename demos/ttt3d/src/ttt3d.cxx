@@ -25,7 +25,7 @@
 #include "p3d.h"
 #include <signal.h>
 
-#ifdef _WIN32
+#if defined(WIN32) && !defined(__CYGWIN__)
 #  include <io.h>
 #  include <direct.h>
 

@@ -25,14 +25,14 @@
 #ifndef _INCLUDED_SSG_H_
 #define _INCLUDED_SSG_H_
 
+#include "sg.h"
+
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
 #else
 #  include <GL/gl.h>
 #endif
 
-#include "ul.h"
-#include "sg.h"
 #include "ssgconf.h"
 
 #ifndef _SSG_PUBLIC
