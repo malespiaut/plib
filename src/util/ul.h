@@ -157,21 +157,27 @@ public:
 
 inline void ulSleep ( int seconds )
 {
+  if ( seconds >= 0 )
+  {
 #ifdef WIN32
-  Sleep ( 1000 * seconds ) ;
+    Sleep ( 1000 * seconds ) ;
 #else
-  sleep ( seconds ) ;
+    sleep ( seconds ) ;
 #endif
+  }
 }
 
 
 inline void ulMilliSecondSleep ( int milliseconds )
 {
+  if ( milliseconds >= 0 )
+  {
 #ifdef WIN32
-  Sleep ( milliseconds ) ;
+    Sleep ( milliseconds ) ;
 #else
-  usleep ( milliseconds * 1000 ) ;
+    usleep ( milliseconds * 1000 ) ;
 #endif
+  }
 }
 
 
