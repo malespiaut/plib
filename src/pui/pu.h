@@ -809,6 +809,24 @@ public:
     cb_mode = PUSLIDER_ALWAYS ;
   }
 
+  /* Blake Friesen - alternate constructor which lets you explicity set width */
+  puSlider ( int minx, int miny, int sz, int width, int vertical ) :
+     puObject ( minx, miny, vertical ?
+                             ( minx + width ) :
+                             ( minx + sz ),
+                            vertical ?
+                             ( miny + sz ) :
+                             ( miny + width ) 
+                           )
+  {
+    type |= PUCLASS_SLIDER ;
+    slider_fraction = 0.1f ;
+    getValue ( & last_cb_value ) ;
+    vert = vertical ;
+    cb_delta = 0.1f ;
+    cb_mode = PUSLIDER_ALWAYS ;
+  }
+
   void setCBMode ( int m ) { cb_mode = m ; }
   float getCBMode ( void ) { return (float)cb_mode ; }
 
