@@ -802,8 +802,7 @@ static void safe_replace_kid ( ssgBranch *parent, ssgEntity *old_kid, ssgEntity 
     if ( parent -> isAKindOf ( ssgTypeSelector () ) )
     { 
       /* cannot remove kids from selectors */
-      static ssgInvisible empty ;
-      parent -> replaceKid ( old_kid, &empty ) ;
+      parent -> replaceKid ( old_kid, new ssgInvisible ) ;
     }
     else
     {

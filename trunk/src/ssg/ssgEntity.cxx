@@ -221,10 +221,7 @@ ssgCullResult ssgEntity::cull_test ( sgFrustum *f, sgMat4 m, int test_needed )
 
   tmp . orthoXform ( m ) ;
 
-  if ( _ssgCurrentContext->isOrtho() )
-    return SSG_STRADDLE ;   /* XXX Fix Me!! XXX */
-  else
-    return (ssgCullResult) f -> contains ( &tmp ) ;
+  return (ssgCullResult) f -> contains ( &tmp ) ;
 }
 
 
