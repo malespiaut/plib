@@ -1,6 +1,6 @@
 /*
      PLIB - A Suite of Portable Game Libraries
-     Copyright (C) 2002  Steve Baker
+     Copyright (C) 1998,2002  Steve Baker
 
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
