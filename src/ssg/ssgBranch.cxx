@@ -330,122 +330,6 @@ int ssgBranch::load ( FILE *fd )
   return TRUE ;
 }
 
-#ifdef WRITE_SSG_VERSION_ZERO
-int WriteVersionZero(ssgEntity *kid, FILE *fd )
-{
-	if(kid ->isAKindOf(ssgTypeVtxArray()))
-	{
-/*    
-    _ssgWriteInt ( fd, ssgTypeVtxTable() ) ;
-
-		ssgVtxArray *svt=(ssgVtxArray *)kid;
-		if ( ! svt -> ssgVtxTable::save ( fd ) )
-		{
-			ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
-			return FALSE ;
-		}*/
-
-
-		ssgVtxArray *sva = (ssgVtxArray *)kid;
-
-		int i, numInd = sva->getNumIndices();
-		short index;
-		void *avl, *anl, *atl, *acl;
-		
-		sva->getVertexList   ( &avl );
-		sva->getNormalList   ( &anl );
-		sva->getTexCoordList ( &atl );
-		sva->getColourList   ( &acl );
-
-		int nn = sva->getNumNormals();
-		int nc = sva->getNumColours();
-		int nt = sva->getNumTexCoords();
-		int nv = sva->getNumVertices();
-
-		if ( nv > 0)
-		{
-			ssgVertexArray   *vl = new ssgVertexArray();
-			ssgNormalArray   *nl;
-			ssgTexCoordArray *tl;
-			ssgColourArray   *cl;
-
-			if ( nn != 0 )
-			{ assert( nn == nv );
-			  nl = new ssgNormalArray();
-			}
-			else
-				nl = NULL;
-			
-			if ( nt != 0 )
-			{	assert( nt == nv );
-			  tl = new ssgTexCoordArray();
-			}
-			else
-				tl = NULL;
-
-			if ( nc != 0 )
-			{ assert( nc == nv );
-			  cl = new ssgColourArray();
-			}
-			else
-				cl = NULL;
-
-			for ( i=0; i<numInd; i++)
-			{ index = *sva->getIndex  (i);
-				assert(index>=0);
-				assert(index<nv);
-			  vl->add(sva->getVertex(index));
-				if ( nl != NULL )
-					nl->add(sva->getNormal(index));
-				if ( tl != NULL )
-					tl->add(sva->getTexCoord(index));
-				if ( cl != NULL )
-					cl->add(sva->getColour(index));
-
-			}
-
-
-			ssgVtxTable *newkid = new ssgVtxTable ( sva->getPrimitiveType(),
-			                                      vl, nl, tl, cl);
-			newkid->setCullFace ( sva->getCullFace () );
-			newkid ->setState( sva->getState() );
-			_ssgWriteInt ( fd, newkid->getType() ) ;
-
-			if ( ! newkid -> save ( fd ) )
-			{
-				ulSetError ( UL_WARNING, "saveSSG: Failed to write child object 'newkid'" ) ;
-				return FALSE ;
-			}
-		}
-
-	}
-	else if(kid ->isAKindOf(ssgTypeSelector()))
-	{
-    _ssgWriteInt ( fd, ssgTypeBranch() ) ;
-
-		ssgSelector *sel=(ssgSelector *)kid;
-		if ( ! sel -> ssgBranch::save ( fd ) )
-		{
-			ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
-			return FALSE ;
-		}
-	}
-	else
-	{ if ( (unsigned long)kid->getType() < (unsigned long)0x01000000 ) // don't save ssgAux stuff
-		{
-			_ssgWriteInt ( fd, kid->getType() ) ;
-
-			if ( ! kid -> save ( fd ) )
-			{
-				ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
-				return FALSE ;
-			}
-		}
-	}
-	return TRUE;
-}
-
-#endif
 
 int ssgBranch::save ( FILE *fd )
 {
@@ -461,10 +345,6 @@ int ssgBranch::save ( FILE *fd )
     /* Has this child node already been written out? */
 
  
-#ifdef WRITE_SSG_VERSION_ZERO
-	  if ( !WriteVersionZero(kid, fd) )
-			return FALSE;
-#else
     if ( kid -> getSpare () > 0 )
     {
       _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
@@ -479,7 +359,6 @@ int ssgBranch::save ( FILE *fd )
 				return FALSE ;
 			}
     }
-#endif
   }
 
   return TRUE ;
