@@ -1,0 +1,67 @@
+slMODnode.o: slMODnode.cxx slMODPrivate.h /usr/include/stdio.h \
+ /usr/include/features.h /usr/include/sys/cdefs.h /usr/include/libio.h \
+ /usr/include/_G_config.h /usr/include/stdlib.h \
+ /usr/lib/gcc-lib/i486-linux/2.7.2/include/stddef.h \
+ /usr/include/errno.h /usr/include/linux/errno.h \
+ /usr/include/asm/errno.h /usr/include/alloca.h /usr/include/unistd.h \
+ /usr/include/posix_opt.h /usr/include/gnu/types.h \
+ /usr/include/confname.h /usr/include/sys/types.h \
+ /usr/include/linux/types.h /usr/include/linux/posix_types.h \
+ /usr/include/asm/posix_types.h /usr/include/asm/types.h \
+ /usr/include/sys/bitypes.h /usr/include/fcntl.h \
+ /usr/include/linux/fcntl.h /usr/include/asm/fcntl.h \
+ /usr/include/sys/stat.h /usr/include/linux/stat.h \
+ /usr/include/sys/ioctl.h /usr/include/linux/ioctl.h \
+ /usr/include/asm/ioctl.h /usr/include/termios.h \
+ /usr/include/linux/termios.h /usr/include/asm/termios.h \
+ /usr/include/asm/termbits.h /usr/include/asm/ioctls.h \
+ /usr/include/sys/socketio.h /usr/include/linux/sockios.h \
+ /usr/include/asm/sockios.h /usr/include/sys/mman.h \
+ /usr/include/linux/mman.h /usr/include/asm/mman.h \
+ /usr/include/sys/soundcard.h /usr/include/linux/soundcard.h \
+ /usr/include/string.h
+slMODnode.cxx :
+slMODPrivate.h :
+/usr/include/stdio.h :
+/usr/include/features.h :
+/usr/include/sys/cdefs.h :
+/usr/include/libio.h :
+/usr/include/_G_config.h :
+/usr/include/stdlib.h :
+/usr/lib/gcc-lib/i486-linux/2.7.2/include/stddef.h :
+/usr/include/errno.h :
+/usr/include/linux/errno.h :
+/usr/include/asm/errno.h :
+/usr/include/alloca.h :
+/usr/include/unistd.h :
+/usr/include/posix_opt.h :
+/usr/include/gnu/types.h :
+/usr/include/confname.h :
+/usr/include/sys/types.h :
+/usr/include/linux/types.h :
+/usr/include/linux/posix_types.h :
+/usr/include/asm/posix_types.h :
+/usr/include/asm/types.h :
+/usr/include/sys/bitypes.h :
+/usr/include/fcntl.h :
+/usr/include/linux/fcntl.h :
+/usr/include/asm/fcntl.h :
+/usr/include/sys/stat.h :
+/usr/include/linux/stat.h :
+/usr/include/sys/ioctl.h :
+/usr/include/linux/ioctl.h :
+/usr/include/asm/ioctl.h :
+/usr/include/termios.h :
+/usr/include/linux/termios.h :
+/usr/include/asm/termios.h :
+/usr/include/asm/termbits.h :
+/usr/include/asm/ioctls.h :
+/usr/include/sys/socketio.h :
+/usr/include/linux/sockios.h :
+/usr/include/asm/sockios.h :
+/usr/include/sys/mman.h :
+/usr/include/linux/mman.h :
+/usr/include/asm/mman.h :
+/usr/include/sys/soundcard.h :
+/usr/include/linux/soundcard.h :
+/usr/include/string.h :

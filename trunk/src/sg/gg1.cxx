@@ -1,0 +1,167 @@
+
+/*
+  Determine the origin and unit direction vector of a line
+  formed by the intersection of two planes.
+  Returned point will lie on axis that was used to
+  determine intersection.
+         Norman Vine - nhv@yahoo.com
+*/
+
+int sgIsectPlanePlane ( sgVec3 point, sgVec3 dir,
+                        sgVec4 plane1, sgVec4 plane2 )
+{
+  /* Determine intersection line direction. */
+
+  sgVectorProductVec3 ( dir, plane1, plane2 ) ;
+
+  SGfloat dnorm = sgLengthVec3 ( dir ) ;
+
+  /* If planes are parallel then fail */
+
+  if ( dnorm < FLT_EPSILON )
+  {
+    sgZeroVec3 ( point ) ;
+    sgZeroVec3 ( dir   ) ;
+    return FALSE ;
+  }
+
+  /* Determine intersection point with the best suited coordinate plane. */
+
+  SGfloat abs ;
+  SGfloat maxabs = sgAbs(dir[0]);
+  int index = 0;
+
+  if ((abs = sgAbs(dir[1])) > maxabs) { maxabs = abs ; index = 1; }
+  if ((abs = sgAbs(dir[2])) > maxabs) { maxabs = abs ; index = 2; }
+
+  switch ( index )
+  {
+    case 0:
+      sgSetVec3( point,
+             SG_ZERO,
+             (plane1[2] * plane2[3] - plane2[2] * plane1[3]) / dir[0],
+             (plane2[1] * plane1[3] - plane1[1] * plane2[3]) / dir[0] );
+      break;
+    case 1:
+      sgSetVec3( point,
+             (plane2[2] * plane1[3] - plane1[2] * plane2[3]) / dir[1],
+             SG_ZERO,
+             (plane1[0] * plane2[3] - plane2[0] * plane1[3]) / dir[1] );
+      break;
+    case 2:
+      sgSetVec3( point, 
+             (plane1[1] * plane2[3] - plane2[1] * plane1[3]) / dir[2],
+             (plane2[0] * plane1[3] - plane1[0] * plane2[3]) / dir[2],
+             SG_ZERO );
+      break;
+    default: return FALSE ;  /* Impossible */
+  }
+
+  /* Normalize the direction */
+
+  sgScaleVec3( dir, SG_ONE / dnorm );
+  return TRUE;
+}
+
+
+
+/*
+   Find the intersection of a line with a plane
+   (the line being defined by a point and direction).
+
+   Norman Vine -- nhv@yahoo.com  (with hacks by Steve)
+*/
+
+int sgIsectLinePlane( sgVec3 dst, sgVec4 plane, sgVec3 l_org, sgVec3 l_vec )
+{
+  SGfloat tmp = sgScalarProductVec3 ( l_vec, plane ) ;
+
+  /* Is line parallel to plane? */
+
+  if ( sgAbs ( tmp ) < FLT_EPSILON )
+    return FALSE ;
+ 
+  sgMultVec3 ( dst, l_vec, -( sgScalarProductVec3 ( l_org, plane )
+                                                      + plane[3] ) / tmp ) ;
+  sgAddVec3  ( dst, l_org ) ;
+
+  return TRUE ;
+}
+
+
+
+/*
+  Given the origin and direction vector for two lines
+  find their intersection - or the point closest to
+  both lines if they don't intersect.
+
+  Norman Vine -- nhv@yahoo.com
+*/
+
+int sgIsectLineLine( sgVec3 dst,
+           sgVec3 l1_org, sgVec3 l1_vec,
+           sgVec3 l2_org, sgVec3 l2_vec )
+{
+  sgVec3 vec_l1, vec_l2 ;
+
+  sgNormalizeVec3 ( vec_l1, l1_vec ) ;
+  sgNormalizeVec3 ( vec_l2, l2_vec ) ;
+
+  /* Connecting line 'C' is perpendicular to both */
+
+  sgVec3 perp ;
+  sgVectorProductVec3 ( perp, vec_l1, vec_l2 ) ;
+
+  /* check for near-parallel lines */
+
+  SGfloat dist = sgScalarProductVec3 ( perp, perp ) ;
+
+  if ( dist < FLT_EPSILON )
+  {
+    /* degenerate: lines parallel - any point will do. */
+
+    sgCopyVec3 ( dst, l2_org ) ;
+    return TRUE ;
+  }
+  
+  /*
+    Form a plane containing the line A and C,
+    and another containing B and C
+  */
+
+  sgScaleVec3 ( perp, SG_ONE / sgSqrt( dist ) ) ;
+ 
+  sgVec4 pa ;
+  sgVec4 pb ;
+  sgVec3 tmp ;
+
+  sgVectorProductVec3 ( tmp, perp, vec_l1 ) ;
+  sgNormalizeVec3     ( tmp );
+  sgMakePlane         ( pa, tmp, l1_org ) ;
+
+  sgVectorProductVec3 ( tmp, perp, vec_l2 ) ;
+  sgNormalizeVec3     ( tmp );
+  sgMakePlane         ( pb, tmp, l2_org ) ;
+
+  sgVec3 tmp_org, tmp_vec ;
+
+  if ( ! sgIsectPlanePlane( tmp_org, tmp_vec, pa, pb ) )
+  {
+    /* This *shouldn't* ever happen because we already
+      tested for parallel lines - but with roundoff
+      errors, it *might* in borderline cases so...
+    */
+
+    sgCopyVec3 ( dst, l2_org ) ;
+    return FALSE ;
+  }
+ 
+  if ( ! sgIsectLinePlane ( dst, pa, l2_org, vec_l2 ) )
+  {
+    sgCopyVec3 ( curr_cursor, l2_org ) ;
+    return FALSE ;
+  }
+
+  return TRUE ;
+}
+

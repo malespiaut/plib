@@ -1,0 +1,117 @@
+Making all in src
+make[1]: Entering directory `/hda1/plib-1.1/src'
+Making all in js
+make[2]: Entering directory `/hda1/plib-1.1/src/js'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/hda1/plib-1.1/src/js'
+Making all in sl
+make[2]: Entering directory `/hda1/plib-1.1/src/sl'
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slDSP.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slSample.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slEnvelope.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slPlayer.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slMODPlayer.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slSamplePlayer.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slScheduler.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slMODdacio.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slMODfile.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slMODinst.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c slMODnote.cxx
+rm -f libplibsl.a
+ar cru libplibsl.a slDSP.o slSample.o slEnvelope.o slPlayer.o slMODPlayer.o slSamplePlayer.o slScheduler.o slMODdacio.o slMODfile.o slMODinst.o slMODnote.o 
+ranlib libplibsl.a
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c smMixer.cxx
+rm -f libplibsm.a
+ar cru libplibsm.a smMixer.o 
+ranlib libplibsm.a
+make[2]: Leaving directory `/hda1/plib-1.1/src/sl'
+Making all in pui
+make[2]: Entering directory `/hda1/plib-1.1/src/pui'
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c pu.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puBox.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puButton.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puButtonBox.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puArrowButton.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puDialogBox.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puFrame.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puGroup.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puInput.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puInterface.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puMenuBar.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puObject.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puOneShot.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puPopup.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puPopupMenu.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puSlider.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puText.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puValue.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg -I../../src/fnt    -g -O2 -O6 -Wall -c puFont.cxx
+rm -f libplibpu.a
+ar cru libplibpu.a pu.o puBox.o puButton.o puButtonBox.o puArrowButton.o puDialogBox.o puFrame.o puGroup.o puInput.o puInterface.o puMenuBar.o puObject.o puOneShot.o puPopup.o puPopupMenu.o puSlider.o puText.o puValue.o puFont.o 
+ranlib libplibpu.a
+make[2]: Leaving directory `/hda1/plib-1.1/src/pui'
+Making all in sg
+make[2]: Entering directory `/hda1/plib-1.1/src/sg'
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c sg.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c sgd.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.      -g -O2 -O6 -Wall -c sgIsect.cxx
+rm -f libplibsg.a
+ar cru libplibsg.a sg.o sgd.o sgIsect.o 
+ranlib libplibsg.a
+make[2]: Leaving directory `/hda1/plib-1.1/src/sg'
+Making all in ssg
+make[2]: Entering directory `/hda1/plib-1.1/src/ssg'
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssg.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgAnimation.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgBase.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgBaseTransform.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgBranch.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgContext.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgCutout.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgDList.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgEntity.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgIsect.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgLeaf.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgList.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgLoadAC.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgOptimiser.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgRoot.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgSaveAC.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgSelector.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgSimpleState.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgState.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgStateTables.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgStats.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgTexTrans.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgTexture.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgTransform.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgStateSelector.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgRangeSelector.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgImageLoader.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgInvisible.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgLoadSSG.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgLoadVRML.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgVTable.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgSimpleList.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgVtxTable.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgIO.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c ssgLoad3ds.cxx
+rm -f libplibssg.a
+ar cru libplibssg.a ssg.o ssgAnimation.o ssgBase.o ssgBaseTransform.o ssgBranch.o ssgContext.o ssgCutout.o ssgDList.o ssgEntity.o ssgIsect.o ssgLeaf.o ssgList.o ssgLoadAC.o ssgOptimiser.o ssgRoot.o ssgSaveAC.o ssgSelector.o ssgSimpleState.o ssgState.o ssgStateTables.o ssgStats.o ssgTexTrans.o ssgTexture.o ssgTransform.o ssgStateSelector.o ssgRangeSelector.o ssgImageLoader.o ssgInvisible.o ssgLoadSSG.o ssgLoadVRML.o ssgVTable.o ssgSimpleList.o ssgVtxTable.o ssgIO.o ssgLoad3ds.o 
+ranlib libplibssg.a
+make[2]: Leaving directory `/hda1/plib-1.1/src/ssg'
+Making all in fnt
+make[2]: Entering directory `/hda1/plib-1.1/src/fnt'
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c fnt.cxx
+c++ -DPACKAGE=\"plib\" -DVERSION=\"1.1.10\" -DHAVE_LIBGL=1 -DHAVE_LIBGLU=1 -DHAVE_LIBFREEGLUT=1 -DSTDC_HEADERS=1 -DHAVE_GL_GL_H=1 -DHAVE_GL_GLU_H=1 -DLINUX_JOYSTICK_IS_PRESENT=1 -DGLUT_IS_PRESENT=1  -I. -I.  -I../../src/sg    -g -O2 -O6 -Wall -c fntTXF.cxx
+rm -f libplibfnt.a
+ar cru libplibfnt.a fnt.o fntTXF.o 
+ranlib libplibfnt.a
+make[2]: Leaving directory `/hda1/plib-1.1/src/fnt'
+make[2]: Entering directory `/hda1/plib-1.1/src'
+make[2]: Nothing to be done for `all-am'.
+make[2]: Leaving directory `/hda1/plib-1.1/src'
+make[1]: Leaving directory `/hda1/plib-1.1/src'
+make[1]: Entering directory `/hda1/plib-1.1'
+make[1]: Nothing to be done for `all-am'.
+make[1]: Leaving directory `/hda1/plib-1.1'
