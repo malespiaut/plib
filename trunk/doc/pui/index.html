@@ -409,9 +409,9 @@ in pixels).
 <p><br>
 After the puFont has been constructed, you can retrieve the height or
 width of a certain amount of text:
-<pre>  int puFont::getStringHeight () ;
-  int puFont::getStringHeight ( const char *str ) ;
-  int puFont::getStringWidth ( const char *str ) ;
+<pre>  int puFont::getStringHeight ( void ) const ;
+  int puFont::getStringHeight ( const char *str ) const ;
+  int puFont::getStringWidth  ( const char *str ) const ;
 
 </pre>
 The getStringHeight routine that does not take any parameters returns
@@ -420,7 +420,7 @@ the height of the "K" character.
 Note that always the height <b>excluding</b> the descender is returned.
 There is another function which allows you to determine the font
 descender:
-<pre>  int puFont::getStringDescender () ;
+<pre>  int puFont::getStringDescender ( void ) const ;
 
 </pre>
 The following function can be used to draw some text at a specific
@@ -448,7 +448,7 @@ the active area of the widget - with the origin at bottom-left of the window).
 follow this scheme).
 <p>
 You can always find the type of an object derived from puObject by calling:
-<pre>  int puObject::getType() ;
+<pre>  int puObject::getType ( void ) const ;
 
 </pre>
 This returns a bitmask showing the inheritance of any object derived from
@@ -488,15 +488,15 @@ getType() for that object would return
 is [although not documented that way here] a kind of puValue).
 <p>
 For the purposes of printing diagnostics, etc there is also:
-<pre>  const char *puObject::getTypeString() ;
+<pre>  const char *puObject::getTypeString ( void ) const ;
 
 </pre>
 ...which returns a pointer to a statically allocated string which is the
 name of the top-level class to which that object belongs.
 <pre>   struct puBox { int min[2] ; int max[2] ; }
 
-   puBox *puObject::getABox () ;
-   puBox *puObject::getBBox () ;
+   puBox *puObject::getABox ( void ) ;
+   puBox *puObject::getBBox ( void ) ;
 
 </pre>
 get the ABOX (Activity Box) and BBOX (Bounding Box) of the object.
@@ -506,14 +506,14 @@ using:
 <pre>  void puObject::setPosition ( int x, int y ) ;
   void puObject::setSize     ( int w, int h ) ;
 
-  void puObject::getPosition ( int *x, int *y ) ;
-  void puObject::getSize     ( int *w, int *h ) ;</pre>
+  void puObject::getPosition ( int *x, int *y ) const ;
+  void puObject::getSize     ( int *w, int *h ) const ;</pre>
 The bounding box is adjusted to fit around the activity box and the label,
 if any.
 <p>
 <a NAME="getValue"></a>The following functions allow you to manipulate
 the value of the widget:
-<pre>  void  puObject::clrValue () ;
+<pre>  void  puObject::clrValue ( void ) ;
   void  puObject::setValue ( int   i ) ;
   void  puObject::setValue ( float f ) ;
   void  puObject::setValue ( const char *s ) ;
@@ -522,12 +522,12 @@ the value of the widget:
   void  puObject::getValue ( float *f ) ;
   void  puObject::getValue ( char  *s ) ;  /* copies the string value into the string that is passed in */
   void  puObject::getValue ( char **s ) ;  /* sets the argument to point to the string value */
-  int   puObject::getValue () ;            /* Obsolete ! Use getIntegerValue instead. */
+  int   puObject::getValue ( void ) ;      /* Obsolete ! Use getIntegerValue instead. */
 
-  int   puObject::getIntegerValue () ;
-  float puObject::getFloatValue   () ;
-  char  puObject::getCharValue    () ;     /* returns the first character in the string value */
-  char *puObject::getStringValue  () ;
+  int   puObject::getIntegerValue ( void ) ;
+  float puObject::getFloatValue   ( void ) ;
+  char  puObject::getCharValue    ( void ) ;     /* returns the first character in the string value */
+  char *puObject::getStringValue  ( void ) ;
 
 </pre>
 The clrvalue() function has the special function of setting the string
@@ -535,24 +535,24 @@ value of the widget to the empty string - and the numeric parts to zero.
 <p>
 Some kinds of widget have a default value that they can easily be reset
 to.
-<pre>  void puObject::defaultValue() ;
+<pre>  void puObject::defaultValue ( void ) ;
 
 </pre>
 ...allows you to return the widget to some known default value. The default
 value can also be set and read:
 <pre>  void  puObject::setDefaultValue ( int    i ) ;
   void  puObject::setDefaultValue ( float  f ) ;
-  void  puObject::setDefaultValue ( const char  *s ) ;
+  void  puObject::setDefaultValue ( const char *s ) ;
 
   void  puObject::getDefaultValue ( int   *i ) ;
   void  puObject::getDefaultValue ( float *f ) ;
   void  puObject::getDefaultValue ( char  *s ) ;
   void  puObject::getDefaultValue ( char **s ) ;
-  int   puObject::getDefaultValue () ;  /* Obsolete ! Use getDefaultIntegerValue instead. */
+  int   puObject::getDefaultValue ( void ) ;  /* Obsolete ! Use getDefaultIntegerValue instead. */
 
-  int   puObject::getDefaultIntegerValue () ;
-  float puObject::getDefaultFloatValue   () ;
-  char *puObject::getDefaultStringValue  () ;
+  int   puObject::getDefaultIntegerValue ( void ) ;
+  float puObject::getDefaultFloatValue   ( void ) ;
+  char *puObject::getDefaultStringValue  ( void ) ;
 
 </pre>
 There are many occasions when you'd really like to have the PUI widget
@@ -581,12 +581,12 @@ variable to store the widget's state.
 <p>
 Each widget can also retain a pointer to user-supplied data:
 <pre>  void  puObject::setUserData ( void *data ) ;
-  void *puObject::getUserData () ;</pre>
+  void *puObject::getUserData ( void ) const ;</pre>
 When the widget is drawn, the application has control of the drawing style
 and the colours in which the widget is drawn. Reasonable defaults are provided
 by PUI if you don't set them:
 <pre>  void puObject::setStyle ( int style ) ;
-  int  puObject::getStyle () ;
+  int  puObject::getStyle ( void ) const ;
 
   'style' is one of:
       PUSTYLE_NONE
@@ -647,7 +647,7 @@ at the bottom of the widget or retrieve the current value:
 <pre>
 
   void puObject::setBorderThickness ( int t ) ;
-  int  puObject::getBorderThickness ( void ) ;
+  int  puObject::getBorderThickness ( void ) const ;
 
 </pre>
 By default, a border thickness of two pixels is used in PUSTYLE_BOXED.
@@ -671,7 +671,7 @@ but the results can often be less than desirable.
 <pre>
 
  void puObject::setColour ( int which, float  r, float g, float  b, float  a = 1.0f ) ;
- void puObject::getColour ( int which, float *r, float *g, float *b, float *a = NULL ) ;
+ void puObject::getColour ( int which, float *r, float *g, float *b, float *a = NULL ) const ;
 
   'which' is one of:
       PUCOL_FOREGROUND
@@ -754,8 +754,8 @@ PUI also has functions to allow the user to retrieve and invoke the
 render callback:
 <pre>
 
-  puRenderCallback puObject::getRenderCallback ( void ) ;
-  void      *puObject::getRenderCallbackData ( void ) ;
+  puRenderCallback puObject::getRenderCallback ( void ) const ;
+  void      *puObject::getRenderCallbackData ( void ) const ;
   void       puObject::invokeRenderCallback ( int dx, int dy ) ;
 
 </pre>
@@ -767,8 +767,8 @@ When a widget is activated, its user-supplied callback function is called
   typedef void (*puCallback)(puObject *) ;
  
   void       puObject::setCallback ( puCallback c ) ;
-  puCallback puObject::getCallback () ;
-  void       puObject::invokeCallback () ;
+  puCallback puObject::getCallback ( void ) const ;
+  void       puObject::invokeCallback ( void ) ;
 
 </pre>
 The callback is invoked (typically) when the user releases the left mouse
@@ -787,7 +787,7 @@ all the time the left button is pushed while the cursor is inside the widget:
 <pre>
 
   void puObject::setActiveDirn ( int dirn ) ;
-  int  puObject::getActiveDirn () ;
+  int  puObject::getActiveDirn ( void ) const ;
 
   where:
     'dirn' is either PU_UP, PU_DOWN, PU_CONTINUAL or PU_UP_AND_DOWN.
@@ -802,11 +802,11 @@ another widget. The following functions do these things:
 <pre>
 
   void       puObject::setActiveCallback ( puCallback c ) ;
-  puCallback puObject::getActiveCallback ( void ) ;
+  puCallback puObject::getActiveCallback ( void ) const ;
   void       puObject::invokeActiveCallback ( void ) ;
 
   void       puObject::setDownCallback ( puCallback c ) ;
-  puCallback puObject::getDownCallback ( void ) ;
+  puCallback puObject::getDownCallback ( void ) const ;
   virtual void puObject::invokeDownCallback ( void ) ;
 
 </pre>
@@ -820,17 +820,17 @@ You can also move the LEGEND text around inside the widget.
   void   puObject::setLegend ( const char *str ) ;
   void   puObject::setLabel  ( const char *str ) ;
 
-  const char *puObject::getLegend () ;
-  const char *puObject::getLabel  () ;
+  const char *puObject::getLegend ( void ) const ;
+  const char *puObject::getLabel  ( void ) const ;
 
   void   puObject::setLegendFont ( puFont font ) ;
   void   puObject::setLabelFont  ( puFont font ) ;
 
-  puFont puObject::getLegendFont () ;
-  puFont puObject::getLabelFont  () ;
+  puFont puObject::getLegendFont ( void ) const ;
+  puFont puObject::getLabelFont  ( void ) const ;
 
   void  puObject::setLabelPlace ( int place ) ;
-  int   puObject::getLabelPlace () ;
+  int   puObject::getLabelPlace ( void ) const ;
 
   where 'place' is one of:
 </pre>
@@ -870,7 +870,7 @@ You can also move the LEGEND text around inside the widget.
 
 <pre>
   void  puObject::setLegendPlace ( int place ) ;
-  int   puObject::getLegendPlace () ;
+  int   puObject::getLegendPlace ( void ) const ;
 
   where 'place' is one of:
 </pre>
@@ -929,13 +929,13 @@ on), or simply 'greyed out' (so it can't be clicked on even though it's
 drawn - but in a style that makes it clear that this is the case).
 <pre>
 
-  void puObject::greyOut    () ;
-  void puObject::activate   () ;  -- Undo the 'greyout' effect
-  int  puObject::isActive   () ;
+  void puObject::greyOut    ( void ) ;
+  void puObject::activate   ( void ) ;  -- Undo the 'greyout' effect
+  int  puObject::isActive   ( void ) const ;
 
-  void puObject::hide       () ;
-  void puObject::reveal     () ;  -- Undo the 'hide' effect
-  int  puObject::isVisible  () ;
+  void puObject::hide       ( void ) ;
+  void puObject::reveal     ( void ) ;  -- Undo the 'hide' effect
+  int  puObject::isVisible  ( void ) const ;
 
 </pre>
 If you want to see or change which window a widget is drawn in,
@@ -943,7 +943,7 @@ you use the following functions:
 <pre>
 
   void  puObject::setWindow ( int w ) ;
-  int   puObject::getWindow () ;
+  int   puObject::getWindow ( void ) const ;
 
 </pre>
 If you have some generic data that your widget needs but that doesn't
@@ -951,7 +951,7 @@ fit anywhere else, you can save it in the widget's "user data" entry:
 <pre>
 
   void  puObject::setUserData ( void *data ) ;
-  void *puObject::getUserData ( void ) ;
+  void *puObject::getUserData ( void ) const ;
 
 </pre>
 Finally, an object can be made to react to the 'return' key on the
@@ -959,7 +959,7 @@ keyboard just as if it had been clicked with the mouse.
 <pre>
 
    void puObject::makeReturnDefault ( int boolean ) ;
-   int  puObject::isReturnDefault   () ;
+   int  puObject::isReturnDefault   ( void ) const ;
 
 </pre>
 In general, it is very confusing to the user to have multiple objects set
@@ -1019,7 +1019,7 @@ Double arrows:
 In addition, you can get/set the direction of the arrow in mid-run:
 <pre>
 
-  int  puArrowButton::getArrowType ( void  ) ;
+  int  puArrowButton::getArrowType ( void  ) const ;
   void puArrowButton::setArrowType ( int i ) ;
 
 </pre>
@@ -1062,7 +1062,7 @@ width.
 <pre>
 
   void  puSlider::setSliderFraction ( float f ) ;
-  float puSlider::getSliderFraction () ;
+  float puSlider::getSliderFraction ( void ) const ;
 
 </pre>
 The 'slider fraction' is the proportion of the total width of the slider
@@ -1074,7 +1074,7 @@ you wish your callback function to be called:
 <pre>
 
   void  puSlider::setCBMode ( int mode ) ;
-  float puSlider::getCBMode () ;
+  float puSlider::getCBMode ( void ) const ;
   
    where 'mode' is one of:
        PUSLIDER_CLICK  - Only invoke the callback when
@@ -1092,14 +1092,14 @@ is called is set by:
 <pre>
 
   void  puSlider::setDelta ( float f ) ;
-  float puSlider::getDelta () ;
+  float puSlider::getDelta ( void ) const ;
 
 </pre>
 The parameter is expressed as a fraction of the total slider width (ie
 0.0f to 1.0f).
 <pre>
 
-  int  puSlider::isVertical () ;
+  int  puSlider::isVertical ( void ) const ;
 
 </pre>
 This returns TRUE for Vertical sliders - FALSE for Horizontal ones.
@@ -1128,7 +1128,7 @@ mode, you can call:
 <pre>
 
   void puDial::setWrap ( int wrapmode ) ;
-  int  puDial::getWrap () ;
+  int  puDial::getWrap ( void ) const ;
 
   where:
     'wrapmode' is either TRUE (default) or FALSE.
@@ -1162,8 +1162,8 @@ they can take:
 Corresponding calls retrieve the minimum and maximum possible values:
 <pre>
 
-  int puBiSlider::setMaxValue ( void ) ;
-  int puBiSlider::setMinValue ( void ) ;
+  int puBiSlider::getMaxValue ( void ) const ;
+  int puBiSlider::getMinValue ( void ) const ;
 
 </pre>
 Since there are two sliding boxes, they are considered to be a current
@@ -1175,8 +1175,8 @@ retrieve them with the following functions:
   void puBiSlider::setCurrentMax ( int i ) ;
   void puBiSlider::setCurrentMin ( int i ) ;
 
-  int  puBiSlider::getCurrentMax ( void ) ;
-  int  puBiSlider::getCurrentMin ( void ) ;
+  int  puBiSlider::getCurrentMax ( void ) const ;
+  int  puBiSlider::getCurrentMin ( void ) const ;
 
 </pre>
 If the user clicks on the puBiSlider with his mouse, the box that is closer
@@ -1210,7 +1210,7 @@ let you do this:
 <pre>
 
    void puTriSlider::setFreezeEnds ( int val ) ;
-   int  puTriSlider::getFreezeEnds () ;
+   int  puTriSlider::getFreezeEnds ( void ) const ;
 
    where:
      'val' is either TRUE (the default) or FALSE.
@@ -1273,9 +1273,9 @@ A puInput object can be in two states - accepting keystrokes - or ignoring
 them. Use these functions to toggle between the two states:
 <pre>
 
-  void puInput::acceptInput () ;
-  void puInput::rejectInput () ;
-  int  puInput::isAcceptingInput () ;
+  void puInput::acceptInput ( void ) ;
+  void puInput::rejectInput ( void ) ;
+  int  puInput::isAcceptingInput ( void ) const ;
 
 </pre>
 When the user hits the 'Return' key, the puInput is automatically set to
@@ -1289,10 +1289,10 @@ of those entities:
 <pre>
 
   void puInput::setCursor ( int pos ) ;
-  int  puInput::getCursor () ;
+  int  puInput::getCursor ( void ) const ;
 
   void puInput::setSelectRegion ( int  start, int  end ) ;
-  void puInput::getSelectRegion ( int *start, int *end ) ;
+  void puInput::getSelectRegion ( int *start, int *end ) const ;
 
 </pre>
 Since a puInput uses the normal value getting and setting functions of
@@ -1309,8 +1309,8 @@ you use the following functions:
 
   void  puInput::setValidData ( const char *data ) ;  /* Sets list of valid characters to 'data' */
   void  puInput::addValidData ( const char *data ) ;  /* Appends 'data' to list of valid characters */
-  char *puInput::getValidData () ;              /* Returns pointer to list of valid characters */
-  int   puInput::isValidCharacter ( char c ) ;  /* Returns 1 if character is valid and 0 if not */
+  char *puInput::getValidData ( void ) const ;        /* Returns pointer to list of valid characters */
+  int   puInput::isValidCharacter ( char c ) const ;  /* Returns 1 if character is valid and 0 if not */
 
 </pre>
 This will avoid, for example, the user typing his name into an input box
@@ -1321,9 +1321,9 @@ would modify the text in the puInput box (everything except the
 Home, End, Left and Right keys):
 <pre>
 
-  void puLargeInput::enableInput () ;
-  void puLargeInput::disableInput () ;
-  int  puLargeInput::inputDisabled () ;
+  void puLargeInput::enableInput ( void ) ;
+  void puLargeInput::disableInput ( void ) ;
+  int  puLargeInput::inputDisabled ( void ) const ;
 
   where:
     inputDisabled() returns FALSE if the text can be modified and TRUE if it can not.
@@ -1364,24 +1364,27 @@ The following functionality from the <a href="#puInput">puInput</a> widget is al
 in the puLargeInput widget:
 <pre>
 
-  void puLargeInput::acceptInput () ;
-  void puLargeInput::rejectInput () ;
-  int  puLargeInput::isAcceptingInput () ;
+  void puLargeInput::acceptInput ( void ) ;
+  void puLargeInput::rejectInput ( void ) ;
+  int  puLargeInput::isAcceptingInput ( void ) const ;
 
   void puLargeInput::setCursor ( int pos ) ;
-  int  puLargeInput::getCursor () ;
+  int  puLargeInput::getCursor ( void ) const ;
 
   void puLargeInput::setSelectRegion ( int  start, int  end ) ;
-  void puLargeInput::getSelectRegion ( int *start, int *end ) ;
+  void puLargeInput::getSelectRegion ( int *start, int *end ) const ;
 
   void  puLargeInput::setValidData ( const char *data ) ;  /* Sets list of valid characters to 'data' */
   void  puLargeInput::addValidData ( const char *data ) ;  /* Appends 'data' to list of valid characters */
-  char *puLargeInput::getValidData () ;              /* Returns pointer to list of valid characters */
-  int   puLargeInput::isValidCharacter ( char c ) ;  /* Returns 1 if character is valid and 0 if not */
+  char *puLargeInput::getValidData ( void ) const ;        /* Returns pointer to list of valid characters */
+  int   puLargeInput::isValidCharacter ( char c ) const ;  /* Returns 1 if character is valid and 0 if not */
 
-  void puLargeInput::enableInput  () ;
-  void puLargeInput::disableInput () ;
-  int  puLargeInput::inputDisabled () ;  /* Returns FALSE if the text can be modified and TRUE if it can't */
+  void puLargeInput::enableInput  ( void ) ;
+  void puLargeInput::disableInput ( void ) ;
+  int  puLargeInput::inputDisabled ( void ) const ;
+
+  where:
+    inputDisabled() returns FALSE if the text can be modified and TRUE if it can not.
 
 </pre>
 Besides the obvious methods of typing or erasing, you can add text to and
@@ -1389,7 +1392,7 @@ remove text from the widget using the following calls:
 <pre>
 
   void  puLargeInput::setText ( const char *l ) ;  /* Erases current text and copies input string to text */
-  char *puLargeInput::getText ( void ) ;           /* Returns the pointer to the text string */
+  char *puLargeInput::getText ( void ) const ;     /* Returns the pointer to the text string */
   void  puLargeInput::addNewLine ( const char *l ) ;  /* Inserts input string at start of next line after cursor */
   void  puLargeInput::addText ( const char *l ) ;     /* Inserts input string at cursor position */
   void  puLargeInput::appendText ( const char *l ) ;  /* Adds input string to the end of text */
@@ -1404,8 +1407,8 @@ The puLargeInput widget also has a few other functions which may be
 handy:
 <pre>
 
-  int  puLargeInput::getNumLines () ;  /* Returns the number of lines in the text */
-  void puLargeInput::selectEntireLine ( void ) ;  /* Expands the select region to include full lines */
+  int  puLargeInput::getNumLines ( void ) const ;  /* Returns the number of lines in the text */
+  void puLargeInput::selectEntireLine ( void ) ;   /* Expands the select region to include full lines */
   void puLargeInput::setTopLineInWindow ( int val ) ;  /* Sets the top line to be displayed in the widget window */
 
 </pre>
@@ -1423,7 +1426,7 @@ widgets that you want to have inside it. When you have finished adding
 widgets to the puGroup, you call:
 <pre>
 
-  void puGroup::close () ;
+  void puGroup::close ( void ) ;
 
 </pre>
 puGroup widgets can be placed inside other puGroup widgets to an arbitrary
@@ -1435,8 +1438,8 @@ function which returns the first child inside a puGroup (or NULL
 if the group is empty):
 <pre>
 
-  int puGroup::getNumChildren ( void ) ;
-  <a href="#puObject">puObject</a> * puGroup::getFirstChild ( void ) ;
+  int puGroup::getNumChildren ( void ) const ;
+  <a href="#puObject">puObject</a> * puGroup::getFirstChild ( void ) const ;
 
 </pre>
 Doing a <a href="#puObject">puObject</a>::hide() on a puGroup will hide all the objects inside
@@ -1448,7 +1451,7 @@ drag it around with the right mouse button pressed:
 <pre>
 
   void puGroup::setFloating ( int value ) ;
-  int  puGroup::getFloating () ;
+  int  puGroup::getFloating ( void ) const ;
 
   where:
     'value' is either TRUE or FALSE.
@@ -1761,8 +1764,8 @@ The puListBox widget supports three additional function calls in its
 API. They are as follows:
 <pre>
 
-  int  puListBox::getNumItems () ;  /* Return the number of items in the list */
-  int  puListBox::getTopItem  () const ;  /* Return the index of the top item that is displayed in the list */
+  int  puListBox::getNumItems ( void ) const ;  /* Return the number of items in the list */
+  int  puListBox::getTopItem  ( void ) const ;  /* Return the index of the top item that is displayed in the list */
   void puListBox::setTopItem  ( int item_index ) ;  /* Set the index of the top item to be displayed */
 
 </pre>
@@ -1794,7 +1797,7 @@ list of labels in mid-run or retrieve the number of buttons:
 <pre>
 
   void puButtonBox::newList ( char **list ) ;
-  int  puButtonBox::getNumItems () ;
+  int  puButtonBox::getNumItems ( void ) const ;
 
 </pre>
 Like most other <a href="#puObject">puObjects</a>, puButtonBox has a 'value' that can be set
@@ -1806,7 +1809,7 @@ its value as a mask indicating which buttons are set ('1'==button pressed,
 '0'==button not pressed).
 <pre>
 
-  int puButtonBox::isOneButton () ;
+  int puButtonBox::isOneButton ( void ) const ;
 
 </pre>
 This function returns TRUE for a one_button box, FALSE otherwise.
@@ -1869,7 +1872,7 @@ and you can also retrieve the number of items:
 <pre>
 
   void puComboBox::newList ( char **list ) ;
-  int  puComboBox::getNumItems () ;
+  int  puComboBox::getNumItems ( void ) const ;
 
 </pre>
 The puComboBox stores the currently selected item or the text that was
@@ -1882,7 +1885,7 @@ There is also a function that allows you to retrieve the number of
 the currently selected item:
 <pre>
 
-  int puComboBox::getCurrentItem () ;
+  int puComboBox::getCurrentItem ( void ) ;
 
 </pre>
 If the combo box is 'editable' and if the user typed in some text into the
@@ -1939,9 +1942,9 @@ the number of items and set or retrieve the currently selected item:
 
   void puSelectBox::newList ( char ** list ) ;
 
-  int  puSelectBox::getNumItems () ;
+  int  puSelectBox::getNumItems ( void ) const ;
 
-  int  puSelectBox::getCurrentItem () ;
+  int  puSelectBox::getCurrentItem ( void ) const ;
   void puSelectBox::setCurrentItem ( int number ) ;
 
 </pre>
@@ -2058,12 +2061,12 @@ It can be pretty tedious coding in the colours, fonts and style for every
 <a href="#puObject">puObject</a>. There are a number of routines that alter the defaults that will
 be assumed for all subsequently constructed <a href="#puObject">puObjects</a>...
 <pre>  void puSetDefaultStyle ( int style ) ;
-  int  puGetDefaultStyle () ;
+  int  puGetDefaultStyle ( void ) ;
 
   void   puSetDefaultFonts ( <a href="#puFont">puFont</a>  legendFont, <a href="#puFont">puFont</a>  labelFont ) ;
   void   puGetDefaultFonts ( <a href="#puFont">puFont</a> *legendFont, <a href="#puFont">puFont</a> *labelFont ) ;
-  puFont puGetDefaultLabelFont  () ;
-  puFont puGetDefaultLegendFont () ;
+  puFont puGetDefaultLabelFont  ( void ) ;
+  puFont puGetDefaultLegendFont ( void ) ;
 
   void puSetDefaultColourScheme ( float  r, float  g, float  b, float  a = 1.0 );
   void puGetDefaultColourScheme ( float *r, float *g, float *b, float *a = NULL);
@@ -2078,7 +2081,7 @@ This must be the first PUI function that you call. It must be called after
 GLUT window setup but before glutMainLoop().
 <pre>
 
-   void puInit () ;
+   void puInit ( void ) ;
 
 </pre>
 <a NAME="puDisplay"></a>
@@ -2087,7 +2090,7 @@ puDisplay</h3>
 Causes PUI to redraw all of the currently created widgets.
 <pre>
 
-   void puDisplay () ;
+   void puDisplay ( void ) ;
 
 </pre>
 It sets up the GL transforms as follows:
@@ -2287,9 +2290,9 @@ It is also possible to show and hide the PUI cursor (note that it is
 hidden by default):
 <pre>
 
-   void puShowCursor     () ;
-   void puHideCursor     () ;
-   int  puCursorIsHidden () ;
+   void puShowCursor     ( void ) ;
+   void puHideCursor     ( void ) ;
+   int  puCursorIsHidden ( void ) ;
 
 </pre>
 The cursor is always drawn in black, with a white border - it is about
@@ -2344,7 +2347,7 @@ PUI has three functions which you can use to manipulate the active widget.
 Here they are:
 <pre>
 
-  void puDeactivateWidget () ;  /* Sets the Active Widget to NULL */
+  void puDeactivateWidget ( void ) ;  /* Sets the Active Widget to NULL */
   void puSetActiveWidget ( <a href="#puObject">puObject</a> *w ) ;  /* Sets the Active Widget */
   <a href="#puObject">puObject</a> *puActiveWidget () ;  /* Returns the active widget */
 
@@ -2383,8 +2386,8 @@ your application must now tell PUI every time it changes the screen dimensions.
 There are two portability functions:
 <pre>
 
-   int puGetWindowWidth  () ;
-   int puGetWindowHeight () ;
+   int puGetWindowWidth  ( void ) ;
+   int puGetWindowHeight ( void ) ;
 
 </pre>
 These return the most recent puSetWindowSize() parameters without GLUT
