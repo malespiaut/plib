@@ -35,6 +35,7 @@ puText *text ;
 
 int button_window ;
 puButton *button ;
+puText *button_text ;
 
 int one_shot_window ;
 puOneShot *one_shot ;
@@ -258,7 +259,7 @@ int main ( int argc, char **argv )
 
   button_window = glutCreateWindow      ( "Button Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
-  glutReshapeWindow     ( 180,  100 ) ;
+  glutReshapeWindow     ( 220,  160 ) ;
   glutDisplayFunc       ( displayfn ) ;
   glutKeyboardFunc      ( keyfn     ) ;
   glutSpecialFunc       ( specialfn ) ;
@@ -270,12 +271,46 @@ int main ( int argc, char **argv )
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
-  button = new puButton ( 10, 10, 90, 30 ) ;
+  button_text = new puText ( 5, 6 ) ;
+  button_text->setLabel ( "XCHECK:" ) ;
+
+  button = new puButton ( 90, 10, 90+16, 10+16, PUBUTTON_XCHECK ) ;
+  button->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  button->setLabel ( "Label" ) ;
+  button->setValue ( 1 ) ;
+
+  button_text = new puText ( 5, 36 ) ;
+  button_text->setLabel ( "VCHECK:" ) ;
+
+  button = new puButton ( 90, 40, 90+16, 40+16, PUBUTTON_VCHECK ) ;
+  button->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  button->setLabel ( "Label" ) ;
+  button->setValue ( 1 ) ;
+
+  button_text = new puText ( 5, 66 ) ;
+  button_text->setLabel ( "CIRCLE:" ) ;
+
+  button = new puButton ( 90, 70, 90+16, 70+16, PUBUTTON_CIRCLE ) ;
+  button->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  button->setLabel ( "Label" ) ;
+  button->setValue ( 1 ) ;
+
+  button_text = new puText ( 5, 96 ) ;
+  button_text->setLabel ( "RADIO:" ) ;
+
+  button = new puButton ( 90, 100, 90+16, 100+16, PUBUTTON_RADIO ) ;
+  button->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
+  button->setLabel ( "Label" ) ;
+  button->setValue ( 1 ) ;
+
+  button_text = new puText ( 5, 128 ) ;
+  button_text->setLabel ( "NORMAL:" ) ;
+
+  button = new puButton ( 90, 130, 170, 150 ) ;
+  button->setLabelPlace ( PUPLACE_CENTERED_RIGHT ) ;
   button->setLabel ( "Label" ) ;
   button->setLegend ( "Legend" ) ;
   button->setValue ( 1 ) ;
-  puText *button_text = new puText ( 10, 40 ) ;
-  button_text->setLabel ( "(Button pressed in)" ) ;
 
 
   one_shot_window = glutCreateWindow      ( "One Shot Window"  ) ;
@@ -375,7 +410,7 @@ int main ( int argc, char **argv )
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
-  slider = new puSlider ( 10, 10, 120, 0 ) ;
+  slider = new puSlider ( 10, 10, 120, FALSE ) ;
   slider->setLabel ( "Label" ) ;
   slider->setLegend ( "Legend" ) ;
 
@@ -417,7 +452,7 @@ int main ( int argc, char **argv )
   dial->setLegend ( "Legend" ) ;
 
 
-  list_box_window = glutCreateWindow      ( "List Box" ) ;
+  list_box_window = glutCreateWindow      ( "List Box Window" ) ;
   glutPositionWindow    ( 200, 100 ) ;
   glutReshapeWindow     ( 180, 100  ) ;
   glutDisplayFunc       ( displayfn ) ;
@@ -467,7 +502,7 @@ int main ( int argc, char **argv )
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
-  bislider = new puBiSlider ( 10, 10, 120, 0 ) ;
+  bislider = new puBiSlider ( 10, 10, 120, FALSE ) ;
   bislider->setLabel ( "Label" ) ;
   bislider->setLegend ( "Legend" ) ;
   bislider->setMaxValue ( 20 ) ;
@@ -489,7 +524,7 @@ int main ( int argc, char **argv )
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
-  trislider = new puTriSlider ( 20, 10, 180, 1 ) ;
+  trislider = new puTriSlider ( 20, 10, 180, TRUE ) ;
   trislider->setLabel ( "Label" ) ;
   trislider->setLegend ( "Legend" ) ;
   trislider->setMaxValue ( 20 ) ;
