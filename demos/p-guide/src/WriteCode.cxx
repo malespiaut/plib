@@ -56,6 +56,12 @@ extern float main_window_color_r, main_window_color_g,
 extern int status_window ;
 extern puFileSelector *file_selector ;
 
+const char* trueOrFalse(bool tf)
+{
+   if (tf) return "TRUE";
+   else return "FALSE";
+}
+
 // The function itself
 
 void write_code ( puObject *ob )
@@ -406,10 +412,10 @@ void write_code ( puObject *ob )
             if (wid->object_type == PUCLASS_LISTBOX)
                 fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name) ;
             if (wid->object_type == PUCLASS_BUTTONBOX)
-                fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name, wid->boolval1) ;
+                fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries, %s ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name, trueOrFalse(wid->boolval1)) ;
             if (wid->object_type == PUCLASS_COMBOBOX)
             {
-                fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name, wid->boolval1) ;
+                fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries, %s ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name, trueOrFalse(wid->boolval1)) ;
                 fprintf ( out, "  %s->setCurrentItem(%d) ;\n", wid->object_name, wid->intval1) ;
             }
             if (wid->object_type == PUCLASS_SELECTBOX)
@@ -441,12 +447,7 @@ void write_code ( puObject *ob )
                       (wid->object_type == PUCLASS_SCROLLBAR )    )
                 {
                     /* Sliders */
-                    char orientation[10];
-                    if (wid->boolval2)
-                        strcpy(orientation,"true"); /* Vertical */
-                    else
-                        strcpy(orientation,"false"); /* Horizontal */
-                    fprintf ( out, "  %s = new %s (%d, %d, %d, %s, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, (wid->boolval2==1)?h:w, orientation, (wid->boolval2==1)?w:h) ;
+                    fprintf ( out, "  %s = new %s (%d, %d, %d, %s, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, (wid->boolval2==1)?h:w, trueOrFalse(wid->boolval2), (wid->boolval2==1)?w:h) ;
                     /* Slider value options */
                     if (wid->object_type == PUCLASS_SLIDER )
                         fprintf ( out, "  %s->setValue(%ff) ;\n", wid->object_name, wid->floatval4) ;
@@ -457,7 +458,7 @@ void write_code ( puObject *ob )
                         if (wid->object_type == PUCLASS_TRISLIDER )
                         {
                             if (!wid->boolval3)
-                                fprintf ( out, "  %s->setFreezeEnds(false) ;\n", wid->object_name ) ;
+                                fprintf ( out, "  %s->setFreezeEnds(FALSE) ;\n", wid->object_name ) ;
                             fprintf ( out, "  %s->setValue(%ff) ;\n", wid->object_name, wid->floatval6) ;
                             fprintf ( out, "  %s->setSliderFraction(0.1f) ;\n", wid->object_name) ;
                             /*Allow setting the slider fraction?*/
@@ -466,11 +467,11 @@ void write_code ( puObject *ob )
                 } else if (wid->object_type == PUCLASS_DIAL )
                 {
                     fprintf ( out, "  %s = new %s (%d, %d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, (h+w)/2) ;
-                    fprintf ( out, "  %s->setWrap(%d) ;\n", wid->object_name, wid->boolval2) ;
+                    fprintf ( out, "  %s->setWrap(%s) ;\n", wid->object_name, trueOrFalse(wid->boolval2)) ;
              
                 } else if (wid->object_type == PUCLASS_SPINBOX )
                 {
-                    fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->boolval2 ) ;
+                    fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, trueOrFalse(wid->boolval2) ) ;
                     fprintf ( out, "  %s->setArrowHeight(%ff) ;\n", wid->object_name, wid->floatval4 ) ;
                 }
                 /* All puRange options */
