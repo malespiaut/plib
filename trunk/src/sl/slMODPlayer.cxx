@@ -31,7 +31,7 @@ int slMODPlayer::preempt ( int delay )
   return slPlayer::preempt ( delay ) ;
 }
 
-void slMODPlayer::init ( char *fname )
+void slMODPlayer::init ( const char *fname )
 {
   mf = new MODfile ( fname, slScheduler::getCurrent()->getRate (), SL_FALSE ) ;
 }

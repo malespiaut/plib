@@ -33,7 +33,7 @@ static int init_bytes ;
 /* OSSAUDIO - Linux, FreeBSD, etc                               */
 /* ------------------------------------------------------------ */
 
-void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
+void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
 {
   fd = ::open ( device, O_WRONLY | O_NONBLOCK ) ;
 
@@ -191,7 +191,7 @@ void CALLBACK waveOutProc( HWAVEOUT hwo, UINT uMsg,
 }
 
 
-void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
+void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
 {
    MMRESULT	result;
    int i;
@@ -414,7 +414,7 @@ void slDSP::stop ()
 /* ------------------------------------------------------------ */
 
 #elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(SOLARIS)
-void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
+void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
 {
 
   counter = 0;
@@ -627,7 +627,7 @@ void slDSP::stop ()
 
 #elif defined(sgi)
 
-void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
+void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
 {
   if ( _bps != 8 )
   {
@@ -861,7 +861,7 @@ pascal void sndCallbackProc ( SndChannelPtr chan, SndCommand *cmd )
 #endif
 }
 
-void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
+void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
 {
 
   // Check for valid ranges on inputs

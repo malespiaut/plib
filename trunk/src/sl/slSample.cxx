@@ -25,7 +25,7 @@
 #include "sl.h"
 #include <math.h>
 
-void slSample::autoMatch ( slDSP *dsp )
+void slSample::autoMatch ( const slDSP *dsp )
 {
   if ( dsp == NULL  || dsp->notWorking () ) return ;
 
@@ -222,49 +222,16 @@ static void swap_int ( int *i )
        ((*i >> 24) & 0x000000FF) ;
 }
 
-/*
-  I'm sick of half the machines on the planet supporting
-  strcasecmp and the other half stricmp - so here is my own
-  offering:
-*/
 
-static int _slStrEqual ( char *s1, char *s2 )
+int slSample::loadFile ( const char *fname )
 {
-  int l1 = (s1==NULL)? 0 : strlen ( s1 ) ;
-  int l2 = (s2==NULL)? 0 : strlen ( s2 ) ;
-
-  if ( l1 != l2 ) return SL_FALSE ;
-
-  for ( int i = 0 ; i < l1 ; i++ )
-  {
-    char c1 = s1[i] ;
-    char c2 = s2[i] ;
-
-    if ( c1 == c2 )
-     continue ;
-
-    if ( c1 >= 'a' && c1 <= 'z' )
-      c1 = c1 - ('a'-'A') ;
-
-    if ( c2 >= 'a' && c2 <= 'z' )
-      c2 = c2 - ('a'-'A') ;
-
-    if ( c1 != c2 )
-     return SL_FALSE ;
-  }
-
-  return SL_TRUE ;
-}
-
-int slSample::loadFile ( char *fname )
-{
-  if ( _slStrEqual ( & fname [ strlen ( fname ) - 4 ], ".wav" ) )
+  if ( ulStrEqual ( & fname [ strlen ( fname ) - 4 ], ".wav" ) )
     return loadWavFile ( fname ) ;
 
-  if ( _slStrEqual ( & fname [ strlen ( fname ) - 3 ], ".au" ) )
+  if ( ulStrEqual ( & fname [ strlen ( fname ) - 3 ], ".au" ) )
     return loadAUFile ( fname ) ;
 
-  if ( _slStrEqual ( & fname [ strlen ( fname ) - 3 ], ".ub" ) )
+  if ( ulStrEqual ( & fname [ strlen ( fname ) - 3 ], ".ub" ) )
     return loadRawFile ( fname ) ;
 
   ulSetError ( UL_WARNING,
@@ -273,7 +240,7 @@ int slSample::loadFile ( char *fname )
 }
 
 
-int slSample::loadWavFile ( char *fname )
+int slSample::loadWavFile ( const char *fname )
 {
   int found_header   = SL_FALSE ;
   int needs_swabbing = SL_FALSE ;
@@ -418,7 +385,7 @@ int slSample::loadWavFile ( char *fname )
   return SL_FALSE ;
 }
 
-int slSample::loadAUFile ( char *fname )
+int slSample::loadAUFile ( const char *fname )
 {
   delete buffer ;
   buffer = NULL ;
@@ -512,7 +479,7 @@ int slSample::loadAUFile ( char *fname )
 }
 
 
-int slSample::loadRawFile ( char *fname )
+int slSample::loadRawFile ( const char *fname )
 {
   delete buffer ;
   buffer = NULL ;

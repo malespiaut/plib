@@ -24,7 +24,7 @@
 
 #include "sl.h"
 
-char *__slPendingError = NULL ;
+const char *__slPendingError = NULL ;
 
 slScheduler *slScheduler::current = NULL ;
 
@@ -104,7 +104,7 @@ void slScheduler::setMaxConcurrent ( int mc )
     }
 }
 
-int slScheduler::getMaxConcurrent ( void )
+int slScheduler::getMaxConcurrent ( void ) const
 {
   int mi, mc = 0;
   for ( mi = 0; mi < SL_MAX_MIXERINPUTS; mi ++ )
@@ -487,7 +487,7 @@ void slScheduler::stopMusic ( int magic )
   }
 }
 
-int slScheduler::loopMusic ( char *fname, int pri,
+int slScheduler::loopMusic ( const char *fname, int pri,
                             slPreemptMode mode,
                             int magic, slCallBack cb )
 {
@@ -511,7 +511,7 @@ int slScheduler::loopMusic ( char *fname, int pri,
   return -1 ;
 }
 
-int slScheduler::playMusic ( char *fname, int pri,
+int slScheduler::playMusic ( const char *fname, int pri,
                             slPreemptMode mode,
                             int magic, slCallBack cb )
 {
