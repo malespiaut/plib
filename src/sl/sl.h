@@ -29,15 +29,15 @@
 
 #ifdef SL_USING_OSS_AUDIO
 #define SLDSP_DEFAULT_DEVICE "/dev/dsp"
-#elif defined(WIN32)
+#elif defined(UL_WIN32)
 #define SLDSP_DEFAULT_DEVICE "dsp"	
-#elif defined(BSD)
+#elif defined(UL_BSD)
 #define SLDSP_DEFAULT_DEVICE "/dev/audio"
-#elif defined(sgi)
+#elif defined(UL_IRIX)
 #define SLDSP_DEFAULT_DEVICE "dsp"		// dummy ...
-#elif defined(SOLARIS)
+#elif defined(UL_SOLARIS)
 #define SLDSP_DEFAULT_DEVICE "/dev/audio"
-#elif defined(macintosh) || defined(__APPLE__)
+#elif defined(UL_MACINTOSH) || defined(UL_MAC_OSX)
 #define SLDSP_DEFAULT_DEVICE "dsp" // dummy
 #else
 #error "Port me !"
@@ -71,19 +71,19 @@ private:
   int error ;
   int fd ;
 
-#if defined (__NetBSD__) || defined(__OpenBSD__)
+#ifdef UL_BSD
   audio_info_t    ainfo;        // ioctl structure
   audio_offset_t  audio_offset; // offset in audiostream
   long            counter;      // counter-written packets
-#elif defined(SOLARIS)
+#elif defined(UL_SOLARIS)
   audio_info_t	  ainfo;
   long            counter;
 #elif defined(SL_USING_OSS_AUDIO)
   audio_buf_info buff_info ;
-#elif defined(sgi)
+#elif defined(UL_IRIX)
   ALconfig        config;       // configuration stuff
   ALport          port;         // .. we are here 
-#elif defined(macintosh) || defined(__APPLE__)
+#elif defined(UL_MACINTOSH) || defined(UL_MAC_OSX)
 
 // Size of the data chunks written with write().
 // This should be a multiple of 1024.
@@ -115,7 +115,7 @@ private:
 #endif
 
 
-#if !defined(WIN32) && !defined(macintosh)
+#if !defined(UL_WIN32) && !defined(UL_MACINTOSH)
   int ioctl ( int cmd, int param = 0 )
   {
     if ( error ) return param ;
@@ -129,7 +129,7 @@ private:
     return param ;
   }
 
-#elif defined(WIN32)
+#elif defined(UL_WIN32)
 
 #define BUFFER_COUNT (3*8)
 #define BUFFER_SIZE  (1024*1)

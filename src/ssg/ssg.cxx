@@ -25,25 +25,23 @@
 #define _UL_GENERATE_CODE_
 #include "ssgLocal.h"
 
-#ifndef WIN32
-#  if defined(macintosh)
-#    include <agl.h>
-#  elif defined(__APPLE__)
-#    include <OpenGL/CGLCurrent.h>
-#  else
-#    include <GL/glx.h>
-#  endif
+#if defined(UL_MACINTOSH)
+#  include <agl.h>
+#elif defined(UL_MAC_OSX)
+#  include <OpenGL/CGLCurrent.h>
+#else
+#  include <GL/glx.h>
 #endif
 
 static bool glIsValidContext ( void )
 {
 #if defined(CONSOLE)
   return true ;
-#elif defined(WIN32)
+#elif defined(UL_WIN32)
   return ( wglGetCurrentContext () != NULL ) ;
-#elif defined(macintosh)
+#elif defined(UL_MACINTOSH)
   return ( aglGetCurrentContext () != NULL ) ;
-#elif defined(__APPLE__)
+#elif defined(UL_MAC_OSX)
   return ( CGLGetCurrentContext () != NULL ) ;
 #else
   return ( glXGetCurrentContext () != NULL ) ;

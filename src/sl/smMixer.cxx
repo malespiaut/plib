@@ -179,7 +179,7 @@ void smMixer::setCDVolume     ( int left, int right )
    setVolume ( SOUND_MIXER_CD     , left, right ) ; 
 }
 
-#elif defined(__NetBSD__) || defined(__OpenBSD__)
+#elif defined(UL_BSD)
 
 /* ------------------------------------------------------------ */
 /* NetBSD or OpenBSD 2.3                                        */

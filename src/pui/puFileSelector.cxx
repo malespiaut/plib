@@ -46,7 +46,7 @@
 UL_RTTI_DEF1(puFileSelector,puDialogBox)
 
 
-#if defined(WIN32) && !defined(__CYGWIN__)
+#ifdef UL_MSVC
 #define DOTDOTSLASH "..\\"
 #define SLASH       "\\"
 #else
@@ -95,7 +95,7 @@ static void puFileSelectorHandleArrow ( puObject *arrow )
 
 static bool is_slash ( char ch )
 {
-#if defined(WIN32)
+#ifdef UL_WIN32
   /* win32 can use back or forward slash */
   return ch == '\\' || ch == '/' ;
 #else
@@ -484,7 +484,7 @@ static int puFileSelectorStringCompare ( const char *s1, const char *s2,
       listing.
     */
 
-#if defined(WIN32) && !defined(__CYGWIN__)
+#ifdef UL_MSVC
     if ( c1 >= 'a' && c1 <= 'z' )
       c1 = c1 - ('a'-'A') ;
     

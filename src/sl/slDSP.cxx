@@ -155,7 +155,7 @@ void slDSP::stop ()
 
 #endif
 
-#ifdef WIN32
+#ifdef UL_WIN32
 
 /* ------------------------------------------------------------ */
 /* win32                                                        */
@@ -413,7 +413,7 @@ void slDSP::stop ()
 /* NetBSD/OpenBSD 2.3 this should be very close to SUN Audio    */
 /* ------------------------------------------------------------ */
 
-#elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(SOLARIS)
+#elif defined(UL_BSD) || defined(UL_SOLARIS)
 void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
 {
 
@@ -440,13 +440,13 @@ void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
       return;
     }
       
-#ifdef SOLARIS
+#ifdef UL_SOLARIS
 	AUDIO_INITINFO(&ainfo);
 #endif
 
     ainfo.play.sample_rate  = _rate;
     ainfo.play.precision    = _bps;    
-#ifdef SOLARIS
+#ifdef UL_SOLARIS
 	if ( ainfo.play.port == AUDIO_SPEAKER )
 		ainfo.play.channels = 1;
 	else
@@ -508,7 +508,7 @@ int slDSP::getDriverBufferSize ()
   
   // HW buffer is 0xffff on my box
 
-#ifdef SOLARIS
+#ifdef UL_SOLARIS
   return ainfo.play.buffer_size;
 #else
   return  1024 * 8;
@@ -528,7 +528,7 @@ void slDSP::getBufferInfo ()
     return ;
   }
     
-#ifndef SOLARIS
+#ifndef UL_SOLARIS
   if( ::ioctl( fd, AUDIO_GETOOFFS, &audio_offset ) < 0)
   {
     perror ( "slDSP: getBufferInfo" ) ;
@@ -594,10 +594,10 @@ float slDSP::secondsUsed ()
   if ( counter == 0 )
       return 0.0;
 
-#ifndef SOLARIS
-  samples_used = ( counter * init_bytes ) - audio_offset.samples;
-#else
+#ifdef UL_SOLARIS
   samples_used = ( counter * init_bytes ) - ainfo.play.samples;
+#else
+  samples_used = ( counter * init_bytes ) - audio_offset.samples;
 #endif
   
   if (  stereo   ) samples_used /= 2 ;
@@ -609,10 +609,10 @@ float slDSP::secondsUsed ()
 
 void slDSP::sync ()
 { 
-#ifndef SOLARIS
-   if ( !error) ::ioctl ( fd, AUDIO_FLUSH , 0 ) ; 
-#else
+#ifdef UL_SOLARIS
    if ( !error) ::ioctl ( fd, I_FLUSH, FLUSHRW ) ;
+#else
+   if ( !error) ::ioctl ( fd, AUDIO_FLUSH , 0 ) ; 
 #endif
 }
 
@@ -625,7 +625,7 @@ void slDSP::stop ()
 /* SGI IRIX audio                                               */
 /* ------------------------------------------------------------ */
 
-#elif defined(sgi)
+#elif defined(UL_IRIX)
 
 void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
 {
@@ -773,7 +773,7 @@ void slDSP::stop ()
 #endif
 
 
-#if defined(macintosh) || defined(__APPLE__)
+#if defined(UL_MACINTOSH) || defined(UL_MAC_OSX)
 	
 
 // Print out debugging info when secondsUsed is called,

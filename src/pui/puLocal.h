@@ -32,7 +32,7 @@
 #  ifdef FREEGLUT_IS_PRESENT
 #    include <GL/freeglut.h>
 #  else
-#    ifdef __APPLE__
+#    ifdef UL_MAC_OSX
 #      include <GLUT/glut.h>
 #    else
 #      include <GL/glut.h>

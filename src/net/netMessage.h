@@ -42,7 +42,7 @@
 
 #include "netBuffer.h"
 
-#if defined(__CYGWIN__) || !defined (WIN32)
+#ifndef UL_MSVC
 #include <netinet/in.h> // ntohs() etc prototypes
 #endif
 

@@ -50,7 +50,13 @@
 
 #if defined(JS_VERSION) && JS_VERSION >= 0x010000
 #  define JS_NEW
-#else
+#endif
+#endif
+
+#define JS_TRUE  1
+#define JS_FALSE 0
+
+#ifndef JS_RETURN
 
  /*
    We'll put these values in and that should
@@ -68,11 +74,6 @@
 
 #  define JS_RETURN (sizeof(struct JS_DATA_TYPE))
 #endif
-#endif
-
-#define JS_TRUE  1
-#define JS_FALSE 0
-
 
 class jsJoystick
 {
