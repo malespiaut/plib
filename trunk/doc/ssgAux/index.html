@@ -20,9 +20,12 @@
 </TR>
 </TABLE>
 <H2>Introduction</H2>
+<TABLE>
+<TR>
+<TD>
 PLIB/ssgAux is a suite of auxiliary libraries that build
 higher level classes on top of the basic SSG classes.
-Currently we have:
+<p>
 <ul>
 <li><A HREF="#ssgaShape">ssgaShape - Abstract Base Class</A>
 <li><A HREF="#ssgaCube">ssgaCube - Makes a cube.</A>
@@ -34,31 +37,43 @@ Currently we have:
 <li><A HREF="#ssgaParticleSystem">ssgaParticleSystem - Implements a spray of particles</A>
 <li><A HREF="#ssgaLensFlare">ssgaLensFlare - Simulates Lens Flare for drawing bright lights.</A>
 </ul>
-These will be installed and named with the same
-conventions as the base PLIB libraries, eg:
+</TD>
+<TD>
+<center>
+<IMG SRC="snapshot.png">
+<br>
+This image was created entirely from ssgAux primitives.
+</center>
+</TD>
+</TR>
+</TABLE>
+<p>
+<H2>Conventions</H2>
+ssgAux is installed and named with the same
+conventions as the base PLIB libraries.
+<br>
+ie:
 <pre>
-
    /usr/include/plib/ssgAux.h
    /usr/lib/libplibssgaux.a
-
 </pre>
 <p>
 PLIB/ssgAux functions, classes and constants are all
 named with an 'ssga' or 'SSGA' prefix.
+<br>
+eg:
 <pre>
-
-  eg
-      class ssgaShape ;
-      SSGA_TYPE_CUBE
-
+   class ssgaShape ;
+   SSGA_TYPE_CUBE
 </pre>
 <A NAME="ssgaShape"></A>
 <H1>ssgaShape</H1>
 This is an abstract base class for many of the more
 complex classes in the ssgAux 'collection'.  The idea
-is that these are really ssgGroup nodes - but they
-behave in such a way that you are never concerned
-with the nodes they create beneath themselves.
+is that ssgaShape's are really ssgBranch nodes that create
+their own child nodes - but they behave in such a way that
+you are never concerned with the nodes they create beneath
+themselves.
 <pre>
 
 class ssgaShape : public ssgBranch
@@ -394,7 +409,7 @@ infinite radius (MAX_FLOAT say) if you truly don't know how big it could
 get - but that's inefficient because all 2,000 particles must be sent to
 OpenGL even if the fountain is 20 miles away behind the camera - so do your
 best to come up with some kind of a reasonable guess.
-<pre>
+<p>
 fountain_create and fountain_update are user-defined callback functions,
 we could also have defined a 'fountain_delete' function - but many applications
 won't need this.
@@ -429,13 +444,13 @@ My 'fountain_create' function looks like this:
 
 void fountain_create ( ssgaParticleSystem *, int, ssgaParticle *p )
 {
-  sgSetVec4 ( p -> col, 1, 1, 1, 1 ) ;  /* initially white */
-  sgSetVec3 ( p -> pos, 0, 0, 0 ) ;     /* start off on the ground */
-  sgSetVec3 ( p -> vel, (rand()%1000-500)/300.0f,
+  sgSetVec4 ( p -&gt; col, 1, 1, 1, 1 ) ;  /* initially white */
+  sgSetVec3 ( p -&gt; pos, 0, 0, 0 ) ;     /* start off on the ground */
+  sgSetVec3 ( p -&gt; vel, (rand()%1000-500)/300.0f,
                         (rand()%1000-500)/300.0f, 50.0f ) ;
                                         /* Shoot up and out */
-  sgSetVec3 ( p -> acc, 0, 0, -9.8f ) ; /* Gravity */
-  p -> time_to_live = 5 ;               /* Droplets evaporate after 5 seconds */
+  sgSetVec3 ( p -&gt; acc, 0, 0, -9.8f ) ; /* Gravity */
+  p -&gt; time_to_live = 5 ;               /* Droplets evaporate after 5 seconds */
 }
 
 </pre>
@@ -449,10 +464,10 @@ accelleration in your 'update' function.
 
 void fountain_update ( ssgaParticle *p )
 {
-  if ( p -> pos [ 2 ] < 0 )
-    p -> time_to_live = -1 ;
+  if ( p -&gt; pos [ 2 ] &lt; 0 )
+    p -&gt; time_to_live = -1 ;
  
-  p -> col [ 2 ] = (p -> time_to_live > 2) ? 1 : (p -> time_to_live/2.0f) ;
+  p -&gt; col [ 2 ] = (p -&gt; time_to_live &gt; 2) ? 1 : (p -&gt; time_to_live/2.0f) ;
 }
 
 </pre>
@@ -480,7 +495,7 @@ void updateFountain ()
   ck . update () ;
  
   if ( fountain != NULL )
-    fountain -> update ( ck.getDeltaTime () ) ;
+    fountain -&gt; update ( ck.getDeltaTime () ) ;
 }
                                                                                 
 </pre>
@@ -528,8 +543,8 @@ eg:
 
    ...
 
-   myTransform -> addKid ( myLightSource ) ;
-   myTransform -> addKid ( new ssgaLensFlare ) ;
+   myTransform -&gt; addKid ( myLightSource ) ;
+   myTransform -&gt; addKid ( new ssgaLensFlare ) ;
 
 </pre>
 It contains a (hard-coded) 256x128 texture map which is compiled
