@@ -31,10 +31,6 @@
 #  endif
 #endif
 
-#ifdef PU_NOT_USING_GLUT
-#include <iostream.h>
-#endif
-
 int puRefresh = TRUE ;
 
 static int puWindowWidth  = 400 ;
