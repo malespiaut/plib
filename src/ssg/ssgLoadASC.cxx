@@ -55,13 +55,13 @@ void AscLinePreProcessor(char *line)
   while((*p == ' ') || (*p == 9))
     p++;
   // p points to the first word (or the line end) now.
-  if(0 == strnicmp(p, "Page", strlen("Page")))
+  if(0 == ulStrNEqual(p, "Page", strlen("Page")))
   {
     // Since this loader ignores the line structure, 
     // we can also ignore the \n or \r and just "delete" the whole line
     line[0] = 0;
   }
-  if(0 == strnicmp(p, "Camera", strlen("Camera")))
+  if(0 == ulStrNEqual(p, "Camera", strlen("Camera")))
     line[0] = 0;
 }
 
@@ -551,7 +551,7 @@ int SetOrGetMaterial(char *sMatName)
     s[strlen(s)-1]=0;
   // **** search for it ****
   for(int i=0; i<noOfAscmaterials; i++)
-    if(0==stricmp(s, AscMaterials[i].sName))
+    if(0==ulStrEqual(s, AscMaterials[i].sName))
       return i;
   // **** not found - create it ****
   AscMaterials[noOfAscmaterials].sName = new char[strlen(s)+1];
@@ -605,7 +605,7 @@ static int HandleVertex()
 // "Vertex 0:  X:115.710701     Y:180.000305     Z:-60.796242     U:0.048042     V:0.996284"
 {
   char *sNextToken = parser.peekAtNextToken( "vertex list?" );
-  if(0 == stricmp("list", sNextToken))
+  if(0 == ulStrEqual("list", sNextToken))
   {
     parser.expectNextToken("list");
     parser.expectNextToken(":");
@@ -654,7 +654,7 @@ static int HandleFace()
 // "Face 0:    A:0 B:10 C:7 AB:1 BC:1 CA:1"
 {
   char *sNextToken = parser.peekAtNextToken( "Face list?" );
-  if(0 == stricmp("list", sNextToken))
+  if(0 == ulStrEqual("list", sNextToken))
   {
     parser.expectNextToken("list");
     parser.expectNextToken(":");
