@@ -1,6 +1,6 @@
 SUBDIRS = src
 
-EXTRA_DIST = README COPYING.DATA plib_examples.dsp plib_examples.dsw
+EXTRA_DIST = README COPYING.DATA plib_examples.dsp plib_examples.dsw install-sh missing autogen.sh
 
 dist-hook:
 	tar cf - doc \
