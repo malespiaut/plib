@@ -124,8 +124,10 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
 
     if ( getFreezeEnds() )  // Cannot move end sliders, must move middle one
     {
-      setValue ( new_value ) ;
-      setActiveButton ( 2 ) ;
+      setActiveButton ( 2 ) ;  
+      setValue ( new_value ) ; /* Ensure that the middle slider can't move beyond the barriers - JCJ 10 Jun 2002 */
+      if ( new_value < getCurrentMin() ) setValue ( getCurrentMin() ) ;
+      if ( new_value > getCurrentMax() ) setValue ( getCurrentMax() ) ;
     }
     else
     {
@@ -196,3 +198,4 @@ void puTriSlider::doHit ( int button, int updown, int x, int y )
     }
   }
 }
+
