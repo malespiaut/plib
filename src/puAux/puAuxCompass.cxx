@@ -24,7 +24,12 @@
 
 
 #include "puAux.h"
-#include <GL/glu.h>
+
+#ifdef UL_MAC_OSX
+#  include <OpenGL/gl.h>
+#else
+#  include <GL/gl.h>
+#endif
 
 UL_RTTI_DEF1(puaCompass,puObject)
 

@@ -20,7 +20,7 @@ void pwSetCallbacks ( pwKeybdFunc    *kb, pwMouseFunc *ms,
   fprintf ( stderr, "PW: ***** NOT IMPLEMENTED FOR OS-X YET!! *****\n" ) ;
 }
 
-void pwInit ( int multisample, int num_samples ) ;
+void pwInit ( int multisample, int num_samples )
 {
   /* Open a full-screen window here please. */
   fprintf ( stderr, "PW: ***** NOT IMPLEMENTED FOR OS-X YET!! *****\n" ) ;
