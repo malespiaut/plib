@@ -252,30 +252,6 @@ void puFilePicker::setSize ( int w, int h )
   ok_button->setPosition ( (w<170)?(w/2+5):90, 10 ) ;
 }
 
-puFilePicker::puFilePicker ( int x, int y, int w, int h, int arrows, const char* dir, const char *title )
-                           : puDialogBox ( x, y )
-{
-  puFilePickerInit ( x, y, w, h, arrows, dir, title ) ;
-}
-
-puFilePicker::puFilePicker ( int x, int y, int w, int h, const char* dir, const char *title )
-                           : puDialogBox ( x, y )
-{
-  puFilePickerInit ( x, y, w, h, 1, dir, title ) ;
-}
-
-puFilePicker::puFilePicker ( int x, int y, int arrows, const char* dir, const char *title )
-                           : puDialogBox ( x, y )
-{
-  puFilePickerInit ( x, y, arrows, 220, 170, dir, title ) ;
-}
-
-puFilePicker::puFilePicker ( int x, int y, const char* dir, const char *title )
-                           : puDialogBox ( x, y )
-{
-  puFilePickerInit ( x, y, 220, 170, 1, dir, title ) ;
-}
-
 puFilePicker::~puFilePicker ()
 {
   if ( files )

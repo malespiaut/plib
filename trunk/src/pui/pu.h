@@ -1093,6 +1093,17 @@ protected:
   int   cb_mode ;
   float slider_fraction ;
   void draw_slider_box ( int dx, int dy, float val, const char *box_label = NULL ) ;
+
+  void puSliderInit ( int vertical )
+  {
+    type |= PUCLASS_SLIDER ;
+    slider_fraction = 0.1f ;
+    getValue ( & last_cb_value ) ;  // was last_cb_value = -1.0f ;
+    vert = vertical ;
+    cb_delta = 0.1f ;
+    cb_mode = PUSLIDER_ALWAYS ;
+  }
+
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
@@ -1108,12 +1119,7 @@ public:
                         PUSTR_TGAP + PUSTR_BGAP )
              )
   {
-    type |= PUCLASS_SLIDER ;
-    slider_fraction = 0.1f ;
-    getValue ( & last_cb_value ) ;  // was last_cb_value = -1.0f ;
-    vert = vertical ;
-    cb_delta = 0.1f ;
-    cb_mode = PUSLIDER_ALWAYS ;
+    puSliderInit ( vertical ) ;
   }
 
   /* Blake Friesen - alternate constructor which lets you explicitly set width */
@@ -1126,12 +1132,7 @@ public:
                              ( miny + width ) 
                            )
   {
-    type |= PUCLASS_SLIDER ;
-    slider_fraction = 0.1f ;
-    getValue ( & last_cb_value ) ;  // was last_cb_value = -1.0f ;
-    vert = vertical ;
-    cb_delta = 0.1f ;
-    cb_mode = PUSLIDER_ALWAYS ;
+    puSliderInit ( vertical ) ;
   }
 
   void setCBMode ( int m ) { cb_mode = m ; }
@@ -1157,11 +1158,8 @@ protected:
   int current_min ;
 
   int active_button ;  // Zero for none, one for min, two for max
-public:
-  void doHit ( int button, int updown, int x, int y ) ;
-  void draw  ( int dx, int dy ) ;
-  puBiSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
-     puSlider ( minx, miny, sz, vertical )
+
+  void puBiSliderInit ( void )
   {
     type |= PUCLASS_BISLIDER ;
     max_value = 1 ;
@@ -1170,18 +1168,21 @@ public:
     current_min = 0 ;
     active_button = 0 ;
   }
+public:
+  void doHit ( int button, int updown, int x, int y ) ;
+  void draw  ( int dx, int dy ) ;
+  puBiSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
+     puSlider ( minx, miny, sz, vertical )
+  {
+    puBiSliderInit () ;
+  }
 
   /* Alternate constructor which lets you explicitly set width */
 
   puBiSlider ( int minx, int miny, int sz, int vertical, int width ) :
      puSlider ( minx, miny, sz, vertical, width )
   {
-    type |= PUCLASS_BISLIDER ;
-    max_value = 1 ;
-    min_value = 0 ;
-    current_max = 1 ;
-    current_min = 0 ;
-    active_button = 0 ;
+    puBiSliderInit () ;
   }
 
   void setMaxValue ( int i )
@@ -1549,13 +1550,32 @@ public:
  *************************************/
 
   puFilePicker ( int x, int y, int w, int h, int arrows,
-                 const char *dir, const char *title = "Pick a file" ) ;
+                 const char *dir, const char *title = "Pick a file" ) :
+     puDialogBox ( x, y )
+  {
+    puFilePickerInit ( x, y, w, h, arrows, dir, title ) ;
+  }
+
   puFilePicker ( int x, int y, int w, int h,
-                 const char *dir, const char *title = "Pick a file" ) ;
+                 const char *dir, const char *title = "Pick a file" ) :
+     puDialogBox ( x, y )
+  {
+    puFilePickerInit ( x, y, w, h, 1, dir, title ) ;
+  }
+
   puFilePicker ( int x, int y, int arrows,
-                 const char* dir, const char *title = "Pick a file" ) ;
+                 const char* dir, const char *title = "Pick a file" ) :
+     puDialogBox ( x, y )
+  {
+    puFilePickerInit ( x, y, arrows, 220, 170, dir, title ) ;
+  }
+
   puFilePicker ( int x, int y,
-                 const char* dir, const char *title = "Pick a file" ) ;
+                 const char* dir, const char *title = "Pick a file" ) :
+     puDialogBox ( x, y )
+  {
+    puFilePickerInit ( x, y, 220, 170, 1, dir, title ) ;
+  }
 
   ~puFilePicker () ;
 
@@ -1594,13 +1614,32 @@ protected:
 public:
 
   puFileSelector ( int x, int y, int w, int h, int arrows,
-                 const char *dir, const char *title = "Pick a file" ) ;
+                   const char *dir, const char *title = "Pick a file" ) :
+     puDialogBox ( x, y )
+  {
+    puFileSelectorInit ( x, y, w, h, arrows, dir, title ) ;
+  }
+
   puFileSelector ( int x, int y, int w, int h,
-                 const char *dir, const char *title = "Pick a file" ) ;
+                   const char *dir, const char *title = "Pick a file" ) :
+     puDialogBox ( x, y )
+  {
+    puFileSelectorInit ( x, y, w, h, 1, dir, title ) ;
+  }
+
   puFileSelector ( int x, int y, int arrows,
-                 const char* dir, const char *title = "Pick a file" ) ;
+                   const char* dir, const char *title = "Pick a file" ) :
+     puDialogBox ( x, y )
+  {
+    puFileSelectorInit ( x, y, arrows, 220, 170, dir, title ) ;
+  }
+
   puFileSelector ( int x, int y,
-                 const char* dir, const char *title = "Pick a file" ) ;
+                   const char* dir, const char *title = "Pick a file" ) :
+     puDialogBox ( x, y )
+  {
+    puFileSelectorInit ( x, y, 220, 170, 1, dir, title ) ;
+  }
 
   ~puFileSelector () ;
 
