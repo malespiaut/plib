@@ -474,6 +474,7 @@ bool ssgSGIHeader::openFile(const char *fname)
     ulSetError ( UL_FATAL, "ssgLoadTexture: '%s' is corrupted.", image_fname ) ;
   }
 
+  return true ;
 } 
 
 
