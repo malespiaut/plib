@@ -31,15 +31,10 @@
 #include <string.h> // -dw- for memcpy
 
 #define _JS_MAX_AXES 16
+#define _JS_MAX_BUTTONS 32
 
 #ifdef UL_MACINTOSH
 #  include <InputSprocket.h>
-#endif
-
-#ifdef UL_BSD
-#  include <machine/joystick.h>
-#  define JS_DATA_TYPE joystick
-#  define JS_RETURN (sizeof(struct JS_DATA_TYPE))
 #endif
 
 #ifdef UL_MAC_OSX
@@ -92,6 +87,8 @@ class jsJoystick
   ISpElementReference isp_elem  [ isp_num_needs ] ;
   ISpNeed             isp_needs [ isp_num_needs ] ;
 
+#elif defined(UL_BSD)
+  struct os_specific_s *os ;
 #elif defined(UL_MAC_OSX)
 
   IOHIDDeviceInterface ** hidDev;

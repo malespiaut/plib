@@ -46,6 +46,10 @@
 #include <netinet/in.h> // ntohs() etc prototypes
 #endif
 
+#ifdef __FreeBSD__
+#include <arpa/inet.h>
+#endif
+
 
 class netGuid //Globally Unique IDentifier
 {
