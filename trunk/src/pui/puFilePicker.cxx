@@ -526,10 +526,7 @@ void puFilePicker::find_files ( void )
       strcat ( files [ ifile ], "]" ) ;
     }
     else
-    {
-      files[ ifile ] = new char[ strlen(dp->d_name)+1 ] ;
-      strcpy ( files [ ifile ], dp->d_name ) ;
-    }
+      files[ ifile ] = ulStrDup ( dp->d_name ) ;
   }
 
   files [ ifile ] = NULL ;

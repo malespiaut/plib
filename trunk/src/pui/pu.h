@@ -1543,10 +1543,7 @@ public:
     delete [] valid_data ;
 
     if ( data != NULL )
-    {
-      valid_data = new char [ strlen ( data ) + 1 ] ;
-      strcpy ( valid_data, data ) ;
-    }
+      valid_data = ulStrDup ( data ) ;
     else
       valid_data = NULL ;
   }
