@@ -32,6 +32,13 @@ The Picoscopic User Interface (PUI - pronounced '<a href="http://worldkids.net/p
 is a simple set of C++ classes that allow programs written in GLUT and
 OpenGL to create buttons, sliders, menus etc.
 <p>
+Because PUI's widget rendering is performed using OpenGL calls, it is
+well suited to the job of adding a few simple GUI elements to
+a game or other interactive program where the GUI is required to overlay
+(often transparently) some 3D rendering.  By using OpenGL calls, PUI
+is much faster than most other GUI libraries on systems with 3D rendering
+hardware.
+<p>
 
 PUI is now a part of <a href="../index.html">PLIB</a>.
 <p>
