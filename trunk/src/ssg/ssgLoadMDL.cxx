@@ -6,8 +6,15 @@
 // Original code by Thomas Engh Sevaldrud, adapted to SSG by
 // Per Liedman.
 
+#include <iostream.h>
+#include "ssgLocal.h"
+#include "ssgLoadMDL.h"
+
+#define DEF_SHININESS 50
+#define MSFS_MAX_STATES 256
+
 // Define DEBUG if you want some debug info
-//#define DEBUG 1
+/*#define DEBUG 1*/
 
 #ifdef DEBUG
 #include <iostream>
@@ -15,12 +22,6 @@
 #else
 #define DEBUGPRINT(x)
 #endif
-
-#include "ssgLocal.h"
-#include "ssgLoadMDL.h"
-
-#define DEF_SHININESS 50
-#define MSFS_MAX_STATES 256
 
 struct _MDLPart {
   GLenum type;
@@ -158,14 +159,14 @@ static bool findPart(FILE* fp)
       if(match1 == 4)
 	{
 	  fseek(fp, -4, SEEK_CUR);
-	  DEBUGPRINT( "found vertices at " << hex << ftell(fp) << dec << endl);
+	  DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) << std::dec << std::endl);
 	  return true;
 	}
 
       else if(match2 == 4)
 	{
 	  fseek(fp, -4, SEEK_CUR);
-	  DEBUGPRINT( "found vertices at " << hex << ftell(fp) << dec << endl);
+	  DEBUGPRINT( "found vertices at " << std::hex << ftell(fp) << std::dec << std::endl);
 	  return true;
 	}
       else if(matchpos >= 0) 
@@ -179,9 +180,9 @@ static bool findPart(FILE* fp)
 	  var    = get_word();
 	  low    = get_word();
 	  high   = get_word();
-	  DEBUGPRINT( "JumpOnVar (" << hex << (int)pattern[matchpos] << 
-		      "): var " << var << dec << ", offset: " << offset <<
-		      ", value: " << low << " < " << high << endl );
+	  DEBUGPRINT( "JumpOnVar (" << std::hex << (int)pattern[matchpos] << 
+		      "): var " << var << std::dec << ", offset: " << offset <<
+		      ", value: " << low << " < " << high << std::endl );
 
 	  int part_idx;
 	  switch (var) {
@@ -269,7 +270,7 @@ static void readVector(FILE* fp, sgVec3 v)
 //===========================================================================
 
 static void recalcNormals( _MDLPart *part ) {
-  DEBUGPRINT( "Calculating normals." << endl);
+  DEBUGPRINT( "Calculating normals." << std::endl);
   sgVec3 v1, v2, n;
 
   for (int i = 0; i < part->idx->getNum() / 3; i++) {
@@ -302,40 +303,64 @@ static void createTriangIndices(ssgIndexArray *ixarr,
   // triangulate polygons
   if(numverts == 1)
     {
-      curr_part_->idx->add(*ixarr->get(0));
-      curr_part_->idx->add(*ixarr->get(0));
-      curr_part_->idx->add(*ixarr->get(0));
+      unsigned short ix0 = *ixarr->get(0);
+      if ( ix0 >= curr_part_->vtx->getNum() ) {
+	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+	return;
+      }
+
+      curr_part_->idx->add(ix0);
+      curr_part_->idx->add(ix0);
+      curr_part_->idx->add(ix0);
     }
 
   else if(numverts == 2)
     {
-      curr_part_->idx->add(*ixarr->get(0));
-      curr_part_->idx->add(*ixarr->get(1));
-      curr_part_->idx->add(*ixarr->get(0));
+      unsigned short ix0 = *ixarr->get(0);
+      unsigned short ix1 = *ixarr->get(1);
+      if ( ix0 >= curr_part_->vtx->getNum() ||
+	   ix1 >= curr_part_->vtx->getNum() ) {
+	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+	return;
+      }
+
+      curr_part_->idx->add(ix0);
+      curr_part_->idx->add(ix1);
+      curr_part_->idx->add(ix0);
     }
 
   else if(numverts == 3)
     {
+      unsigned short ix0 = *ixarr->get(0);
+      unsigned short ix1 = *ixarr->get(1);
+      unsigned short ix2 = *ixarr->get(2);
+      if ( ix0 >= curr_part_->vtx->getNum() ||
+	   ix1 >= curr_part_->vtx->getNum() ||
+	   ix2 >= curr_part_->vtx->getNum() ) {
+	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+	return;
+      }
+
       sgSubVec3(v1, 
-		curr_part_->vtx->get(*ixarr->get(1)), 
-		curr_part_->vtx->get(*ixarr->get(0)));
+		curr_part_->vtx->get(ix1), 
+		curr_part_->vtx->get(ix0));
       sgSubVec3(v2, 
-		curr_part_->vtx->get(*ixarr->get(2)),
-		curr_part_->vtx->get(*ixarr->get(0)));
+		curr_part_->vtx->get(ix2),
+		curr_part_->vtx->get(ix0));
     
       sgVectorProductVec3(cross, v1, v2);
 
       if(sgScalarProductVec3(cross, s_norm) > 0.0f)
 	{
-	  curr_part_->idx->add(*ixarr->get(0));
-	  curr_part_->idx->add(*ixarr->get(1));
-	  curr_part_->idx->add(*ixarr->get(2));
+	  curr_part_->idx->add(ix0);
+	  curr_part_->idx->add(ix1);
+	  curr_part_->idx->add(ix2);
 	}
       else
 	{
-	  curr_part_->idx->add(*ixarr->get(0));
-	  curr_part_->idx->add(*ixarr->get(2));
-	  curr_part_->idx->add(*ixarr->get(1));
+	  curr_part_->idx->add(ix0);
+	  curr_part_->idx->add(ix2);
+	  curr_part_->idx->add(ix1);
 	}
     }
 
@@ -346,6 +371,14 @@ static void createTriangIndices(ssgIndexArray *ixarr,
 	{
 	  unsigned short ix1 = *ixarr->get(i-1);
 	  unsigned short ix2 = *ixarr->get(i);
+
+	  if ( ix0 >= curr_part_->vtx->getNum() ||
+	       ix1 >= curr_part_->vtx->getNum() ||
+	       ix2 >= curr_part_->vtx->getNum() ) {
+	    ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+	    continue;
+	  }
+
 
 	  // Ensure counter-clockwise ordering
 	  sgSubVec3(v1, 
@@ -431,9 +464,12 @@ static bool readTexIndices(FILE* fp, int numverts, const sgVec3 s_norm)
 
 	  ssgVertexArray* vtx_arr  = curr_part_->vtx;
 	  ssgNormalArray* norm_arr = curr_part_->nrm;
-       
-	  vtx_arr ->add(vtx_arr ->get(idx));
-	  norm_arr->add(norm_arr->get(idx));
+
+	  sgVec3 vtx, nrm;
+	  sgCopyVec3( vtx, vtx_arr ->get(idx) );
+	  sgCopyVec3( nrm, norm_arr->get(idx) );
+	  vtx_arr ->add(vtx);
+	  norm_arr->add(nrm);
        
 	  tex_coords_->add(tc);
 	}
@@ -467,7 +503,7 @@ bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
       unsigned short ix;
       ix = get_word();
       ixarr.add(ix - start_idx_ + last_idx_);
-      DEBUGPRINT( "ix[" << v << "] = " << *ixarr.get(v) << endl);
+      DEBUGPRINT( "ix[" << v << "] = " << *ixarr.get(v) << std::endl);
       //ixarr.insert(v, ix - start_idx_);
     }
 
@@ -504,7 +540,7 @@ ssgSimpleState* createMaterialState(int color, int pal_id)
     }
     
   DEBUGPRINT( "  Creating non-textured state: color = (" << r << ", " << g <<
-	      ", " << b << ")" << endl);
+	      ", " << b << ")" << std::endl);
  
   state->setMaterial(GL_AMBIENT , r   , g   , b   , a   );
   state->setMaterial(GL_DIFFUSE , r   , g   , b   , a   );
@@ -538,7 +574,7 @@ ssgSimpleState* createTextureState(char *name)
   state->disable(GL_COLOR_MATERIAL);
   state->enable(GL_TEXTURE_2D);
 
-  DEBUGPRINT( "  Creating texture state: name = " << name << endl);
+  DEBUGPRINT( "  Creating texture state: name = " << name << std::endl);
 
   return state;
 }
@@ -642,7 +678,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    numpoints = get_word();
 
 	    DEBUGPRINT( "New group (unlit): start_idx = " << start_idx_ 
-		 << ", num vertices = " << numpoints << endl);
+		 << ", num vertices = " << numpoints << std::endl);
 
 	    sgVec3 null_normal;
 	    sgSetVec3(null_normal, 0.0f, 0.0f, 0.0f);
@@ -673,7 +709,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    numpoints = get_word();
 
 	    DEBUGPRINT( "New group (goraud): start_idx = " << start_idx_
-		 << ", num vertices = " << numpoints << endl);
+		 << ", num vertices = " << numpoints << std::endl);
 
 	    delete curr_vtx_ ;
 	    delete curr_norm_;
@@ -695,7 +731,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	  {
 	    unsigned short idx;
 	    idx = get_word();
-	    DEBUGPRINT( "Start line: idx = " << idx << endl);
+	    DEBUGPRINT( "Start line: idx = " << idx << std::endl);
 	    if(vtx_dirty_)
 	      {
 		last_idx_ = vertex_array_->getNum();
@@ -737,7 +773,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	  {
 	    unsigned short idx;
 	    idx = get_word();
-	    DEBUGPRINT( "Cont. line: idx = " << idx << endl);
+	    DEBUGPRINT( "Cont. line: idx = " << idx << std::endl);
 	    curr_part_->idx->add(idx - start_idx_ + last_idx_);
 	  }
 	  break;
@@ -764,7 +800,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 
 	    unsigned short numverts;
 	    numverts = get_word();
-	    DEBUGPRINT( "New part: (goraud/texture), num indices = " << numverts << endl);
+	    DEBUGPRINT( "New part: (goraud/texture), num indices = " << numverts << std::endl);
 
 	    // Unused data
 	    sgVec3 v;
@@ -824,7 +860,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 
 	    unsigned short numverts;
 	    numverts = get_word();
-	    DEBUGPRINT( "New part: (no tex), num indices = " << numverts << endl);
+	    DEBUGPRINT( "New part: (no tex), num indices = " << numverts << std::endl);
 
 	    // Surface normal
 	    sgVec3 v;
@@ -880,7 +916,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    curr_tex_name_[j] = '\0';
 	    DEBUGPRINT( "Set texture: name = " << curr_tex_name_ << 
 			", id = " << id << ", dx = " << dx << ", dy = " << 
-			dy << ", scale = " << scale << endl);
+			dy << ", scale = " << scale << std::endl);
 	  }
 	  break;
 	
@@ -890,8 +926,8 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	  {
 	    curr_color_  = get_byte();
 	    curr_pal_id_ = get_byte();
-	    DEBUGPRINT( "Set color = " << (int)curr_color_ << " (" << hex << 
-			curr_pal_id_ << dec << ")\n");
+	    DEBUGPRINT( "Set color = " << (int)curr_color_ << " (" << std::hex << 
+			curr_pal_id_ << std::dec << ")\n");
 	  }
 	  break;
 
@@ -936,7 +972,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    long pos = ftell(model_file_);
 	    fseek(model_file_, var_offset-5, SEEK_CUR);
 	    fread(&var, 2, 1, model_file_);
-	    DEBUGPRINT( "JumpOnVar = " << hex << var_offset << dec << endl);
+	    DEBUGPRINT( "JumpOnVar = " << std::hex << var_offset << std::dec << std::endl);
 	    fseek(model_file_, pos, SEEK_SET);
 	    /*
 	      if((var & mask) == 0)
@@ -1005,9 +1041,9 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    fread(&v1, 2, 1, model_file_);
 	    fread(&v2, 2, 1, model_file_);
 	    fread(&sx, 2, 1, model_file_);
-	    DEBUGPRINT( "offset = " << offset << endl);
-	    DEBUGPRINT( "v1 = " << v1 << ", v2 = " << v2 << ", sx = " << sx << endl);
-	    DEBUGPRINT( "scale = " << (double)(1 << sx)/65536.0 << endl);
+	    DEBUGPRINT( "offset = " << offset << std::endl);
+	    DEBUGPRINT( "v1 = " << v1 << ", v2 = " << v2 << ", sx = " << sx << std::endl);
+	    DEBUGPRINT( "scale = " << (double)(1 << sx)/65536.0 << std::endl);
 	  }
 	  break;
 	
@@ -1017,7 +1053,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	    fread(param, 1, 10, model_file_);
 	    //	  unsigned short addr;
 	    //	  fread(&addr, 2, 1, model_file_);
-	    //	  DEBUGPRINT( "vpoint addr = " << addr << endl);
+	    //	  DEBUGPRINT( "vpoint addr = " << addr << std::endl);
 	  }
 	  break;
 
