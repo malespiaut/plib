@@ -286,18 +286,69 @@ void ssgVtxTable::getLine ( int n, short *v1, short *v2 )
   return ;   
 }
 
+
 void ssgVtxTable::transform ( const sgMat4 m )
 {
   int i ;
+  int flags = sgClassifyMat4 ( m ) ;
+
+  if ( flags == 0 )
+    return ;
+
+
+  if ( ( flags & SG_PROJECTION ) )
+    ulSetError ( UL_WARNING, "ssgVtxTable: Projection matrices currently not supported." ) ;
+  /* 
+    note: it is possible to handle projections, but for each normal we would 
+    have to know the corresponding vertex coordinates. setting:
+        n[3] = dot(v, n) / v[3]
+    and then transforming with the full 4x4 transposed inverse matrix would do it.
+    see the OpenGL spec.
+  */
+
 
   for ( i = 0 ; i < getNumVertices() ; i++ )
     sgXformPnt3 ( vertices->get(i), vertices->get(i), m ) ;
 
-  for ( i = 0 ; i < getNumNormals() ; i++ )
+
+  sgMat4 w ;
+
+  if ( ( flags & ( SG_MIRROR | SG_GENERAL_SCALE | SG_NONORTHO ) ) )
   {
-    sgXformVec3 ( normals->get(i), normals->get(i), m ) ;
-    sgNormaliseVec3 ( normals->get(i) ) ;
+    if ( ( flags & ( SG_GENERAL_SCALE | SG_NONORTHO ) ) )
+    {
+      // use the transposed adjoint matrix (only the upper 3x3 is needed)
+      w[0][0] = m[1][1] * m[2][2] - m[1][2] * m[2][1] ;
+      w[0][1] = m[1][2] * m[2][0] - m[1][0] * m[2][2] ;
+      w[0][2] = m[1][0] * m[2][1] - m[1][1] * m[2][0] ;
+      w[1][0] = m[2][1] * m[0][2] - m[2][2] * m[0][1] ;
+      w[1][1] = m[2][2] * m[0][0] - m[2][0] * m[0][2] ;
+      w[1][2] = m[2][0] * m[0][1] - m[2][1] * m[0][0] ;
+      w[2][0] = m[0][1] * m[1][2] - m[0][2] * m[1][1] ;
+      w[2][1] = m[0][2] * m[1][0] - m[0][0] * m[1][2] ;
+      w[2][2] = m[0][0] * m[1][1] - m[0][1] * m[1][0] ;
+    }
+    else
+    {
+      // mirror, negate to keep normals consistent with triangle orientations
+      sgNegateVec3 ( w[0], m[0] ) ;
+      sgNegateVec3 ( w[1], m[1] ) ;
+      sgNegateVec3 ( w[2], m[2] ) ;
+    }
+    m = w ;
   }
+
+
+  for ( i = 0 ; i < getNumNormals() ; i++ )
+    sgXformVec3 ( normals->get(i), normals->get(i), m ) ;
+
+
+  if ( ( flags & ( SG_UNIFORM_SCALE | SG_GENERAL_SCALE | SG_NONORTHO ) ) )
+  {
+    for ( i = 0 ; i < getNumNormals() ; i++ )
+      sgNormaliseVec3 ( normals->get(i) ) ;
+  }
+
 
   recalcBSphere () ;
 }
