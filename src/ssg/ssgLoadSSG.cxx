@@ -14,21 +14,27 @@ int _ssgGetNextInstanceKey ()
 
 ssgBase *_ssgGetFromList ( int key )
 {
-  return ( _ssgInstanceListLength <= key ) ? (ssgBase *) NULL :
-                                             _ssgInstanceList[key] ;
+
+	if ( _ssgInstanceListLength <= key ) 
+	{
+		ulSetError ( UL_WARNING, "Invalid key encountered while reading a .ssg-file.\n") ; 
+		return (ssgBase *) NULL ;
+	}
+	else
+		return _ssgInstanceList[key] ;
 }
 
 
 void _ssgAddToList ( int key, ssgBase *b )
 {
-  if ( _ssgInstanceListLength <= key )
+	if ( _ssgInstanceListLength <= key )
   {
     int temp_length = _ssgInstanceListLength ;
     ssgBase **temp = _ssgInstanceList ;
     int new_length = (_ssgInstanceListLength * 2 < key) ? (key + 128) :
                                           (_ssgInstanceListLength * 2) ;
-
-    _ssgInstanceListLength = new_length ;
+		assert ( new_length != 0 );
+		_ssgInstanceListLength = new_length ;
 
     _ssgInstanceList = new ssgBase *[ new_length ] ;
     memset ( _ssgInstanceList, 0, new_length * sizeof(ssgBase *) ) ;
@@ -49,7 +55,8 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
   delete[] _ssgInstanceList ;
   _ssgInstanceList = NULL ;
   _ssgInstanceListLength = 0 ;
-
+	_ssgNextInstanceKey = 0 ;
+  
   char filename [ 1024 ] ;
 
   if ( fname [ 0 ] != '/' &&
