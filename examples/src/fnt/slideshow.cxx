@@ -113,7 +113,7 @@ void displayfn (void)
   glClear      ( GL_COLOR_BUFFER_BIT ) ;
 
   text -> setFont      ( font ) ;
-  text -> setPointSize ( 25 ) ;
+  text -> setPointSize ( 25.0f ) ;
 
   int row = 460 ;
 
@@ -123,7 +123,7 @@ void displayfn (void)
     for ( int i = page [ curr_page ] ;
                   i < page [ curr_page+1 ]-1 && i < num_lines && row > 0 ; i++ )
     {
-      text -> start2f ( 10, row ) ;
+      text -> start2f ( 10.0f, row ) ;
       text -> puts ( line[i] ) ;
       row -= 30 ;
     }
@@ -139,7 +139,7 @@ int main ( int argc, char **argv )
 {
 
   struct stat buf ;
-  char* fname = NULL ;
+  const char* fname = NULL ;
 
   if ( argc > 1 )
      fname = argv[1] ;
