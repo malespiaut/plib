@@ -298,9 +298,6 @@ stats_hot_straddle++ ;
 int ssgEntity::load ( FILE *fd )
 {
   bsphere_is_invalid = TRUE ;
-#ifdef WRITE_SSG_VERSION_ZERO
-  _ssgReadString ( fd, &name ) ;
-#endif
   _ssgReadInt    ( fd, &traversal_mask ) ;
   return ssgBase::load(fd) ;
 }
@@ -309,9 +306,6 @@ int ssgEntity::load ( FILE *fd )
 
 int ssgEntity::save ( FILE *fd )
 {
-#ifdef WRITE_SSG_VERSION_ZERO
-  _ssgWriteString ( fd, name ) ;
-#endif
   _ssgWriteInt    ( fd, traversal_mask ) ;
   return ssgBase::save(fd) ;
 }
