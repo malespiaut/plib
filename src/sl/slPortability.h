@@ -47,6 +47,10 @@
   #endif
 #endif
 
+#ifdef __APPLE__
+  #include <Carbon/Carbon.h>
+#endif
+
 #ifndef  WIN32
 #include <unistd.h>
 #include <sys/ioctl.h>
