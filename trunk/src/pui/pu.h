@@ -575,7 +575,7 @@ public:
   puBox *getBBox ( void ) { return & bbox ; }
   puBox *getABox ( void ) { return & abox ; }
 
-  void setPosition ( int x, int y )
+  virtual void setPosition ( int x, int y )
   {
     if ( abox.isEmpty() )
     {
@@ -1647,6 +1647,14 @@ public:
     }
   }
   void setCurrentItem ( const char *item_ptr ) ;
+
+  void setPosition ( int x, int y )
+  {
+    puObject::setPosition ( x, y ) ;
+
+    /* Ensure that popup menu will show up at the right place */
+    newList ( list ) ;
+  }
 
   void draw ( int dx, int dy ) ;
   int  checkHit ( int button, int updown, int x, int y ) ;

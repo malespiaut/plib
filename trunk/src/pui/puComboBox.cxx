@@ -73,19 +73,24 @@ void puComboBox::newList ( char ** _list )
 {
   list = _list ;
 
+  popup_menu -> empty () ;
+
   if ( list == NULL )
     num_items = 0 ;
   else
   {
-    int dummy, h ;
-    int i ;
-
     for ( num_items = 0 ; list[num_items] != NULL ; num_items++ )
       /* Count number of items */ ;
 
-    popup_menu -> empty () ;
+    if ( num_items > 0 )
+    {
+      int dummy, h ;
+      int old_height = abox.max[1] - abox.min[1] ;
+      int i ;
 
-    for ( i = (num_items - 1) ; i >= 0 ; i-- )
+      puPushGroup ( popup_menu ) ;
+
+      for ( i = (num_items - 1) ; i >= 0 ; i-- )
       {
         puObject *menu_item = popup_menu -> add_item ( list[i], handle_popup ) ;
 
@@ -94,23 +99,24 @@ void puComboBox::newList ( char ** _list )
         menu_item -> setSize ( abox.max[0] - abox.min[0], h ) ;
       }
 
-    popup_menu -> close() ;
+      popup_menu -> close() ;
 
-    /* Position popup menu correctly */
+      /* Position popup menu correctly */
 
-    popup_menu -> getSize ( &dummy, &h ) ;
+      popup_menu -> getSize ( &dummy, &h ) ;
 
-    if ( (abox.min[1] - h) >= 0 )
-    {
-      popup_menu -> setPosition ( abox.min[0], abox.min[1] - h ) ;
+      if ( (abox.min[1] - h) >= 0 )
+      {
+        popup_menu -> setPosition ( 0, 0 - h ) ;
 
-      arrow_btn  -> setArrowType ( PUARROW_DOWN ) ;
-    }
-    else
-    {
-      popup_menu -> setPosition ( abox.min[0], abox.max[1] ) ;
+        arrow_btn  -> setArrowType ( PUARROW_DOWN ) ;
+      }
+      else
+      {
+        popup_menu -> setPosition ( 0, old_height ) ;
 
-      arrow_btn  -> setArrowType ( PUARROW_UP   ) ;
+        arrow_btn  -> setArrowType ( PUARROW_UP   ) ;
+      }
     }
   }
 
@@ -249,9 +255,10 @@ puComboBox::puComboBox ( int minx, int miny, int maxx, int maxy,
   arrow_btn -> setUserData ( this ) ;
   arrow_btn -> setCallback ( handle_arrow ) ;
 
-  close () ;
-
   popup_menu = new puPopupMenu ( 0, 0 ) ;
+  popup_menu -> close () ;
+
+  close () ;
 
   newList ( entries ) ;
 }
