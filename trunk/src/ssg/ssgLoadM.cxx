@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "ssgLocal.h"
 
-static const ssgLoaderOptions* current_options;
+static ssgLoaderOptions* current_options;
 
 ssgEntity* ssgLoadM( const char* fname, 
                     const ssgLoaderOptions* options ) {

@@ -2273,10 +2273,10 @@ public:
   virtual void makeModelPath ( char* path, const char *fname ) const ;
   virtual void makeTexturePath ( char* path, const char *fname ) const ;
 
-  virtual ssgLeaf* createLeaf ( ssgLeaf* leaf, const char* parent_name ) const ;
+  virtual ssgLeaf* createLeaf ( ssgLeaf* leaf, const char* parent_name ) ;
   virtual ssgTexture* createTexture ( char* tfname, 
 			      int wrapu  = TRUE, int wrapv = TRUE, 
-			      int mipmap = TRUE ) const ;
+			      int mipmap = TRUE ) ;
   virtual ssgTransform* createTransform ( ssgTransform* tr,
       ssgTransformArray* ta ) const ;
   virtual ssgBranch* createBranch ( char* text ) const

@@ -1,6 +1,6 @@
 #include "ssgLocal.h"
 
-static const ssgLoaderOptions* current_options;
+static ssgLoaderOptions* current_options;
 
 ssgEntity* ssgLoadStrip( const char* fname, const ssgLoaderOptions* options ) {
   ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;

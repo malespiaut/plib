@@ -48,7 +48,7 @@
 #define cchar const char
 
 
-static const ssgLoaderOptions* current_options = NULL ;
+static ssgLoaderOptions* current_options = NULL ;
 
 struct aseVertexBuffer
 {
