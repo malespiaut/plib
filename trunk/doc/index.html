@@ -1,10 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"> 
 <TITLE>PLIB Home Page</TITLE>
-<body text="#B5A642">
-<body link="#8FFF8F">
-<body vlink="#18A515">
-<body alink="#20336B">
-<BODY bgcolor="#005000" background="marble.png">
+<body text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
+ bgcolor="#005000" background="marble.png">
 <TABLE>
 <TR>
 <TD>
@@ -30,8 +27,8 @@ get much Sleep.
 -- Woody Allen
 </ul>
 <center>
-<A href="http://sourceforge.net"> 
-<IMG src="http://sourceforge.net/sflogo.php?group_id=382&type=1" width="88" height="31" border="0" ALT="Sourceforge Logo"></A> 
+<A href="http://sf.net"> 
+<IMG src="http://sf.net/sflogo.php?group_id=382&type=1" width="88" height="31" border="0" ALT="Sourceforge Logo"></A> 
 </center>
 </TD>
 </TR>
@@ -50,13 +47,13 @@ with LGPL'ed source code on the web. All of it works well together.
 <center>
     <TABLE>
       <TR>
-        <TD><center><A HREF="http://tuxaqfh.sourceforge.net">
+        <TD><center><A HREF="http://tuxaqfh.sf.net">
             <IMG BORDER=0 SRC="tux_aqfh.png" ALT="Tux_AQFH Logo"></A><br>
-            <A HREF="http://tuxaqfh.sourceforge.net">Tux the Penguin -
+            <A HREF="http://tuxaqfh.sf.net">Tux the Penguin -
                                            <br>A Quest for herring.</A></center></TD>
 
-        <TD><center><A HREF="http://tuxkart.sourceforge.net">TuxKart</A><br>
-            <A HREF="http://tuxkart.sourceforge.net">
+        <TD><center><A HREF="http://tuxkart.sf.net">TuxKart</A><br>
+            <A HREF="http://tuxkart.sf.net">
             <IMG BORDER=0 SRC="tuxkart_logo.png" ALT="TuxKart Logo"></A></center></TD>
 
         <TD><center><A HREF="http://www.flightgear.org">
@@ -69,13 +66,13 @@ with LGPL'ed source code on the web. All of it works well together.
 
       </TR>
       <TR>
-        <TD><center><A HREF="http://prettypoly.sourceforge.net">
+        <TD><center><A HREF="http://prettypoly.sf.net">
             <IMG BORDER=0 SRC="ppe_logo_1.png" ALT="PrettyPoly Logo"></A><br>
-            <A HREF="http://prettypoly.sourceforge.net">
+            <A HREF="http://prettypoly.sf.net">
             PrettyPoly Editor</A></center></TD>
 
-        <TD><center><A HREF="http://tuxfleet.sourceforge.net">TuxFleet</A><br>
-            <A HREF="http://tuxfleet.sourceforge.net">
+        <TD><center><A HREF="http://tuxfleet.sf.net">TuxFleet</A><br>
+            <A HREF="http://tuxfleet.sf.net">
             <IMG BORDER=0 SRC="tuxfleet_logo.png" ALT="TuxFleet Logo"></A></center></TD>
 
         <TD><center><A HREF="http://www.torcs.org">TORCS</A><br>
@@ -109,14 +106,15 @@ If you are reading this document from the source distribution on
 your local disk, you can find the most up to date version of PLIB
 here:
 <ul>
-<A HREF="http://plib.sourceforge.net">
-                   http://plib.sourceforge.net</A>
+<A HREF="http://plib.sf.net">
+                   http://plib.sf.net</A>
 </ul>
-PLIB's web presence is currently hosted on SourceForge, and the
+PLIB's web presence is currently hosted on SourceForge (with thanks to
+VA Linux Inc for providing this free service), and the
 project summary page is here:
 <ul>
-<A HREF="http://sourceforge.net/projects/plib">
-                   http://sourceforge.net/projects/plib</A>
+<A HREF="http://sf.net/projects/plib">
+                   http://sf.net/projects/plib</A>
 </ul>
 
 <H2>What's In PLIB?</H2>
@@ -137,7 +135,7 @@ The contents of PLIB are:
 </TR>
 <TR>
   <TD>Matrix/Vector math</TD>
-  <TD><A HREF="sg/index.html">Simple Geometry Library(SG)</A></TD>
+  <TD><A HREF="sg/index.html">Standard Geometry Library(SG)</A></TD>
   <TD>A set of matrix and vector math functions that was
 	 specifically written to simplify the writing of efficient OpenGL
 	 programs. You need to include this code into any SSG applications.</TD>
@@ -146,6 +144,12 @@ The contents of PLIB are:
   <TD>Scene Graph</TD>
   <TD><A HREF="ssg/index.html">Simple Scene Graph Library (SSG)</A></TD>
   <TD>A scene graph library layered on top of OpenGL. Also contains code to load and save lots of 3D file formats.</TD>
+</TR>
+<TR>
+  <TD>Scene Graph Auxiliary</TD>
+  <TD><A HREF="ssgAux/index.html">SSG Auxiliary Library (SSGA)</A></TD>
+  <TD>Additional functionality layered onto SSG - not every SSG program
+      will need these but they can perhaps save you some effort.</TD>
 </TR>
 <TR>
   <TD>Joystick</TD>
@@ -165,12 +169,6 @@ The contents of PLIB are:
       incompatibilities. UL is still in very early development.</TD>
 </TR>
 <TR>
-  <TD>Scene Graph Auxiliary</TD>
-  <TD><A HREF="ssgAux/index.html">SSG Auxiliary Library (SSGA)</A></TD>
-  <TD>Additional functionality layered onto SSG - not every SSG program
-      will need these but they can perhaps save you some effort.</TD>
-</TR>
-<TR>
   <TD>Pegasus Network Library</TD>
   <TD><A HREF="net/index.html">Pegasus Network Library (NET)</A></TD>
   <TD>Pegasus is a C++ library for making networked games.</TD>
@@ -178,28 +176,20 @@ The contents of PLIB are:
 </TABLE>
 </UL>
 
-<BR><BR>
-There are some dependencies between the plib-parts:
-<BR>
-js depends on ul
-<BR>
-ul depends on nothing
-<BR>
-sl depends on nothing
-<BR>
-sg depends on ul
-<BR>
-ssg depends on ul, sg
-<BR>
-ssgAux depends on ul, sg, ssg
-<BR>
-fnt depends on ul, sg
-<BR>
-pui depends on ul, sg, fnt
-<BR>
-net depends on ul
-<BR>
-
+There are some interdependencies between the PLIB components - most
+need the common utility library - many need the standard geometry
+library for matix operations:
+<ul>
+<li>JS depends only on UL
+<li>UL is independent
+<li>SL is independent (but might depend on UL in the future)
+<li>SG depends only on UL
+<li>SSG depends on UL and SG
+<li>SSGAUX depends on UL, SG and SSG
+<li>FNT depends on UL and SG
+<li>PUI depends on UL, SG and FNT
+<li>NET depends only on UL
+</ul>
 
 <H2>Documentation.</H2>
 All documentation is available online (click on the package name
@@ -214,33 +204,37 @@ Library varient GNU Public License (LGPL).
 <H2>Download</H2>
 You can get PLIB in various versions here:
 <ul>
-<li><A HREF="dist/plib-1.3.3.tar.gz"> PLIB - Version 1.3.3 -- Experimental</A>
-<li><A HREF="dist/plib-1.2.0.tar.gz"> PLIB - Version 1.2.0 -- Stable</A>
+<li><A HREF="dist/plib-1.5.0.tar.gz"> PLIB - Version 1.5.0 -- Experimental/Unstable</A>
+<li><A HREF="dist/plib-1.4.0.tar.gz"> PLIB - Version 1.4.0 -- Current/Stable</A>
+<li><A HREF="dist/plib-1.2.0.tar.gz"> PLIB - Version 1.2.0 -- Obsolete/Stable</A>
 <li><A HREF="dist/"> PLIB - Other versions</A>
-<li><A HREF="http://sourceforge.net/project/?group_id=382"> PLIB - Latest development version (from CVS)</A>
-(Use this for CVS versions of Pretty-Poly Editor).
+<li><A HREF="http://sf.net/project/?group_id=382"> PLIB - Latest development version (from CVS)</A>
 </ul>
-PLIB documentation, example programs, fonts, etc are now
+
+PLIB documentation, example programs, fonts, documentation, etc are
 separated from PLIB itself to cut your download times.
 <p>
-The <b>online</b> documentation is always for the latest version of PLIB,
-which is usually the current experimental release.  If you are
-using the older stable release, you may want to download the
-documentation appropriate to that release.
+The <b>online</b> documentation attempts to always track the latest stable
+version of PLIB.  If you are using some other version, you may want to
+download the documentation appropriate to that release which comes with
+the plib_examples tarball.
+
 <ul>
-<li><A HREF="dist/plib_examples-1.3.3.tar.gz">
-	     Example programs and Documentation for PLIB-1.3.3 or later.</A>
+<li><A HREF="dist/plib_examples-1.4.0.tar.gz">
+	     Example programs and Documentation for PLIB-1.4.0 or later.</A>
 <li><A HREF="dist/">PLIB_examples - Older versions</A>
 </ul>
 Dump this into a separate directory from PLIB itself - or else
-all the configuration and makefiles will clash. PLIB 1.0.xx has all
+all the configuration and makefiles will clash.
+<p>
+The very ancient PLIB 1.0.xx had all
 these examples and documents rolled into the main tarball.
 <p>
 I'm now using the even-version-stable/odd-version-experimental
 version numbering scheme made popular by the Linux Kernel and
-others. This means that PLIB 1.2.* will be stable
+others. This means that PLIB 1.4.* will be stable
 versions of PLIB that will only be changed to fix bugs. PLIB
-1.3.* will be experimental versions that may or may not work
+1.5.* will be experimental versions that may or may not work
 with your applications.
 <p>
 PLIB 1.0.* used to install itself into /usr/local/plib, but from
@@ -260,19 +254,19 @@ In order to keep the spam off the lists, it's set up so you have
 to subscribe in order to send mail.  To do that, visit:
 <ul>
 <li>
-<A HREF="http://lists.sourceforge.net/mailman/listinfo/plib-announce">
-  http://lists.sourceforge.net/mailman/listinfo/plib-announce</A><br>
+<A HREF="http://lists.sf.net/mailman/listinfo/plib-announce">
+  http://lists.sf.net/mailman/listinfo/plib-announce</A><br>
 A very low traffic, heavily moderated list where I'll announce new versions
 of PLIB.<p>
 <li>
-<A HREF="http://lists.sourceforge.net/mailman/listinfo/plib-users">
-  http://lists.sourceforge.net/mailman/listinfo/plib-users</A><br>
+<A HREF="http://lists.sf.net/mailman/listinfo/plib-users">
+  http://lists.sf.net/mailman/listinfo/plib-users</A><br>
 A list for PLIB users - this would be the correct place
 to ask questions, report bugs and generally hang out with
 fellow sufferers.<p>
 <li>
-<A HREF="http://lists.sourceforge.net/mailman/listinfo/plib-devel">
-  http://lists.sourceforge.net/mailman/listinfo/plib-devel</A><br>
+<A HREF="http://lists.sf.net/mailman/listinfo/plib-devel">
+  http://lists.sf.net/mailman/listinfo/plib-devel</A><br>
 A list for people who wish to contribute to the development
 of PLIB - this list will have a high technical content and we'll
 try to keep discussions there focussed and on-topic.<p>
@@ -304,31 +298,34 @@ In addition, you'll need the following other libraries:
     windowing library with support for mouse and keyboard.
     <p>
     There is also an OpenSource clone of GLUT called
-    <A HREF="http://freeglut.sourceforge.net">freeglut</A> - it
-    works very well with PLIB applications.
+    <A HREF="http://freeglut.sf.net">freeglut</A> - it
+    works very well with PLIB applications and is maintained by
+    many of the same people.
 </ul>
 
 
 <H2>Portability.</H2>
 <ul>
-<li> All flavors of Win32 (Win 2000, WinNT, Win95 and Win98) are supported, using either
-     MSVC++ or CygWin for compilation.  Theoretically you could use Borland too,
-     but I have no project files to help you build.
-<li> All flavors Linux (presuming a 2.x.x series kernel) - on all platforms,
-     although some problems have been reported on Alpha-Linux.
-<li> Most other UNIX-like systems (at least BSD, IRIX, Solaris).
+<li> All flavors of Win32 (Win 2000, WinME, WinNT, Win95 and Win98) are
+     supported, using either MSVC++ or CygWin for compilation.
+     Theoretically you could use Borland too, but since there is little
+     user base, these tend to get outdated.
+<li> All flavors of Linux (presuming a 2.x.x series kernel) - on
+     all platforms that I'm aware of.
+<li> Most other UNIX-like systems (at least BSD, IRIX, Solaris, OS-X).
 <li> MacOS now runs everything except the joystick library. I have yet to
      hear of anyone who has a Mac with a joystick - so this isn't a great loss.
 <li> Support for BeOS is problematic - for some reason, people who are prepared
      to help out with porting PLIB to BeOS are hard to find. However, since
-     BeOS (I'm told) runs X, OpenGL and OSS, it should be easy to port to.
+     BeOS (I'm told) has compatibility with GLUT, OpenGL and OSS, it should
+     be easy to port to.
 </ul>
 
 
 <H2>Installation.</H2>
 On most Linux and other UNIX-like OS's, it's simply a matter of
 unpacking the tar-ball, changing directory into the plib_x.y.z
-directory and typing:
+directory that this creates and typing:
 <pre>
 
    ./configure
