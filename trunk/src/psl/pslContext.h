@@ -40,7 +40,7 @@ class pslContext
   void bumpErrors   () { num_errors++   ; }
   void bumpWarnings () { num_warnings++ ; }
  
-  const char *getProgName () const { return program -> getProgName () ; }
+  char *getProgName () const { return program -> getProgName () ; }
  
   void error   ( const char *fmt, ... ) ;
   void warning ( const char *fmt, ... ) ;                                       
@@ -58,7 +58,7 @@ public:
 
   ~pslContext () {} ;
 
-  int getLineNo () { return line_no ; }
+  int getLineNo () const { return line_no ; }
 
 
   void pushInt    ( int              x ) { stack [ sp++ ] . set ( x ) ; }
@@ -66,9 +66,9 @@ public:
   void pushString ( const char      *x ) { stack [ sp++ ] . set ( x ) ; }
   void pushNumber ( const pslNumber *x ) { stack [ sp++ ] . set ( x ) ; }
 
-  int    peekInt    () { return stack [ sp-1 ] . getInt    () ; }
-  float  peekFloat  () { return stack [ sp-1 ] . getFloat  () ; }
-  char  *peekString () { return stack [ sp-1 ] . getString () ; }
+  int    peekInt    () const { return stack [ sp-1 ] . getInt    () ; }
+  float  peekFloat  () const { return stack [ sp-1 ] . getFloat  () ; }
+  char  *peekString () const { return stack [ sp-1 ] . getString () ; }
 
   void   popVoid    ( int n = 1 ) { sp -= n ; }
   int    popInt     () { return stack [ --sp ] . getInt    () ; }

@@ -44,7 +44,7 @@ int pslCompiler::compile ( const char *fname )
  
 int pslCompiler::compile ( FILE *fd, const char *fname )
 {
-  char *dump_env = getenv ( "PSL_DUMP" ) ;
+  const char *dump_env = getenv ( "PSL_DUMP" ) ;
 
   init () ;
  
