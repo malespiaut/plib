@@ -120,7 +120,11 @@ ssgEntity* ssgEntity::getByPath ( char *path )
 int ssgEntity::preTravTests ( int *test_needed, int which )
 {
   if ( (getTraversalMask() & which) == 0 )
+  {
+    if ( which & SSGTRAV_HOT )
+      stats_hot_no_trav ++ ;
     return FALSE ;
+  }
 
   if ( preTravCB != NULL )
   {
