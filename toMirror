@@ -1,0 +1,16 @@
+#!/bin/csh
+
+echo "Current Version..."
+grep "VERSION=" configure
+
+echo "Cleaning..."
+make clean
+
+echo "Rebuilding..."
+/u/steve/scripts/wonder_make
+
+make dist
+
+echo "Copying Release..."
+mv plib-*.tar.gz /u/steve/websites/woodsoup_mirror/plib/dist
+

@@ -1,0 +1,141 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:559: checking for a BSD compatible install
+configure:612: checking whether build environment is sane
+configure:669: checking whether make sets ${MAKE}
+configure:715: checking for working aclocal
+configure:728: checking for working autoconf
+configure:741: checking for working automake
+configure:754: checking for working autoheader
+configure:767: checking for working makeinfo
+configure:800: checking for gcc
+configure:913: checking whether the C compiler (gcc  ) works
+configure:929: gcc -o conftest    conftest.c  1>&5
+configure:955: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:960: checking whether we are using GNU C
+configure:969: gcc -E conftest.c
+configure:988: checking whether gcc accepts -g
+configure:1020: checking how to run the C preprocessor
+configure:1041: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1104: checking for c++
+configure:1136: checking whether the C++ compiler (c++  ) works
+configure:1152: c++ -o conftest    conftest.C  1>&5
+configure:1178: checking whether the C++ compiler (c++  ) is a cross-compiler
+configure:1183: checking whether we are using GNU C++
+configure:1192: c++ -E conftest.C
+configure:1211: checking whether c++ accepts -g
+configure:1243: checking how to run the C++ preprocessor
+configure:1261: c++ -E  conftest.C >/dev/null 2>conftest.out
+configure:1297: checking for a BSD compatible install
+configure:1352: checking for ranlib
+configure:1383: checking for windows.h
+configure:1393: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1389: windows.h: No such file or directory
+configure: failed program was:
+#line 1388 "configure"
+#include "confdefs.h"
+#include <windows.h>
+configure:1426: checking for X
+configure:1740: checking for dnet_ntoa in -ldnet
+configure:1759: gcc -o conftest -g -O2   conftest.c -ldnet   1>&5
+/usr/i486-linux/bin/ld: cannot open -ldnet: No such file or directory
+collect2: ld returned 1 exit status
+configure: failed program was:
+#line 1748 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char dnet_ntoa();
+
+int main() {
+dnet_ntoa()
+; return 0; }
+configure:1781: checking for dnet_ntoa in -ldnet_stub
+configure:1800: gcc -o conftest -g -O2   conftest.c -ldnet_stub   1>&5
+/usr/i486-linux/bin/ld: cannot open -ldnet_stub: No such file or directory
+collect2: ld returned 1 exit status
+configure: failed program was:
+#line 1789 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char dnet_ntoa();
+
+int main() {
+dnet_ntoa()
+; return 0; }
+configure:1829: checking for gethostbyname
+configure:1857: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:1927: checking for connect
+configure:1955: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:2019: checking for remove
+configure:2047: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:2111: checking for shmat
+configure:2139: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:2212: checking for IceConnectionNumber in -lICE
+configure:2231: gcc -o conftest -g -O2   -L/usr/X11R6/lib conftest.c -lICE   1>&5
+configure:2260: checking for glNewList in -lGLcore
+configure:2279: gcc -o conftest -g -O2   conftest.c -lGLcore  -L/usr/X11R6/lib  -lSM -lICE -lX11 -lXi -lXext -lXmu  -lm  1>&5
+/usr/i486-linux/bin/ld: cannot open -lGLcore: No such file or directory
+collect2: ld returned 1 exit status
+configure: failed program was:
+#line 2268 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char glNewList();
+
+int main() {
+glNewList()
+; return 0; }
+configure:2309: checking for glNewList in -lGL
+configure:2328: gcc -o conftest -g -O2   conftest.c -lGL  -L/usr/X11R6/lib  -lSM -lICE -lX11 -lXi -lXext -lXmu  -lm  1>&5
+configure:2511: checking for gluLookAt in -lGLU
+configure:2530: gcc -o conftest -g -O2   conftest.c -lGLU  -L/usr/X11R6/lib  -lSM -lICE -lX11 -lXi -lXext -lXmu  -lm -lGL  1>&5
+configure:2610: checking for glutGetModifiers in -lfreeglut
+configure:2629: gcc -o conftest -g -O2   conftest.c -lfreeglut -lGLU -lGL   -L/usr/X11R6/lib  -lSM -lICE -lX11 -lXi -lXext -lXmu  -lm -lGLU -lGL  1>&5
+configure:2715: checking for ALopenport in -laudio
+configure:2734: gcc -o conftest -g -O2   conftest.c -laudio  -lfreeglut -lGLU -lGL   -L/usr/X11R6/lib  -lSM -lICE -lX11 -lXi -lXext -lXmu  -lm 1>&5
+/usr/i486-linux/bin/ld: cannot open -laudio: No such file or directory
+collect2: ld returned 1 exit status
+configure: failed program was:
+#line 2723 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char ALopenport();
+
+int main() {
+ALopenport()
+; return 0; }
+configure:2768: checking for ANSI C header files
+configure:2781: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:2848: gcc -o conftest -g -O2   conftest.c -lfreeglut -lGLU -lGL   -L/usr/X11R6/lib  -lSM -lICE -lX11 -lXi -lXext -lXmu  -lm 1>&5
+configure:2876: checking for GL/gl.h
+configure:2886: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:2876: checking for GL/glu.h
+configure:2886: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:2915: checking for windows.h
+configure:2951: checking for joystick.h
+configure:2961: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:2957: joystick.h: No such file or directory
+configure: failed program was:
+#line 2956 "configure"
+#include "confdefs.h"
+#include <joystick.h>
+configure:2987: checking for linux/joystick.h
+configure:2997: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3023: checking for GL/glut.h
+configure:3033: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3059: checking for GL/freeglut.h
+configure:3069: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3065: GL/freeglut.h: No such file or directory
+configure: failed program was:
+#line 3064 "configure"
+#include "confdefs.h"
+#include <GL/freeglut.h>
