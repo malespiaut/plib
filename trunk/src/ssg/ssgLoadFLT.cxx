@@ -425,7 +425,7 @@ static int ptrcmp(const void *key1, const void *key2)
 }
 
 
-static void hexdump(int severity, const ubyte *buf, int size, int offset)
+static void hexdump(enum ulSeverity severity, const ubyte *buf, int size, int offset)
 {
 #define COLS 16
    char line[1024], *lp;
