@@ -523,7 +523,6 @@ int pslCompiler::pushAssignmentStatement ( const char *var )
   {
     ungetToken ( c ) ;
     ungetToken ( var ) ;
-    // pushFunctionCall ( var ) ;
     pushExpression () ;
     pushPop () ;
     return TRUE ;

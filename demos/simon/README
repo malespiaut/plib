@@ -14,6 +14,44 @@ This is a simple set of functions that hide much of the nastiness
 of 3D programming to make it possible for someone with only the
 very minimum of programming experience to write simple 3D applications.
 
+
+
+INSTALLATION
+============
+
 Right now, you build SIMON by running 'make' and install it by
 running 'make install' as root.  You must already have PLIB installed.
+
+
+
+RUNNING SIMON
+=============
+
+There are two ways to write SIMON programs:
+
+  1) Write your code in C++ and link it to libsimon
+     (the LIBRARY version of SIMON).
+
+  2) Write your code in PSL (The PLIB Scripting Language)
+     and use the 'simon' program to run it.
+
+Documentation for both methods are in the 'doc' directory.
+
+
+
+DEMO'S
+======
+
+AstroPong is my son's first ever game (his first ever program actually).
+It was originally written in C++ using libsimon - but has subsequently
+been converted into PSL for use as a demonstration program.
+
+Once you've done a 'make install', you can change directory down into
+the 'simon' directory and run:
+
+       simon astropong.psl
+
+...move your paddle using the joystick - don't let the herring
+escape from the ice cube!
+ 
 

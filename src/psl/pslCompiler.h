@@ -141,8 +141,9 @@ class pslCompiler
   int pushBitwiseExpression    () ;
   int pushMultExpression       () ;
   int pushAddExpression        () ;
-  int pushRelExpression        () ;
   int pushShiftExpression      () ;
+  int pushRelExpression        () ;
+  int pushBoolExpression       () ;
   int pushExpression           () ;
 
   /* Statement-level parsers & code generators. */
