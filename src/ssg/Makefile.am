@@ -23,7 +23,7 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgSave3ds.cxx ssgAxisTransform.cxx ssgLoadATG.cxx ssgSaveATG.cxx\
 	ssgLoadIV.cxx ssgLoad.cxx ssgLoadVRML.h
 
-INCLUDES += -I$(top_srcdir)/src/sg
+INCLUDES = -I$(top_srcdir)/src/sg
 INCLUDES += -I$(top_srcdir)/src/util
 
 EXTRA_DIST = ssg.dsp
