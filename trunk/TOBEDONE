@@ -27,3 +27,11 @@ goto: http://sourceforge.net/projects/plib/
 
   * ssgLOS is really broken.
 
+  * Some of the MSVC-project files for plib_examples seem to be 
+    broken, for example some miss a "winmm.lib".
+
+  * wk: Could someone, preferably a native english speaker, look
+    over the new ssg-documentation?
+
+  * Check whether the new ssgStripify works with TuxKart
+    See Steves post from 11.12.2000 15:12 for a problem description
