@@ -128,6 +128,7 @@ int ssgSimpleList::load ( FILE *fd )
   _ssgReadUInt ( fd, &total   ) ;
   limit = total ;
   list = new char [ limit * size_of ] ;
+	assert(list!=NULL);
   _ssgReadFloat ( fd, limit * size_of / sizeof(float), (float *)list ) ;
   return ! _ssgReadError () ;
 }
@@ -138,7 +139,7 @@ int ssgSimpleList::save ( FILE *fd )
 {
   _ssgWriteUInt ( fd, size_of ) ;
   _ssgWriteUInt ( fd, total   ) ;
-  _ssgWriteFloat( fd, limit * size_of / sizeof(float), (float *)list ) ;
+  _ssgWriteFloat( fd, total * size_of / sizeof(float), (float *)list ) ;
   return ! _ssgWriteError () ;
 }
 
