@@ -41,8 +41,6 @@ typedef unsigned char UByte,*UByteP;
 #include "pcx.h"
 
 
-static char Palette[3*256];
-
 #ifdef SSG_LOAD_PCX_SUPPORTED
 
 int ReadFileIntoBuffer(const char *fname, UByte *&buffer, UByte *&bufferorig, unsigned long &file_length)
