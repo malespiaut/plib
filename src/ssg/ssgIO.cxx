@@ -227,7 +227,6 @@ int _ssgStrNEqual ( const char *s1, const char *s2, int len )
      continue ;
 
     if ( c1 >= 'a' && c1 <= 'z' )
-    if ( c1 >= 'a' && c1 <= 'z' )
       c1 = c1 - ('a'-'A') ;
 
     if ( c2 >= 'a' && c2 <= 'z' )

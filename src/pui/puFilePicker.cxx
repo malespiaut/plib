@@ -96,6 +96,80 @@ puFilePicker::~puFilePicker ()
   num_files = 0;
 }
 
+static int my_stricmp ( const char *s1, const char *s2 )
+{
+  while ( 1 )
+  {
+    char c1 = s1? (*s1++): 0 ;
+    char c2 = s2? (*s2++): 0 ;
+    
+    //end of string?
+    if ( !c1 || !c2 )
+    {
+      if ( c1 )
+        return 1 ; //s1 is longer
+      if ( c2 )
+        return -1 ; //s1 is shorter
+      return 0 ;
+    }
+    
+    if ( c1 == c2 )
+      continue ;
+    
+    if ( c1 >= 'a' && c1 <= 'z' )
+      c1 = c1 - ('a'-'A') ;
+    
+    if ( c2 >= 'a' && c2 <= 'z' )
+      c2 = c2 - ('a'-'A') ;
+    
+    if ( c1 != c2 )
+    {
+      if ( c1 < c2 )
+        return -1 ;
+      return 1 ;
+    }
+  }
+  return 0 ;
+}
+
+static void sort ( char** list, int size )
+//
+//  comb sort - a modified bubble sort
+//    taken from BYTE, April 1991, ppg 315-320
+//
+{
+  int switches;
+  int gap = size;
+  do
+  {
+    gap = ((gap * 197) >> 8);  // gap *= 1.3;
+    switch (gap)
+    {
+    case 0:  // the smallest gap is 1 -- bubble sort
+      gap = 1;
+      break;
+    case 9:  // this is what makes this Combsort11
+    case 10:
+      gap = 11;
+      break;
+    }
+    switches = 0; // dirty pass flag
+    int top = size - gap;
+    for ( int i=0; i<top; ++i )
+    {
+      int j=i+gap;
+      if (my_stricmp(list[i],list[j]) > 0)
+      {
+        char* temp = list[i];
+        list[i] = list[j];
+        list[j] = temp;
+        ++switches;
+      }
+    }
+  }
+  while(switches || gap>1);
+}
+
 void puFilePicker::find_files ( const char* dir )
 {
   num_files = 0;
@@ -134,4 +208,5 @@ void puFilePicker::find_files ( const char* dir )
         files [i] = 0 ;
     }
   }
+  sort( files, num_files ) ;
 }
