@@ -205,7 +205,7 @@ void ssgInit ()
 
 
 
-void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
+void ssgCullAndPick ( ssgBranch *r, sgVec2 botleft, sgVec2 topright )
 {
   if ( _ssgCurrentContext == NULL )
   {
@@ -259,7 +259,7 @@ void ssgCullAndPick ( ssgRoot *r, sgVec2 botleft, sgVec2 topright )
 }
 
 
-void ssgCullAndDraw ( ssgRoot *r )
+void ssgCullAndDraw ( ssgBranch *r )
 {
   if ( _ssgCurrentContext == NULL )
   {

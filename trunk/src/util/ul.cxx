@@ -436,13 +436,13 @@ int ulStrEqual ( const char *s1, const char *s2 )
      continue ;
 
     if ( c1 >= 'a' && c1 <= 'z' )
-      c1 = c1 - ('a'-'A') ;
+      c1 -= ('a'-'A') ;
 
     if ( c2 >= 'a' && c2 <= 'z' )
-      c2 = c2 - ('a'-'A') ;
+      c2 -= ('a'-'A') ;
 
     if ( c1 != c2 )
-     return FALSE ;
+      return FALSE ;
   }
 
   return TRUE ;

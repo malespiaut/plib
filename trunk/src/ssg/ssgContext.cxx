@@ -245,7 +245,7 @@ void ssgContext::loadModelviewMatrix ( sgMat4 mat )
   glLoadMatrixf ( (float *) mat ) ;
 }
 
-void ssgContext::cull ( ssgRoot *r )
+void ssgContext::cull ( ssgBranch *r )
 {
   r -> cull ( frustum, cameraMatrix, TRUE ) ;
 }
