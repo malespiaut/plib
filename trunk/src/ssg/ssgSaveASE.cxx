@@ -333,8 +333,7 @@ int ssgSaveASE ( char *filename, ssgEntity *ent )
 
   if ( save_fd == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgSaveASE: Failed to open '%s' for writing\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgSaveASE: Failed to open '%s' for writing", filename ) ;
     return FALSE ;
   }
   

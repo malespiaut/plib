@@ -77,8 +77,7 @@ int ssgSaveTRI ( char *filename, ssgEntity *ent )
 
   if ( fileout == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgSaveTRI: Failed to open '%s' for writing\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgSaveTRI: Failed to open '%s' for writing", filename ) ;
     return FALSE ;
   }
 

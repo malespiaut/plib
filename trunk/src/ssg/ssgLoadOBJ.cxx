@@ -751,8 +751,7 @@ ssgEntity *ssgLoadOBJ ( char *fname, ssgHookFunc hookfunc )
 
   if ( loader_fd == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgLoadOBJ: Failed to open '%s' for reading\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgLoadOBJ: Failed to open '%s' for reading", filename ) ;
     return NULL ;
   }
 

@@ -18,6 +18,7 @@
 #define _SSG_PUBLIC  public
 
 #include "ssg.h"
+#include "ul.h"
 
 extern void (*__ssgEnableTable[64])() ;
 extern void (*__ssgDisableTable[64])() ;

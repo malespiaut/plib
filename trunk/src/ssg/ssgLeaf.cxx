@@ -145,8 +145,7 @@ int ssgLeaf::load ( FILE *fd )
   }
   else
   {
-    fprintf ( stderr,
-       "ssgLeaf::load - Unrecognised ssgState type 0x%08x\n", t ) ;
+    ulSetError ( UL_WARNING, "ssgLeaf::load - Unrecognised ssgState type 0x%08x", t ) ;
     state = NULL ;
   }
 

@@ -1,13 +1,13 @@
 
 #include "ssgLocal.h"
 
-#define DISTANCE_SLOP   0.01   /* One centimeter */
-#define COLOUR_SLOP     0.04   /* Four percent */
-#define TEXCOORD_SLOP   0.004  /* One texel on a 256 map */
+#define DISTANCE_SLOP   0.01f   /* One centimeter */
+#define COLOUR_SLOP     0.04f   /* Four percent */
+#define TEXCOORD_SLOP   0.004f  /* One texel on a 256 map */
 
 inline float frac ( float x )
 {
-  return x - floor(x) ;
+  return x - (float) floor(x) ;
 }
 
 struct OptVertex
@@ -18,7 +18,7 @@ struct OptVertex
   sgVec4 colour ;
   int    counter ;
 
-  void print () { fprintf ( stderr, "%d:(%g,%g,%g):(%g,%g):(%g,%g,%g,%g):(%g,%g,%g)\n",
+  void print () { ulSetError ( UL_DEBUG, "%d:(%g,%g,%g):(%g,%g):(%g,%g,%g,%g):(%g,%g,%g)",
           counter,
           vertex[0],vertex[1],vertex[2],
           texcoord[0],texcoord[1],
@@ -101,7 +101,7 @@ public:
 
   void print ()
   {
-    fprintf ( stderr, "LIST: %d unique vertices and %d triangles\n",
+    ulSetError ( UL_DEBUG, "LIST: %d unique vertices and %d triangles",
                                  vnum, tnum ) ;
   }
 
@@ -201,8 +201,8 @@ short OptVertexList::add ( sgVec3 v1, sgVec2 t1, sgVec4 c1,
       any large numbers from the texture coords
     */
 
-    adjust [ 0 ] = floor ( t1[0] ) ;
-    adjust [ 1 ] = floor ( t1[1] ) ;
+    adjust [ 0 ] = (float) floor ( t1[0] ) ;
+    adjust [ 1 ] = (float) floor ( t1[1] ) ;
   }
 
   /*
@@ -414,7 +414,7 @@ static void flatten ( ssgEntity *ent, sgMat4 m )
   if ( ent -> isAKindOf ( ssgTypeCutout () ) )
   {
 /*
-    fprintf ( stderr, "ssgFlatten: Can't flatten subtrees containing Cutout nodes\n" ) ; 
+    ulSetError ( UL_WARNING, "ssgFlatten: Can't flatten subtrees containing Cutout nodes" ) ; 
 */
     return ;
   }
@@ -600,7 +600,7 @@ void ssgStripify ( ssgEntity *ent )
         list . follow ( tleast, 0, 1, FALSE, &striplength, new_vlist, & new_vc ) ;
       }
       else
-        fprintf ( stderr, "Tleast doesn't contain nleast!\n" ) ;
+        ulSetError ( UL_WARNING, "Tleast doesn't contain nleast!" ) ;
 
       ssgVertexArray   *new_coords    = new ssgVertexArray   ( new_vc ) ;
       ssgNormalArray   *new_normals   = new ssgNormalArray   ( new_vc ) ;

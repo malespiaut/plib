@@ -331,8 +331,7 @@ void ssgSimpleState::disable ( GLenum mode )
       break ;
 
     default :
-      fprintf ( stderr,
-	     "Illegal mode passed to ssgSimpleState::disable(%d)\n",
+      ulSetError ( UL_WARNING, "Illegal mode passed to ssgSimpleState::disable(%d)",
 			       mode ) ;
       break ; 
   }
@@ -373,8 +372,8 @@ void ssgSimpleState::enable  ( GLenum mode )
       break ;
 
     default :
-      fprintf ( stderr,
-	     "Illegal mode passed to ssgSimpleState::enable(%d)\n",
+      ulSetError ( UL_WARNING,
+	     "Illegal mode passed to ssgSimpleState::enable(%d)",
 			       mode ) ;
       break ; 
   }

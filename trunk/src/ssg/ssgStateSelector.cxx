@@ -246,7 +246,8 @@ int ssgStateSelector::load ( FILE *fd )
     }
     else
     {
-      fprintf ( stderr, "ssgStateSelector::load - Unrecognised ssgState type 0x%08x\n", t ) ;
+      ulSetError ( UL_WARNING,
+        "ssgStateSelector::load - Unrecognised ssgState type 0x%08x", t ) ;
       statelist[i] = NULL ;
     }
   }

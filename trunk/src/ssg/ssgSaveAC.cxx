@@ -108,8 +108,7 @@ int ssgSaveAC ( char *filename, ssgEntity *ent )
 
   if ( save_fd == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgSaveAC: Failed to open '%s' for writing\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgSaveAC: Failed to open '%s' for writing", filename ) ;
     return FALSE ;
   }
 

@@ -184,8 +184,7 @@ int ssgSaveDXF ( char *filename, ssgEntity *ent )
 
   if ( fileout == NULL )
   {
-    perror ( filename ) ;
-    fprintf ( stderr, "ssgSaveDXF: Failed to open '%s' for writing\n", filename ) ;
+    ulSetError ( UL_WARNING, "ssgSaveDXF: Failed to open '%s' for writing", filename ) ;
     return FALSE ;
   }
 

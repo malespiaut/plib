@@ -91,14 +91,14 @@ int ssgTimedSelector::getStep ()
   {
     /* Compute time since start of this loop */
 
-    t = t - floor ( t / loop_time ) * loop_time ;
+    t = t - (float) floor ( t / loop_time ) * loop_time ;
   }
   else
   if ( mode == SSG_ANIM_SWING )      
   {
     /* Compute time since start of this swing loop */
 
-    t = t - floor ( t / (2.0f * loop_time) ) * (2.0f * loop_time) ;
+    t = t - (float) floor ( t / (2.0f * loop_time) ) * (2.0f * loop_time) ;
 
     /* Are we on the reverse part of the loop? */
     if ( t >= loop_time )
@@ -123,7 +123,7 @@ int ssgTimedSelector::getStep ()
 
 ssgTimedSelector::~ssgTimedSelector (void)
 {
-  fprintf(stderr,"In ssgTimedSelectors' destructor.\n" ) ;
+  ulSetError ( UL_DEBUG, "In ssgTimedSelectors' destructor." ) ;
   print () ;
 }
 

@@ -24,10 +24,8 @@ void _ssgParser::error( cchar *format, ... )
   va_start( argp, format );
   vsprintf( msgptr, format, argp );
   va_end( argp );
-  fprintf ( stderr, "%s\n", msgbuff );
 
-  //let loader decide what to do
-  //exit(1);
+  ulSetError ( UL_WARNING, "%s", msgbuff ) ;
 }
 
 
@@ -46,7 +44,8 @@ void _ssgParser::message( cchar *format, ... )
   va_start( argp, format );
   vsprintf( msgptr, format, argp );
   va_end( argp );
-  fprintf ( stdout, "%s\n", msgbuff );
+
+  ulSetError ( UL_DEBUG, "%s", msgbuff ) ;
 }
 
 

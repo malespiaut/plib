@@ -130,7 +130,7 @@ void _ssgPushMatrix ( sgMat4 m )
   }
   else
   if ( next_dlist >= MAX_DLIST )
-    fprintf ( stderr, "DList stack overflow!\n" ) ;
+    ulSetError ( UL_WARNING, "DList stack overflow!" ) ;
   else
     dlist [ next_dlist++ ] . setPushMatrix ( m ) ;
 }
@@ -148,7 +148,7 @@ void _ssgPopMatrix ()
     next_dlist-- ;
   else
   if ( next_dlist >= MAX_DLIST )
-    fprintf ( stderr, "DList stack overflow!\n" ) ;
+    ulSetError ( UL_WARNING, "DList stack overflow!" ) ;
   else
     dlist [ next_dlist++ ] . setPopMatrix () ;
 }
@@ -168,7 +168,7 @@ void _ssgLoadTexMatrix ( sgMat4 m )
     next_dlist-- ;
 
   if ( next_dlist >= MAX_DLIST )
-    fprintf ( stderr, "DList stack overflow!\n" ) ;
+    ulSetError ( UL_WARNING, "DList stack overflow!" ) ;
   else
     dlist [ next_dlist++ ] . setLoadTexMatrix ( m ) ;
 }
@@ -189,7 +189,7 @@ void _ssgUnloadTexMatrix ()
     next_dlist-- ;
 
   if ( next_dlist >= MAX_DLIST )
-    fprintf ( stderr, "DList stack overflow!\n" ) ;
+    ulSetError ( UL_WARNING, "DList stack overflow!" ) ;
   else
     dlist [ next_dlist++ ] . setUnloadTexMatrix () ;
 }
@@ -208,7 +208,7 @@ void _ssgLoadMatrix ( sgMat4 m )
     next_dlist-- ;
 
   if ( next_dlist >= MAX_DLIST )
-    fprintf ( stderr, "DList stack overflow!\n" ) ;
+    ulSetError ( UL_WARNING, "DList stack overflow!" ) ;
   else
     dlist [ next_dlist++ ] . setLoadMatrix ( m ) ;
 }
@@ -218,7 +218,7 @@ void _ssgLoadMatrix ( sgMat4 m )
 void _ssgDrawLeaf ( ssgLeaf *l )
 {
   if ( next_dlist >= MAX_DLIST )
-    fprintf ( stderr, "DList stack overflow!\n" ) ;
+    ulSetError ( UL_WARNING, "DList stack overflow!" ) ;
   else
     dlist [ next_dlist++ ] . setDrawLeaf ( l ) ;
 }
