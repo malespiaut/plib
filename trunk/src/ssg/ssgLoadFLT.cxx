@@ -535,7 +535,7 @@ struct fltTexture {
    char *file;
    ssgState *state; /* user-defined state */
    ssgTexture *tex;
-   GLint alpha;   /* -dw- please use GL types for values passed to GL functions */
+   int alpha;
 };
 
 struct fltState {
@@ -641,29 +641,7 @@ static fltTexture *LoadTex(char *fname)
       tex->state = LoaderOptions->createState(fname);
       tex->tex = tex->state ? 0 : LoaderOptions->createTexture(fname, 1, 1, !NoMipmaps);
 #endif
-      tex->alpha = 0;
-      if (tex->tex) {
-	 /* I hope this is safe.. */
-	 glPushAttrib(GL_TEXTURE_BIT);
-#ifdef GL_VERSION_1_1
-	 glBindTexture(GL_TEXTURE_2D, tex->tex->getHandle());
-#else
-	 glBindTextureEXT(GL_TEXTURE_2D, tex->tex->getHandle());
-#endif
-#if 0 /* debug */
-	 int width, height, comp;
-	 glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, 
-				  GL_TEXTURE_WIDTH, &width);
-	 glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, 
-				  GL_TEXTURE_HEIGHT, &height);
-	 glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, 
-				  GL_TEXTURE_INTERNAL_FORMAT, &comp);
-	 printf("%s %dx%dx%d\n", fname, width, height, comp);
-#endif
-	 glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, 
-				  GL_TEXTURE_ALPHA_SIZE, &tex->alpha);
-	 glPopAttrib();
-      }
+      tex->alpha = tex->tex ? tex->tex->hasAlpha() : 0;
       TexCache->data = tex;
    }
    return (fltTexture *)TexCache->data;
