@@ -291,5 +291,7 @@ public:
 } ;
 
 
+extern void ulInit ( void ) ;
+
 #endif
 
