@@ -2664,10 +2664,18 @@ class sgParticle
 
 public:
 
-  sgParticle ( float mass )
+  sgParticle ( float mass, sgVec3 _pos )
   {
-    setMass ( mass ) ;
-    sgZeroVec3 (  pos  ) ;
+    setMass    ( mass ) ;
+    sgCopyVec3 ( pos, _pos ) ;
+    sgZeroVec3 (  vel  ) ;
+    sgZeroVec3 ( force ) ;
+  }
+
+  sgParticle ( float mass, float x = 0.0f, float y = 0.0f, float z = 0.0f )
+  {
+    setMass    ( mass ) ;
+    sgSetVec3  ( pos, x, y, z) ;
     sgZeroVec3 (  vel  ) ;
     sgZeroVec3 ( force ) ;
   }
