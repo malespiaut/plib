@@ -54,9 +54,9 @@ void ssgaWaveSystem::updateAnimation ( float tim )
     {
       adjSpeed   [num_trains] = train [ i ] -> getSpeed () * G *
                                                       tim / windSpeed ;
-      sinHeading [num_trains] = -sin ( train[i]->getHeading () *
+      sinHeading [num_trains] = (float) -sin ( train[i]->getHeading () *
                                                       SG_DEGREES_TO_RADIANS ) ;
-      cosHeading [num_trains] =  cos ( train[i]->getHeading () *
+      cosHeading [num_trains] = (float) cos ( train[i]->getHeading () *
                                                       SG_DEGREES_TO_RADIANS ) ;
       length     [num_trains] = train [ i ] -> getLength     () ;
       lambda     [num_trains] = train [ i ] -> getLambda     () ;

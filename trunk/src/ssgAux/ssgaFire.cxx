@@ -43,7 +43,7 @@ void ssgaFire::reInit ()
     if ( sizeTable [ i ] >= 1.5 ) sizeTable [ i ] = 1.5 ;
 
     sgScaleVec3 ( & colourTable [   i  * 4 ],
-		  & colourTable [ (i-1)* 4 ], 0.90 ) ;
+		  & colourTable [ (i-1)* 4 ], 0.90f ) ;
 
     colourTable [ i * 4 + 3 ] = 1.0f ;
   }
@@ -53,7 +53,7 @@ void ssgaFire::reInit ()
 void ssgaFire::createParticle ( int idx, ssgaParticle *p )
 {
   float xx = (float)(rand()%1000)/500.0f * radius - radius ;
-  float yy = sqrt ( radius * radius - xx * xx ) ;
+  float yy = (float)sqrt ( radius * radius - xx * xx ) ;
 
   yy = (float)(rand()%1000)/500.0f * yy - yy ;
 
