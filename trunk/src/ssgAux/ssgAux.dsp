@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h
 # End Special Build Tool
 
 !ENDIF 
