@@ -37,19 +37,19 @@ UL_RTTI_DEF1(puaCompass,puObject)
   if ( getIntegerValue () == value ) \
     glColor4fv ( colour [ PUCOL_LEGEND ] ) ; \
   else \
-    glColor4f ( 1.0, 1.0, 1.0, 1.0 )
+    glColor4fv ( colour [ PUCOL_FOREGROUND ] )
 
 #define SET_ARC_COLOUR2(value1,value2)  \
   if ( ( getIntegerValue () == value1 ) || ( getIntegerValue () == value2 ) ) \
     glColor4fv ( colour [ PUCOL_LEGEND ] ) ; \
   else \
-    glColor4f ( 1.0, 1.0, 1.0, 1.0 )
+    glColor4fv ( colour [ PUCOL_FOREGROUND ] )
 
 #define SET_ARC_COLOUR3(value1,value2,value3)  \
   if ( ( getIntegerValue () == value1 ) || ( getIntegerValue () == value2 ) || ( getIntegerValue () == value3 ) ) \
     glColor4fv ( colour [ PUCOL_LEGEND ] ) ; \
   else \
-    glColor4f ( 1.0, 1.0, 1.0, 1.0 )
+    glColor4fv ( colour [ PUCOL_FOREGROUND ] )
 
 void puaCompass::draw ( int dx, int dy )
 {
@@ -69,8 +69,8 @@ void puaCompass::draw ( int dx, int dy )
   {
     float xsize = float(abox.max[0] - abox.min[0]) ;
     float ysize = float(abox.max[1] - abox.min[1]) ;
-    float xcenter = float(dx) + xsize / 2.0f ;
-    float ycenter = float(dy) + ysize / 2.0f ;
+    float xcenter = float(dx + abox.min[0]) + xsize / 2.0f ;
+    float ycenter = float(dy + abox.min[1]) + ysize / 2.0f ;
     float size = ( ( xsize > ysize ) ? ysize : xsize ) / 2.5f ;
 
     glMatrixMode ( GL_MODELVIEW ) ;
@@ -217,8 +217,8 @@ void puaCompass::doHit ( int button, int updown, int x, int y )
   mouse_click_line.direction_vector[1] = 2.0f * (  prev_rotation[SG_W] * prev_rotation[SG_X] + prev_rotation[SG_Y] * prev_rotation[SG_Z] ) ;
   mouse_click_line.direction_vector[2] = prev_rotation[SG_W] * prev_rotation[SG_W] + prev_rotation[SG_Z] * prev_rotation[SG_Z] - prev_rotation[SG_X] * prev_rotation[SG_X] - prev_rotation[SG_Y] * prev_rotation[SG_Y] ;
 
-  float xm = float(x) - xsize / 2.0f ;
-  float ym = float(y) - ysize / 2.0f ;
+  float xm = float(x - abox.min[0]) - xsize / 2.0f ;
+  float ym = float(y - abox.min[1]) - ysize / 2.0f ;
   sgSetVec3 ( mouse_click_line.point_on_line, xm, ym, 0.0f ) ;
   sgRotateCoordQuat ( mouse_click_line.point_on_line, prev_rotation ) ;
 
