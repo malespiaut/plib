@@ -23,8 +23,6 @@ CFG=stest - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "stest"
-# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 

@@ -23,8 +23,6 @@ CFG=http_get - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "http_get"
-# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 

@@ -23,8 +23,6 @@ CFG=tux_example - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "tux_example"
-# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 

@@ -23,8 +23,6 @@ CFG=af2rgb - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "af2rgb"
-# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 

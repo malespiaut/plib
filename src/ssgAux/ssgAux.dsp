@@ -23,8 +23,6 @@ CFG=ssgAux - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "ssgAux"
-# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 
