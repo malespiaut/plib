@@ -322,18 +322,28 @@ void ulFindFile( char *filenameOutput, const char *path,
 static const int _ulEndianTest = 1;
 #define ulIsLittleEndian (*((char *) &_ulEndianTest ) != 0)
 #define ulIsBigEndian    (*((char *) &_ulEndianTest ) == 0)
-static inline void ulEndianSwap(unsigned int *x) {
+
+inline void ulEndianSwap(unsigned int *x)
+{
   *x = (( *x >> 24 ) & 0x000000FF ) | 
-    (( *x >>  8 ) & 0x0000FF00 ) | 
-    (( *x <<  8 ) & 0x00FF0000 ) | 
-    (( *x << 24 ) & 0xFF000000 ) ;
+       (( *x >>  8 ) & 0x0000FF00 ) | 
+       (( *x <<  8 ) & 0x00FF0000 ) | 
+       (( *x << 24 ) & 0xFF000000 ) ;
 }
+
   
-static inline void ulEndianSwap(unsigned short *x) {
+inline void ulEndianSwap(unsigned short *x)
+{
   *x = (( *x >>  8 ) & 0x00FF ) | 
-    (( *x <<  8 ) & 0xFF00 ) ;
+       (( *x <<  8 ) & 0xFF00 ) ;
 }
   
+
+inline void ulEndianSwap(float *x) { ulEndianSwap((unsigned int   *)x); }
+inline void ulEndianSwap(int   *x) { ulEndianSwap((unsigned int   *)x); }
+inline void ulEndianSwap(short *x) { ulEndianSwap((unsigned short *)x); }
+
+
 inline unsigned short ulEndianLittle16(unsigned short x) {
   if (ulIsLittleEndian) {
     return x;
@@ -356,7 +366,7 @@ inline float ulEndianLittleFloat(float x) {
   if (ulIsLittleEndian) {
     return x;
   } else {
-    ulEndianSwap((unsigned int*)&x);
+    ulEndianSwap(&x);
     return x;
   }
 }
@@ -386,7 +396,7 @@ inline void ulEndianLittleArrayFloat(float *x, int length) {
     return;
   } else {
     for (int i = 0; i < length; i++) {
-      ulEndianSwap((unsigned int*)x++);
+      ulEndianSwap(x++);
     }
   }
 }
@@ -416,7 +426,7 @@ inline void ulEndianBigArrayFloat(float *x, int length) {
     return;
   } else {
     for (int i = 0; i < length; i++) {
-      ulEndianSwap((unsigned int*)x++);
+      ulEndianSwap(x++);
     }
   }
 }
@@ -443,7 +453,7 @@ inline float ulEndianBigFloat(float x) {
   if (ulIsBigEndian) {
     return x;
   } else {
-    ulEndianSwap((unsigned int*)&x);
+    ulEndianSwap(&x);
     return x;
   }
 }
