@@ -621,6 +621,25 @@ but the results can often be less than desirable.
       PUCOL_LEGEND
 
 </pre>
+Picking all of the individual colours for each widget can be tedious,
+so there is a handy function that sets a 'theme' colour for the widget
+and then picks suitable colours near to that theme for the other colours
+of the widget. This function works well enough that you will almost never
+need to set the colours individually.
+<pre>
+
+  void puObject::setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
+
+</pre>
+Please note that these routines only affect the appearance of the widget
+itself in case of widgets that contain subwidgets (currently <a href="#puDialogBox">puDialogBox</a>,
+<a href="#puFileSelector">puFileSelector</a>, <a href="#puLargeInput">puLargeInput</a>, <a href="#puMenuBar">puMenuBar</a>, <a href="#puPopup">puPopup</a>, <a href="#puPopupMenu">puPopupMenu</a>,
+<a href="#puVerticalMenu">puVerticalMenu)</a> and the obsolete <a href="#puFilePicker">puFilePicker</a> class).
+<p>
+However, these classes are all derived directly or indirectly from
+<a href="#puGroup">puGroup</a>, and thus you can use the appropiate <a href="#puGroup">puGroup</a> functions in
+order to change the styles, colours or border thicknesses of the
+subwidgets.
 <p>
 In addition to the pre-defined styles, PUI allows you to create his
 own drawing function and save the related drawing data.  This is done
@@ -644,7 +663,6 @@ it calls it instead of executing the code in the draw function.
 <p>
 PUI also has functions to allow the user to retrieve and invoke the
 render callback:
-
 <pre>
 
   puRenderCallback puObject::getRenderCallback ( void ) ;
@@ -652,17 +670,7 @@ render callback:
   void       puObject::invokeRenderCallback ( int dx, int dy ) ;
 
 </pre>
-
-Picking all of the individual colours for each widget can be tedious,
-so there is a handy function that sets a 'theme' colour for the widget
-and then picks suitable colours near to that theme for the other colours
-of the widget. This function works well enough that you will almost never
-need to set the colours individually.
-<pre>
-
-  void puObject::setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
-
-</pre>
+<p>
 When a widget is activated, its user-supplied callback function is called
 (if it exists):
 <pre>
@@ -1245,8 +1253,50 @@ that it contains.
 <p>
 Doing a puObject::hide() on a puGroup will hide all the objects inside
 the puGroup. Doing a puObject::greyout() on a puGroup prevents anything
-inside that group from being clicked. Colours, styles, etc are NOT propagated
-from puGroup to its children.
+inside that group from being clicked.
+<p>
+Colours, styles, etc are NOT propagated from puGroup to its children,
+although there are four functions which allow you to change the
+appearances of the child widgets on a per-child-class basis:
+<pre>
+
+  void puGroup::setChildStyle ( int childs, int style, int recursive = FALSE ) ;
+  void puGroup::setChildBorderThickness ( int childs, int t, int recursive = FALSE ) ;
+  void puGroup::setChildColour ( int childs, int which,
+                                 float r, float g, float b, float a = 1.0f,
+                                 int recursive = FALSE ) ;
+  void puGroup::setChildColourScheme ( int childs,
+                                       float r, float g, float b, float a = 1.0f,
+                                       int recursive = FALSE ) ;
+
+</pre>
+These routines all take a bitmask specifying which childs to apply
+the specifed value(s) for by or-ing the appropiate PUCLASS_ constants as
+their first argument.
+<p>
+The last parameter specifies whether the function should operate
+recursively, meaning that if a child of the puGroup is another puGroup
+object or a widget derived from puGroup, the attributes of the widgets
+in this group are also changed.
+<p>
+Have a look at the following example (assume inputbox to be a pointer to
+a <a href="#puLargeInput">puLargeInput</a> widget, which is derived from puGroup and contains
+a <a href="#puFrame">puFrame</a>, two <a href="#puSlider">puSlider</a> and up to four <a href="#puArrowButton">puArrowButton</a> widgets):
+<pre>
+
+  inputbox->setChildStyle ( PUCLASS_ARROW, PUSTYLE_BOXED ) ;
+  inputbox->setChildColour ( PUCLASS_ARROW | PUCLASS_FRAME,
+                             PUCOL_HIGHLIGHT, 1.0, 1.0, 1.0 ) ;
+
+</pre>
+In this case, we would have set the style of all arrow button subwidgets
+(if there were any) to PUSTYLE_BOXED and specifed the "highlight"
+colour of both the frame and the arrow button subwidgets to be white.
+<p>
+Note that when you specify a child class in the bitmask, all childs
+derived from that class are also affected. Thus, using PUCLASS_OBJECT
+as the first argument of these functions is an easy way to change the
+parameters of all child widgets.
 <p>
 The coordinates of puGroup child objects are always specified relative
 to the bottom-left corner of the puGroup rather than in absolute screen
