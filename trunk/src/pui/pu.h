@@ -493,7 +493,7 @@ public:
   void getValue ( char **s ) { re_eval () ; *s = string  ; }
   void getValue ( char  *s ) { re_eval () ; strcpy ( s, string ) ; }
 
-  int  getValue ( void ) { re_eval () ; return integer ; }
+  int  getValue ( void ) { re_eval () ; return integer ; } /* Obsolete ! */
 
   int  getIntegerValue () { re_eval () ; return ( integer ) ; }
   float getFloatValue () { re_eval () ; return ( floater ) ; }
@@ -763,7 +763,11 @@ public:
   void getDefaultValue ( int   *i ) { default_value.getValue ( i ) ; }
   void getDefaultValue ( float *f ) { default_value.getValue ( f ) ; }
   void getDefaultValue ( char **s ) { default_value.getValue ( s ) ; }
-  int  getDefaultValue ( void )    { return default_value.getValue () ; }
+  int  getDefaultValue ( void )     { return default_value.getValue () ; } /* Obsolete ! */
+
+  int  getDefaultIntegerValue () { return default_value.getIntegerValue () ; }
+  float getDefaultFloatValue  () { return default_value.getFloatValue   () ; }
+  char *getDefaultStringValue () { return default_value.getStringValue  () ; }
 } ;
 
 /*
