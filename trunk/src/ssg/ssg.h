@@ -523,6 +523,7 @@ public:
 
   virtual void      care_about ( int mode ) { dont_care &= ~(1<<mode) ; }
   virtual void dont_care_about ( int mode ) { dont_care |=  (1<<mode) ; }
+  virtual int     getCareAbout ( int mode ) { return dont_care & (1<<mode) ; }
 
   virtual int  isEnabled ( GLenum mode ) ;
   virtual void disable   ( GLenum mode ) ;
