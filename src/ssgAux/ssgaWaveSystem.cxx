@@ -38,18 +38,30 @@ void ssgaWaveSystem::updateAnimation ( float tim )
 
   int i ;
 
-  float adjSpeed [ SSGA_MAX_WAVETRAIN ] ;
+  float adjSpeed   [ SSGA_MAX_WAVETRAIN ] ;
   float sinHeading [ SSGA_MAX_WAVETRAIN ] ;
   float cosHeading [ SSGA_MAX_WAVETRAIN ] ;
+  float length     [ SSGA_MAX_WAVETRAIN ] ;
+  float lambda     [ SSGA_MAX_WAVETRAIN ] ;
+  float height     [ SSGA_MAX_WAVETRAIN ] ;
 
   /* Pre-adjust speed's to allow for wind speed. */
+
+  int num_trains = 0 ;
 
   for ( int i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
     if ( train [ i ] != NULL )
     {
-      adjSpeed   [ i ] = train [ i ] -> getSpeed () * G * tim / windSpeed ;
-      sinHeading [ i ] = -sin ( train[i]->getHeading()*SG_DEGREES_TO_RADIANS ) ;
-      cosHeading [ i ] =  cos ( train[i]->getHeading()*SG_DEGREES_TO_RADIANS ) ;
+      adjSpeed   [num_trains] = train [ i ] -> getSpeed () * G *
+                                                      tim / windSpeed ;
+      sinHeading [num_trains] = -sin ( train[i]->getHeading () *
+                                                      SG_DEGREES_TO_RADIANS ) ;
+      cosHeading [num_trains] =  cos ( train[i]->getHeading () *
+                                                      SG_DEGREES_TO_RADIANS ) ;
+      length     [num_trains] = train [ i ] -> getLength     () ;
+      lambda     [num_trains] = train [ i ] -> getLambda     () ;
+      height     [num_trains] = train [ i ] -> getWaveHeight () ;
+      num_trains++ ;
     }
 
   for ( int i = 0 ; i <= nstrips ; i++ )
@@ -78,26 +90,21 @@ void ssgaWaveSystem::updateAnimation ( float tim )
       float yy = y0 ;
       float zz = center[2] ;
 
-      for ( int t = 0 ; t < SSGA_MAX_WAVETRAIN ; t++ )
+      for ( int t = 0 ; t < num_trains ; t++ )
       {
-        if ( train [ t ] == NULL ) continue ;
+	float adjHeight = height [ t ] * edge_fade ;
+	float adjLength = ( depth < 0.0f ) ? 0.5f :
+	                    ( depth > 1.0f ) ? length[t] :
+	                       length[t] * depth + 0.5f * (1.0f - depth) ;
 
-	float length = train [ t ] -> getLength () ;
-	float lambda = train [ t ] -> getLambda () ;
-	float height = train [ t ] -> getWaveHeight () * edge_fade ;
+	float phase = ( x0 * sinHeading[t] + y0 * cosHeading[t] ) / adjLength -
+                                             adjSpeed[t] - lambda[t] * z0 ;
 
-	length = ( depth < 0.0f ) ? 0.5f :
-	            ( depth > 1.0f ) ? length :
-	                   length * depth + 0.5f * (1.0f - depth) ;
-
-	float phase = ( x0 * sinHeading[t] + y0 * cosHeading[t] ) / length -
-                                             adjSpeed[t] - lambda * z0 ;
-
-        float delta = height * (float) sin ( phase ) ;
+        float delta = adjHeight * (float) sin ( phase ) ;
 
   	xx += delta * sinHeading [ t ] ;
   	yy += delta * cosHeading [ t ] ;
-        zz += height * (float) -cos ( phase ) ;
+        zz += adjHeight * (float) -cos ( phase ) ;
       }
 
       sgSetVec3 ( vertices  [idx], xx, yy, zz ) ; 
@@ -105,19 +112,32 @@ void ssgaWaveSystem::updateAnimation ( float tim )
     }
   }
 
-
   for ( i = 0 ; i < nstrips ; i++ )
+  {
+    int i1 =   i   * (nstrips+1) ;
+    int i2 = (i+1) * (nstrips+1) ;
+
     for ( int j = 0 ; j < nstacks ; j++ )
     {
-      int idx1 =   i   * (nstrips+1) +   j   ;
-      int idx2 = (i+1) * (nstrips+1) +   j   ;
-      int idx3 =   i   * (nstrips+1) + (j+1) ;
+      int idx1 = i1 +   j   ;
+      int idx2 = i2 +   j   ;
+      int idx3 = i1 + (j+1) ;
 
       sgVec3 ab ; sgSubVec3 ( ab, vertices[idx3], vertices[idx1] ) ;
       sgVec3 ac ; sgSubVec3 ( ac, vertices[idx2], vertices[idx1] ) ;
-      sgVectorProductVec3   ( normals[idx1], ab, ac ) ;
-      sgNormaliseVec3       ( normals[idx1] ) ;                
+
+      float nx = ab[1] * ac[2] - ab[2] * ac[1] ;
+      float ny = ab[2] * ac[0] - ab[0] * ac[2] ;
+      float nz = ab[0] * ac[1] - ab[1] * ac[0] ;
+
+      /* About 10% of execution time is in this instruction!  */
+      float rlen = 1.0f / (float) sqrt ( nx * nx + ny * ny + nz * nz ) ;
+
+      normals[idx1][0] = nx * rlen ;
+      normals[idx1][1] = ny * rlen ;
+      normals[idx1][2] = nz * rlen ;
     }
+  }
 
   for ( i = 0 ; i < nstrips ; i++ )
   {
@@ -127,17 +147,15 @@ void ssgaWaveSystem::updateAnimation ( float tim )
     ssgColourArray   *cc = vt -> getColours   () ;
     ssgTexCoordArray *tt = vt -> getTexCoords () ;
 
-    for ( int j = 0, jj = 0 ; j < nstacks + 1 ; j++, jj += 2 )
+    int i1 = (i+1) * (nstrips+1) ;
+    int i2 =   i   * (nstrips+1) ;
+
+    for ( int j = 0, jj = 0 ; j < nstacks + 1 ; j++, jj += 2, i1++, i2++ )
     {
-      int idx = (i+1) * (nstrips+1) + j ;
-
-      vv -> set ( vertices [idx], jj   ) ; nn -> set ( normals  [idx], jj   ) ;
-      cc -> set ( colours  [idx], jj   ) ; tt -> set ( texcoords[idx], jj   ) ;
-
-      idx = i * (nstrips+1) + j ;
-
-      vv -> set ( vertices [idx], jj+1 ) ; nn -> set ( normals  [idx], jj+1 ) ;
-      cc -> set ( colours  [idx], jj+1 ) ; tt -> set ( texcoords[idx], jj+1 ) ;
+      vv -> set ( vertices [i1], jj   ) ; vv -> set ( vertices [i2], jj+1 ) ;
+      nn -> set ( normals  [i1], jj   ) ; nn -> set ( normals  [i2], jj+1 ) ;
+      cc -> set ( colours  [i1], jj   ) ; cc -> set ( colours  [i2], jj+1 ) ;
+      tt -> set ( texcoords[i1], jj   ) ; tt -> set ( texcoords[i2], jj+1 ) ;
     }
   }
 }
