@@ -26,58 +26,83 @@
 #include "ssgAux.h"
 #include <string.h>
 
-void ssgaWaveSystem::updateAnimation ( float t )
+void ssgaWaveSystem::updateAnimation ( float tim )
 {
   if ( ntriangles <= 0 ||
-       normals    == NULL ||
-       colours    == NULL ||
-       texcoords  == NULL ||
-       vertices   == NULL ||
+       normals    == NULL || colours    == NULL ||
+       texcoords  == NULL || vertices   == NULL ||
        orig_vertices == NULL )
     return ;
 
-  int i;
+  int i ;
 
-  for ( i = 0 ; i <= nstrips ; i++ )
+  float adjOmega [ SSGA_MAX_WAVETRAIN ] ;
+  float sinTheta [ SSGA_MAX_WAVETRAIN ] ;
+  float cosTheta [ SSGA_MAX_WAVETRAIN ] ;
+
+  /* Pre-adjust omega's to allow for wind speed. */
+
+  for ( int i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
+    if ( train [ i ] != NULL )
+    {
+      adjOmega [ i ] = train [ i ] -> getOmega  () * tim / windSpeed ;
+      sinTheta [ i ] = -sin ( train[i]->getTheta()*SG_DEGREES_TO_RADIANS ) ;
+      cosTheta [ i ] =  cos ( train[i]->getTheta()*SG_DEGREES_TO_RADIANS ) ;
+    }
+
+  for ( int i = 0 ; i <= nstrips ; i++ )
   {
     float fade_i = (i<2) ? 0.0f : (i<7) ? (float)(i-2)/5.0f :
-                   (i>nstrips-2) ? 0.0f :
-                   (i>nstrips-7) ? (float)(nstrips-i-2)/5.0f : 1.0f ;
+		   (i>nstrips-2) ? 0.0f :
+		   (i>nstrips-7) ? (float)(nstrips-i-2)/5.0f : 1.0f ;
 
     for ( int j = 0 ; j <= nstacks ; j++ )
     {
       float fade_j = (j<2) ? 0.0f : (j<7) ? (float)(j-2)/5.0f :
-                     (j>nstacks-2) ? 0.0f :
-                     (j>nstacks-7) ? (float)(nstacks-j-2)/5.0f : 1.0f ;
+		     (j>nstacks-2) ? 0.0f :
+		     (j>nstacks-7) ? (float)(nstacks-j-2)/5.0f : 1.0f ;
 
-      int idx = i * (nstrips+1) + j ;
+      float edge_fade = fade_i * fade_j ;
+
+      int  idx = i * (nstrips+1) + j ;
+
       float x0 = orig_vertices [idx][0] + center[0] ;
       float y0 = orig_vertices [idx][1] + center[1] ; 
-      float depth = (gridGetter==NULL) ? 1000000.0f :
-                                      gridGetter ( x0, y0 ) ;
       float z0 = center[2] ;
-      float dz = vertices [idx][2] - z0 ; 
-      float edge_fade = fade_i * fade_j ;
-      float k ;
 
-      if ( depth < 0.0f )
-        k = 1.8f ;
-      else
-      if ( depth > 1.0f )
-        k = kappa ;
-      else
-        k = kappa * depth + 1.8f * (1.0f - depth) ;
+      float depth = (gridGetter==NULL) ? 1000000.0f : gridGetter ( x0, y0 ) ;
 
-      float phase = k * x0 - omega * t - lambda * dz ;
+      float xx = x0 ;
+      float yy = y0 ;
+      float zz =  0 ;
 
-      sgSetVec3 ( vertices [idx], 
-                  x0 + waveHeight * (float) sin ( phase ) * edge_fade,
-                  y0,
-                  z0 - waveHeight * (float) cos ( phase ) * edge_fade ) ;
+      for ( int t = 0 ; t < SSGA_MAX_WAVETRAIN ; t++ )
+      {
+        if ( train [ t ] == NULL ) continue ;
 
+	float kappa  = train [ t ] -> getKappa  () ;
+	float lambda = train [ t ] -> getLambda () ;
+	float height = train [ t ] -> getWaveHeight () * edge_fade ;
+
+	kappa = ( depth < 0.0f ) ? 1.8f :
+	          ( depth > 1.0f ) ? kappa :
+	                   kappa * depth + 1.8f * (1.0f - depth) ;
+
+	float phase = kappa * ( x0 * sinTheta[t] + y0 * cosTheta[t] ) -
+                                             adjOmega[t] - lambda * zz ;
+
+        float delta = height * (float) sin ( phase ) ;
+
+  	xx += delta * sinTheta [ t ] ;
+  	yy += delta * cosTheta [ t ] ;
+        zz += height * (float) -cos ( phase ) ;
+      }
+
+      sgSetVec3 ( vertices  [idx], xx, yy, zz + z0 ) ; 
       sgSetVec2 ( texcoords [idx], tu * x0 / size[0], tv * y0 /size[1] ) ;
     }
   }
+
 
   for ( i = 0 ; i < nstrips ; i++ )
     for ( int j = 0 ; j < nstacks ; j++ )
@@ -123,7 +148,6 @@ void ssgaWaveSystem::copy_from ( ssgaWaveSystem *src, int clone_flags )
   setDepthCallback ( src -> getDepthCallback () ) ;
   setWindSpeed     ( src -> getWindSpeed     () ) ;
   setWindDirn      ( src -> getWindDirn      () ) ;
-  setWaveHeight    ( src -> getWaveHeight    () ) ;
   setEdgeFlatten   ( src -> getEdgeFlatten   () ) ;
 } 
 
@@ -143,12 +167,8 @@ ssgaWaveSystem::ssgaWaveSystem ( int np ) : ssgaShape ( np )
   setDepthCallback ( NULL ) ;
   setWindSpeed     ( 1.0f ) ;
   setWindDirn      ( 0.0f ) ;
-  setWaveHeight    ( 0.5f ) ;
   setEdgeFlatten   ( 0.0f ) ;
 
-  kappa  = 0.8f ; // 1.5
-  lambda = 1.0f ;
-  omega  = 9.8f * (float) sqrt ( 2.0f/3.0f ) / windSpeed ;
   nstrips = nstacks = 0 ;
 
   normals   = NULL ;
@@ -158,6 +178,9 @@ ssgaWaveSystem::ssgaWaveSystem ( int np ) : ssgaShape ( np )
   orig_vertices  = NULL ;
 
   tu = tv = 1.0f ;
+
+  for ( int i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
+    train [ i ] = NULL ;
 
   regenerate();
 }
@@ -281,10 +304,6 @@ int ssgaWaveSystem::load ( FILE *fp )
 {
    return ( load_field ( fp, windSpeed ) &&
             load_field ( fp, windHeading ) &&
-            load_field ( fp, waveHeight ) &&
-            load_field ( fp, kappa       ) &&
-            load_field ( fp, lambda      ) &&
-            load_field ( fp, omega       ) &&
             load_field ( fp, edgeFlatten ) &&
             load_field ( fp, tu ) &&
             load_field ( fp, tv ) &&
@@ -297,10 +316,6 @@ int ssgaWaveSystem::save ( FILE *fp )
 {
    return ( save_field ( fp, windSpeed ) &&
             save_field ( fp, windHeading ) &&
-            save_field ( fp, waveHeight ) &&
-            save_field ( fp, kappa       ) &&
-            save_field ( fp, lambda      ) &&
-            save_field ( fp, omega       ) &&
             save_field ( fp, edgeFlatten ) &&
             save_field ( fp, tu ) &&
             save_field ( fp, tv ) &&

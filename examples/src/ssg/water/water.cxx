@@ -25,10 +25,14 @@ ssgSimpleState     *splash_state = NULL ;
 ssgSimpleState     *teapot_state = NULL ;
 ssgSimpleState     *plinth_state = NULL ;
 
+ssgaWaveTrain trainA ;
+ssgaWaveTrain trainB ;
+ssgaWaveTrain trainC ;
 
 float getDepth ( float x, float y )
 {
-  return (x > 0.0f) ? fabs ( sin(x/15.0f) * sin(y/10.0f) * 0.5 + 0.5 ) : 1.0f;
+//  return (x > 0.0f) ? fabs ( sin(x/15.0f) * sin(y/10.0f) * 0.5 + 0.5 ) : 1.0f;
+  return 1000.0f ;
 }
 
 
@@ -275,6 +279,16 @@ void load_database ()
                                       droplet_update, NULL ) ;
   fountain -> setState ( splash_state ) ;
 
+  trainA . setWaveHeight ( 0.2f ) ;
+  trainA . setTheta      ( 0.0f ) ;
+  trainB . setWaveHeight ( 0.1f ) ;
+  trainB . setTheta      ( 25.0f ) ;
+  trainB . setOmega      ( 17.0f ) ;
+  trainC . setWaveHeight ( 0.1f ) ;
+  trainC . setTheta      ( 45.0f ) ;
+  trainC . setOmega      ( 17.0f ) ;
+  trainC . setKappa      ( 2.4f ) ;
+
   ocean   =  new ssgaWaveSystem ( 10000 ) ;
   ocean   -> setColour        ( WHITE ) ;
   ocean   -> setSize          ( 50 ) ;
@@ -282,8 +296,10 @@ void load_database ()
   ocean   -> setCenter        ( pos ) ;
   ocean   -> setDepthCallback ( getDepth ) ;
   ocean   -> setKidState      ( sea_state ) ;
-  ocean   -> setWaveHeight    ( 0.3 ) ;
   ocean   -> setWindSpeed     ( 10.0f ) ;
+  ocean   -> setWaveTrain     ( 0, & trainA ) ;
+  ocean   -> setWaveTrain     ( 1, & trainB ) ;
+  ocean   -> setWaveTrain     ( 2, & trainC ) ;
   ocean   -> regenerate       () ;
 
   ped_obj =  new ssgaCube     () ;
