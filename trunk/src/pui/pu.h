@@ -443,7 +443,7 @@ public:
     clrValue () ;
   }
 
-  virtual ~puValue () {  delete string ;  }
+  virtual ~puValue () { delete [] string ; }
 
   int  getType ( void ) const { return type ; }
   const char *getTypeString ( void ) const ;
