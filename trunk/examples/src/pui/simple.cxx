@@ -11,6 +11,8 @@
 #include <GL/glut.h>
 #include <plib/pu.h>
 
+//#define VOODOO 1
+
 void motionfn ( int x, int y )
 {
   puMouse ( x, y ) ;
@@ -71,7 +73,10 @@ int main ( int argc, char **argv )
   glutDisplayFunc        ( displayfn ) ;
   glutMouseFunc          ( mousefn   ) ;
   glutMotionFunc         ( motionfn  ) ;
+
+#ifdef VOODOO
   glutPassiveMotionFunc  ( motionfn  ) ;
+#endif
 
   puInit () ;
 
