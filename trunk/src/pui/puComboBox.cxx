@@ -45,13 +45,15 @@ void puComboBox::handle_popup ( puObject *popupm )
 
 void puComboBox::update_widgets ( void )
 {
-  if ( num_items > 0 )
+  if ( curr_item >= 0 )
+  /* There are some items */
   {
     setValue ( list[curr_item] ) ;
 
     arrow_btn -> activate () ;
   }
   else
+  /* There aren't any items */
   {
     setValue ( "" ) ;
 
@@ -105,7 +107,7 @@ void puComboBox::newList ( char ** _list )
     }
   }
 
-  setCurrentItem ( num_items > 0 ? 0 : - 1 ) ;
+  curr_item = ( num_items > 0 ? 0 : - 1 ) ;
   update_widgets () ;
 }
 

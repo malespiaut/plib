@@ -308,6 +308,7 @@ extern int puRefresh ; /* Should not be used directly by applications any
 #define PUCLASS_VERTMENU         0x00200000
 #define PUCLASS_LARGEINPUT       0x00400000
 #define PUCLASS_COMBOBOX         0x00800000
+#define PUCLASS_SELECTBOX        0x01000000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -342,6 +343,7 @@ class puTriSlider        ;
 class puVerticalMenu     ;
 class puLargeInput       ;
 class puComboBox         ;
+class puSelectBox        ;
 
 // Global function to move active object to the end of the "dlist"
 // so it is displayed in front of everything else
@@ -1607,10 +1609,13 @@ public:
   int  getCurrentItem ( void ) ;
   void setCurrentItem ( int item )
   {
-    if ( item < num_items )
+    if ( ( item >= 0 ) && ( item < num_items ) )
+    {
       curr_item = item ;
+      update_widgets () ;
 
-    update_widgets () ;
+      invokeCallback () ;
+    }
   }
   void setCurrentItem ( const char *item_ptr ) ;
 
@@ -1618,6 +1623,45 @@ public:
 
   puComboBox ( int minx, int miny, int maxx, int maxy,
                char **list, int editable = TRUE ) ;
+} ;
+
+
+class puSelectBox : public puGroup
+{
+protected:
+  char ** list  ;
+  int num_items ;
+
+  int curr_item ;
+
+  puInput *input ;
+  puArrowButton *down_arrow ;
+  puArrowButton *up_arrow   ;
+
+  static void handle_arrow ( puObject *arrow  ) ;
+
+  void update_widgets ( void ) ;
+
+public:
+  void newList ( char ** _list ) ;
+  int  getNumItems ( void )     { return num_items ; }
+
+  int  getCurrentItem ( void )  { return curr_item ; }
+  void setCurrentItem ( int item )
+  {
+    if ( ( item >= 0 ) && ( item < num_items ) )
+    {
+      curr_item = item ;
+      update_widgets () ;
+
+      invokeCallback () ;
+    }
+  }
+
+  void draw ( int dx, int dy ) ;
+
+  puSelectBox ( int minx, int miny, int maxx, int maxy,
+                char **list ) ;
 } ;
 
 #endif
