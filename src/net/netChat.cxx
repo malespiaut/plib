@@ -26,8 +26,8 @@
 void
 netChat::setTerminator (const char* t)
 {
-  if (terminator) ::free(terminator);
-  terminator = strdup(t);
+  if (terminator) delete[] terminator;
+  terminator = ulStrDup(t);
 }
 
 const char*
