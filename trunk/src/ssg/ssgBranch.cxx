@@ -90,6 +90,24 @@ void ssgBranch::removeAllKids (void)
     removeKid ( k ) ;
 }
 
+
+void ssgBranch::replaceKid ( int n, ssgEntity *new_entity )
+{
+  if ( n >= 0 && n < getNumKids () )
+  {
+    getKid ( n ) -> removeParent ( this ) ;
+    kids.replaceEntity ( n, new_entity ) ;
+    new_entity -> addParent ( this ) ;
+    dirtyBSphere () ;
+  }
+}
+
+void ssgBranch::replaceKid ( ssgEntity *old_entity, ssgEntity *new_entity )
+{
+  replaceKid ( searchForKid( old_entity ), new_entity ) ;
+}
+
+
 void ssgBranch::print ( FILE *fd, char *indent )
 {
   ssgEntity::print ( fd, indent ) ;

@@ -93,4 +93,17 @@ entity_list[n]->deadBeefCheck();
 }
 
 
+void ssgList::replaceEntity ( unsigned int n, ssgEntity *new_entity )
+{
+  new_entity -> deadBeefCheck () ;
+  entity_list [ n ] -> deadBeefCheck () ;
+  entity_list [ n ] = new_entity;
+}
 
+void ssgKidList::replaceEntity ( unsigned int n, ssgEntity *new_entity )
+{
+  ssgEntity *old_entity = entity_list [ n ] ;
+  new_entity -> ref () ;
+  ssgList::replaceEntity ( n, new_entity ) ;
+  ssgDeRefDelete ( old_entity ) ;
+}
