@@ -224,7 +224,9 @@ static sgVec3 vertex [] =
 
 void ssgaTeapot::regenerate ()
 {
+  if ( kidState != NULL ) kidState -> ref () ;
   removeAllKids () ;
+  if ( kidState != NULL ) kidState -> deRef () ;
 
   for ( int i = 0 ; patch[i][0] >= 0 ; i++ )
   {

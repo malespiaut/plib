@@ -102,8 +102,8 @@ void ssgEntity::print ( FILE *fd, char *indent, int how_much )
 {
   ssgBase::print ( fd, indent, how_much ) ;
 
-	if ( how_much > 1 )
-		fprintf ( fd, "%s  Num Parents=%d\n", indent, parents . getNumEntities () ) ;
+  if ( how_much > 1 )
+    fprintf ( fd, "%s  Num Parents=%d\n", indent, parents.getNumEntities () ) ;
 }
 
 

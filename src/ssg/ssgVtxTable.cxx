@@ -800,10 +800,25 @@ void ssgVtxTable::print ( FILE *fd, char *indent, int how_much )
 	
   ssgLeaf  ::print ( fd, indent, how_much ) ;
 		
-  vertices  -> print ( fd, in, how_much ) ;
-  normals   -> print ( fd, in, how_much ) ;
-  texcoords -> print ( fd, in, how_much ) ;
-  colours   -> print ( fd, in, how_much ) ;
+  if ( vertices == NULL )
+    fprintf ( fd, "%s  No Vertices!\n", indent ) ;
+  else
+    vertices  -> print ( fd, in, how_much ) ;
+
+  if ( normals == NULL )
+    fprintf ( fd, "%s  No Normals!\n", indent ) ;
+  else
+    normals   -> print ( fd, in, how_much ) ;
+
+  if ( texcoords == NULL )
+    fprintf ( fd, "%s  No Texcoords!\n", indent ) ;
+  else
+    texcoords -> print ( fd, in, how_much ) ;
+
+  if ( colours == NULL )
+    fprintf ( fd, "%s  No Colours!\n", indent ) ;
+  else
+    colours   -> print ( fd, in, how_much ) ;
 }
 
 

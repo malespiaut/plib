@@ -487,8 +487,8 @@ void ssgSimpleState::print ( FILE *fd, char *indent, int how_much )
 {
   ssgState::print ( fd, indent, how_much ) ;
  
-	if ( how_much < 2 )
-		return;
+  if ( how_much < 2 )
+    return;
 
   fprintf ( fd, "%s  Don't Care   = ", indent ) ;
              printStateString ( fd, dont_care ) ;
@@ -499,14 +499,15 @@ void ssgSimpleState::print ( FILE *fd, char *indent, int how_much )
 
   fprintf ( fd, "%s  TexHandle    = %d\n", indent, getTextureHandle() ) ;
   fprintf ( fd, "%s  TexFilename  = '%s'\n", indent,
-                           (getTextureFilename()==NULL) ? "<none>" : getTextureFilename() ) ;
+            (getTextureFilename()==NULL) ? "<none>" : getTextureFilename() ) ;
   fprintf ( fd, "%s  Shade Model  = %d\n", indent, shade_model ) ;
   fprintf ( fd, "%s  Shininess    = %f\n", indent, shininess ) ;
   fprintf ( fd, "%s  AlphaClamp   = %f\n", indent, alpha_clamp ) ;
   fprintf ( fd, "%s  ColourMatMode= %s\n", indent,
     (colour_material_mode == GL_AMBIENT) ? "GL_AMBIENT" :
     (colour_material_mode == GL_DIFFUSE) ? "GL_DIFFUSE" :
-    (colour_material_mode == GL_AMBIENT_AND_DIFFUSE) ? "GL_AMBIENT_AND_DIFFUSE" :
+    (colour_material_mode == GL_AMBIENT_AND_DIFFUSE) ?
+                               "GL_AMBIENT_AND_DIFFUSE" :
     (colour_material_mode == GL_SPECULAR) ? "GL_SPECULAR" :
     (colour_material_mode == GL_EMISSION) ? "GL_EMISSION" : "?????" ) ;
 

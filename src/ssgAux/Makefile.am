@@ -1,12 +1,13 @@
 
 lib_LIBRARIES = libplibssgaux.a
 
-include_HEADERS = ssgAux.h ssgaShapes.h ssgaParticleSystem.h
+include_HEADERS = ssgAux.h ssgaShapes.h ssgaParticleSystem.h ssgaWaveSystem.h
 
 libplibssgaux_a_SOURCES = ssgAux.cxx \
                           ssgaShapes.cxx \
                           ssgaPatch.cxx \
                           ssgaParticleSystem.cxx \
+                          ssgaWaveSystem.cxx \
                           ssgaTeapot.cxx
 
 INCLUDES = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/ssg
