@@ -254,8 +254,7 @@ public:
   void   setComment ( const char *nc )
   {
     delete [] comment ;
-    comment = new char [ strlen ( nc ) + 1 ] ;
-    strcpy ( comment, nc ) ;
+    comment = ulStrDup ( nc ) ;
   }
 
   Uchar *getBuffer () const { return buffer ; }
