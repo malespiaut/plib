@@ -5,7 +5,7 @@
 
 #include "ssgLocal.h"
 
-#define MAX_LINE_LEN 256
+#define MAX_LINE_LEN 1024
 #define MAX_VERT 100000
 
 static ssgHookFunc      current_hookFunc = NULL ;
@@ -116,8 +116,8 @@ static int dxf_read ( FILE *filein )
   int   num_face;
   int   num_linevert;
   int   num_facevert;
-  float* linevert[3];
-  float* facevert[3];
+  sgVec3* linevert;
+  sgVec3* facevert;
   int   num_vert;
 
   linemode = 0;
@@ -125,12 +125,8 @@ static int dxf_read ( FILE *filein )
   num_face = 0;
   num_linevert = 0;
   num_facevert = 0;
-  linevert[0] = new float[MAX_VERT];
-  linevert[1] = new float[MAX_VERT];
-  linevert[2] = new float[MAX_VERT];
-  facevert[0] = new float[MAX_VERT];
-  facevert[1] = new float[MAX_VERT];
-  facevert[2] = new float[MAX_VERT];
+  linevert = new sgVec3[MAX_VERT];
+  facevert = new sgVec3[MAX_VERT];
   num_vert = 0;
 
 /* 
@@ -208,16 +204,16 @@ static int dxf_read ( FILE *filein )
 
             if ( linemode ) {
               if ( num_linevert + num_vert < MAX_VERT ) {
-                linevert[0][num_linevert + num_vert] = cvec[0];
-                linevert[1][num_linevert + num_vert] = cvec[1];
-                linevert[2][num_linevert + num_vert] = cvec[2];
+                linevert[num_linevert + num_vert][0] = cvec[0];
+                linevert[num_linevert + num_vert][1] = cvec[1];
+                linevert[num_linevert + num_vert][2] = cvec[2];
               }
             }
             else {
               if ( num_facevert + num_vert < MAX_VERT ) {
-                facevert[0][num_facevert + num_vert] = cvec[0];
-                facevert[1][num_facevert + num_vert] = cvec[1];
-                facevert[2][num_facevert + num_vert] = cvec[2];
+                facevert[num_facevert + num_vert][0] = cvec[0];
+                facevert[num_facevert + num_vert][1] = cvec[1];
+                facevert[num_facevert + num_vert][2] = cvec[2];
               }
             }
 
@@ -253,13 +249,7 @@ static int dxf_read ( FILE *filein )
   {
     ssgVertexArray* vlist = new ssgVertexArray ( num_facevert ) ;
     for ( int i=0; i<num_facevert; i++ )
-    {
-      sgVec3 v ;
-      v[0] = facevert[0][i];
-      v[1] = facevert[1][i];
-      v[2] = facevert[2][i];
-      vlist -> add ( v ) ;
-    }
+      vlist -> add ( facevert[i] ) ;
     ssgVtxTable *vtab = new ssgVtxTable ( GL_TRIANGLES, vlist, 0, 0, 0 );
     current_branch -> addKid ( vtab ) ;
   }
@@ -268,23 +258,13 @@ static int dxf_read ( FILE *filein )
   {
     ssgVertexArray* vlist = new ssgVertexArray ( num_linevert ) ;
     for ( int i=0; i<num_linevert; i++ )
-    {
-      sgVec3 v ;
-      v[0] = linevert[0][i];
-      v[1] = linevert[1][i];
-      v[2] = linevert[2][i];
-      vlist -> add ( v ) ;
-    }
+      vlist -> add ( linevert[i] ) ;
     ssgVtxTable *vtab = new ssgVtxTable ( GL_LINES, vlist, 0, 0, 0 );
     current_branch -> addKid ( vtab ) ;
   }
 
-  delete[] linevert[0];
-  delete[] linevert[1];
-  delete[] linevert[2];
-  delete[] facevert[0];
-  delete[] facevert[1];
-  delete[] facevert[2];
+  delete[] linevert;
+  delete[] facevert;
 
   return TRUE;
 }
