@@ -137,8 +137,6 @@ const char *ssgaLensFlare::getTypeName(void) { return "ssgaLensFlare" ; }
 static int preDraw ( ssgEntity * )
 {
   glDisable   ( GL_DEPTH_TEST  ) ;
-  glDisable   ( GL_CULL_FACE   ) ;
-  glEnable    ( GL_BLEND       ) ;
   glBlendFunc ( GL_ONE, GL_ONE ) ;
   return TRUE ;
 }
@@ -147,7 +145,6 @@ static int preDraw ( ssgEntity * )
 static int postDraw ( ssgEntity * )
 {
   glEnable    ( GL_DEPTH_TEST  ) ;
-  glEnable    ( GL_CULL_FACE   ) ;
   glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
   return TRUE ;
 }
@@ -188,11 +185,8 @@ void ssgaLensFlare::regenerate ()
     flareState -> setTexture        ( flareTexture ) ;
     flareState -> setTranslucent    () ;
     flareState -> enable            ( GL_TEXTURE_2D ) ;
-
-    flareState -> setShadeModel     ( GL_SMOOTH ) ;
     flareState -> enable            ( GL_BLEND ) ;
     flareState -> disable           ( GL_LIGHTING ) ;
-    flareState -> setTranslucent    () ;
     flareState -> ref () ;
     setKidState ( flareState ) ;
   }
@@ -268,22 +262,22 @@ void ssgaLensFlare::update ( sgMat4 mat )
 
     sgVec3 vx ;
 
-    sgSetVec3 ( vx, position[0]+sz, position[1]+sz, position[2] ) ; 
+    sgSetVec3 ( vx, position[0]+sz, position[1]-sz, position[2] ) ; 
     c0 -> set ( flare[i].color, vv ) ;
     t0 -> set ( & texCoords[0], vv ) ;
     v0 -> set ( vx, vv++ ) ;
 
-    sgSetVec3 ( vx, position[0]+sz, position[1]-sz, position[2] ) ; 
+    sgSetVec3 ( vx, position[0]+sz, position[1]+sz, position[2] ) ; 
     c0 -> set ( flare[i].color, vv ) ;
     t0 -> set ( & texCoords[2], vv ) ;
     v0 -> set ( vx, vv++ ) ;
 
-    sgSetVec3 ( vx, position[0]-sz, position[1]-sz, position[2] ) ; 
+    sgSetVec3 ( vx, position[0]-sz, position[1]+sz, position[2] ) ; 
     c0 -> set ( flare[i].color, vv ) ;
     t0 -> set ( & texCoords[4], vv ) ;
     v0 -> set ( vx, vv++ ) ;
 
-    sgSetVec3 ( vx, position[0]-sz, position[1]+sz, position[2] ) ; 
+    sgSetVec3 ( vx, position[0]-sz, position[1]-sz, position[2] ) ; 
     c0 -> set ( flare[i].color, vv ) ;
     t0 -> set ( & texCoords[6], vv ) ;
     v0 -> set ( vx, vv++ ) ;
