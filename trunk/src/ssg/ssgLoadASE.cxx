@@ -659,8 +659,9 @@ static void parse_object()
 
 static void parse()
 {
-  materials = new (aseMaterial*) [ MAX_MATERIALS ];
-  states = new (ssgSimpleState*) [ MAX_STATES ];
+  materials = new aseMaterial* [ MAX_MATERIALS ];
+  states = new ssgSimpleState* [ MAX_STATES ];
+
   if ( !materials || !states )
     parser.error("not enough memory");
 

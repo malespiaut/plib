@@ -310,7 +310,7 @@ int ssgSaveASE ( FILE* fileout, ssgEntity *ent )
   fprintf ( save_fd, "  *SCENE_AMBIENT_STATIC 0.0431 0.0431 0.0431\n" );
   fprintf ( save_fd, "}\n" );
 
-  states = new (ssgSimpleState*) [ MAX_STATES ] ;
+  states = new ssgSimpleState*[ MAX_STATES ] ;
   num_states = 0 ;
 
   get_states ( ent ) ;
