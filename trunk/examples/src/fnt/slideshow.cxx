@@ -118,7 +118,7 @@ void displayfn (void)
   int row = 460 ;
 
   text -> begin () ;
-    glColor3f ( 1, 1, 1 ) ;
+    glColor3f ( 1.0f, 1.0f, 1.0f ) ;
 
     for ( int i = page [ curr_page ] ;
                   i < page [ curr_page+1 ]-1 && i < num_lines && row > 0 ; i++ )
