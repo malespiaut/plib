@@ -615,8 +615,9 @@ static void loadTextureBMP ( const char *fname )
     isSwapped = TRUE  ;
   else
   {
-    ulSetError ( UL_FATAL, "%s: Unrecognised magic number 0x%04x",
+    ulSetError ( UL_WARNING, "%s: Unrecognised magic number 0x%04x",
                             curr_image_fname, bmphdr.FileType ) ;
+    return ;
   }
 
   bmphdr.FileSize      = readInt   () ;
@@ -668,9 +669,11 @@ static void loadTextureBMP ( const char *fname )
       pal[i].b = readByte () ;
       pal[i].g = readByte () ;
       pal[i].r = readByte () ;
-      pal[i].a = readByte () ;
 
-      if ( pal[i].a != 255 ) isOpaque = FALSE ;
+      /* According to BMP specs, this fourth value is not really alpha value
+	 but just a filler byte, so it is ignored for now. */
+      pal[i].a = readByte () ;
+      //if ( pal[i].a != 255 ) isOpaque = FALSE ;
 
       if ( pal[i].r != pal[i].g ||
            pal[i].g != pal[i].b ) isMonochrome = FALSE ;
