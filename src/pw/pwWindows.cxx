@@ -39,6 +39,8 @@ static int             modifiers    = 0 ;
 static int             origin [2]   = {   0,   0 } ;
 static int             size   [2]   = { 640, 480 } ;
 
+static bool            autoRepeat   = false ;
+
 static pwResizeCB     *resizeCB     = NULL ;
 static pwExitCB       *exitCB       = NULL ;
 static pwKeybdFunc    *kbCB         = NULL ;
@@ -71,7 +73,7 @@ static void refreshModifiers ()
 LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
   int key = -1 ;
-  int updown = PW_UP ;
+  static int updown = PW_UP ;
   int button = -1 ;
   static int mb = 0 ;
   static int lastx = 0 ;
@@ -117,9 +119,13 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
       break;
 
     case WM_KEYDOWN:
+      /* If the key is already down, we are on auto-repeat.  Break if the autorepeat is disabled. */
+      if ( ( updown == PW_DOWN ) && !autoRepeat ) break ;
+
       updown = PW_DOWN ;
       /* FALLTHROUGH */
     case WM_KEYUP:
+      if ( uMsg == WM_KEYUP ) updown = PW_UP ;
       key = wParam ;
       switch ( key )
       {
@@ -185,7 +191,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 
 void pwSetAutoRepeatKey ( bool enable )
 {
-  fprintf(stderr,"pwSetAutoRepeatKey is not yet functional under Windows.\n" ) ;
+  autoRepeat = enable ;
 }
 
 
