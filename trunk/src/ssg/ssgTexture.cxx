@@ -29,9 +29,9 @@ ssgTexture::ssgTexture ()
   handle = 0 ;
 }
 
-void ssgTexture::print ( FILE *fd, char *ident )
+void ssgTexture::print ( FILE *fd, char *ident, int how_much )
 {
-  fprintf ( fd, "%s%s: whatever\n", ident, getTypeName () ) ;
+  fprintf ( fd, "%s%s: %s\n", ident, getTypeName (), getFilename () ) ;
 }
 
 

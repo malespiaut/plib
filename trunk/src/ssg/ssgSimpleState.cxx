@@ -456,10 +456,13 @@ static void printStateString ( FILE *fd, unsigned int bits )
 }
 
  
-void ssgSimpleState::print ( FILE *fd, char *indent )
+void ssgSimpleState::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgState::print ( fd, indent ) ;
+  ssgState::print ( fd, indent, how_much ) ;
  
+	if ( how_much < 2 )
+		return;
+
   fprintf ( fd, "%s  Don't Care   = ", indent ) ;
              printStateString ( fd, dont_care ) ;
              fprintf ( fd, "\n" ) ;
