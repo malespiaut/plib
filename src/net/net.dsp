@@ -109,10 +109,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"Debug\net_d.lib"
 # Begin Custom Build - 'net' gets installed
 ProjDir=.
-InputPath=.\Debug\net.lib
+InputPath=.\Debug\net_d.lib
 SOURCE="$(InputPath)"
 
 BuildCmds= \

@@ -43,12 +43,10 @@ Each example has a seperate project in the workspace.  Select
 the one you want and build it.  Then you should be able to hit
 the Go icon on the toolbar and try it out.
 
-
-Borland C++:
-~~~~~~~~~~~~
-"Heil, David G. SDX" <DavidH@HPD.Abbott.com> contributed a set of
-Borland bpg/bpr files. I know nothing more about what may be
-required in order to use them.
-
-     Steve.
+For your own application, please note that the plib workspace 
+leaves all the necessary includes (*.h) and libraries (*.lib)
+in the plib root directory (same as workspace).  The debug
+libraries are given a '_d' suffix.  Where ever you put those
+files, make sure #include <plib/ul.h> works so your code is
+more portable.
 

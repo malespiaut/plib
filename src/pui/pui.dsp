@@ -86,10 +86,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"Debug\pui_d.lib"
 # Begin Custom Build - 'pui' gets installed
 ProjDir=.
-InputPath=.\Debug\pui.lib
+InputPath=.\Debug\pui_d.lib
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\..\pu.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
