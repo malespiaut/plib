@@ -26,7 +26,7 @@
 
 static float optimise_vtol [3] =
 {
-  0.01f,   /* DISTANCE_SLOP = One centimeter */
+  0.001f,  /* DISTANCE_SLOP = One millimeter */
   0.04f,   /* COLOUR_SLOP = Four percent */
   0.004f,  /* TEXCOORD_SLOP = One texel on a 256 map */
 } ;
