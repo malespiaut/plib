@@ -26,13 +26,10 @@ int PSL_Parser::pushReturnStatement ()
 
 int PSL_Parser::pushWhileStatement ()
 {
-  char lab1 [ 5 ] ;
-  char lab2 [ 5 ] ;
 
   /* Remember place to jump back to */
 
-  sprintf ( lab1, "%d", next_label++ ) ;
-  setCodeSymbol ( lab1, next_code ) ;
+  int start_loc = next_code ;
 
   if ( ! pushExpression () )
   {
@@ -40,9 +37,7 @@ int PSL_Parser::pushWhileStatement ()
     return FALSE ;
   }
 
-  sprintf ( lab2, "%d", next_label++ ) ;
-
-  int label_loc = pushJumpIfFalse ( lab2 ) ;
+  int label_loc = pushJumpIfFalse ( 0 ) ;
 
   if ( ! pushStatement () )
   {
@@ -50,9 +45,7 @@ int PSL_Parser::pushWhileStatement ()
     return FALSE ;
   }
 
-  pushJump ( lab1 ) ;
-
-  setCodeSymbol ( lab2, next_code ) ;
+  pushJump ( start_loc ) ;
 
   code [ label_loc   ] = next_code & 0xFF ;
   code [ label_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
@@ -62,19 +55,13 @@ int PSL_Parser::pushWhileStatement ()
 
 int PSL_Parser::pushIfStatement ()
 {
-  char lab1 [ 5 ] ;
-  char lab2 [ 5 ] ;
-
   if ( ! pushExpression () )
   {
     ulSetError ( UL_WARNING, "PSL: Missing expression for 'if'" ) ;
     return FALSE ;
   }
 
-  sprintf ( lab1, "%d", next_label++ ) ;
-  sprintf ( lab2, "%d", next_label++ ) ;
-
-  int else_loc = pushJumpIfFalse ( lab1 ) ;
+  int else_loc = pushJumpIfFalse ( 0 ) ;
 
   if ( ! pushStatement () )
   {
@@ -96,8 +83,6 @@ int PSL_Parser::pushIfStatement ()
 
   if ( strcmp ( c, "else" ) != 0 )
   {
-    setCodeSymbol ( lab1, next_code ) ;
-
     code [ else_loc   ] = next_code & 0xFF ;
     code [ else_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
 
@@ -106,9 +91,7 @@ int PSL_Parser::pushIfStatement ()
     return TRUE ;
   }
 
-  int label_loc = pushJump ( lab2 ) ;
-
-  setCodeSymbol ( lab1, next_code ) ;
+  int label_loc = pushJump ( 0 ) ;
 
   code [ else_loc   ] = next_code & 0xFF ;
   code [ else_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
@@ -118,8 +101,6 @@ int PSL_Parser::pushIfStatement ()
     ulSetError ( UL_WARNING, "PSL: Missing statement for 'else'" ) ;
     return FALSE ;
   }
-
-  setCodeSymbol ( lab2, next_code ) ;
 
   code [ label_loc   ] = next_code & 0xFF ;
   code [ label_loc+1 ] = ( next_code >> 8 ) & 0xFF ;

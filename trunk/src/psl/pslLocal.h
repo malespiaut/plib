@@ -157,8 +157,8 @@ class PSL_Parser
   void pushGreaterEqual () ;
   void pushNotEqual     () ;
   void pushEqual        () ;
-  int  pushJumpIfFalse  ( char *c ) ;
-  int  pushJump         ( char *c ) ;
+  int  pushJumpIfFalse  ( int l ) ;
+  int  pushJump         ( int l ) ;
 
   void pushConstant   ( char *c ) ;
   void pushVariable   ( char *c ) ;
@@ -207,6 +207,7 @@ private:
   int next_var   ;
   int next_label ;
   int next_code  ;
+  int next_code_symbol ;
 
   PSL_Symbol         symtab [ MAX_SYMBOL ] ;
   PSL_Symbol    code_symtab [ MAX_SYMBOL ] ;
@@ -253,6 +254,7 @@ public:
     for ( i = 0 ; i < MAX_SYMBOL ; i++ ) code_symtab [ i ] . symbol = NULL ;
 
     next_label = 0 ;
+    next_code_symbol = 0 ;
     next_code  = 0 ;
     next_var   = 0 ;
   }

@@ -105,28 +105,24 @@ void PSL_Parser::pushGreaterEqual () { pushCodeByte ( OPCODE_GREATEREQUAL ) ; }
 void PSL_Parser::pushNotEqual     () { pushCodeByte ( OPCODE_NOTEQUAL ) ; } 
 void PSL_Parser::pushEqual        () { pushCodeByte ( OPCODE_EQUAL ) ; } 
 
-int PSL_Parser::pushJumpIfFalse  ( char *c )
+int PSL_Parser::pushJumpIfFalse  ( int l )
 {
-  int a = getCodeSymbol ( c ) ;
-
   pushCodeByte ( OPCODE_JUMP_FALSE ) ;
 
   int res = next_code ;
 
-  pushCodeAddr ( a ) ;
+  pushCodeAddr ( l ) ;
 
   return res ;
 }
 
-int PSL_Parser::pushJump ( char *c )
+int PSL_Parser::pushJump ( int l )
 {
-  int a = getCodeSymbol ( c ) ;
-
   pushCodeByte ( OPCODE_JUMP ) ;
 
   int res = next_code ;
 
-  pushCodeAddr ( a ) ;
+  pushCodeAddr ( l ) ;
 
   return res ;
 }
