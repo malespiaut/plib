@@ -70,9 +70,9 @@ void ssgState::copy_from ( ssgState *src, int clone_flags )
   else
     setOpaque () ;
 
-  setCallback( SSG_CALLBACK_PREDRAW,  src->getCallback( SSG_CALLBACK_PREDRAW  ) );
-  setCallback( SSG_CALLBACK_POSTDRAW, src->getCallback( SSG_CALLBACK_POSTDRAW ) );
-  setCallback( SSG_CALLBACK_PREAPPLY, src->getCallback( SSG_CALLBACK_PREAPPLY ) );
+  setStateCallback( SSG_CALLBACK_PREDRAW,  src->getStateCallback( SSG_CALLBACK_PREDRAW  ) );
+  setStateCallback( SSG_CALLBACK_POSTDRAW, src->getStateCallback( SSG_CALLBACK_POSTDRAW ) );
+  setStateCallback( SSG_CALLBACK_PREAPPLY, src->getStateCallback( SSG_CALLBACK_PREAPPLY ) );
 }
 
 
