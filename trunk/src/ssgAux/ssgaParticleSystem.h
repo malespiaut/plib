@@ -8,6 +8,8 @@ public:
   sgVec3 vel ;
   sgVec3 acc ;
 
+  float size ;
+
   float time_to_live ;
   void *userData ;
 
@@ -26,6 +28,7 @@ public:
     sgZeroVec3 ( acc ) ;
     time_to_live = 0 ;
     userData = NULL ;
+    size = 1.0f ;
   } 
 
 } ;

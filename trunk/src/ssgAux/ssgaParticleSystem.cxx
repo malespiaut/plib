@@ -59,7 +59,9 @@ ssgaParticleSystem::ssgaParticleSystem ( int num, int initial_num,
 
 void ssgaParticleSystem::draw_geometry ()
 {
-  sgVec3 xx, xxyy, yy ;
+  sgVec3 nxny, xxny, xxyy, nxyy ;
+
+  float sz = size / 2.0f ;
 
   if ( turn_to_face )
   {
@@ -67,30 +69,41 @@ void ssgaParticleSystem::draw_geometry ()
 
     glGetFloatv ( GL_MODELVIEW_MATRIX, (float *) mat ) ;
 
-    sgSetVec3 ( xx, mat[0][0] * size, mat[1][0] * size, mat[2][0] * size ) ;
-    sgSetVec3 ( yy, mat[0][1] * size, mat[1][1] * size, mat[2][1] * size ) ;
-    sgAddVec3 ( xxyy, xx, yy ) ;
+    sgVec3 xx, yy ;
+
+    sgSetVec3 ( xx, mat[0][0] * sz, mat[1][0] * sz, mat[2][0] * sz ) ;
+    sgSetVec3 ( yy, mat[0][1] * sz, mat[1][1] * sz, mat[2][1] * sz ) ;
+
+    sgSetVec3 ( nxny, -xx[0]+yy[0], -xx[1]+yy[1], -xx[2]+yy[2] ) ;
+    sgSetVec3 ( nxyy, -xx[0]-yy[0], -xx[1]-yy[1], -xx[2]-yy[2] ) ;
+    sgSetVec3 ( xxny,  xx[0]-yy[0],  xx[1]-yy[1],  xx[2]-yy[2] ) ;
+    sgSetVec3 ( xxyy,  xx[0]+yy[0],  xx[1]+yy[1],  xx[2]+yy[2] ) ;
   }
   else
   {
-    sgSetVec3 (  xx , size, 0,  0   ) ;
-    sgSetVec3 (  yy ,  0  , 0, size ) ;
-    sgSetVec3 ( xxyy, size, 0, size ) ;
+    sgSetVec3 ( xxny ,  sz, 0, -sz ) ;
+    sgSetVec3 ( nxny , -sz, 0, -sz ) ;
+    sgSetVec3 ( nxyy , -sz, 0,  sz ) ;
+    sgSetVec3 ( xxyy,   sz, 0,  sz ) ;
   }
 
   int j = 0 ;
 
   for ( int i = 0 ; i < num_particles ; i++, j += 4 )
   {
-    sgCopyVec4  ( getColour ( j + 0 ), particle[i].col ) ;
-    sgCopyVec4  ( getColour ( j + 1 ), particle[i].col ) ;
-    sgCopyVec4  ( getColour ( j + 2 ), particle[i].col ) ;
-    sgCopyVec4  ( getColour ( j + 3 ), particle[i].col ) ;
+    sgCopyVec4 ( getColour ( j + 0 ), particle[i].col ) ;
+    sgCopyVec4 ( getColour ( j + 1 ), particle[i].col ) ;
+    sgCopyVec4 ( getColour ( j + 2 ), particle[i].col ) ;
+    sgCopyVec4 ( getColour ( j + 3 ), particle[i].col ) ;
 
-    sgCopyVec3 ( getVertex ( j + 0 ), particle[i].pos ) ;
-    sgAddVec3  ( getVertex ( j + 1 ), particle[i].pos, xx ) ;
-    sgAddVec3  ( getVertex ( j + 2 ), particle[i].pos, xxyy ) ;
-    sgAddVec3  ( getVertex ( j + 3 ), particle[i].pos, yy ) ;
+    sgAddScaledVec3 ( getVertex ( j + 0 ), particle[i].pos,
+                                     nxny, particle[i].size ) ;
+    sgAddScaledVec3 ( getVertex ( j + 1 ), particle[i].pos,
+                                     xxny, particle[i].size ) ;
+    sgAddScaledVec3 ( getVertex ( j + 2 ), particle[i].pos,
+                                     xxyy, particle[i].size ) ;
+    sgAddScaledVec3 ( getVertex ( j + 3 ), particle[i].pos,
+                                     nxyy, particle[i].size ) ;
   }
 
   glDisable   ( GL_CULL_FACE ) ;
