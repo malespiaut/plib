@@ -288,7 +288,7 @@ static void puSetOpenGLState ( void )
   glMatrixMode   ( GL_PROJECTION ) ;
   glPushMatrix   () ;
   glLoadIdentity () ;
-  gluOrtho2D     ( 0, w, 0, h ) ;
+  glOrtho        ( 0, w, 0, h, -1, 1 ) ;
   glMatrixMode   ( GL_MODELVIEW ) ;
   glPushMatrix   () ;
   glLoadIdentity () ;
