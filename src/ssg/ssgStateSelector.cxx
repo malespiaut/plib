@@ -41,9 +41,9 @@ void ssgStateSelector::copy_from ( ssgStateSelector *src, int clone_flags )
     else
       statelist [ i ] = s ;
 
-	//~~ T.G. needs ref count incremented
-	if (statelist [ i ] != NULL )      
-	   statelist [ i ] -> ref();   
+  //~~ T.G. needs ref count incremented
+  if (statelist [ i ] != NULL )      
+     statelist [ i ] -> ref();   
 
   }
 }
@@ -80,7 +80,7 @@ ssgStateSelector::~ssgStateSelector (void)
 {
   //~~ T.G. deref states before deleting list
   for ( int i = 0 ; i < nstates ; i++ )    
-	  ssgDeRefDelete( statelist [ i ] );  
+    ssgDeRefDelete( statelist [ i ] );  
   delete [] statelist ;
 }
 
