@@ -347,8 +347,7 @@ void puObject::draw_label ( int dx, int dy )
   case PUPLACE_CENTERED_CENTERED :
   case PUPLACE_CENTERED_RIGHT :
   default :
-    yy = ( bbox.max[1] - bbox.min[1] - labelFont.getStringHeight () -
-           labelFont.getStringDescender () ) / 2 ;
+    yy = ( bbox.max[1] - bbox.min[1] - labelFont.getStringHeight () ) / 2 ;
     break ;
 
   case PUPLACE_LOWER_LEFT    :
