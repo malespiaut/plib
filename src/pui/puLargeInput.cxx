@@ -88,6 +88,21 @@ void puLargeInput::normalize_cursors ( void )
   }
 }
 
+void puLargeInput::removeSelectRegion ( void )
+{
+  char *p = new char [ strlen ( text ) + 1 -
+                           ( select_end_position - select_start_position ) ] ;
+  strncpy ( p, text, select_start_position ) ;
+  p [ select_start_position ] = '\0' ;
+  strcat ( p, (text + select_end_position ) ) ;
+  strcpy ( text, p ) ;
+  delete p ;
+
+  cursor_position = select_start_position ;
+  select_end_position = select_start_position ;
+}
+
+
 // Public functions from the widget itself
 
 puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width ) :
@@ -231,94 +246,91 @@ void puLargeInput::setSelectRegion ( int s, int e )
   }
 }
 
+void  puLargeInput::selectEntireLine ( void )
+{
+  while ( ( select_start_position >= 0 ) && ( *(text + select_start_position) != '\n' ) )
+    select_start_position -- ;
+
+
+  if ( select_start_position > 0 )
+    select_start_position ++ ;
+
+  select_end_position = int ( strchr ( text + select_end_position, '\n' ) + 1 - text ) ;
+  if ( select_end_position == 1 ) select_end_position = strlen ( text ) ;
+}
+
 void  puLargeInput::addNewLine ( char *l )
 {
-  select_end_position = cursor_position ;
-  if ( select_end_position > 0 )
-  {
-    select_end_position -- ;
-    while ( *(text+select_end_position) != '\n' )
-      select_end_position ++ ;
+  if ( cursor_position > 0 )  // If not at start of line, go to start of next line
+    cursor_position = int (strchr ( text + cursor_position - 1, '\n' ) - text + 1) ;
 
-    select_end_position ++ ;  // Step to start of next line
-  }
-
-  select_start_position = select_end_position ;
+  select_end_position = select_start_position = cursor_position ;
   addText ( l ) ;
 }
 
 void  puLargeInput::addText ( char *l )
 {
-  char *temp_text;
-
   if ( !l ) return ;
 
-  if ( ( *(l+strlen(l)-1) == '\n' ) && ( text[select_end_position] == '\n' ) )
-  {                 // Two carriage returns, only keep one
-    temp_text = new char [ strlen(text) + strlen(l)
-                                    + select_start_position - select_end_position ] ;
-    strncpy ( temp_text, text, select_start_position ) ;
-    *(temp_text+select_start_position) = '\0' ;
-    strcat ( temp_text, l ) ;
-    temp_text[strlen(temp_text)-1] = '\0' ;  // Erase the carriage return
-  }
-  else if ( ( *(l+strlen(l)-1) == '\n' ) || ( text[select_end_position] == '\n' ) )
-  {                 // Already have a trailing carriage return or positioned at carriage return
-    temp_text = new char [ strlen(text) + strlen(l) + 1
-                                    + select_start_position - select_end_position ] ;
-    strncpy ( temp_text, text, select_start_position ) ;
-    *(temp_text+select_start_position) = '\0' ;
-    strcat ( temp_text, l ) ;
-  }
-  else
-  {                 // Add a carriage return to the end of the string
-    temp_text = new char [ strlen(text) + strlen(l) + 2
-                                    + select_start_position - select_end_position ] ;
-    strncpy ( temp_text, text, select_start_position ) ;
-    *(temp_text+select_start_position) = '\0' ;
-    strcat ( temp_text, l ) ;
-    strcat ( temp_text, "\n" ) ;  // Add a carriage return
-  }
+  int length = strlen ( l ) + strlen ( text )  /* Length of the final string */
+               + select_start_position - select_end_position + 2 ;
+  if ( *(l+strlen(l)-1) == '\n' ) length -- ;           // Decrement "length" for each final
+  if ( text[select_end_position] == '\n' ) length -- ;  // carriage return already there
 
-  strcat ( temp_text, (text+select_end_position) ) ;  // All branches have the following code in common
+  char *temp_text = new char [ length ] ;
+
+  strncpy ( temp_text, text, select_start_position ) ;
+  *(temp_text+select_start_position) = '\0' ;
+
+  strcat ( temp_text, l ) ;
+  if ( ( *(l+strlen(l)-1) == '\n' ) && ( text[select_end_position] == '\n' ) )
+    temp_text[strlen(temp_text)-1] = '\0' ;  /* Erase the duplicate carriage return */
+  else if ( ( *(l+strlen(l)-1) != '\n' ) && ( text[select_end_position] != '\n' ) )
+    strcat ( temp_text, "\n" ) ;  /* Add a carriage return */
+
+  strcat ( temp_text, (text+select_end_position) ) ;
+  int temp_select_start = select_start_position ;
   setText ( temp_text ) ;
   delete temp_text ;
-  setSelectRegion ( select_start_position,
-                    select_start_position + strlen(l) ) ;
+  setSelectRegion ( temp_select_start,
+                    temp_select_start + strlen(l) ) ;
   setCursor ( select_end_position ) ;
 }
 
 void  puLargeInput::appendText ( char *l )
 {
-  char *temp_text;
-
   if ( !l ) return ;
 
   int oldlen = strlen ( text ) ;
-  if ( *(l+strlen(l)-1) == '\n' )
-  {                 // Already have a trailing carriage return
-    temp_text = new char [ oldlen + strlen(l) + 1 ] ;
-    if ( oldlen > 1 )  // More than just the empty carriage return
-      strcpy ( temp_text, text ) ;
-    else
-      temp_text[0] = '\0' ;
+  if ( oldlen == 1 ) oldlen = 0 ;  /* Don't want null line at the beginning */
+  int length = oldlen + strlen ( l ) + 2 ;
+  if ( *(l+strlen(l)-1) == '\n' ) length -- ;  /* Already have a trailing carriage return, decrement the length */
 
-    strcat ( temp_text, l ) ;
-  }
+  char *temp_text = new char [ length ] ;
+
+  if ( oldlen > 0 )  /* More than just the empty carriage return */
+    strcpy ( temp_text, text ) ;
   else
-  {                 // Add a carriage return to the end of the string
-    temp_text = new char [ oldlen + strlen(l) + 2 ] ;
-    if ( oldlen > 1 )  // More than just the empty carriage return
-      strcpy ( temp_text, text ) ;
-    else
-      temp_text[0] = '\0' ;
+    temp_text[0] = '\0' ;
 
-    strcat ( temp_text, l ) ;
+  strcat ( temp_text, l ) ;
+  if ( *(l+strlen(l)-1) != '\n' )
     strcat ( temp_text, "\n" ) ;
-  }
 
   setText ( temp_text ) ;
   setSelectRegion ( oldlen, strlen(temp_text) ) ;
+  setCursor ( oldlen ) ;
+  delete temp_text ;
+}
+
+void  puLargeInput::removeText ( int start, int end )
+{
+  char *temp_text = new char [ strlen(text) + start - end + 1 ] ;
+  strncpy ( temp_text, text, start ) ;
+  temp_text[start] = '\0' ;
+  strcat ( temp_text, text+end ) ;
+  setText ( temp_text ) ;
+  setCursor ( start ) ;
   delete temp_text ;
 }
 
@@ -329,6 +341,9 @@ void  puLargeInput::setText ( char *l )
     delete text ;
     text = NULL ;
   }
+
+  cursor_position = 0 ;
+  select_start_position = select_end_position = 0 ;
 
   bottom_slider->setSliderFraction ( 0.0 ) ;
   right_slider->setSliderFraction ( 0.0 ) ;
@@ -342,19 +357,14 @@ void  puLargeInput::setText ( char *l )
     return ;
   }
 
+  int length = strlen ( l ) + 2 ;
   if ( ( strlen(l) > 0 ) && ( *(l+strlen(l)-1) == '\n' ) )
-  {                 // Already have a trailing carriage return
-    text = new char [ strlen(l) + 1 ] ;
-    strcpy ( text, l ) ;
-    strcat ( text, "\0" ) ;
-  }
-  else
-  {                 // Add a carriage return to the end of the string
-    text = new char [ strlen(l) + 2 ] ;
-    strcpy ( text, l ) ;
+    length -- ;  /* Already have a trailing carriage return, don't need to add one */
+
+  text = new char [ length ] ;
+  strcpy ( text, l ) ;
+  if ( ( strlen(l) == 0 ) || ( *(l+strlen(l)-1) != '\n' ) )
     strcat ( text, "\n" ) ;
-    strcat ( text, "\0" ) ;
-  }
 
   // Find the greatest width of a line
   max_width = 0 ;
@@ -392,7 +402,7 @@ void  puLargeInput::setText ( char *l )
                   puGetStringDescender ( legendFont ) ;  // of text, in pixels
 
   int box_width = abox.max[0] - abox.min[0] - slider_width ;   // Input box width, in pixels
-  int box_height = ( abox.max[1] - abox.min[1] ) / line_size ;
+  int box_height = ( abox.max[1] - abox.min[1] - slider_width ) / line_size ;
                                                 // Input box height, in lines
 
   bottom_slider->setSliderFraction ( (float)box_width / (float)max_width ) ;
@@ -838,6 +848,9 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
 
 int puLargeInput::checkKey ( int key, int /* updown */ )
 {
+  extern void puSetPasteBuffer ( char *ch ) ;
+  extern char *puGetPasteBuffer () ;
+
   if ( !isAcceptingInput () || !isActive () || !isVisible () || ( window != puGetWindow () ) )
     return FALSE ;
 
@@ -849,32 +862,6 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
     puDeactivateWidget () ;
   }
 
-  if ( ( key == '\t' ) &&  // Tab character -- change widgets
-       isReturnDefault () )
-  {
-    // Tab character.  If just tab, make the next widget the default return;
-    // if shift-tab, make the previous widget the default return.
-
-//    if ( glutGetModifiers () & GLUT_ACTIVE_SHIFT )  // shift-tab
-//    {
-//      if ( prev_default )
-//      {
-//        prev_default -> makeReturnDefault ( TRUE ) ;
-//        makeReturnDefault ( FALSE ) ;
-//      }
-//    }
-//    else
-//    {
-//      if ( next_default )
-//      {
-//        next_default -> makeReturnDefault ( TRUE ) ;
-//        makeReturnDefault ( FALSE ) ;
-//      }
-//    }
-
-    return TRUE ;
-  }
-
   if ( ! isAcceptingInput() )
     return FALSE ;
 
@@ -882,6 +869,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
 
   char *old_text = getText () ;
   char *p = NULL ;
+  int temp_cursor = cursor_position ;
   int i ;
 
   switch ( key )
@@ -947,57 +935,89 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
 
     case '\b' :  // Backspace
       if ( select_start_position != select_end_position )
-      {
-        p = new char [ strlen ( old_text ) + 1 -
-                                 ( select_end_position - select_start_position ) ] ;
-        strncpy ( p, old_text, select_start_position ) ;
-        p [ select_start_position ] = '\0' ;
-        strcat ( p, (old_text + select_end_position ) ) ;
-
-        cursor_position = select_start_position ;
-        select_end_position = select_start_position ;
-      }
+        removeSelectRegion () ;
       else if ( cursor_position > 0 )
       {
         p = new char [ strlen(old_text) ] ;
         strncpy ( p, old_text, cursor_position ) ;
         p [ --cursor_position ] = '\0' ;
         strcat ( p, ( old_text + cursor_position + 1 ) ) ;
+        setText ( p ) ;
+        setCursor ( temp_cursor - 1 ) ;
+        delete p ;
       }
 
-      setText ( p ) ;
-      if ( p ) delete p ;
       break ;
 
     case 0x7F :  // DEL
       if ( select_start_position != select_end_position )
-      {
-        p = new char [ strlen ( old_text ) + 1 -
-                                 ( select_end_position - select_start_position ) ] ;
-        strncpy ( p, old_text, select_start_position ) ;
-        p [ select_start_position ] = '\0' ;
-        strcat ( p, (old_text + select_end_position ) ) ;
-
-        cursor_position = select_start_position ;
-        select_end_position = select_start_position ;
-      }
+        removeSelectRegion () ;
       else if (cursor_position != (int)strlen ( old_text ) )
       {
         p = new char [ strlen(old_text) ] ;
         strncpy ( p, old_text, cursor_position ) ;
         p [ cursor_position ] = '\0' ;
         strcat ( p, ( old_text + cursor_position + 1 ) ) ;
+        setText ( p ) ;
+        setCursor ( temp_cursor ) ;
+        delete p ;
       }
 
-      setText ( p ) ;
-      if ( p ) delete p ;
       break ;
 
-    case 0x15          : string [ 0 ] = '\0' ; break ;  // ^U
-    case PU_KEY_HOME   : cursor_position = 0 ; break ;
-    case PU_KEY_END    : cursor_position = PUSTRING_MAX ; break ;
-    case PU_KEY_LEFT   : cursor_position-- ; break ;
-    case PU_KEY_RIGHT  : cursor_position++ ; break ;
+    case 0x15 /* ^U */ : string [ 0 ] = '\0' ; break ;
+    case 0x03 /* ^C */ :
+    case 0x18 /* ^X */ :  /* Cut or copy selected text */
+      if ( select_start_position != select_end_position )
+      {
+        p = getText () ;
+        char ch = p[select_end_position] ;
+        p[select_end_position] = '\0' ;
+        puSetPasteBuffer ( p + select_start_position ) ;
+        p[select_end_position] = ch ;
+
+        if ( key == 0x18 )  /* Cut, remove text from string */
+          removeSelectRegion () ;
+      }
+
+      break ;
+
+    case 0x16 /* ^V */ : /* Paste buffer into text */
+      if ( select_start_position != select_end_position )
+        removeSelectRegion () ;
+
+      p = puGetPasteBuffer () ;
+      if ( p )  // Make sure something has been cut previously!
+      {
+        p = new char [ strlen ( getText () ) + strlen ( p ) + 1 ] ;
+        strncpy ( p, getText (), cursor_position ) ;
+        p[cursor_position] = '\0' ;
+        strcat ( p, puGetPasteBuffer () ) ;
+        strcat ( p, getText() + cursor_position ) ;
+        temp_cursor += strlen ( puGetPasteBuffer () ) ;
+        setText ( p ) ;
+        setCursor ( temp_cursor ) ;
+        delete p ;
+      }
+
+      break ;
+
+    case PU_KEY_HOME   :
+      cursor_position = 0 ;
+      select_start_position = select_end_position = cursor_position ;
+      break ;
+    case PU_KEY_END    :
+      cursor_position = PUSTRING_MAX ;
+      select_start_position = select_end_position = cursor_position ;
+      break ;
+    case PU_KEY_LEFT   :
+      cursor_position-- ;
+      select_start_position = select_end_position = cursor_position ;
+      break ;
+    case PU_KEY_RIGHT  :
+      cursor_position++ ;
+      select_start_position = select_end_position = cursor_position ;
+      break ;
 
     default:
       if ( ( key < ' ' || key > 127 ) && ( key != '\n' )
@@ -1007,34 +1027,22 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
 
       if ( select_start_position != select_end_position ) // remove selected text
       {
-        p = new char [ strlen ( old_text ) + 2 -
-                                 ( select_end_position - select_start_position ) ] ;
-        strncpy ( p, old_text, select_start_position ) ;
-        p [ select_start_position ] = key ;
-        p [ select_start_position + 1 ] = '\0' ;
-        strcat ( p, (old_text + select_end_position ) ) ;
-        setText ( p ) ;
-        delete p ;
-
-        cursor_position = ++select_start_position ;
-        select_end_position = select_start_position ;
+        temp_cursor -= ( select_end_position - select_start_position ) ;
+        removeSelectRegion () ;
       }
-      else
-      {
-        p = new char [ strlen(old_text) + 2 ] ;
 
-        strncpy ( p, old_text, cursor_position ) ;
+      p = new char [ strlen(old_text) + 2 ] ;
 
-        p [ cursor_position ] = key ;
-        p [ cursor_position + 1 ] = '\0' ;
+      strncpy ( p, old_text, cursor_position ) ;
 
-        strcat (p, ( old_text + cursor_position ) ) ;
+      p [ cursor_position ] = key ;
+      p [ cursor_position + 1 ] = '\0' ;
 
-        setText ( p ) ;
-        delete p ;
+      strcat (p, ( old_text + cursor_position ) ) ;
 
-        cursor_position++ ;
-      }
+      setText ( p ) ;
+      setCursor ( temp_cursor + 1 ) ;
+      delete p ;
 
       break ;
   }

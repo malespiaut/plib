@@ -1156,6 +1156,7 @@ class puInput : public puObject
   char *valid_data ;
 
   void normalize_cursors ( void ) ;
+  void removeSelectRegion ( void ) ;
 
 public:
   void draw     ( int dx, int dy ) ;
@@ -1329,6 +1330,7 @@ class puLargeInput : public puGroup
   short arrow_count ;          // Number of up/down arrows above and below the right slider
 
   void normalize_cursors ( void ) ;
+  void removeSelectRegion ( void ) ;
 
 public:
   puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width ) ;
@@ -1345,6 +1347,7 @@ public:
   int  checkKey ( int key, int updown ) ;
 
   void setSelectRegion ( int s, int e ) ;
+  void selectEntireLine ( void ) ;
 
   int  isAcceptingInput ( void ) { return accepting ; }
   void rejectInput      ( void ) { accepting = FALSE ; }
@@ -1404,6 +1407,7 @@ public:
   void  addNewLine ( char *l ) ;
   void  addText ( char *l ) ;
   void  appendText ( char *l ) ;
+  void  removeText ( int start, int end ) ;
 } ;
 
 #endif
