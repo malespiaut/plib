@@ -41,8 +41,259 @@ named with an 'ssga' or 'SSGA' prefix.
       SSGA_TYPE_CUBE
 
 </pre>
+<H1>ssgaWaveSystem</H1>
+This class is for handling water waves.
+<pre>
+
+   class ssgaWaveSystem ;
+
+</pre>
+It generates a large polygonal mesh which it distorts in
+realtime to simulate water waves.
+<p>
+The simulation uses between one and sixteen "Wave Trains" - each
+using a class:
+<pre>
+
+  class ssgaWaveTrain ;
+
+</pre>
+Each wave train has a direction in which the waves are travelling,
+a speed, a wave length (which also affects the shape of the wave),
+the height of the wave and a 'curl' term (which controls how much
+the tops of the waves bend over).
+<p>
+The appearance of waves varies greatly with the depth of the
+water - and this simulation produces the correct effects. There
+is an optional user-callback that can be used to feed water depth
+values into the simulation.
+<p>
+You can determine the number of polygons used to render
+the patch of waves, the size of the wave patch and the amount
+of texture repetition.
+<p>
+Designing waves by calling the ssgaWaveSystem API is quite
+difficult.  You are advised to use the wave designer program
+in the PLIB examples package.  This program lets you adjust
+wave parameters until it looks how you'd like - then hit the
+'Write C++ code' to write out a source code snippet that you
+can cut and paste into your program.
+<p>
+There is a 'README' in the 'water' source directory that
+explains how to use the program in a little more detail.
+That's all the wave system documentation I have time to write
+just now - sorry.
+<H1>ssgaParticleSystem</H1>
+This is a very flexible implementation of particle systems - it's not
+as efficient as you might want for thousands of particles - this is intended
+for high flexibility and relatively fewer numbers of particles.
+
+<p>
+All of that flexibility is evident in the complex constructor function:
+<pre>
+
+  class ssgaParticleSystem : public ssgVtxArray
+  {
+    ssgaParticleSystem ( int max ,          /* Max Number of particles      */
+                         int init,          /* Number to launch initially   */
+                       float add ,          /* Max number to create per sec */
+                         int turn_to_face,  /* Turn to face camera?         */
+                       float size,          /* Size of particles            */
+                       float bsphere_rad,   /* Size of bounding sphere      */
+      ssgaParticleCreateFunc create,        /* Initial create fn.           */
+      ssgaParticleUpdateFunc update = NULL, /* Update function              */
+      ssgaParticleDeleteFunc del     = NULL /* Remove function              */
+                      ) ;
+
+    void  setSize ( float sz ) ;
+    float getSize () ;
+
+    update ( float dt ) ;
+
+    int getNumActiveParticles () ;
+  } ;
+
+</pre>
+There are three callback functions - with the following types:
+<pre>
+ 
+  typedef void (* ssgaParticleCreateFunc) ( ssgaParticleSystem *ps,
+					    int index,
+					    ssgaParticle *p ) ;
+ 
+  typedef void (* ssgaParticleUpdateFunc) ( float deltaTime,
+					    ssgaParticleSystem *ps,
+					    int index,
+					    ssgaParticle *p ) ;
+ 
+  typedef void (* ssgaParticleDeleteFunc) ( ssgaParticleSystem *ps,
+					    int index,
+					    ssgaParticle *p ) ;
+
+</pre>
+There is also a public class for a single particle:
+<pre>
+ 
+class ssgaParticle
+{
+public:
+ 
+  sgVec4 col ;
+  sgVec3 pos ;
+  sgVec3 vel ;
+  sgVec3 acc ;
+ 
+  float time_to_live ;
+  void *userData ;
+ 
+  ssgaParticle () ;
+ 
+} ;                                                                             
+
+</pre>
+This is best explained with an example.
+Here is an example of a fountain model:
+<pre>
+
+  fountain = new ssgaParticleSystem ( 2000, /* Max Number of particles */
+                                         2, /* Number to launch initially */
+                                       200, /* Max number to create per sec */
+                                      TRUE, /* Turn to face? */
+                                       0.2, /* Size of particles */
+                                      20.0, /* Size of bounding sphere */
+                           fountain_create, /* Initial create fn. */
+                           fountain_update  /* Update function */ ) ;
+ 
+</pre>
+This creates a system that has the capability to draw 2000 particles
+(each is a quadrilateral).  Two particles are launched initially and 200
+more are added gradually every second.  You can choose to have each particle
+turn to face the camera - or to be oriented in the X/Z plane, mine are set to
+turn-to-face.  The particles are 0.2 OpenGL units across.
+<p> 
+This fountain is a continuous effect - so the inital number of particles
+to launch is small - and the 'per second' creation rate determines the
+flow.  If you wanted something more like an explosion, have a larger number
+of initial particles and none launched per-second after that.
+<p>
+One messiness is that we don't know how big the fountain may become over
+time - and it's VERY inefficient to recompute the bsphere every frame. Hence
+you have to tell the class what the maximum bounding sphere of the fountain
+is at the outset so we can field-of-view cull it - this <b>could</b> be a near
+infinite radius (MAX_FLOAT say) if you truly don't know how big it could
+get - but that's inefficient because all 2,000 particles must be sent to
+OpenGL even if the fountain is 20 miles away behind the camera - so do your
+best to come up with some kind of a reasonable guess.
+<pre>
+fountain_create and fountain_update are user-defined callback functions,
+we could also have defined a 'fountain_delete' function - but many applications
+won't need this.
+<ul>
+<li>The 'create' callback is called every time the system needs to
+    create a new particle.
+<li>The 'update' callback is called on every update cycle for every
+    particle that's in flight.
+<li>The 'delete' callback is called when the system has decided
+    that a particle has 'died'.
+</ul>
+You have to have a 'create' function - but the other two are optional.
+<p>
+These callbacks are passed the address of the particle system, the index
+number and address of the particle that's being created/updated/deleted -
+and (for the 'update' function only) - the amount of elapsed time since
+this particle was last updated.
+<p>
+The callbacks can set, read or change any or all aspects of the particle...
+it's colour, position, velocity, accelleration and 'time to live' (in seconds).
+There is also a user data pointer - so you can hang your own data onto
+each individual particle.
+<p>
+The particle system automatically moves each particle according to the usual
+laws of motion and decrements it's time-to-live - so in many cases,
+you can just set the initial velocity, the force due to
+gravity and a reasonable time to live - and let the particle system code
+do the rest.
+<p>
+My 'fountain_create' function looks like this:
+<pre>
+
+void fountain_create ( ssgaParticleSystem *, int, ssgaParticle *p )
+{
+  sgSetVec4 ( p -> col, 1, 1, 1, 1 ) ;  /* initially white */
+  sgSetVec3 ( p -> pos, 0, 0, 0 ) ;     /* start off on the ground */
+  sgSetVec3 ( p -> vel, (rand()%1000-500)/300.0f,
+                        (rand()%1000-500)/300.0f, 50.0f ) ;
+                                        /* Shoot up and out */
+  sgSetVec3 ( p -> acc, 0, 0, -9.8f ) ; /* Gravity */
+  p -> time_to_live = 5 ;               /* Droplets evaporate after 5 seconds */
+}
+
+</pre>
+It populates the particle with an initial colour, position, velocity and
+accelleration and gives it a 'time to live' of five seconds.  The velocity
+is randomised a bit to make a nicer looking fountain.
+<p>
+You can do all sorts of fancy things to the colour, position, velocity and
+accelleration in your 'update' function.
+<pre>
+
+void fountain_update ( ssgaParticle *p )
+{
+  if ( p -> pos [ 2 ] < 0 )
+    p -> time_to_live = -1 ;
+ 
+  p -> col [ 2 ] = (p -> time_to_live > 2) ? 1 : (p -> time_to_live/2.0f) ;
+}
+
+</pre>
+...this one just erases particles that go below zero altitude (by
+setting their time-to-live variable to -1) and makes them go a pretty
+shade of yellow for the last two seconds before they die.
+<p>
+The 'delete' function is principally useful for freeing up any user-data
+you allocated in the 'create' function or during 'update's.  Don't
+delete the particle though - the particle system recycles it to avoid
+doing too much dynamic memory allocation.
+<p>
+All that remains is to call the ssgaParticleSystem::update function
+every frame with a parameter that tells the system how much time has
+elapsed since the last call.  This allows you to easily speed up, slow
+down or pause the particles (or even run them backwards if you want).
+<p>
+I call this every frame:
+<pre>
+
+void updateFountain ()
+{
+  static ulClock ck ;
+
+  ck . update () ;
+ 
+  if ( fountain != NULL )
+    fountain -> update ( ck.getDeltaTime () ) ;
+}
+                                                                                
+</pre>
+This function could also check the number of particles currently in flight
+and delete the fountain when there are none left - that might be useful
+for an explosion or something where you'd want to save CPU time by not
+running the explosion particle system when all the pieces have landed
+and 'gone away'.
+<p>
+All the particles have to be the same size - but you can use
+the 'setSize' function to change their size on-the-fly - for example
+to make a cloud of bubbles that grow over time.
+<p>
+ssgaParticleSystem is derived from ssgVtxArray - so you can apply textures and
+other state things using the usual ssgVtxArray::setState(ssgSimpleState*)
+call.  I applied a texture with a fuzzy alpha-blended circle.
+<p>
+While debugging this, I got a bug which caused a picture of Tux to be
+applied instead of the droplet texture - it was absolutely hilarious
+to see 2000 tiny penguins shooting up in a fountain and falling gently
+to earth!
+
 <hr>
-This document is under construction.
 <hr>
 <ADDRESS>
 <A HREF="http://www.sjbaker.org">
