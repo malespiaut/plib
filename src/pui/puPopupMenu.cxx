@@ -168,7 +168,7 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
     for ( puObject *bo = dlist ; bo != NULL ; bo = bo->next )
     {
       if ( ! hit )
-	bo -> checkHit ( button, updown, x , y ) ;
+        bo -> checkHit ( button, updown, x , y ) ;
 
       bo -> clrValue () ;
     }

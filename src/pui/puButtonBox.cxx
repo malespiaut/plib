@@ -60,7 +60,7 @@ int puButtonBox::checkKey ( int key, int updown )
     v = 0 ;
 
   setValue ( v ) ;
-  puSetActiveWidget ( this ) ;
+//  puSetActiveWidget ( this, x, y ) ;
   invokeCallback() ;
   return TRUE ;
 }
@@ -93,7 +93,7 @@ int puButtonBox::checkHit ( int /*button*/, int updown, int x, int y )
   else
     setValue ( getValue () ^ ( 1 << i ) ) ;
 
-  puSetActiveWidget ( this ) ;
+  puSetActiveWidget ( this, x, y ) ;
   invokeCallback () ;
   return TRUE ;
 }

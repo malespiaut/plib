@@ -130,8 +130,7 @@ void puDial::doHit ( int button, int updown, int x, int y )
   {
     int x_cen = ( abox.max [0] + abox.min [0] ) / 2 ;
     int y_cen = ( abox.max [1] + abox.min [1] ) / 2 ;
-    float angle = atan2 ( (double)(x-x_cen), (double)(y-y_cen) ) *  // Up is zero degrees
-                  180.0f / 3.1415927f ;
+    float angle = atan2 ( (double)(x-x_cen), (double)(y-y_cen) ) / 3.1415927f ;
 
     // Move to within the (0,1) interval
 
@@ -154,7 +153,7 @@ void puDial::doHit ( int button, int updown, int x, int y )
 
     setValue ( angle ) ;
 
-    puSetActiveWidget ( this ) ;
+    puSetActiveWidget ( this, x, y ) ;
     invokeCallback () ;
   }
 }

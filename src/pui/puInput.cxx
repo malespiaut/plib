@@ -159,7 +159,7 @@ void puInput::draw ( int dx, int dy )
 }
 
 
-void puInput::doHit ( int button, int updown, int x, int /* y */ )
+void puInput::doHit ( int button, int updown, int x, int y )
 {
   if ( puActiveWidget() && ( this != puActiveWidget() ) )
   {
@@ -206,7 +206,7 @@ void puInput::doHit ( int button, int updown, int x, int /* y */ )
       accepting = TRUE ;
       cursor_position = i ;
       normalize_cursors () ;
-      puSetActiveWidget ( this ) ;
+      puSetActiveWidget ( this, x, y ) ;
       invokeCallback () ;
     }
     else if ( updown == PU_DOWN )
