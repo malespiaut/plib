@@ -37,7 +37,6 @@
 */
 
 #include "ssgLocal.h"
-#include "ssgParser.h"
 
 #define MAX_LINE_LEN 1024
 #define MAX_LINE 100000

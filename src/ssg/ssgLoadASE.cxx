@@ -6,6 +6,10 @@
 #include "ssgLocal.h"
 #include "ssgParser.h"
 
+#define u32 unsigned int
+#define f32 float
+#define cchar const char
+
 struct aseFace
 {
    u32 v[3];
@@ -64,6 +68,15 @@ static u32 last_frame ;
 static u32 frame_speed ;
 static u32 ticks_per_frame ;
 static u32 num_frames ;
+
+static _ssgParserSpec parser_spec =
+{
+   "\r\n\t ",  //delim_chars
+   "{",        //open_brace_chars
+   "}",        //close_brace_chars
+   '"',        //quote_char
+   0           //comment_char
+} ;
 
 static _ssgParser parser;
 static ssgBranch* top_branch;
@@ -845,7 +858,7 @@ ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc )
   (*_ssgCreateFunc) ( 0 ) ;  //reset
 
   top_branch = new ssgBranch ;
-  parser.openFile( fname );
+  parser.openFile( fname, &parser_spec );
   if ( !parse() )
   {
      delete top_branch ;
