@@ -2157,6 +2157,12 @@ public:
   int  cullfaceIsEnabled  () { return cullFace   ; }
 
   sgFrustum *getFrustum () { return frustum ; }
+  void setFrustum ( const SGDfloat l, const SGDfloat r,
+					const SGDfloat b, const SGDfloat t,
+					const SGDfloat n, const SGDfloat f )
+  {
+	  frustum->setFrustum ( l,r,b,t,n,f );
+  }
 
   void getNearFar ( float *n, float *f ) ;
   void getFOV     ( float *w, float *h ) ;
@@ -2295,6 +2301,18 @@ inline void ssgLoadModelviewMatrix ( sgMat4 mat )
 inline void ssgForceBasicState ()
 {
   _ssgCurrentContext -> forceBasicState () ;
+}
+
+inline  sgFrustum *ssgGetFrustum ()
+{
+  return _ssgCurrentContext -> getFrustum() ;
+}
+
+inline void ssgSetFrustum ( const SGDfloat l, const SGDfloat r,
+							const SGDfloat b, const SGDfloat t,
+							const SGDfloat n, const SGDfloat f )
+{
+	ssgGetFrustum()->setFrustum ( l,r,b,t,n,f );
 }
 
 
