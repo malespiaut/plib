@@ -267,6 +267,9 @@ void puObject::getAbsolutePosition ( int *x, int *y ) const
 
 void puObject::draw_legend ( int dx, int dy )
 {
+  if ( legend == NULL )
+    return ;
+
   int xx, yy ;
 
   int lgap = PUSTR_LGAP ;
@@ -358,6 +361,9 @@ void puObject::draw_legend ( int dx, int dy )
 
 void puObject::draw_label ( int dx, int dy )
 {
+  if ( label == NULL )
+    return ;
+
   int xx, yy ;
 
   /* If greyed out then halve the opacity when drawing the label */
@@ -514,3 +520,4 @@ int puObject::checkHit ( int button, int updown, int x, int y )
   lowlight () ;
   return FALSE ;
 }
+
