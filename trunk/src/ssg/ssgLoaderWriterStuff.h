@@ -134,10 +134,10 @@ class ssgLoaderWriterMesh
    void addFace( ssgIndexArray **indexArray ) ;
    void addFaceFromIntegerArray( int numVertices, int *vertices );// AddFaceFromCArray
 
-   void createPerFaceAndVertexTextureCoordinates2( int numReservedTextureCoordinateLists = 3 ) ; // ThereAreNTCPFAV
+   void createPerFaceAndVertexTextureCoordinates2( int numReservedTextureCoordinate2Lists = 3 ) ; // ThereAreNTCPFAV
    void addPerFaceAndVertexTextureCoordinate2( ssgTexCoordArray **textureCoordinateArray ) ; // addTCPFAV
 
-   void createPerVertexTextureCoordinates2( int numReservedTextureCoordinates = 3 ); // was: ThereAreNTCPV
+   void createPerVertexTextureCoordinates2( int numReservedTextureCoordinates2 = 3 ); // was: ThereAreNTCPV
    void addPerVertexTextureCoordinate2( sgVec2 textureCoordinate ); // was; addTCPV
    
    void createMaterialIndices( int numReservedMaterialIndices = 3 ); // ThereAreNMaterialIndexes
