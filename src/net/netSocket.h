@@ -79,9 +79,9 @@ public:
   virtual ~netSocket () {}
 
   int getHandle () const { return handle; }
-  void setHandle (int _handle) { handle = _handle ; }
+  void setHandle (int handle) ;
   
-  bool  create      ( bool stream=true ) ;
+  bool  open        ( bool stream=true ) ;
   int   bind        ( cchar* host, int port ) ;
   int   listen	    ( int backlog ) ;
   int   accept      ( netAddress* addr ) ;

@@ -36,7 +36,7 @@ class EchoServer : public netChannel
 public:
   EchoServer ( int port )
   {
-		create ( true ) ;
+		open ( true ) ;
 		bind ("localhost", port);
 		listen (5);
     printf("Echo Server started on port %d\n",port);

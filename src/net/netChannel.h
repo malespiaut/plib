@@ -53,7 +53,7 @@ public:
   // socket methods
   // --------------------------------------------------
   
-  bool  create      ( bool stream=true ) ;
+  bool  open        ( bool stream=true ) ;
   int   listen	    ( int backlog ) ;
   int   connect     ( cchar* host, int port ) ;
   int   send		    ( const void * buf, int size, int flags = 0 ) ;

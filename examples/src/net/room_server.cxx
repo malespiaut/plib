@@ -149,7 +149,8 @@ int main (int argc, char * argv[])
 
   netRoomServerInfo server_info ( "localhost", server_port, tic_guid ) ;
   netCopyName ( server_info.name, server_name ) ;
-  new netRoomAdvertiser ( "localhost", 8787, server_info ) ;
+  netRoomAdvertiser advertiser ;
+  advertiser.sendUpdate ( "localhost", 8787, server_info ) ;
 
   room = new netRoomServer ( server_info ) ;
   //room -> setPassword ( "foo" ) ;

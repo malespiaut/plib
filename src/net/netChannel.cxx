@@ -52,10 +52,10 @@ netChannel::setHandle (int handle, bool is_connected)
 }
 
 bool
-netChannel::create ( bool stream )
+netChannel::open ( bool stream )
 {
   close();
-  if (netSocket::create(stream)) {
+  if (netSocket::open(stream)) {
     closed = false ;
     setBlocking ( false ) ;
     return true ;

@@ -82,7 +82,7 @@ public:
 		prompt = strdup(">>> ");
     cmdfunc = 0 ;
 
-		create ();
+		open ();
 		bind ("localhost", port);
 		listen (5);
 

@@ -220,7 +220,8 @@ int main ( int argc, char **argv )
   printf ( "Finding room servers...\n" ) ;
 
   netRoomServerList servers ;
-  new netRoomBrowser ( "localhost", 8787, tic_guid, &servers ) ;
+  netRoomBrowser browser ( &servers ) ;
+  browser.sendRequest ( "localhost", 8787, tic_guid ) ;
 
   const netRoomServerInfo* server ;
   while ( !(server = servers.get (0)) )
