@@ -31,6 +31,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <time.h>
 #include <sys/time.h>    /* Need both for Mandrake 8.0!! */
