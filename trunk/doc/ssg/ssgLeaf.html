@@ -30,6 +30,12 @@ public:
   virtual int  getNumTriangles() ;
   virtual void getTriangle ( int n, short *v1, short *v2, short *v3 )
 
+  virtual int  getNumLines () ;
+  virtual void getLine ( int n, short *v1, short *v2 ) ;
+
+  int  getNumLines () ;
+  void getLine ( int n, short *v1, short *v2 ) ;
+
   virtual void transform ( sgMat4 m )
 
   void setCullFace ( int cf )
@@ -132,6 +138,12 @@ more information about that vertex using
 retrieve the i'th vertex, normal, colour or texture coordinate as
 a short floating point array. (3 elements for Vertex and Normal,
 4 elements for Colour (RGBA) and two elements for a texture coordinate.
+<p>
+Analogous to getting the triangles, 
+you may use <code>ssgLeaf::getNumLines ()</code> 
+and <code>ssgLeaf::getLine ( int n, short *v1, short *v2 ) ;</code>
+to get the number of lines and to get the n. line.
+
 <p>
 You can transform all the vertices of a leaf each frame by placing
 an ssgTransform node above the leaf in the scene graph - but for
