@@ -24,6 +24,8 @@
 
 #include "ssgLocal.h"
 
+#include <ssgVertSplitter.h>
+
 static float optimise_vtol [3] =
 {
   0.001f,  /* DISTANCE_SLOP = One millimeter */
@@ -66,6 +68,15 @@ struct OptVertex
     counter = 1 ;
   }
   
+    OptVertex ( OptVertex* cloneFrom )
+    {
+        sgCopyVec3 ( vertex  , cloneFrom -> vertex ) ;
+        sgCopyVec2 ( texcoord, cloneFrom -> texcoord ) ;
+        sgCopyVec4 ( colour  , cloneFrom -> colour ) ;
+        sgSetVec3  ( normal  , 0.0f, 0.0f, 0.0f ) ;
+        counter = 1 ;
+    }
+
   int equal ( sgVec3 v, sgVec2 t, sgVec4 c, int tex_frac )
   {
     if ( ! sgCompareVec3 ( vertex  , v, DISTANCE_SLOP ) ||
@@ -207,7 +218,7 @@ short OptVertexList::add ( sgVec3 v1, sgVec2 t1, sgVec4 c1,
 {
 	// If possible, this routine moves the texturecoordinates of
 	// all three vertices of a Tria so that one needs less vertices.
-	// This doesnÄt affect looks, but enhances the speed a bit.
+        // This doesn't affect looks, but enhances the speed a bit.
 	// This is not possible, if warpu or wrapv is FALSE
 
 	int bWrapsInBothDirections = FALSE;
@@ -292,38 +303,61 @@ short OptVertexList::add ( short v1, short v2, short v3 )
   return tnum++ ;
 }
 
-
-void OptVertexList::makeNormals()
+//
+// Splits vertices across "sharp" edges to improve the normal
+// direction.
+//
+void OptVertexList::makeNormals ()
 {
-  short i ;
-  
-  for ( i = 0 ; i < vnum ; i++ )
-    sgSetVec3 ( vlist [ i ] -> normal, 0.0f, 0.0f, 0.0f ) ;
-  
-  for ( i = 0 ; i < tnum ; i++ )
-  {
-    sgVec3 tmp ;
-    short j ;
+    int i, j ;
+    ssgVertSplitter vs ( vnum, tnum ) ;
     
-    sgMakeNormal ( tmp, vlist [ tlist [ i*3+ 0 ] ] -> vertex,
-      vlist [ tlist [ i*3+ 1 ] ] -> vertex,
-      vlist [ tlist [ i*3+ 2 ] ] -> vertex ) ;
+    // Copy in the vertex and triangle data
+    for ( i = 0 ; i < vnum ; i ++ )
+        sgCopyVec3 ( vs.vert ( i ), vlist[ i ] -> vertex ) ;
 
-    for ( j = 0; j < vnum; j++ ) {
-      if (sgEqualVec3(vlist[j]->vertex, vlist[tlist[i*3+0]]->vertex))
-	sgAddVec3(vlist[j]->normal, tmp);
-      if (sgEqualVec3(vlist[j]->vertex, vlist[tlist[i*3+1]]->vertex))
-	sgAddVec3(vlist[j]->normal, tmp);
-      if (sgEqualVec3(vlist[j]->vertex, vlist[tlist[i*3+2]]->vertex))
-	sgAddVec3(vlist[j]->normal, tmp);
+    for ( i = 0 ; i < tnum ; i ++ ) {
+        short* t = tlist + 3 * i ;
+        vs.setTri ( i , t[0], t[1], t[2] );
     }
-  }
 
-  for ( i = 0 ; i < vnum ; i++ )
-    if ( sgLengthVec3 ( vlist[i]->normal ) < 0.001 )
-      sgSetVec3 ( vlist[i]->normal, 0.0f, 0.0f, 1.0f ) ;
-    else
-      sgNormaliseVec3 ( vlist [ i ] -> normal ) ;
+    // Run the algorithm.  Get the "sharp" angle from somewhere
+    // intelligent, instead of hardcoding it.
+    vs.splitAndCalcNormals () ;
+
+    // Generate the new vertices by cloning their originals
+    int newVerts = vs.newVerts () ;
+    if ( vnum + newVerts > MAX_OPT_VERTEX_LIST )
+        return; // Oh well.  No harm done, at least.
+
+    for ( i = 0 ; i < newVerts ; i++ ) {
+        OptVertex *ov = vlist[ vs.origVert ( i ) ] ;
+        vlist[ i + vnum ] = new OptVertex ( ov );
+    }
+    vnum += newVerts;
+
+    // Copy out the new, optimized normal data
+    for(i=0; i<vnum; i++)
+        sgCopyVec3(vlist[i]->normal, vs.norm(i));
+
+    // Zero out the reference counts for the vertices; they will have
+    // changed during the split and will be recalculated below.  This
+    // is an ugly hack -- a more elegant solution would be to do the
+    // bump()/dent() calls inside the ssgVertSplitter code as each vertex
+    // is duplicated.
+    for ( i = 0 ; i < vnum ; i++ )
+        while ( vlist [ i ] -> getCount () )
+            vlist [ i ] -> dent () ;
+
+    // Copy out the possibly changed vertices for the triangles
+    for (i = 0 ; i < tnum ; i++ ) {
+        short* oldtri = tlist + 3 * i ;
+        int* newtri = vs.getTri ( i ) ;
+        for ( j = 0 ; j < 3 ; j++ ) {
+            oldtri [ j ] = newtri [ j ] ;
+            vlist[ newtri [ j ] ] -> bump ();
+        }
+    }
 }
 
 short OptVertexList::find ( sgVec3 v, sgVec2 t, sgVec4 c, int tex_frac )
@@ -675,7 +709,7 @@ void ssgStripify ( ssgEntity *ent )
 				GLenum thisType = ((ssgVtxTable *)k)->getPrimitiveType ();
 				if ((thisType != GL_POINTS) && (thisType != GL_LINES) &&
 						(thisType != GL_LINE_STRIP) && (thisType != GL_LINE_LOOP))
-        {	list . add ( (ssgVtxTable *) k ) ;
+         {      list . add ( (ssgVtxTable *) k ) ;
 					b_ent -> removeKid ( k ) ;
 					k = b_ent -> getKid ( 0 ) ;
 				}
