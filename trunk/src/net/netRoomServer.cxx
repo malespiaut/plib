@@ -376,7 +376,7 @@ netRoomServer::netRoomServer ( const netRoomServerInfo& _info )
   memset ( games, 0, sizeof(netRoomGameState) * max_games ) ;
   memset ( players, 0, sizeof(netRoomPlayerState) * max_players ) ;
 
-	create ();
+	open ();
 	bind ("localhost", info.port);
 	listen (5);
 

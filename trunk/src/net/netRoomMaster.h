@@ -175,7 +175,7 @@ public:
 
   netRoomMasterServer ( int port ) : servers ( 256 )
   {
-		create ();
+		open ();
 		bind ("localhost", port);
 		listen (5);
     printf("Master Server started on port %d\n",port);
@@ -186,24 +186,6 @@ public:
 class netRoomBrowser : private netMessageChannel
 {
   netRoomServerList* servers ;
-
-public:
-
-  netRoomBrowser ( cchar* host, int port,
-    const netGuid& game_guid, netRoomServerList* _servers )
-  {
-    servers = _servers ;
-
-    create ();
-  	connect (host, port);
-
-    netMessage msg ( netRoom::REQUEST_SERVER_LIST, 0, 0 ) ;
-
-    msg.puti ( NET_VERSION ) ;
-    msg.puta ( &game_guid, sizeof(game_guid) ) ;
-
-    sendMessage ( msg ) ;
-  }
 
   virtual void processMessage ( const netMessage& msg )
   {
@@ -228,9 +210,24 @@ public:
     }
   }
 
-  virtual void handleClose (void)
+public:
+
+  netRoomBrowser ( netRoomServerList* _servers )
   {
-    shouldDelete () ;
+    servers = _servers ;
+  }
+
+  void sendRequest ( cchar* host, int port, const netGuid& game_guid )
+  {
+    open ();
+  	connect (host, port);
+
+    netMessage msg ( netRoom::REQUEST_SERVER_LIST, 0, 0 ) ;
+
+    msg.puti ( NET_VERSION ) ;
+    msg.puta ( &game_guid, sizeof(game_guid) ) ;
+
+    sendMessage ( msg ) ;
   }
 } ;
 
@@ -239,10 +236,10 @@ class netRoomAdvertiser : private netMessageChannel
 {
 public:
 
-  netRoomAdvertiser ( cchar* host, int port,
+  void sendUpdate ( cchar* host, int port,
     const netRoomServerInfo& server )
   {
-    create ();
+    open ();
   	connect (host, port) ;
 
     netMessage msg ( netRoom::UPDATE_SERVER_LIST, 0, 0 ) ;
@@ -252,11 +249,6 @@ public:
 
     sendMessage ( msg ) ;
     closeWhenDone () ;
-  }
-
-  virtual void handleClose (void)
-  {
-    shouldDelete () ;
   }
 } ;
 

@@ -7,7 +7,7 @@ public:
 
   HTTPClient ( cchar* host, cchar* path ) //: out_buffer(512)
   {
-		create ();
+		open ();
 		connect (host, 80);
 
     cchar* s = netFormat ( "GET %s HTTP/1.0\r\n\r\n", path );

@@ -131,7 +131,7 @@ public:
   int getHandle () const ;
   void setHandle (int handle) ;
 
-  bool  create ( bool stream=true ) ;
+  bool  open ( bool stream=true ) ;
   int   bind ( cchar* host, int port ) ;
   int   listen ( int backlog ) ;
   int   accept ( netAddress* addr ) ;
@@ -172,7 +172,7 @@ public:
   // socket methods
   // --------------------------------------------------
   
-  bool  create      ( bool stream=true ) ;
+  bool  open        ( bool stream=true ) ;
   int   listen	    ( int backlog ) ;
   int   connect     ( cchar* host, int port ) ;
   int   send        ( const void * buf, int size, int flags = 0 ) ;

@@ -20,7 +20,7 @@ netRoomClient::netRoomClient ( cchar* host, int port )
   games = 0 ;
   players = 0 ;
 
-  create ();
+  open ();
 	connect (host, port);
 }
 

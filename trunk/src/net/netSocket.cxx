@@ -85,19 +85,26 @@ int netAddress::getPort() const
   return ntohs(sin_port);
 }
 
+void
+netSocket::setHandle (int _handle)
+{
+  close () ;
+  handle = _handle ;
+}
 
 bool
-netSocket::create ( bool stream )
+netSocket::open ( bool stream )
 {
-  int type = stream? SOCK_STREAM: SOCK_DGRAM ;
-  int protocol = 0 ;
-  handle = (int) ::socket ( AF_INET, type, protocol ) ;
+  close () ;
+  handle = (int) ::socket ( AF_INET, ( stream? SOCK_STREAM: SOCK_DGRAM ), 0 ) ;
   return (handle != -1);
 }
 
 void
 netSocket::setBlocking ( bool blocking )
 {
+  assert ( handle != -1 ) ;
+
 #if defined(__CYGWIN__) || !defined (WIN32)
 
 	int delay_flag = ::fcntl (handle, F_GETFL, 0);
@@ -118,6 +125,7 @@ netSocket::setBlocking ( bool blocking )
 int
 netSocket::bind ( cchar* host, int port )
 {
+  assert ( handle != -1 ) ;
   netAddress addr ( host, port ) ;
   return ::bind(handle,(sockaddr*)&addr,sizeof(netAddress));
 }
@@ -132,6 +140,7 @@ netSocket::listen ( int backlog )
 int
 netSocket::accept ( netAddress* addr )
 {
+  assert ( handle != -1 ) ;
   socklen_t addr_len = sizeof(netAddress) ;
   return ::accept(handle,(sockaddr*)addr,&addr_len);
 }
@@ -139,6 +148,7 @@ netSocket::accept ( netAddress* addr )
 int
 netSocket::connect ( cchar* host, int port )
 {
+  assert ( handle != -1 ) ;
   netAddress addr ( host, port ) ;
   return ::connect(handle,(const sockaddr*)&addr,sizeof(netAddress));
 }
@@ -146,24 +156,28 @@ netSocket::connect ( cchar* host, int port )
 int
 netSocket::send (const void * buffer, int size, int flags)
 {
+  assert ( handle != -1 ) ;
   return ::send (handle, (cchar*)buffer, size, flags);
 }
 
 int
 netSocket::sendto ( const void * buffer, int size, int flags, const netAddress* to )
 {
+  assert ( handle != -1 ) ;
   return ::sendto(handle,(cchar*)buffer,size,flags,(const sockaddr*)to,sizeof(netAddress));
 }
 
 int
 netSocket::recv (void * buffer, int size, int flags)
 {
+  assert ( handle != -1 ) ;
   return ::recv (handle, (char*)buffer, size, flags);
 }
 
 int
 netSocket::recvfrom ( void * buffer, int size, int flags, netAddress* from )
 {
+  assert ( handle != -1 ) ;
   socklen_t fromlen = sizeof(netAddress) ;
   return ::recvfrom(handle,(char*)buffer,size,flags,(sockaddr*)from,&fromlen);
 }
