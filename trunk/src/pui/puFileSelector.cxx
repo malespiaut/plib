@@ -43,7 +43,7 @@
 
 #include "puLocal.h"
 
-#if defined(WIN32)
+#if defined(WIN32) && !defined(__CYGWIN__)
 #define DOTDOTSLASH "..\\"
 #define SLASH       "\\"
 #else
@@ -472,7 +472,7 @@ static int puFileSelectorStringCompare ( const char *s1, const char *s2,
       listing.
     */
 
-#if defined(WIN32)
+#if defined(WIN32) && !defined(__CYGWIN__)
     if ( c1 >= 'a' && c1 <= 'z' )
       c1 = c1 - ('a'-'A') ;
     
