@@ -670,77 +670,40 @@ void sgdMakeNormal(sgdVec3 dst, const sgdVec3 a, const sgdVec3 b, const sgdVec3 
 void sgdPreMultMat4( sgdMat4 dst, const sgdMat4 src )
 {
   sgdMat4 mat ;
-  sgdMultMat4 ( mat, src, dst ) ;
+  sgdMultMat4 ( mat, dst, src ) ;
   sgdCopyMat4 ( dst, mat ) ;
 }
 
 void sgdPostMultMat4( sgdMat4 dst, const sgdMat4 src )
 {
   sgdMat4 mat ;
-  sgdMultMat4 ( mat, dst, src ) ;
+  sgdMultMat4 ( mat, src, dst ) ;
   sgdCopyMat4 ( dst, mat ) ;
 }
 
 void sgdMultMat4( sgdMat4 dst, const sgdMat4 m1, const sgdMat4 m2 )
 {
-  if (((m1[0][3] != SGD_ZERO) |
-       (m1[1][3] != SGD_ZERO) |
-       (m1[2][3] != SGD_ZERO) |
-       (m2[0][3] != SGD_ZERO) |
-       (m2[1][3] != SGD_ZERO) |
-       (m2[2][3] != SGD_ZERO) ) == 0x0 &&
-        m1[3][3] == SGD_ONE &&
-        m2[3][3] == SGD_ONE)
+  for ( int j = 0 ; j < 4 ; j++ )
   {
-    for ( int j = 0 ; j < 3 ; j++ )
-    {
-      dst[0][j] = (m1[0][0] * m2[0][j] +
-                   m1[0][1] * m2[1][j] +
-                   m1[0][2] * m2[2][j]);
+    dst[0][j] = m2[0][0] * m1[0][j] +
+		m2[0][1] * m1[1][j] +
+		m2[0][2] * m1[2][j] +
+		m2[0][3] * m1[3][j] ;
 
-      dst[1][j] = (m1[1][0] * m2[0][j] +
-                   m1[1][1] * m2[1][j] +
-                   m1[1][2] * m2[2][j]);
+    dst[1][j] = m2[1][0] * m1[0][j] +
+		m2[1][1] * m1[1][j] +
+		m2[1][2] * m1[2][j] +
+		m2[1][3] * m1[3][j] ;
 
-      dst[2][j] = (m1[2][0] * m2[0][j] +
-                   m1[2][1] * m2[1][j] +
-                   m1[2][2] * m2[2][j]);
+    dst[2][j] = m2[2][0] * m1[0][j] +
+		m2[2][1] * m1[1][j] +
+		m2[2][2] * m1[2][j] +
+		m2[2][3] * m1[3][j] ;
 
-      dst[3][j] = (m1[3][0] * m2[0][j] +
-                   m1[3][1] * m2[1][j] +
-                   m1[3][2] * m2[2][j] +
-                   m2[3][j]);
-    }
-
-    dst[0][3] = SGD_ZERO ;
-    dst[1][3] = SGD_ZERO ;
-    dst[2][3] = SGD_ZERO ;
-    dst[3][3] = SGD_ONE ;
-  }
-  else
-  {
-    for ( int j = 0 ; j < 4 ; j++ )
-    {
-      dst[0][j] = (m1[0][0] * m2[0][j] +
-                   m1[0][1] * m2[1][j] +
-                   m1[0][2] * m2[2][j] +
-                   m1[0][3] * m2[3][j]);
-
-      dst[1][j] = (m1[1][0] * m2[0][j] +
-                   m1[1][1] * m2[1][j] +
-                   m1[1][2] * m2[2][j] +
-                   m1[1][3] * m2[3][j]);
-
-      dst[2][j] = (m1[2][0] * m2[0][j] +
-                   m1[2][1] * m2[1][j] +
-                   m1[2][2] * m2[2][j] +
-                   m1[2][3] * m2[3][j]);
-
-      dst[3][j] = (m1[3][0] * m2[0][j] +
-                   m1[3][1] * m2[1][j] +
-                   m1[3][2] * m2[2][j] +
-                   m1[3][3] * m2[3][j]);
-    }
+    dst[3][j] = m2[3][0] * m1[0][j] +
+		m2[3][1] * m1[1][j] +
+		m2[3][2] * m1[2][j] +
+		m2[3][3] * m1[3][j] ;
   }
 }
 

@@ -4,6 +4,9 @@ PLIB Change Log.
 
 PLIB v1.2.0 (Feb xx 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Swapped order of multiplication in sgMultMat4. Thanks to
+    Lucas Ackerman for spotting this one.
+
   * Added a unique ID field to every node in the scene graph.
     This helps out some picking algorithms in PPE.
 

@@ -232,7 +232,7 @@ public:
 
     sgMakeCoordMat4 ( delta, & velocity  ) ;
     sgMakeCoordMat4 ( mat  , & last_pos  ) ;
-    sgMultMat4      ( result, delta, mat ) ;
+    sgMultMat4      ( result, mat, delta ) ;
     sgSetCoord      ( &last_pos, result ) ;
   }
 } ;
