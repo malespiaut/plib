@@ -2,7 +2,7 @@ if BUILD_PUAUX
 
 lib_LIBRARIES = libplibpuaux.a
 
-include_HEADERS = puAux.h
+include_HEADERS = puAux.h puAuxLocal.h
 
 libplibpuaux_a_SOURCES = puAux.cxx                  \
                          puAuxBiSlider.cxx          \
