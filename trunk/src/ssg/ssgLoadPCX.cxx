@@ -95,9 +95,12 @@ bool ssgLoadPCX ( const char *fname, ssgTextureInfo* info )
 			"ssgLoadTexture: '%s' - unsupported or broken PCX texture file", fname ) ;
 		return false ;
 	}
-
+	if(*buffer++ != 12)
+	{	ulSetError ( UL_WARNING, "ssgLoadTexture: '%s' - PCX files needs a '12' byte", fname ) ;
+		return false ;
+	}
 	assert(bufferorig + file_length - 768 == buffer);
-	// starting at "buffer", you can find the palette, 256 ebntrys with 3 bytes each
+	// starting at "buffer", you can find the palette, 256 entrys with 3 bytes each
 	// only true for version 5 (and possible later versions)=
 	
   UByte *texels = new UByte [size * 4]; // 4 bytes per texel
