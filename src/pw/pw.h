@@ -53,6 +53,7 @@ void pwSetSize       ( int x, int y ) ;
 void pwSetOrigin     ( int w, int h ) ;
 void pwSetCursor     ( int c ) ;
 void pwCleanup       () ;
+void pwSetAutoRepeatKey ( bool enable ) ;
 
 #define PW_CURSOR_NONE    0
 #define PW_CURSOR_RIGHT   1

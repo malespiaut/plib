@@ -96,6 +96,13 @@ static GLXContext   currContext ;
 static Window       rootWindow  ;
 static Atom         delWinAtom  ;
 
+static bool autoRepeat = false ;
+
+void pwSetAutoRepeatKey ( bool enable )
+{
+  autoRepeat = enable ;
+}
+
 
 struct PixelFormat
 {
@@ -535,7 +542,7 @@ static void getEvents ()
           and not repeating.
         */
 
-        if ( repeating )
+        if ( ! autoRepeat && repeating )
           break ;
 
         XComposeStatus composeStatus ;
