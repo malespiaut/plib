@@ -35,7 +35,16 @@
 
 #include <plib/ssg.h>
 
-#include <GL/glut.h>
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
 #include <plib/sl.h>
 #include <plib/js.h>
 #include <plib/fnt.h>

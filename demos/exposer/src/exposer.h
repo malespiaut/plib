@@ -32,7 +32,17 @@
 #include <unistd.h>
 #endif
 #include <math.h>
-#include <GL/glut.h>
+
+#ifdef FREEGLUT_IS_PRESENT
+#  include <GL/freeglut.h>
+#else
+#  ifdef __APPLE__
+#    include <GLUT/glut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
+#endif
+
 #include <plib/pu.h>
 #include <plib/ssgAux.h>
 
