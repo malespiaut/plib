@@ -4,58 +4,35 @@
 
 PSL_Address PSL_Parser::setVarSymbol ( char *s )
 {
-  for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
-  {
-    if ( symtab [ i ] . symbol == NULL )
-    {
-      if ( next_var >= MAX_VARIABLE-1 )
-      {
-        ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
-        next_var-- ;
-      }
-
-      symtab [ i ] . set ( s, next_var++ ) ;
-      return symtab [ i ] . address ;
-    }
-    else
+  for ( int i = 0 ; i < next_var ; i++ )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
     {
       ulSetError ( UL_WARNING, "PSL: Multiple definition of '%s'.", s ) ;
       return symtab [ i ] . address ;
     }
+
+  if ( next_var >= MAX_VARIABLE-1 )
+  {
+    ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
+    next_var-- ;
   }
 
-  ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
-  return MAX_VARIABLE-1 ;
+  symtab [ next_var ] . set ( s, next_var ) ;
+
+  return symtab [ next_var++ ] . address ;
 }
 
 
 
 PSL_Address PSL_Parser::getVarSymbol ( char *s )
 {
-  for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
-  {
-    if ( symtab [ i ] . symbol == NULL )
-    {
-      ulSetError ( UL_WARNING, "PSL: Undefined symbol '%s'.", s ) ;
-
-      if ( next_var >= MAX_VARIABLE-1 )
-      {
-        ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
-        next_var-- ;
-      }
-
-      symtab [ i ] . set ( s, next_var++ ) ;
-      return symtab [ i ] . address ;
-    }
-    else
+  for ( int i = 0 ; i < next_var ; i++ )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
       return symtab [ i ] . address ;
-  }
 
   ulSetError ( UL_WARNING, "PSL: Undefined symbol '%s'.", s ) ;
-  ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
-  return MAX_VARIABLE-1 ;
+
+  return setVarSymbol ( s ) ;
 }
 
 
@@ -71,19 +48,14 @@ int PSL_Parser::getExtensionSymbol ( char *s )
 
 PSL_Address PSL_Parser::getCodeSymbol ( char *s )
 {
-  for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
-  {
-    if ( code_symtab [ i ] . symbol == NULL )
-    {
-      code_symtab [ i ] . set ( s, 0 ) ;
-      return code_symtab [ i ] . address ;
-    }
-
+  for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
       return code_symtab [ i ] . address ;
-  }
 
   ulSetError ( UL_WARNING, "PSL: Undefined Function '%s'.", s ) ;
+
+  setCodeSymbol ( s, 0 ) ;
+
   return 0 ;
 }
 
@@ -91,22 +63,22 @@ PSL_Address PSL_Parser::getCodeSymbol ( char *s )
 
 void PSL_Parser::setCodeSymbol ( char *s, PSL_Address v )
 {
-  for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
-  {
-    if ( code_symtab [ i ] . symbol == NULL )
-    {
-      code_symtab [ i ] . set ( s, v ) ;
-      return ;
-    }
-    else
+  for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
     {
+      ulSetError ( UL_WARNING, "PSL: Multiple definition of '%s'.", s ) ;
       code_symtab [ i ] . address = v ;
       return ;
     }
+
+  if ( next_code_symbol >= MAX_VARIABLE-1 )
+  {
+    ulSetError ( UL_WARNING, "PSL: Too many labels." ) ;
+    next_code_symbol-- ;
   }
 
-  ulSetError ( UL_WARNING, "PSL: Too many function names." ) ;
+  code_symtab [ next_code_symbol++ ] . set ( s, v ) ;
 }
+
 
 
