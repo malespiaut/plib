@@ -106,7 +106,7 @@ void ssgLoadTGA ( const char *fname )
 
   free(pData);
 
-  tm -> setAlpha ( is32Bit ) ;
+  tm -> setAlphaFlag ( is32Bit ) ;
   tm -> make_mip_maps ( texels, width, height, 4) ;
 }
 

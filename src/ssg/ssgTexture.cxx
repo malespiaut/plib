@@ -4,7 +4,7 @@
 
 inline bool getAlphaFlag ()
 {
-  return ssgTextureManager::get () -> getAlpha () != 0 ;
+  return ssgTextureManager::get () -> getAlphaFlag () != 0 ;
 }
 
 
@@ -55,7 +55,6 @@ ssgTexture::ssgTexture ()
   type |= SSG_TYPE_TEXTURE ;
 
   filename = NULL ;
-  filename_from_model = NULL ;
 
   own_handle = FALSE ;
   handle = 0 ;
@@ -75,7 +74,6 @@ ssgTexture::ssgTexture ( const char *fname, GLubyte *image, int xsize, int ysize
   type |= SSG_TYPE_TEXTURE ;
 
   filename = NULL ;
-  filename_from_model = NULL ;
 
   own_handle = FALSE ;
   handle = 0 ;
@@ -100,7 +98,6 @@ ssgTexture::ssgTexture ( const char *fname, int _wrapu, int _wrapv, int _mipmap 
   type |= SSG_TYPE_TEXTURE ;
 
   filename = NULL ;
-  filename_from_model = NULL ;
 
   own_handle = FALSE ;
   handle = 0 ;

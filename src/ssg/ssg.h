@@ -571,18 +571,20 @@ struct _ssgTextureFormat
 } ;
 
 
+class ssgTexture ;
+
 class ssgTextureManager : public ssgBase
 {
   enum { MAX_FORMATS = 100 } ;
   _ssgTextureFormat formats [ MAX_FORMATS ] ;
   int num_formats ;
 
-  char current_path [ 512 ] ;
-  FILE* current_fp ;
-  int is_swapped ;
-  int has_alpha ;
+  enum { MAX_SHARED_TEXTURES = 256 } ;
+  ssgTexture* shared_textures [ MAX_SHARED_TEXTURES ] ;
+  int num_shared_textures ;
 
   int total_texels_loaded ;
+  int alpha_flag ;
 
   static ssgTextureManager *current ;
 
@@ -601,41 +603,34 @@ public:
   ssgTextureManager ()
   {
     num_formats = 0 ;
-    current_path [ 0 ] = 0 ;
-    current_fp = 0 ;
-    is_swapped = FALSE ;
-    has_alpha = FALSE ;
+    num_shared_textures = 0 ;
     total_texels_loaded = 0 ;
+    alpha_flag = FALSE ;
   }
 
-  void addFormat ( const char* extension,
-    void (*loadfunc) ( const char* fname ) ) ;
+  /* extensible! */
+  void addFormat ( const char* extension, void (*) (const char*) ) ;
 
+  /* load texture via glTexImage2D () w/ current bound handle */
   void load ( const char* fname ) ;
 
-  int getNumTexelsLoaded () const { return total_texels_loaded ; }
+  /* texture sharing */
+  void clear () ;
+  void add ( ssgTexture* tex ) ;
+  ssgTexture* find ( const char* fname ) ;
 
-  /*
-   * used by loaders
-   */
-  const char* getPath () { return current_path ; }
-  FILE* getFilePtr () { return current_fp ; }
-  FILE* openFile ( const char* fname, const char* mode ) ;
-  void closeFile () ;
-  int getAlpha () const { return has_alpha ; }
-  void setAlpha ( int flag ) { has_alpha = flag ; }
-  int getSwap () const { return is_swapped ; }
-  void setSwap ( int flag ) { is_swapped = flag ; }
-  void swapIntArray ( int *x, int leng ) ;
-  void swapShort ( unsigned short* x ) ;
-  unsigned char readByte () ;
-  unsigned short readShort () ;
-  unsigned int readInt () ;
+  /* alpha detection flag */
+  int getAlphaFlag () const { return alpha_flag ; }
+  void setAlphaFlag ( int flag ) { alpha_flag = flag ; }
+
+  /* load a dummy texture via glTexImage2D () w/ current bound handle */
   void loadDummy () ;
+
+  /* make mip maps (so we don't depend on glu) */
   void make_mip_maps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
 
-  //void findFile ( ) ;
-  //void onLoad ( ) ;
+  /* statistics */
+  int getNumTexelsLoaded () const { return total_texels_loaded ; }
 } ;
 
 
@@ -658,8 +653,7 @@ void ssgLoadTGA ( const char *fname ) ;
 
 class ssgTexture : public ssgBase
 {
-  char *filename ; // path + filename
-	char *filename_from_model; // the filename like it is in the model
+  char *filename ;
   int own_handle ;
   GLuint handle ;
 	int wrapu, wrapv, mipmap ;
@@ -701,7 +695,6 @@ public:
   void setHandle ( GLuint handle ) ;
 
   char *getFilename(void) { return filename ; }
-	char *getFilenameFromModel(void) { return filename_from_model ; }
 
   void  setFilename(const char *fname)
   {
@@ -713,19 +706,6 @@ public:
     {
       filename = new char [ strlen(fname)+1 ] ;
       strcpy ( filename, fname ) ;
-    }
-  }
-
-  void  setFilenameFromModel(const char *fname)
-  {
-    delete filename_from_model ;
-
-    if ( fname == NULL )
-      filename_from_model = NULL ;
-    else
-    {
-      filename_from_model = new char [ strlen(fname)+1 ] ;
-      strcpy ( filename_from_model, fname ) ;
     }
   }
 

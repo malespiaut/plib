@@ -271,22 +271,22 @@ int _ssgStrNEqual ( const char *s1, const char *s2, int len )
 
 
 
-enum { MAX_SHARED_TEXTURES = 100, MAX_SHARED_STATES = 1000 };
-static ssgTexture* shared_textures [ MAX_SHARED_TEXTURES ] ;
+enum { MAX_SHARED_STATES = 1000 };
 static ssgSimpleState* shared_states [ MAX_SHARED_STATES ] ;
-static int num_shared_textures = 0 ;
 static int num_shared_states = 0 ;
 
 static void _ssgShareReset ()
 {
-   int i;
-   num_shared_textures = 0 ;
+  int i;
 
-   //~~ T.G. we ref() all new states (see below) so we need to deref here
-   for ( i = 0; i < num_shared_states; i++)
-	   ssgDeRefDelete( shared_states[i] );
+  ssgTextureManager* tm = ssgTextureManager::get () ;
+  tm -> clear () ;
 
-   num_shared_states = 0 ;
+  //~~ T.G. we ref() all new states (see below) so we need to deref here
+  for ( i = 0; i < num_shared_states; i++)
+    ssgDeRefDelete( shared_states[i] );
+
+  num_shared_states = 0 ;
 }
 
 static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
@@ -388,24 +388,17 @@ ssgTexture* ssgLoaderOptions::defaultCreateTexture ( char* tfname,
 						     int mipmap ) const
 {
   char filename [ 1024 ] ;
-
-	
-  for ( int i = 0 ; i < num_shared_textures ; i++ )
-  {
-    ssgTexture *tex = shared_textures [ i ] ;
-    if ( _ssgStrEqual ( tfname, tex->getFilenameFromModel() ) )
-	    return tex ;
-  }
-
 	ulFindFile( filename, _ssgTexturePath, tfname, _ssgAPOM ) ;
 
-  ssgTexture* tex = new ssgTexture ( filename, wrapu, wrapv, mipmap ) ;
-	tex->setFilenameFromModel ( tfname );
-  if ( tex && num_shared_textures < MAX_SHARED_TEXTURES )
-     shared_textures [ num_shared_textures++ ] = tex ;
+  ssgTextureManager* tm = ssgTextureManager::get () ;
+  ssgTexture *tex = tm -> find ( filename ) ;
   if ( tex )
     return tex ;
-  return 0 ;
+  
+  tex = new ssgTexture ( filename, wrapu, wrapv, mipmap ) ;
+  if ( tex )
+    tm -> add ( tex ) ;
+  return tex ;
 }
 
 ssgTransform* ssgLoaderOptions::defaultCreateTransform ( ssgTransform* tr,
