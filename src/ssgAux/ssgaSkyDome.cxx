@@ -317,26 +317,26 @@ bool ssgaSkyDome::reposition( sgVec3 p, double lon, double lat, double spin )
 }
 
 
-bool ssgaSkyDome::repaint( sgVec4 sky_color, sgVec4 fog_color, double sun_angle, double vis )
+bool ssgaSkyDome::repaint( sgVec4 sky_color, sgVec4 fog_color, double sol_angle, double vis )
 {
   double diff;
   sgVec3 outer_param, outer_amt, outer_diff;
   sgVec3 middle_param, middle_amt, middle_diff;
   int i, j;
 
-  sun_angle *= SGD_RADIANS_TO_DEGREES;
+  sol_angle *= SGD_RADIANS_TO_DEGREES;
 
   // Check for sunrise/sunset condition
-  if ( (sun_angle > 80.0) ) { // && (sun_angle < 100.0) )
+  if ( (sol_angle > 80.0) ) { // && (sol_angle < 100.0) )
     // 0.0 - 0.4
     sgSetVec3( outer_param,
-      (float)((10.0 - fabs(90.0 - sun_angle)) / 20.0),
-      (float)((10.0 - fabs(90.0 - sun_angle)) / 40.0),
-      (float)(-(10.0 - fabs(90.0 - sun_angle)) / 30.0));
+      (float)((10.0 - fabs(90.0 - sol_angle)) / 20.0),
+      (float)((10.0 - fabs(90.0 - sol_angle)) / 40.0),
+      (float)(-(10.0 - fabs(90.0 - sol_angle)) / 30.0));
 
     sgSetVec3( middle_param,
-      (float)((10.0 - fabs(90.0 - sun_angle)) / 40.0),
-      (float)((10.0 - fabs(90.0 - sun_angle)) / 80.0),
+      (float)((10.0 - fabs(90.0 - sol_angle)) / 40.0),
+      (float)((10.0 - fabs(90.0 - sol_angle)) / 80.0),
       0.0 );
 
     sgScaleVec3( outer_diff, outer_param, 1.0f / 6.0f );

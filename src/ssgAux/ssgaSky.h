@@ -234,7 +234,7 @@ public:
 
   bool reposition( sgVec3 p, double angle );
 
-  bool repaint( double sun_angle, int num, sgdVec3 *star_data );
+  bool repaint( double sol_angle, int num, sgdVec3 *star_data );
 };
 
 
@@ -267,7 +267,7 @@ public:
   bool repositionFlat( sgVec3 p, double spin );
   bool reposition( sgVec3 p, double lon, double lat, double spin );
 
-  bool repaint( sgVec3 sky_color, sgVec3 fog_color, double sun_angle, double vis );
+  bool repaint( sgVec3 sky_color, sgVec3 fog_color, double sol_angle, double vis );
 };
 
 
@@ -277,7 +277,7 @@ private:
 
   // components of the sky
   ssgaSkyDome *dome;
-  ssgaCelestialBody* sun_ref;
+  ssgaCelestialBody* sol_ref;
   ssgaCelestialBodyList bodies;
   ssgaCloudLayerList clouds;
   ssgaStars *planets;
@@ -309,8 +309,8 @@ public:
 	  int nplanets, sgdVec3 *planet_data,
 	  int nstars, sgdVec3 *star_data);
 
-  ssgaCelestialBody* addBody( const char *body_tex_path, const char *halo_tex_path, double size, double dist, bool sun = false );
-  ssgaCelestialBody* addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double size, double dist, bool sun = false );
+  ssgaCelestialBody* addBody( const char *body_tex_path, const char *halo_tex_path, double size, double dist, bool sol = false );
+  ssgaCelestialBody* addBody( ssgSimpleState *orb_state, ssgSimpleState *halo_state, double size, double dist, bool sol = false );
   ssgaCelestialBody* getBody(int i) { return bodies.get(i); }
   int getBodyCount() { return bodies.getNum(); }
 
@@ -322,7 +322,7 @@ public:
   bool repositionFlat( sgVec3 view_pos, double spin, double dt );
   bool reposition( sgVec3 view_pos, sgVec3 zero_elev, sgVec3 view_up, double lon, double lat, double alt, double spin, double gst, double dt );
 
-  bool repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, double sun_angle,
+  bool repaint( sgVec4 sky_color, sgVec4 fog_color, sgVec4 cloud_color, double sol_angle,
 	  int nplanets, sgdVec3 *planet_data,
 	  int nstars, sgdVec3 *star_data );
 
