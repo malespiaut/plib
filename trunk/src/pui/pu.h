@@ -199,44 +199,30 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUARROW_FASTRIGHT  7
 
 /* Rational Definitions of PUI Legend and Label Places */
-#define PUPLACE_LEFT_TOP          0
 #define PUPLACE_TOP_LEFT          0
-#define PUPLACE_CENTERED_TOP      1
 #define PUPLACE_TOP_CENTERED      1
-#define PUPLACE_RIGHT_TOP         2
 #define PUPLACE_TOP_RIGHT         2
 
-#define PUPLACE_LEFT_CENTERED     3
 #define PUPLACE_CENTERED_LEFT     3
 #define PUPLACE_CENTERED_CENTERED 4
-#define PUPLACE_RIGHT_CENTERED    5
 #define PUPLACE_CENTERED_RIGHT    5
 
-#define PUPLACE_LEFT_BOTTOM       6
 #define PUPLACE_BOTTOM_LEFT       6
-#define PUPLACE_CENTERED_BOTTOM   7
 #define PUPLACE_BOTTOM_CENTERED   7
-#define PUPLACE_RIGHT_BOTTOM      8
 #define PUPLACE_BOTTOM_RIGHT      8
 
 /* Additional definitions for PUI label places */
 #define PUPLACE_ABOVE_LEFT        9
-#define PUPLACE_LEFT_ABOVE        9
 #define PUPLACE_ABOVE_RIGHT      10
-#define PUPLACE_RIGHT_ABOVE      10
+
 #define PUPLACE_BELOW_LEFT       11
-#define PUPLACE_LEFT_BELOW       11
 #define PUPLACE_BELOW_RIGHT      12
-#define PUPLACE_RIGHT_BELOW      12
 
 #define PUPLACE_UPPER_LEFT       13
-#define PUPLACE_LEFT_UPPER       13
 #define PUPLACE_UPPER_RIGHT      14
-#define PUPLACE_RIGHT_UPPER      14
+
 #define PUPLACE_LOWER_LEFT       15
-#define PUPLACE_LEFT_LOWER       15
 #define PUPLACE_LOWER_RIGHT      16
-#define PUPLACE_RIGHT_LOWER      16
 
 /* Keep these for backwards compatibility but deprecate them */
 #define PUPLACE_ABOVE           PUPLACE_TOP_LEFT
@@ -246,8 +232,8 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUPLACE_CENTERED        PUPLACE_CENTERED_CENTERED
 #define PUPLACE_TOP_CENTER      PUPLACE_TOP_CENTERED
 #define PUPLACE_BOTTOM_CENTER   PUPLACE_BOTTOM_CENTERED
-#define PUPLACE_LEFT_CENTER     PUPLACE_LEFT_CENTERED
-#define PUPLACE_RIGHT_CENTER    PUPLACE_RIGHT_CENTERED
+#define PUPLACE_LEFT_CENTER     PUPLACE_CENTERED_LEFT
+#define PUPLACE_RIGHT_CENTER    PUPLACE_CENTERED_RIGHT
 
 #define PUCOL_FOREGROUND 0
 #define PUCOL_BACKGROUND 1
