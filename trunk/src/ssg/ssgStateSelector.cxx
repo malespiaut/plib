@@ -102,6 +102,24 @@ void ssgStateSelector::setStep  (int i, ssgSimpleState *step)
 }
 
 
+int ssgStateSelector::isTranslucent (void)
+{
+  return getCurrentStep()->isTranslucent() ;
+}
+
+
+void ssgStateSelector::setTranslucent (void)
+{
+  getCurrentStep()->setTranslucent() ;
+}
+
+
+void ssgStateSelector::setOpaque (void)
+{
+  getCurrentStep()->setOpaque() ;
+}
+
+
 void ssgStateSelector::force (void)
 {
   ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;

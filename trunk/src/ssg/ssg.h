@@ -890,6 +890,9 @@ public:
   void            setStep ( int i, ssgSimpleState *step ) ;
   ssgSimpleState *getStep ( int i ) ;
 
+  virtual int  isTranslucent (void)  ;
+  virtual void setTranslucent (void) ;
+  virtual void setOpaque      (void) ;
   void force (void) ;
   void apply (void) ;
 
