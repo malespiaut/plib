@@ -115,7 +115,7 @@ private:
 #endif
 
 
-#if !defined(UL_WIN32) && !defined(UL_MACINTOSH)
+#if !defined(UL_WIN32) && !defined(UL_MACINTOSH) && !defined(UL_MAC_OSX)
   int ioctl ( int cmd, int param = 0 )
   {
     if ( error ) return param ;
