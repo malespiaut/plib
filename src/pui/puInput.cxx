@@ -116,6 +116,12 @@ void puInput::draw ( int dx, int dy )
 
 void puInput::doHit ( int button, int updown, int x, int /* y */ )
 {
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
+
   if ( button == PU_LEFT_BUTTON )
   {
     /* Most GUI's activate a button on button-UP not button-DOWN. */
@@ -139,6 +145,7 @@ void puInput::doHit ( int button, int updown, int x, int /* y */ )
       cursor_position = i ;
       normalize_cursors () ;
       invokeCallback () ;
+      puSetActiveWidget ( this ) ;
     }
     else
       highlight () ;
@@ -151,6 +158,12 @@ int puInput::checkKey ( int key, int /* updown */ )
 {
   if ( ! isAcceptingInput() || ! isActive () || ! isVisible () || ( window != puGetWindow () ) )
     return FALSE ;
+
+  if ( puActiveWidget() && ( this != puActiveWidget() ) )
+  {
+    puActiveWidget() -> invokeDownCallback () ;
+    puDeactivateWidget () ;
+  }
 
   normalize_cursors () ;
 
@@ -171,6 +184,7 @@ int puInput::checkKey ( int key, int /* updown */ )
       rejectInput () ;
       normalize_cursors () ;
       invokeCallback () ;
+      puDeactivateWidget () ;
       break ;
 
     case '\b' : /* Backspace */

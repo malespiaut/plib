@@ -324,16 +324,23 @@ inline void puSetColour ( puColour c, float r, float g, float b, float a = 1.0f 
 }
 
 
-void  puInit           ( void ) ;
-void  puDisplay        ( void ) ;
-void  puDisplay        ( int window_number ) ;
-int   puMouse          ( int button, int updown, int x, int y ) ;
-int   puMouse          ( int x, int y ) ;
-int   puKeyboard       ( int key, int updown ) ;
-void  puHideCursor     ( void ) ;
-void  puShowCursor     ( void ) ;
-int   puCursorIsHidden ( void ) ;
-void  puDeleteObject   ( puObject *ob ) ;
+void  puInit                 ( void ) ;
+void  puDisplay              ( void ) ;
+void  puDisplay              ( int window_number ) ;
+int   puMouse                ( int button, int updown, int x, int y ) ;
+int   puMouse                ( int x, int y ) ;
+int   puKeyboard             ( int key, int updown ) ;
+void  puHideCursor           ( void ) ;
+void  puShowCursor           ( void ) ;
+int   puCursorIsHidden       ( void ) ;
+void  puDeleteObject         ( puObject *ob ) ;
+
+
+// Active widget functions
+
+void puDeactivateWidget () ;
+void puSetActiveWidget ( puObject *w ) ;
+puObject *puActiveWidget () ;
 
 /*
   Some deprecated functions for backwards compatibility...
@@ -478,6 +485,8 @@ protected:
 
   void *user_data ;
   puCallback cb ;
+  puCallback active_cb ;
+  puCallback down_cb ;
   puRenderCallback r_cb ;
   void *render_data ;
 
@@ -565,6 +574,14 @@ public:
   void       setCallback ( puCallback c ) { cb = c ;    }
   puCallback getCallback ( void )               { return cb ; }
   void       invokeCallback ( void ) { if ( cb ) (*cb)(this) ; }
+
+  void       setActiveCallback ( puCallback c ) { active_cb = c ;    }
+  puCallback getActiveCallback ( void )               { return active_cb ; }
+  void       invokeActiveCallback ( void ) { if ( active_cb ) (*active_cb)(this) ; }
+
+  void       setDownCallback ( puCallback c ) { down_cb = c ;    }
+  puCallback getDownCallback ( void )               { return down_cb ; }
+  void       invokeDownCallback ( void ) { if ( down_cb ) (*down_cb)(this) ; }
 
   void       setRenderCallback ( puRenderCallback c, void *d = NULL ) { r_cb = c ; render_data = d ; }
   puRenderCallback getRenderCallback ( void ) { return r_cb ; }
