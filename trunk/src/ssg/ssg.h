@@ -415,19 +415,8 @@ public:
 } ;
 
 
-class ssgImageLoader
-{
-  void make_mip_maps  ( GLubyte *image, int x, int y, int bytes_per_texel ) ;
-
-  void loadTextureSGI ( char *fname ) ;
-  void loadTextureBMP ( char *fname ) ;
-  void loadTexturePNG ( char *fname ) ;
-  void loadDummyTexture () ;
-
-public:
-
-  void loadTexture    ( char *fname ) ;
-} ;
+void ssgLoadTexture ( char *fname ) ;
+int ssgGetNumTexelsLoaded () ;
 
 
 class ssgTexture : public ssgBase
@@ -456,9 +445,7 @@ public:
     filename = NULL ;
     setFilename ( fname ) ;
 
-    ssgImageLoader loader ;
-
-    loader . loadTexture ( getFilename() ) ;
+    ssgLoadTexture( getFilename() ) ;
 
     glTexEnvi ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ) ;
 
@@ -1645,32 +1632,6 @@ public:
   }
 } ;
 
-class ssgSGIHeader
-{
-public:    /* Yuk!  Need to hide some of this public stuff! */
-  unsigned short magic ;
-  int            max ;
-  int            min ;
-  int            colormap ;
-  char           type ;
-  char           bpp ;
-  unsigned int  *start ;
-  int           *leng ;
-  unsigned short dim ;
-  unsigned short xsize ;
-  unsigned short ysize ;
-  unsigned short zsize ;
-  int           tablen ;
-
-  ssgSGIHeader () ;
-  void makeConsistant () ;
-  void getRow   ( unsigned char *buf, int y, int z ) ;
-  void getPlane ( unsigned char *buf, int z ) ;
-  void getImage ( unsigned char *buf ) ;
-  void readHeader () ;
-} ;
-
-
 class ssgContext
 {
   ssgSimpleState *currentState ;
@@ -1854,10 +1815,6 @@ int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 int _ssgStrEqual ( char *s1, char *s2 ) ;
 char* _ssgMakePath( char* path, const char* dir, const char* fname ) ;
 
-void _ssgShareReset () ;
-GLuint _ssgShareTexture ( char* tfname ) ;
-ssgSimpleState* _ssgShareState ( ssgSimpleState* st ) ;
-
 /* Load/Save functions */
 
 class ssgCreateData
@@ -1880,9 +1837,6 @@ public:
   int cull_face ;
 } ; 
 
-ssgLeaf* _ssgCreateFunc ( ssgCreateData* data ) ;
-
-typedef ssgLeaf *(*ssgCreateFunc)(ssgCreateData *data) ;
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
 
 int        ssgSave     ( char *fname, ssgEntity *ent ) ;
@@ -1893,19 +1847,19 @@ int        ssgSaveDXF  ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveTRI  ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveOBJ  ( char *fname, ssgEntity *ent ) ;
 
-ssgEntity *ssgLoad     ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
-ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
-ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
-ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
-ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
-ssgEntity *ssgLoadASE  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
-ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
-ssgEntity *ssgLoadTRI  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
-ssgEntity *ssgLoadOBJ  ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoad     ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadASE  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadTRI  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadOBJ  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 /* For backwards compatibility */
 
-ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL, ssgCreateFunc createfunc = NULL ) ;
+ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;
@@ -1915,7 +1869,9 @@ void ssgTexturePath ( char *path ) ;
 
 ssgLight *ssgGetLight ( int i ) ;
 
-int   ssgGetNumTexelsLoaded () ;
+extern ssgLeaf *(*_ssgCreateFunc)(ssgCreateData *) ;
+void  ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgCreateData *) ) ;
+
 void  ssgSetAppStateCallback ( ssgState *(*cb)(char *) ) ;
 
 char *ssgShowStats () ;

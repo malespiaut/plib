@@ -15,7 +15,6 @@ static int num_materials = 0 ;
 static sgVec3 *vtab = NULL ;
 
 static ssgHookFunc      current_hookFunc = NULL ;
-static ssgCreateFunc    current_createFunc = NULL ;
 static _ssgMaterial    *current_material = NULL ;
 static sgVec4          *current_colour   = NULL ;
 static ssgBranch       *current_branch   = NULL ;
@@ -557,7 +556,7 @@ int do_refs     ( char *s )
 
     data->cull_face = ! ( (current_flags>>4) & 0x02 ) ;
    
-    ssgLeaf* vtab = (*current_createFunc) ( data ) ;
+    ssgLeaf* vtab = (*_ssgCreateFunc) ( data ) ;
 
     if ( vtab )
        current_branch -> addKid ( vtab ) ;
@@ -574,9 +573,9 @@ int do_kids ( char *s )
 }
 
 
-ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
+ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc )
 {
-  ssgEntity *obj = ssgLoadAC ( fname, hookfunc, createfunc ) ;
+  ssgEntity *obj = ssgLoadAC ( fname, hookfunc ) ;
 
   if ( obj == NULL )
     return NULL ;
@@ -594,11 +593,10 @@ ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc create
   Original function for backwards compatibility...
 */
 
-ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
+ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc )
 {
   current_hookFunc = hookfunc ;
-  current_createFunc = ( createfunc != NULL )? createfunc: _ssgCreateFunc ;
-  (*current_createFunc) ( 0 ) ;  //reset
+  (*_ssgCreateFunc) ( 0 ) ;  //reset
 
   char filename [ 1024 ] ;
 
@@ -665,7 +663,7 @@ ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfu
       search ( top_tags, s ) ;
   }
 
-  (*current_createFunc) ( 0 ) ;  //reset
+  (*_ssgCreateFunc) ( 0 ) ;  //reset
   delete current_tfname ;
   current_tfname = NULL ;
   delete [] vtab ;

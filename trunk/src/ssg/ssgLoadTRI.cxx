@@ -15,7 +15,7 @@ struct triData
 
 /******************************************************************************/
 
-ssgEntity *ssgLoadTRI ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfunc )
+ssgEntity *ssgLoadTRI ( char *fname, ssgHookFunc hookfunc )
 
 /******************************************************************************/
 

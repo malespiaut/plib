@@ -1,10 +1,159 @@
 
 #include "ssgLocal.h"
 
-/*
-  Original source for BMP loader kindly
-  donated by "Sean L. Palmer" <spalmer@pobox.com>
-*/
+#ifdef USE_GLPNG
+#include "glpng.h"
+#endif
+
+static FILE          *curr_image_fd ;
+static char           curr_image_fname [ 512 ] ;
+static int            isSwapped ;
+static unsigned char *rle_temp ;
+static int total_texels_loaded = 0 ;
+
+
+static void loadTextureDummy () ;
+
+
+static void make_mip_maps ( GLubyte *image, int xsize, int ysize, int zsize )
+{
+  if ( ! ((xsize & (xsize-1))==0) ||
+       ! ((ysize & (ysize-1))==0) )
+  {
+    ulSetError ( UL_WARNING, "%s: Map is not a power-of-two in size!", curr_image_fname ) ;
+    loadTextureDummy () ;
+    return ;
+  }
+
+  GLubyte *texels [ 20 ] ;   /* One element per level of MIPmap */
+
+  for ( int l = 0 ; l < 20 ; l++ )
+    texels [ l ] = NULL ;
+
+  texels [ 0 ] = image ;
+
+  int lev ;
+
+  for ( lev = 0 ; (( xsize >> (lev+1) ) != 0 ||
+                   ( ysize >> (lev+1) ) != 0 ) ; lev++ )
+  {
+    /* Suffix '1' is the higher level map, suffix '2' is the lower level. */
+
+    int l1 = lev   ;
+    int l2 = lev+1 ;
+    int w1 = xsize >> l1 ;
+    int h1 = ysize >> l1 ;
+    int w2 = xsize >> l2 ;
+    int h2 = ysize >> l2 ;
+
+    if ( w1 <= 0 ) w1 = 1 ;
+    if ( h1 <= 0 ) h1 = 1 ;
+    if ( w2 <= 0 ) w2 = 1 ;
+    if ( h2 <= 0 ) h2 = 1 ;
+
+    texels [ l2 ] = new GLubyte [ w2 * h2 * zsize ] ;
+
+    for ( int x2 = 0 ; x2 < w2 ; x2++ )
+      for ( int y2 = 0 ; y2 < h2 ; y2++ )
+        for ( int c = 0 ; c < zsize ; c++ )
+        {
+          int x1   = x2 + x2 ;
+          int x1_1 = ( x1 + 1 ) % w1 ;
+          int y1   = y2 + y2 ;
+          int y1_1 = ( y1 + 1 ) % h1 ;
+
+	  int t1 = texels [ l1 ] [ (y1   * w1 + x1  ) * zsize + c ] ;
+	  int t2 = texels [ l1 ] [ (y1_1 * w1 + x1  ) * zsize + c ] ;
+	  int t3 = texels [ l1 ] [ (y1   * w1 + x1_1) * zsize + c ] ;
+	  int t4 = texels [ l1 ] [ (y1_1 * w1 + x1_1) * zsize + c ] ;
+
+          texels [ l2 ] [ (y2 * w2 + x2) * zsize + c ] =
+                                           ( t1 + t2 + t3 + t4 ) / 4 ;
+        }
+  }
+
+  texels [ lev+1 ] = NULL ;
+
+  glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 ) ;
+
+  int map_level = 0 ;
+
+#ifdef PROXY_TEXTURES_ARE_NOT_BROKEN
+  int ww ;
+
+  do
+  {
+    glTexImage2D  ( GL_PROXY_TEXTURE_2D,
+                     map_level, zsize, xsize, ysize, FALSE /* Border */,
+                            (zsize==1)?GL_LUMINANCE:
+                            (zsize==2)?GL_LUMINANCE_ALPHA:
+                            (zsize==3)?GL_RGB:
+                                       GL_RGBA,
+                            GL_UNSIGNED_BYTE, NULL ) ;
+
+    glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0,GL_TEXTURE_WIDTH, &ww ) ;
+
+    if ( ww == 0 )
+    {
+      delete texels [ 0 ] ;
+      xsize >>= 1 ;
+      ysize >>= 1 ;
+
+      for ( int l = 0 ; texels [ l ] != NULL ; l++ )
+	texels [ l ] = texels [ l+1 ] ;
+
+      if ( xsize < 64 && ysize < 64 )
+      {
+        ulSetError ( UL_FATAL,
+           "SSG: OpenGL will not accept a downsized version of '%s' ?!?",
+           curr_image_fname ) ;
+      }
+    }
+  } while ( ww == 0 ) ;
+#endif
+
+  for ( int i = 0 ; texels [ i ] != NULL ; i++ )
+  {
+    int w = xsize>>i ;
+    int h = ysize>>i ;
+
+    if ( w <= 0 ) w = 1 ;
+    if ( h <= 0 ) h = 1 ;
+
+    total_texels_loaded += w * h ;
+
+    glTexImage2D  ( GL_TEXTURE_2D,
+                     map_level, zsize, w, h, FALSE /* Border */,
+                            (zsize==1)?GL_LUMINANCE:
+                            (zsize==2)?GL_LUMINANCE_ALPHA:
+                            (zsize==3)?GL_RGB:
+                                       GL_RGBA,
+                            GL_UNSIGNED_BYTE, (GLvoid *) texels[i] ) ;
+    map_level++ ;
+    delete texels [ i ] ;
+  }
+}
+
+
+int ssgGetNumTexelsLoaded ()
+{
+  return total_texels_loaded ;
+}
+
+
+static void loadTextureDummy ()
+{
+  GLubyte *image = new GLubyte [ 4 * 3 ] ;
+
+  /* Red and white chequerboard */
+
+  image [ 0 ] = 255 ; image [ 1 ] =  0  ; image [ 2 ] =  0  ;
+  image [ 3 ] = 255 ; image [ 4 ] = 255 ; image [ 5 ] = 255 ;
+  image [ 6 ] = 255 ; image [ 7 ] = 255 ; image [ 8 ] = 255 ;
+  image [ 9 ] = 255 ; image [ 10] =  0  ; image [ 11] =  0  ;
+
+  make_mip_maps ( image, 2, 2, 3 ) ;
+}
 
 
 /* Some magic constants in the file header. */
@@ -14,32 +163,29 @@
 #define SGI_IMG_VERBATIM        0
 #define SGI_IMG_RLE             1
 
-static int            total_texels_loaded = 0 ;
-
-static FILE          *curr_image_fd ;
-static char           curr_image_fname [ 512 ] ;
-static int            isSwapped ;
-static unsigned char *rle_temp ;
-
-
-struct BMPHeader
+class ssgSGIHeader
 {
-  unsigned short  FileType      ;
-  unsigned int    FileSize      ;
-  unsigned short  Reserved1     ;
-  unsigned short  Reserved2     ;
-  unsigned int    OffBits       ;
-  unsigned int    Size          ;
-  unsigned int    Width         ;
-  unsigned int    Height        ;
-  unsigned short  Planes        ;
-  unsigned short  BitCount      ;
-  unsigned int    Compression   ;
-  unsigned int    SizeImage     ;
-  unsigned int    XPelsPerMeter ;
-  unsigned int    YPelsPerMeter ;
-  unsigned int    ClrUsed       ;
-  unsigned int    ClrImportant  ;
+public:    /* Yuk!  Need to hide some of this public stuff! */
+  unsigned short magic ;
+  int            max ;
+  int            min ;
+  int            colormap ;
+  char           type ;
+  char           bpp ;
+  unsigned int  *start ;
+  int           *leng ;
+  unsigned short dim ;
+  unsigned short xsize ;
+  unsigned short ysize ;
+  unsigned short zsize ;
+  int           tablen ;
+
+  ssgSGIHeader () ;
+  void makeConsistant () ;
+  void getRow   ( unsigned char *buf, int y, int z ) ;
+  void getPlane ( unsigned char *buf, int z ) ;
+  void getImage ( unsigned char *buf ) ;
+  void readHeader () ;
 } ;
 
 
@@ -70,7 +216,7 @@ void ssgSGIHeader::makeConsistant ()
 
   if ( bpp == 2 )
   {
-    ulSetError ( UL_FATAL, "ssgImageLoader: Can't work with SGI images with %d bpp", bpp ) ;
+    ulSetError ( UL_FATAL, "ssgLoadTexture: Can't work with SGI images with %d bpp", bpp ) ;
   }
 
   bpp = 1 ;
@@ -275,182 +421,168 @@ void ssgSGIHeader::readHeader ()
 }
 
 
+static void loadTextureSGI ( char *fname )
+{
+  ssgSGIHeader *sgihdr = new ssgSGIHeader () ;
+
+  strcpy ( curr_image_fname, fname ) ;
+  curr_image_fd = fopen ( curr_image_fname, "rb" ) ;
+
+  if ( curr_image_fd == NULL )
+  {
+    perror ( "ssgLoadTexture" ) ;
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", curr_image_fname ) ;
+    loadTextureDummy () ;
+    return ;
+  }
+
+  sgihdr -> readHeader () ;
+
+  if ( sgihdr -> type == SGI_IMG_RLE )
+  {
+    fread ( sgihdr->start, sizeof (unsigned int), sgihdr->tablen, curr_image_fd ) ;
+    fread ( sgihdr->leng , sizeof (int), sgihdr->tablen, curr_image_fd ) ;
+    swab_int_array ( (int *) sgihdr->start, sgihdr->tablen ) ;
+    swab_int_array ( (int *) sgihdr->leng , sgihdr->tablen ) ;
+
+    int maxlen = 0 ;
+
+    for ( int i = 0 ; i < sgihdr->tablen ; i++ )
+      if ( sgihdr->leng [ i ] > maxlen )
+        maxlen = sgihdr->leng [ i ] ;
+
+    rle_temp = new unsigned char [ maxlen ] ;
+  }
+  else
+  {
+    rle_temp = NULL ;
+
+    for ( int i = 0 ; i < sgihdr->zsize ; i++ )
+      for ( int j = 0 ; j < sgihdr->ysize ; j++ )
+      {
+        sgihdr->start [ i * sgihdr->ysize + j ] = sgihdr->xsize * ( i * sgihdr->ysize + j ) + 512 ;
+        sgihdr->leng  [ i * sgihdr->ysize + j ] = sgihdr->xsize ;
+      }
+  }
+
+  if ( sgihdr->zsize <= 0 || sgihdr->zsize > 4 )
+  {
+    ulSetError ( UL_FATAL, "ssgLoadTexture: '%s' is corrupted.", curr_image_fname ) ;
+  }
+
+  GLubyte *image = new GLubyte [ sgihdr->xsize *
+                                 sgihdr->ysize *
+                                 sgihdr->zsize ] ;
+
+  GLubyte *ptr = image ;
+
+  unsigned char *rbuf =                     new unsigned char [ sgihdr->xsize ] ;
+  unsigned char *gbuf = (sgihdr->zsize>1) ? new unsigned char [ sgihdr->xsize ] : (unsigned char *) NULL ;
+  unsigned char *bbuf = (sgihdr->zsize>2) ? new unsigned char [ sgihdr->xsize ] : (unsigned char *) NULL ;
+  unsigned char *abuf = (sgihdr->zsize>3) ? new unsigned char [ sgihdr->xsize ] : (unsigned char *) NULL ;
+
+  for ( int y = 0 ; y < sgihdr->ysize ; y++ )
+  {
+    int x ;
+
+    switch ( sgihdr->zsize )
+    {
+      case 1 :
+	sgihdr->getRow ( rbuf, y, 0 ) ;
+
+	for ( x = 0 ; x < sgihdr->xsize ; x++ )
+	  *ptr++ = rbuf [ x ] ;
+
+	break ;
+
+      case 2 :
+	sgihdr->getRow ( rbuf, y, 0 ) ;
+	sgihdr->getRow ( gbuf, y, 1 ) ;
+
+	for ( x = 0 ; x < sgihdr->xsize ; x++ )
+	{
+	  *ptr++ = rbuf [ x ] ;
+	  *ptr++ = gbuf [ x ] ;
+	}
+	break ;
+
+      case 3 :
+        sgihdr->getRow ( rbuf, y, 0 ) ;
+	sgihdr->getRow ( gbuf, y, 1 ) ;
+	sgihdr->getRow ( bbuf, y, 2 ) ;
+
+	for ( x = 0 ; x < sgihdr->xsize ; x++ )
+	{
+	  *ptr++ = rbuf [ x ] ;
+	  *ptr++ = gbuf [ x ] ;
+	  *ptr++ = bbuf [ x ] ;
+	}
+	break ;
+
+      case 4 :
+        sgihdr->getRow ( rbuf, y, 0 ) ;
+	sgihdr->getRow ( gbuf, y, 1 ) ;
+	sgihdr->getRow ( bbuf, y, 2 ) ;
+	sgihdr->getRow ( abuf, y, 3 ) ;
+
+	for ( x = 0 ; x < sgihdr->xsize ; x++ )
+	{
+	  *ptr++ = rbuf [ x ] ;
+	  *ptr++ = gbuf [ x ] ;
+	  *ptr++ = bbuf [ x ] ;
+	  *ptr++ = abuf [ x ] ;
+	}
+	break ;
+    }
+  }
+
+  fclose ( curr_image_fd ) ;
+
+  delete rbuf   ;
+  delete gbuf   ;
+  delete bbuf   ;
+  delete abuf   ;
+
+  make_mip_maps ( image, sgihdr->xsize, sgihdr->ysize, sgihdr->zsize ) ;
+
+  delete sgihdr ;
+}
+
+
+/*
+  Original source for BMP loader kindly
+  donated by "Sean L. Palmer" <spalmer@pobox.com>
+*/
+
+
+struct BMPHeader
+{
+  unsigned short  FileType      ;
+  unsigned int    FileSize      ;
+  unsigned short  Reserved1     ;
+  unsigned short  Reserved2     ;
+  unsigned int    OffBits       ;
+  unsigned int    Size          ;
+  unsigned int    Width         ;
+  unsigned int    Height        ;
+  unsigned short  Planes        ;
+  unsigned short  BitCount      ;
+  unsigned int    Compression   ;
+  unsigned int    SizeImage     ;
+  unsigned int    XPelsPerMeter ;
+  unsigned int    YPelsPerMeter ;
+  unsigned int    ClrUsed       ;
+  unsigned int    ClrImportant  ;
+} ;
+
+
 struct RGBA
 {
   unsigned char r,g,b,a ;
 } ;
 
 
-
-
-void ssgImageLoader::make_mip_maps ( GLubyte *image, int xsize,
-                                                 int ysize, int zsize )
-{
-  if ( ! ((xsize & (xsize-1))==0) ||
-       ! ((ysize & (ysize-1))==0) )
-  {
-    ulSetError ( UL_WARNING, "%s: Map is not a power-of-two in size!", curr_image_fname ) ;
-    loadDummyTexture () ;
-    return ;
-  }
-
-  GLubyte *texels [ 20 ] ;   /* One element per level of MIPmap */
-
-  for ( int l = 0 ; l < 20 ; l++ )
-    texels [ l ] = NULL ;
-
-  texels [ 0 ] = image ;
-
-  int lev ;
-
-  for ( lev = 0 ; (( xsize >> (lev+1) ) != 0 ||
-                   ( ysize >> (lev+1) ) != 0 ) ; lev++ )
-  {
-    /* Suffix '1' is the higher level map, suffix '2' is the lower level. */
-
-    int l1 = lev   ;
-    int l2 = lev+1 ;
-    int w1 = xsize >> l1 ;
-    int h1 = ysize >> l1 ;
-    int w2 = xsize >> l2 ;
-    int h2 = ysize >> l2 ;
-
-    if ( w1 <= 0 ) w1 = 1 ;
-    if ( h1 <= 0 ) h1 = 1 ;
-    if ( w2 <= 0 ) w2 = 1 ;
-    if ( h2 <= 0 ) h2 = 1 ;
-
-    texels [ l2 ] = new GLubyte [ w2 * h2 * zsize ] ;
-
-    for ( int x2 = 0 ; x2 < w2 ; x2++ )
-      for ( int y2 = 0 ; y2 < h2 ; y2++ )
-        for ( int c = 0 ; c < zsize ; c++ )
-        {
-          int x1   = x2 + x2 ;
-          int x1_1 = ( x1 + 1 ) % w1 ;
-          int y1   = y2 + y2 ;
-          int y1_1 = ( y1 + 1 ) % h1 ;
-
-	  int t1 = texels [ l1 ] [ (y1   * w1 + x1  ) * zsize + c ] ;
-	  int t2 = texels [ l1 ] [ (y1_1 * w1 + x1  ) * zsize + c ] ;
-	  int t3 = texels [ l1 ] [ (y1   * w1 + x1_1) * zsize + c ] ;
-	  int t4 = texels [ l1 ] [ (y1_1 * w1 + x1_1) * zsize + c ] ;
-
-          texels [ l2 ] [ (y2 * w2 + x2) * zsize + c ] =
-                                           ( t1 + t2 + t3 + t4 ) / 4 ;
-        }
-  }
-
-  texels [ lev+1 ] = NULL ;
-
-  glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 ) ;
-
-  int map_level = 0 ;
-
-#ifdef PROXY_TEXTURES_ARE_NOT_BROKEN
-  int ww ;
-
-  do
-  {
-    glTexImage2D  ( GL_PROXY_TEXTURE_2D,
-                     map_level, zsize, xsize, ysize, FALSE /* Border */,
-                            (zsize==1)?GL_LUMINANCE:
-                            (zsize==2)?GL_LUMINANCE_ALPHA:
-                            (zsize==3)?GL_RGB:
-                                       GL_RGBA,
-                            GL_UNSIGNED_BYTE, NULL ) ;
-
-    glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0,GL_TEXTURE_WIDTH, &ww ) ;
-
-    if ( ww == 0 )
-    {
-      delete texels [ 0 ] ;
-      xsize >>= 1 ;
-      ysize >>= 1 ;
-
-      for ( int l = 0 ; texels [ l ] != NULL ; l++ )
-	texels [ l ] = texels [ l+1 ] ;
-
-      if ( xsize < 64 && ysize < 64 )
-      {
-        ulSetError ( UL_FATAL,
-           "SSG: OpenGL will not accept a downsized version of '%s' ?!?",
-           curr_image_fname ) ;
-      }
-    }
-  } while ( ww == 0 ) ;
-#endif
-
-  for ( int i = 0 ; texels [ i ] != NULL ; i++ )
-  {
-    int w = xsize>>i ;
-    int h = ysize>>i ;
-
-    if ( w <= 0 ) w = 1 ;
-    if ( h <= 0 ) h = 1 ;
-
-    total_texels_loaded += w * h ;
-
-    glTexImage2D  ( GL_TEXTURE_2D,
-                     map_level, zsize, w, h, FALSE /* Border */,
-                            (zsize==1)?GL_LUMINANCE:
-                            (zsize==2)?GL_LUMINANCE_ALPHA:
-                            (zsize==3)?GL_RGB:
-                                       GL_RGBA,
-                            GL_UNSIGNED_BYTE, (GLvoid *) texels[i] ) ;
-    map_level++ ;
-    delete texels [ i ] ;
-  }
-}
-
-
-void ssgImageLoader::loadDummyTexture ()
-{
-  GLubyte *image = new GLubyte [ 4 * 3 ] ;
-
-  /* Red and white chequerboard */
-
-  image [ 0 ] = 255 ; image [ 1 ] =  0  ; image [ 2 ] =  0  ;
-  image [ 3 ] = 255 ; image [ 4 ] = 255 ; image [ 5 ] = 255 ;
-  image [ 6 ] = 255 ; image [ 7 ] = 255 ; image [ 8 ] = 255 ;
-  image [ 9 ] = 255 ; image [ 10] =  0  ; image [ 11] =  0  ;
-
-  make_mip_maps ( image, 2, 2, 3 ) ;
-}
-
-
-void ssgImageLoader::loadTexture ( char *fname )
-{
-  char *p = & fname [ strlen ( fname ) ] ;
-
-  while ( p != fname && *p != '.' && *p != '/' && *p != '\\' )
-    p-- ;
-
-  if ( *p == '.' )
-  {
-    if ( _ssgStrEqual ( p, ".bmp"  ) ) { loadTextureBMP ( fname ) ; return ; }
-    if ( _ssgStrEqual ( p, ".png"  ) ) { loadTexturePNG ( fname ) ; return ; }
-    if ( _ssgStrEqual ( p, ".rgb"  ) ||
-         _ssgStrEqual ( p, ".rgba" ) ||
-         _ssgStrEqual ( p, ".int"  ) ||
-         _ssgStrEqual ( p, ".inta" ) ||
-         _ssgStrEqual ( p, ".bw"   ) ) { loadTextureSGI ( fname ) ; return ; }
-  }
-
-  ulSetError ( UL_WARNING, "ssgImageLoader: '%s' - unrecognised file extension.",
-                                                    fname ) ;
-  loadDummyTexture () ;
-}
-
-void ssgImageLoader::loadTexturePNG ( char *fname )
-{
-  ulSetError ( UL_WARNING, "ssgImageLoader: '%s' - PNG format images are not supported (yet)",
-        fname ) ;
-  loadDummyTexture () ;
-}
-
-
-void ssgImageLoader::loadTextureBMP ( char *fname )
+static void loadTextureBMP ( char *fname )
 {
   int w, h, bpp ;
   RGBA pal [ 256 ] ;
@@ -463,8 +595,8 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
 
   if ( ( curr_image_fd = fopen ( curr_image_fname, "rb" ) ) == NULL )
   {
-    perror ( "ssgImageLoader" ) ;
-    ulSetError ( UL_WARNING, "ssgImageLoader: Failed to open '%s' for reading.", curr_image_fname ) ;
+    perror ( "ssgLoadTexture" ) ;
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", curr_image_fname ) ;
     return ;
   }
 
@@ -627,8 +759,8 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
   }
   else
   {
-    ulSetError ( UL_WARNING, "ssgImageLoader: Can't load %d bpp BMP textures.", bpp ) ;
-    loadDummyTexture () ;
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Can't load %d bpp BMP textures.", bpp ) ;
+    loadTextureDummy () ;
     return ;
   }
 
@@ -636,137 +768,66 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
 }
 
 
-void ssgImageLoader::loadTextureSGI ( char *fname )
+void loadTexturePNG ( char *fname )
 {
-  ssgSGIHeader *sgihdr = new ssgSGIHeader () ;
+#ifdef USE_GLPNG
+  pngInfo info;
+  if (!pngLoad(fname, PNG_BUILDMIPMAP, PNG_ALPHA, &info)) {
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname ) ;
+    return ;
+  }
+#else
+  ulSetError ( UL_WARNING, "ssgLoadTexture: '%s' - you need glpng for PNG format support",
+        fname ) ;
+  loadTextureDummy () ;
+#endif
+}
 
-  strcpy ( curr_image_fname, fname ) ;
-  curr_image_fd = fopen ( curr_image_fname, "rb" ) ;
 
-  if ( curr_image_fd == NULL )
+struct _ssgTextureFormat
+{
+  char *extension ;
+  void (*loadfunc) ( char * ) ;
+} ;
+
+
+static _ssgTextureFormat formats[] =
+{
+  { ".bmp" ,   loadTextureBMP },
+  { ".png" ,   loadTexturePNG },
+  { ".rgb" ,   loadTextureSGI },
+  { ".rgba" ,  loadTextureSGI },
+  { ".int" ,   loadTextureSGI },
+  { ".inta" ,  loadTextureSGI },
+  { ".bw" ,    loadTextureSGI },
+  { NULL ,     NULL           }
+} ;
+
+
+void ssgLoadTexture ( char *fname )
+{
+  if ( fname == NULL || *fname == '\0' )
+    return ;
+
+  //find extension
+  char *extn = & ( fname [ strlen(fname) ] ) ;
+  while ( extn != fname && *extn != '/' && *extn != '.' )
+    extn-- ;
+
+  if ( *extn != '.' )
   {
-    perror ( "ssgImageLoader" ) ;
-    ulSetError ( UL_WARNING, "ssgImageLoader: Failed to open '%s' for reading.", curr_image_fname ) ;
-    loadDummyTexture () ;
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Cannot determine file type for '%s'", fname );
     return ;
   }
 
-  sgihdr -> readHeader () ;
-
-  if ( sgihdr -> type == SGI_IMG_RLE )
-  {
-    fread ( sgihdr->start, sizeof (unsigned int), sgihdr->tablen, curr_image_fd ) ;
-    fread ( sgihdr->leng , sizeof (int), sgihdr->tablen, curr_image_fd ) ;
-    swab_int_array ( (int *) sgihdr->start, sgihdr->tablen ) ;
-    swab_int_array ( (int *) sgihdr->leng , sgihdr->tablen ) ;
-
-    int maxlen = 0 ;
-
-    for ( int i = 0 ; i < sgihdr->tablen ; i++ )
-      if ( sgihdr->leng [ i ] > maxlen )
-        maxlen = sgihdr->leng [ i ] ;
-
-    rle_temp = new unsigned char [ maxlen ] ;
-  }
-  else
-  {
-    rle_temp = NULL ;
-
-    for ( int i = 0 ; i < sgihdr->zsize ; i++ )
-      for ( int j = 0 ; j < sgihdr->ysize ; j++ )
-      {
-        sgihdr->start [ i * sgihdr->ysize + j ] = sgihdr->xsize * ( i * sgihdr->ysize + j ) + 512 ;
-        sgihdr->leng  [ i * sgihdr->ysize + j ] = sgihdr->xsize ;
-      }
-  }
-
-  if ( sgihdr->zsize <= 0 || sgihdr->zsize > 4 )
-  {
-    ulSetError ( UL_FATAL, "ssgImageLoader: '%s' is corrupted.", curr_image_fname ) ;
-  }
-
-  GLubyte *image = new GLubyte [ sgihdr->xsize *
-                                 sgihdr->ysize *
-                                 sgihdr->zsize ] ;
-
-  GLubyte *ptr = image ;
-
-  unsigned char *rbuf =                     new unsigned char [ sgihdr->xsize ] ;
-  unsigned char *gbuf = (sgihdr->zsize>1) ? new unsigned char [ sgihdr->xsize ] : (unsigned char *) NULL ;
-  unsigned char *bbuf = (sgihdr->zsize>2) ? new unsigned char [ sgihdr->xsize ] : (unsigned char *) NULL ;
-  unsigned char *abuf = (sgihdr->zsize>3) ? new unsigned char [ sgihdr->xsize ] : (unsigned char *) NULL ;
-
-  for ( int y = 0 ; y < sgihdr->ysize ; y++ )
-  {
-    int x ;
-
-    switch ( sgihdr->zsize )
+  for ( _ssgTextureFormat *f = formats; f->extension != NULL; f++ )
+    if ( f->loadfunc != NULL &&
+         _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
     {
-      case 1 :
-	sgihdr->getRow ( rbuf, y, 0 ) ;
-
-	for ( x = 0 ; x < sgihdr->xsize ; x++ )
-	  *ptr++ = rbuf [ x ] ;
-
-	break ;
-
-      case 2 :
-	sgihdr->getRow ( rbuf, y, 0 ) ;
-	sgihdr->getRow ( gbuf, y, 1 ) ;
-
-	for ( x = 0 ; x < sgihdr->xsize ; x++ )
-	{
-	  *ptr++ = rbuf [ x ] ;
-	  *ptr++ = gbuf [ x ] ;
-	}
-	break ;
-
-      case 3 :
-        sgihdr->getRow ( rbuf, y, 0 ) ;
-	sgihdr->getRow ( gbuf, y, 1 ) ;
-	sgihdr->getRow ( bbuf, y, 2 ) ;
-
-	for ( x = 0 ; x < sgihdr->xsize ; x++ )
-	{
-	  *ptr++ = rbuf [ x ] ;
-	  *ptr++ = gbuf [ x ] ;
-	  *ptr++ = bbuf [ x ] ;
-	}
-	break ;
-
-      case 4 :
-        sgihdr->getRow ( rbuf, y, 0 ) ;
-	sgihdr->getRow ( gbuf, y, 1 ) ;
-	sgihdr->getRow ( bbuf, y, 2 ) ;
-	sgihdr->getRow ( abuf, y, 3 ) ;
-
-	for ( x = 0 ; x < sgihdr->xsize ; x++ )
-	{
-	  *ptr++ = rbuf [ x ] ;
-	  *ptr++ = gbuf [ x ] ;
-	  *ptr++ = bbuf [ x ] ;
-	  *ptr++ = abuf [ x ] ;
-	}
-	break ;
+      f->loadfunc( fname ) ;
+      return ;
     }
-  }
 
-  fclose ( curr_image_fd ) ;
-
-  delete rbuf   ;
-  delete gbuf   ;
-  delete bbuf   ;
-  delete abuf   ;
-
-  make_mip_maps ( image, sgihdr->xsize, sgihdr->ysize, sgihdr->zsize ) ;
-
-  delete sgihdr ;
+  ulSetError ( UL_WARNING, "ssgLoadTexture: Unrecognised file type '%s'", extn ) ;
+  loadTextureDummy () ;
 }
-
-
-int ssgGetNumTexelsLoaded ()
-{
-  return total_texels_loaded ;
-}
-
-
