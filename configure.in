@@ -338,6 +338,11 @@ mips-sgi-irix*)
         WFLAG="-fullwarn";
     fi
 	;;
+*)
+    if test "x$CXX" = "xicpc" || test "x$CXX" = "xicc"; then
+        WFLAG="-w1"
+    fi
+	;;
 esac
 
 CFLAGS="$CFLAGS $WFLAG"
