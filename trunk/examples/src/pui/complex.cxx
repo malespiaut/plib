@@ -391,7 +391,8 @@ static void pick_cb ( puObject * )
 
 static void savereshapefn ( int w, int h )
 {
-  file_selector->setSize ( w, h ) ;
+  if ( file_selector )
+    file_selector->setSize ( w, h ) ;
 }
 
 static void coordreshapefn ( int w, int h )
