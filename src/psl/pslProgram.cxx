@@ -65,6 +65,7 @@ pslProgram::~pslProgram ()
 void       pslProgram::dump  () const {        compiler  -> dump  () ; }
 void       pslProgram::reset ()       {        context -> reset () ; }
 pslResult  pslProgram::step  ()       { return context -> step  () ; }
+pslResult  pslProgram::trace ()       { return context -> trace () ; }
 
 int        pslProgram::compile ( const char *fname )
 {

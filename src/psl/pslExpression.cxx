@@ -76,6 +76,12 @@ int pslCompiler::pushPrimitive ()
     }
   }
 
+  if ( c [ 0 ] == '"' )
+  {
+    pushStringConstant ( & c [ 1 ] ) ;
+    return TRUE ;
+  }
+
   if ( isdigit ( c [ 0 ] ) || c [ 0 ] == '.' )
   {
     pushConstant ( c ) ;
@@ -113,7 +119,7 @@ int pslCompiler::pushMultExpression ()
 
     pslGetToken ( c ) ;
 
-    if ( c [ 0 ] != '*' && c [ 0 ] != '/' )
+    if ( c [ 0 ] != '*' && c [ 0 ] != '/' && c [ 0 ] != '%' )
     {
       pslUngetToken ( c ) ;
       return TRUE ;
@@ -125,7 +131,10 @@ int pslCompiler::pushMultExpression ()
     if ( c [ 0 ] == '*' )
       pushMultiply () ;
     else
+    if ( c [ 0 ] == '/' )
       pushDivide () ;
+    else
+      pushModulo () ;
   }
 }
 

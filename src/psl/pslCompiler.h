@@ -56,6 +56,7 @@ class pslCompiler
   void pushAdd          () ;
   void pushDivide       () ;
   void pushMultiply     () ;
+  void pushModulo       () ;
   void pushNegate       () ;
   void pushLess         () ;
   void pushLessEqual    () ;
@@ -66,11 +67,21 @@ class pslCompiler
   int  pushJumpIfFalse  ( int l ) ;
   int  pushJump         ( int l ) ;
 
-  void pushConstant   ( const char *c ) ;
-  void pushVariable   ( const char *c ) ;
-  void pushAssignment ( const char *c ) ;
-  void pushCall       ( const char *c, int argc ) ;
-  void pushReturn     () ;
+  void makeIntVariable   ( const char *s ) ;
+  void makeFloatVariable ( const char *s ) ;
+  void makeStringVariable( const char *s ) ;
+
+  void pushConstant      ( const char *s ) ;
+  void pushIntConstant   ( const char *s ) ;
+  void pushFloatConstant ( const char *s ) ;
+  void pushStringConstant( const char *s ) ;
+
+  void pushVoidConstant  () ;
+
+  void pushVariable      ( const char *s ) ;
+  void pushAssignment    ( const char *s ) ;
+  void pushCall          ( const char *s, int argc ) ;
+  void pushReturn        () ;
 
   /* Higher level parsers.  */
 
@@ -86,20 +97,20 @@ class pslCompiler
   int  pushPauseStatement      () ;
   int  pushWhileStatement      () ;
   int  pushIfStatement         () ;
-  int  pushFunctionCall        ( const char *c ) ;
-  int  pushAssignmentStatement ( const char *c ) ;
+  int  pushFunctionCall        ( const char *s ) ;
+  int  pushAssignmentStatement ( const char *s ) ;
   int  pushCompoundStatement   () ;
   int  pushStatement           () ;
 
   int  pushFunctionDeclaration       ( const char *fn ) ;
-  int  pushLocalVariableDeclaration  () ;
-  int  pushGlobalVariableDeclaration ( const char *fn ) ;
+  int  pushLocalVariableDeclaration  ( pslType t ) ;
+  int  pushGlobalVariableDeclaration ( const char *fn, pslType t ) ;
   int  pushStaticVariableDeclaration () ;
 
   int  pushGlobalDeclaration         () ;
   void pushProgram                   () ;
 
-  void print_opcode ( FILE *fd, unsigned char op ) const ;
+  int printOpcode      ( FILE *fd, int addr ) const ;
 
   pslAddress getVarSymbol       ( const char *s ) ;
   pslAddress setVarSymbol       ( const char *s ) ;
@@ -128,8 +139,8 @@ private:
   pslContext   *context    ;
   pslExtension *extensions ;
 
-  void fixup ( const char *s, pslAddress v ) ;
-  void addFwdRef ( const char *s, pslAddress where ) ;
+  void fixup                  ( const char *s, pslAddress v ) ;
+  void addFwdRef              ( const char *s, pslAddress where ) ;
   void checkUnresolvedSymbols () ;
 
   void pushLocality ()
@@ -187,6 +198,8 @@ public:
   }
 
   pslExtension *getExtensions () const { return extensions ; }
+
+  int printInstruction ( FILE *fd, int addr ) const ;
 
   void init () 
   {

@@ -104,6 +104,59 @@ void pslGetToken ( char *res, FILE *fd )
 
   int tp = 0 ;
 
+  if ( c == '"' )
+  {
+    int isBkSlash = FALSE ;
+
+    do
+    {
+      if ( c == '\\' )
+      {
+        if ( isBkSlash )
+        {
+          isBkSlash = FALSE ;
+          res [ tp++ ] = c ;
+        }
+        else
+          isBkSlash = TRUE ;
+      }
+      else    
+      if ( isBkSlash )
+      {
+        switch ( c )
+        {
+          case '0' : res [ tp++ ] = '\0' ; break ;
+          case 'r' : res [ tp++ ] = '\r' ; break ;
+          case 'n' : res [ tp++ ] = '\n' ; break ;
+          case 'f' : res [ tp++ ] = '\f' ; break ;
+          case 'b' : res [ tp++ ] = '\b' ; break ;
+          case 'a' : res [ tp++ ] = '\a' ; break ;
+          default: res [ tp++ ] =   c  ; break ;
+        }
+      }
+      else
+        res [ tp++ ] = c ;
+
+      c = getc ( fd ) ;
+
+      if ( tp >= MAX_TOKEN - 1 )
+      {
+        ulSetError ( UL_WARNING,
+                 "PSL: Input string is bigger than %d characters!",
+                                                       MAX_TOKEN - 1 ) ;
+        tp-- ;
+      }
+    } while ( ( isBkSlash || c != '"' ) && c != -1 ) ;
+
+    if ( c == -1 )
+      ulSetError ( UL_WARNING,
+               "PSL: Missing \\\" character" ) ;
+   
+    /* The trailing quotes character is not included into the string */
+    res [ tp ] = '\0' ;
+    return ;
+  }
+
   while ( isalnum ( c ) || c == '.' || c == '_' )
   {
     res [ tp++ ] = c ;

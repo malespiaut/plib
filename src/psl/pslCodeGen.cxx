@@ -67,28 +67,95 @@ void pslCompiler::pushCodeAddr ( pslAddress a )
 
 void pslCompiler::pushConstant ( const char *c )
 {
+  int isInteger = TRUE ;
+
+  for ( const char *p = c ; *p != '\0' ; p++ )
+    if ( *p == '.' || *p == 'f' || *p == 'F' )
+    {
+      isInteger = FALSE ;
+      break ;
+    }
+
+  if ( isInteger )
+    pushIntConstant ( c ) ;
+  else
+    pushFloatConstant ( c ) ;
+}
+
+
+void pslCompiler::pushStringConstant ( const char *c )
+{
+  pushCodeByte ( OPCODE_PUSH_STRING_CONSTANT ) ;
+
+  for ( int i = 0 ; c [ i ] != '\0' ; i++ )
+    pushCodeByte ( (unsigned char)( c [ i ]) ) ;
+
+  pushCodeByte ( '\0' ) ;
+}
+
+
+void pslCompiler::pushIntConstant ( const char *c )
+{
+  int i = atoi ( c ) ; 
+  char *ii = (char *) & i ;
+
+  pushCodeByte ( OPCODE_PUSH_INT_CONSTANT ) ;
+  pushCodeByte ( ii [ 0 ] ) ;
+  pushCodeByte ( ii [ 1 ] ) ;
+  pushCodeByte ( ii [ 2 ] ) ;
+  pushCodeByte ( ii [ 3 ] ) ;
+}
+
+void pslCompiler::pushFloatConstant ( const char *c )
+{
   float f = atof ( c ) ; 
   char *ff = (char *) & f ;
 
-  pushCodeByte ( OPCODE_PUSH_CONSTANT ) ;
+  pushCodeByte ( OPCODE_PUSH_FLOAT_CONSTANT ) ;
   pushCodeByte ( ff [ 0 ] ) ;
   pushCodeByte ( ff [ 1 ] ) ;
   pushCodeByte ( ff [ 2 ] ) ;
   pushCodeByte ( ff [ 3 ] ) ;
 }
 
+void pslCompiler::makeIntVariable ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_SET_INT_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+void pslCompiler::makeFloatVariable ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_SET_FLOAT_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+void pslCompiler::makeStringVariable ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_SET_STRING_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
 void pslCompiler::pushVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_PUSH_VARIABLE | a ) ;
+  pushCodeByte ( OPCODE_PUSH_VARIABLE ) ;
+  pushCodeByte ( a ) ;
 } 
 
 void pslCompiler::pushAssignment ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_POP_VARIABLE | a ) ;
+  pushCodeByte ( OPCODE_POP_VARIABLE ) ;
+  pushCodeByte ( a ) ;
 } 
 
 
@@ -120,6 +187,7 @@ void pslCompiler::pushSubtract     () { pushCodeByte ( OPCODE_SUB   ) ; }
 void pslCompiler::pushAdd          () { pushCodeByte ( OPCODE_ADD   ) ; } 
 void pslCompiler::pushDivide       () { pushCodeByte ( OPCODE_DIV   ) ; } 
 void pslCompiler::pushMultiply     () { pushCodeByte ( OPCODE_MULT  ) ; } 
+void pslCompiler::pushModulo       () { pushCodeByte ( OPCODE_MOD   ) ; } 
 void pslCompiler::pushNegate       () { pushCodeByte ( OPCODE_NEG   ) ; } 
 
 void pslCompiler::pushLess         () { pushCodeByte ( OPCODE_LESS ) ; } 
