@@ -97,7 +97,7 @@ int search ( Tag *tags, char *s )
   skip_spaces ( & s ) ;
 
   for ( int i = 0 ; tags[i].token != NULL ; i++ )
-    if ( _ssgStrNEqual ( tags[i].token, s, strlen(tags[i].token) ) )
+    if ( ulStrNEqual ( tags[i].token, s, strlen(tags[i].token) ) )
     {
       s += strlen ( tags[i].token ) ;
 
@@ -647,7 +647,7 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
     {
       firsttime = FALSE ;
 
-      if ( ! _ssgStrNEqual ( s, "AC3D", 4 ) )
+      if ( ! ulStrNEqual ( s, "AC3D", 4 ) )
       {
         fclose ( loader_fd ) ;
         ulSetError ( UL_WARNING, "ssgLoadAC: '%s' is not in AC3D format.", filename ) ;

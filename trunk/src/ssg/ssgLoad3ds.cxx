@@ -851,7 +851,7 @@ static void add_leaf( _3dsMat *material, int listed_faces,
       char *texture_extension = 
 	material->tex_name + strlen(material->tex_name) - 3;
       
-      flip_texture_y = _ssgStrEqual( texture_extension, "BMP" );
+      flip_texture_y = ulStrEqual( texture_extension, "BMP" );
     }
   }
 

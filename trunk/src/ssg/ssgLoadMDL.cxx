@@ -1121,12 +1121,12 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 		if(curr_tex_name_!=NULL)
 		{ char *texture_extension = 
 	      curr_tex_name_ + strlen(curr_tex_name_) - 3;
-	    flip_y = _ssgStrEqual( texture_extension, "BMP" );
+	    flip_y = ulStrEqual( texture_extension, "BMP" );
 		}
 	  /*old:
 		char *texture_extension = 
 	    curr_tex_name_ + strlen(curr_tex_name_) - 3;
-	  bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
+	  bool flip_y = ulStrEqual( texture_extension, "BMP" );
 	  */
 		readTexIndices(fp, numverts, v, flip_y);
 
@@ -1183,12 +1183,12 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 		if(curr_tex_name_!=NULL)
 		{ char *texture_extension = 
 	      curr_tex_name_ + strlen(curr_tex_name_) - 3;
-	    flip_y = _ssgStrEqual( texture_extension, "BMP" );
+	    flip_y = ulStrEqual( texture_extension, "BMP" );
 		}
 	  /*
 	  char *texture_extension = 
 	    curr_tex_name_ + strlen(curr_tex_name_) - 3;
-	  bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
+	  bool flip_y = ulStrEqual( texture_extension, "BMP" );
 		*/
 	  readTexIndices(fp, numverts, v, flip_y);
 
