@@ -27,7 +27,9 @@
 
 void ssgFindOptConvertTexture( char * filepath, char * tfname ) ;
 void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray* vertices,
-																ssgIndexArray*  indices, SGfloat epsilon);
+																ssgIndexArray*  indices, SGfloat epsilon, 
+																ssgSimpleStateArray* ssa = NULL,
+																ssgIndexArray*  materialIndices = NULL);
 
 /*
   ssgTriangulate -
@@ -94,7 +96,14 @@ class ssgLoaderWriterMesh
 	// ***** easy mode *********
 	class ssgTexCoordArray *tCPV; // TCPV = TextureCoordinatesPerVertex
 	
-	void AddOneNode2SSG(class ssgVertexArray *theVertices, 
+	void AddOneNode2SSGFromCPV(class ssgVertexArray *theVertices, 
+		class ssgTexCoordArray *theTC,
+		class ssgListOfLists *theFaces,
+		class ssgSimpleState *currentState,// Pfusch, kludge. NIV135
+		class ssgLoaderOptions* current_options,
+		class ssgBranch *curr_branch_);
+	void AddOneNode2SSGFromCPFAV(class ssgVertexArray *theVertices, 
+		class ssgListOfLists *theTCPFAV,
 		class ssgListOfLists *theFaces,
 		class ssgSimpleState *currentState,// Pfusch, kludge. NIV135
 		class ssgLoaderOptions* current_options,
@@ -104,8 +113,8 @@ public:
 	class ssgVertexArray *PfuschGetTheVertices(void) { return theVertices; }; 
 	class ssgTexCoordArray *PfuschGettCPV(void) { return tCPV; } ;
 	void AddFaceFromCArray(int nNoOfVerticesForThisFace, 
-																						int *aiVertices);
-
+																						int *vertices);
+  
 	void add2SSG(
 		class ssgSimpleState *currentstate, 
 		class ssgLoaderOptions* current_options,
