@@ -118,7 +118,7 @@ void IgnoreEntity(int startLevel)
     if ( strcmp(token,"{") == 0 )
 			Level++;
 		else if ( strcmp(token,"}") == 0 )
-		{ assert(Level>0); // Pfusch kludge
+		{ assert(Level>0); // Fixme, NIV14: Handle this gracefully.
 			if (Level==1) 
 		    return; // found THE closing brace of entitiy
 		  Level--; // Found A closing brace
@@ -303,7 +303,7 @@ int HandleMaterial(const char *sName, const char *firstToken)
   currentState -> setMaterial ( GL_EMISSION, EmissiveColour[0], 
 		                      EmissiveColour[1], EmissiveColour[2], currentDiffuse[3] ) ;
 	
-	currentState -> setShininess ( power ) ; // Pfusch kludge: Is that correct?
+	currentState -> setShininess ( power ) ; // Fixme, NIV14: Is that correct?
 
   currentState -> enable ( GL_COLOR_MATERIAL ) ;
   currentState -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;

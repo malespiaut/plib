@@ -253,7 +253,7 @@ void ssgLoaderWriterMesh::AddOneNode2SSG(class ssgVertexArray *theVertices,
 			}
 		}
 	}
-	recalcNormals(il,theVertices, nl); // Pfusch kludge; only do this if there are no normals in the file
+	recalcNormals(il,theVertices, nl); // Fixme, NIV14: only do this if there are no normals in the file
 	
 	ssgColourArray* cl = NULL ;
   
