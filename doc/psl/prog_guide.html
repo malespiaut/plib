@@ -46,7 +46,7 @@ scripting language.
 
 The following C features are implemented much as you'd expect:
 <ul>
-  <li> Types 'void', 'int' and 'float'.
+  <li> Types 'void', 'int' and 'float' (and arrays of those things).
   <li> Function definitions.
   <li> Global variable definitions.
   <li> Statement types:
@@ -95,7 +95,7 @@ The following C features are implemented much as you'd expect:
 Some new features have been added that are not part of C:
 <ul>
   <li> "pause" -- Pause the program until next frame.
-  <li> "string" data type.
+  <li> "string" data type (and arrays of strings).
   <li> Casts are unnecessary between compatible types.
   <li> C++ style '//' comments.
   <li> C++ style local variable declarations.
@@ -123,10 +123,8 @@ Some features of C are NOT IMPLEMENTED in PSL:
 The following features are "NOT IMPLEMENTED YET" - but will
 hopefully arrive soon:
 <ul>
-  <li> Multiple assignments (eg  x = y = 0 ; )
-  <li> Arrays & Structs.
+  <li> Structs.
   <li> '\' to escape the end-of-line character in strings and macro's.
-  <li> Array bounds checking.
   <li> Parameter passing by name.
   <li> Many of C's standard library functions are needed.
 </ul>
