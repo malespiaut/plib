@@ -1,5 +1,6 @@
 #include "netSocket.h"
 #include <winsock.h>
+#include <stdarg.h>
 
 netAddress::netAddress ( cchar* host, int port )
 {
@@ -271,4 +272,14 @@ int netInit ( int* argc, char** argv )
 	}
   atexit( netExit ) ;
 	return(0);
+}
+
+cchar* netFormat ( cchar* format, ... )
+{
+  static char buffer[ 256 ];
+  va_list argptr;
+  va_start(argptr, format);
+  vsprintf( buffer, format, argptr );
+  va_end(argptr);
+  return( buffer );
 }
