@@ -80,6 +80,10 @@
 
 #define UL_IRIX      1
 
+#elif defined(_AIX)
+
+#define UL_AIX       1
+
 #elif defined(SOLARIS) || defined(sun)
 
 #define UL_SOLARIS   1
@@ -126,7 +130,7 @@
 #define  UL_CGL     1
 #endif
 
-#if defined(UL_LINUX) || defined(UL_BSD) || defined(UL_IRIX) || defined(UL_SOLARIS)
+#if defined(UL_LINUX) || defined(UL_BSD) || defined(UL_IRIX) || defined(UL_SOLARIS) || defined(UL_AIX)
 #include <unistd.h>
 #include <dlfcn.h>
 #include <fcntl.h>

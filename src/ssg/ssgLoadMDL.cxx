@@ -1439,10 +1439,14 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 
 		case 0xB3: //ifinf(1)
 			{
-				long offset = ulEndianReadLittle32(fp);
-				unsigned short v = ulEndianReadLittle16(fp);
-				float low = ulEndianReadLittleFloat(fp);
-				float high = ulEndianReadLittleFloat(fp);
+				// long offset = ulEndianReadLittle32(fp);
+				// unsigned short v = ulEndianReadLittle16(fp);
+				// float low = ulEndianReadLittleFloat(fp);
+				// float high = ulEndianReadLittleFloat(fp);
+				ulEndianReadLittle32(fp);
+				ulEndianReadLittle16(fp);
+				ulEndianReadLittleFloat(fp);
+				ulEndianReadLittleFloat(fp);
 				
 			}
 			break;
@@ -1539,7 +1543,8 @@ void ParseBGL(FILE *fp) // "traversing" through the file
         //assert(curr_part_->getState()->getTexture() != NULL);
         
 				int base = ulEndianReadLittle16(fp);
-				int vertexcount = ulEndianReadLittle16(fp); // seems to say how many vertices are used in this part
+				// int vertexcount = ulEndianReadLittle16(fp);
+				ulEndianReadLittle16(fp);
 				int wkcount = ulEndianReadLittle16(fp);
 				wkcount = wkcount / 3; // tri
 				assert(wkcount>0);
@@ -1574,8 +1579,11 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 			
 		case 0xBA: //, DrawLineList,	anaDrawLineList,	0 )
 			{
-				int base = ulEndianReadLittle16(fp);
-				int dummycount = ulEndianReadLittle16(fp);
+				// int base = ulEndianReadLittle16(fp);
+				// int dummycount = ulEndianReadLittle16(fp);
+				ulEndianReadLittle16(fp);
+				ulEndianReadLittle16(fp);
+
 				int wkcount = ulEndianReadLittle16(fp);
 				wkcount = wkcount / 2; 
 				fseek(fp, 2*2*wkcount, SEEK_CUR);
@@ -1584,8 +1592,11 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 
 		case 0xBB: //, DrawPointList,	anaDrawPointList,	0 )
 			{
-				int base = ulEndianReadLittle16(fp);
-				int dummycount = ulEndianReadLittle16(fp);
+				// int base = ulEndianReadLittle16(fp);
+				// int dummycount = ulEndianReadLittle16(fp);
+				ulEndianReadLittle16(fp);
+				ulEndianReadLittle16(fp);
+
 				int wkcount = ulEndianReadLittle16(fp);
 				wkcount = wkcount / 1; 
 				fseek(fp, 2*1*wkcount, SEEK_CUR);
@@ -1594,8 +1605,8 @@ void ParseBGL(FILE *fp) // "traversing" through the file
 
     case 0xBC: // BGL_BEGIN / BGLVersion
 			{
-        //DEBUGPRINT( "BGL_CASE\n" );
-				long v = ulEndianReadLittle32(fp);
+				// long v = ulEndianReadLittle32(fp);
+				ulEndianReadLittle32(fp);
         
 				PRINT_STRUCTURE("BGLVersion %lx\n", v)
       }
