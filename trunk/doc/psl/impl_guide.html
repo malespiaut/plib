@@ -1,6 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="keywords" content="PSL, PLIB, OpenGL, portable, script, language, Baker, Steve">
+   <meta name="description" content="The PLIB Scripting Language (PSL) Library is a lightweight scripting language that is well suited for games or other interactive programs.">
    <title>The PLIB Scripting Language: Implementation Guide.</title>
 </head>
 <body text="#B5A642" bgcolor="#005000" link="#8FFF8F" vlink="#18A515" alink="#20336B" background="../marble.png">
@@ -35,236 +38,423 @@ bytes of data.
 <p>
 The hex numbers for these opcodes are listed in plib/src/psl/pslOpcodes.h
 <p>
-<H3> OPCODE_BAD <\H3>
+<H3> OPCODE_BAD </H3>
 INTRUCTION BYTES: 1<br>
-EFFECT: Produces a 'Suspicious Opcode' error message and halts the program.
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Produces a 'Suspicious Opcode' error message and halts the program.<br>
         Generally, programs
         that run amok for some reason (eg an error in the compiler) will
         hit a zero byte fairly soon afterwards.  Hence instruction 0x00
         is reserved to be the BAD instruction.  Other unrecognised
         instructions are also flagged as errors - but it's useful to
         explicitly reserve opcode 0x00 for this function due to the
-        high probability of it being executed by broken programs.
+        high probability of it being executed by broken programs.</td>
+</tr>
+</table>
 
-<H3> OPCODE_LINE_NUMBER <\H3>
-INTRUCTION BYTES: 3<br>
-EFFECT: Updates the 'current line number' from the two bytes
-        embedded in the instruction.
+<H3> OPCODE_LINE_NUMBER </H3>
+INTRUCTION BYTES: 3
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Updates the 'current line number' from the two bytes
+        embedded in the instruction.</td>
+</tr>
+</table>
 
-<H3> OPCODE_PUSH_INT_CONSTANT <\H3>
-INTRUCTION BYTES: 5<br>
-EFFECT: Takes four bytes from the instruction and pushes them
-        onto the stack as an integer.
+<H3> OPCODE_PUSH_INT_CONSTANT </H3>
 
-<H3> OPCODE_PUSH_FLOAT_CONSTANT <\H3>
-INTRUCTION BYTES: 5<br>
-EFFECT: Takes four bytes from the instruction and pushes them
-        onto the stack as a float.
+INTRUCTION BYTES: 5
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Takes four bytes from the instruction and pushes them
+        onto the stack as an integer.</td>
+</tr>
+</table>
 
-<H3> OPCODE_PUSH_STRING_CONSTANT <\H3>
-INTRUCTION BYTES: 1 + strlen string + 1<br>
-EFFECT: Takes a null-terminated string from the instruction
-        stream and pushes it onto the stack.
+<H3> OPCODE_PUSH_FLOAT_CONSTANT </H3>
+INTRUCTION BYTES: 5
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Takes four bytes from the instruction and pushes them
+        onto the stack as a float.</td>
+</tr>
+</table>
 
-<H3> OPCODE_GET_PARAMETER <\H3>
-INTRUCTION BYTES: 3<br>
-EFFECT: Fetches the value of a function's parameter from the
+<H3> OPCODE_PUSH_STRING_CONSTANT </H3>
+INTRUCTION BYTES: 1 + strlen string + 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Takes a null-terminated string from the instruction
+        stream and pushes it onto the stack.</td>
+</tr>
+</table>
+
+<H3> OPCODE_GET_PARAMETER </H3>
+INTRUCTION BYTES: 3
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Fetches the value of a function's parameter from the
         depths of the stack and puts it into a local variable.
-
+        <p>
         The second byte of the instruction is the
         index of the variable. The third byte is a small
         integer offset - which is the number of the parameter 
         you want.
-
+        <p>
         Look at the number two down from the top of the stack
         (which should be
         the number of parameters of a recently called
         function).  
-
+        <p>
         Now copy the stack element at
         <code> sp - ( nargs + 2 ) + offset </code>
-        into the variable.
+        into the variable.</td>
+</tr>
+</table>
 
-<H3> OPCODE_POP <\H3>
-INTRUCTION BYTES: 1<br>
-EFFECT: Throws away the top element of the stack.
+<H3> OPCODE_POP </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Throws away the top element of the stack.</td>
+</tr>
+</table>
 
-<H3> OPCODE_CALLEXT <\H3>
-INTRUCTION BYTES: 3<br>
-EFFECT: The second byte of the instruction is the index of
+<H3> OPCODE_CALLEXT </H3>
+INTRUCTION BYTES: 3
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The second byte of the instruction is the index of
         a PSL 'extension function', the third
         is the number of arguments being passed to it.
-
+        <p>
         Pop that number of values off the stack and pass them
         to the extension function.
-
+        <p>
         Call the extension function.
-        Push the result onto the stack.
+        Push the result onto the stack.</td>
+</tr>
+</table>
 
-<H3> OPCODE_CALL <\H3>
-INTRUCTION BYTES: 6 <br>
-EFFECT: [The number of aguments will already have been pushed
+<H3> OPCODE_CALL </H3>
+INTRUCTION BYTES: 6
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    [The number of aguments will already have been pushed
       onto the stack.]
-
+      <p>
       The four bytes after the instruction is the function address.
       The fifth byte is the number of arguments.
-
-      Push return address.
+      <p>
+      Push return address.<br>
       PC = address of function.
+      <p>
+      popNumber ( &amp;result ) ;<br>
+      &nbsp;&nbsp;&nbsp;pc = popInt () ;<br>
+      &nbsp;&nbsp;&nbsp;nargs = popInt () ;<br>
+      &nbsp;&nbsp;&nbsp;popVoid ( nargs ) ;<br>
+      pushNumber ( &amp;result ) ;</td>
+</tr>
+</table>
 
-      popNumber ( &result ) ;
-         pc = popInt () ;
-         nargs = popInt () ;
-         popVoid ( nargs ) ;
-      pushNumber ( &result ) ;
+<H3> OPCODE_STACK_DUPLICATE </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Duplicate the top element of the stack.</td>
+</tr>
+</table>
 
-<H3> OPCODE_STACK_DUPLICATE <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: Duplicate the top element of the stack.
-<H3> OPCODE_EXCHANGE <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: Exchange the top two elements of the stack.
+<H3> OPCODE_EXCHANGE </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Exchange the top two elements of the stack.</td>
+</tr>
+</table>
 
 
-<H3> OPCODE_LESS <\H3>
-<H3> OPCODE_LESSEQUAL <\H3>
-<H3> OPCODE_GREATER <\H3>
-<H3> OPCODE_GREATEREQUAL <\H3>
-<H3> OPCODE_NOTEQUAL <\H3>
-<H3> OPCODE_EQUAL <\H3>
-<H3> OPCODE_ADD <\H3>
-<H3> OPCODE_SUB <\H3>
-<H3> OPCODE_SHIFTLEFT <\H3>
-<H3> OPCODE_SHIFTRIGHT <\H3>
-<H3> OPCODE_OROR <\H3>
-<H3> OPCODE_ANDAND <\H3>
-<H3> OPCODE_OR <\H3>
-<H3> OPCODE_AND <\H3>
-<H3> OPCODE_XOR <\H3>
-<H3> OPCODE_DIV <\H3>
-<H3> OPCODE_MOD <\H3>
-<H3> OPCODE_MULT <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: Pop the top element from the stack and operate on it
+<H3> OPCODE_LESS </H3>
+<H3> OPCODE_LESSEQUAL </H3>
+<H3> OPCODE_GREATER </H3>
+<H3> OPCODE_GREATEREQUAL </H3>
+<H3> OPCODE_NOTEQUAL </H3>
+<H3> OPCODE_EQUAL </H3>
+<H3> OPCODE_ADD </H3>
+<H3> OPCODE_SUB </H3>
+<H3> OPCODE_SHIFTLEFT </H3>
+<H3> OPCODE_SHIFTRIGHT </H3>
+<H3> OPCODE_OROR </H3>
+<H3> OPCODE_ANDAND </H3>
+<H3> OPCODE_OR </H3>
+<H3> OPCODE_AND </H3>
+<H3> OPCODE_XOR </H3>
+<H3> OPCODE_DIV </H3>
+<H3> OPCODE_MOD </H3>
+<H3> OPCODE_MULT </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Pop the top element from the stack and operate on it
         and the next element down - leaving the result on
         the stack in it's place.  So (for example) if the
         operation was 'SUB' (Subtract), and A is on top of
         the stack and B is beneath it - then the result of
         this operation would be to leave (B-A) on the stack
         with no sign of either A or B.
-
+        <p>
         The 'ADD' operator also works with strings by concatenating
-        them.
+        them.</td>
+</tr>
+</table>
 
-<H3> OPCODE_NOT <\H3>
-<H3> OPCODE_TWIDDLE <\H3>
-<H3> OPCODE_NEG <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: Perform the C unary '!', '~' or '-' operator on the top
-        element of the stack.
-<H3> OPCODE_PAUSE <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: Informs application program that the script wishes
-        to be paused until next frame.
-<H3> OPCODE_HALT <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: Informs the application that the script wishes to halt.
+<H3> OPCODE_NOT </H3>
+<H3> OPCODE_TWIDDLE </H3>
+<H3> OPCODE_NEG </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Perform the C unary '!', '~' or '-' operator on the top
+        element of the stack.</td>
+</tr>
+</table>
+
+<H3> OPCODE_PAUSE </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Informs application program that the script wishes
+        to be paused until next frame.</td>
+</tr>
+</table>
+
+<H3> OPCODE_HALT </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Informs the application that the script wishes to halt.
         Even if the application ignores this request, the script
-        will continue looping at this location for ever.
+        will continue looping at this location for ever.</td>
+</tr>
+</table>
 
-<H3> OPCODE_PEEK_JUMP_TRUE <\H3>
-<H3> OPCODE_PEEK_JUMP_FALSE <\H3>
-INTRUCTION BYTES: 3 <br>
-EFFECT: The two bytes at the end of the instruction contain
+<H3> OPCODE_PEEK_JUMP_TRUE </H3>
+<H3> OPCODE_PEEK_JUMP_FALSE </H3>
+INTRUCTION BYTES: 3
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The two bytes at the end of the instruction contain
         an address.  Inspect the number off the top of the stack
         (without popping it) - and branch to the specified
-        instruction if the value is TRUE (or FALSE as applicable).
+        instruction if the value is TRUE (or FALSE as applicable).</td>
+</tr>
+</table>
 
-<H3> OPCODE_JUMP_TRUE <\H3>
-<H3> OPCODE_JUMP_FALSE <\H3>
-INTRUCTION BYTES: 3 <br>
-EFFECT: The two bytes at the end of the instruction contain
+<H3> OPCODE_JUMP_TRUE </H3>
+<H3> OPCODE_JUMP_FALSE </H3>
+INTRUCTION BYTES: 3
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The two bytes at the end of the instruction contain
         an address.  POP the number off the top of the stack
         (without popping it) - and branch to the specified
-        instruction if the value is TRUE (or FALSE as applicable).
+        instruction if the value is TRUE (or FALSE as applicable).</td>
+</tr>
+</table>
 
-<H3> OPCODE_JUMP <\H3>
-INTRUCTION BYTES: 3 <br>
-EFFECT: The two bytes at the end of the instruction contain
-        an address.  Jump to that address.
+<H3> OPCODE_JUMP </H3>
+INTRUCTION BYTES: 3
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The two bytes at the end of the instruction contain
+        an address.  Jump to that address.</td>
+</tr>
+</table>
 
-<H3> OPCODE_PUSH_VARIABLE <\H3>
-INTRUCTION BYTES: 2 <br>
-EFFECT: The second byte of the instruction is the index of
+<H3> OPCODE_PUSH_VARIABLE </H3>
+INTRUCTION BYTES: 2
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The second byte of the instruction is the index of
         a variable.  The value of that variable is pushed onto
-        the stack.
+        the stack.</td>
+</tr>
+</table>
 
-<H3> OPCODE_POP_ADD_VARIABLE <\H3>
-<H3> OPCODE_POP_SUB_VARIABLE <\H3>
-<H3> OPCODE_POP_MUL_VARIABLE <\H3>
-<H3> OPCODE_POP_MOD_VARIABLE <\H3>
-<H3> OPCODE_POP_DIV_VARIABLE <\H3>
-<H3> OPCODE_POP_AND_VARIABLE <\H3>
-<H3> OPCODE_POP_OR_VARIABLE  <\H3>
-<H3> OPCODE_POP_XOR_VARIABLE <\H3>
-<H3> OPCODE_POP_SHL_VARIABLE <\H3>
-<H3> OPCODE_POP_SHR_VARIABLE <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: Three things are on the stack when this function is called.
-        The thing on top is the result of an expression evaluation.
-        The thing beneath that is the index of a variable.
-        The thing beneath that is the dimension of the variable.
+<H3> OPCODE_POP_ADD_VARIABLE </H3>
+<H3> OPCODE_POP_SUB_VARIABLE </H3>
+<H3> OPCODE_POP_MUL_VARIABLE </H3>
+<H3> OPCODE_POP_MOD_VARIABLE </H3>
+<H3> OPCODE_POP_DIV_VARIABLE </H3>
+<H3> OPCODE_POP_AND_VARIABLE </H3>
+<H3> OPCODE_POP_OR_VARIABLE  </H3>
+<H3> OPCODE_POP_XOR_VARIABLE </H3>
+<H3> OPCODE_POP_SHL_VARIABLE </H3>
+<H3> OPCODE_POP_SHR_VARIABLE </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Three things are on the stack when this function is called.<br>
+        The thing on top is the result of an expression evaluation.<br>
+        The thing beneath that is the index of a variable.<br>
+        The thing beneath that is the dimension of the variable.<br>
         The value is added to/subtracted from/multiplied by/etc
-        the variable - and stored back into the variable.
-        The new value of the variable is left on the stack.
+        the variable - and stored back into the variable.<br>
+        The new value of the variable is left on the stack.</td>
+</tr>
+</table>
 
-<H3> OPCODE_POP_VARIABLE <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: Three things are on the stack when this function is called.
-        The thing on top is the result of an expression evaluation.
-        The thing beneath that is the index of a variable.
-        The thing beneath that is the dimension of the variable.
-        The value is stored into the variable.
-        The new value of the variable is left on the stack.
+<H3> OPCODE_POP_VARIABLE </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    Three things are on the stack when this function is called.<br>
+        The thing on top is the result of an expression evaluation.<br>
+        The thing beneath that is the index of a variable.<br>
+        The thing beneath that is the dimension of the variable.<br>
+        The value is stored into the variable.<br>
+        The new value of the variable is left on the stack.</td>
+</tr>
+</table>
 
-<H3> OPCODE_SET_INT_ARRAY <\H3>
-<H3> OPCODE_SET_FLOAT_ARRAY <\H3>
-<H3> OPCODE_SET_STRING_ARRAY <\H3>
-INTRUCTION BYTES: 2 <br>
-EFFECT: The second byte of the instruction is the index of an array variable.
-        On the top of the stack is an integer.
+<H3> OPCODE_SET_INT_ARRAY </H3>
+<H3> OPCODE_SET_FLOAT_ARRAY </H3>
+<H3> OPCODE_SET_STRING_ARRAY </H3>
+INTRUCTION BYTES: 2
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The second byte of the instruction is the index of an array
+        variable.<br>
+        On the top of the stack is an integer.<br>
         This instruction allocates that number of elements of storage to
-        the array.
+        the array.</td>
+</tr>
+</table>
 
-<H3> OPCODE_SET_INT_VARIABLE <\H3>
-<H3> OPCODE_SET_FLOAT_VARIABLE <\H3>
-<H3> OPCODE_SET_STRING_VARIABLE <\H3>
-INTRUCTION BYTES: 2 <br>
-EFFECT: The second byte of the instruction is the index of a variable.
+<H3> OPCODE_SET_INT_VARIABLE </H3>
+<H3> OPCODE_SET_FLOAT_VARIABLE </H3>
+<H3> OPCODE_SET_STRING_VARIABLE </H3>
+INTRUCTION BYTES: 2
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The second byte of the instruction is the index of a variable.<br>
         That variable is created, set to the appropriate type and
-        initialised appropriately.
+        initialised appropriately.</td>
+</tr>
+</table>
 
-<H3> OPCODE_FETCH <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: The index of a variable is on top of the stack
-        The thing beneath that is the dimension of the variable.
-        Replace those with the value of that variable.
+<H3> OPCODE_FETCH </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The index of a variable is on top of the stack.<br>
+        The thing beneath that is the dimension of the variable.<br>
+        Replace those with the value of that variable.</td>
+</tr>
+</table>
  
-<H3> OPCODE_INCREMENT_FETCH <\H3>
-<H3> OPCODE_DECREMENT_FETCH <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: The index of a variable is on top of the stack
-        The thing beneath that is the dimension of the variable.
+<H3> OPCODE_INCREMENT_FETCH </H3>
+<H3> OPCODE_DECREMENT_FETCH </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The index of a variable is on top of the stack.<br>
+        The thing beneath that is the dimension of the variable.<br>
         Replace those
         with the value of that variable. Post-increment/decrement the
-        variable.
+        variable.</td>
+</tr>
+</table>
  
-<H3> OPCODE_INCREMENT_LVALUE <\H3>
-<H3> OPCODE_DECREMENT_LVALUE <\H3>
-INTRUCTION BYTES: 1 <br>
-EFFECT: The index and dimension of a variable is on top of the stack.
+<H3> OPCODE_INCREMENT_LVALUE </H3>
+<H3> OPCODE_DECREMENT_LVALUE </H3>
+INTRUCTION BYTES: 1
+<table>
+<tr>
+<td valign="top">
+EFFECT:
+</td>
+<td>    The index and dimension of a variable is on top of the stack.<br>
         Increment/decrement the variable leaving the stack
-        contents undisturbed.
+        contents undisturbed.</td>
+</tr>
+</table>
  
 <hr>
 <address>
