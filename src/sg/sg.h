@@ -176,6 +176,8 @@ inline void sgFullXformPnt4 ( sgVec4 dst, const sgMat4 mat ) { sgFullXformPnt4 (
   Add       - add vectors element by element.
   Sub       - subtract vectors element by element.
   Scale     - multiply each element of a vector by a variable.
+  AddScaled - multiply second vector by a constant and add the
+              result to the first vector.
   Negate    - negate each element of a vector.
   Compare   - compare vectors element by element with optional tolerance.
               (return TRUE if vectors are equal - within tolerances)
@@ -579,6 +581,22 @@ inline SGfloat sgLengthVec4 ( const sgVec4 src )
   return sgSqrt ( sgScalarProductVec4 ( src, src ) ) ;
 }
 
+inline SGfloat sgLengthSquaredVec2 ( sgVec2 const src )
+{
+  return sgScalarProductVec2 ( src, src ) ;
+}
+
+inline SGfloat sgLengthSquaredVec3 ( sgVec3 const src )
+{
+  return sgScalarProductVec3 ( src, src ) ;
+}
+
+inline SGfloat sgLengthSquaredVec4 ( sgVec4 const src )
+{
+  return sgScalarProductVec4 ( src, src ) ;
+}
+
+
 /* Anglo-US spelling issues.  <sigh> */
 #define sgNormalizeVec2 sgNormaliseVec2
 #define sgNormalizeVec3 sgNormaliseVec3
@@ -691,13 +709,20 @@ inline SGfloat sgHeightAbovePlaneVec3 ( const sgVec4 plane, const sgVec3 pnt )
   return pnt[3] - sgHeightOfPlaneVec2 ( plane, pnt ) ;
 }
 
+extern void sgReflectInPlaneVec3 ( sgVec3 dst, const sgVec3 src, const sgVec4 plane ) ;
+
+inline void sgReflectInPlaneVec3 ( sgVec3 dst, const sgVec4 plane ) 
+{
+  sgReflectInPlaneVec3 ( dst, dst, plane ) ;
+}
+
 extern void sgMakeNormal    ( sgVec3 dst, const sgVec3 a, const sgVec3 b, const sgVec3 c ) ;
 
 
 inline void sgMake2DLine ( sgVec3 dst, const sgVec2 a, const sgVec2 b )
 {
-  dst[0] = b[1]-a[1] ;
-  dst[1] = b[0]-a[0] ;
+  dst[0] =   b[1]-a[1]  ;
+  dst[1] = -(b[0]-a[0]) ;
   sgNormalizeVec2 ( dst ) ;
   dst[2] = - ( dst[0]*a[0] + dst[1]*a[1] ) ;
 }
@@ -1279,6 +1304,8 @@ inline void sgdFullXformPnt4 ( sgdVec4 dst, const sgdMat4 mat ) { sgdFullXformPn
   Equal     - return TRUE if vectors are exactly equal.
   Length    - compute length of a vector.
   Distance  - compute distance between two points.
+  LengthSquared   - compute the square of the length of a vector.
+  DistanceSquared - compute the square of the distance between two points.
   ScalarProduct - scalar (dot) product.
   VectorProduct - vector (cross) product (3-element vectors ONLY!).
   Normalise/Normalize - make vector be one unit long.
@@ -1677,6 +1704,21 @@ inline SGDfloat sgdLengthVec4 ( sgdVec4 const src )
   return sgdSqrt ( sgdScalarProductVec4 ( src, src ) ) ;
 }
 
+inline SGDfloat sgdLengthSquaredVec2 ( sgdVec2 const src )
+{
+  return sgdScalarProductVec2 ( src, src ) ;
+}
+
+inline SGDfloat sgdLengthSquaredVec3 ( sgdVec3 const src )
+{
+  return sgdScalarProductVec3 ( src, src ) ;
+}
+
+inline SGDfloat sgdLengthSquaredVec4 ( sgdVec4 const src )
+{
+  return sgdScalarProductVec4 ( src, src ) ;
+}
+
 /* Anglo-US spelling issues.  <sigh> */
 #define sgdNormalizeVec2 sgdNormaliseVec2
 #define sgdNormalizeVec3 sgdNormaliseVec3
@@ -1789,12 +1831,19 @@ inline SGDfloat sgdHeightAbovePlaneVec3 ( const sgdVec4 plane, const sgdVec3 pnt
   return pnt[3] - sgdHeightOfPlaneVec2 ( plane, pnt ) ;
 }
 
+extern void sgdReflectInPlaneVec3 ( sgdVec3 dst, const sgdVec3 src, const sgdVec4 plane ) ;
+ 
+inline void sgdReflectInPlaneVec3 ( sgdVec3 dst, const sgdVec4 plane ) 
+{
+  sgdReflectInPlaneVec3 ( dst, dst, plane ) ;
+}
+
 extern void sgdMakeNormal    ( sgdVec3 dst, const sgdVec3 a, const sgdVec3 b, const sgdVec3 c ) ;
 
 inline void sgdMake2DLine ( sgdVec3 dst, const sgdVec2 a, const sgdVec2 b )
 {
-  dst[0] = b[1]-a[1] ;
-  dst[1] = b[0]-a[0] ;
+  dst[0] =  b[1]-a[1] ;
+  dst[1] = -b[0]-a[0] ;
   sgdNormalizeVec2 ( dst ) ;
   dst[2] = - ( dst[0]*a[0] + dst[1]*a[1] ) ;
 }
