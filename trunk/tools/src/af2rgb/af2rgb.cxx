@@ -5,7 +5,7 @@
 // with some help by Marten Strömberg.
 //
 // Published as part of Steve Baker's PLIB
-// License is LGPL
+// License is GPL
 
 #include <stdlib.h>
 #include <stdio.h>
