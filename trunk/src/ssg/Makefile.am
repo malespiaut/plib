@@ -12,7 +12,7 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
         ssgInvisible.cxx ssgLoadSSG.cxx ssgLoadVRML.cxx ssgVTable.cxx \
         ssgSimpleList.cxx ssgVtxTable.cxx ssgIO.cxx ssgLoad3ds.cxx \
         ssgSaveASE.cxx ssgLoadASE.cxx ssgParser.cxx ssgParser.h \
-        ssgLoadDXF.cxx ssgSaveDXF.cxx
+        ssgLoadDXF.cxx ssgSaveDXF.cxx ssgLoadTRI.cxx ssgSaveTRI.cxx
 
 INCLUDES += -I$(top_srcdir)/src/sg
 

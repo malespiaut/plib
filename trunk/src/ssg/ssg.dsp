@@ -170,6 +170,10 @@ SOURCE=.\ssgLoadSSG.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadTRI.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadVRML.cxx
 # End Source File
 # Begin Source File
@@ -207,6 +211,10 @@ SOURCE=.\ssgSaveASE.cxx
 # Begin Source File
 
 SOURCE=.\ssgSaveDXF.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveTRI.cxx
 # End Source File
 # Begin Source File
 
