@@ -264,7 +264,7 @@ void point_no_active_cb ( puObject *ob )
   if ( hits )
     point_no->setValue ( (int)buffer[3] ) ;
 
-  printf ( "Active point %d %d %d\n", mouse_x, mouse_y, hits ) ;
+  printf ( "Active point %d %d %ld\n", mouse_x, mouse_y, hits ) ;
 
   glMatrixMode ( GL_MODELVIEW );  // got set to GL_PROJECTION earlier
 }
@@ -338,7 +338,7 @@ int main ( int argc, char **argv )
 
   tim = new fntTexFont ;
   tim -> load ( "../fnt/data/times_medium.txf" ) ;
-  puFont times_medium ( tim, 15, .5 ) ;
+  puFont times_medium ( tim, 15, 0.3 ) ;
   puSetDefaultFonts        ( times_medium, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
   puSetDefaultColourScheme ( 0.1, 0.8, 0.1, 1.0) ;
