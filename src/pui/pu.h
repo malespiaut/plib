@@ -204,14 +204,16 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUPLACE_TOP_RIGHT         2
 
 #define PUPLACE_CENTERED_LEFT     3
-#define PUPLACE_CENTERED_CENTERED 4
-#define PUPLACE_CENTERED_RIGHT    5
+#define PUPLACE_CENTERED_RIGHT    4
 
-#define PUPLACE_BOTTOM_LEFT       6
-#define PUPLACE_BOTTOM_CENTERED   7
-#define PUPLACE_BOTTOM_RIGHT      8
+#define PUPLACE_BOTTOM_LEFT       5
+#define PUPLACE_BOTTOM_CENTERED   6
+#define PUPLACE_BOTTOM_RIGHT      7
 
-/* Additional definitions for PUI label places */
+/* Additional definitions for PUI Legend places */
+#define PUPLACE_CENTERED_CENTERED 8
+
+/* Additional definitions for PUI Label places */
 #define PUPLACE_ABOVE_LEFT        9
 #define PUPLACE_ABOVE_RIGHT      10
 

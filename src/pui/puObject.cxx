@@ -231,61 +231,52 @@ void puObject::draw_legend ( int dx, int dy )
 
   switch ( getLegendPlace() )
   {
-  case PUPLACE_TOP_LEFT     :
-  case PUPLACE_ABOVE_LEFT    :
-  case PUPLACE_UPPER_LEFT    :
+  case PUPLACE_TOP_LEFT      :
   case PUPLACE_CENTERED_LEFT :
+  case PUPLACE_BOTTOM_LEFT   :
   case PUPLACE_LOWER_LEFT    :
-  case PUPLACE_BELOW_LEFT    :
-  case PUPLACE_BOTTOM_LEFT     :
     xx = lgap ;
     break ;
 
-  case PUPLACE_TOP_CENTERED :
+  case PUPLACE_TOP_CENTERED      :
   case PUPLACE_CENTERED_CENTERED :
-  case PUPLACE_BOTTOM_CENTERED :
-  default :
+  case PUPLACE_BOTTOM_CENTERED   :
     xx = ( abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
     break ;
 
-  case PUPLACE_TOP_RIGHT    :
-  case PUPLACE_ABOVE_RIGHT    :
-  case PUPLACE_UPPER_RIGHT    :
+  case PUPLACE_TOP_RIGHT      :
   case PUPLACE_CENTERED_RIGHT :
+  case PUPLACE_BOTTOM_RIGHT   :
   case PUPLACE_LOWER_RIGHT    :
-  case PUPLACE_BELOW_RIGHT    :
-  case PUPLACE_BOTTOM_RIGHT    :
     xx = abox.max[0] - abox.min[0] - legendFont.getStringWidth ( legend ) - rgap ;
     break ;
+
+  default :
+     ulSetError ( UL_WARNING, "PUI: Unrecognised LEGEND place %d", getLegendPlace() ) ;
+     return ;
   }
 
   switch ( getLegendPlace() )
   {
-  case PUPLACE_UPPER_LEFT    :
-  case PUPLACE_ABOVE_LEFT    :
   case PUPLACE_TOP_LEFT     :
   case PUPLACE_TOP_CENTERED :
   case PUPLACE_TOP_RIGHT    :
-  case PUPLACE_ABOVE_RIGHT    :
-  case PUPLACE_UPPER_RIGHT    :
     yy = abox.max[1] - abox.min[1] - legendFont.getStringHeight ( legend ) -
          legendFont.getStringDescender () - tgap ;
     break ;
 
-  case PUPLACE_CENTERED_LEFT :
+  case PUPLACE_CENTERED_LEFT     :
   case PUPLACE_CENTERED_CENTERED :
-  case PUPLACE_CENTERED_RIGHT :
+  case PUPLACE_CENTERED_RIGHT    :
+  case PUPLACE_LOWER_LEFT        : /* Backwards compatibility to PUPLACE_LEFT */
+  case PUPLACE_LOWER_RIGHT       : /* Backwards compatibility to PUPLACE_RIGHT */
   default :
     yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2 ;
     break ;
 
-  case PUPLACE_LOWER_LEFT    :
-  case PUPLACE_BELOW_LEFT    :
   case PUPLACE_BOTTOM_LEFT     :
   case PUPLACE_BOTTOM_CENTERED :
   case PUPLACE_BOTTOM_RIGHT    :
-  case PUPLACE_BELOW_RIGHT    :
-  case PUPLACE_LOWER_RIGHT    :
     yy = bgap + legendFont.getStringDescender () ;
     break ;
   }
@@ -318,20 +309,18 @@ void puObject::draw_label ( int dx, int dy )
     xx = 0 ;
     break ;
 
-  case PUPLACE_TOP_LEFT     :
-  case PUPLACE_BOTTOM_LEFT     :
+  case PUPLACE_TOP_LEFT    :
+  case PUPLACE_BOTTOM_LEFT :
     xx = abox.min[0] - bbox.min[0] + PUSTR_LGAP ;
     break ;
 
-  case PUPLACE_TOP_CENTERED :
-  case PUPLACE_CENTERED_CENTERED :
+  case PUPLACE_TOP_CENTERED    :
   case PUPLACE_BOTTOM_CENTERED :
-  default :
     xx = ( bbox.max[0] - bbox.min[0] - labelFont.getStringWidth ( label ) ) / 2 ;
     break ;
 
   case PUPLACE_TOP_RIGHT    :
-  case PUPLACE_BOTTOM_RIGHT    :
+  case PUPLACE_BOTTOM_RIGHT :
     xx = abox.max[0] - bbox.min[0] - labelFont.getStringWidth ( label ) - PUSTR_RGAP ;
     break ;
 
@@ -342,41 +331,44 @@ void puObject::draw_label ( int dx, int dy )
   case PUPLACE_BELOW_RIGHT    :
     xx = bbox.max[0] - bbox.min[0] - labelFont.getStringWidth ( label ) ;
     break ;
+
+  default :
+     ulSetError ( UL_WARNING, "PUI: Unrecognised LABEL place %d", getLegendPlace() ) ;
+     return ;
   }
 
   switch ( getLabelPlace() )
   {
-  case PUPLACE_ABOVE_LEFT    :
+  case PUPLACE_ABOVE_LEFT   :
   case PUPLACE_TOP_LEFT     :
   case PUPLACE_TOP_CENTERED :
   case PUPLACE_TOP_RIGHT    :
-  case PUPLACE_ABOVE_RIGHT    :
+  case PUPLACE_ABOVE_RIGHT  :
     yy = bbox.max[1] - bbox.min[1] - labelFont.getStringHeight ( label ) -
          labelFont.getStringDescender () ;
     break ;
 
-  case PUPLACE_UPPER_LEFT    :
-  case PUPLACE_UPPER_RIGHT    :
+  case PUPLACE_UPPER_LEFT  :
+  case PUPLACE_UPPER_RIGHT :
     yy = abox.max[1] - bbox.min[1] - labelFont.getStringHeight ( label ) - PUSTR_TGAP ;
     break ;
 
-  case PUPLACE_CENTERED_LEFT :
-  case PUPLACE_CENTERED_CENTERED :
+  case PUPLACE_CENTERED_LEFT  :
   case PUPLACE_CENTERED_RIGHT :
   default :
     yy = ( bbox.max[1] - bbox.min[1] - labelFont.getStringHeight () ) / 2 ;
     break ;
 
-  case PUPLACE_LOWER_LEFT    :
-  case PUPLACE_LOWER_RIGHT    :
+  case PUPLACE_LOWER_LEFT  :
+  case PUPLACE_LOWER_RIGHT :
     yy = abox.min[1] - bbox.min[1] + labelFont.getStringDescender () + PUSTR_BGAP ;
     break ;
 
-  case PUPLACE_BELOW_LEFT    :
+  case PUPLACE_BELOW_LEFT      :
   case PUPLACE_BOTTOM_LEFT     :
   case PUPLACE_BOTTOM_CENTERED :
   case PUPLACE_BOTTOM_RIGHT    :
-  case PUPLACE_BELOW_RIGHT    :
+  case PUPLACE_BELOW_RIGHT     :
     yy = labelFont.getStringDescender () ;
     break ;
   }
