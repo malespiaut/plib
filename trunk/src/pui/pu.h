@@ -307,6 +307,7 @@ extern int puRefresh ; /* Should not be used directly by applications any
 #define PUCLASS_TRISLIDER        0x00100000
 #define PUCLASS_VERTMENU         0x00200000
 #define PUCLASS_LARGEINPUT       0x00400000
+#define PUCLASS_COMBOBOX         0x00800000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -340,6 +341,7 @@ class puBiSlider         ;
 class puTriSlider        ;
 class puVerticalMenu     ;
 class puLargeInput       ;
+class puComboBox         ;
 
 // Global function to move active object to the end of the "dlist"
 // so it is displayed in front of everything else
@@ -1575,6 +1577,47 @@ public:
   void  addText ( const char *l ) ;
   void  appendText ( const char *l ) ;
   void  removeText ( int start, int end ) ;
+} ;
+
+
+class puComboBox : public puGroup
+{
+protected:
+  char ** list  ;
+  int num_items ;
+
+  int curr_item ;
+
+  puInput *input ;
+  puArrowButton *arrow_btn ;
+  puPopupMenu *popup_menu  ;
+
+  static void handle_arrow ( puObject *arrow  ) ;
+  static void handle_popup ( puObject *popupm ) ;
+
+  void update_widgets ( void ) ;
+
+public:
+  /* Not for application use ! */
+  puPopupMenu * __getPopupMenu ( void )  { return popup_menu ; }
+
+  void newList ( char ** _list ) ;
+  int  getNumItems ( void )  { return num_items ; }
+
+  int  getCurrentItem ( void ) ;
+  void setCurrentItem ( int item )
+  {
+    if ( item < num_items )
+      curr_item = item ;
+
+    update_widgets () ;
+  }
+  void setCurrentItem ( const char *item_ptr ) ;
+
+  void draw ( int dx, int dy ) ;
+
+  puComboBox ( int minx, int miny, int maxx, int maxy,
+               char **list, int editable = TRUE ) ;
 } ;
 
 #endif
