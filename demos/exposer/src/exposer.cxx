@@ -38,6 +38,7 @@ char lastModelFileName [ PUSTRING_MAX ] ;
 
 void loadCB ( puObject * ) ;
 
+puInput    *show_angle  ;
 puText     *message     ;
 puButton   *hideBones   ;
 puButton   *hideSkin    ;
@@ -84,6 +85,13 @@ unsigned char floorTexture3 [] =
   127
 } ;
 
+
+
+void setShowAngle ( float a )
+{
+  show_angle -> setValue ( a ) ;
+  show_angle -> rejectInput () ;
+}
 
 
 void setCurrentEvent ( Event *ev )
@@ -1069,47 +1077,53 @@ void init_graphics ()
   }
   menuBar -> close () ;
 
+  show_angle   =  new puInput ( 5, 560, 80, 580 ) ;
+  show_angle   -> setValue ( "" ) ;
+  show_angle   -> rejectInput () ;
+  message      =  new puText    ( 80, 560 ) ;
+  message      -> setLabel      ( "Angle"  ) ;
+
   timescroller =  new puSlider  ( TIMEBOX_LEFT, TIMEBOX_TOP+5,
-                                    570-TIMEBOX_LEFT, FALSE ) ;
+                                  570-TIMEBOX_LEFT, FALSE ) ;
   timescroller -> setCBMode     ( PUSLIDER_DELTA   ) ;
   timescroller -> setDelta      ( 0.01             ) ;
   timescroller -> setCallback   ( timescrollerCB   ) ;
   timescroller -> hide () ;
 
-  scroller    =  new puSlider  ( 5, 70, 400, TRUE ) ;
-  scroller    -> setCBMode     ( PUSLIDER_DELTA   ) ;
-  scroller    -> setDelta      ( 0.01             ) ;
-  scroller    -> setCallback   ( scrollerCB       ) ;
+  scroller     =  new puSlider  ( 5, 70, 400, TRUE ) ;
+  scroller     -> setCBMode     ( PUSLIDER_DELTA   ) ;
+  scroller     -> setDelta      ( 0.01             ) ;
+  scroller     -> setCallback   ( scrollerCB       ) ;
 
-  hideBones   =  new puButton  ( 7, 0, "Bones" ) ;
-  hideBones   -> setValue      ( TRUE ) ;
-  hideSkin    =  new puButton  ( 46, 0, "Skin" ) ;
-  hideSkin    -> setValue      ( FALSE ) ;
-  hideGround  =  new puButton  ( 76, 0, "Floor" ) ;
-  hideGround  -> setValue      ( FALSE ) ;
+  hideBones    =  new puButton  ( 7, 0, "Bones" ) ;
+  hideBones    -> setValue      ( TRUE ) ;
+  hideSkin     =  new puButton  ( 46, 0, "Skin" ) ;
+  hideSkin     -> setValue      ( FALSE ) ;
+  hideGround   =  new puButton  ( 76, 0, "Floor" ) ;
+  hideGround   -> setValue      ( FALSE ) ;
 
-  rangeSlider =  new puSlider  ( 10, 20, 100, FALSE ) ;
-  rangeSlider -> setCBMode     ( PUSLIDER_DELTA ) ;
-  rangeSlider -> setDelta      ( 0.01    ) ;
-  message     =  new puText    ( 10, 40 ) ;
-  message     -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
-  message     -> setLabel      ( "Zoom"  ) ;
+  rangeSlider  =  new puSlider  ( 10, 20, 100, FALSE ) ;
+  rangeSlider  -> setCBMode     ( PUSLIDER_DELTA ) ;
+  rangeSlider  -> setDelta      ( 0.01    ) ;
+  message      =  new puText    ( 10, 40 ) ;
+  message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
+  message      -> setLabel      ( "Zoom"  ) ;
 
-    panSlider =  new puDial    ( 110, 0, 40 ) ;
-    panSlider -> setCBMode     ( PUSLIDER_DELTA ) ;
-    panSlider -> setDelta      ( 0.01f   ) ;
-    panSlider -> setValue      ( 0.5f    ) ;
-  message     =  new puText    ( 110, 40 ) ;
-  message     -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
-  message     -> setLabel      ( "Pan"  ) ;
+    panSlider  =  new puDial    ( 110, 0, 40 ) ;
+    panSlider  -> setCBMode     ( PUSLIDER_DELTA ) ;
+    panSlider  -> setDelta      ( 0.01f   ) ;
+    panSlider  -> setValue      ( 0.5f    ) ;
+  message      =  new puText    ( 110, 40 ) ;
+  message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
+  message      -> setLabel      ( "Pan"  ) ;
 
-   tiltSlider =  new puDial    ( 150, 0, 40 ) ;
-   tiltSlider -> setCBMode     ( PUSLIDER_DELTA ) ;
-   tiltSlider -> setDelta      ( 0.01f   ) ;
-   tiltSlider -> setValue      ( 0.5f    ) ;
-  message     =  new puText    ( 150, 40 ) ;
-  message     -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
-  message     -> setLabel      ( "Tilt"  ) ;
+   tiltSlider  =  new puDial    ( 150, 0, 40 ) ;
+   tiltSlider  -> setCBMode     ( PUSLIDER_DELTA ) ;
+   tiltSlider  -> setDelta      ( 0.01f   ) ;
+   tiltSlider  -> setValue      ( 0.5f    ) ;
+  message      =  new puText    ( 150, 40 ) ;
+  message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
+  message      -> setLabel      ( "Tilt"  ) ;
 
   vcr = new puGroup ( 579, TIMEBOX_TOP + 5 ) ;
 

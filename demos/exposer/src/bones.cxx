@@ -37,6 +37,7 @@ void jointHeadingCB ( puObject *ob )
   float a ; ob -> getValue ( & a ) ;
  
   bone->setAngle ( 0, a * 360.0f - 180.0f ) ;
+  setShowAngle ( a * 360.0f - 180.0f ) ;
 }
  
  
@@ -46,6 +47,7 @@ void jointPitchCB ( puObject *ob )
   float a ; ob -> getValue ( & a ) ;
  
   bone->setAngle ( 1, a * 360.0f - 180.0f ) ;
+  setShowAngle ( a * 360.0f - 180.0f ) ;
 }
  
  
@@ -55,6 +57,7 @@ void jointRollCB ( puObject *ob )
   float a ; ob -> getValue ( & a ) ;
  
   bone->setAngle ( 2, a * 360.0f - 180.0f ) ;
+  setShowAngle ( a * 360.0f - 180.0f ) ;
 }
  
  
@@ -1020,14 +1023,14 @@ void init_bones ()
 
   puText   *message ;
 
-  XtranslateInput  =  new puInput ( 5, 485, 80, 505 ) ;
-  XtranslateInput  -> setCallback ( currTranslateTxtXCB ) ;
+  ZtranslateInput  =  new puInput ( 5, 485, 80, 505 ) ;
+  ZtranslateInput  -> setCallback ( currTranslateTxtZCB ) ;
 
-  XtranslateSlider = new puSlider ( 80, 485, 120, FALSE ) ;
-  XtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
-  XtranslateSlider -> setDelta    ( 0.01    ) ;
-  XtranslateSlider -> setCallback ( currTranslateXCB ) ;
-  message = new puText ( 205,485 ) ; message->setLabel ( "X" ) ; 
+  ZtranslateSlider = new puSlider ( 80, 485, 120, FALSE ) ;
+  ZtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
+  ZtranslateSlider -> setDelta    ( 0.01    ) ;
+  ZtranslateSlider -> setCallback ( currTranslateZCB ) ;
+  message = new puText ( 205,485 ) ; message->setLabel ( "Z" ) ; 
 
   YtranslateInput  =  new puInput ( 5, 505, 80, 525 ) ;
   YtranslateInput  -> setCallback ( currTranslateTxtYCB ) ;
@@ -1038,14 +1041,14 @@ void init_bones ()
   YtranslateSlider -> setCallback ( currTranslateYCB ) ;
   message = new puText ( 205,505 ) ; message->setLabel ( "Y" ) ; 
 
-  ZtranslateInput  =  new puInput ( 5, 525, 80, 545 ) ;
-  ZtranslateInput  -> setCallback ( currTranslateTxtZCB ) ;
+  XtranslateInput  =  new puInput ( 5, 525, 80, 545 ) ;
+  XtranslateInput  -> setCallback ( currTranslateTxtZCB ) ;
 
-  ZtranslateSlider = new puSlider ( 80, 525, 120, FALSE ) ;
-  ZtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
-  ZtranslateSlider -> setDelta    ( 0.01    ) ;
-  ZtranslateSlider -> setCallback ( currTranslateZCB ) ;
-  message = new puText ( 205,525 ) ; message->setLabel ( "Z" ) ; 
+  XtranslateSlider = new puSlider ( 80, 525, 120, FALSE ) ;
+  XtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
+  XtranslateSlider -> setDelta    ( 0.01    ) ;
+  XtranslateSlider -> setCallback ( currTranslateXCB ) ;
+  message = new puText ( 205,525 ) ; message->setLabel ( "X" ) ; 
 }
 
 
