@@ -179,6 +179,9 @@ Probably after 1.4.0:
 - In fgfsTux, not a large object, you get a DList overflow
   with the standard values for its size. Can we make its
   size dynamic?
+- Look at handling of normals. For example, loaders, 
+  stripify etc should only recalculate missing normals.
+  Have *one* function that recalculates normals.
 
 
 
