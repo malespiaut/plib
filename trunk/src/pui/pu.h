@@ -492,6 +492,7 @@ protected:
   void *render_data ;
   int border_thickness ;
 
+  virtual void draw_legend ( int dx, int dy ) ;
   virtual void draw_label  ( int dx, int dy ) ;
   virtual int  isHit ( int x, int y ) { return isVisible() && isActive() &&
                                                x >= abox.min[0] &&

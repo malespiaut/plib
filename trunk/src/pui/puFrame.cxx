@@ -45,7 +45,23 @@ void puFrame::draw ( int dx, int dy )
     r_cb ( this, dx, dy, render_data ) ;
   else
   {
-    int xx = ( abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
+    int xx ;
+    switch ( getLegendPlace() )
+    {
+    case PUPLACE_LEFT :
+      xx = PUSTR_LGAP ;
+      break ;
+
+    case PUPLACE_RIGHT :
+      xx = abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) - PUSTR_LGAP ;
+      break ;
+
+    case PUPLACE_CENTERED :
+    default :
+      xx = ( abox.max[0] -
+               abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
+      break ;
+    }
 
     legendFont.drawString ( legend,
                   dx + abox.min[0] + xx,

@@ -96,12 +96,7 @@ void puDial::draw ( int dx, int dy )
 
     glLineWidth ( old_line_width ) ;  // restore the old width
 
-    int xx = ( abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
-    int yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2 ;
-
-    legendFont.drawString ( legend,
-                    dx + abox.min[0] + xx,
-                    dy + abox.min[1] + yy ) ;
+    draw_legend ( dx, dy ) ;
   }
 
   draw_label ( dx, dy ) ;
