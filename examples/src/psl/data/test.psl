@@ -1,10 +1,14 @@
 
+
+float x = 0.0 ;
+
 void wibble ()
 {
-  hello () ;
+  x = x + 1 ;
+  identify () ;
 }
 
-float x = 123.456 ;
+float y = 987.654 ;
 
 void main ()
 {
@@ -12,7 +16,7 @@ void main ()
 
   while ( x < 10 )
   {
-    x = x + 1 ;
+    print ( x, y ) ;
     wibble () ;
     pause ;
   }

@@ -26,6 +26,10 @@
 
 pslProgram::pslProgram ( pslExtension *ext )
 {
+  if ( ! _pslInitialised )
+    ulSetError ( UL_FATAL,
+          "PSL: You didn't call pslInit() before using PSL functions." ) ;
+
   code = new pslOpcode [ MAX_CODE ] ;
 
   extensions = ext ;

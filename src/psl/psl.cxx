@@ -24,4 +24,8 @@
 
 #include "pslLocal.h"
 
+int _pslInitialised = FALSE ;
+
+void pslInit () { _pslInitialised = TRUE ; }
+
 

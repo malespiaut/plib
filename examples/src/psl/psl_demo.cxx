@@ -32,7 +32,21 @@
 #include <plib/psl.h>
 
 
-pslVariable hello ( int argc, pslVariable *argv, pslProgram *p )
+pslVariable print ( int argc, pslVariable *argv, pslProgram *p )
+{
+  for ( int i = 0 ; i < argc ; i++ )
+    printf ( "%f ", argv[i].f ) ;
+
+  printf ( "\n" ) ;
+
+  pslVariable ret ;
+  ret.f = 0.0f ;
+
+  return ret ;
+}
+
+
+pslVariable identify ( int argc, pslVariable *argv, pslProgram *p )
 {
   printf ( "I am %s.\n", (char *)( p->getUserData ()) ) ;
 
@@ -45,13 +59,16 @@ pslVariable hello ( int argc, pslVariable *argv, pslProgram *p )
 
 pslExtension extensions [] =
 {
-  { "hello", 0, hello },
+  { "identify",  0, identify },
+  { "print", -1, print },
   { NULL, 0, NULL }
 } ;
 
 
 int main ()
 {
+  pslInit () ;
+
   /* Create program 1 and compile it. */
 
   pslProgram *prog_1 = new pslProgram ( extensions ) ;
