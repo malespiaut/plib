@@ -24,27 +24,6 @@
 
 #include "fntLocal.h"
 
-#ifndef WIN32
-#  ifndef macintosh
-#    include <GL/glx.h>
-#  else
-#    include <agl.h>
-#  endif
-#endif
-
-static bool glIsValidContext ()
-{
-#if defined(CONSOLE)
-  return true ;
-#elif defined(WIN32)
-  return ( wglGetCurrentContext () != NULL ) ;
-#elif defined(macintosh)
-  return ( aglGetCurrentContext() != NULL ) ;
-#else
-  return ( glXGetCurrentContext() != NULL ) ;
-#endif
-}
-
 FILE *curr_image_fd ;
 int isSwapped = FALSE ;
 
@@ -168,7 +147,7 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
 
 int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 {
-  if ( ! glIsValidContext () )
+  if ( ! ulIsValidContext () )
   {
     ulSetError ( UL_FATAL,
       "FNT font loader called without a valid OpenGL context.");

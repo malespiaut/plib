@@ -31,6 +31,7 @@
 //  - high performance clocks
 //  - ulList
 //  - ulLinkedList
+//  - ulIsValidContext
 //  - more to come (endian support, version ID)
 //
 
@@ -732,6 +733,9 @@ public:
 
 extern int ulStrNEqual ( const char *s1, const char *s2, int len );
 extern int ulStrEqual ( const char *s1, const char *s2 );
+
+
+bool ulIsValidContext ( void ) ;
 
 //lint -restore
 
