@@ -102,14 +102,18 @@ int ssgBase::load ( FILE *fd )
   name = NULL ;
   setSpare ( _ssgGetNextInstanceKey () ) ;
 	_ssgAddToList ( getSpare(), this ) ;
+#ifndef WRITE_SSG_VERSION_ZERO
   _ssgReadString ( fd, &name ) ;
+#endif
   return ! _ssgReadError () ;
 }
 
 int ssgBase::save ( FILE *fd )
 {
   setSpare ( _ssgGetNextInstanceKey () ) ;
+#ifndef WRITE_SSG_VERSION_ZERO
   _ssgWriteString ( fd, name ) ;
+#endif
   return ! _ssgWriteError () ;
 }
 

@@ -1,3 +1,4 @@
+// code for loading and writing .ssg files
 
 #include "ssgLocal.h"
 
@@ -24,15 +25,19 @@ ssgBase *_ssgGetFromList ( int key )
 		return _ssgInstanceList[key] ;
 }
 
-
 void _ssgAddToList ( int key, ssgBase *b )
 {
+	if (key == 0 ) // wk: I dont think key 0 is permissible here.
+		ulSetError ( UL_WARNING, "Key zero encountered while reading a .ssg-file.\n") ; 
 	if ( _ssgInstanceListLength <= key )
   {
     int temp_length = _ssgInstanceListLength ;
     ssgBase **temp = _ssgInstanceList ;
     int new_length = (_ssgInstanceListLength * 2 < key) ? (key + 128) :
                                           (_ssgInstanceListLength * 2) ;
+		if ( new_length == 0 )
+			if (key == 0 ) // Did already warn user
+				new_length = 10;
 		assert ( new_length != 0 );
 		_ssgInstanceListLength = new_length ;
 
@@ -183,15 +188,37 @@ int ssgSaveSSG ( const char *fname, ssgEntity *ent )
   }
 
   _ssgWriteInt ( fd, SSG_FILE_MAGIC_NUMBER ) ;
-  _ssgWriteInt ( fd, ent->getType() ) ;
 
-  if ( ! ent -> save ( fd ) )
-  {
-    fprintf ( stderr,
-      "ssgSaveSSG: Failed to write child object.\n" ) ;
-    return FALSE ;
-  }
+  
+	
+	
+#ifdef WRITE_SSG_VERSION_ZERO
+	assert(!ent->isAKindOf(ssgTypeSelector())); // not implemented, sorry
 
+	// Pfusch, kludge, fix me: Use index array
+	if(ent->isAKindOf(ssgTypeVtxArray()))
+	{
+    _ssgWriteInt ( fd, ssgTypeVtxTable()  ) ;
+
+		ssgVtxArray *svt=(ssgVtxArray *)ent;
+		if ( ! svt -> ssgVtxTable::save ( fd ) )
+		{
+			ulSetError ( UL_WARNING, "saveSSG: Failed to write child object" ) ;
+			return FALSE ;
+		}
+	}
+	else
+#endif
+	{
+		_ssgWriteInt ( fd, ent->getType() ) ;
+
+		if ( ! ent -> save ( fd ) )
+		{
+			fprintf ( stderr,
+				"ssgSaveSSG: Failed to write child object.\n" ) ;
+			return FALSE ;
+		}
+	}
   fclose ( fd ) ;
   return TRUE ;
 }
