@@ -49,6 +49,21 @@ void puInput::normalize_cursors ( void )
   }
 }
 
+void puInput::removeSelectRegion ( void )
+{
+  char *p1 = getStringValue () + select_start_position ;
+  char *p2 = getStringValue () + select_end_position   ;
+
+  while ( *p1 != '\0' )
+    *p1++ = *p2++ ;
+
+  *p2 = '\0' ;
+
+  cursor_position = select_start_position ;
+  select_end_position = select_start_position ;
+}
+
+
 void puInput::draw ( int dx, int dy )
 {
   normalize_cursors () ;
@@ -94,9 +109,9 @@ void puInput::draw ( int dx, int dy )
       glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
     else
       glColor4f ( colour [ PUCOL_LEGEND ][0],
-		  colour [ PUCOL_LEGEND ][1],
-		  colour [ PUCOL_LEGEND ][2],
-		  colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
+                  colour [ PUCOL_LEGEND ][1],
+                  colour [ PUCOL_LEGEND ][2],
+                  colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
 
     char val [ PUSTRING_MAX ] ;
     getValue ( val ) ;
@@ -225,8 +240,12 @@ void puInput::doHit ( int button, int updown, int x, int /* y */ )
     lowlight () ;
 }
 
+
 int puInput::checkKey ( int key, int /* updown */ )
 {
+  extern void puSetPasteBuffer ( char *ch ) ;
+  extern char *puGetPasteBuffer () ;
+
   if ( ! isAcceptingInput() || ! isActive () || ! isVisible () || ( window != puGetWindow () ) )
     return FALSE ;
 
@@ -262,17 +281,7 @@ int puInput::checkKey ( int key, int /* updown */ )
 
     case '\b' : /* Backspace */
       if ( select_start_position != select_end_position )
-      {
-        char *p1 = & (getStringValue() [ select_start_position ]) ;
-        char *p2 = & (getStringValue() [ select_end_position   ]) ;
-
-        while ( *p1 != '\0' )
-          *p1++ = *p2++ ;
-
-        *p2 = '\0' ;
-        cursor_position = select_start_position ;
-        select_end_position = select_start_position ;
-      }
+        removeSelectRegion () ;
       else if ( cursor_position > 0 ) 
         for ( p = & (getStringValue() [ --cursor_position ]) ; *p != '\0' ; p++ )
           *p = *(p+1) ;
@@ -280,23 +289,46 @@ int puInput::checkKey ( int key, int /* updown */ )
 
     case 0x7F : /* DEL */
       if ( select_start_position != select_end_position )
-      {
-        char *p1 = & (getStringValue() [ select_start_position ]) ;
-        char *p2 = & (getStringValue() [ select_end_position   ]) ;
-
-        while ( *p1 != '\0' )
-          *p1++ = *p2++ ;
-
-        *p2 = '\0' ;
-        cursor_position = select_start_position ;
-        select_end_position = select_start_position ;
-      }
+        removeSelectRegion () ;
       else if ( cursor_position != (int)strlen ( getStringValue() ) )
         for ( p = & (getStringValue() [ cursor_position ]) ; *p != '\0' ; p++ )
-	        *p = *(p+1) ;
+          *p = *(p+1) ;
       break ;
 
     case 0x15 /* ^U */ : (getStringValue() [ 0 ]) = '\0' ; break ;
+    case 0x03 /* ^C */ :
+    case 0x18 /* ^X */ :  /* Cut or copy selected text */
+      if ( select_start_position != select_end_position )
+      {
+        p = getStringValue () ;
+        char ch = p[select_end_position] ;
+        p[select_end_position] = '\0' ;
+        puSetPasteBuffer ( p + select_start_position ) ;
+        p[select_end_position] = ch ;
+
+        if ( key == 0x18 )  /* Cut, remove text from string */
+          removeSelectRegion () ;
+      }
+
+      break ;
+
+    case 0x16 /* ^V */ : /* Paste buffer into text */
+      if ( ( strlen ( getStringValue () ) + strlen ( puGetPasteBuffer () ) ) < PUSTRING_MAX - 1 )
+      {
+        if ( select_start_position != select_end_position )
+          removeSelectRegion () ;
+
+        p = new char [ PUSTRING_MAX ] ;
+        strcpy ( p, getStringValue() + cursor_position ) ;
+        *(getStringValue() + cursor_position) = '\0' ;
+        strcat ( getStringValue(), puGetPasteBuffer () ) ;
+        strcat ( getStringValue(), p ) ;
+        cursor_position += strlen ( puGetPasteBuffer () ) ;
+        delete p ;
+      }
+
+      break ;
+
     case PU_KEY_HOME   : cursor_position = 0 ; break ;
     case PU_KEY_END    : cursor_position = PUSTRING_MAX ; break ;
     case PU_KEY_LEFT   : cursor_position-- ; break ;
@@ -310,17 +342,7 @@ int puInput::checkKey ( int key, int /* updown */ )
       }
 
       if ( select_start_position != select_end_position ) // remove selected text
-      {
-        char *p1 = & (getStringValue() [ select_start_position ]) ;
-        char *p2 = & (getStringValue() [ select_end_position   ]) ;
-
-        while ( *p1 != '\0' )
-          *p1++ = *p2++ ;
-
-        *p2 = '\0' ;
-        cursor_position = select_start_position ;
-        select_end_position = select_start_position ;
-      }
+        removeSelectRegion () ;
 
       if ( strlen ( getStringValue() ) >= PUSTRING_MAX - 1 )
         return FALSE ;

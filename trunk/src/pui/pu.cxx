@@ -211,7 +211,7 @@ void puDeleteObject ( puObject *ob )
 
 static void puCleanUpJunk ()
 {
-  // Step through the linked list of objects to delete, removing them.
+  /* Step through the linked list of objects to delete, removing them. */
   while ( objects_to_delete != NULL )
   {
     puObject *next_ob = objects_to_delete ->next ;
@@ -221,7 +221,8 @@ static void puCleanUpJunk ()
 }
 
 
-static puObject *active_widget ;  /* Widget which is currently receiving user input */
+static puObject *active_widget ;   /* Widget which is currently receiving user input */
+static char *input_paste_buffer ;  /* Cut/Copy/Paste buffer for input widgets */
 
 void puInit ( void )
 {
@@ -240,6 +241,7 @@ void puInit ( void )
     puPushLiveInterface ( base_interface ) ;
 
     active_widget = NULL ;
+    input_paste_buffer = NULL ;
 
     firsttime = FALSE ;
 #ifdef PU_NOT_USING_GLUT
@@ -438,4 +440,13 @@ void puMoveToLast (puObject *ob)
 void puDeactivateWidget ()  {  active_widget = NULL ; }
 void puSetActiveWidget ( puObject *w ) {   active_widget = w ; }
 puObject *puActiveWidget () {   return active_widget ; }
+
+void puSetPasteBuffer ( char *ch )
+{
+  if ( input_paste_buffer ) delete input_paste_buffer ;
+  input_paste_buffer = new char [ strlen(ch) + 1 ] ;
+  strcpy ( input_paste_buffer, ch ) ;
+}
+
+char *puGetPasteBuffer ()  {  return input_paste_buffer ;  }
 
