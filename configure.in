@@ -40,6 +40,25 @@ if test "x$GL_PREFIX" != "xauto"; then
     CXXFLAGS="$CXXFLAGS -I$GL_PREFIX/include"
 fi
 
+dnl AC_CHECK_HEADER uses CPPFLAGS
+
+export CPPFLAGS="$CXXFLAGS"
+
+dnl Checks for header files.
+
+AC_HEADER_STDC
+
+AC_CHECK_HEADERS(GL/gl.h GL/glu.h,, AC_MSG_ERROR([OpenGL header files not found]))
+AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
+AC_CHECK_HEADER(joystick.h, AC_DEFINE(JOYSTICK_IS_PRESENT))
+AC_CHECK_HEADER(linux/joystick.h, AC_DEFINE(LINUX_JOYSTICK_IS_PRESENT))
+AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT))
+AC_CHECK_HEADER(GL/freeglut.h, AC_DEFINE(FREEGLUT_IS_PRESENT))
+
+if test "x$ac_cv_header_GL_glut_h" = "xno" && test "x$ac_cv_header_GL_freeglut_h" = "xno"; then
+   AC_MSG_ERROR([found neither GLUT nor freeglut header file])
+fi
+
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
 
@@ -87,16 +106,6 @@ dnl =========================================================
         AC_CHECK_LIB(MesaGL, glNewList,,,$x_suffix)
     fi
 
-    dnl if using mesa, check for xmesa.h
-    if test "x$ac_cv_lib_MesaGL_glNewList" = "xyes" ; then
-        AC_CHECK_HEADER(GL/xmesa.h)
-        AM_CONDITIONAL(ENABLE_XMESA_FX, \
-                       test "x$ac_cv_header_GL_xmesa_h" = "xyes")
-    else
-        dnl force a failed check
-        AM_CONDITIONAL(ENABLE_XMESA_FX, test "no" = "yes")
-    fi
-
     AC_CHECK_LIB(GLU, gluLookAt,,,$x_suffix)
     if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
         dnl if no GLU, check for MesaGLU
@@ -129,10 +138,6 @@ dnl =========================================================
 esac
 fi
 
-dnl AC_CHECK_HEADER uses CPPFLAGS
-
-export CPPFLAGS="$CXXFLAGS"
-
 dnl Check SGI audio library
 
 AC_CHECK_LIB(audio, ALopenport)
@@ -140,19 +145,6 @@ if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
   dnl this is an SGI machine...
   LIBS="$LIBS -laudio"
 fi
-
-dnl Checks for header files.
-
-AC_HEADER_STDC
-
-AC_CHECK_HEADERS(GL/gl.h GL/glu.h)
-AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
-AC_CHECK_HEADER(joystick.h, AC_DEFINE(JOYSTICK_IS_PRESENT))
-AC_CHECK_HEADER(linux/joystick.h, AC_DEFINE(LINUX_JOYSTICK_IS_PRESENT))
-AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT))
-AC_CHECK_HEADER(GL/freeglut.h, AC_DEFINE(FREEGLUT_IS_PRESENT))
-
-unset CPPFLAGS
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
