@@ -156,7 +156,7 @@ class pslCompiler
   int skippingFlag  ;
   int next_skippingLevel ;
 
-  int skipping ()
+  int skipping () const
   {
     return ! skipOverride && skippingFlag != 0 ;
   }
