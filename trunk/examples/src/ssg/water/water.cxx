@@ -415,9 +415,9 @@ void init_graphics ()
 
 static void droplet_create ( SPS *, int, ssgaParticle *p )
 {
-  float c = 0.6 + (float)(rand()%1000)/4000.0f ;
+  float c = ((float)(rand()%100)/100.0f) * (256.0f-163.0f)/255.0f ;
 
-  sgSetVec4 ( p -> col, c - 0.2f, c, 1, 0.5 ) ;
+  sgSetVec4 ( p -> col, 96.0f/255.0f+c, 147.0f/255.0f+c, 163.0f/255.0f+c, 0.5);
   sgSetVec3 ( p -> pos, -2.4, -0.1, 1.9 ) ;
   sgSetVec3 ( p -> vel, 
              -(float)(rand()%1000)/200.0f,
@@ -586,7 +586,7 @@ void init_gui ()
 
   puSetDefaultFonts        ( *sorority, *sorority ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
-  puSetDefaultColourScheme ( 1.0, 0.6, 0.2, 0.5 ) ;
+  puSetDefaultColourScheme ( 0.2, 0.5, 0.2, 0.5 ) ;
 
   puGroup *window_group = new puGroup ( 0, 0 ) ;
 
@@ -703,7 +703,7 @@ void init_gui ()
   viewWireframeButton->setCallback  ( viewWireframeButton_cb ) ;
   viewWireframeButton->setValue     ( FALSE ) ;
 
-  writeButton = new puOneShot ( 400, VIEW_GUI_BASE + 20, "Write C++" ) ;
+  writeButton = new puOneShot ( 400, VIEW_GUI_BASE + 30, "Write C++" ) ;
   writeButton->setCallback  ( writeButton_cb ) ;
   writeButton->setValue     ( FALSE ) ;
 
