@@ -304,6 +304,8 @@ int puInput::checkKey ( int key, int /* updown */ )
 
   char *p = NULL ;
 
+  int char_used = TRUE ;
+
   switch ( key )
   {
     case PU_KEY_PAGE_UP   :
@@ -328,9 +330,10 @@ int puInput::checkKey ( int key, int /* updown */ )
       break ;
     case PU_KEY_LEFT   : cursor_position-- ; break ;
     case PU_KEY_RIGHT  : cursor_position++ ; break ;
+    default :  char_used = FALSE ;
   }
 
-  if ( ! input_disabled )
+  if ( ! input_disabled && ! char_used )
   {
     switch ( key )
     {

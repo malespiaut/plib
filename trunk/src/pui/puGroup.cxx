@@ -187,8 +187,28 @@ int puGroup::checkHit ( int button, int updown, int x, int y )
     bo = getLastChild () ;
 
     for ( ; bo != NULL ; bo = bo -> getPrevObject() )
+    {
+      /* If this is a menu bar and the mouse is over the button, highlight the button, if it's in the right window - JCJ 6 Jun 2002 */
+      if ( ( ( getType () & PUCLASS_MENUBAR ) || ( getType () & PUCLASS_VERTMENU ) ) && ( bo->getType () & PUCLASS_ONESHOT ) && ( window == puGetWindow () ) )
+      /*
+      Changing this statement to something like this:
+      if ( bo->getType () & PUCLASS_ONESHOT )
+      Breaks a lot of stuff... like pressing buttons actually working in filepicker. Need 
+      to just define everything that can be pressed passively above, and things should
+      be fröhlich.
+      */
+      {
+        puBox *box = bo->getABox () ;
+        if ( ( x >= box->min[0] ) && ( x <= box->max[0] ) &&
+             ( y >= box->min[1] ) && ( y <= box->max[1] ) )
+          bo->highlight () ;
+        else
+          bo->lowlight () ;
+      }
+
       if ( bo -> checkHit ( button, updown, x, y ) )
         return TRUE ;
+    }
   }
 
   /*
@@ -331,7 +351,7 @@ puGroup::~puGroup ()
   {
     dlist = bo    ;
     bo = bo -> getPrevObject() ;
-    delete dlist  ;
+    puDeleteObject ( dlist )  ;
   }
 }
 

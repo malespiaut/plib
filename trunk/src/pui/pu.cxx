@@ -193,30 +193,41 @@ void puDeleteObject ( puObject *ob )
 
   puGroup *parent = ob->getParent () ;
 
-  /* Add object to linked list to be deleted */
-
-  if ( objects_to_delete == NULL )
-    objects_to_delete = ob ;
-  else
+  if ( !ob->IsItSubWidget() )
   {
-    /* Ensure that objects are deleted in the order of puDeleteObject calls */
+      /* Add object to linked list to be deleted */
+      if ( objects_to_delete == NULL )
+        objects_to_delete = ob ;
+      else
+      {
+        /* Ensure that objects are deleted in the order of puDeleteObject calls */
 
-    puObject *last ;
+        puObject *last ;
 
-    for ( last = objects_to_delete ;
-          last -> getNextObject() != NULL ;
-          last = last -> getNextObject() )
-      /* Find last object. */ ;
+        for ( last = objects_to_delete ;
+              last -> getNextObject() != NULL ;
+              last = last -> getNextObject() )
+          /* Find last object. */ ;
 
-    last -> setNextObject ( ob ) ;
+        last -> setNextObject ( ob ) ;
+      }
+      /* Remove from parent interface */
+ 
+     if ( parent != ob && parent != NULL )
+        parent -> remove ( ob ) ;  /* Sets object's next and previous pointers to null as well */
+
+      /* If it is a group, then delete all child objects as well */
+     if ( ob->getType () & PUCLASS_GROUP ) 
+     {
+       puObject *child = ((puGroup *)ob)->getFirstChild () ;
+       while ( child )
+        {
+            puObject *next = child->getNextObject () ;
+            puDeleteObject ( child ) ;
+            child = next ;
+        }
+     }
   }
-
-  /* Remove from parent interface */
-
-  if ( parent != ob && parent != NULL )
-    parent -> remove ( ob ) ;
-
-  ob -> setNextObject ( NULL ) ;
 }
 
 
@@ -228,7 +239,8 @@ static void puCleanUpJunk ( void )
   while ( local_objects_to_delete != NULL )
   {
     puObject *next_ob = local_objects_to_delete -> getNextObject() ;
-    delete local_objects_to_delete ;
+    //if ( !local_objects_to_delete->IsItSubWidget() )
+        delete local_objects_to_delete ;
     local_objects_to_delete = next_ob ;
   }
 }
@@ -356,7 +368,6 @@ int puGetPressedButton ()
   return last_buttons ;
 }
 
-
 int puMouse ( int button, int updown, int x, int y )
 {
   puCursor ( x, y ) ;
@@ -415,7 +426,6 @@ int puMouse ( int x, int y )
     affect any other widgets until you release the
     mouse button.
   */
-
   if ( puActiveWidget () )
   {
     puActiveWidget()->doHit(button, PU_DRAG, pu_mouse_x - pu_mouse_offset_x,

@@ -140,6 +140,7 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   am_default        = FALSE ;
   window            = puGetWindow () ;
   v_status          = 0 ;
+  isSubWidget       = FALSE ;
 
   cb          = NULL ;
   active_cb   = NULL ;

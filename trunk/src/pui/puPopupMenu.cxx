@@ -191,7 +191,7 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
     return FALSE ;
 
   puObject *bo ;
-  
+  int objecthit ;  
   /*
     We have to walk the list backwards to ensure that
     the click order is the same as the DRAW order.
@@ -210,8 +210,26 @@ int puPopupMenu::checkHit ( int button, int updown, int x, int y )
 
     /* Find the last object in our list. */ ;
 
-  for ( ; bo != NULL ; bo = bo -> getPrevObject() )
+    /* Following code permits highlighting and lowlighting */
+    /* of oneshots underneath a PopupMenu.                 */
+    /*                           - JCJ and Fay 31 May 2002 */
+
+  for ( ; bo != NULL ; bo = bo -> getPrevObject() ) 
+  {
+    puBox *box = bo->getABox () ;
+    if ( ( x >= box->min[0] ) && ( x <= box->max[0] ) &&
+         ( y >= box->min[1] ) && ( y <= box->max[1] ) )
+      bo->highlight () ;
+    else
+      bo->lowlight () ;
+  /* Since actually RETURNing here would break the for loop early and kill the */
+  /* correct lowlighting, just set a var to check later. - JCJ 3 Jun 2002      */
     if ( bo -> checkHit ( button, updown, x, y ) )
+      objecthit = TRUE ;
+  }
+
+  /* If the object was hit in the above for loop, then it.. was hit.*/
+  if (objecthit)
       return TRUE ;
 
   return FALSE ;

@@ -109,7 +109,7 @@ puInterface::~puInterface ()
   {
     dlist = bo    ;
     bo = bo -> getPrevObject() ;
-    delete dlist  ;
+    puDeleteObject ( dlist )  ;
   }
 
   dlist = NULL ;
