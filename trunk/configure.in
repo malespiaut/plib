@@ -42,10 +42,24 @@ fi
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
 
-AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
+AC_CANONICAL_HOST
 
-if test "x$ac_cv_header_windows_h" != "xyes" ; then
+case "${host}" in
+*-*-cygwin* | *-*-mingw32*)
+  dnl CygWin under Windoze.
 
+#  dnl gcc specs for latest Cygwin need this
+#  touch $$.c
+#  if `${CC} -c -mwin32 $$.c >/dev/null 2>&1`; then
+#    CFLAGS="-mwin32 $CFLAGS"
+#    CXXFLAGS="-mwin32 $CXXFLAGS"
+#  fi
+#  rm -f $$.o
+
+  dnl OpenGL libraries
+  LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32"
+	;;
+*)
     dnl Check for X11
 
     AC_PATH_XTRA
@@ -93,22 +107,20 @@ dnl =========================================================
         AC_CHECK_LIB(glut, glutGetModifiers,,,$opengl_LIBS)
     fi
 
+    CFLAGS="$CFLAGS -Wall -I/usr/local/include -L/usr/local/lib"
+    CXXFLAGS="$CXXFLAGS -Wall -I/usr/local/include -L/usr/local/lib"
+
     LIBS="$LIBS $x_suffix"
-else
+	;;
+esac
 
-  dnl CygWin under Windoze.
+dnl AC_CHECK_HEADER uses CPPFLAGS
 
-  dnl CygWin doesn't look in this directory
-  LIBS="$LIBS -L/usr/local/lib"
-
-  dnl OpenGL libraries
-  LIBS="$LIBS -lm -lwinmm -lglut32 -lglu32 -lopengl32 -luser32 -lgdi32"
-fi
+export CPPFLAGS="$CXXFLAGS"
 
 dnl Check SGI audio library
 
 AC_CHECK_LIB(audio, alOpenPort)
-
 if test "x$ac_cv_lib_audio_alOpenPort" = "xyes" ; then
   dnl this is an SGI machine...
   LIBS="$LIBS -laudio"
@@ -117,9 +129,6 @@ fi
 dnl Checks for header files.
 
 AC_HEADER_STDC
-
-dnl CygWin doesn't look in this directory
-CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 
 AC_CHECK_HEADERS(GL/gl.h GL/glu.h)
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
@@ -141,19 +150,6 @@ AM_CONDITIONAL(ENABLE_IRIX_AUDIO, test -r /usr/include/audio.h)
 
 AM_CONDITIONAL(ENABLE_WIN32_AUDIO, test "x$ac_cv_header_windows_h" = "xyes")
 
-if test "x$ac_cv_header_windows_h" != "xyes" ; then
-  if test "x$GXX" != "xyes" ; then
-    CFLAGS="$CFLAGS -I/usr/local/include -L/usr/local/lib"
-    CXXFLAGS="$CXXFLAGS -I/usr/local/include -L/usr/local/lib"
-  else
-    CFLAGS="$CFLAGS -O6 -Wall"
-    CXXFLAGS="$CXXFLAGS -O6 -Wall"
-  fi
-else
-  CFLAGS="$CFLAGS -O6 -Wall $MACH -malign-double -I/usr/local/include -L/usr/local/lib"
-  CXXFLAGS="$CXXFLAGS -O6 -Wall $MACH -malign-double -I/usr/local/include -L/usr/local/lib"
-fi
-
 dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl check for socklen_t (in Unix98)
@@ -173,7 +169,6 @@ AC_MSG_RESULT(size_t)
 AC_DEFINE(socklen_t,size_t)], [
 AC_MSG_RESULT(int)   
 AC_DEFINE(socklen_t,int)])])
-
 
 AC_OUTPUT( \
 	Makefile \
