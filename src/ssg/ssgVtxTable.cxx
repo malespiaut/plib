@@ -489,32 +489,41 @@ void ssgVtxTable::pick ( int baseName )
 
 void ssgVtxTable::draw_geometry ()
 {
+  int num_vertices  = getNumVertices  () ;
   int num_colours   = getNumColours   () ;
   int num_normals   = getNumNormals   () ;
-  int num_vertices  = getNumVertices  () ;
   int num_texcoords = getNumTexCoords () ;
 
-  sgVec3 *vx = (sgVec3 *) vertices  -> get(0) ;
-  sgVec3 *nm = (sgVec3 *) normals   -> get(0) ;
-  sgVec2 *tx = (sgVec2 *) texcoords -> get(0) ;
-  sgVec4 *cl = (sgVec4 *) colours   -> get(0) ;
-
-  glBegin ( gltype ) ;
-
   if ( num_colours == 0 ) glColor4f   ( 1.0f, 1.0f, 1.0f, 1.0f ) ;
-  if ( num_colours == 1 ) glColor4fv  ( cl [ 0 ] ) ;
-  if ( num_normals == 1 ) glNormal3fv ( nm [ 0 ] ) ;
+  if ( num_colours == 1 ) glColor4fv  ( colours -> get(0) ) ;
+  if ( num_normals == 1 ) glNormal3fv ( normals -> get(0) ) ;
   
-  for ( int i = 0 ; i < num_vertices ; i++ )
-  {
-    if ( num_colours   > 1 ) glColor4fv    ( cl [ i ] ) ;
-    if ( num_normals   > 1 ) glNormal3fv   ( nm [ i ] ) ;
-    if ( num_texcoords > 1 ) glTexCoord2fv ( tx [ i ] ) ;
+  glPushClientAttrib ( GL_CLIENT_VERTEX_ARRAY_BIT ) ;
 
-    glVertex3fv ( vx [ i ] ) ;
+  if ( num_colours > 1 )
+  {
+    glEnableClientState ( GL_COLOR_ARRAY ) ;
+    glColorPointer ( 4, GL_FLOAT, 0, colours->get(0) ) ;
   }
 
-  glEnd () ;
+  if ( num_normals > 1 )
+  {
+    glEnableClientState ( GL_NORMAL_ARRAY ) ;
+    glNormalPointer ( GL_FLOAT, 0, normals->get(0) ) ;
+  }
+
+  if ( num_texcoords > 1 )
+  {
+    glEnableClientState ( GL_TEXTURE_COORD_ARRAY ) ;
+    glTexCoordPointer ( 2, GL_FLOAT, 0, texcoords->get(0) ) ;
+  }
+
+  glEnableClientState ( GL_VERTEX_ARRAY ) ;
+  glVertexPointer ( 3, GL_FLOAT, 0, vertices->get(0) ) ;
+
+  glDrawArrays ( gltype, 0, num_vertices ) ;
+
+  glPopClientAttrib () ;
 }
 
 
