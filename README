@@ -65,6 +65,7 @@ SG  -- Some Standard Geometry functions (vector and
 SL  -- A Games-oriented Sound Library.
 FNT -- OpenGL texture-mapped font Library.
 SSG -- A Simple Scene Graph API built on top of OpenGL.
+NET -- Some Networking functions for games.
 UTIL-- Utilities - things that your OS would normally
        handle - but these functions are portable.
 
@@ -95,6 +96,9 @@ UTIL-- Should be portable to POSIX-compliant
 SG  -- Totally portable, no dependancies.
 
 PUI -- Requires GLUT and OpenGL also FNT and SG.
+
+NET -- Should be portable to POSIX-compliant
+       OS's.
 
 FNT and SSG -- Require OpenGL, SG and UTIL.
 
@@ -159,10 +163,11 @@ In your source code, add any combination of:
      #include <plib/pu.h>
      #include <plib/ssg.h>
      #include <plib/sl.h>
+     #include <plib/net.h>
 
 Add any of these to your link line:
 
-  -lplibssg -lplibsl -lplibpu -lplibfnt -lplibsg -lplibul
+  -lplibssg -lplibsl -lplibpu -lplibfnt -lplibnet -lplibsg -lplibul
 
 Under UNIX/Linux, you'll also need:
 
