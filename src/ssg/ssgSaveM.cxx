@@ -43,6 +43,7 @@ static void traverse( ssgEntity* node, sgMat4 transform ) {
 
 int ssgSaveM( const char* fname, ssgEntity *ent ) {
   FILE *fd = fopen ( fname, "w" ) ;
+	int i;
  
   if ( fd == NULL ) {
     ulSetError ( UL_WARNING, "ssgSaveM: Failed to open '%s' for writing", 
@@ -60,14 +61,14 @@ int ssgSaveM( const char* fname, ssgEntity *ent ) {
   sgMakeIdentMat4( ident );
   traverse( ent, ident );
 
-  for (int i = 0; i < vertices->getNum(); i++) {
+  for (i = 0; i < vertices->getNum(); i++) {
     fprintf(fd, "Vertex %d  %f %f %f\n", i+1,
 	    vertices->get(i)[0],
 	    vertices->get(i)[1],
 	    vertices->get(i)[2]);
   }
 
-  for (int i = 0; i < indices->getNum(); i += 3) {
+  for (i = 0; i < indices->getNum(); i += 3) {
     fprintf(fd, "Face %d  %d %d %d\n", (i/3)+1,
 	    *indices->get(i    ) + 1,
 	    *indices->get(i + 1) + 1,
