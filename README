@@ -50,6 +50,8 @@ SG  -- Some Standard Geometry functions (vector and
 SL  -- A Games-oriented Sound Library.
 FNT -- OpenGL texture-mapped font Library.
 SSG -- A Simple Scene Graph API built on top of OpenGL.
+UTIL-- Utilities - things that your OS would normally
+       handle - but these functions are portable.
 
 
 DIRECTORY STRUCTURE:
@@ -72,11 +74,14 @@ yet been ported to all operating systems.
 
 JS  -- Currently Linux/Windows/BSD only.
 
+UTIL-- Should be portable to POSIX-compliant
+       OS's ... and Windows.
+
 SG  -- Totally portable, no dependancies.
 
 PUI -- Requires GLUT and OpenGL also FNT and SG.
 
-FNT and SSG -- Require OpenGL and SG.
+FNT and SSG -- Require OpenGL, SG and UTIL.
 
 SL  -- This has now been ported onto:
 
@@ -106,7 +111,7 @@ SG, SL, JS and PUI have all been in use for a long time
 in a huge number of applications - so they are reliable
 and unlikely to change much in the future.
 
-FNT is pretty simple and should be very stable.
+UTIL and FNT are pretty simple and should be very stable.
 
 SSG is still fairly new though - and it's by far the
 most complex and ambitious of the libraries. Whilst
@@ -119,6 +124,7 @@ COMPILING/LINKING WITH PLIB
 
 In your source code, add any combination of:
 
+     #include <plib/ul.h>
      #include <plib/js.h>
      #include <plib/sg.h>
      #include <plib/fnt.h>
@@ -128,7 +134,7 @@ In your source code, add any combination of:
 
 Add any of these to your link line:
 
-  -lplibssg -lplibsl -lplibpu -lplibfnt -lplibsg
+  -lplibssg -lplibsl -lplibpu -lplibfnt -lplibsg -lplibul
 
 Under UNIX/Linux, you'll also need:
 
