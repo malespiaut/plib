@@ -119,7 +119,7 @@ void saveTweenFile ( char *path, int interactive )
 
   tweenScene = (ssgRoot *) makeTweenCopy ( skinScene ) ;
 
-  for ( int i = 0 ; i <= (int)( timebox->getMaxTime() / tweeninterval ) ; i++ )
+  for ( i = 0 ; i <= (int)( timebox->getMaxTime() / tweeninterval ) ; i++ )
   {
     if ( i != 0 )
       addTweenBank ( tweenScene ) ;
