@@ -40,10 +40,10 @@ int pslCompiler::pushPrimitive ()
 
     getToken ( c ) ;
 
-    if ( strcmp ( c, ")" ) == 0 )
+    if ( strcmp ( c, ")" ) != 0 )
     {
       ungetToken ( c ) ;
-      return error ( "Missing ')' (found '%s')", c );
+      return error ( "Missing ')' after expression (found '%s')", c );
     }
 
     return TRUE ;
