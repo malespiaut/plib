@@ -43,7 +43,7 @@ void puListBox::draw ( int dx, int dy )
                 colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
 
   if ( r_cb )
-    r_cb ( this, render_data ) ;
+    r_cb ( this, dx, dy, render_data ) ;
   else
   {
     int ysize = abox.max[1] - abox.min[1] + 1 ;
