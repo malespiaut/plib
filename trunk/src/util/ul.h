@@ -44,7 +44,11 @@
 #include <ctype.h>
 #include <assert.h>
 
-#if defined (_WIN32)
+#if (defined(_WIN32) || defined(__CYGWIN__)) && !defined(WIN32)
+# define WIN32
+#endif
+
+#if defined (WIN32)
 #  include <windows.h>
 #  ifdef __CYGWIN__
 #    include <unistd.h>
@@ -124,7 +128,7 @@ class ulClock
   double last_time ;
   double max_delta ;
   
-#ifdef _WIN32
+#ifdef WIN32
   static double res ;
   static int perf_timer ;
   void initPerformanceTimer () ;
@@ -138,7 +142,7 @@ public:
 
   void reset ()
   {
-#ifdef _WIN32
+#ifdef WIN32
 	  initPerformanceTimer () ;
 #endif
     start     = getRawTime () ;
@@ -161,7 +165,7 @@ inline void ulSleep ( int seconds )
 {
   if ( seconds >= 0 )
   {
-#ifdef _WIN32
+#ifdef WIN32
     Sleep ( 1000 * seconds ) ;
 #else
     sleep ( seconds ) ;
@@ -174,7 +178,7 @@ inline void ulMilliSecondSleep ( int milliseconds )
 {
   if ( milliseconds >= 0 )
   {
-#ifdef _WIN32
+#ifdef WIN32
     Sleep ( milliseconds ) ;
 #else
     usleep ( milliseconds * 1000 ) ;
@@ -445,7 +449,7 @@ inline size_t ulEndianWriteBigFloat(FILE *f, float x) {
 */
 
 
-#if defined (_WIN32)
+#if defined (WIN32)
 
 class ulDynamicLibrary
 {
@@ -612,7 +616,7 @@ public:
   }
 } ;
 
-#endif /* if defined(_WIN32) */
+#endif /* if defined(WIN32) */
 
 
 class ulList
