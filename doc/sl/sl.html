@@ -1,0 +1,1038 @@
+<TITLE>The SL Sound Library.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<TABLE>
+<TR>
+<TD><IMG SRC="sl.png"></TD>
+<TD><H1>The SL Sound Library V1.x.</H1>
+By Steve Baker
+</TD>
+</TR>
+</TABLE>
+<H2>Introduction.</H2>
+This library allows one to play, mix and modify sound samples
+in realtime - with a special view towards sound for interactive
+systems such as games and simulation.
+<p>
+At present, SL can drive PC-style sound cards from
+within Windows NT, 95 and 98, Linux and several 
+other UNIX systems. When not running under Windows,
+SL relies on <A HREF="http://www.4front-tech.com">the
+Open Sound System (OSS)</A> drivers
+(formerly known as `VoxWare') - which are generally a
+standard part of the Linux Kernel and are available on
+most other UNIX implementations. Notably, the SGI IRIX
+operating system does not support OSS - so IRIX is
+supported via the proprietary SGI Audio Library.
+A future port to the Mac operating system is anticipated.
+<p>
+For PC-based Linux systems using relatively 'standard' SoundBlaster
+compatible sound cards, there is a companion library 'SM' that allows
+one to drive the Audio mixer on your sound card. Since the SM library
+is not easily portable to other systems, it is not considered a part
+of SL. SM may also be ported to Windows - but it's unlikely that it
+will be more generally available so it's use is deprecated.
+SM does not exist for IRIX.
+<H2>Credits.</H2>
+Steve Baker &lt;sjbaker1@airmail.net&gt; wrote the first cut of
+the library for Intel-based Linux machines and maintains the
+system and its documentation.
+<p>
+Tom Knienieder ported SL onto the Windows family of operating
+systems, onto OpenBSD and also onto IRIX as a part of the FlightGear project.
+<p>
+Curt Olson is the leader of the FlightGear project and provided
+useful testing and helpful comments in appropriate quantities.
+<H2>Overview</H2>
+The SL library allows one to operate at several levels.
+<ul>
+<li><code>class slDSP</code>: Allows you to play raw audio samples,
+                       (one at a time) into the DSP channel
+                       of a typical sound card. This is designed to
+                       be simple enough that it should be portable
+                       onto a wide range of non-OSS systems - and it
+                       is the only SL class that you would need to
+                       port.
+<p>
+<li><code>class slSample</code>: Allows you to read sound samples from
+                        disk in a range of standard formats,
+                        and to shift their frequency, volume,
+                        etc.
+<p>
+<li><code>class slScheduler</code>: This layer allows you to play a number
+                        of 8 bit monophonic samples in parallel,
+                        up to three of them are be mixed together
+                        with a simple prioritization scheme to
+                        allow for cases when the application
+                        wants to play more than that. This
+                        class only makes calls to slSample and slDSP
+                        interfaces, and should therefore be quite
+                        portable.
+<p>
+                        slScheduler will be extended to support 16 bit
+                        samples and stereo in the near future.
+</ul>
+<H2>Using the Library.</H2>
+To use this library, you must '#include "sl.h"' and link to
+libsl.a or libsl.so.
+<H2>class slDSP.</H2>
+Hardly any programs will ever create more than one slDSP object - in fact,
+most programs won't explicitly create any slDSP's at all since they'll
+be more likely to use slScheduler - which is derived from slDSP.
+<p>
+Here are the member functions:
+<pre>
+
+  class slDSP
+  {
+  public:
+
+    slDSP ( int rate, int stereo, int bps ) ;
+    slDSP ( char *device, int rate, int stereo, int bps ) ;
+   ~slDSP () ;
+    
+    void play ( void *buffer, size_t length ) ;
+
+    int working     () ;  /* For optimists  */
+    int not_working () ;  /* For pessimists */
+
+    int getBps   () ;
+    int getRate  () ;
+    int getStereo() ;
+
+    void sync () ;
+    void stop () ;
+  } ;
+
+</pre>
+By default, "/dev/dsp" (or just plain "dsp" under Windows)
+is the device used by this class, but
+an alternative device may be accessed if it's name is passed
+into the constructor. The constructor function also needs to
+know the desired sample replay rate, whether the sounds should
+be played in stereo (TRUE) or mono (FALSE) and how many bits
+per pixel of audio are to be provided (typically 8 or 16).
+<p>
+The constructor function cannot guarantee to provide the
+exact settings you require since hardware sample replay
+units vary considerably in capabilities from one manufacturer
+to another. Hence, all applications should call
+the slDSP::getBps/getStereo/getRate() commands after the
+object has been created. These routines tell the application
+the actual number of bits per sample, the stereo setup and
+the sample rate that this channel is currently set up to support.
+The getRate command gets the sampling rate in Hz.
+<p>
+The 'stop' function aborts any sounds that are currently being played
+and the 'sync' function blocks until the current audio stream is
+flushed.
+<p>
+The 'slDSP::not_working()' function returns TRUE if there is any kind of
+problem with the driver. Mostly it returns TRUE if your system isn't
+set up for audio. 'slDSP::working()' is provided by popular request
+and is just the opposite.
+<p>
+The driver will not fail if you call it's member functions when
+'slDSP::not_working()' returns TRUE - so programs written for audio
+should work OK even on hardware with no audio support.
+<p>
+The play command takes raw audio data from a buffer in memory
+(typically from the buffer of an slSample) and plays it with the
+current settings. In 8bps mono mode, the data is a simple
+unsigned byte stream. In 16bps mode, the data is a stream
+of unsigned shorts and in stereo mode, samples alternate
+between left and right channels - left first, then right.
+<p>
+Hence, each sound sample can be 1, 2 or 4 bytes long.
+<pre>
+
+ 8bps Mono  :      L      |      L      |...
+16bps Mono  :    H   L    |    H   L    |...
+ 8bps Stereo:    LL LR    |    LL LR    |...
+16bps Stereo: HL LL HR LR | HL LL HR LR |...
+
+Where: L is a low  order byte (monophonic),
+       H is a high order byte (monophonic),
+      LL is low-order, left channel,
+      LR is low-order, right channel,
+      HL is high-order, left channel,
+      HR is high-order, right channel.
+
+</pre>
+<H2>class slSample</H2>
+This class is intended to hold all the relevent information that
+goes along with a digital sound sample. Most programs will create
+a separate slSample for each sound effect or musical note:
+<pre>
+
+class slSample
+{
+public:
+
+  slSample () ;
+  slSample ( Uchar *buff, int leng ) ;
+  slSample ( char *fname ) ;
+  slSample ( char *fname, slDSP *match ) ;
+ ~slSample () ;
+  char *getComment () ;
+  void   setComment ( char *nc ) ;
+
+  Uchar *getBuffer () ;
+  int    getLength () ;
+  void   setBuffer ( Uchar *buff, int leng ) ;
+
+  void setRate   ( int r ) ;
+  void setBps    ( int b ) ;
+  void setStereo ( int s ) ;
+
+  int  getRate   ()        ;
+  int  getBps    ()        ;
+  int  getStereo ()        ;
+
+  int  getPlayCount ()     ;
+
+  float getDuration ()     ;
+
+  int loadFile    ( char *fname ) ;
+  int loadRawFile ( char *fname ) ;
+  int loadAUFile  ( char *fname ) ;
+  int loadWavFile ( char *fname ) ;
+
+  void changeRate   ( int r ) ;
+  void changeBps    ( int b ) ;
+  void changeStereo ( int s ) ;
+
+  void autoMatch ( slDSP *player ) ;
+  void adjustVolume ( float vol ) ;
+
+  void print ( FILE *fd ) ;
+} ;
+
+</pre>
+There are three ways to construct a slSample - first, you can create
+an (initially) empty sample:
+<pre>
+
+  slSample::slSample () ;
+
+</pre>
+Secondly, you can provide a buffer of audio data (with either 1, 2 or 4
+bytes per sample) - along with the length of that buffer (in bytes -
+<strong>NOT</strong> in samples).
+<pre>
+
+  slSample::slSample ( Uchar *buff, int leng ) ;
+
+</pre>
+You can also load a file from disk:
+<pre>
+
+  slSample::slSample ( char *fname ) ;
+
+</pre>
+In that case, slSample will look at the extension of the filename and
+choose an appropriate loader for that file type.
+<p>
+Since sample files from disk may well not match the settings on
+the slDSP that will be replaying it, there is an option to pass
+the address of the slDSP that will be doing the replaying and have
+the slSample automatically match it's settings to that of the
+replay unit.
+<p>
+You can load a sample file into a slSample at any time using:
+<pre>
+
+  int slSample::loadFile    ( char *fname ) ;
+  int slSample::loadRawFile ( char *fname ) ;
+  int slSample::loadAUFile  ( char *fname ) ;
+  int slSample::loadWavFile ( char *fname ) ;
+
+...and...
+
+  void slSample::autoMatch ( slDSP *player ) ;
+
+</pre>
+The basic 'slSample::loadFile' call will auto-detect the file type - the remaining
+three calls presume the file to be of the type indicated irrespective
+of the extension.
+<pre>
+
+  Raw - A simple file containing just the samples in the same
+        format as required by the slDSP class (see above). These
+        often have the file extension '.ub' (unsigned byte).
+        Since this format has no header, it is always assumed to be
+        mono, 8000Hz and 8bps. If you know better - then use
+        setRate/setStereo/setBsp to sort out the resulting mess!
+  AU  - (Sun Microsystems 'audio' format), this file type typically
+        has the '.au' extension.
+  Wav - (Microsoft 'WAVE' format), this file type typically
+        has the '.wav' extension.
+
+</pre>
+All flavours of 'slSample::loadFile' return FALSE if the file cannot be read,
+TRUE otherwise. slSample::autoMatch allows the sample to be tweaked to
+work correctly with the slDSP that will be used to replay the sample
+subsequently.
+<pre>
+
+  char *slSample::getComment () ;
+  void  slSample::setComment ( char *nc ) ;
+
+</pre>
+Each sound sample can have a comment string associated with it.
+Both '.wav' and '.au' files support such strings. In a 'wav' file,
+there may be multiple strings - only the first is read.
+<pre>
+
+  Uchar *slSample::getBuffer () ;
+  int    slSample::getLength () ;
+  void   slSample::setBuffer ( Uchar *buff, int leng ) ;
+
+</pre>
+These calls allow low level access to the sample buffer contained
+in an slSample. slSample::setBuffer makes a private copy of the buffer you
+pass to it, so you may delete your copy afterwards. slSample::getBuffer
+returns a pointer to the local buffer inside the slSample - you
+must not free it up. If you want to free up the memory in a slSample
+without deleting it then you should call slSample::setBuffer(NULL,0).
+<p>
+The following calls get and set the internal parameters of an slSample:
+<pre>
+
+  void slSample::setRate   ( int r ) ;
+  void slSample::setBps    ( int b ) ;
+  void slSample::setStereo ( int s ) ;
+
+  int  slSample::getRate   ()        ;
+  int  slSample::getBps    ()        ;
+  int  slSample::getStereo ()        ;
+
+</pre>
+Note that setting a parameter does not affect the audio data in
+the buffer. If a sample was recorded at (say) 8KHz and you call
+slSample::setRate(16000), then the sample will replay at 16KHz but will be
+only half the usual duration and twice the frequency. The effects
+of slSample::setBps and slSample::setStereo are even more destructive if used inappropriately.
+<p>
+The main use for the slSample::setRate/setBps/setStereo are for when the audio
+data was created inside the program or read from a 'Raw' file format
+and there was no other indication of these settings. By default,
+such samples are assumed to be 8KHz, monophonic 8bps recordings. This
+is supported by almost all audio cards.
+<p>
+If you need to manipulate the sample so that it sounds right when
+replayed with settings that differ from those when it was recorded
+then you need:
+<pre>
+
+  void slSample::changeRate   ( int r ) ;
+  void slSample::changeBps    ( int b ) ;
+  void slSample::changeStereo ( int s ) ;
+
+</pre>
+It is sometimes useful to permenantly change the volume of a
+sound sample:
+<pre>
+
+  void slSample::adjustVolume ( float vol ) ;
+
+</pre>
+Setting vol to 2.0 would double the volume, setting it to 0.5
+would halve it.
+<p>
+Bear in mind though that these change/adjust routines make
+permenant changes to the data in the sound buffer. The more
+changes you make, the more noise you'll introduce into the
+sample. If possible, record 16 bit samples and play with them
+in a proper sample studio package - then reduce them to 8 bits
+before you load them into an slSample.
+<p>
+These routines are also relatively slow - they create a new
+sound buffer, process the old data to fit the new setup and
+then free up the old buffer. The length and address of the
+internal slSound buffer will often change as a result.
+<pre>
+
+  float slSample::getDuration () ;
+
+</pre>
+This returns the duration of the sound sample in seconds.
+<pre>
+
+  int slSample::getPlayCount () ;
+
+</pre>
+Returns a count of the number of simultaneous instances of this
+sample are currently being played by slSchedulers (see below).
+<pre>
+
+  void slSample::print ( FILE *fd ) ;
+
+</pre>
+This prints out all the parameters of the sound sample to the
+specified file descriptor in human-readable form.
+<H2>class slScheduler.</H2>
+This class is where it all comes together. Most programs will
+only create a single slScheduler. Since the slScheduler needs
+dedicated access to the DSP, this class is inherited from an
+slDSP - so most programs that use slScheduler should not declare
+an slDSP as well.
+<p>
+IMPORTANT NOTE: Since slScheduler is derived from slDSP, all
+slDSP member functions are available as slScheduler calls.
+<pre>
+
+class slScheduler : public slDSP
+{
+public:
+  slScheduler ( int rate ) ;
+  slScheduler ( char *device, int rate ) ;
+ ~slScheduler () ;
+
+  float setSafetyMargin ( float seconds ) ;
+
+  void update () ;
+  void dumpUpdate () ;
+
+  void stopSample   ( slSample *s, int magic ) ;
+  void pauseSample  ( slSample *s, int magic ) ;
+  void resumeSample ( slSample *s, int magic ) ;
+
+  int loopSample ( slSample *s, int pri = 0,
+                   slPreemptMode mode = SL_SAMPLE_MUTE,
+                   int handle = 0, slCallBack cb = NULL ) ;
+  int playSample ( slSample *s, int pri = 1,
+                   slPreemptMode mode = SL_SAMPLE_ABORT,
+                   int handle = 0, slCallBack cb = NULL ) ;
+
+  void stopMusic   ( int magic ) ;
+  void pauseMusic  ( int magic ) ;
+  void resumeMusic ( int magic ) ;
+
+  int loopMusic  ( char *fname, int pri = 0,
+                   slPreemptMode mode = SL_SAMPLE_MUTE,
+                   int handle = 0, slCallBack cb = NULL ) ;
+  int playMusic  ( char *fname, int pri = 1,
+                   slPreemptMode mode = SL_SAMPLE_ABORT,
+                   int handle = 0, slCallBack cb = NULL ) ;
+} ;
+
+</pre>
+The idea behind slScheduler is that it manages all your music and
+sound sample replay needs. You construct it at the start of your program run, load in your
+slSamples and then call the 'slScheduler::update' function every iteration of your code.
+<p>
+The constructor function accepts a sample rate argument - note the
+caveats in the slDSP contructor function - you need to call getRate()
+to determine if your hardware was actually able to support the rate
+you asked for - or whether you actually obtained some slightly
+different rate. If you don't get a rate that matches your sound
+samples then you'll need to call slSample::changeRate() or even
+slSample::autoMatch for each one in turn to change it's sampling rate
+to something that suits the hardware.
+<p>
+Notice that at present, slScheduler only supports 8bps monophonic
+playback, this may change in the future.
+<p>
+Once everything is up and running, you can very easily play either
+slSamples or music. Simply call:
+<pre>
+
+  int slScheduler::loopSample ( slSample *s ) ;
+or
+  int slScheduler::playSample ( slSample *s ) ;
+
+  int slScheduler::loopMusic ( char *fname ) ;
+or
+  int slScheduler::playMusic ( char *fname ) ;
+
+</pre>
+There are additional arguments to these calls - but they are all
+optional.  slScheduler::loopSample() tells the scheduler to play
+that sample in a loop forever, the slScheduler::playSample() tells
+it to play the sample as a single one-shot effect.
+<p>
+Similarly, you can read and play music (currently only in 'MOD'
+format).  slScheduler::loopMusic() tells the scheduler to play
+the music in a loop forever, the slScheduler::playMusic() tells
+it to play the file as a single one-shot playback.
+<p>
+You can only play back one music track at a time.
+<H3>Preempting</H3>
+The slScheduler can (at present) play only three sounds at the
+same time. You can ask it to play more than that - but only three
+will actually sound at any given instant. If too many sounds try
+to play at once, all but three of them will be 'pre-empted'.
+<p>
+You can tag each sample with a priority and a 'pre-empt' mode. The
+priority indicates which sounds have priority over which others and
+the 'pre-empt' mode tells it what to do if a sound of higher
+priority wants to play in the meantime.
+<p>
+The full form of the slScheduler::loopSample/Music and
+slScheduler::playSample/Music calls is:
+<pre>
+
+  int slScheduler::loopSample ( slSample *s, int priority, slPreemptMode mode ) ;
+  int slScheduler::playSample ( slSample *s, int priority, slPreemptMode mode ) ;
+  int slScheduler::loopMusic  ( char *fname, int priority, slPreemptMode mode ) ;
+  int slScheduler::playMusic  ( char *fname, int priority, slPreemptMode mode ) ;
+
+</pre>
+The 'priority' is a simple integer. Zero is the least important
+sound, SL_MAX_PRIORITY (currently set at 16) is the most
+important.
+<p>
+The 'mode' parameter lets you choose what happens to a sound when
+it is pre-empted. 'mode' is one of:
+<ul>
+<li> SL_SAMPLE_ABORT - If this sound is pre-empted, it simply
+stops playing completely and is forgotten about by the scheduler.
+<li> SL_SAMPLE_RESTART - If this sound is pre-empted, it will
+stop playing - and restart from the beginning when the sound
+system is free enough. Beware that on a busy sound system, the
+same sound may try to start over and over again - producing a
+stuttering effect as it is repeatedly stopped and restarted by
+higher priority sounds.
+<li> SL_SAMPLE_MUTE - The sound simply goes silent until
+it either ends or the sound card becomes free enough for
+it to carry on playing. The duration of the sound from start
+to finish will be no different than if it had not been 
+pre-empted at all.
+<li> SL_SAMPLE_DELAY - If this sound is pre-empted then it
+will pause until the sound card becomes free again and continue
+from exactly where it left off.
+<li> SL_SAMPLE_CONTINUE - Although a higher priority sound
+has come along, this sound will continue to play if it has
+already been started. This is a useful mode for sounds that
+need to be played without interruption - but which could be
+delayed in time until the sound card is free. It is just
+as if the priority of this sound jumps to SL_MAX_PRIORITY+1
+immediately it starts playing.
+</ul>
+<H3>Interacting with a Sample that's Playing.</H3>
+Also, you can ask the scheduler to tell you when something important
+happens to your sound.
+<pre>
+
+  int slScheduler::loopSample ( slSample *s, int priority, slPreemptMode mode,
+                                int magic, slCallBack cb ) ;
+  int slScheduler::playSample ( slSample *s, int priority, slPreemptMode mode,
+                                int magic, slCallBack cb ) ;
+                                int magic, slCallBack cb ) ;
+  int slScheduler::loopMusic  ( char *fname, int priority, slPreemptMode mode,
+                                int magic, slCallBack cb ) ;
+  int slScheduler::playMusic  ( char *fname, int priority, slPreemptMode mode,
+                                int magic, slCallBack cb ) ;
+
+</pre>
+The 'cb' parameter is the address of a callback function that SL
+will call whenever something important happens to your sound.
+<p>
+Your function much accept three parameters:
+<pre>
+
+  typedef void (*slCallBack) ( class slSample *sample, slEvent event, int magic ) ;
+
+</pre>
+The first parameter is the slSample that was being played when this
+even happened, the second parameter tells you what happened:
+<pre>
+
+  SL_EVENT_COMPLETE  -- The sound finished playing.
+  SL_EVENT_LOOPED    -- The sound looped back to the start.
+  SL_EVENT_PREEMPTED -- The sound was preempted by another sound.
+
+</pre>
+Other events may be added in the future, so your callback function
+should be prepared to do nothing gracefully if an unknown event
+comes along.
+<p>
+Since there may be multiple copies of a single sample being played
+at the same time, the 'magic' parameter is a means for you to identify the
+context that the sound comes from. You pick a magic number that's
+meaningful to your application when you call slScheduler::playSample
+or slScheduler::loopSample - and that number will be passed back to
+your callback function whenever it is called. SL doesn't do anything
+else with this magic number - so it's meaning can be anything
+you want <b>provided that the magic number must be non-zero</b>.
+<p>
+A callback function can start new sounds playing, but if you
+wait for the SL_EVENT_COMPLETE event to do that then there
+may be a fraction of a second pause between the sound that
+just stopped and the new one starting.
+<p>
+There are other ways to use the magic number to interact with
+playing samples:
+<pre>
+
+   void slScheduler::stopSample   ( slSample *sample, int magic ) ;
+   void slScheduler::pauseSample  ( slSample *sample, int magic ) ;
+   void slScheduler::resumeSample ( slSample *sample, int magic ) ;
+
+   void slScheduler::stopMusic   ( int magic ) ;
+   void slScheduler::pauseMusic  ( int magic ) ;
+   void slScheduler::resumeMusic ( int magic ) ;
+
+</pre>
+This stops/pauses/resumes all instances of the specified sample with
+the specified magic number. The 'stopSample' command will even stop
+looped samples.  If the 'sample' is NULL then all samples with
+that magic number are stopped/paused/resumed. If the 'magic' number
+is zero then all instances of 'sample' are affected. If sample is
+NULL <b>and</b> magic is zero then all currently playing sounds are
+affected.
+<p>
+IMPORTANT NOTE: When you are playing a sample, it is important
+not to delete it until after it has finished playing. SL keeps
+count of the number of times each sample is playing - and will
+produce a fatal error and exit if you attempt to do this. Note
+that even if you tell the sample to stop playing using
+slScheduler::stopSample, you must not delete it until *AFTER*
+the next call to slScheduler::update(). You can use the
+slSample::getPlayCount() function to find out how many playing
+instances of a particular slSample there are.
+<p>
+<H3>Envelopes.</H3>
+Most of the time, a sound can be simply played as-is. This is
+highly desirable since doing real-time audio modification is
+costly. However, there are times when you really need to
+alter the pitch, volume, stereo-postion (pan) or filtering
+of a sample in realtime.
+<p>
+One classic example of this is in a car racing game when
+you want the pitch and volume of the engine to change in
+response to the throttle and gear ratio - even though the
+sound itself is really a simple looped sample.
+<p>
+To cater for these needs, SL has the concept of an 'envelope'.
+An envelope is a array of floating point values and and array
+of times at which those values are correct. The envelope can
+be attached to a playing sound like this:
+<pre>
+
+   slScheduler::addSampleEnvelope ( slSample *s, int magic,
+              int slot, slEnvelope *e, slEnvelopeType type ) ;
+   slScheduler::addMusicEnvelope ( int magic,
+              int slot, slEnvelope *e, slEnvelopeType type ) ;
+
+</pre>
+As with the other sample interaction commands, the sample and
+magic number can be used as wild-cards to apply the same command
+to a number of sample instances.
+<p>
+Each sample instance can has a minimum of four (and a maximum
+of SL_MAX_ENVELOPES) slots into which an envelope can be placed.
+Each envelope can operate on a different aspect of the sample
+and the envelopes are applied to the sound in slotwise order.
+<p>
+To remove an envelope from a particular sample/magic/slot
+combination, simply use slScheduler::addSampleEnvelope or
+slScheduler::addMusicEnvelope with a NULL envelope.
+<p>
+Using a lot of envelopes will considerably increase the amount
+of CPU time consumed by SL - so beware of trying overly fancy
+effects.
+<p>
+The 'slEnvelopeType' argument defines which aspect of the sample's
+performance will be affected by the envelope:
+<pre>
+
+  SL_PITCH_ENVELOPE  : The value in the envelope determines the
+                       rate at which the sample is speeded up
+                       or slowed down during replay. A value of
+                       2.0 would double the pitch of the sound and
+                       halve it's duration. A value of 0.5 would
+                       halve the pitch and double the duration.
+
+  SL_VOLUME_ENVELOPE : The value of the envelope multiplies the
+                       amplitude (volume) of the sound. Beware of
+                       large multipliers that would cause the sound
+                       to be clipped and small multipliers that
+                       increase the noise level of the sample.
+
+  SL_FILTER_ENVELOPE : **NOT IMPLEMENTED YET**
+                       The value of this parameter determines the
+                       number of consecutive samples that are
+                       averaged together in a kind of moving average.
+                       Large numbers tend to muffle the sound.
+
+  SL_PAN_ENVELOPE    : **NOT IMPLEMENTED YET**
+                       The stereo position of the sound is moved
+                       to the left (negative numbers) or to the
+                       right (positive numbers). +/-1.0 is full-scale.
+
+  SL_ECHO_ENVELOPE   : **NOT IMPLEMENTED YET**
+                       The sound is added to a half volume copy of
+                       itself which is shifted in time by this number
+                       of seconds.
+
+</pre>
+In addition to these, there are a set of SL_INVERSE_PITCH_ENVELOPE,
+SL_INVERSE_VOLUME_ENVELOPE, ...etc. These operate in an identical
+manner to the standard envelopes - but with the opposite sense.
+Hence, if you want to cross-fade two similar sounds then apply the
+same envelope as an SL_VOLUME_ENVELOPE to one sample and as an
+SL_INVERSE_VOLUME_ENVELOPE to the other and they will neatly
+cross-fade.
+<p>
+Here is the class slEnvelope:
+<pre>
+
+class slEnvelope
+{
+  slEnvelope ( int _nsteps = 1, slReplayMode _rm,
+                                float *_times, float *_values ) ;
+  slEnvelope ( int _nsteps = 1, slReplayMode _rm ) ;
+ ~slEnvelope () ;
+
+  int getPlayCount () ;
+
+  void setStep ( int n, float _time, float _value ) ;
+
+  float getStepValue ( int n ) ;
+  float getStepTime  ( int n ) ;
+
+  float getValue ( float _time ) ;
+} ;
+</pre>
+The envelope can be constructed either with or without initial data -
+and can be either SL_SAMPLE_ONE_SHOT or SL_SAMPLE_LOOP. A one-shot
+envelope retains it's final value indefinitely after it finishes
+playing - a looped envelope returns to the start and repeats
+indefinitely.
+<p>
+One very common thing to do is to create an slEnvelope containing
+just one value.
+<p>
+The slEnvelope::setStep() function allows you to modify the value
+of the n'th step of the envelope and to position it in time.
+You can use this in realtime to dynamically interact with the
+envelope and hence modify whatever samples are using that envelope
+at the time. You can read back the time and value for any given
+step of the envelope using slEnvelope::getStepTime() and
+slEnvelope::getStepValue().
+<p>
+Envelopes interpolate between the steps you provide - so if
+a pitch envelope had just three value/time pairs:
+<pre>
+
+  slEnvelope my_envelope ( 3, SL_SAMPLE_LOOP ) ;
+  my_envelope . setStep ( 0,  0.0, 1.0 ) ;
+  my_envelope . setStep ( 1, 10.0, 2.0 ) ;
+  my_envelope . setStep ( 2, 20.0, 1.0 ) ;
+
+  scheduler -> playSample ( my_sample ) ;
+  scheduler -> addSampleEnvelope ( my_sample, 0,
+                     0, & my_envelope, SL_PITCH_ENVELOPE ) ;
+
+</pre>
+...then this could be applied to a sample which would then
+gradually increase in pitch over the next 10 seconds - by
+which point, the pitch would have doubled - and over the
+following 10 seconds, would gradually return to normal.
+This behaviour would repeat for as long as the envelope
+remained attached to that sample.
+<p>
+slEnvelope::getValue() returns the interpolated value at the specified
+time.
+<p>
+You can remove an envelope from a sample thats playing by passing
+a NULL envelope in the same slot.
+<H3>Timing the Audio Updates.</H3>
+The slScheduler has to pump audio data into the Linux device
+driver in realtime. It does this by transferring a chunk
+of pre-mixed audio data over to the Linux device driver
+every time the it seems to be getting low on data.
+<p>
+Note that libsl is not using a separate thread
+to do this - although you could place calls to slScheduler::update()
+in a separate thread if you wanted to. That means that
+if you call the update function too infrequently, the
+Linux device driver will run out of data and you will
+hear breaks and clicks in the audio.
+<p>
+Here is some advice on how to deal with this problem.
+slScheduler supports this call:
+<pre>
+
+  float slScheduler::setSafetyMargin ( float num_seconds ) ;
+
+</pre>
+The slScheduler::setSafetyMargin() call allows you to tell the scheduler
+to ensure that there are at least 'num_seconds' of audio
+queued up in the driver after each call to update. (The
+default safety margin is two seconds - which is likely
+to be on the long side in many applications).
+<p>
+If you make this number very large (say 4 seconds or more)
+then Linux won't have enough buffer space to hold that
+amount of audio data in it's internal buffer (which is
+about 64Kb long on my system) - and slScheduler::update() will block
+indefinitely trying to keep it that full. The audio
+will be smooth - but your application will get zero
+time to run in!
+<p>
+If you set the safety margin to a smaller number (but
+still much larger than the rate that you call update -
+say 1 or 2 seconds) then the system will produce smooth,
+continuous audio - but there will be a significant delay
+between calling the slScheduler::playSample() function and that sample
+actually playing. That is because there is still a number of
+seconds of data in the Linux buffer that has to be
+played before your new sound will be heard.
+<p>
+For music replay, this is fine - all the audio was pre-planned,
+so it'll sound great. But if you are creating the audio for
+a game or something - then it's probably important that the
+"BLAM!!" sound happens very soon after the player presses
+the fire button. With safetyMargin set to two seconds, you
+could get anywhere up to a two second delay!
+<p>
+Here is one (partial) remedy:
+<p>
+If you know that a VERY important sound has to be played
+RIGHT NOW - then you can call the slScheduler::dumpUpdate()
+function instead of the usual slScheduler::update() on that
+frame. This will have the effect of telling Linux to
+dump all the audio that has been queued but not yet
+played - so that your important sound can play RIGHT
+NOW. The downside is that a significant amount of
+sounds that were sitting in the Linux queue will
+be dumped - and a certain amount of CPU time will
+be wasted as a result of having to compute those
+seconds of audio twice.
+<p>
+If you were playing a boring buzzing noise for the sound of
+an engine in a flight simulator - then losing a second
+or two of it might be acceptable. If you were playing
+continuous music in the background then using slScheduler::dumpUpdate()
+would sound like your CD player skipping when you jog it
+too hard.
+<p>
+The final solution is to set safetyMargin to something
+quite small (say 0.2 seconds). This means that in theory,
+all your sounds will be heard within 0.2 seconds of you
+asking for them to play. Of course if you should fail to
+call the slScheduler::update() function at LEAST once every 1/5th
+second, Linux could run out of audio data and you'd get
+gaps and clicks which sound REALLY TERRIBLE.
+<p>
+I find that even with the most simple application, I get
+bad breakup with a safetyMargin anywhere under 0.13 seconds -
+but that's on a fairly ancient 100MHz 486 - I would expect
+a modern CPU to do better.
+<p>
+The sound library can keep up with an 8KHz mono, 8bps sample
+rate consuming only 1ms of CPU time every iteration - also
+on my 100MHz 486.
+<p>
+There are times when you might want to change safetyMargin
+on-the-fly. This is fine - but the effect of the change
+won't be noticable until the data that is currently
+queued within Linux has been played.
+<H3>The Volume Level Conundrum.</H3>
+Globally, the volume is controlled by the audio mixer. If
+you are using the 'SM' companion library then you can
+do this with class slMixer - no
+problem there - but the relative volume of the samples
+that are played together cannot be controlled so easily.
+<p>
+For speed, the scheduler simply adds the sounds together
+and clamps any values that would overflow. To do anything
+more complex would consume significant amounts of CPU time.
+<p>
+(Since sounds are stored as unsigned char's the value
+0x80 actually represents zero voltage - so the equation
+for adding two sound samples 'a' and 'b' is:
+<pre>
+
+   a + b - 0x80 
+
+</pre>
+it is important to bear this in mind if you do any work
+on the slSample buffers yourself.)
+<p>
+Clearly if two sounds each range in voltage from utter
+minimum (0x00) to absolute maximum (0xFF) then there will
+be considerable distortion when they are added. The problem
+gets even worse when there are three sounds. Hence, if you
+really expect to play two sounds at once then you should
+reduce the volume of each sample to the range 0x40 to 0xC0,
+and if you expect to play three sounds at once then the
+range 0x56 to 0xAA. However, if you do that then you are
+in effect losing one or two bits of audio precision - which
+raises noise levels quite a bit.
+<p>
+It would have been possible to go to 16 bit sound samples - but
+not all PC sound cards can do that - and in any case, it would
+double the amount of memory and CPU time taken to play the sounds.
+<p>
+One notable fact is that it is fairly unlikely that all
+your sounds actually fill the range 0x00 to 0xFF exactly. Most
+sampled sounds that you find recorded by home equipment are
+typically either:
+<ul>
+<li> Over-recorded - they fill the range 0x00 to 0xFF - but
+     were actually recorded a too high a range and are
+     already pretty noisy. 
+<li> Under-recorded - they don't fill the range 0x00 to 0xFF.
+</ul>
+If under-recorded, then further reducing the volume for the
+sake of adding several sounds together may be unnecessary.
+<p>
+If over-recorded, then you'll need to reduce the volume of
+the sample for sure since it's already being clipped.
+<p>
+Even in the happy case of perfect recordings, it's pretty
+unlikely that the loudest parts of two sounds will happen
+to replay at the exact same instant - and even if they
+did, it might be in some rare spikes of audio where quality
+might not suffer.
+<p>
+So, there is no solid mechanism to ensure the best quality.
+You might want to spend some time playing with the relative
+volumes of the various samples you use in your code. The
+slSample::changeVolume() function is too slow to use in
+realtime - but it is handy for tuning the samples right
+after they have been loaded from disk.
+<H2>The Future.</H2>
+I keep hearing about compressed '.WAV' files - I havn't found
+any yet - or a spec on how to read them.
+<p>
+There doesn't seem to be a spec for '.AU' files either - but
+the header format seems simple enough from just looking at
+a few example files.
+<p>
+It's also possible to allow more simultaneous sounds - the
+limit of three is a bit arbitary - but again, CPU costs are
+something to be concerned about. Fortunately, if I ever
+increase the limit, it shouldn't affect existing programs.
+<p>
+It would be nice if the scheduler knew how to do stereo
+and 16 bps.
+<H2>A Note about Reference Counting.</H2>
+Instances of the slEnvelope and slSample classes are 'reference
+counted' within SL. That means that a counter in each object is
+incremented each time you start one playing - and decremented
+each time one stops.  When you 'delete' an slEnvelope or an slSample,
+the reference count will be checked to ensure it is zero - if it
+is not then a fatal error will be produced if you then attempt
+to call slScheduler::update() since that would play a sound that
+has been deleted by the application.
+<p>
+The error does not occour at the point when you delete the
+sample or envelope since it is OK to do that so long as you
+never try to play more sounds later.  It is therefore illegal
+to delete a sample or envelope and <strong>then</strong> stop
+it playing.
+<p>
+This arrangement allows an application to exit with outstanding
+sounds queued up.
+<H2>Example Program.</H2>
+This example creates an 'engine' sound in memory using
+some summed sine waves, loads a number of sounds (and
+has them automatically matched to the current sound
+replayer), then plays the engine sound in a loop,
+periodically interrupting it with some other noises.
+<pre>
+
+#include "sl.h"
+#include "sm.h"
+#include &lt;math.h&gt;
+
+/*
+  Construct a sound scheduler and a mixer.
+*/
+
+slScheduler sched ( 8000 ) ;
+smMixer mixer ;
+
+int main ()
+{
+  mixer . setMasterVolume ( 30 ) ;
+  sched . setSafetyMargin ( 0.128 ) ;
+
+  /* Just for fun, let's make a one second synthetic engine sample... */
+
+  Uchar buffer [ 8000 ] ;
+
+  for ( int i = 0 ; i &lt; 8000 ; i++ )
+  {
+    /* Sum some sin waves and convert to range 0..1 */
+
+    float level = ( sin ( (double) i * 2.0 * M_PI / (8000.0/ 50.0) ) +
+                    sin ( (double) i * 2.0 * M_PI / (8000.0/149.0) ) +
+                    sin ( (double) i * 2.0 * M_PI / (8000.0/152.0) ) +
+                    sin ( (double) i * 2.0 * M_PI / (8000.0/192.0) )
+                  ) / 8.0f + 0.5f ;
+
+    /* Convert to unsigned byte */
+
+    buffer [ i ] = (Uchar) ( level * 255.0 ) ;
+  }
+
+  /* Set up four samples and a loop */
+
+  slSample  *s = new slSample ( buffer, 8000 ) ;
+  slSample *s1 = new slSample ( "scream.ub", & sched ) ;
+  slSample *s2 = new slSample ( "zzap.wav" , & sched ) ;
+  slSample *s3 = new slSample ( "cuckoo.au", & sched ) ;
+  slSample *s4 = new slSample ( "wheeee.ub", & sched ) ;
+
+  /* Mess about with some of the samples... */
+
+  s1 -> adjustVolume ( 2.2  ) ;
+  s2 -> adjustVolume ( 0.5  ) ;
+  s3 -> adjustVolume ( 0.2  ) ;
+
+  /* Play the engine sample continuously. */
+
+  sched . loopSample ( s ) ;
+
+  int tim = 0 ;  /* My periodic event timer. */
+
+  while ( SL_TRUE )
+  {
+    tim++ ;  /* Time passes */
+
+    if ( tim % 200 == 0 ) sched.playSample ( s1 ) ;
+    if ( tim % 180 == 0 ) sched.playSample ( s2 ) ;
+    if ( tim % 150 == 0 ) sched.playSample ( s3 ) ;
+    if ( tim % 120 == 0 ) sched.playSample ( s4 ) ;
+
+    /*
+      For the sake of realism, I'll delay for 1/30th second to
+      simulate a graphics update process.
+    */
+
+#ifdef WIN32
+    Sleep ( 1000 / 30 ) ;  /* 30Hz */
+#else
+    usleep ( 1000000 / 30 ) ;  /* 30Hz */
+#endif
+
+    /*
+      This would normally be called just before the graphics buffer swap
+      - but it could be anywhere where it's guaranteed to get called
+      fairly often.
+    */
+
+    sched . update () ;
+  }
+}
+
+</pre>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+

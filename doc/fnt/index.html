@@ -1,0 +1,370 @@
+<HTML>
+<TITLE>A Font Library for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<TABLE>
+<TR>
+<TD>
+<H1>A Font Library for OpenGL</H1>
+</TD>
+</TR>
+<TR>
+<TD>
+               by Steve Baker
+</TD>
+</TR>
+</TABLE>
+<H2>Introduction</H2>
+The FNT library was originally written to allow PUI programs to
+produce text using texture maps instead of bitmaps because the
+latter are typically very slow on consumer-grade 3D hardware.
+<H2>An Example.</H2>
+This example program is probably all you need in the
+way of documentation - so it's the first thing we'll talk
+about:
+<pre>
+
+   /* Declarations */
+
+   fntRenderer texout ;
+
+   /* Load some fonts */
+
+   fntTexFont  TimesRoman ( "times_roman.txf" ) ;
+   fntTexFont  Courier    ( "courier.txf" ) ;
+
+   /* Select a font and pointsize to render with... */
+
+   texout . setFont      ( & TimesRoman ) ;
+   texout . setPointSize ( 24 ) ;
+
+   /* Print "Hello" and "World" */
+
+   texout . begin () ;
+     texout . start2f ( 50.0f, 80.0f ) ;
+     texout . puts ( "Hello" ) ;
+     texout . start2f ( 50.0f, 50.0f ) ;
+     texout . puts ( "World" ) ;
+   texout . end () ;
+ 
+</pre>
+<H2>The Classes</H2>
+There are three external classes used in FNT:
+<pre>
+
+  class fntFont         -- An abstract base class from which all
+                           kinds of font representations could be
+                           derived.
+  class fntTexFont      -- A fntFont that uses texture mapping.
+  class fntRenderer     -- A class that draws text using a fntFont.
+
+</pre>
+<H3>class fntFont</H3>
+Classes derived from the <code>fntFont</code> class all describe fonts.
+This is an abstract base class from which <code>fntTexFont</code> is derived.
+Other <code>fntFont</code> sub-classes could also be derived in the future.
+(This means that you cannot declare a fntFont - but all classes derived
+from fntFont will obey this description.)
+<p>
+This class appears quite complex since constructing and/or
+querying the contents of a texture font is a complicated
+business - and consequently, there is a lot of API to
+support your ability to do that.  Fortunately, most FNT
+applications will just load a font from disk and use
+<code>fntFont::begin()</code>/
+<code>fntFont::puts()</code>/
+<code>fntFont::end()</code>
+functionality.
+<pre>
+
+  class fntFont
+  {
+  public:
+    fntFont () ;
+    ~fntFont () ;
+    void putch ( sgVec3 curpos, float pointsize, float slant, char  c ) ;
+    void puts  ( sgVec3 curpos, float pointsize, float slant, char *s ) ;
+    void begin () ;
+    void end   () ;
+    void getBBox ( char *s, float pointsize, float slant,
+                            float *left, float *right,
+                            float *bot , float *top  ) ;
+
+    int  load ( char *fname, GLenum mag = GL_NEAREST,
+                             GLenum min = GL_LINEAR_MIPMAP_LINEAR ) ;
+
+    void setFixedPitch ( int fix ) ;
+    int   isFixedPitch ()          ;
+
+    void  setWidth     ( float w ) ;
+    void  setGap       ( float g ) ;
+
+    float getWidth     () ;
+    float getGap       () ;
+
+    int   hasGlyph ( char c ) ;
+  } ;
+
+</pre>
+<code>fntFont::getBBox()</code> returns the top, bottom, left and
+right extents (in OpenGL units) of the string 's' if it were drawn at the
+specified pointsize and slant. This routine knows how to deal with
+newline characters.
+<p>
+<code>fntFont::putch()</code> draws the character 'c' at the
+cursor position specified be 'curpos' (with the specified pointsize and slant)
+and advances the cursor
+to the right hand edge of the character it just rendered.
+<p>
+<code>fntFont::puts()</code> draws the entire string 's'  at the
+cursor position specified be 'curpos'
+(with the specified pointsize and slant) and advances the cursor
+to the right hand edge of the last character it rendered.
+<p>
+Both putch and puts will automatically switch the case of letters
+from upper to lower or vice versa if the required character is
+not present in the font but the letter with the reverse case
+is present. Other missing characters will simply generate no
+output and won't update the cursor position. If a space character
+is not defined in the font, then a half-pointsize gap will be
+generated instead.
+<p>
+puts (but NOT putch) knows how to deal with newline characters,
+it drops the text down to the next line - leaving a one-third
+pointsize gap between lines.
+<p>
+<code>fntFont::begin()/end()</code> since redundant mode changes are
+costly in OpenGL, applications may optionally call <code>fntFont::begin()</code>
+before rendering some text using a specified font and call <code>fntFont::end()</code>
+at the end. Just like a <code>glBegin()</code>/<code>glEnd()</code> pair,
+there are some fairly restrictive rules about what you can do between
+a <code>fntFont::begin()</code> and a <code>fntFont::end()</code>:
+<ul>
+<li>The only OpenGL calls that are permitted are those that
+    are allowed between a <code>glBegin()</code>/<code>glEnd()</code>.
+<li>You may not make calls to other member functions of other
+    <code>fntFont</code> objects or to <code>fntRenderer</code> objects.
+<li>You may not call <code>fntFont::begin()</code> between another
+    <code>fntFont::begin()</code>/<code>fntFont::end()</code> pair.
+</ul>
+<p>
+You may call <code>fntFont::putch()</code> and/or
+<code>fntFont::puts()</code> without
+entering a <code>fntFont::begin()</code>/<code>fntFont::end()</code>
+state - but if you do that, each call will result in
+OpenGL state switching - which may well be redundant.
+<p>
+<code>int  load ( char *filename )</code> loads a font from disk,
+returns TRUE on success, FALSE for failure.
+<p>
+<code>int  load ( char *filename, GLenum mag = GL_NEAREST,
+GLenum min = GL_LINEAR_MIPMAP_LINEAR )</code>...you can optionally
+specify the OpenGL texture magnification and minification filters
+- this is sometimes necessary to get the clearest possible text
+at certain point sizes. Experiment!
+<p>
+<code>void setFixedPitch ( int fixed )</code> if 'fixed' is TRUE, forces
+the font to be fixed-pitch (so each letter or 'Glyph' is a standard width),
+if 'fixed' is false then variable character widths are possible.
+<p>
+<code>void setWidth ( float w )</code> For a fixed width font, this
+sets the width of each character. If the actual characters are wider
+than this, they will overlap, if they are narrower then there will be
+a gap.
+<p>
+<code>void setGap ( float g )</code> Set the gap between letters, can be
+negative or positive.
+<p>
+The following routines allow you to query the font's setup:
+<pre>
+
+    int   isFixedPitch ()
+    float getWidth     ()
+    float getGap       ()
+
+</pre>
+<code>int hasGlyph()</code> returns TRUE if the font contains a
+glyph (graphic image) for a given ASCII character, FALSE otherwise.
+Fonts that have only uppercase (or only lowercase) letters will still
+return TRUE for corresponding characters of the opposite case because
+the putch and puts routines will automatically case-convert in that
+case.
+<H3>class fntTexFont</H3>
+<code>fntTexFont</code> is inherited from <code>fntFont</code>.
+All functions of a fntFont are implemented in fntTextFont using
+a texture map.
+<pre>
+
+  class fntTexFont
+  {
+    public:
+      fntTexFont () ;
+      fntTexFont ( char *fname,
+                   GLenum mag = GL_NEAREST,
+                   GLenum min = GL_LINEAR_MIPMAP_LINEAR ) ;
+      ~fntTexFont () ;
+      void putch ( sgVec3 curpos, float pointsize, float slant, char  c ) ;
+      void puts  ( sgVec3 curpos, float pointsize, float slant, char *s ) ;
+      void begin () ;
+      void end   () ;
+      void getBBox ( char *s, float pointsize, float slant,
+			      float *left, float *right,
+			      float *bot , float *top  ) ;
+
+      int  load ( char *fname,
+                  GLenum mag = GL_NEAREST,
+                  GLenum min = GL_LINEAR_MIPMAP_LINEAR ) ;
+
+      void setFixedPitch ( int fix ) ;
+      int   isFixedPitch ()          ;
+
+      void  setWidth     ( float w ) ;
+      void  setGap       ( float g ) ;
+
+      float getWidth     () ;
+      float getGap       () ;
+
+      void setGlyph ( char c,
+		    float tex_left, float tex_right,
+		    float tex_bot , float tex_top  ,
+		    float vtx_left, float vtx_right,
+		    float vtx_bot , float vtx_top  ) ;
+    
+      int  getGlyph ( char c,
+		    float *tex_left = NULL, float *tex_right = NULL,
+		    float *tex_bot  = NULL, float *tex_top   = NULL,
+		    float *vtx_left = NULL, float *vtx_right = NULL,
+		    float *vtx_bot  = NULL, float *vtx_top   = NULL) ;
+    } ;
+
+</pre>
+<p>
+<code>int load ( char *filename )</code> loads a font from disk
+using the extension of the filename to determine what format it is
+stored in. Currently, the only supported format is Mark Kilgards 'texfont'
+format - which has the '.txf' filename extension. Returns TRUE for
+success, FALSE for failure.
+Details of the TXF file format can be found in
+<A HREF="http://reality.sgi.com/opengl/tips/TexFont/TexFont.html">
+Marks's document about Textured Fonts</A>
+<p>
+Just as with all fntFont derived classes, you can optionally specify
+the OpenGL texture filter options for the loaded texture.
+<p>
+Each font is made up of zero or more 'Glyphs' (character shapes) packed
+into a single texture map. If you didn't use 'load' to load the font
+from disk, you'll have to define where each one lies on the map and
+how big the quadrilateral it is to be drawn on is:
+<pre>
+
+    void setGlyph ( char c,
+		    float tex_left, float tex_right,
+		    float tex_bot , float tex_top  ,
+		    float vtx_left, float vtx_right,
+		    float vtx_bot , float vtx_top  ) ;
+    
+</pre>
+Where 'c' is the character we are defining, 'tex_*' is the
+left, right, top and bottom of the image of that character
+in the texture map. Since texture coordinates are in the
+range 0..1, these will typically be quite small numbers.
+'vtx_*' is the left, right, top and bottom of the character's
+rectangle in a coordinate system that has (0,0) at the
+baseline of the character cell, and (1,1) at the top-right
+corner of the tallest, widest character in the font. Hence,
+a lower-case 'y' would have a negative 'vtx_bot'.
+<p>
+You can also query all this information:
+<pre>
+
+    int  getGlyph ( char c,
+		    float *tex_left, float *tex_right,
+		    float *tex_bot , float *tex_top  ,
+		    float *vtx_left, float *vtx_right,
+		    float *vtx_bot , float *vtx_top  ) ;
+
+</pre>
+<code>fntFont::getGlyph()</code> returns TRUE if the character has
+been defined in this font, FALSE otherwise.
+<H3>class fntRenderer</H3>
+This class is the one most people are going to be using
+to render text in FNT. Most applications will declare
+a single <code>fntRenderer</code> class for all their text needs.
+<pre>
+
+  class fntRenderer
+  {
+  public:
+    fntRenderer ()
+
+    void start3fv ( sgVec3 pos ) ;
+    void start2fv ( sgVec2 pos ) ;
+    void start2f  ( float x, float y ) ;
+    void start3f  ( float x, float y, float z ) ;
+
+    void getCursor ( float *x, float *y, float *z )
+
+    fntFont *getFont () ;
+    void     setFont ( fntFont *f ) ;
+
+    void begin () ;
+    void end   () ;
+
+    void putch ( char  c ) ;
+    void puts  ( char *s ) ;
+  } ;
+
+</pre>
+<code>fntRenderer::setFont()</code> is used to tell the renderer which
+font is current. <code>fntRenderer::getFont()</code> lets you find out
+which font it is. You may not call <code>fntRenderer::setFont()</code>
+between a <code>fntRenderer::begin()</code> and <code>fntRenderer::end()</code>
+pair.
+<p>
+By default, uppercase characters of all fonts are one OpenGL unit high.
+You can make characters larger or smaller by setting
+<code>fntRenderer::setPointSize()</code>. You can also slant the characters
+to form italic or oublique fonts using <code>fntRenderer::setSlant()</code>.
+(The slant measures by how many OpenGL units the tops of uppercase
+characters are sloped to the right). You can call either setPointSize or
+setSlant between <code>fntRenderer::begin()</code> and
+<code>fntRenderer::end()</code>.
+<p>
+The various kinds of <code>fntRendered::start*()</code> calls are
+akin to the OpenGL <code>glVertex*</code> commands and they determine where
+the next chunk of text will be drawn. Since this coordinate is
+updated as text is drawn, you'll need to call
+<code>fntRenderer::getCursor()</code> to
+find out where the next chunk of text will be drawn. You can
+call <code>fntRenderer::start*()</code>,
+<code>fntRenderer::putch()</code> and
+<code>fntRenderer::puts()</code> between
+<code>fntRenderer::begin()</code>/<code>fntRenderer::end()</code>
+calls.
+<H2>Making New TXF Fonts.</H2>
+The '.txf' font format was designed by Mark Kilgard - who
+also produced some tools for dealing with them.
+<p>
+Check <A HREF="http://reality.sgi.com/opengl/tips/TexFont/TexFont.html">
+Marks's document about Textured Fonts</A> for further information.
+Of particular interest is Mark's "gentexfont" program that can
+create a TXF format font from an X-windows font.
+<p>
+You can find out which X-fonts are stored on your machine using
+the <code>/usr/X11/bin/xlsfonts</code> program.
+<p>
+There are over a dozen sample TXF fonts stored
+in <code>examples/fnt/data</code>.
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;  
+</ADDRESS>
+</BODY>
+</HTML> 
+

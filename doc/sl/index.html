@@ -1,0 +1,61 @@
+<TITLE>The SL Sound and Mixer Libraries.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<H1>The SL Sound and Mixer Libraries.</H1>
+By Steve Baker
+<H2>Introduction.</H2>
+The 'SL' sound library is primarily targetted towards producing sound
+effects for games, and isn't really intended for playing music (although
+you could certainly use it for doing that). The emphasis is on low
+CPU impact and low latency rather than high quality and fancy MIDI/MOD
+facilities.
+<p>
+SL is a part of <A HREF="../index.html">PLIB</A>.
+<p>
+The 'SL' sound library will eventually become a fully portable freeware
+sound library that should run on all major platforms. Right now, SL
+runs under:
+<ul>
+<li>Linux on systems with OSS (the Open Sound System) installed
+(it's usually a standard part of the kernel).
+<li>Windows NT, 95 and 98.
+<li>OpenBSD.
+<li>SGI's IRIX.
+<li>Other UNIX systems using OSS (which should include Solaris, FreeBSD,
+BSD/OS, SCO and others) should be able to run the Linux version of
+SL by adding '-DSL_USING_OSS_AUDIO' to the compile command line.
+</ul>
+At present, there is no support for Apple's MacOS sound systems
+- although it is hoped that these will be added in the near future.
+<ul>
+<li><A HREF="sl.html">The SL Library</A>
+deals with all aspects of sample replay for games and
+other realtime applications - it is designed such that it can be
+ported to other operating systems by replacing just the slDSP
+class.
+<p>
+<li><A HREF="sm.html">The SM Library</A>
+controls the audio mixer on a PC sound card and
+probably only works 100% correctly within OSS - and then probably
+only on fairly 'vanilla' Soundblaster-compatible sound cards.
+Portability of SM is patchy - regard it as a bonus.
+</ul>
+It is due to the relative non-portability of the SM routines
+that these are in a separate library. For non-portable
+applications, SL and SM can be considered as a single library.
+<p>
+<A HREF="http://www.4front-tech.com">Download the Open Sound System
+drivers (previously known as VoxWare).</A>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+
