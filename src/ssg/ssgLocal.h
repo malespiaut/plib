@@ -83,7 +83,6 @@ void _ssgWriteMat4   ( FILE *fd, const sgMat4 var ) ;
 int _ssgReadError    ( void ) ;
 int _ssgWriteError   ( void ) ;
 
-int _ssgStrNEqual ( const char *s1, const char *s2, int len ) ;
 
 /*
   Routines for storing arbitrary ssgBase derived objects within SSG files. 

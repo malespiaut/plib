@@ -213,7 +213,7 @@ static _ssgSave3dsChunk* create_maplist_chunk( ssgLeaf* leaf ) {
     char *texture_extension = 
       texture_filename + strlen(texture_filename) - 3;
     
-    flip_texture_y = _ssgStrEqual( texture_extension, "BMP" );
+    flip_texture_y = ulStrEqual( texture_extension, "BMP" );
   }
 
   num_verts = new unsigned short;

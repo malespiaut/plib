@@ -2192,7 +2192,6 @@ int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 
 /* Weird private stuff */
 
-int _ssgStrEqual ( const char *s1, const char *s2 ) ;
 char* _ssgMakePath( char* path, const char* dir, const char* fname ) ;
 
 /* Load/Save functions */
