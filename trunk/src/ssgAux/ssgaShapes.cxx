@@ -96,7 +96,7 @@ ssgaShape::ssgaShape ( int np )
 
 void ssgaShape::init ()
 {
-  type |= SSGA_TYPE_SHAPE ;
+  type = ssgaTypeShape () ;
   corrupted = FALSE ;
   sgZeroVec3 ( center ) ;
   sgSetVec4 ( colour, 1.0f, 1.0f, 1.0f, 1.0f ) ;
@@ -106,13 +106,13 @@ void ssgaShape::init ()
   kidPostDrawCB = NULL ;
 } 
 
-ssgaCube    ::ssgaCube     ( void ) : ssgaShape ()     { type |= SSGA_TYPE_CUBE     ; regenerate () ; } 
-ssgaCube    ::ssgaCube     (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_CUBE     ; regenerate () ; } 
+ssgaCube    ::ssgaCube     ( void ) : ssgaShape ()     { type = ssgaTypeCube () ; regenerate () ; } 
+ssgaCube    ::ssgaCube     (int nt) : ssgaShape ( nt ) { type = ssgaTypeCube () ; regenerate () ; } 
 
 
 ssgaSphere  ::ssgaSphere   ( void ) : ssgaShape ()
 {
- type |= SSGA_TYPE_SPHERE   ;
+ type = ssgaTypeSphere () ;
  latlong_style = TRUE ;
  regenerate () ;
 } 
@@ -120,7 +120,7 @@ ssgaSphere  ::ssgaSphere   ( void ) : ssgaShape ()
 
 ssgaSphere  ::ssgaSphere   (int nt) : ssgaShape ( nt )
 {
- type |= SSGA_TYPE_SPHERE   ;
+ type = ssgaTypeSphere () ;
  latlong_style = TRUE ;
  regenerate () ;
 } 
@@ -128,7 +128,7 @@ ssgaSphere  ::ssgaSphere   (int nt) : ssgaShape ( nt )
 
 ssgaCylinder::ssgaCylinder ( void ) : ssgaShape ()
 {
- type |= SSGA_TYPE_CYLINDER ;
+ type = ssgaTypeCylinder () ;
  capped = TRUE ;
  regenerate () ;
 }
@@ -136,7 +136,7 @@ ssgaCylinder::ssgaCylinder ( void ) : ssgaShape ()
 
 ssgaCylinder::ssgaCylinder (int nt) : ssgaShape ( nt )
 {
- type |= SSGA_TYPE_CYLINDER ;
+ type = ssgaTypeCylinder () ;
  capped = TRUE ;
  regenerate () ;
 }
