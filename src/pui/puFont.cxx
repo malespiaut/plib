@@ -96,6 +96,20 @@ int puFont::getStringWidth ( const char *str ) const
 }
 
 
+static int count_lines ( const char *str )
+{
+  int k = 0 ;
+
+  if ( str != NULL )
+  {
+    for ( k = 1 ; *str != '\0' ; str++ )
+      if ( *str == '\n' )
+        k++ ;
+  }
+
+  return k ;
+}
+
 #ifdef _PU_USE_GLUT_FONTS
 static int getGLUTStringHeight ( GlutFont glut_font_handle )
 {
@@ -121,21 +135,16 @@ int puFont::getStringHeight ( const char *s ) const
   if ( glut_font_handle != (GlutFont) 0 )
   {
     int i = getGLUTStringHeight ( glut_font_handle ) + getStringDescender () ;
-    int num_lines = 1 ;
 
-    for ( const char *p = s ; *p != '\0' ; p++ )
-      if ( *p == '\n' )
-        num_lines++ ;
-
-    return ( i * num_lines ) - getStringDescender () ;
+    return ( i * count_lines ( s ) ) - getStringDescender () ;
   }
 #endif // #ifdef _PU_USE_GLUT_FONTS
 
   if ( fnt_font_handle != NULL )
   {
-    float t, b ;
-    fnt_font_handle -> getBBox ( s, pointsize, slant, NULL, NULL, &b, &t ) ;
-    return (int) t ;
+    float i = pointsize * 1.333f ;
+
+    return (int) ( ( i * count_lines ( s ) ) - ( 0.333f * pointsize ) ) ;
   }
 
   return 0 ;
