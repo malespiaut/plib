@@ -7,6 +7,10 @@ Project: "PointPicker"=.\src\pui\PointPicker.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    PointPicker
+    .\src\pui
+    end source code control
 }}}
 
 Package=<4>
@@ -19,6 +23,10 @@ Project: "WavingFlag"=.\src\ssg\tux\WavingFlag.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    WavingFlag
+    .\src\ssg\tux
+    end source code control
 }}}
 
 Package=<4>
@@ -31,6 +39,10 @@ Project: "complex"=.\src\pui\complex.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    complex
+    .\src\pui
+    end source code control
 }}}
 
 Package=<4>
@@ -43,6 +55,10 @@ Project: "example"=.\src\sl\example.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    example
+    .\src\sl
+    end source code control
 }}}
 
 Package=<4>
@@ -55,6 +71,10 @@ Project: "fnt_test"=.\src\fnt\fnt_test.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    fnt_test
+    .\src\fnt
+    end source code control
 }}}
 
 Package=<4>
@@ -67,6 +87,10 @@ Project: "js_demo"=.\src\js\js_demo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    js_demo
+    .\src\js
+    end source code control
 }}}
 
 Package=<4>
@@ -79,6 +103,10 @@ Project: "load"=.\src\ssg\load_save\load.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    load
+    .\src\ssg\load_save
+    end source code control
 }}}
 
 Package=<4>
@@ -91,6 +119,10 @@ Project: "majik_demo"=.\src\ssg\majik\majik_demo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    majik_demo
+    .\src\ssg\majik
+    end source code control
 }}}
 
 Package=<4>
@@ -100,6 +132,22 @@ Package=<4>
 ###############################################################################
 
 Project: "mod_demo"=.\src\sl\mod_demo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    mod_demo
+    .\src\sl
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "net_echo"=.\src\net\net_echo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -115,6 +163,10 @@ Project: "net_http_get"=.\src\net\net_http_get.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    net_http_get
+    .\src\net
+    end source code control
 }}}
 
 Package=<4>
@@ -127,6 +179,10 @@ Project: "plib_examples"=.\plib_examples.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    plib_examples
+    .
+    end source code control
 }}}
 
 Package=<4>
@@ -190,6 +246,10 @@ Project: "save"=.\src\ssg\load_save\save.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    save
+    .\src\ssg\load_save
+    end source code control
 }}}
 
 Package=<4>
@@ -202,6 +262,10 @@ Project: "sg_quat_test"=.\src\sg\sg_quat_test.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    sg_quat_test
+    .\src\sg
+    end source code control
 }}}
 
 Package=<4>
@@ -214,6 +278,10 @@ Project: "simple"=.\src\pui\simple.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    simple
+    .\src\pui
+    end source code control
 }}}
 
 Package=<4>
@@ -226,6 +294,10 @@ Project: "slideshow"=.\src\fnt\slideshow.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    slideshow
+    .\src\fnt
+    end source code control
 }}}
 
 Package=<4>
@@ -238,6 +310,10 @@ Project: "stest"=.\src\ssg\state_test\stest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    stest
+    .\src\ssg\state_test
+    end source code control
 }}}
 
 Package=<4>
@@ -250,6 +326,10 @@ Project: "test_dir"=.\src\util\test_dir.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    test_dir
+    .\src\util
+    end source code control
 }}}
 
 Package=<4>
@@ -262,6 +342,10 @@ Project: "tux_example"=.\src\ssg\tux\tux_example.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    tux_example
+    .\src\ssg\tux
+    end source code control
 }}}
 
 Package=<4>
@@ -274,6 +358,10 @@ Project: "viewer"=.\src\ssg\viewer\viewer.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    viewer
+    .\src\ssg\viewer
+    end source code control
 }}}
 
 Package=<4>
