@@ -238,7 +238,7 @@ puComboBox::puComboBox ( int minx, int miny, int maxx, int maxy,
   type |= PUCLASS_COMBOBOX ;
 
   char *stringval ;
-  int arrow_width = (int) ( (maxy-miny) / 1.5 ) ;
+  int arrow_width = (int) ( (maxy-miny) / 1.5f ) ;
 
   input = new puInput ( 0, 0, maxx-minx - arrow_width, maxy-miny ) ;
   input -> setUserData ( this ) ;

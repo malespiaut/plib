@@ -82,7 +82,7 @@ static void puFileSelectorHandleArrow ( puObject *arrow )
   int num_items = list_box->getNumItems () - 1 ;
   if ( num_items > 0 )
   {
-    int idx = int ( num_items * val + 0.5 ) + inc ;
+    int idx = int ( num_items * val + 0.5f ) + inc ;
     if ( idx > num_items ) idx = num_items ;
     if ( idx < 0 ) idx = 0 ;
 

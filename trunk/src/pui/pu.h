@@ -1202,8 +1202,8 @@ public:
     setMaxValue ( 1.0f ) ;
     setMinValue ( 0.0f ) ;
     setStepSize ( 1.0f ) ;
-    current_max = 1.0 ;
-    current_min = 0.0 ;
+    current_max = 1.0f ;
+    current_min = 0.0f ;
     active_button = 0 ;
   }
 
@@ -1216,8 +1216,8 @@ public:
     setMaxValue ( 1.0f ) ;
     setMinValue ( 0.0f ) ;
     setStepSize ( 1.0f ) ;
-    current_max = 1.0 ;
-    current_min = 0.0 ;
+    current_max = 1.0f ;
+    current_min = 0.0f ;
     active_button = 0 ;
   }
 

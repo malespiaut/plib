@@ -38,7 +38,7 @@ static void puLargeInputHandleRightSlider ( puObject * slider )
   int num_lines = text->getNumLines () ;
 
   if ( num_lines > 0 )
-    text->setTopLineInWindow ( int ( val + 0.5 ) ) ;
+    text->setTopLineInWindow ( int ( val + 0.5f ) ) ;
 }
 
 // Private function from the widget itself
@@ -320,8 +320,8 @@ void  puLargeInput::removeText ( int start, int end )
 
 void  puLargeInput::setValue ( const char *s )
 {
-  if ( bottom_slider ) bottom_slider->setSliderFraction ( 0.0 ) ;
-  right_slider->setSliderFraction ( 0.0 ) ;
+  if ( bottom_slider ) bottom_slider->setSliderFraction ( 0.0f ) ;
+  right_slider->setSliderFraction ( 0.0f ) ;
 
   if ( !s )
   {
@@ -346,7 +346,7 @@ void  puLargeInput::setValue ( const char *s )
   // Find the greatest width of a line
   max_width = 0 ;
 
-  float line_width = 0.0 ;       // Width of current line
+  float line_width = 0.0f ;       // Width of current line
   if ( !bottom_slider ) wrapText () ;
   char *this_char = ( bottom_slider ? getStringValue () : getWrappedText () ) ;   // Pointer to character in text
 
@@ -422,13 +422,13 @@ void puLargeInput::draw ( int dx, int dy )
                     legendFont.getStringDescender() + 1 ;  // of text, in pixels
 
     int xx = int(legendFont.getFloatStringWidth ( " " )) ;
-    int yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 ) ;
+    int yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f ) ;
 
     int box_width = abox.max[0] - abox.min[0] - slider_width - xx - xx ;   // Input box width, in pixels
     int box_height = ( abox.max[1] - abox.min[1] - (bottom_slider?slider_width:0) ) / line_size ;
                                                   // Input box height, in lines
 
-    float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0 ;
+    float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0f ;
 
     int beg_pos      // Position in window of start of line, in pixels
                 = int(( box_width - max_width ) * bottom_value ) ;
@@ -453,7 +453,7 @@ void puLargeInput::draw ( int dx, int dy )
        val [ select_start_position ] = '\0' ;
 
        xx = dx + abox.min[0] + int(legendFont.getFloatStringWidth ( " " )) ;
-       yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 
+       yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f
                + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
 
        char *end_of_line = strchr ( val, '\n' ) ;
@@ -557,7 +557,7 @@ void puLargeInput::draw ( int dx, int dy )
         int line_count = 0;
 
         xx = int(legendFont.getFloatStringWidth ( " " )) ;
-        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 ) ;
+        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f ) ;
 
         while ( end_of_line )  // While there is a carriage return in the string
         {
@@ -664,7 +664,7 @@ void puLargeInput::draw ( int dx, int dy )
         val [ cursor_position ] = '\0' ;
 
         xx = int(legendFont.getFloatStringWidth ( " " )) ;
-        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5 )
+        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f )
                 + top_line_in_window * line_size ;   // Offset y-coord for unprinted lines
 
         char *end_of_line = strchr ( val, '\n' ) ;
@@ -769,7 +769,7 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
 //  int box_height = ( abox.max[1] - abox.min[1] ) / line_size ;
                                                // Input box height, in lines
 
-    float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0 ;
+    float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0f ;
 
     int beg_pos      // Position in window of start of line, in pixels
                 = int( ( box_width - max_width ) * bottom_value ) ;
@@ -780,7 +780,7 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
 //              = top_line_in_window + box_height - 1 ;
 
 //  int xx = legendFont.getStringWidth ( " " ) ;
-    int yy = int( abox.max[1] - legendFont.getStringHeight () * 1.5 
+    int yy = int( abox.max[1] - legendFont.getStringHeight () * 1.5f
             + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
 
     // Get the line number and position on the line of the mouse
@@ -899,7 +899,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   int current_line_in_window = 0;                 /* Current line # in window */
   char *line_end = 0 ;
   char* p = new char[ strlen(old_text)+1 ] ;
-  float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0 ; /* Value of the bottom slider */
+  float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0f ; /* Value of the bottom slider */
   if ( old_text[1] != '\0' ) /* Ensure that we don't delete something that doesn't exist! - JCJ 22 July 2002 */
   {
     /*Count how many characters from the beginning of the line the cursor is*/
@@ -1215,10 +1215,8 @@ void puLargeInput::wrapText ( void )
 {
   // Wrap the text in "text" and put it in "wrapped_text"
 
-  int l_len = strlen ( getStringValue () ) ;
   delete [] wrapped_text ;
-  wrapped_text = new char[l_len + 1] ;
-  memcpy(wrapped_text, getStringValue (), l_len + 1) ;
+  wrapped_text = ulStrDup ( getStringValue () ) ;
 
   char *wrapped_text_wp = wrapped_text,
        *space_ptr,
