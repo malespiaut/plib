@@ -244,7 +244,7 @@ static void status_window_displayfn ( void )
 
   /* Clear the screen */
 
-  glClearColor ( 0.1, 0.1, 0.1, 1.0 ) ;
+  glClearColor ( 0.1f, 0.1f, 0.1f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   puDisplay () ;
@@ -261,7 +261,7 @@ static void selection_window_displayfn ( void )
 
   /* Clear the screen */
 
-  glClearColor ( 0.1, 0.1, 0.1, 1.0 ) ;
+  glClearColor ( 0.1f, 0.1f, 0.1f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
   puDisplay () ;
@@ -1018,7 +1018,7 @@ int define_status_window ()
   window_color_r = new puSpinBox ( 270, 285, 320, 305 ) ;
   window_color_r->setMinValue(0.0);
   window_color_r->setMaxValue(1.0);
-  window_color_r->setStepSize(0.05);
+  window_color_r->setStepSize(0.05f);
   window_color_r->setLabel ( "Red" ) ;
   window_color_r->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_r->setValuator ( &main_window_color_r ) ;
@@ -1027,7 +1027,7 @@ int define_status_window ()
   window_color_g = new puSpinBox ( 320, 285, 370, 305 ) ;
   window_color_g->setMinValue(0.0);
   window_color_g->setMaxValue(1.0);
-  window_color_g->setStepSize(0.05);
+  window_color_g->setStepSize(0.05f);
   window_color_g->setLabel ( "Green" ) ;
   window_color_g->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_g->setValuator ( &main_window_color_g ) ;
@@ -1036,7 +1036,7 @@ int define_status_window ()
   window_color_b = new puSpinBox ( 370, 285, 420, 305 ) ;
   window_color_b->setMinValue(0.0);
   window_color_b->setMaxValue(1.0);
-  window_color_b->setStepSize(0.05);
+  window_color_b->setStepSize(0.05f);
   window_color_b->setLabel ( "Blue" ) ;
   window_color_b->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_b->setValuator ( &main_window_color_b ) ;
@@ -1045,7 +1045,7 @@ int define_status_window ()
   window_color_a = new puSpinBox ( 420, 285, 470, 305 ) ;
   window_color_a->setMinValue(0.0);
   window_color_a->setMaxValue(1.0);
-  window_color_a->setStepSize(0.05);
+  window_color_a->setStepSize(0.05f);
   window_color_a->setLabel ( "Alpha" ) ;
   window_color_a->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
   window_color_a->setValuator ( &main_window_color_a ) ;
