@@ -207,7 +207,7 @@ void puDeleteObject ( puObject *ob )
 }
 
 
-static void puCleanUpJunk ( void )
+void puCleanUpJunk ( void )
 {
   puObject * local_objects_to_delete = objects_to_delete ;
   objects_to_delete = NULL ;
@@ -215,8 +215,17 @@ static void puCleanUpJunk ( void )
   while ( local_objects_to_delete != NULL )
   {
     puObject *next_ob = local_objects_to_delete -> getNextObject() ;
-        delete local_objects_to_delete ;
+    delete local_objects_to_delete ;
     local_objects_to_delete = next_ob ;
+
+    /* If we've reached the end of the list, start over (in case we've deleted a group and
+     * it has put new widgets on the delete list)
+     */
+    if ( local_objects_to_delete == NULL )
+    {
+      local_objects_to_delete = objects_to_delete ;
+      objects_to_delete = NULL ;
+    }
   }
 }
 
@@ -224,10 +233,10 @@ static void puCleanUpJunk ( void )
 static puObject *active_widget ;   /* Widget which is currently receiving user input */
 static char *input_paste_buffer ;  /* Cut/Copy/Paste buffer for input widgets */
 
+static int firsttime = TRUE ;
+
 void puInit ( void )
 {
-  static int firsttime = TRUE ;
-
   if ( firsttime )
   {
     if ( ! glIsValidContext () )
@@ -256,6 +265,15 @@ void puInit ( void )
 
 #endif
   }
+}
+
+void puExit ( void )
+{
+  if ( firsttime )
+    ulSetError ( UL_FATAL, "puExit called without a previous call to puInit." ) ;
+
+  delete puGetBaseLiveInterface () ;
+  firsttime = TRUE ;
 }
 
 static void puSetOpenGLState ( void )
