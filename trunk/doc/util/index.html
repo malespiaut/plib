@@ -10,7 +10,7 @@
  bgcolor="#005000" background="../marble.png">
 
 <H1>The PLIB general Utility Library.</H1>
-By Steve Baker
+By Sebastian Ude
 <H2>Introduction</H2>
 The 'UL' utility library is primarily targeted towards hiding common
 operating system functions behind a thin layer that makes them portable.
@@ -394,22 +394,27 @@ a certain data value in a list.
 <p>
 To remove a node from the list, call one of:
 <pre><i>
-  void ulLinkedList::removeNode ( void *data ) ;
+  bool ulLinkedList::removeNode ( void *data ) ;
   void * ulLinkedList::removeNode ( int pos ) ;
 </i></pre>
-Where in case there is more than one node whose data value is 'data', the
-first function will remove the <b>first</b> one. With the second one, 'pos'
-has to be a number between '0' and the number of nodes minus one. The return
-value of the second function is a copy of the removed node's data value.
+Where the first function returns 'true' if the node was sucessfully removed or
+'false' if it could not find a node whose value is 'data'. In case there is
+more than one node whose data value is 'data', it will remove the <b>first</b>
+one. With the second function, 'pos' has to be a number between '0' and the
+number of nodes minus one. It's return value is the removed node's data
+value.
 <p>
 To iterate over the list (starting from the head) and to have a custom
 function being called for each node's data pointer, call:
 <pre><i>
-  typedef bool (*ulIterateFunc)( const void *data ) ;
-  void ulLinkedList::forEach ( ulIterateFunc fn ) const ;
+  typedef bool (*ulIterateFunc)( void *data, void *user_data ) ;
+  void * ulLinkedList::forEach ( ulIterateFunc fn, void *user_data = NULL ) const ;
 </i></pre>
-The iteration process will stop if your ulIterateFunc returns "false" or
-if the tail of the list is reached.
+The iteration process will stop if your ulIterateFunc returns 'false', in
+which case "forEach" returns the data value of the node at which the iteration
+stopped, or if the tail of the list has been reached, in which case "forEach"
+returns NULL. The user_data pointer will be passed to your ulIterateFunc as
+the second argument.
 <p>
 ulLinkedList allows you to maintain a sorted list as an option. To set up
 a sorted list, simply be sure to insert all nodes using the sorted insertion
@@ -443,17 +448,20 @@ To determine whether a list is sorted or not, call the following function:
 <pre><i>
   bool ulLinkedList::isSorted ( void ) const ;
 </i></pre>
+Note that with a linked list, you <b>must not</b> modify the criteria of a
+node's data that is used for sorting without removing the node from the list
+and re-inserting it.
 <p>
 Finally, you can empty a list (remove all nodes) by calling:
 <pre><i>
   typedef bool (*ulIterateFunc)( const void *data ) ;
-  void ulList::empty ( ulIterateFunc destroyfn = NULL ) ;
+  void ulList::empty ( ulIterateFunc destroyfn = NULL, void *user_data = NULL ) ;
 </i></pre>
 Where "destroyfn" is an optionally specified function that will be called
-with a copy each destroyed node's data pointer as the argument. This is
-for example useful if the list entries are pointers to dynamically allocated
-objects that have to be freed on destruction of the list. The return value
-of the specified function is ignored.
+with each destroyed node's data pointer as the first and with user_data as
+the second argument. This is for example useful if the list entries are
+pointers to dynamically allocated objects that have to be freed on destruction
+of the list. The return value of the specified function is ignored.
 
 <p>
 <h3><a name="ulHashTable">ulHashTable</a></h3>
@@ -610,9 +618,7 @@ No further documentation yet.
 <a href="http://validator.w3.org/check/referer"><img border="0" src="../valid-html40.png" alt="Valid HTML 4.0!" height="31" width="88"></a>
 <td>
 <ADDRESS>
-<A HREF="http://www.sjbaker.org">
-Steve J. Baker.</A>
-&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+Sebastian Ude &lt;<A HREF="mailto:ude@handshake.de">ude@handshake.de</A>&gt;
 </ADDRESS>
 </table>
 </BODY>
