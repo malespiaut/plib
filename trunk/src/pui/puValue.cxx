@@ -42,6 +42,8 @@ const char *puValue::getTypeString ( void )
 {
   int i = getType () ;
 
+  if ( i & PUCLASS_SELECTBOX   ) return "puSelectBox" ;
+  if ( i & PUCLASS_COMBOBOX    ) return "puComboBox" ;
   if ( i & PUCLASS_LARGEINPUT  ) return "puLargeInput" ;
   if ( i & PUCLASS_VERTMENU    ) return "puVerticalMenu" ;
   if ( i & PUCLASS_TRISLIDER   ) return "puTriSlider" ;
