@@ -148,7 +148,7 @@ system("mogrify -geometry ${TEXSIZ}x${TEXSIZ} $FONT.ppm") == 0
 #
 # Generate the .txf file
 #
-print STDERR "Generating GLUT font file...\n";
+print STDERR "Generating textured font file...\n";
 
 # Prune undefined glyphs
 foreach my $c (keys %metrics) {
