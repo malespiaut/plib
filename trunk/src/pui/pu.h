@@ -517,7 +517,6 @@ protected:
   int active      ;
   int highlighted ;
   int am_default  ;
-  int deactivate_when_leaving ;
   int window ;        /* Which window does the object appear in? */
 
   const char *label  ; puFont  labelFont ; int labelPlace ;
@@ -637,9 +636,6 @@ public:
 
   void  makeReturnDefault ( int def ) { am_default = def ; }
   int   isReturnDefault   ( void )          { return am_default ; }
-
-  void setDeactivateWhenLeaving ( int i )  {  deactivate_when_leaving = i ;  }
-  int     deactivateWhenLeaving ( void )  {  return deactivate_when_leaving ;  }
 
   int   getWindow () { return window ; }
   void  setWindow ( int w ) { window = w ; }
@@ -958,15 +954,15 @@ public:
   void draw  ( int dx, int dy ) ;
   puSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
      puObject ( minx, miny, vertical ?
-	       ( minx + puGetDefaultLegendFont().getStringWidth ( "W" ) +
-			PUSTR_LGAP + PUSTR_RGAP ) :
-	       ( minx + sz ),
-	      vertical ?
-	       ( miny + sz ) :
-	       ( miny + puGetDefaultLegendFont().getStringHeight () +
-			puGetDefaultLegendFont().getStringDescender () +
-			PUSTR_TGAP + PUSTR_BGAP )
-	     )
+               ( minx + puGetDefaultLegendFont().getStringWidth ( "W" ) +
+                        PUSTR_LGAP + PUSTR_RGAP ) :
+               ( minx + sz ),
+              vertical ?
+               ( miny + sz ) :
+               ( miny + puGetDefaultLegendFont().getStringHeight () +
+                        puGetDefaultLegendFont().getStringDescender () +
+                        PUSTR_TGAP + PUSTR_BGAP )
+             )
   {
     type |= PUCLASS_SLIDER ;
     slider_fraction = 0.1f ;
@@ -1465,6 +1461,7 @@ protected:
   puArrowButton *fastup_arrow ;
 
   char *text ;                 // Pointer to text in large input box
+  char *wrapped_text ;         // Pointer to word-wrapped text in the box
 
   short arrow_count ;          // Number of up/down arrows above and below the right slider
 
@@ -1473,8 +1470,10 @@ protected:
   void normalize_cursors ( void ) ;
   void removeSelectRegion ( void ) ;
 
+  void wrapText ( void ) ;
+
 public:
-  puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width ) ;
+  puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text = FALSE ) ;
   ~puLargeInput () ;
 
   void setSize ( int w, int h ) ;
@@ -1549,6 +1548,10 @@ public:
 
   void  setText ( char *l ) ;
   char *getText ( void ) { return text ; }
+  char *getWrappedText ( void )
+  {
+    return ( wrapped_text == NULL ? text : wrapped_text ) ;
+  }
   void  addNewLine ( char *l ) ;
   void  addText ( char *l ) ;
   void  appendText ( char *l ) ;
@@ -1556,3 +1559,4 @@ public:
 } ;
 
 #endif
+
