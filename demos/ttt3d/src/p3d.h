@@ -46,7 +46,6 @@
 #endif
 
 #include <plib/sl.h>
-#include <plib/js.h>
 #include <plib/fnt.h>
 
 #ifndef M_PI
