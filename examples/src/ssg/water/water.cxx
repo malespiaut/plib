@@ -45,11 +45,13 @@ ssgRoot            *scene        = NULL ;
 ssgaLensFlare      *sun_obj      = NULL ;
 ssgTransform       *sun          = NULL ;
 ssgTransform       *teapot       = NULL ;
+ssgTransform       *fire         = NULL ;
 ssgTransform       *pedestal     = NULL ;
 ssgaWaveSystem     *ocean        = NULL ;
 ssgaParticleSystem *fountain     = NULL ;
 ssgaCube           *ped_obj      = NULL ;
 ssgaTeapot         *tpt_obj      = NULL ;
+ssgaFire           *fire_obj     = NULL ;
 
 ssgSimpleState     *sea_state    = NULL ;
 ssgSimpleState     *splash_state = NULL ;
@@ -442,6 +444,7 @@ void update_motion ()
   ocean -> updateAnimation ( t ) ;
 
   fountain -> update ( dt ) ;
+  fire_obj -> update ( dt ) ;
 
   dt = ck . getDeltaTime () ;
 
@@ -452,6 +455,8 @@ void update_motion ()
   sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, t * 60, 0.0f, 0.0f ) ;
   ssgSetCamera ( & campos ) ;
   teapot  -> setTransform ( & tptpos ) ;
+  sgSetCoord ( & tptpos, 0.0f,  0.0f, 2.0f, 0.0f, 0.0f, 0.0f ) ;
+  fire    -> setTransform ( & tptpos ) ;
 }
 
 
@@ -729,6 +734,8 @@ void load_database ()
   tpt_obj -> setKidState      ( teapot_state ) ;
   tpt_obj -> regenerate       () ;
 
+  fire_obj =  new ssgaFire ( 300, 1, 60.0f, 100000.0f ) ;
+
   /* Build the scene graph */
 
   teapot   =  new ssgTransform ;
@@ -745,10 +752,14 @@ void load_database ()
   sun      -> setTransform    ( sunpos ) ;
   sun      -> addKid          ( sun_obj  ) ;
 
+  fire     =  new ssgTransform ;
+  fire     -> addKid          ( fire_obj  ) ;
+
   scene    =  new ssgRoot ;
   scene    -> addKid          ( ocean    ) ;
   scene    -> addKid          ( pedestal ) ;
   scene    -> addKid          ( teapot   ) ;
+  scene    -> addKid          ( fire     ) ;
   scene    -> addKid          ( sun      ) ;
 }
 

@@ -29,6 +29,7 @@
 #include "ssg.h"
 #include "ssgaShapes.h"
 #include "ssgaParticleSystem.h"
+#include "ssgaFire.h"
 #include "ssgaWaveSystem.h"
 #include "ssgaLensFlare.h"
 
