@@ -57,8 +57,8 @@ puArrowButton *arrow_button ;
 int dial_window ;
 puDial *dial ;
 
-int file_picker_window ;
-puFilePicker *file_picker ;
+int file_selector_window ;
+puFileSelector *file_selector ;
 
 int bislider_window ;
 puBiSlider *bislider ;
@@ -368,9 +368,9 @@ int main ( int argc, char **argv )
   dial->setLabel ( "Label" ) ;
   dial->setLegend ( "Legend" ) ;
 
-  file_picker_window = glutCreateWindow      ( "File Picker Window"  ) ;
+  file_selector_window = glutCreateWindow      ( "File Selector Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
-  glutReshapeWindow     ( 300,  200 ) ;
+  glutReshapeWindow     ( 300,  220 ) ;
   glutDisplayFunc       ( displayfn ) ;
   glutKeyboardFunc      ( keyfn     ) ;
   glutSpecialFunc       ( specialfn ) ;
@@ -379,9 +379,9 @@ int main ( int argc, char **argv )
 
   tim -> load ( "../fnt/data/times_bold.txf" ) ;
 
-  file_picker = new puFilePicker ( 10, 10, 280, 180, "." ) ;
-  file_picker->setLabel ( "Label" ) ;
-  file_picker->setLegend ( "Legend" ) ;
+  file_selector = new puFileSelector ( 10, 10, 280, 200, "." ) ;
+  file_selector->setLabel ( "Label" ) ;
+  file_selector->setLegend ( "Legend" ) ;
 
   bislider_window = glutCreateWindow      ( "BiSlider Window"  ) ;
   glutPositionWindow    ( 200, 100 ) ;
