@@ -373,12 +373,13 @@ void findChildBones ( int root )
 
   sgVec3 vec ;
   float  len ;
+  int i ;
 
   sgSubVec3 ( vec, v1, v0 ) ;
   len = sgLengthVec3 ( vec ) ;
   sgScaleVec3 ( vec, 1.0f/len ) ;
 
-  for ( int i = 0 ; i < getNumBones() ; i++ )
+  for ( i = 0 ; i < getNumBones() ; i++ )
   {
     /*******************************
      If this bone already has a parent
@@ -448,7 +449,7 @@ void findChildBones ( int root )
     Recursively search any new child nodes we found.
   ****************************************************/
  
-  for ( int i = 0 ; i < getNumBones() ; i++ )
+  for ( i = 0 ; i < getNumBones() ; i++ )
     if ( i != root && getBone(i)->parent == root ) /* If Parented by this root node */
       findChildBones ( i ) ;  /* Recurse downwards. */
 }
@@ -506,8 +507,10 @@ void walkBones ( ssgBranch *root, sgMat4 mat )
           {
             ssgSimpleState *ss = (ssgSimpleState *)( l -> getState () ) ;
 
-            if ( ! ss -> getColourMaterial () == GL_DIFFUSE &&
-                 ! ss -> getColourMaterial () == GL_AMBIENT_AND_DIFFUSE )
+//            if ( ! ss -> getColourMaterial () == GL_DIFFUSE &&
+//                 ! ss -> getColourMaterial () == GL_AMBIENT_AND_DIFFUSE )
+            if ( ss -> getColourMaterial () != GL_DIFFUSE &&
+                 ss -> getColourMaterial () != GL_AMBIENT_AND_DIFFUSE )
             {
               col = ss -> getMaterial ( GL_DIFFUSE ) ;
             }
@@ -894,7 +897,9 @@ void transformModel ( ssgRoot *boneRoot, float tim )
   if ( ! ZtranslateInput -> isAcceptingInput () )
     ZtranslateInput  -> setValue ( curr_translate [ 2 ] ) ;
 
-  for ( int i = 0 ; i < getNumBones () ; i++ )
+  int i ;
+
+  for ( i = 0 ; i < getNumBones () ; i++ )
     getBone ( i ) -> computeTransform ( prev, next, lerptime ) ;
 
   ssgBranch *b = boneRoot ;
@@ -905,7 +910,7 @@ void transformModel ( ssgRoot *boneRoot, float tim )
 
   walkTransforms ( b, mat ) ; 
 
-  for ( int i = 0 ; i < nextVertex ; i++ )
+  for ( i = 0 ; i < nextVertex ; i++ )
     getBone ( vertex[i].boneID ) -> transform ( vertex[i].vx,
                                                 vertex[i].rel_vx ) ;
 }
