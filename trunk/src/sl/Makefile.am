@@ -1,12 +1,12 @@
 lib_LIBRARIES = libplibsl.a libplibsm.a
 
-include_HEADERS = sl.h slPortability.h sm.h slMODPrivate.h slMODfile.h
+include_HEADERS = sl.h slPortability.h sm.h
 
 libplibsl_a_SOURCES = \
 	slDSP.cxx slSample.cxx slEnvelope.cxx \
 	slPlayer.cxx slMODPlayer.cxx slSamplePlayer.cxx \
         slScheduler.cxx slMODdacio.cxx slMODfile.cxx \
-        slMODinst.cxx slMODnote.cxx
+        slMODinst.cxx slMODnote.cxx slMODPrivate.h slMODfile.h
 
 libplibsm_a_SOURCES = slPortability.h smMixer.cxx
 
