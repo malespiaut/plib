@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /I "..\sg" /I "..\util" /I "..\ssg" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\sg" /I "..\util" /I "..\ssg" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "GLUT_IS_PRESENT" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
 # ADD RSC /l 0x407 /d "NDEBUG"
@@ -51,26 +51,10 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
-# Begin Custom Build - 'ssgAux' gets installed
-ProjDir=.
-InputPath=.\Release\ssgAux.lib
-SOURCE="$(InputPath)"
-
-BuildCmds= \
-	copy $(ProjDir)\ssgAux.h $(ProjDir)\..\..\ssgAux.h \
-	copy $(ProjDir)\ssgaShapes.h $(ProjDir)\..\..\ssgaShapes.h \
-	
-
-"$(ProjDir)\..\..\ssgAux.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\ssgaShapes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ssgAux - Win32 Debug"
@@ -86,7 +70,7 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "..\sg" /I "..\util" /I "..\ssg" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\sg" /I "..\util" /I "..\ssg" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "GLUT_IS_PRESENT" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
 # ADD RSC /l 0x407 /d "_DEBUG"
@@ -96,26 +80,10 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"Debug\ssgAux_d.lib"
-# Begin Custom Build - 'ssgAux' gets installed
-ProjDir=.
-InputPath=.\Debug\ssgAux_d.lib
-SOURCE="$(InputPath)"
-
-BuildCmds= \
-	copy $(ProjDir)\ssgAux.h $(ProjDir)\..\..\ssgAux.h \
-	copy $(ProjDir)\ssgaShapes.h $(ProjDir)\..\..\ssgaShapes.h \
-	
-
-"$(ProjDir)\..\..\ssgAux.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\ssgaShapes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h
 # End Special Build Tool
 
 !ENDIF 
