@@ -30,6 +30,9 @@ void ssgEntity::copy_from ( ssgEntity *src, int clone_flags )
 
   traversal_mask = src -> getTraversalMask () ;
 
+  setTravCallback( SSG_CALLBACK_PRETRAV,  src->getTravCallback( SSG_CALLBACK_PRETRAV  ) );
+  setTravCallback( SSG_CALLBACK_POSTTRAV, src->getTravCallback( SSG_CALLBACK_POSTTRAV ) );
+
   dirtyBSphere () ;
 }
 
