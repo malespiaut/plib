@@ -367,13 +367,15 @@ void coordreshapefn ( int w, int h )
 
 void save_cb ( puObject * )
 {
+  static int save_count = 0 ;  // Number of buttons in file picker
   int w = 320, h = 270 ;
   glutSetWindow ( save_window ) ;
   glutShowWindow () ;
   glutReshapeWindow ( w, h ) ;
   glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
+  if ( ++save_count > 2 ) save_count = 0 ;
 
-  file_picker = new puFilePicker ( 0, 0, w, h, ".", "Pick Place To Save" ) ;
+  file_picker = new puFilePicker ( 0, 0, w, h, save_count, ".", "Pick Place To Save" ) ;
   file_picker -> setCallback ( pick_cb ) ;
 }
 
