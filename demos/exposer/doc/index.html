@@ -158,19 +158,21 @@ So, that's more or less it.
 <H2>Controls.</H2>
 Having loaded your first model, you'll see something like this:
 <br>
-<IMG SRC="exposer.png">
+<center><IMG SRC="exposer.png"></center>
 <br>
 The rather nice shade of green is my favorite colour. If
 you prefer shock-pink...bad luck - that's what source code
 is for!  The 3D model sits in the middle of the screen with
 the GUI widgets floating in front of it.
 <p>
+There is an optional black and white chequerboard 'floor'.
+<p>
 Let's go through the GUI controls piece by piece:
 
 <H3>The Menu Bar.</H3>
 In the top-left, there is a pretty standard menu bar,
 <br>
-<IMG SRC="menu.png">
+<center><IMG SRC="menu.png"></center>
 <br>
 The 'File' menu allows you to replace the model you are
 working on with another, it also allows you to load
@@ -189,7 +191,7 @@ which we'll come to later.  The 'Time' menu has other
 To the left of the window are the bone dials - each coloured
 row of GUI widgets represents one of the bones in your model.
 <br>
-<IMG SRC="bone.png">
+<center><IMG SRC="bone.png"></center>
 <br>
 The button marked 'X' resets all of the angles of the bone
 to zero - which will always be how your model was posed when
@@ -217,7 +219,7 @@ Just below the meny bar, there are three sliders with
 text display/entry areas that allow you to bodily
 translate your model.
 <br>
-<IMG SRC="translate.png">
+<center><IMG SRC="translate.png"></center>
 <br>
 You should generally use this
 for things like adding 'bounce' to a character's walk
@@ -230,15 +232,15 @@ view controls.  These can be used anytime to change
 the view you have of the model - but they don't change
 any actual data in the model or it's bones.
 <br>
-<IMG SRC="viewer.png">
+<center><IMG SRC="viewer.png"></center>
 <br>
 You can also use the 'Zoom' slider to move the model
 closer or further away, and there are buttons marked
-'Skin' and 'Bones' that let you toggle the display of
+'Skin', 'Bones' and 'Floor' that let you toggle the display of
 each of those things - so you can see just the skin,
-just the bones or both. (Or neither if you are
-particularly perverse!).  The initial default is to
-show just the skin.
+just the bones or both (Or neither if you are
+particularly perverse!) - with or without the floor
+plane.  The initial default is to show just the skin.
 <p>
 The 'Pan' and 'Tilt' dials allow you to move your
 eyepoint around the model to view it from all sides
@@ -250,17 +252,28 @@ are some VCR-like controls to play the animation,
 pause it, play in reverse and to play at triple-speed
 in forward or reverse.
 <br>
-<IMG SRC="vcr.png">
+<center><IMG SRC="vcr.png"></center>
 <br>
 You cannot adjust any joint angles in the model when
 the animation is playing - so be sure to press the
 downward arrow (STOP!) when you want to do editing.
+<p>
+There is a control to make the ground translate
+along at a specified speed (in OpenGL-units-per-second).
+This is useful if (for example) you want to animate
+a running character that's you'll be moving at two
+meters per second in your game.  You need to move
+the legs so that the feet move along at the same
+speed as the ground or else it'll look like
+'moonwalking'.  Set the VCR's ground speed to match
+the speed in the game and you'll be able to see if
+the animation is going to work.
 
 <H3>The TimeLine</H3>
 This is a large rectangle taking up most of the bottom
 edge of the screen:
 <br>
-<IMG SRC="timeline.png">
+<center><IMG SRC="timeline.png"></center>
 <br>
 It has a number of functions, it starts up as a view
 of a 10 second animation.  Seconds are indicated by
@@ -282,7 +295,10 @@ change when they happen.
 <p>
 To change an event, click on it and it'll flash to
 indicate that you have it selected.  Then you can
-adjust it using the bone dials.
+adjust it using the bone dials.  A common problem
+is to try to edit a position without selecting it
+first - make sure that the event is flashing on
+the timeline.
 <p>
 Various operations on the 'selected' event are
 available from the 'Time' menu.
@@ -321,11 +337,20 @@ the parser for it is VERY crude at this stage.
 The first line of the file is:
 <pre>
 
-  NUMBONES=17 NUMEVENTS=7 MAXTIME=10.0000
+  NUMBONES=17 NUMEVENTS=7 MAXTIME=10.0000 Z_OFFSET=1.3 SPEED=0.3
 
 </pre>
-So there are 17 bones, 7 events - and the maximum
+So there are 17 bones, 7 events - and the
 duration of the animation is ten seconds.
+<p>
+The Z_OFFSET is advice to the application about the
+height of the origin of the model above the lowest
+point on the model in it's default pose.
+<p>
+SPEED is the speed set on the VCR 'Ground Speed'
+control - which the application can use to tell
+at what speed the character should move forwards
+in order to make the animation look right.
 <p>
 Then follows the bones - one per line:
 <pre>
@@ -342,13 +367,15 @@ After all the bones come the events.  For each event
 there is a header line:
 <pre>
 
-  EVENT 3.0000 17
+  EVENT 3.0000 17 (0.000,0.000,0.000)
 
 </pre>
 The first number is the time (in seconds) at which the
 event occurred, the second number is the number of bones
 that are affected by this event.  Currently this must be
-the same as 'NUMBONES'.
+the same as 'NUMBONES'. The coordinate in parentheses is
+the body-translation of the model from the origin at this
+moment in time. 
 <p>
 After the event header, there is one line per bone
 containing the three joint angles in degrees for
@@ -383,6 +410,9 @@ to the spine that's closer to the skin than the hand is.
 Artists should be encouraged to model the character in
 a position with their legs wide apart and their arms
 fully outstretched to minimise this kind of problem.
+<p>
+It is normal to model the character facing down the
+positive Y axis - facing away from the camera.
 <p>
 Using the axis freeze buttons to isolate only those
 axes through which a real joint can rotate is very

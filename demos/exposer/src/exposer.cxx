@@ -26,6 +26,9 @@ int curr_button = 0 ;
 int event_mode = MODE_SELECT ;
 Event *curr_event = NULL ;
 
+unsigned int floor_texhandle  = 0 ;
+float floor_z_coord  = -1 ;
+
 puFileSelector* file_selector = 0 ;                                                 
 ssgRoot        *skinScene  = NULL ;
 ssgRoot        *boneScene  = NULL ;
@@ -33,29 +36,70 @@ ssgRoot        *boneScene  = NULL ;
 char lastModelFilePath [ PUSTRING_MAX ] ;
 char lastModelFileName [ PUSTRING_MAX ] ;
 
+void loadCB ( puObject * ) ;
+
 puText     *message     ;
 puButton   *hideBones   ;
 puButton   *hideSkin    ;
+puButton   *hideGround  ;
 puSlider   *scroller    ;
 puSlider   *timescroller;
 puGroup    *vcr         ;
+puInput   *ground_speed ;
 puMenuBar  *menuBar     ;
 
 puSlider   *rangeSlider ;
 puDial     *  panSlider ;
 puDial     * tiltSlider ;
 
+
+char floorTexture0 [] =
+{
+  0, 0, 0, 0, 255, 255, 255, 255,
+  0, 0, 0, 0, 255, 255, 255, 255,
+  0, 0, 0, 0, 255, 255, 255, 255,
+  0, 0, 0, 0, 255, 255, 255, 255,
+  255, 255, 255, 255, 0, 0, 0, 0,
+  255, 255, 255, 255, 0, 0, 0, 0,
+  255, 255, 255, 255, 0, 0, 0, 0,
+  255, 255, 255, 255, 0, 0, 0, 0
+} ;
+
+char floorTexture1 [] =
+{
+  0, 0, 255, 255,
+  0, 0, 255, 255,
+  255, 255, 0, 0,
+  255, 255, 0, 0
+} ;
+
+char floorTexture2 [] =
+{
+  0, 255,
+  255, 0
+} ;
+
+char floorTexture3 [] =
+{
+  127
+} ;
+
+
+
 void setCurrentEvent ( Event *ev )
 {
   curr_event = ev ;
 }
 
-float vcr_replay_speed = 0.0f ;
+float vcr_replay_speed    = 0.0f ;
+float vcr_ground_speed    = 0.0f ;
+float vcr_ground_position = 0.0f ;
 void vcr_fastReverse ( puObject * ) { vcr_replay_speed = -3.0f ; setCurrentEvent(NULL);}
 void vcr_reverse     ( puObject * ) { vcr_replay_speed = -1.0f ; setCurrentEvent(NULL);}
 void vcr_stop        ( puObject * ) { vcr_replay_speed =  0.0f ; }
 void vcr_play        ( puObject * ) { vcr_replay_speed =  1.0f ; setCurrentEvent(NULL);}
 void vcr_fastPlay    ( puObject * ) { vcr_replay_speed =  3.0f ; setCurrentEvent(NULL);}
+void vcr_groundSpeed ( puObject *me ) { vcr_ground_speed = me->getFloatValue() ; }
 
 
 void reverseRegionCB (puObject *)
@@ -404,8 +448,9 @@ void bnsavepickfn ( puObject * )
   if ( fd == NULL )
     return ;
 
-  fprintf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f\n",
-                        getNumBones(), getNumEvents(), timebox_maxtime ) ;
+  fprintf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
+                        getNumBones(), getNumEvents(), timebox_maxtime,
+                        -floor_z_coord, vcr_ground_speed ) ;
 
   for ( int i = 0 ; i < getNumBones () ; i++ )
     getBone ( i ) -> write ( fd ) ;
@@ -479,9 +524,15 @@ void bnpickfn ( puObject * )
   deleteAll () ;
 
   int numbones, numevents ;
+  float tmp_floor_z_coord ;
 
-  fscanf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f\n", &numbones, &numevents,
-                       &timebox_maxtime ) ;
+  /* Don't use the floor_z_coord from the file. */
+
+  fscanf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
+                &numbones, &numevents,
+                &timebox_maxtime, &tmp_floor_z_coord, &vcr_ground_speed ) ;
+
+  ground_speed -> setValue ( vcr_ground_speed ) ;
 
   if ( numbones != getNumBones () )
   {
@@ -520,6 +571,14 @@ void pickfn ( puObject * )
   if ( path [ 0 ] == '\0' )
     return ;
 
+  if ( strlen ( path ) >= 6 && strcmp(&path[strlen(path)-6], ".bones" ) == 0 )
+  {
+    fprintf ( stderr, "I think you tried to load a BONES file as 3D model.\n");
+    fprintf ( stderr, "Try again!\n");
+    loadCB ( NULL ) ;
+    return ;
+  }
+
   char *p = NULL ;
 
   for ( int i = strlen(path) ; i >= 0 ; i-- )
@@ -555,6 +614,8 @@ void pickfn ( puObject * )
   Event *e = new Event ( getNumBones(), 0.0f ) ;
   addEvent ( e ) ;
   setCurrentEvent ( e ) ;
+
+  floor_z_coord = getLowestVertexZ () ;
 }
 
 
@@ -644,6 +705,34 @@ void exitCB ( puObject *ob )
     exit ( 1 ) ;
 }
 
+
+void drawFloor ()
+{
+  glMatrixMode ( GL_PROJECTION ) ;
+  _ssgCurrentContext->loadProjectionMatrix () ;
+  glMatrixMode ( GL_MODELVIEW ) ;
+  _ssgCurrentContext->loadModelviewMatrix () ;
+
+  glDisable ( GL_LIGHTING   ) ;
+  glEnable  ( GL_TEXTURE_2D ) ;
+  glEnable  ( GL_CULL_FACE  ) ;
+  glBindTexture ( GL_TEXTURE_2D, floor_texhandle ) ;
+  glColor4f ( 1, 1, 1, 1 ) ;
+  glBegin ( GL_QUADS ) ;
+  glTexCoord2f ( -30, vcr_ground_position - 30 ) ;
+  glVertex3f ( -30, -30, floor_z_coord ) ;
+  glTexCoord2f (  30, vcr_ground_position - 30 ) ;
+  glVertex3f (  30, -30, floor_z_coord ) ;
+  glTexCoord2f (  30, vcr_ground_position + 30 ) ;
+  glVertex3f (  30,  30, floor_z_coord ) ;
+  glTexCoord2f ( -30, vcr_ground_position + 30 ) ;
+  glVertex3f ( -30,  30, floor_z_coord ) ;
+  glEnd () ;
+  glDisable ( GL_TEXTURE_2D ) ;
+  glEnable  ( GL_LIGHTING   ) ;
+}
+
+
 /*
   The GLUT redraw event
 */
@@ -657,7 +746,9 @@ void redraw ()
 
   if ( vcr_replay_speed != 0.0f )
   {
-    lcursor += vcr_replay_speed * timer.getDeltaTime () ;
+    float delta_t = vcr_replay_speed * timer.getDeltaTime () ;
+
+    lcursor += delta_t ;
 
     if ( lcursor < 0.0f )
       lcursor = timebox_maxtime  ;
@@ -666,10 +757,15 @@ void redraw ()
       lcursor = 0.0f ;
   }
 
+  vcr_ground_position = lcursor * vcr_ground_speed ;
+
   update_motion () ;
 
   glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
   glEnable ( GL_DEPTH_TEST ) ;
+
+  if ( ! hideGround -> getValue () )
+    drawFloor () ;
 
   if ( ! hideSkin -> getValue () )
   {
@@ -696,7 +792,7 @@ void redraw ()
 
   for ( i = 0 ; i < 10 && i+scroll_controllers < getNumBones() ; i++ )
   {
-    getBone ( i + scroll_controllers ) -> widget -> setPosition ( 20, 70+i*40);
+    getBone ( i + scroll_controllers ) -> widget -> setPosition ( 24, 70+i*40);
 
     if ( curr_event == NULL )
     {
@@ -937,7 +1033,8 @@ void init_graphics ()
 
   ssgInit () ;
   puInit  () ;
-  puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;                           
+  puSetDefaultStyle ( PUSTYLE_SMALL_SHADED ) ;                           
+  puSetDefaultFonts ( PUFONT_HELVETICA_10, PUFONT_HELVETICA_10 ) ;
 
   /*
     Some basic OpenGL setup
@@ -981,15 +1078,18 @@ void init_graphics ()
   scroller    -> setDelta      ( 0.01             ) ;
   scroller    -> setCallback   ( scrollerCB       ) ;
 
-  hideBones   =  new puButton  ( 10, 0, "Bones" ) ;
+  hideBones   =  new puButton  ( 7, 0, "Bones" ) ;
   hideBones   -> setValue      ( TRUE ) ;
-  hideSkin    =  new puButton  ( 60, 0, "Model" ) ;
+  hideSkin    =  new puButton  ( 46, 0, "Skin" ) ;
   hideSkin    -> setValue      ( FALSE ) ;
+  hideGround  =  new puButton  ( 76, 0, "Floor" ) ;
+  hideGround  -> setValue      ( FALSE ) ;
 
   rangeSlider =  new puSlider  ( 10, 20, 100, FALSE ) ;
   rangeSlider -> setCBMode     ( PUSLIDER_DELTA ) ;
   rangeSlider -> setDelta      ( 0.01    ) ;
   message     =  new puText    ( 10, 40 ) ;
+  message     -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
   message     -> setLabel      ( "Zoom"  ) ;
 
     panSlider =  new puDial    ( 110, 0, 40 ) ;
@@ -997,6 +1097,7 @@ void init_graphics ()
     panSlider -> setDelta      ( 0.01f   ) ;
     panSlider -> setValue      ( 0.5f    ) ;
   message     =  new puText    ( 110, 40 ) ;
+  message     -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
   message     -> setLabel      ( "Pan"  ) ;
 
    tiltSlider =  new puDial    ( 150, 0, 40 ) ;
@@ -1004,6 +1105,7 @@ void init_graphics ()
    tiltSlider -> setDelta      ( 0.01f   ) ;
    tiltSlider -> setValue      ( 0.5f    ) ;
   message     =  new puText    ( 150, 40 ) ;
+  message     -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
   message     -> setLabel      ( "Tilt"  ) ;
 
   vcr = new puGroup ( 579, TIMEBOX_TOP + 5 ) ;
@@ -1021,7 +1123,36 @@ void init_graphics ()
   oneshot = new puArrowButton (120, 0,150, 30, PUARROW_FASTRIGHT ) ;
   oneshot -> setCallback ( vcr_fastPlay ) ;
 
+  ground_speed = new puInput ( 150, 0, 200, 20 ) ;
+  ground_speed -> setCallback ( vcr_groundSpeed ) ;
+  ground_speed -> setValue ( "0.0" ) ;
+
+  message = new puText ( 150, 20 ) ;
+  message -> setColour    ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
+  message -> setLabel ( "GrndSpeed"  ) ;
   vcr -> close () ;
+
+  glGenTextures   ( 1, & floor_texhandle ) ;
+  glBindTexture   ( GL_TEXTURE_2D, floor_texhandle ) ;
+  glTexEnvi       ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                                            GL_LINEAR_MIPMAP_LINEAR ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT ) ;
+  glTexImage2D  ( GL_TEXTURE_2D, 0, 1, 8, 8,
+                  FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                  floorTexture0 ) ;
+  glTexImage2D  ( GL_TEXTURE_2D, 1, 1, 4, 4,
+                  FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                  floorTexture1 ) ;
+  glTexImage2D  ( GL_TEXTURE_2D, 2, 1, 2, 2,
+                  FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                  floorTexture2 ) ;
+  glTexImage2D  ( GL_TEXTURE_2D, 3, 1, 1, 1,
+                  FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                  floorTexture3 ) ;
+  glBindTexture ( GL_TEXTURE_2D, 0 ) ;
 }
 
 void init_database ()
