@@ -596,20 +596,25 @@ void ssgStripify ( ssgEntity *ent )
   {
     if ( k -> isAKindOf ( ssgTypeVtxTable () ) )
     {
-      int i ;
-      ssgState *s = ((ssgLeaf *) k ) -> getState() ;
-      int       c = ((ssgLeaf *) k ) -> getCullFace() ;
+			GLenum thisType = ((ssgVtxTable *)k)->getPrimitiveType ();
+			if ((thisType != GL_POINTS) && (thisType != GL_LINES) &&
+				  (thisType != GL_LINE_STRIP) && (thisType != GL_LINE_LOOP))
+			{
+				int i ;
+				ssgState *s = ((ssgLeaf *) k ) -> getState() ;
+				int       c = ((ssgLeaf *) k ) -> getCullFace() ;
 
-      for ( i = 0 ; i < stot ; i++ )
-	if ( s == slist [ i ] && c == cflist [ i ] )
-	  break ;
+				for ( i = 0 ; i < stot ; i++ )
+		if ( s == slist [ i ] && c == cflist [ i ] )
+			break ;
 
-      if ( i >= stot )
-      {
-	slist  [ i ] = s ;
-	cflist [ i ] = c ;
-	stot++ ;
-      }
+				if ( i >= stot )
+				{
+		slist  [ i ] = s ;
+		cflist [ i ] = c ;
+		stot++ ;
+				}
+			}
     }
     else
     if ( k -> isAKindOf ( ssgTypeBranch () ) )
@@ -640,9 +645,15 @@ void ssgStripify ( ssgEntity *ent )
            ((ssgLeaf *) k ) -> getState() == slist [ i ] &&
            ((ssgLeaf *) k ) -> getCullFace() == cflist [ i ] )
       {
-        list . add ( (ssgVtxTable *) k ) ;
-        b_ent -> removeKid ( k ) ;
-        k = b_ent -> getKid ( 0 ) ;
+				GLenum thisType = ((ssgVtxTable *)k)->getPrimitiveType ();
+				if ((thisType != GL_POINTS) && (thisType != GL_LINES) &&
+						(thisType != GL_LINE_STRIP) && (thisType != GL_LINE_LOOP))
+        {	list . add ( (ssgVtxTable *) k ) ;
+					b_ent -> removeKid ( k ) ;
+					k = b_ent -> getKid ( 0 ) ;
+				}
+				else
+          k = b_ent -> getNextKid () ;
       }
       else
         k = b_ent -> getNextKid () ;
