@@ -77,6 +77,16 @@ ssgVtxArray::~ssgVtxArray ()
 } 
 
 
+void ssgVtxArray::setIndices ( ssgIndexArray *il )
+{
+  ssgDeRefDelete ( indices ) ;
+  indices = il ;
+
+  if ( indices != NULL )
+    indices -> ref () ;
+}
+
+
 void ssgVtxArray::drawHighlight ( sgVec4 colour )
 {
   _ssgForceLineState () ;
