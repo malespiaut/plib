@@ -12,6 +12,8 @@ PLIB v1.8.4 (Jan 2005)
 
   * Several fixes for FreeBSD included.
 
+  * Added exporter for OpenInventor
+
 
 PLIB v1.8.3 (April 8th 2004)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
