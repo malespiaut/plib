@@ -56,6 +56,7 @@ public:    /* Yuk!  Need to hide some of this public stuff! */
   int           tablen ;
 
   ssgSGIHeader () ;
+  ~ssgSGIHeader () ;
   void makeConsistant () ;
   void getRow   ( unsigned char *buf, int y, int z ) ;
   void getPlane ( unsigned char *buf, int z ) ;
@@ -232,6 +233,16 @@ ssgSGIHeader::ssgSGIHeader ()
   start = NULL ;
   leng  = NULL ;
   rle_temp = NULL ;
+}
+
+
+ssgSGIHeader::~ssgSGIHeader()
+{
+  if (start != NULL)
+    delete [] start;
+
+  if (leng != NULL)
+    delete [] leng;
 }
 
 
