@@ -1,6 +1,8 @@
 
 #include "exposer.h"
 
+Event *curr_event = NULL ;                                                      
+
 ulList *eventList ;
 
 
@@ -106,4 +108,17 @@ void Event::write ( FILE *fd )
   }
 }
 
+ 
+void setCurrentEvent ( Event *ev )
+{
+  curr_event = ev ;
+}
+ 
+
+ 
+Event *getCurrentEvent ()
+{
+  return curr_event ;
+}
+ 
 

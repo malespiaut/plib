@@ -51,11 +51,12 @@ public:
 
 
 extern ulList *eventList ;
-extern Event  *curr_event ;
 
 void   addEvent         ( Event *e ) ;
 void   removeEvent      ( Event *e ) ;
 Event *findNearestEvent ( float t, float tolerance ) ;
+void   setCurrentEvent  ( Event *ev ) ;
+Event *getCurrentEvent  () ;
 void   init_events      () ;
 
 int getNumEvents () ;
