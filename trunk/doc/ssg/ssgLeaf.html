@@ -208,7 +208,62 @@ Returns the number of data elements currently stored in the array.
 
 </pre>
 Empties the array.
+<H2><code>class ssgTween</code> - A Vertex-table morphing node.</H2>
+This node is derived from ssgVtxTable.  Where VtxTable can retain
+a set of arrays, one each for Vertex coordinates, Normals, Texture
+Coordinates and Colours, the ssgTween node can store an unlimited
+number of 'banks' of these arrays.
+<p>
+Hence, one constructs an ssgTween by specifying it's OpenGL primitive
+type:
+<pre>
 
+  ssgTween::ssgTween ( GLenum ty ) ;
+
+</pre>
+And then create some number of 'banks' of data arrays by calling:
+<pre>
+
+  int ssgTween::newBank ( ssgVertexArray   *vl,
+                          ssgNormalArray   *nl,
+                          ssgTexCoordArray *tl,
+                          ssgColourArray   *cl ) ;
+
+</pre>
+...once for each bank. All other ssgVtxTable calls operate ONLY
+on the 'current bank' - which is either the most recent one you
+created with newBank - or you can go back to an older bank by
+calling:
+<pre>
+
+  void ssgTween::setBank ( int bankID ) ;
+  int  ssgTween::getBank () ;
+
+</pre>
+(newBank returns the number of the bank it created in case you
+lose count!).
+<p>
+ssgTween's idea of the 'current bank' is reset to zero after
+rendering it...so be sure to always call setBank immediately
+before working on it's component arrays.
+<p>
+When the ssgTween node is rendered, it works cooperatively
+with whichever ssgTweenController node is above it in the
+scene graph.  See the section on ssgTweenController for more
+details.
+<p>
+IMPORTANT NOTE: There must be an identical number of vertices,
+normals, etc in each bank.  If you get that wrong, SSG will
+exit with an 'abort'.  Note that there is a specific optimisation
+in ssgTween that avoids the computational cost of interpolating
+between two sets of vertex data if EITHER:
+<ul>
+<li>The ssgTweenController's selected bank number happens to
+be an integer.
+<li>The previous and next banks have the same ssg*Array pointer.
+Since one generally doesn't wish to interpolate normals, colours
+or texture coordinates, it's important to pay attention to this.
+</ul>
 <hr>
 <table width="100%">
    	<tr>
