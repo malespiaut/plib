@@ -74,6 +74,20 @@ ssgSimpleState::~ssgSimpleState (void)
 
 void ssgSimpleState::apply (void)
 {
+  sgVec4 default_colour;
+
+  default_colour[0] = default_colour[1] = default_colour[2] = 0.0;
+  default_colour[3] = 0.0;
+
+  int turn_on  = ~dont_care &  enables & ~_ssgCurrentContext->getState()->enables & 0x3F ;
+  int turn_off = ~dont_care & ~enables &  _ssgCurrentContext->getState()->enables & 0x3F ;
+
+  (*(__ssgEnableTable [turn_on ]))() ;
+  (*(__ssgDisableTable[turn_off]))() ;
+
+  _ssgCurrentContext->getState()->enables |=  turn_on  ;
+  _ssgCurrentContext->getState()->enables &= ~turn_off ;
+
   if ( ~ dont_care & ( (1<<SSG_GL_COLOR_MATERIAL) |
                        (1<<SSG_GL_DIFFUSE       ) |
                        (1<<SSG_GL_AMBIENT       ) |
@@ -113,6 +127,10 @@ void ssgSimpleState::apply (void)
       glMaterialfv ( GL_FRONT_AND_BACK, GL_EMISSION, emission_colour ) ;
       sgCopyVec3 ( _ssgCurrentContext->getState()->emission_colour, emission_colour ) ;
     }
+	else {
+	  glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, default_colour);
+	  sgCopyVec3 ( _ssgCurrentContext->getState()->emission_colour, default_colour );
+	}
 
     if ( ( ~ dont_care & (1<<SSG_GL_AMBIENT) ) &&
       ( switched_modes ||
@@ -131,14 +149,7 @@ void ssgSimpleState::apply (void)
     }
   }
 
-  int turn_on  = ~dont_care &  enables & ~_ssgCurrentContext->getState()->enables & 0x3F ;
-  int turn_off = ~dont_care & ~enables &  _ssgCurrentContext->getState()->enables & 0x3F ;
 
-  (*(__ssgEnableTable [turn_on ]))() ;
-  (*(__ssgDisableTable[turn_off]))() ;
-
-  _ssgCurrentContext->getState()->enables |=  turn_on  ;
-  _ssgCurrentContext->getState()->enables &= ~turn_off ;
 
   if ( ( ~ dont_care & (1<<SSG_GL_TEXTURE) ) && 
     _ssgCurrentContext->getState()->texture_handle != texture_handle )
