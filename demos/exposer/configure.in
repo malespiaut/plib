@@ -12,7 +12,7 @@ AC_PROG_CXXCPP
 AC_PROG_INSTALL
 
 plib_suffix="-lplibjs -lplibsl -lplibssgaux -lplibssg -lplibpu -lplibfnt -lplibsg -lplibul"
- 
+
 AC_LANG_CPLUSPLUS
 
 
@@ -40,14 +40,14 @@ AC_CANONICAL_HOST
 
 case "${host}" in
 *-*-cygwin* | *-*-mingw32*)
-  dnl CygWin under Windoze.
+    dnl CygWin under Windoze.
 
-  LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32 -luser32 -lgdi32"
+    LIBS="$LIBS -lwinmm -lglut32 -lglu32 -lopengl32 -luser32 -lgdi32"
 	;;
 *-apple-darwin*)
-  dnl Mac OS X
+    dnl Mac OS X
 
-  LIBS="$LIBS -framework GLUT -lobjc -framework OpenGL -framework Carbon"
+    LIBS="$LIBS -framework GLUT -lobjc -framework OpenGL -framework Carbon"
 	;;
 *)
     dnl Check for X11
