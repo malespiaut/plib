@@ -3,6 +3,8 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/js/js.h)
 AM_INIT_AUTOMAKE(plib, 1.6.0)
 
+AC_CONFIG_HEADERS(plibconfig.h)
+
 # This AC_PREFIX_DEFAULT will place the library files
 # into /usr/lib - but will put the include files into
 # /usr/include - when /usr/include/plib would be less
@@ -41,6 +43,10 @@ dnl understand it.
 AC_ARG_WITH(GL,
 [  --with-GL=DIR           set the prefix directory where GL resides],
 GL_PREFIX=$withval, GL_PREFIX=auto)
+
+AC_ARG_WITH(glut,
+[  --without-glut          build GLUT-free PUI library (highly experimental!)],,
+with_glut=yes)
 
 
 AC_ARG_ENABLE(fnt,
@@ -83,91 +89,97 @@ enable_ul=yes)
 dnl Dependancy checking
 
 if test "x$enable_fnt" = "xyes"; then
-    need_opengl="yes"
+    need_opengl=yes
 
     if test "x$enable_sg" = "xno"; then
         AC_MSG_WARN([cannot build FNT library without SG library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build FNT library without UL library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
 fi
 
 if test "x$enable_js" = "xyes"; then
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build JS library without UL library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
 fi
 
 if test "x$enable_net" = "xyes"; then
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build NET library without UL library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
 fi
 
 if test "x$enable_pui" = "xyes"; then
-    need_opengl="yes"
-    need_glut="yes"
+    need_opengl=yes
+
+    if test "x$with_glut" = "xno"; then
+        AC_DEFINE(PU_NOT_USING_GLUT,,
+        [If defined, PUI does not use GLUT (highly experimental)])
+    else
+        need_glut=yes
+    fi
 
     if test "x$enable_fnt" = "xno"; then
         AC_MSG_WARN([cannot build PUI library without FNT library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
     if test "x$enable_sg" = "xno"; then
         AC_MSG_WARN([cannot build PUI library without SG library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build PUI library without UL library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
 fi
 
 if test "x$enable_sg" = "xyes"; then
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build SG library without UL library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
 fi
 
 if test "x$enable_sl" = "xyes"; then
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build SL library without UL library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
 fi
 
 if test "x$enable_ssg" = "xyes"; then
-    need_opengl="yes"
+    need_opengl=yes
 
     if test "x$enable_sg" = "xno"; then
         AC_MSG_WARN([cannot build SSG library without SG library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build SSG library without UL library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
 fi
 
 if test "x$enable_ssgaux" = "xyes"; then
-    need_opengl="yes"
+    need_opengl=yes
 
     if test "x$enable_ssg" = "xno"; then
         AC_MSG_WARN([cannot build ssgAux library without SSG library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
     if test "x$enable_sg" = "xno"; then
         AC_MSG_WARN([cannot build ssgAux library without SG library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
     if test "x$enable_ul" = "xno"; then
         AC_MSG_WARN([cannot build ssgAux library without UL library enabled])
-        dependancy_problem="yes"
+        dependancy_problem=yes
     fi
 fi
 
@@ -282,7 +294,8 @@ dnl Checks for header files.
 
 AC_HEADER_STDC
 
-AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
+AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32,,
+[Define if build system is a Windows box]))
 
 if test "x$need_opengl" = "xyes"; then
     dnl Check for OpenGl header files
@@ -295,7 +308,8 @@ if test "x$need_opengl" = "xyes"; then
         AC_MSG_ERROR([OpenGL header file not found]))
 
         if test "x$need_glut" = "xyes"; then
-                AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
+                AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(PU_USING_GLUT,,
+                [If defined, PUI uses the GLUT library]),
                 AC_MSG_ERROR([GLUT header file not found]))
         fi
 		;;
@@ -306,7 +320,8 @@ if test "x$need_opengl" = "xyes"; then
         AC_MSG_ERROR([OpenGL header file not found]))
 
         if test "x$need_glut" = "xyes"; then
-                AC_CHECK_HEADER(GLUT/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
+                AC_CHECK_HEADER(GLUT/glut.h, AC_DEFINE(PU_USING_GLUT,,
+                [If defined, PUI uses the GLUT library]),
                 AC_MSG_ERROR([GLUT header file not found]))
         fi
 		;;
@@ -317,11 +332,13 @@ if test "x$need_opengl" = "xyes"; then
         if test "x$need_glut" = "xyes"; then
                 if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xyes"; then
                         AC_CHECK_HEADER(GL/freeglut.h,
-                        AC_DEFINE(FREEGLUT_IS_PRESENT),
+                        AC_DEFINE(PU_USING_FREEGLUT,,
+                        [If defined, PUI uses the freeglut library]),
                         AC_MSG_ERROR([freeglut header file not found]))
                 else
                         AC_CHECK_HEADER(GL/glut.h,
-                        AC_DEFINE(GLUT_IS_PRESENT),
+                        AC_DEFINE(PU_USING_GLUT,,
+                        [If defined, PUI uses the GLUT library]),
                         AC_MSG_ERROR([GLUT header file not found]))
                 fi
         fi
@@ -365,9 +382,9 @@ AC_TRY_COMPILE([
 int accept (int, struct sockaddr *, size_t *);
 ],[],[
 AC_MSG_RESULT(size_t)
-AC_DEFINE(socklen_t,size_t)], [
+AC_DEFINE(socklen_t,size_t,[socklen_t definition (if not defined by OS)])], [
 AC_MSG_RESULT(int)
-AC_DEFINE(socklen_t,int)])])
+AC_DEFINE(socklen_t,int,[socklen_t definition (if not defined by OS)])])])
 
 
 AC_OUTPUT( \
@@ -390,22 +407,26 @@ if test "x$need_glut" = "xyes"; then
         glut_msg="yes (found GLUT)"
     fi
 else
-    glut_msg="no"
+    if test "x$with_glut" = "xno"; then
+        glut_msg="no (experimental GLUT-free PUI, see README.GLUT)"
+    else
+        glut_msg="no"
+    fi
 fi
 
 AC_MSG_RESULT(
 [PLIB configuration information:
 
-        Build FNT library:      $enable_fnt
-        Build JS library:	$enable_js
-        Build NET library:      $enable_net
-        Build PUI library:      $enable_pui
-        Build SG library:       $enable_sg
-        Build SL library:       $enable_sl
-        Build SSG library:      $enable_ssg
-        Build ssgAux library:   $enable_ssgaux
-        Build UTIL library:     $enable_ul
+  Building FNT library:     $enable_fnt
+  Building JS library:      $enable_js
+  Building NET library:     $enable_net
+  Building PUI library:     $enable_pui
+  Building SG library:      $enable_sg
+  Building SL library:      $enable_sl
+  Building SSG library:     $enable_ssg
+  Building ssgAux library:  $enable_ssgaux
+  Building UTIL library:    $enable_ul
 
-        Need GLUT:              $glut_msg
+  Need GLUT:                $glut_msg
 ])
 
