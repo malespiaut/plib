@@ -1,3 +1,5 @@
+if BUILD_PUI
+
 noinst_PROGRAMS = simple complex widget_list PointPicker
 
 simple_SOURCES  = simple.cxx
@@ -17,6 +19,8 @@ widget_list_LDADD = -lplibpu -lplibfnt -lplibsg -lplibul $(GLUT_LIBS) \
 
 PointPicker_LDADD = -lplibpu -lplibfnt -lplibsg -lplibul $(GLUT_LIBS) \
 	$(OGL_LIBS)
+
+endif
 
 EXTRA_DIST = complex.dsp simple.dsp PointPicker.dsp widget_list.dsp
 

@@ -89,6 +89,8 @@ int main ( int argc, char **argv )
   b -> setLegend   ( "Say Hello" ) ;
   b -> setCallback ( button_cb ) ;
 
+printf ( "%d\n", PLIB_VERSION ) ;
+
   glutMainLoop () ;
 
   return 0 ;
