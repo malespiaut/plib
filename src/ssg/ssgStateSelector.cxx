@@ -114,9 +114,15 @@ void ssgStateSelector::setTranslucent (void)
 }
 
 
+
 void ssgStateSelector::setOpaque (void)
 {
-  getCurrentStep()->setOpaque() ;
+  ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
+
+  if ( s == this )
+    ssgSimpleState::setOpaque() ;
+  else
+    s -> setOpaque() ;
 }
 
 
