@@ -188,6 +188,12 @@ void ssgSimpleState::force (void)
   (*(__ssgDisableTable[turn_off]))() ;
   _ssgCurrentContext->getState()->enables &= ~turn_off ;
 
+  /* invalidate the material colours, since we do not know what the current mode is */
+  sgSetVec3 ( _ssgCurrentContext->getState()->specular_colour, -1.0f, -1.0f, -1.0f ) ;
+  sgSetVec3 ( _ssgCurrentContext->getState()->emission_colour, -1.0f, -1.0f, -1.0f ) ;
+  sgSetVec3 ( _ssgCurrentContext->getState()->ambient_colour, -1.0f, -1.0f, -1.0f ) ;
+  sgSetVec4 ( _ssgCurrentContext->getState()->diffuse_colour, -1.0f, -1.0f, -1.0f, -1.0f ) ;
+
   if ( ~ dont_care & ( (1<<SSG_GL_COLOR_MATERIAL ) |
                        (1<<SSG_GL_DIFFUSE        ) |
                        (1<<SSG_GL_AMBIENT        ) |
@@ -388,32 +394,12 @@ int ssgSimpleState::load ( FILE *fd )
   _ssgReadInt   ( fd, (int *)(& shade_model) ) ;
   _ssgReadFloat ( fd, & shininess            ) ;
   _ssgReadFloat ( fd, & alpha_clamp          ) ;
+  
+  if ( ! _ssgLoadObject ( fd, (ssgBase **) &texture, ssgTypeTexture () ) )
+    return FALSE ;
 
-  int key, t ;
-
-  _ssgReadInt ( fd, & t ) ;
-  if ( t == SSG_BACKWARDS_REFERENCE )
-  {
-    _ssgReadInt ( fd, & key ) ;
-    
-    if ( key == 0 )
-      setTexture  ( (ssgTexture*) NULL );  
-    else
-      setTexture  ( (ssgTexture*) _ssgGetFromList ( key ) );
-  }
-  else
-    if ( t == ssgTypeTexture() )
-    {
-      setTexture  ( new ssgTexture ); 
-      
-      if ( ! texture -> load ( fd ) )
-        return FALSE ;
-    }
-    else
-    {
-      ulSetError ( UL_WARNING, "ssgSimpleState::load - Unrecognised ssgTexture type 0x%08x", t ) ;
-      texture = NULL ;
-    }
+  if ( texture != NULL )
+    texture -> ref () ;
 
   return ssgState::load(fd) ;
 }
@@ -423,32 +409,6 @@ int ssgSimpleState::save ( FILE *fd )
 {
   _ssgWriteInt   ( fd, dont_care            ) ;
   _ssgWriteInt   ( fd, enables              ) ;
-
-//NOTE: we don't store filenames in states anymore
-//#ifdef WRITE_SSG_VERSION_ZERO
-#if 0
-	// change *.?af filename into *?.bmp, for example catalina.3af into catalina3.bmp
-	if ( (filename != NULL) &&
-		   (strlen(filename) > 2) && 
-		   ((filename[strlen(filename)-2] == 'a') || (filename[strlen(filename)-2] == 'A')) &&
-		   ((filename[strlen(filename)-1] == 'f') || (filename[strlen(filename)-1] == 'F')))
-	{
-		char *myfilename = new char [strlen(filename)+20];
-		strcpy(myfilename, filename);
-		char * ptr;
-		ptr = &(myfilename[strlen(myfilename)-4]); // points to the '.' 
-		ptr[0] = ptr[1];
-		*++ptr='.'; *++ptr='b'; *++ptr='m'; *++ptr='p'; *++ptr=0;
-
-		_ssgWriteString( fd, myfilename             ) ;
-		delete [] myfilename;
-	}
-	else
-		_ssgWriteString( fd, filename             ) ;
-  _ssgWriteInt   ( fd, wrapu                ) ;
-  _ssgWriteInt   ( fd, wrapv                ) ;
-#endif
-
   _ssgWriteInt   ( fd, colour_material_mode ) ;
   _ssgWriteVec4  ( fd, specular_colour      ) ;
   _ssgWriteVec4  ( fd, emission_colour      ) ;
@@ -458,25 +418,9 @@ int ssgSimpleState::save ( FILE *fd )
   _ssgWriteFloat ( fd, shininess            ) ;
   _ssgWriteFloat ( fd, alpha_clamp          ) ;
 
-  if ( texture == NULL )
-  {
-    _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
-    _ssgWriteInt ( fd, 0 ) ;
-  }
-  else
-    if ( texture -> getSpare () > 0 )
-    {
-      _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
-      _ssgWriteInt ( fd, texture -> getSpare () ) ;
-    }
-    else
-    {
-      _ssgWriteInt ( fd, texture->getType() ) ;
-      
-      if ( ! texture -> save ( fd ) )
-        return FALSE ;
-    }
-    
+  if ( ! _ssgSaveObject ( fd, texture ) )
+    return FALSE ;
+
   return ssgState::save(fd) ;
 }
 

@@ -85,7 +85,11 @@ int _ssgWriteError   ( void ) ;
 
 int _ssgStrNEqual ( const char *s1, const char *s2, int len ) ;
 
-ssgBase *_ssgGetFromList ( int key ) ;
-void     _ssgAddToList   ( int key, ssgBase *b ) ;
-int      _ssgGetNextInstanceKey  () ;
-
+/*
+  Routines for storing arbitrary ssgBase derived objects within SSG files. 
+  Both functions return 1 on success, and 0 on failure.
+  If an object is encountered that is not derived from type_mask, then
+  the loading is aborted and 0 returned.
+*/
+int _ssgSaveObject ( FILE * , ssgBase * ) ;
+int _ssgLoadObject ( FILE * , ssgBase ** , int type_mask = 0 ) ;

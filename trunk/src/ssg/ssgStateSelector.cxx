@@ -340,66 +340,23 @@ void ssgStateSelector::print ( FILE *fd, char *indent, int how_much )
 
 int ssgStateSelector::load ( FILE *fd )
 {
-  int key, t, i ;
+  int i ;
 
   _ssgReadInt ( fd, & nstates   ) ;
   _ssgReadInt ( fd, & selection ) ;
 
-  //~~ T.G. clear state list if already existing
-  //   or create new list
   if (statelist != NULL)
   {
-     for ( int i = 0 ; i < nstates ; i++ )    
-	    ssgDeRefDelete( statelist [ i ] );  
-  } else
-     statelist = new ssgSimpleState * [ nstates ] ;
+    for ( i = 0 ; i < nstates ; i++ )
+      ssgDeRefDelete( statelist [ i ] );
+    delete [] statelist ;
+  }
 
-  for ( i = 0 ; i < nstates ; i++ )
-    statelist [ i ] = NULL ;
-
+  statelist = new ssgSimpleState * [ nstates ] ;
   for ( i = 0 ; i < nstates ; i++ )
   {
-    _ssgReadInt ( fd, & t ) ;
-
-    if ( t == SSG_BACKWARDS_REFERENCE )
-    {
-      _ssgReadInt ( fd, & key ) ;
-
-      if ( key == 0 )
-        statelist[i] = NULL ;
-      else
-      {
-        statelist[i] = (ssgSimpleState *) _ssgGetFromList ( key ) ;
-		//~~ T.G. 
-		if (statelist[i]) statelist[i]->ref();
-      } 
-    }
-    else
-    if ( t == ssgTypeSimpleState() )
-    {
-      statelist[i] = new ssgSimpleState ;
-	  //~~ T.G. 
-	  statelist[i]->ref(); 
-
-      if ( ! statelist[i] -> load ( fd ) )
-        return FALSE ;
-    }
-    else
-    if ( t == ssgTypeStateSelector() )
-    {
-      statelist[i] = new ssgStateSelector ;
-	  //~~ T.G. 
-	  statelist[i]->ref(); 
-
-      if ( ! statelist[i] -> load ( fd ) )
-        return FALSE ;
-    }
-    else
-    {
-      ulSetError ( UL_WARNING,
-        "ssgStateSelector::load - Unrecognised ssgState type 0x%08x", t ) ;
-      statelist[i] = NULL ;
-    }
+    if ( ! _ssgLoadObject ( fd, (ssgBase **) &statelist[i], ssgTypeState () ) )
+      return FALSE ;
   }
 
   return ssgSimpleState::load(fd) ;
@@ -413,24 +370,8 @@ int ssgStateSelector::save ( FILE *fd )
   _ssgWriteInt ( fd, selection ) ;
   for ( int i = 0 ; i < nstates ; i++ )
   {
-    if ( statelist[i] == NULL )
-    {
-      _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
-      _ssgWriteInt ( fd, 0 ) ;
-    }
-    else
-    if ( statelist[i] -> getSpare () > 0 )
-    {
-      _ssgWriteInt ( fd, SSG_BACKWARDS_REFERENCE ) ;
-      _ssgWriteInt ( fd, statelist[i] -> getSpare () ) ;
-    }
-    else
-    {
-      _ssgWriteInt ( fd, statelist[i]->getType() ) ;
-  
-      if ( ! statelist[i] -> save ( fd ) )
-        return FALSE ;
-    }
+    if ( ! _ssgSaveObject ( fd, statelist[i] ) )
+      return FALSE ;
   }
 
   return ssgSimpleState::save(fd) ;

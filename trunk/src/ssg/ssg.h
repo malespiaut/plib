@@ -775,6 +775,11 @@ public:
       case GL_DIFFUSE  : sgCopyVec4 ( diffuse_colour , rgba ) ;
                          care_about ( SSG_GL_DIFFUSE  ) ;
                          break ;
+      case GL_AMBIENT_AND_DIFFUSE :  // in compliance with glMaterial
+                         sgCopyVec4 ( ambient_colour , rgba ) ;
+                         sgCopyVec4 ( diffuse_colour , rgba ) ;
+                         care_about ( SSG_GL_AMBIENT | SSG_GL_DIFFUSE ) ;
+			 break ;
       default :          break ;
     }
   }
@@ -2282,6 +2287,9 @@ char *ssgGetVersion () ;
 char * ssgGetAPOM();
 
 void ssgSetLoadOFFTranslucent ( int i );
+
+void ssgRegisterType ( int type, ssgBase * ( *create_func ) () ) ;
+ssgBase *ssgCreateOfType ( int type ) ;
 
 #endif
 

@@ -68,6 +68,9 @@ public:
   }
 
   virtual void regenerate () = 0 ;
+
+  virtual int load ( FILE * ) ;
+  virtual int save ( FILE * ) ;
 } ;
 
 
@@ -105,6 +108,9 @@ public:
 
   void setLatLongStyle ( int ll ) { latlong_style = ll ; regenerate () ; }
   int  isLatLongStyle  ()         { return latlong_style ; }
+
+  virtual int load ( FILE * ) ;
+  virtual int save ( FILE * ) ;
 } ;
 
 
@@ -125,6 +131,9 @@ public:
 
   void makeCapped ( int c ) { capped = c ; regenerate () ; }
   int  isCapped   ()        { return capped ; }
+
+  virtual int load ( FILE * ) ;
+  virtual int save ( FILE * ) ;
 } ;
 
 #endif

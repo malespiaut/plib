@@ -17,5 +17,7 @@ inline int ssgaTypeCube    () { return SSGA_TYPE_CUBE     | ssgaTypeShape () ; }
 inline int ssgaTypeSphere  () { return SSGA_TYPE_SPHERE   | ssgaTypeShape () ; }
 inline int ssgaTypeCylinder() { return SSGA_TYPE_CYLINDER | ssgaTypeShape () ; }
 
+void ssgaInit () ;
+
 #endif
 

@@ -87,6 +87,10 @@ LIB32=link.exe -lib
 
 SOURCE=.\ssgaShapes.cxx
 # End Source File
+# Begin Source File
+
+SOURCE=.\ssgAux.cxx
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

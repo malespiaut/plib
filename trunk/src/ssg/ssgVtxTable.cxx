@@ -661,20 +661,17 @@ int ssgVtxTable::load ( FILE *fd )
   if ( ! ssgLeaf::load(fd) )
     return FALSE ;
 
-  vertices  = new ssgVertexArray   () ; vertices  -> ref () ;
-  normals   = new ssgNormalArray   () ; normals   -> ref () ;
-  texcoords = new ssgTexCoordArray () ; texcoords -> ref () ;
-  colours   = new ssgColourArray   () ; colours   -> ref () ;
-
-  if ( ! vertices  -> load ( fd ) ||
-       ! normals   -> load ( fd ) ||
-       ! texcoords -> load ( fd ) ||
-       ! colours   -> load ( fd ) )
-  {
-    ulSetError ( UL_WARNING, "loadSSG: Failed to read vertex array." ) ;
+  if ( ! _ssgLoadObject ( fd, (ssgBase **)&vertices,  ssgTypeVertexArray ()   ) ||
+       ! _ssgLoadObject ( fd, (ssgBase **)&normals,   ssgTypeNormalArray ()   ) ||
+       ! _ssgLoadObject ( fd, (ssgBase **)&texcoords, ssgTypeTexCoordArray () ) ||
+       ! _ssgLoadObject ( fd, (ssgBase **)&colours,   ssgTypeColourArray ()   ) )
     return FALSE ;
-  }
 
+  if ( vertices  != NULL ) vertices  -> ref () ;
+  if ( normals   != NULL ) normals   -> ref () ;
+  if ( texcoords != NULL ) texcoords -> ref () ;
+  if ( colours   != NULL ) colours   -> ref () ;
+     
   return TRUE ;
 }
 
@@ -685,19 +682,14 @@ int ssgVtxTable::save ( FILE *fd )
   _ssgWriteVec3  ( fd, bbox.getMax() ) ;
   _ssgWriteInt   ( fd, (int) gltype ) ;
 
-  ssgLeaf::save(fd) ;
-
-  if ( ! vertices  -> save ( fd ) ||
-       ! normals   -> save ( fd ) ||
-       ! texcoords -> save ( fd ) ||
-       ! colours   -> save ( fd ) )
-  {
-    ulSetError ( UL_WARNING, "saveSSG: Failed to write vertex array" ) ;
+  if ( ! ssgLeaf::save(fd) )
     return FALSE ;
-  }
+
+  if ( ! _ssgSaveObject ( fd, vertices  ) ||
+       ! _ssgSaveObject ( fd, normals   ) ||
+       ! _ssgSaveObject ( fd, texcoords ) ||
+       ! _ssgSaveObject ( fd, colours   ) )
+    return FALSE ;
 
   return TRUE ;
 }
-
-
-
