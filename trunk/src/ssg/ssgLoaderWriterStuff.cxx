@@ -186,9 +186,9 @@ static void recalcNormals( ssgIndexArray* il, ssgVertexArray* vl, ssgNormalArray
     sgSubVec3(v2, vl->get(ix2), vl->get(ix0));
     
     sgVectorProductVec3(n, v1, v2);
-		float f= sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]);
+		SGfloat f= static_cast<SGfloat> (sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]));
 		if (f>0.00001)
-		{ f=1.0/f;
+		{ f=1.0F/f;
 		  n[0] *= f; n[1] *= f; n[2] *= f;
 			assert(((n[0]*n[0]+n[1]*n[1]+n[2]*n[2])-1)<0.001);
 			assert(((n[0]*n[0]+n[1]*n[1]+n[2]*n[2])-1)>-0.001);
@@ -245,7 +245,7 @@ void ssgLoaderWriterMesh::AddOneNode2SSG(class ssgVertexArray *theVertices,
 			}
 		}
 	}
-	recalcNormals(il,theVertices, nl); // Pfusch kludge; only do this if there are no nmormals in the file
+	recalcNormals(il,theVertices, nl); // Pfusch kludge; only do this if there are no normals in the file
 	
 	ssgColourArray* cl = NULL ;
   
@@ -286,10 +286,7 @@ void ssgLoaderWriterMesh::add2SSG(
 	class ssgIndexArray *thisFace;
 
   
-
-	
-	//stop Normalen
-	
+#ifdef WRITE_MESH_TO_STDOUT	
 	if ( theMaterials == NULL )
 		fprintf(stdout, "( theMaterials == NULL )\n");
 	else
@@ -309,6 +306,7 @@ void ssgLoaderWriterMesh::add2SSG(
 			fprintf(stdout, "%ld\n", (long)s);
 		}
 	}
+#endif
 
 	if ( theMaterials == NULL )
 		AddOneNode2SSG(theVertices, theFaces, currentState, current_options, curr_branch_);
@@ -321,7 +319,7 @@ void ssgLoaderWriterMesh::add2SSG(
 			class ssgListOfLists *newFaces = new ssgListOfLists ( theFaces->getNum() );
 			class ssgIndexArray *oldVertexInd2NewVertexInd = new ssgIndexArray ( theVertices->getNum() );
 			for (j=0;j<theVertices->getNum();j++)
-				oldVertexInd2NewVertexInd->add ( 0xFFFF ); // 0xFFFF stands for "unused in new Mesh"
+				oldVertexInd2NewVertexInd->add ( static_cast<short>(0xFFFF) ); // 0xFFFF stands for "unused in new Mesh"
 
 			// Go through all the old Faces, look for the correct material and copy those
 			// faces and indexes into the new
@@ -351,6 +349,7 @@ void ssgLoaderWriterMesh::add2SSG(
 				    thisFace->set(newVertexIndex, k);
 					}	
 				}
+#ifdef WRITE_MESH_TO_STDOUT	
 			fprintf(stdout, "NumVert: %d\n", newVertices->getNum());
 			for(j=0;j<newVertices->getNum();j++)
 			{ float *f=newVertices->get(j);
@@ -365,9 +364,8 @@ void ssgLoaderWriterMesh::add2SSG(
 				  fprintf(stdout, "%d, ", oldVertexIndex);
 				}
 				fprintf(stdout, "\n");
-				
 			}
-
+#endif	
 			if ( newFaces->getNum() > 0 )
 			{
 				currentState = *theMaterials->get(i);
