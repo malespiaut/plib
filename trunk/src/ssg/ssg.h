@@ -2342,11 +2342,6 @@ public:
   }
 } ;
 
-#ifdef FOR_PPE
-// PPE start
-
-// PPE end 
-#endif
 
 int        ssgSave     ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveAC   ( const char *fname, ssgEntity *ent ) ;
