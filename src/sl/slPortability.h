@@ -33,12 +33,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef UL_MAC_OSX
+#ifdef UL_MACINTOSH
   #include <Sound.h>
   #include <Timer.h>
   #ifdef __MWERKS__
   #include <unix.h>
   #endif
+#endif
+
+#ifdef UL_MAC_OSX
   #include <Carbon/Carbon.h>
 #endif
 
