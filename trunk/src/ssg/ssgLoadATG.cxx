@@ -373,12 +373,12 @@ static int parse()
 			}
 
 			// ****** add face to mesh *****
-			_theMesh.addTCPFAV ( &sca ) ;
+			_theMesh.addPerFaceAndVertexTextureCoordinate2( &sca ) ;
 			int carray[3];
 			carray[0]=aiVertices[3*l+0];
 			carray[1]=aiVertices[3*l+1];
 			carray[2]=aiVertices[3*l+2];
-			_theMesh.AddFaceFromCArray(3, carray); 
+			_theMesh.addFaceFromIntegerArray(3, carray); 
 			_theMesh.addMaterialIndex ( _current_material_index ) ;
 		}
 #else		
