@@ -198,6 +198,8 @@ void puObject::recalc_bbox ( void )
 
 void puObject::draw_legend ( int dx, int dy )
 {
+  int xx, yy ;
+
   int lgap = PUSTR_LGAP ;
   int rgap = PUSTR_RGAP ;
   int tgap = PUSTR_TGAP ;
@@ -210,7 +212,16 @@ void puObject::draw_legend ( int dx, int dy )
     bgap += getBorderThickness () ;
   }
 
-  int xx, yy ;
+  /* If greyed out then halve the opacity when drawing the legend */
+
+  if ( active )
+    glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
+  else
+    glColor4f ( colour [ PUCOL_LEGEND ][0],
+                colour [ PUCOL_LEGEND ][1],
+                colour [ PUCOL_LEGEND ][2],
+                colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
+
   switch ( getLegendPlace() )
   {
   case PUPLACE_TOP_LEFT     :
@@ -278,7 +289,7 @@ void puObject::draw_legend ( int dx, int dy )
 
 void puObject::draw_label ( int dx, int dy )
 {
-  if ( !visible ) return ;
+  int xx, yy ;
 
   /* If greyed out then halve the opacity when drawing the label */
 
@@ -290,7 +301,6 @@ void puObject::draw_label ( int dx, int dy )
                 colour [ PUCOL_LABEL ][2],
                 colour [ PUCOL_LABEL ][3] / 2.0f ) ; /* 50% more transparent */
 
-  int xx, yy ;
   switch ( getLabelPlace() )
   {
   case PUPLACE_ABOVE_LEFT    :

@@ -42,19 +42,6 @@ void puArrowButton::draw ( int dx, int dy )
 
   abox.draw ( dx, dy, tempStyle, colour, isReturnDefault(), border_thickness ) ;
 
-  /*
-    If greyed out then halve the opacity when drawing
-    the label and legend
-  */
-
-  if ( active )
-    glColor4fv ( colour [ PUCOL_LABEL ] ) ;
-  else
-    glColor4f ( colour [ PUCOL_LABEL ][0],
-                colour [ PUCOL_LABEL ][1],
-                colour [ PUCOL_LABEL ][2],
-                colour [ PUCOL_LABEL ][3] / 2.0f ) ; /* 50% more transparent */ 
-
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;
   else
