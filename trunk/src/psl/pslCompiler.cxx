@@ -267,16 +267,6 @@ void pslParser::pushProgram ()
 {
   char c [ MAX_TOKEN ] ;
 
-  /* Have the program call 'main' and then halt */
-
-  pushCodeByte ( OPCODE_CALL ) ;
-
-  int main_fixup = next_code ;
-
-  pushCodeAddr ( getCodeSymbol ( "main", next_code ) ) ;
-  pushCodeByte ( 0 ) ;  /* Argc */
-  pushCodeByte ( OPCODE_HALT ) ;
-
   /* Compile the program */
 
   while ( TRUE )
@@ -290,6 +280,13 @@ void pslParser::pushProgram ()
 
     pushGlobalDeclaration () ;
   }
+
+  /* Have the program call 'main' and then halt */
+
+  pushCodeByte ( OPCODE_CALL ) ;
+  pushCodeAddr ( getCodeSymbol ( "main", next_code ) ) ;
+  pushCodeByte ( 0 ) ;  /* Argc */
+  pushCodeByte ( OPCODE_HALT ) ;
 
   checkUnresolvedSymbols () ;
 }
@@ -389,6 +386,8 @@ int pslParser::pushFunctionDeclaration ( const char *fn )
 {
   char c  [ MAX_TOKEN ] ;
 
+  pslAddress jump_target = pushJump ( 0 ) ;
+
   setCodeSymbol ( fn, next_code ) ;
 
   pslGetToken ( c ) ;
@@ -425,6 +424,10 @@ int pslParser::pushFunctionDeclaration ( const char *fn )
 
   pushConstant ( "0.0" ) ;
   pushReturn   () ;
+
+  code [  jump_target  ] =  next_code       & 0xFF ;
+  code [ jump_target+1 ] = (next_code >> 8) & 0xFF ;
+
   return TRUE ;
 }
 
