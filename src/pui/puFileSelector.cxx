@@ -145,14 +145,14 @@ void puFileSelector::input_entered ( puObject* inp )
     return ;
 
   if ( ulIsAbsolutePathName ( inp -> getStringValue () ) )
-    strcpy ( file_selector->getStringValue (), inp ->getStringValue () ) ;
+    file_selector -> setValue ( inp -> getStringValue () ) ;
   else
   if ( strlen ( file_selector->__getStartDir() ) +
        strlen ( inp->getStringValue() ) + 2 >= PUSTRING_MAX )
   {
     ulSetError ( UL_WARNING,
       "PUI:puFileSelector - path name is too long");
-    strcpy ( file_selector->getStringValue (), file_selector->__getStartDir());
+    file_selector -> setValue ( file_selector -> __getStartDir () ) ;
   }
   else
   {
@@ -359,7 +359,7 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
   if ( ! is_slash ( startDir[strlen(startDir)-1] ) )
     strcat ( startDir, SLASH ) ;
 
-  strcpy ( getStringValue (), startDir ) ;
+  setValue ( startDir ) ;
 
   if ( arrows > 2 ) arrows = 2 ;
   if ( arrows < 0 ) arrows = 0 ;
