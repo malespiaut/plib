@@ -666,7 +666,7 @@ public:
 } ;
 
 
-typedef bool (*ulIterateFunc)( const void *data ) ;
+typedef bool (*ulIterateFunc)( const void *data, void *user_data ) ;
 typedef int  (*ulCompareFunc)( const void *data1, const void *data2 ) ;
 
 /*
@@ -724,9 +724,9 @@ public:
 
   void * getNodeData ( int pos ) const ;
 
-  void * forEach ( ulIterateFunc fn ) const ;
+  void * forEach ( ulIterateFunc fn, void *user_data = NULL ) const ;
 
-  void empty ( ulIterateFunc destroyfn = NULL ) ;
+  void empty ( ulIterateFunc destroyfn = NULL, void *user_data = NULL ) ;
 } ;
 
 
