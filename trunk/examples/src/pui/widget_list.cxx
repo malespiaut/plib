@@ -192,7 +192,7 @@ int main ( int argc, char **argv )
 #endif
 
   tim = new fntTexFont ;
-  tim -> load ( "../fnt/data/old/old/times_bold.txf" ) ;
+  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
   puFont times_medium ( tim, 12 ) ;
   puSetDefaultFonts        ( times_medium, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
@@ -213,7 +213,7 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
 #endif
 
-  tim -> load ( "../fnt/data/old/old/times_bold.txf" ) ;
+  tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   char *button_box_entries [] = { "First Entry", "Second Entry", "Third Entry", NULL } ;
   button_box = new puButtonBox ( 10, 10, 130, 80, button_box_entries, TRUE ) ;
