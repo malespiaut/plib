@@ -31,12 +31,28 @@ void puValue::re_eval ( void )
 
   if ( res_integer != NULL )
   {
-    floater = (float) *res_integer ; sprintf ( string, "%d", *res_integer ) ;
+    floater = (float) *res_integer ;
+
+    /*
+      Needed for puInput / puLargeInput:
+      Do not modify the string value unless necessary
+    */
+    if ( *res_integer != strtol ( string, NULL, 0 ) )
+      sprintf ( string, "%d", *res_integer ) ;
+
     puPostRefresh () ;
   }
   else if ( res_floater != NULL )
   {
-    integer = (int) *res_floater ; sprintf ( string, "%g", *res_floater ) ;
+    integer = (int) *res_floater ;
+
+    /*
+      Needed for puInput / puLargeInput:
+      Do not modify the string value unless necessary
+    */
+    if ( *res_floater != strtod ( string, NULL ) )
+      sprintf ( string, "%g", *res_floater ) ;
+
     puPostRefresh () ;
   }
   else if ( res_string  != NULL )
