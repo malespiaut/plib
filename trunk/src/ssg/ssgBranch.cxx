@@ -389,6 +389,7 @@ int ssgBranch::save ( FILE *fd )
 // #define VERBOSE
 int maxTriangles = 100; // Thats a nice value for handling MDL files for BoB. 
                         // You might want to assign another value, possibly -1 before calling mergeHNodes
+int maxVertices = 195; // see maxTriangles
 
 
 
@@ -507,6 +508,7 @@ void recursiveMergeHNodes  ( ssgEntity *root, int delta )
 					// now: l1 = kid at i1, l2 = kid at i1+delta		
 					if ( (l1->getState() == l2->getState()) && 
 						   ((maxTriangles < 0) || (l1->getNumTriangles()+l2->getNumTriangles()<maxTriangles )) &&
+							 ((maxVertices < 0) || (l1->getNumVertices()+l2->getNumVertices()<maxVertices )) &&
 							 (0 == strcmp(l1->getPrintableName(), l2->getPrintableName())) 
 							) 
 					{
@@ -611,7 +613,8 @@ void ssgBranch::mergeHNodes()
 // a) Both have the same state 
 // b) the same name
 // c) the result would not have more than maxTriangles triangles (if maxTriangles is negative, this is not checked).
-// d) both are of type GL_TRIANGLE_FAN or GL_TRIANGLES
+// d) the result would not have more than maxVertices vertices (if maxVertices is negative, this is not checked).
+// e) both are of type GL_TRIANGLE_FAN or GL_TRIANGLES
 {
 
 
