@@ -673,6 +673,15 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 {
   current_options = (options != NULL) ? options : &_ssgDefaultOptions;
 
+
+	ailerons_grp_ = NULL;
+	elevator_grp_ = NULL;
+	rudder_grp_ = NULL;
+	gear_grp_ = NULL;
+	spoilers_grp_ = NULL;
+	flaps_grp_ = NULL;
+	prop_grp_ = NULL;
+
   char filename [ 1024 ] ;
 
   if ( fname [ 0 ] != '/' &&
