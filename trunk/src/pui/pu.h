@@ -478,6 +478,7 @@ protected:
   int active      ;
   int highlighted ;
   int am_default  ;
+  int deactivate_when_leaving ;
   int window ;        /* Which window does the object appear in? */
 
   const char *label  ; puFont  labelFont ; int labelPlace ;
@@ -592,6 +593,9 @@ public:
 
   void  makeReturnDefault ( int def ) { am_default = def ; }
   int   isReturnDefault   ( void )          { return am_default ; }
+
+  void setDeactivateWhenLeaving ( int i )  {  deactivate_when_leaving = i ;  }
+  int     deactivateWhenLeaving ( void )  {  return deactivate_when_leaving ;  }
 
   int   getWindow () { return window ; }
   void  setWindow ( int w ) { window = w ; }
