@@ -38,7 +38,7 @@ void puBiSlider::draw ( int dx, int dy )
 
   if ( isVertical() ) { sd = 1 ; od = 0 ; } else { sd = 0 ; od = 1 ; }
 
-  int sz = abox.max [sd] - abox.min [sd] ;  // Size of slider box, in pixels
+//  int sz = abox.max [sd] - abox.min [sd] ;  // Size of slider box, in pixels
 
   // Draw the current_max slider and label it
 

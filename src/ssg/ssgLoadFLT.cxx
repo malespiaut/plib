@@ -1810,7 +1810,7 @@ static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
 	 if (ranges[1] > MAX(0, ranges[0])) {
 	    ssgRangeSelector *lod = new ssgRangeSelector;
 	    lod->setRanges(ranges, 2);
-sgZeroVec3 ( attr->center ) ;
+
 	    if (sgLengthVec3(attr->center) > 0.01f) { /* XXX */
 	       ssgTransform *t1, *t2;
 	       sgMat4 mat;
