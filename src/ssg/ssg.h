@@ -2281,6 +2281,7 @@ public:
     model_dir = 0 ;
     texture_dir = 0 ;
 
+    /* for backward compatibility */
     create_state_cb = 0 ;
     create_branch_cb = 0 ;
   }
@@ -2291,15 +2292,6 @@ public:
   const char* getTextureDir ( void ) { return texture_dir ; }
   void setModelDir ( const char *s ) ;
   void setTextureDir ( const char *s ) ;
-
-  void setCreateBranchCallback ( ssgBranch *(*cb)(char *) )
-  {
-    create_branch_cb = cb ;
-  }
-  void setCreateStateCallback ( ssgState *(*cb)(char *) )
-  {
-    create_state_cb = cb ;
-  }
 
   //
   // the idea is that you derive a class from ssgLoaderOptions and
@@ -2325,6 +2317,27 @@ public:
     if ( create_state_cb != NULL )
       return (*create_state_cb)(tfname) ;
     return NULL ;
+  }
+
+  virtual void endLoad ()
+  {
+    /* default behavior is to reset sharing after loading a model */
+    shared_textures.removeAll () ;
+    shared_states.removeAll () ;
+  }
+
+  //
+  // *** DEPRECATED INTERFACE ***
+  // for backward compatibility
+  // derive and use virtual methods to override
+  //
+  void setCreateBranchCallback ( ssgBranch *(*cb)(char *) )
+  {
+    create_branch_cb = cb ;
+  }
+  void setCreateStateCallback ( ssgState *(*cb)(char *) )
+  {
+    create_state_cb = cb ;
   }
 } ;
 
