@@ -49,6 +49,8 @@
 
 */
 
+#define USE_VTXARRAYS
+
 #include "ssgLocal.h"
 #include "ssg3ds.h"
 
@@ -63,7 +65,7 @@
 /* Define DEBUG if you want debug output
    (this might be a nice way of looking at the
    structure of a 3DS file). */
-/*#define DEBUG 1*/
+//#define DEBUG 1
 
 
 #ifdef DEBUG
@@ -796,7 +798,7 @@ static int parse_face_list( unsigned int length ) {
 
   /* now apply correct smoothing. If smooth list has been found,
      use it, otherwise use threshold value. */
-  smooth_normals( smooth_found );
+  smooth_normals( 0 /*smooth_found*/ );
 
   if (!facemat_found) {
     DEBUGPRINT("%sNo CHUNK_FACEMAT found. Adding default faces of material " \
@@ -871,6 +873,9 @@ static void add_leaf( _3dsMat *material, int listed_faces,
   ssgVertexArray   *vertices = new ssgVertexArray();
   ssgNormalArray   *normals  = new ssgNormalArray();
   ssgTexCoordArray *texcrds  = NULL;
+#ifdef USE_VTXARRAYS
+  ssgIndexArray* indices = new ssgIndexArray();
+#endif
   
   if (has_texture) {
     if (texcrd_list == NULL) {
@@ -886,11 +891,19 @@ static void add_leaf( _3dsMat *material, int listed_faces,
     }
   }
 
+  int tri_idx = 0;
+
   for (int i = 0; i < listed_faces; i++) {
     unsigned short faceindex = face_indices[i];
     int v1 = faceindex * 3,
       v2 = faceindex * 3 + 1,
       v3 = faceindex * 3 + 2;
+
+#ifdef USE_VTXARRAYS
+    indices->add( tri_idx++ );
+    indices->add( tri_idx++ );
+    indices->add( tri_idx++ );
+#endif
 
     vertices->add( vertex_list[ vertex_index[v1] ] );
     vertices->add( vertex_list[ vertex_index[v2] ] );
@@ -941,12 +954,21 @@ static void add_leaf( _3dsMat *material, int listed_faces,
 	sgNegateVec3( n[j] );
 	normals->add( n[j] );
       }
+
+#ifdef USE_VTXARRAYS
+      indices->add( tri_idx++ );
+      indices->add( tri_idx++ );
+      indices->add( tri_idx++ );
+#endif
     }
 
   }
 
-  ssgVtxTable* vtab = new ssgVtxTable ( GL_TRIANGLES,
-    vertices, normals, texcrds, NULL ) ;
+#ifdef USE_VTXARRAYS
+  ssgVtxArray* vtab = new ssgVtxArray ( GL_TRIANGLES, vertices, normals, texcrds, NULL, indices );
+#else
+  ssgVtxTable* vtab = new ssgVtxTable ( GL_TRIANGLES, vertices, normals, texcrds, NULL ) ;
+#endif
   vtab -> setState ( get_state( material ) ) ;
   vtab -> setCullFace ( TRUE ) ;
 
