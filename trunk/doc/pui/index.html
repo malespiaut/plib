@@ -10,7 +10,7 @@
 <table>
 <tr>
 <td>
-<center><img SRC="pooh.png" ALT="Imagine Pooh Here" ></center>
+<center><img SRC="pooh.png" ALT="Imagine Pooh Here" height=77 width=60></center>
 </td>
 
 <td>
@@ -37,7 +37,9 @@ OpenGL to create buttons, sliders, menus etc.
 PUI is now a part of <a href="../index.html">PLIB</a>.
 <p>
 
-The PUI FAQ list is <a href="FAQ.html">here</a>.
+The PUI FAQ list is <a href="FAQ.html">here</a>. There is also a
+<a href="BasicPUI.html">short introduction</a> to the basics of PUI from John F.
+Fay.
 <p>
 
 Like most similar GUI's (MUI, Xforms, FLTK, GLUI, etc), PUI is comprised
@@ -55,7 +57,7 @@ He also fixed a number of bug fixes.
 Dave McClurg added the <a href="#puListBox">puListBox</a> and <a href="#puFilePicker">puFilePicker</a> widgets.
 <p>
 
-John Fay added a few widgets and other things and reworked this
+John F. Fay added a few widgets and other things and reworked this
 document.
 <h2>
 A Truly PUI API:</h2>
@@ -130,9 +132,9 @@ Non-class functions:</h3>
 <h2> Note:</h2>
 
 In the description of each widget class below, there is a small
-screenshot of one example of that widget.  You can see the code
+screenshot of one example of that widget. You can see the code
 used to generate those screenshots in the PLIB example program
-<code>widget_list.cxx</code>.  However, by changing the rendering
+<code>widget_list.cxx</code>. However, by changing the rendering
 style, you can make them look considerably different from this.
 <h2> PUI Terminology.</h2>
 Some terminology:
@@ -146,7 +148,7 @@ LEGEND : This is a text string that resides inside the widget's active
 area.</li>
 
 <li>
-LABEL : This is a text string that resudes outside the widget's active
+LABEL : This is a text string that resides outside the widget's active
 area.</li>
 
 <li>
@@ -180,7 +182,7 @@ Hello World in PUI.</h2>
 button widget that prints 'Hello World.' to stdout when you click it. (This
 program is in the PUI examples directory as 'simple.cxx').</td>
 
-<td><img SRC="simple.png" ALT="Simple PUI example"></td>
+<td><img SRC="simple.png" ALT="Simple PUI example" height=177 width=273></td>
 </tr>
 </table>
 
@@ -270,22 +272,22 @@ on the next call to <a href="#puDisplay">puDisplay</a>.
 Multiple Windows in PUI</h2>
 When you create a new widget, PUI places it in the current GLUT window. 
 If the your application opens multiple windows, you can place user interface
-widgets in any window you please.  The widget coordinates are calculated
-from the lower left-hand corner of the window.  There are a few recommended
+widgets in any window you please. The widget coordinates are calculated
+from the lower left-hand corner of the window. There are a few recommended
 practices when using PUI in connection with multiple windows:
 <ul>
 <li>
 Make the first widget in a new window a <a href="#puGroup">puGroup</a> widget and place all
-of that window's widgets in that group.  This is simply good organization.</li>
+of that window's widgets in that group. This is simply good organization.</li>
 
 <li>
 Do not place widgets that are displayed in one window under a <a href="#puGroup">puGroup</a>
-widget that is displayed in another window.  That only works with recent
+widget that is displayed in another window. That only works with recent
 PLIB versions and is simply not recommended.</li>
 
 <li>
 If the user will be able to reshape the window, include a window reshape
-function that adjusts the positions and sizes of the widgets.  If
+function that adjusts the positions and sizes of the widgets. If
 the user should not resize the window then the window reshape function
 should reset the window to its original size.</li>
 </ul>
@@ -294,12 +296,12 @@ should reset the window to its original size.</li>
 <tr>
 <td>This is a more complicated example in the PUI example directory called
 'complex.cxx', it produces a menu and a button that float in front of a
-tumbling cube that is rendered in OpenGL.  In a second window are
+tumbling cube that is rendered in OpenGL. In a second window are
 two sliders which allow the user to control the speed and direction of
-the cube's rotation.  A third window contains a bi-slider and a tri-slider
+the cube's rotation. A third window contains a bi-slider and a tri-slider
 which truncate the cube in two directions.</td>
 
-<td><img SRC="complex.png" ALT="Complex PUI example"></td>
+<td><img SRC="complex.png" ALT="Complex PUI example" height=273 width=344></td>
 </tr>
 </table>
 
@@ -307,7 +309,7 @@ which truncate the cube in two directions.</td>
 Object Picking</h2>
 The most recent widget to be activated is called the "active widget." 
 Usually if you click the mouse on another widget the active widget immediately
-deactivates and the new widget becomes the active widget.  There are
+deactivates and the new widget becomes the active widget. There are
 times, however, when you will want to click the mouse somewhere in a window
 and have the active widget operate on where you clicked the mouse. 
 You do this by setting and invoking the widget's "active callback." 
@@ -330,12 +332,12 @@ A simple GLUT mouse function that does this is as follows:
  }
 </pre>
 First the mouse function calls <a href="#puMouse">puMouse</a> to see if the user clicked
-on a new PUI widget.  If the user did not, <a href="#puMouse">puMouse</a> returns FALSE
-and the function executes the contents of the if-block.  It saves
+on a new PUI widget. If the user did not, <a href="#puMouse">puMouse</a> returns FALSE
+and the function executes the contents of the if-block. It saves
 the mouse coordinates in a pair of global variables and, if there is an
-active widget, it invokes the active widget's active callback.  This
+active widget, it invokes the active widget's active callback. This
 active callback will invoke the OpenGL select mode, create the pick matrix,
-and redraw the window to get the selected objects.  The PUI examples
+and redraw the window to get the selected objects. The PUI examples
 directory has a program, "PointPicker", which does this.
 <h2>
 Transparent GUI's</h2>
@@ -560,7 +562,7 @@ in the widget's value.
 <p>
 IMPORTANT NOTE: When you pass a 'char*' to setValuator, it is your responsibility
 to ensure that this pointer is pointing at enough memory to store the longest
-possible string that this widget can possibly need.  The string in
+possible string that this widget can possibly need. The string in
 the puValue class is defined as being PUSTRING_MAX characters long; currently
 this is 80.
 <p>
@@ -734,22 +736,22 @@ widgets (currently <a href="#puFileSelector">puFileSelector</a>, <a href="#puLar
 <a href="#puFilePicker">puFilePicker</a> class).
 <p>
 However, these classes are all derived directly or indirectly from
-<a href="#puGroup">puGroup</a>, and thus you can use the appropiate <a href="#puGroup">puGroup</a> functions in
+<a href="#puGroup">puGroup</a>, and thus you can use the appropriate <a href="#puGroup">puGroup</a> functions in
 order to change the styles, colours or border thicknesses of the
 subwidgets.
 <p>
 In addition to the pre-defined styles, PUI allows you to create his
-own drawing function and save the related drawing data.  This is done
-by means of the "render data" and "render callback."  A render callback
+own drawing function and save the related drawing data. This is done
+by means of the "render data" and "render callback." A render callback
 is a user-defined function that has the following definition:
 <pre>
 
   typedef void (*puRenderCallback)(class puObject *, int dx, int dy, void *) ;
 
 </pre>
-The function takes four parameters:  a pointer to the object whose
+The function takes four parameters: a pointer to the object whose
 render callback this is, the x- and y-coordinates of the lower left-hand
-of the widget, and a pointer to your render data.  The user tells
+of the widget, and a pointer to your render data. The user tells
 PUI to use his rendering callback instead of the usual drawing function
 by invoking the following function:
 <pre>  void puObject::setRenderCallback ( puRenderCallback *c, void *d = NULL ) ;</pre>
@@ -784,7 +786,7 @@ When a widget is activated, its user-supplied callback function is called
 The callback is invoked (typically) when the user releases the left mouse
 button when the cursor lies within the widget's active area. The user-supplied
 function is called with the address of the widget as a parameter so that
-the same callback can oftem be used with a variety of similar widgets.
+the same callback can often be used with a variety of similar widgets.
 It is also possible to invoke an object's callback explicitly using invokeCallback
 - bear in mind that this does not change the value of the object - unless
 the callback itself does so.
@@ -804,11 +806,11 @@ all the time the left button is pushed while the cursor is inside the widget:
 
 </pre>
 As discussed earlier, PUI tracks the most recently invoked widget
-and calls it the "active widget."  PUI allows you to define a callback
+and calls it the "active widget". PUI allows you to define a callback
 to be invoked for the active widget when the user clicks the mouse outside
-any user interface widgets.  You can also define a callback for PUI
+any user interface widgets. You can also define a callback for PUI
 to call when the widget is being deactivated, when the user is activating
-another widget.  The following functions do these things:
+another widget. The following functions do these things:
 <pre>
 
   void       puObject::setActiveCallback ( puCallback c ) ;
@@ -831,7 +833,7 @@ You can also move the LEGEND text around inside the widget.
   void   puObject::setLabel  ( const char *str ) ;
 
   const char *puObject::getLegend () ;
-  cobst char *puObject::getLabel  () ;
+  const char *puObject::getLabel  () ;
 
   void   puObject::setLegendFont ( puFont font ) ;
   void   puObject::setLabelFont  ( puFont font ) ;
@@ -903,7 +905,7 @@ You can also move the LEGEND text around inside the widget.
 </td></tr>
 
 <tr><td>
-<img SRC="legendplaces.png" ALT="Illustration of legend places" align=RIGHT>
+<img SRC="legendplaces.png" ALT="Illustration of legend places" height=110 width=510 align=RIGHT>
 </td></tr>
 </table>
 
@@ -957,7 +959,7 @@ puButton class is derived from <a href="#puObject">puObject</a>. It implements
 a simple push-button widget. When clicked its value alternates from '0'
 to '1' and is highlighted graphically when in the '1' state. By default,
 buttons 'latch' down when clicked. The application could change this to
-a one-shot behaviour by resetting the value to '0' in the buttons callback
+a one-shot behavior by resetting the value to '0' in the buttons callback
 (although it is a lot more convenient to simply use the <a href="#puOneShot">puOneShot</a>
 class for this).
 <pre>
@@ -1027,11 +1029,11 @@ puSlider</h3>
 puSlider class is derived from
 <a href="#puObject">puObject</a>. It implements
 a slider widget. When clicked, dragged or unclicked its value changes in
-proportion to where it is clicked. For the value (as returned by
+proportion to where it is clicked. For the value ( as returned by
 puObject::<a href="#getValue">getValue</a>(float
-*f)  ) ranges from 0.0 to 1.0 from the left to the right (or from the
+*f) ) ranges from 0.0 to 1.0 from the left to the right (or from the
 bottom to the top). The application can change the position of the slider
-using puObject::<a href="#getValue">setValue</a>(float f)  with
+using puObject::<a href="#getValue">setValue</a>(float f) with
 a number in the range 0.0 to 1.0.
 <pre>
 
@@ -1041,7 +1043,7 @@ a number in the range 0.0 to 1.0.
 
 </pre>
 The first version produces a HORIZONTAL slider, the second version produces
-a VERTICAL slider.  The third version produces a slider with a non-default
+a VERTICAL slider. The third version produces a slider with a non-default
 width.
 <pre>
 
@@ -1093,7 +1095,7 @@ puDial</h3>
 <img SRC="puDial.png" ALT="view of puDial widget" height=127 width=188 align=RIGHT>The
 puDial class is derived from <a href="#puSlider">puSlider</a> and implements a square widget
 with a circle inscribed in it. 
-A radius of the circle is also drawn.  The value of the widget is
+A radius of the circle is also drawn. The value of the widget is
 proportional to the angle the radius makes with the vertical
 with straight down being zero - then winding it clockwise, straight up
 is 0.5 and straight down again being 1.0. The constructor takes three
@@ -1106,8 +1108,8 @@ size:
 
 </pre>
 By default, you can move the pointer directly from 0.0 to 1.0 or
-1.0 to 0.0 without winding it all the way around the dial.  This
-is called 'wrapping' the pointer.  If you need to change the wrap
+1.0 to 0.0 without winding it all the way around the dial. This
+is called 'wrapping' the pointer. If you need to change the wrap
 mode, you can call:
 <pre>
 
@@ -1125,9 +1127,9 @@ be applied to puDial widgets.
 puBiSlider</h3>
 <img SRC="puBiSlider.png" ALT="view of puBiSlider widget" height=127 width=188 align=RIGHT>The
 puBiSlider class implements a slider with two sliding boxes inside the
-slider bar.  It is based on the <a href="#puSlider">puSlider</a> class,
+slider bar. It is based on the <a href="#puSlider">puSlider</a> class,
 meaning that anything you can do with a <a href="#puSlider">puSlider</a>
-you can also do with a puBiSlider.  You define it with the following
+you can also do with a puBiSlider. You define it with the following
 call:
 <pre>
 
@@ -1151,8 +1153,8 @@ Corresponding calls retrieve the minimum and maximum possible values:
 
 </pre>
 Since there are two sliding boxes, they are considered to be a current
-minimum and current maximum value.  These are both integers and neither
-one is stored in the "puValue" as the widget's value.  You set and
+minimum and current maximum value. These are both integers and neither
+one is stored in the "puValue" as the widget's value. You set and
 retrieve them with the following functions:
 <pre>
 
@@ -1164,8 +1166,8 @@ retrieve them with the following functions:
 
 </pre>
 If the user clicks on the puBiSlider with his mouse, the box that is closer
-to the mouse is activated and moves to the mouse position.  The other
-box will stay put.  If the user drags the upper box over the lower
+to the mouse is activated and moves to the mouse position. The other
+box will stay put. If the user drags the upper box over the lower
 box or vice versa, the stationary box will move with the other box.
 <p>
 <a NAME="puTriSlider"></a>
@@ -1173,8 +1175,8 @@ box or vice versa, the stationary box will move with the other box.
 puTriSlider</h3>
 <img SRC="puTriSlider.png" ALT="view of puTriSlider widget" height=227 width=108 align=RIGHT>The
 puTriSlider class implements a slider with three sliding boxes inside the
-slider bar.  It is based on the <a href="#puBiSlider">puBiSlider</a>
-and includes everything that widget supports.  You define it with
+slider bar. It is based on the <a href="#puBiSlider">puBiSlider</a>
+and includes everything that widget supports. You define it with
 the following call:
 <pre>
 
@@ -1189,7 +1191,7 @@ You can set and retrieve the value of the middle box by using the "<a href="#get
 and "<a href="#getValue">getValue</a>" functions.
 <p>
 The puTriSlider has an additional option which allows you to freeze
-the boxes on the ends of the slider bar.  The following functions
+the boxes on the ends of the slider bar. The following functions
 let you do this:
 <pre>
 
@@ -1315,15 +1317,15 @@ The reason for this is that the widget contains sub-widgets within it:
 there is <a href="#puFrame">puFrame</a> widget to display the text area;
 two <a href="#puSlider">puSlider</a> widgets to allow the user to scroll
 vertically and horizontally; and there are up to four <a href="#puArrowButton">puArrowButton</a>
-widgets to allow rapid vertical scrolling.  The puLargeInput widget
+widgets to allow rapid vertical scrolling. The puLargeInput widget
 allows the user to enter an arbitrarily large amount of text, including
-multiple carriage returns.  This text is stored in a separate text
-buffer and is not connected to the widget value.  You create a puLargeInput
+multiple carriage returns. This text is stored in a separate text
+buffer and is not connected to the widget value. You create a puLargeInput
 widget with the following call:
 <pre>puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width ) :</pre>
 which creates a puLargeInput at location (x, y), with size (w, h), with
 sliders of "sl_width" pixels wide, and with "arrows" pairs of up- and down-arrows
-on the right-hand slider.  Allowed values for "arrows" are 0, 1, and
+on the right-hand slider. Allowed values for "arrows" are 0, 1, and
 2.
 <p>
 The following functionality from the <a href="#puInput">puInput</a> widget is also implemented
@@ -1359,7 +1361,7 @@ remove text from the widget using the following calls:
 
 </pre>
 The puLargeInput widget always stores a carriage return at the end of its
-text.  Even if you delete all the text in the widget, it will create
+text. Even if you delete all the text in the widget, it will create
 an empty carriage return.
 <p>
 The puLargeInput widget also has a few other functions which may be
@@ -1379,7 +1381,7 @@ Additionally, you can let a puLargeInput widget reject all input, which is usefu
   int  puLargeInput::inputDisabled () ;
 
   where:
-    inputDisabled() retuns FALSE if the text can be modifed and TRUE if it can not.
+    inputDisabled() returns FALSE if the text can be modified and TRUE if it can not.
 
 </pre>
 puLargeInput widgets do not have a legend.
@@ -1389,7 +1391,7 @@ puGroup</h3>
 The puGroup class is derived from <a href="#puObject">puObject</a>. When
 declaring objects derived from puGroup, it is essential that these objects
 be deleted in the reverse order to their creation (except when your program
-is about to exit anyway).  This is because PUI keeps a list of puGroup
+is about to exit anyway). This is because PUI keeps a list of puGroup
 widgets on a stack, and attempting to delete a puGroup from the middle
 of the stack will cause an error.
 <p>
@@ -1405,7 +1407,7 @@ widgets to the puGroup, you call:
   void puGroup::close () ;
 
 </pre>
-puGroup widgets can be placed inside other puGroup widgets to an arbitary
+puGroup widgets can be placed inside other puGroup widgets to an arbitrary
 depth. When a puGroup is delete'ed, it will automatically delete everything
 that it contains.
 <p>
@@ -1467,7 +1469,7 @@ appearances of the child widgets on a per-child-class basis:
 
 </pre>
 These routines all take a bitmask specifying which childs to apply
-the specified value(s) for by or-ing the appropiate PUCLASS_ constants as
+the specified value(s) for by or-ing the appropriate PUCLASS_ constants as
 their first argument.
 <p>
 The last parameter specifies whether the function should operate
@@ -1498,7 +1500,7 @@ The coordinates of puGroup child objects are always specified relative
 to the bottom-left corner of the puGroup rather than in absolute screen
 coordinates.
 <p>
-The puGroup widget is not drawn.  It is commonly a good thing to
+The puGroup widget is not drawn. It is commonly a good thing to
 do, but certainly not essential, to make the first widget inside a puGroup
 to be a <a href="#puFrame">puFrame</a> of the group's desired size. 
 The frame will provide a background for all the other widgets in the group.
@@ -1639,7 +1641,7 @@ puPopupMenu</h3>
 <img SRC="puPopupMenu.png" ALT="view of puPopupMenu widget" height=127 width=88 align=RIGHT>The
 puPopupMenu class is derived from <a href="#puPopup">puPopup</a>. It's
 designed for the specific purpose of building a simple popup menu - which
-is actualy implemented as a stack of buttons (<a href="#puOneShot">puOneShot's</a> actually) with
+is actually implemented as a stack of buttons (<a href="#puOneShot">puOneShot's</a> actually) with
 callbacks.
 <p>
 First, create the puPopupMenu object:
@@ -1694,7 +1696,7 @@ Which creates a menu bar with height 'height' at the top of the window.
 If you omit 'height', the menu bar height will be auto-determined through
 the height of the current <a href="#puSetDefaults">default legend font</a>.
 <p>
-Aftwerwards, PUI will always attempt to remain the menu bar at the top
+Afterwards, PUI will always attempt to remain the menu bar at the top
 of the screen, even if the screen is resized.
 <p>
 Next, set up the colours for the menu - just as with any other <a href="#puObject">puObject</a>,
@@ -1752,7 +1754,7 @@ You create it with the following call:
 </pre>
 where using a default value for "x" will place the menu on the left-hand
 side of its window and using a default value for "y" will place it on the
-top of its window.  Its behavior is essentially the same as that of
+top of its window. Its behavior is essentially the same as that of
 the <a href="#puMenuBar">puMenuBar</a> widget.
 <p>
 A puVerticalMenu does not have a label or a legend.
@@ -1762,10 +1764,10 @@ A puVerticalMenu does not have a label or a legend.
 puListBox</h3>
 <img SRC="puListBox.png" ALT="view of puListBox widget" height=127 width=188 align=RIGHT>The
 puListBox widget is a multiple-line text widget which was designed
-to support the <a href="#puFileSelector">puFileSelector</a> widget.  It
+to support the <a href="#puFileSelector">puFileSelector</a> widget. It
 is derived from the <a href="#puButton">puButton</a> widget and supports
-that widget's entire API.  You create a puListBox by invoking the
-contructor method:
+that widget's entire API. You create a puListBox by invoking the
+constructor method:
 <pre>
 
   puListBox::puListBox  ( int minx, int miny, int maxx, int maxy,
@@ -1773,10 +1775,10 @@ contructor method:
 
 </pre>
 In this case "list" is a null-terminated array of character strings that
-contain the items that go into the list box.  You are responsible
+contain the items that go into the list box. You are responsible
 for supplying this array and for making sure that it is still around the
-entire time the puListBox widget is using it.  The widget does <b>not</b>
-make its own copy of the array.  You can change which array the listbox
+entire time the puListBox widget is using it. The widget does <b>not</b>
+make its own copy of the array. You can change which array the listbox
 operates on by calling:
 <pre>
 
@@ -1784,7 +1786,7 @@ operates on by calling:
 
 </pre>
 The puListBox widget supports three additional function calls in its
-API.  They are as follows:
+API. They are as follows:
 <pre>
 
   int  puListBox::getNumItems () ;  /* Return the number of items in the list */
@@ -1805,22 +1807,30 @@ puFilePicker is now obsolete. Please use <a href="#puFileSelector">puFileSelecto
 puFileSelector</h3>
 <img SRC="puFileSelector.png" ALT="view of puFileSelector widget" height=227 width=308 align=RIGHT>The
 puFileSelector class is derived from <a href="#puDialogBox">puDialogBox</a>.
-FileSelector creates a dialog box for selecting a file.  The puFileSelector
+FileSelector creates a dialog box for selecting a file. The puFileSelector
 widget contains:
 <ul>
-<li>A <a href="#puListBox">puFrame</a> widget of the puFileSelector's
-    desired size.
-<li>A <a href="#puListBox">puListBox</a> widget for listing the files.
-    It's label is placed at the top of it (PUPLACE_TOP_LEFT) and can
-    be set through the 'title' argument of the puFileSelector
-    constructor.
-<li>A <a href="#puSlider">puSlider</a> widget with zero, two, or four
-    <a href="#puArrowButton">puArrowButton</a> widgets (depending
-    on what you ask for) to scroll the file list.
-<li>A two <a href="#puOneShot">puOneShot</a> button widgets for
-    the OK and Cancel buttons.
-<li>A <a href="#puInput">puInput</a> to allow the user to type
-    in the filename by hand.
+<li>
+A <a href="#puListBox">puFrame</a> widget of the puFileSelector's
+desired size.</li>
+
+<li>
+A <a href="#puListBox">puListBox</a> widget for listing the files.
+It's label is placed at the top of it (PUPLACE_TOP_LEFT) and can be set
+through the 'title' argument of the puFileSelector constructor.</li>
+
+<li>
+A <a href="#puSlider">puSlider</a> widget with zero, two, or four
+<a href="#puArrowButton">puArrowButton</a> widgets (depending on what
+you ask for) to scroll the file list.</li>
+
+<li>
+Two <a href="#puOneShot">puOneShot</a> button widgets for the OK and
+Cancel buttons.</li>
+
+<li>
+A <a href="#puInput">puInput</a> to allow the user to type in the
+filename by hand.</li>
 </ul>
 The API for puFileSelector:
 <pre>
@@ -1839,11 +1849,11 @@ The API for puFileSelector:
                                    const char *title = "Pick a file" ) ;
 
 </pre>
-The first constructor sets the possition but uses a default value for the
-size of the dialog box, currently defaulting to 170,220.  The second
+The first constructor sets the position but uses a default value for the
+size of the dialog box, currently defaulting to 170,220. The second
 is like the first but also allows you to specify up- and down-arrows (0
 for none, 1 for single arrows, 2 for single and double arrows) next to
-the list box.  The third and fourth constructors allow you to also
+the list box. The third and fourth constructors allow you to also
 select the size of the dialog box as well.
 <p>
 The "dir" argument is the name of the directory whose files are to
@@ -1911,12 +1921,10 @@ GLUT window setup but before glutMainLoop().
 <a NAME="puDisplay"></a>
 <h3>
 puDisplay</h3>
-Causes PUI to redraw all of the currently created widgets (in a particular
-window in case of second one).
+Causes PUI to redraw all of the currently created widgets.
 <pre>
 
    void puDisplay () ;
-   void puDisplay ( int window_number ) ;
 
 </pre>
 It sets up the GL transforms as follows:
@@ -1950,7 +1958,7 @@ it restores state like this:
 
 </pre>
 All drawing code is done with whatever glMaterial/glTexture/glEnabled facilities
-are curently set. All PUI rendering is done with simple colours and 2D
+are currently set. All PUI rendering is done with simple colours and 2D
 drawing functions such as glRect and glDrawPixels.
 <p>
 This function is typically called from the glutDisplayFunc callback.
@@ -1992,7 +2000,7 @@ puKeyboard</h3>
 This routine takes keystroke events (presumably generated by GLUT) and
 uses them to decide which (if any) widgets changed state as a result. puKeyboard
 doesn't do any actual graphics - so you have to call <a href="#puDisplay">puDisplay</a>
-if you want the display to be upated.
+if you want the display to be updated.
 <pre>
 
    int puKeyboard ( int key, int state ) ;
@@ -2069,7 +2077,7 @@ puMouse</h3>
 This routine take mouse events (presumably generated by GLUT) and uses
 them to decide which (if any) widgets changed state as a result. puMouse
 doesn't do any actual graphics - so you have to call <a href="#puDisplay">puDisplay</a>
-if you want the display to be upated.
+if you want the display to be updated.
 <pre>
 
    int puMouse ( int buttons, int state, int x, int y ) ;
@@ -2184,7 +2192,7 @@ Here they are:
 <h3>
 Cut and Paste</h3>
 You can cut and paste text between different <a href="#puInput">puInput</a> widgets and <a href="#puInput">puLargeInput</a>
-widgets.  The cut, copy, and paste commands are the standard CTRL-X,
+widgets. The cut, copy, and paste commands are the standard CTRL-X,
 CTRL-C, and CTRL-V.
 <a NAME="Misc"></a>
 <h2>
@@ -2220,7 +2228,7 @@ These return the most recent puSetWindowSize() parameters without GLUT
 - and do a nice portable glutGet() otherwise.
 <p>
 Without GLUT, PUI can also not create the default fonts from the seven
-GLUT_BITMAP fonts like it normaly would. Instead, it tries to load
+GLUT_BITMAP fonts like it normally would. Instead, it tries to load
 some .txf fonts in the <a href="#puInit">puInit</a> routine. Hence, you have to ensure that
 the typewriter.txf, times_bold.txf and helvetica_bold.txf files
 from examples/src/fnt/data/ are in the current directory when using
