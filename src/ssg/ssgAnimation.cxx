@@ -12,7 +12,8 @@ void ssgTimedSelector::copy_from ( ssgTimedSelector *src, int clone_flags )
   pause_time    = src -> pause_time ;
   loop_time     = src ->  loop_time ;
 
-  for ( int i = 0 ; i < 32 ; i++ )
+  times = new float [ max_kids ] ;
+  for ( int i = 0 ; i < max_kids ; i++ )
     times [ i ]  = src -> times [ i ] ;
 
   curr  = src -> curr  ;
@@ -29,7 +30,7 @@ ssgBase *ssgTimedSelector::clone ( int clone_flags )
 }
 
 
-ssgTimedSelector::ssgTimedSelector (void)
+ssgTimedSelector::ssgTimedSelector ( int max_kids ) : ssgSelector ( max_kids )
 {
   type |= SSG_TYPE_TIMEDSELECTOR ;
   select ( 1 ) ;
@@ -38,7 +39,8 @@ ssgTimedSelector::ssgTimedSelector (void)
   start_time = pause_time = 0.0f ;
   loop_time = 1.0f ;
 
-  for ( int i = 0 ; i < 32 ; i++ )
+  times = new float [ max_kids ] ;
+  for ( int i = 0 ; i < max_kids ; i++ )
     times [ i ] = 1.0f ;
 
   curr = start = end = 0 ;
@@ -137,7 +139,8 @@ int ssgTimedSelector::load ( FILE *fd )
   _ssgReadFloat ( fd, & start_time ) ;
   _ssgReadFloat ( fd, & pause_time ) ;
   _ssgReadFloat ( fd, & loop_time  ) ;
-  _ssgReadFloat ( fd, 32, times    ) ;
+  _ssgReadInt   ( fd, & max_kids  ) ;
+  _ssgReadFloat ( fd, max_kids, times    ) ;
   _ssgReadInt   ( fd, & curr  ) ;
   _ssgReadInt   ( fd, & start ) ;
   _ssgReadInt   ( fd, & end   ) ;
@@ -152,7 +155,8 @@ int ssgTimedSelector::save ( FILE *fd )
   _ssgWriteFloat ( fd, start_time ) ;
   _ssgWriteFloat ( fd, pause_time ) ;
   _ssgWriteFloat ( fd, loop_time  ) ;
-  _ssgWriteFloat ( fd, 32, times  ) ;
+  _ssgWriteInt   ( fd, max_kids  ) ;
+  _ssgWriteFloat ( fd, max_kids, times  ) ;
   _ssgWriteInt   ( fd, curr  ) ;
   _ssgWriteInt   ( fd, start ) ;
   _ssgWriteInt   ( fd, end   ) ;

@@ -5,7 +5,9 @@ void ssgSelector::copy_from ( ssgSelector *src, int clone_flags )
 {
   ssgBranch::copy_from ( src, clone_flags ) ;
 
-  selection = src -> getSelect () ;
+  max_kids = src -> max_kids ;
+  selection = new unsigned char [ max_kids ] ;
+  memcpy ( selection, src -> selection, max_kids ) ;
 }
 
 
@@ -17,14 +19,18 @@ ssgBase *ssgSelector::clone ( int clone_flags )
 }
 
 
-ssgSelector::ssgSelector (void)
+ssgSelector::ssgSelector ( int _max_kids )
 {
   type |= SSG_TYPE_SELECTOR ;
-  selection = 0xFFFFFFFF ;
+
+  max_kids = _max_kids ;
+  selection = new unsigned char [ max_kids ] ;
+  memset ( selection, 1, max_kids ) ;
 }
 
 ssgSelector::~ssgSelector (void)
 {
+  delete [] selection ;
 }
 
 void ssgSelector::cull ( sgFrustum *f, sgMat4 m, int test_needed )
@@ -37,7 +43,7 @@ void ssgSelector::cull ( sgFrustum *f, sgMat4 m, int test_needed )
   int s = 0 ;
 
   for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid(), s++ )
-    if ( selection & ( 1<<s ) )
+    if ( selection [s] )
       e -> cull ( f, m, cull_result != SSG_INSIDE ) ;
 }
 
@@ -53,7 +59,7 @@ void ssgSelector::hot ( sgVec3 sp, sgMat4 m, int test_needed )
   _ssgPushPath ( this ) ;
 
   for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid(), s++ )
-    if ( selection & ( 1<<s ) )
+    if ( selection [s] )
       e -> hot ( sp, m, hot_result != SSG_INSIDE ) ;
 
   _ssgPopPath () ;
@@ -72,7 +78,7 @@ void ssgSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
   _ssgPushPath ( this ) ;
 
   for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid(), s++ )
-    if ( selection & ( 1<<s ) )
+    if ( selection [s] )
       e -> isect ( sp, m, isect_result != SSG_INSIDE ) ;
 
   _ssgPopPath () ;
@@ -81,13 +87,21 @@ void ssgSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 
 int ssgSelector::load ( FILE *fd )
 {
-  _ssgReadUInt ( fd, & selection ) ;
+  _ssgReadInt ( fd, & max_kids ) ;
+  for ( int i=0; i<max_kids; i++ )
+  {
+    int temp ;
+    _ssgReadInt ( fd, & temp ) ;
+    selection [i] = (unsigned char)temp ;
+  }
   return ssgBranch::load(fd) ;
 }
 
 int ssgSelector::save ( FILE *fd )
 {
-  _ssgWriteUInt ( fd, selection ) ;
+  _ssgWriteInt ( fd, max_kids ) ;
+  for ( int i=0; i<max_kids; i++ )
+    _ssgWriteInt ( fd, (int)selection [i] ) ;
   return ssgBranch::save(fd) ;
 }
 
