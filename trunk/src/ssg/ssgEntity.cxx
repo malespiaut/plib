@@ -429,7 +429,7 @@ ssgCullResult ssgEntity::los_test ( sgVec3 s, sgMat4 m, int test_needed )
 
 int ssgEntity::load ( FILE *fd )
 {
-  bsphere_is_invalid = TRUE ;
+  dirtyBSphere();
   _ssgReadInt    ( fd, &traversal_mask ) ;
   return ssgBase::load(fd) ;
 }
