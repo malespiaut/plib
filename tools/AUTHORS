@@ -1,28 +1,61 @@
-PLIB was written by Steve Baker, with help from
-numerous others.  Special mention must go to:
+PLIB was originally written by Steve Baker as a solo project - but
+has subsequently been greatly enhanced and expanded by a 'cast of
+thousands'.
 
-  Daryll Strauss (GLIDE port to Linux)
+Most important of all - the 'official' PLIB developers:
+
+  Curtis Olson
+  Ben Woodhead
+  Dave McClurg
+  Gerard Decatrel
+  Gil Carter
+  Giancarlo Niccolai
+  James Jones
+  John Fay
+  Juergen Marquardt
+  Mark Vallevand
+  Marten Stromberg
+  Nathan Matias
+  Norman Vine
+  Per Liedman
+  Sam Stickland
+  Sebastian Ude
+  Steve Baker        <--- Hmmm - must sort this list by SECOND name!
+  Will Lachance
+  Wolfram Kuss
+
+Apologies to anyone I've left out - please let me know
+who you are and I'll add you in.
+
+  Alex Perry
+  Christopher St.John
+  Christian Mayer
+  Darrell Walisser
+  Dave Heil
+  Kevin Thompson
+  Karl Kremer
+  Negative0         <---- Who?  Some kind of 1's complement arithmetic fanatic?
+  Mark Danks
+  Michael Kurth
+  Sean Palmer
+  Simon Britnell
+  Themie Gouthas
+  Tony Knienieder
+  Trent Gamblin
+
+Special mention must go to:
+
+  Daryll Strauss    (GLIDE port to Linux)
   David Bucciarelli (Mesa -> GLIDE interface)
-  Brian Paul (Mesa)
-  Curtis Olson  (FlightGear guru and all-round "Mr Nice Guy")
-  Vasily Lewis (Tireless maintainer and sysadmin at Woodsoup)
+  Brian Paul        (Mesa)
+  Curtis Olson      (FlightGear guru and all-round "Mr Nice Guy",
+                     who nagged me into writing most of this stuff!)
+  Vasily Lewis      (Tireless maintainer and sysadmin at Woodsoup
+                     where PLIB was first hosted)
+  Toru Egashira     (Who wrote a program called 'NSPmod' which was
+                     the original basis of the SL 'MOD' player -
+                     although the original code has been almost
+                     entirely rewritten in the process of merging
+                     it with SL.
   Everyone at OPENGL-GAMEDEV-L and 3Dfx.glide.linux
-
-Specific contributions came from:
-
-  Ton Knienieder
-    -- Ported SL to a bunch of non-Linux OS's
-
-  Simon Britnell <ughbash@yahoo.com>
-    -- Added SSG methods for searching for
-       objects by name, etc.
-    -- Added an SSG loader for the Me3D file format.
-
-  Toru Egashira <toru@jms.jeton.or.jp>
-    -- Who wrote a program called 'NSPmod' which was
-       the original basis of the SL 'MOD' player -
-       although the original code has been almost
-       entirely rewritten in the process of merging
-       it with SL.
-
 
