@@ -185,14 +185,14 @@ void smMixer::setCDVolume     ( int left, int right )
 /* NetBSD or OpenBSD 2.3                                        */
 /* ------------------------------------------------------------ */
 
-void smMixer::open ( char *device )
+void smMixer::open ( const char *device )
 {
 }
   
 void smMixer::close (){}
 
 smMixer::smMixer ()    {} 
-smMixer::smMixer ( char * ) {} 
+smMixer::smMixer ( const char * ) {} 
 smMixer::~smMixer ()         {}
   
 int smMixer::notWorking () const
