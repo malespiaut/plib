@@ -57,7 +57,7 @@ static sgMat4 current_matrix ;
 static sgVec2 texrep ;
 static sgVec2 texoff ;
 
-static sgVec2 invalidTexture = { 1e30, } ;
+static sgVec2 invalidTexture = { 1e30f, } ;
 static sgVec3 zero = { 0.0, } ;
 
 static int do_material ( char *s ) ;
