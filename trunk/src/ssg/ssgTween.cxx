@@ -28,6 +28,8 @@
 
 static float current_tween_state = 0.0f ;
 
+char *ssgTween::getTypeName (void) { return "ssgTween" ; }
+
 float _ssgGetCurrentTweenState () { return current_tween_state ; }
 
 
@@ -467,3 +469,6 @@ void ssgTween::print ( FILE *fd, char *indent, int how_much )
   texcoords -> print ( fd, in, how_much ) ;
   colours   -> print ( fd, in, how_much ) ;
 }
+
+
+

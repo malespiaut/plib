@@ -1481,6 +1481,7 @@ public:
   virtual void draw () ;
   virtual void transform ( const sgMat4 m ) ;
 
+  virtual char *getTypeName(void) ;
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2);
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1608,6 +1609,8 @@ public:
   float getCurrBank () { return curr_bank ; }
 
   virtual void cull ( sgFrustum *f, sgMat4 m, int test_needed ) ;
+  virtual char *getTypeName(void) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
