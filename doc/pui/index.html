@@ -640,8 +640,34 @@ but the results can often be less than desirable.
       PUCOL_HIGHLIGHT
       PUCOL_LABEL
       PUCOL_LEGEND
+      PUCOL_MISC
 
 </pre>
+Here is a description of each colour's meaning:
+<ul>
+<li>
+PUCOL_FOREGROUND, PUCOL_BACKGROUND, PUCOL_HIGHLIGHT - Depending on
+the style which you have set, these colours are used for different
+purposes while drawing the widget's ABOX.</li>
+
+<li>
+PUCOL_LABEL - Obviously, this is the colour which is used when drawing
+the label of a widget.</li>
+
+<li>
+PUCOL_LEGEND - The colour that is used when the legend string is drawn.
+For the
+<a href="#puInput">puInput</a>, <a href="#puLargeInput">puLargeInput</a> and <a href="#puListBox">puListBox</a> classes, which don't
+have a legend, PUCOL_LEGEND is the colour of other kind of text inside
+the widget.</li>
+
+<li>
+PUCOL_MISC - This colour is used for miscellaneous things in some
+classes. Currently, it indicates the colour of the arrow inside a
+<a href="#puArrowButton">puArrowButton</a>, and it is used while drawing the circle of a <a href="#puDial">puDial</a>
+widget.</li>
+</ul>
+<p>
 Picking all of the individual colours for each widget can be tedious,
 so there is a handy function that sets a 'theme' colour for the widget
 and then picks suitable colours near to that theme for the other colours
@@ -680,7 +706,7 @@ by invoking the following function:
 The two arguments are the name of the render callback and an optional pointer
 to the user-defined render data. If a render callback exists, the widget's
 draw function renders only the activity box (unless PUSTYLE_NONE is used)
-and the label (if you specifed one) and calls the render callback
+and the label (if you specified one) and calls the render callback
 afterwards instead of executing the code which would normally be used
 to draw the widget.
 <p>
@@ -1032,7 +1058,10 @@ mode, you can call:
 <pre>
 
   void puDial::setWrap ( int wrapmode ) ;
-  in   puDial::getWrap () ;
+  int  puDial::getWrap () ;
+
+  where:
+    'wrapmode' is either TRUE (default) or FALSE.
 
 </pre>
 Everything defined in the <a href="#puSlider">puSlider</a> API can also
@@ -1113,8 +1142,10 @@ let you do this:
    void puTriSlider::setFreezeEnds ( int val ) ;
    int  puTriSlider::getFreezeEnds () ;
 
+   where:
+     'val' is either TRUE (the default) or FALSE.
+
 </pre>
-where "val" is either TRUE (the default) or FALSE.
 <p>
 <a NAME="puFrame"></a>
 <h3>
@@ -1340,7 +1371,7 @@ appearances of the child widgets on a per-child-class basis:
 
 </pre>
 These routines all take a bitmask specifying which childs to apply
-the specifed value(s) for by or-ing the appropiate PUCLASS_ constants as
+the specified value(s) for by or-ing the appropiate PUCLASS_ constants as
 their first argument.
 <p>
 The last parameter specifies whether the function should operate
@@ -1359,7 +1390,7 @@ a <a href="#puFrame">puFrame</a>, two <a href="#puSlider">puSlider</a> and up to
 
 </pre>
 In this case, we would have set the style of all arrow button subwidgets
-(if there were any) to PUSTYLE_BOXED and specifed the "highlight"
+(if there were any) to PUSTYLE_BOXED and specified the "highlight"
 colour of both the frame and the arrow button subwidgets to be white.
 <p>
 Note that when you specify a child class in the bitmask, all childs
@@ -1623,7 +1654,7 @@ contructor method:
 In this case "list" is a null-terminated array of character strings that
 contain the items that go into the list box.  You are responsible
 for supplying this array and for making sure that it is still around the
-entire time the puListBox widget is using it.  The widget does <u>not</u>
+entire time the puListBox widget is using it.  The widget does <b>not</b>
 make its own copy of the array.  You can change which array the listbox
 operates on by calling:
 <pre>
@@ -1662,7 +1693,7 @@ widget contains:
     on what you ask for) to scroll the file list.
 <li>A two <a href="#puOneShot">puOneShot</a> button widgets for
     the OK and Cancel buttons.
-<li>A <a href="#puInput">puInput</A> to allow the user to type
+<li>A <a href="#puInput">puInput</a> to allow the user to type
     in the filename by hand.
 </ul>
 The API for puFileSelector:
