@@ -22,7 +22,7 @@
 
 #include "js.h"
 
-#if defined(UL_IRIX) || defined(UL_SOLARIS)
+#if defined(UL_IRIX) || defined(UL_SOLARIS) || defined(UL_HPUX)
 
 /* check the joystick driver version */
 

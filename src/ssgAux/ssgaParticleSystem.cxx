@@ -132,7 +132,7 @@ void ssgaParticleSystem::draw_geometry ()
     j += 4 ;
   }
 
-//  rawSetNumVertices ( j ) ; /* Avoid drawing more than 'j' vertices. */
+  rawSetNumVertices ( j ) ; /* Avoid drawing more than 'j' vertices. */
 
   if ( j > 0 )
   {

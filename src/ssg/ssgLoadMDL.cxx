@@ -732,10 +732,11 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   
   // Find beginning of BGL Code segment
   unsigned short op1, op2;
-  fread(&op1, 2, 1, fp);
+  op1 = ulEndianReadLittle16(fp);
+
   while(!feof(fp))
   {
-    fread(&op2, 2, 1, fp);
+    op2 = ulEndianReadLittle16(fp);
     if(op1 == 0x76 && op2 == 0x3a)
     {
       fseek(fp, -4, SEEK_CUR);
@@ -784,8 +785,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   while(!feof(fp) && !done) 
   {
     unsigned int   skip_offset = 0;
-    unsigned short opcode;
-    fread(&opcode, 2, 1, fp);
+    unsigned short opcode = ulEndianReadLittle16(fp);
     
     DEBUGPRINT( "opcode = " << std::hex << opcode << std::dec << std::endl );
     
@@ -1437,8 +1437,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
     case 0x03:
 			{
         //DEBUGPRINT( "BGL_CASE\n" );
-        unsigned short number_cases;
-        fread(&number_cases, 2, 1, fp);
+        unsigned short number_cases = ulEndianReadLittle16(fp);
         skip_offset = 6 + 2 * number_cases;
       }
       break;
