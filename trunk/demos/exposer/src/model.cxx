@@ -466,10 +466,10 @@ void transformModel ( ssgBranch *boneRoot, float tim )
   Event *prev = getEvent ( 0 ) ;
   Event *next = prev ;
 
-  if ( curr_event )
+  if ( getCurrentEvent() != NULL )
   {
-    prev = next = curr_event ;
-    tim = curr_event -> getTime () ;
+    prev = next = getCurrentEvent() ;
+    tim = getCurrentEvent() -> getTime () ;
   }
   else
   {
