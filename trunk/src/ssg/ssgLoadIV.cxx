@@ -44,7 +44,7 @@ static bool iv_parseSwitch( ssgBranch *parentBranch, _traversalState *parentData
 static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *parentData, char *defName );
 static bool iv_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName );
 
-_parseTag ivTags [] =
+static _parseTag ivTags [] =
 {
      { "Separator", iv_parseSeparator },
      { "Switch", iv_parseSwitch },
@@ -329,7 +329,7 @@ static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *cu
    return TRUE;
 }
 
-bool iv_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName )
+static bool iv_parseTexture2( ssgBranch *parentBranch, _traversalState *currentData, char *defName )
 {
    char *token;
    char *fileName = NULL; bool wrapU = FALSE, wrapV = FALSE;

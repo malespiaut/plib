@@ -44,7 +44,7 @@
 
 #define u32 unsigned int
 
-int _ssgLoadTranslucent=TRUE;
+static int _ssgLoadTranslucent=TRUE;
 
 extern sgVec4 currentDiffuse;
 
@@ -117,7 +117,7 @@ static int Ascii2Float(SGfloat &retVal, const char *token, const char* name )
 
 #define MAX_NO_VERTICES_PER_FACE 1000
 
-class ssgLoaderWriterMesh theMesh;
+static class ssgLoaderWriterMesh theMesh;
 
 
 

@@ -124,7 +124,7 @@ static int _ssgNoFaces, _ssgNoVertices, _ssgNoVertexNormals, _ssgNoVertexTC; //l
 static char * _current_usemtl = NULL, * _last_usemtl = NULL;
 static int _current_material_index = -1;
 
-double _ssg_gbs_x = 0.0, _ssg_gbs_y = 0.0, _ssg_gbs_z = 1.0, _ssg_gbs_r = 0.0;
+static double _ssg_gbs_x = 0.0, _ssg_gbs_y = 0.0, _ssg_gbs_z = 1.0, _ssg_gbs_r = 0.0;
 
 void ssgGetValuesFromLastATGFile(double *x, double *y, double *z, double *r)
 // These values are the values from the "# gbs" line from the last loaded

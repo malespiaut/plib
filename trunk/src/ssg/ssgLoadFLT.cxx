@@ -339,7 +339,7 @@ struct snode {
 
 typedef int (*sfunc)(const void *key1, const void *key2);
 
-struct snode *splay(struct snode *t, const void *key, sfunc comp)
+static struct snode *splay(struct snode *t, const void *key, sfunc comp)
 {
    struct snode N, *l, *r, *y;
      
