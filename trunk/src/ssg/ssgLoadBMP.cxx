@@ -25,7 +25,6 @@
 #include "ssgLocal.h"
 
 #ifdef SSG_LOAD_BMP_SUPPORTED
-//#define PRINT_BMP_HEADER_DEBUG
 
 static FILE          *curr_image_fd ;
 static char           curr_image_fname [ 512 ] ;
@@ -124,8 +123,6 @@ struct RGBA
 bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
 {
   int w, h, bpp ;
-  int index=0;
-  bool old_format = false;
   RGBA pal [ 256 ] ;
 
   BMPHeader bmphdr ;
@@ -136,25 +133,9 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
 
   if ( ( curr_image_fd = fopen ( curr_image_fname, "rb" ) ) == NULL )
   {
-    char *p = strrchr(curr_image_fname,'_');
-    if (p != 0) {
-      *p = '\0';
-      p++;
-      index = atoi (p);
-      old_format = true;
-      if ( ( curr_image_fd = fopen(curr_image_fname, "rb")) == NULL) {
-        perror ( "ssgLoadTexture" ) ;
-        ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s' for reading.", curr_image_fname );
-        return false ;
-      }
-      p--;
-      *p = '_';
-    }
-    else {
-      perror ( "ssgLoadTexture" ) ;
-      ulSetError( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", curr_image_fname );
-      return false ;
-    }
+    perror ( "ssgLoadTexture" ) ;
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", curr_image_fname ) ;
+    return false ;
   }
 
   /*
@@ -191,7 +172,7 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
   bmphdr.YPelsPerMeter = readInt   () ;
   bmphdr.ClrUsed       = readInt   () ;
   bmphdr.ClrImportant  = readInt   () ;
-
+ 
   w   = bmphdr.Width  ;
   h   = bmphdr.Height ;
   bpp = bmphdr.Planes * bmphdr.BitCount ;
@@ -229,20 +210,7 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
       /* According to BMP specs, this fourth value is not really alpha value
 	 but just a filler byte, so it is ignored for now. */
       pal[i].a = readByte () ;
-      if (old_format == true) {
-        pal[i].a = (i<index)?0:255;
-
-      }
-/*
-      if ( (pal[i].r == pal[i].g) && (pal[i].r == pal[i].b) ) {
-	if (pal[i].r == 0)
-          pal[i].a = 0;
-	if (pal[i].r == 0x18)
-          pal[i].a = 0x18;
-	isOpaque = FALSE ;
-      }
-*/
-//      if ( (i>1) && (pal[i].a != pal[i-1].a) ) isOpaque = FALSE ;
+      //if ( pal[i].a != 255 ) isOpaque = FALSE ;
 
       if ( pal[i].r != pal[i].g ||
            pal[i].g != pal[i].b ) isMonochrome = FALSE ;
@@ -275,10 +243,6 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
 
   if ( bpp == 8 )
   {
-    for ( int i = 1 ; i < w * h ; i++ ) {
-      if  (pal[data[i]].a != pal[data[i-1]].a) isOpaque = FALSE ;
-    }
-
     if ( isMonochrome )
       z = isOpaque ? 1 : 2 ;
     else
@@ -345,7 +309,7 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
     info -> width = w ;
     info -> height = h ;
     info -> depth = z ;
-    info -> alpha = ( isOpaque == FALSE ) ;
+    info -> alpha = ( z == 4 ) ;
   }
 
   return ssgMakeMipMaps ( image, w, h, z ) ;
