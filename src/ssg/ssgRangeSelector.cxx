@@ -12,7 +12,7 @@ void ssgRangeSelector::copy_from ( ssgRangeSelector *src, int clone_flags )
 }
 
 
-ssgRangeSelector *ssgRangeSelector::clone ( int clone_flags )
+ssgBase *ssgRangeSelector::clone ( int clone_flags )
 {
   ssgRangeSelector *b = new ssgRangeSelector ;
   b -> copy_from ( this, clone_flags ) ;

@@ -14,14 +14,14 @@ void ssgStateSelector::copy_from ( ssgStateSelector *src, int clone_flags )
     ssgSimpleState *s = src -> getStep ( i ) ;
 
     if ( s != NULL && (clone_flags & SSG_CLONE_STATE_RECURSIVE) )
-      statelist [ i ] = s -> clone ( clone_flags ) ;
+      statelist [ i ] = (ssgSimpleState *)( s -> clone ( clone_flags )) ;
     else
       statelist [ i ] = s ;
   }
 }
 
 
-ssgStateSelector *ssgStateSelector::clone ( int clone_flags )
+ssgBase *ssgStateSelector::clone ( int clone_flags )
 {
   ssgStateSelector *b = new ssgStateSelector ;
   b -> copy_from ( this, clone_flags ) ;

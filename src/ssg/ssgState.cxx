@@ -12,12 +12,6 @@ void ssgState::copy_from ( ssgState *src, int clone_flags )
     setOpaque () ;
 }
 
-ssgState *ssgState::clone ( int clone_flags )
-{
-  fprintf ( stderr, "SSG: Cannot clone a base class ssgState\n" ) ;
-  assert ( FALSE ) ;
-  return NULL ;
-}
 
 
 ssgState::ssgState (void)

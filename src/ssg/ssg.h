@@ -222,6 +222,8 @@ public:
   void deRef () { assert ( refc > 0 ) ; refc-- ; }
   int  getRef() { return refc ; }
 
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
+
   /* Type checking mechanism */
 
   virtual char *getTypeName(void) ;
@@ -280,7 +282,7 @@ public:
     list = new char [ limit * size_of ] ;
   }
 
-  ssgSimpleList *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
 
   virtual ~ssgSimpleList (void)
   {
@@ -323,7 +325,7 @@ class ssgVertexArray : public ssgSimpleList
 {
 public:
 
-  ssgVertexArray *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgVertexArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
@@ -334,7 +336,7 @@ class ssgNormalArray : public ssgSimpleList
 {
 public:
 
-  ssgNormalArray *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgNormalArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
@@ -345,7 +347,7 @@ class ssgTexCoordArray : public ssgSimpleList
 {
 public:
 
-  ssgTexCoordArray *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgTexCoordArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec2), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec2   thing ) { raw_add ( (char *) thing ) ; } ;
@@ -356,7 +358,7 @@ class ssgColourArray : public ssgSimpleList
 {
 public:
 
-  ssgColourArray *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgColourArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec4), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
@@ -389,7 +391,7 @@ protected:
   ssgTexture () ;
 public:
 
-  ssgTexture *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgTexture ( char *fname, int wrapu = TRUE, int wrapv = TRUE )
   {
 #ifdef GL_VERSION_1_1
@@ -455,7 +457,6 @@ protected:
   virtual void copy_from ( ssgState *src, int clone_flags ) ;
 
 public:
-  ssgState *clone ( int clone_flags = 0 ) ;
   ssgState (void) ;
   virtual ~ssgState (void) ;
 
@@ -503,7 +504,7 @@ protected:
 
 public:
 
-  ssgSimpleState *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgSimpleState (void) ;
   virtual ~ssgSimpleState (void) ;
   virtual char *getTypeName(void) ;
@@ -639,7 +640,7 @@ protected:
 
 public:
 
-  ssgStateSelector *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgStateSelector () ;
   ssgStateSelector ( int ns ) ;
 
@@ -733,7 +734,6 @@ protected:
   virtual void copy_from ( ssgEntity *src, int clone_flags ) ;
 public:
  
-  ssgEntity *clone ( int clone_flags = 0 ) ;
   ssgEntity (void) ;
   virtual ~ssgEntity (void) ;
   
@@ -819,7 +819,6 @@ protected:
 
   virtual void copy_from ( ssgLeaf *src, int clone_flags ) ;
 public:
-  ssgLeaf *clone ( int clone_flags = 0 ) ;
   ssgLeaf (void) ;
   virtual ~ssgLeaf (void) ;
 
@@ -896,7 +895,7 @@ _SSG_PUBLIC:
   int isIndexed () { return indexed ; }
 
 public:
-  ssgVTable *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgVTable () ;
   ssgVTable ( GLenum ty,
               int nv, unsigned short *vi, sgVec3 *vl,
@@ -992,7 +991,7 @@ _SSG_PUBLIC:
   ssgColourArray   *colours   ;
 
 public:
-  ssgVtxTable *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgVtxTable () ;
 
   ssgVtxTable ( GLenum ty, ssgVertexArray   *vl,
@@ -1065,7 +1064,7 @@ protected:
 public:
   virtual void zeroSpareRecursive ();
 
-  ssgBranch *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgBranch (void) ;
   virtual ~ssgBranch (void) ;
 
@@ -1101,7 +1100,7 @@ protected:
 
 public:
 
-  ssgInvisible *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgInvisible (void) ;
   virtual ~ssgInvisible (void) ;
 
@@ -1121,7 +1120,7 @@ protected:
 
 public:
 
-  ssgSelector *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgSelector (void) ;
   virtual ~ssgSelector (void) ;
 
@@ -1155,7 +1154,7 @@ protected:
   virtual void copy_from ( ssgRangeSelector *src, int clone_flags ) ;
 public:
 
-  ssgRangeSelector *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgRangeSelector (void) ;
   virtual ~ssgRangeSelector (void) ;
 
@@ -1227,7 +1226,7 @@ protected:
   virtual void copy_from ( ssgTimedSelector *src, int clone_flags ) ;
 public:
 
-  ssgTimedSelector *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgTimedSelector (void) ;
   virtual ~ssgTimedSelector (void) ;
 
@@ -1367,7 +1366,7 @@ protected:
   virtual void copy_from ( ssgTransform *src, int clone_flags ) ;
 public:
 
-  ssgTransform *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgTransform (void) ;
   ssgTransform ( sgCoord *c ) ;
   virtual ~ssgTransform (void) ;
@@ -1393,7 +1392,7 @@ protected:
   virtual void copy_from ( ssgTexTrans *src, int clone_flags ) ;
 public:
 
-  ssgTexTrans *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgTexTrans (void) ;
   ssgTexTrans ( sgCoord *c ) ;
   virtual ~ssgTexTrans (void) ;
@@ -1417,7 +1416,7 @@ protected:
   virtual void copy_from ( ssgCutout *src, int clone_flags ) ;
 public:
 
-  ssgCutout *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgCutout (int pntrot=FALSE) ;
   virtual ~ssgCutout (void) ;
 
@@ -1438,7 +1437,7 @@ protected:
   virtual void copy_from ( ssgRoot *src, int clone_flags ) ;
 public:
 
-  ssgRoot *clone ( int clone_flags = 0 ) ;
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgRoot (void) ;
   virtual ~ssgRoot (void) ;
   virtual char *getTypeName(void) ;

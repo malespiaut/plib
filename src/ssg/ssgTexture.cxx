@@ -14,7 +14,7 @@ void ssgTexture::copy_from ( ssgTexture *src, int clone_flags )
   */
 }
 
-ssgTexture *ssgTexture::clone ( int clone_flags )
+ssgBase *ssgTexture::clone ( int clone_flags )
 {
   ssgTexture *b = new ssgTexture ;
   b -> copy_from ( this, clone_flags ) ;

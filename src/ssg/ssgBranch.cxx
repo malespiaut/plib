@@ -10,13 +10,13 @@ void ssgBranch::copy_from ( ssgBranch *src, int clone_flags )
     ssgEntity *k = src -> getKid ( i ) ;
 
     if ( k != NULL && ( clone_flags & SSG_CLONE_RECURSIVE ) )
-      addKid ( k -> clone ( clone_flags ) ) ;
+      addKid ( (ssgEntity *)( k -> clone ( clone_flags )) ) ;
     else
       addKid ( k ) ;
   }
 }
 
-ssgBranch *ssgBranch::clone ( int clone_flags )
+ssgBase *ssgBranch::clone ( int clone_flags )
 {
   ssgBranch *b = new ssgBranch ;
   b -> copy_from ( this, clone_flags ) ;

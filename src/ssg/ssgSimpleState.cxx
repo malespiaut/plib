@@ -25,7 +25,7 @@ void ssgSimpleState::copy_from ( ssgSimpleState *src, int clone_flags )
   alpha_clamp = src -> alpha_clamp ;
 }
 
-ssgSimpleState *ssgSimpleState::clone ( int clone_flags )
+ssgBase *ssgSimpleState::clone ( int clone_flags )
 {
   ssgSimpleState *b = new ssgSimpleState ;
   b -> copy_from ( this, clone_flags ) ;

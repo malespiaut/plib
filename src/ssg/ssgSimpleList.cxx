@@ -13,35 +13,35 @@ void ssgSimpleList::copy_from ( ssgSimpleList *src, int clone_flags )
   memcpy ( list, src->raw_get ( 0 ), limit * size_of ) ;
 }
 
-ssgSimpleList *ssgSimpleList::clone ( int clone_flags )
+ssgBase *ssgSimpleList::clone ( int clone_flags )
 {
   ssgSimpleList *b = new ssgSimpleList () ;
   b -> copy_from ( this, clone_flags ) ;
   return b ;
 }
 
-ssgNormalArray *ssgNormalArray::clone ( int clone_flags )
+ssgBase *ssgNormalArray::clone ( int clone_flags )
 {
   ssgNormalArray *b = new ssgNormalArray () ;
   b -> copy_from ( this, clone_flags ) ;
   return b ;
 }
 
-ssgVertexArray *ssgVertexArray::clone ( int clone_flags )
+ssgBase *ssgVertexArray::clone ( int clone_flags )
 {
   ssgVertexArray *b = new ssgVertexArray () ;
   b -> copy_from ( this, clone_flags ) ;
   return b ;
 }
 
-ssgTexCoordArray *ssgTexCoordArray::clone ( int clone_flags )
+ssgBase *ssgTexCoordArray::clone ( int clone_flags )
 {
   ssgTexCoordArray *b = new ssgTexCoordArray () ;
   b -> copy_from ( this, clone_flags ) ;
   return b ;
 }
 
-ssgColourArray *ssgColourArray::clone ( int clone_flags )
+ssgBase *ssgColourArray::clone ( int clone_flags )
 {
   ssgColourArray *b = new ssgColourArray () ;
   b -> copy_from ( this, clone_flags ) ;
