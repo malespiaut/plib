@@ -12,7 +12,7 @@ static int init_bytes ;
 
 void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
 {
-  fd = ::open ( device, O_WRONLY ) ;
+  fd = ::open ( device, O_WRONLY | O_NONBLOCK ) ;
 
   if ( fd < 0 )
   {
@@ -397,7 +397,7 @@ void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
 
   counter = 0;
   
-  fd = ::open ( device, O_RDWR ) ;
+  fd = ::open ( device, O_RDWR | O_NONBLOCK ) ;
     
   if ( fd < 0 )
   {
