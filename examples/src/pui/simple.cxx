@@ -31,6 +31,14 @@ void displayfn (void)
   puDisplay () ;
 
   glutSwapBuffers   () ;
+
+  /* The next line is not neccessary - you could remove it safely without
+     affecting the functionality of this simple example program.
+
+     It exists because in every application which does some more stuff
+     than creating user interface widgets, you normally do want to
+     redraw your scenery as often as possible for smooth animation. */
+
   glutPostRedisplay () ;
 }
 
@@ -47,7 +55,18 @@ int main ( int argc, char **argv )
 #endif
   glutInitWindowSize     ( 640, 480 ) ;
   glutInit               ( &argc, argv ) ;
+
+  /* Note that in order for PUI and this example program to work, you
+     definitely don't need a depth buffer.
+
+     However, most applications using PUI do some more things than rendering
+     PUI widgets. In every "real" program, you usually do need a depth
+     buffer - we are requesting one in the next line so that PLIB programmers
+     can write their applications upon the example code without running
+     in problems. */
+
   glutInitDisplayMode    ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
+
   glutCreateWindow       ( "PUI Application"  ) ;
   glutDisplayFunc        ( displayfn ) ;
   glutMouseFunc          ( mousefn   ) ;
