@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ssgAux - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h
 # End Special Build Tool
 
 !ENDIF 
@@ -95,6 +95,10 @@ PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssga
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\ssgaParticleSystem.cxx
+# End Source File
 # Begin Source File
 
 SOURCE=.\ssgaPatch.cxx
@@ -109,6 +113,10 @@ SOURCE=.\ssgaTeapot.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgaWaveSystem.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgAux.cxx
 # End Source File
 # End Group
@@ -117,7 +125,15 @@ SOURCE=.\ssgAux.cxx
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\ssgaParticleSystem.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgaShapes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaWaveSystem.h
 # End Source File
 # Begin Source File
 
