@@ -11,11 +11,15 @@
 
 slScheduler sched ( 44100 ) ;
 
-int main ( int, char ** )
+int main ( int argc, char **argv )
 {
   sched . setSafetyMargin ( 0.5 ) ;
 
-  sched . loopMusic ( "tuxr.mod" ) ;
+  if ( argc == 2 )
+    sched . loopMusic ( argv[1] ) ;
+  else
+    sched . loopMusic ( "tuxr.mod" ) ;
+  
 
   while ( SL_TRUE )
   {
