@@ -434,10 +434,11 @@ void ssgSimpleState::setTextureFilename ( char *fname )
   }
 }
 
-void ssgSimpleState::setTexture ( char *fname, int _wrapu, int _wrapv )
+void ssgSimpleState::setTexture ( char *fname, int _wrapu, int _wrapv,
+				  int _mipmap )
 {
-  wrapu = _wrapu ; wrapv = _wrapv ;
-  ssgTexture *tex = new ssgTexture ( fname, wrapu, wrapv ) ;
+  wrapu = _wrapu ; wrapv = _wrapv ; mipmap = _mipmap ;
+  ssgTexture *tex = new ssgTexture ( fname, wrapu, wrapv, mipmap ) ;
   setTexture ( tex ) ;
   delete tex ;
 }
