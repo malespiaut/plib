@@ -2701,6 +2701,7 @@ public:
 
   void zeroForce   ()           { sgZeroVec3   ( force ) ; }
   void addForce    ( sgVec3 f ) { sgAddVec3    ( force, f ) ; }
+  void subForce    ( sgVec3 f ) { sgSubVec3    ( force, f ) ; }
   void gravityOnly ()           { sgScaleVec3  ( force, sgGetGravityVec3 (), ooMass ) ; }
 
   void update ( float dt )
@@ -2775,10 +2776,10 @@ public:
     float  H = ( L - restLength ) * stiffness ;
     float  D = sgScalarProductVec3 ( dV, dP ) * damping / L ;
 
-    sgVec3 F ; sgScaleVec3 ( dP, - ( H + D ) / L ) ;
+    sgVec3 F ; sgScaleVec3 ( F, dP, - ( H + D ) / L ) ;
 
     p0 -> addForce ( F ) ;
-    p1 -> addForce ( F ) ;
+    p1 -> subForce ( F ) ;
   }
 
 } ;

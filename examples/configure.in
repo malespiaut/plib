@@ -201,6 +201,7 @@ AC_OUTPUT( \
 	src/ssg/tween_test/Makefile \
 	src/ssg/viewer/Makefile \
 	src/ssg/water/Makefile \
+	src/ssg/dynamics/Makefile \
 	src/fnt/Makefile \
 	src/net/Makefile \
 	src/net/client_server/Makefile \

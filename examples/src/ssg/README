@@ -11,3 +11,8 @@ Majik -- An example I wrote for the Majik team
         make a viewer for large area terrain.
         It's pretty basic.
 
+Water -- A demo of some ssgAux stuff - waves, particle-systems
+        a teapot and a cube.
+
+Dynamics -- Spring/Mass/Damper demo.
+

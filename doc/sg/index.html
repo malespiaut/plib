@@ -893,6 +893,8 @@ up some short time later.
 class sgParticle
 {
   sgParticle ( float mass ) ;
+  sgParticle ( float mass, float x, float y, float z ) ;
+  sgParticle ( float mass, sgVec3 position ) ;
  
   float *getPos         () ;
   float *getVel         () ;
@@ -916,7 +918,10 @@ Aside from the obvious set/get routines that allow you to set or get the
 particles mass, position, velocity and the total force that's applied to it,
 you can also zero the force (a usual thing to do at the start of each cycle)
 or set the force equal to normal gravity, or you can add a force to whatever
-is currently being applied.
+is currently being applied.  The constructor function requires that you
+pass in the mass and (optionally) the initial position.  The mass of a
+particle cannot ever be zero because you'll get divide-by-zero errors
+all over the place if you do.
 <pre>
 
 class sgSpringDamper
