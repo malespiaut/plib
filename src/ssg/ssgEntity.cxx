@@ -117,6 +117,27 @@ ssgEntity* ssgEntity::getByPath ( char *path )
 }
   
 
+ssgCallback ssgEntity::getCallback ( int cb_type )
+{
+  if ( isAKindOf ( SSG_TYPE_LEAF ) )
+  {
+    ssgLeaf* leaf = (ssgLeaf*) this ;
+    return leaf -> getCallback ( cb_type ) ;
+  }
+  return NULL ;
+}
+
+
+void ssgEntity::setCallback ( int cb_type, ssgCallback cb )
+{
+  if ( isAKindOf ( SSG_TYPE_LEAF ) )
+  {
+    ssgLeaf* leaf = (ssgLeaf*) this ;
+    leaf -> setCallback ( cb_type, cb ) ;
+  }
+}
+
+
 int ssgEntity::preTravTests ( int *test_needed, int which )
 {
   if ( (getTraversalMask() & which) == 0 )
