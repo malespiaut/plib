@@ -1292,4 +1292,15 @@ void sgdSlerpQuat( sgdQuat dst, const sgdQuat from, const sgdQuat to, const SGDf
 }
 
 
+ 
+void sgdReflectInPlaneVec3 ( sgdVec3 dst, const sgdVec3 src, const sgdVec4 plane )
+{
+  SGDfloat src_dot_norm  = sgdScalarProductVec3 ( src, plane ) ;
+ 
+  sgdVec3 tmp ;
+
+  sgdScaleVec3 ( tmp, plane, SGD_TWO * src_dot_norm ) ;
+  sgdSubVec3 ( dst, src, tmp ) ;
+}
+
 

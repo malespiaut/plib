@@ -173,7 +173,7 @@ class jsJoystick
     tmp_buttons = 0 ;
 #  endif
 
-    fd = ::open ( fname, O_RDONLY ) ;
+    fd = ::open ( fname, O_RDONLY | O_NONBLOCK ) ;
 
     error = ( fd < 0 ) ;
 
@@ -425,14 +425,13 @@ public:
 
       if ( status != sizeof(js_event) )
       {
-	if ( errno == EAGAIN )
-	{
-	  /* use the old values */
+        /* use the old values */
 
-	  if ( buttons ) *buttons = tmp_buttons ;
-	  if ( axes    ) memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
+	if ( buttons ) *buttons = tmp_buttons ;
+	if ( axes    ) memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
+
+	if ( errno == EAGAIN )
 	  return ;
-	}
 
 	perror( fname ) ;
 	setError () ;
@@ -457,6 +456,16 @@ public:
 	      memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
           }
 	  break ;
+
+	default:
+          fprintf ( stderr, "PLIB_JS: Unrecognised /dev/js return!?!\n" ) ;
+
+	  /* use the old values */
+
+	  if ( buttons ) *buttons = tmp_buttons ;
+	  if ( axes    ) memcpy ( axes, tmp_axes, sizeof(float) * num_axes ) ;
+
+          return ;
       }
 
       if ( buttons )
