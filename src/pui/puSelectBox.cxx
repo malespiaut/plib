@@ -84,6 +84,8 @@ void puSelectBox::newList ( char ** _list )
 
 void puSelectBox::draw ( int dx, int dy )
 {
+  if ( !visible || ( window != puGetWindow () ) ) return ;
+
   draw_label ( dx, dy ) ;
 
   puGroup::draw ( dx, dy ) ;

@@ -154,6 +154,8 @@ void puComboBox::setCurrentItem ( const char *item_ptr )
 
 void puComboBox::draw ( int dx, int dy )
 {
+  if ( !visible || ( window != puGetWindow () ) ) return ;
+
   draw_label ( dx, dy ) ;
 
   puGroup::draw ( dx, dy ) ;
