@@ -298,8 +298,8 @@ void ssgVtxTable::transform ( const sgMat4 m )
 
   if ( ( flags & SG_PROJECTION ) )
     ulSetError ( UL_WARNING, "ssgVtxTable: Projection matrices currently not supported." ) ;
-  /* 
-    note: it is possible to handle projections, but for each normal we would 
+  /*
+    note: it is possible to handle projections, but for each normal we would
     have to know the corresponding vertex coordinates. setting:
         n[3] = dot(v, n) / v[3]
     and then transforming with the full 4x4 transposed inverse matrix would do it.
@@ -313,7 +313,7 @@ void ssgVtxTable::transform ( const sgMat4 m )
 
   sgMat4 w ;
 
-  if ( ( flags & ( SG_MIRROR | SG_GENERAL_SCALE | SG_NONORTHO ) ) )
+  if ( ( flags & ( SG_MIRROR | SG_UNIFORM_SCALE | SG_GENERAL_SCALE | SG_NONORTHO ) ) )
   {
     if ( ( flags & ( SG_GENERAL_SCALE | SG_NONORTHO ) ) )
     {
@@ -330,11 +330,25 @@ void ssgVtxTable::transform ( const sgMat4 m )
     }
     else
     {
-      // mirror, negate to keep normals consistent with triangle orientations
-      sgNegateVec3 ( w[0], m[0] ) ;
-      sgNegateVec3 ( w[1], m[1] ) ;
-      sgNegateVec3 ( w[2], m[2] ) ;
+      SGfloat scale = SG_ONE ;
+
+      if ( ( flags & SG_UNIFORM_SCALE ) )
+      {
+	// prescale matrix to avoid renormalisation
+	scale = scale / sgLengthVec3 ( m[0] ) ;
+      }
+
+      if ( ( flags & SG_MIRROR ) )
+      {
+	// negate to keep normals consistent with triangle orientations
+	scale = - scale ;
+      }
+
+      sgScaleVec3 ( w[0], m[0], scale ) ;
+      sgScaleVec3 ( w[1], m[1], scale ) ;
+      sgScaleVec3 ( w[2], m[2], scale ) ;
     }
+
     m = w ;
   }
 
@@ -343,7 +357,7 @@ void ssgVtxTable::transform ( const sgMat4 m )
     sgXformVec3 ( normals->get(i), normals->get(i), m ) ;
 
 
-  if ( ( flags & ( SG_UNIFORM_SCALE | SG_GENERAL_SCALE | SG_NONORTHO ) ) )
+  if ( ( flags & ( SG_GENERAL_SCALE | SG_NONORTHO ) ) )
   {
     for ( i = 0 ; i < getNumNormals() ; i++ )
       sgNormaliseVec3 ( normals->get(i) ) ;
