@@ -22,30 +22,7 @@
 */
 
 
-#include "ul.h"
-
-class ulListNode
-{
-protected:
-
-  ulListNode *next ;
-  void *data ;
-
-public:
-
-  ulListNode ( void *dt, ulListNode *next_node )
-  {
-    data = dt ;
-    next = next_node ;
-  }
-
-  void * getData ( void ) const { return data ; }
-  void   setData ( void *d )    { data = d    ; }
-
-  ulListNode * getNext ( void ) const { return next ; }
-  void setNext ( ulListNode *n )      { next = n    ; }
-} ;
-
+#include "ulLocal.h"
 
 void ulLinkedList::unlinkNode ( ulListNode *prev, ulListNode *node )
 {

@@ -116,5 +116,9 @@ SOURCE=.\ulLinkedList.cxx
 
 SOURCE=.\ulList.cxx
 # End Source File
+# Begin Source File
+
+SOURCE=.\ulLocal.h
+# End Source File
 # End Target
 # End Project
