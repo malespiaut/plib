@@ -4,7 +4,7 @@ majik_demo_SOURCES = elevation_map.h \
                      image_map.h     \
                      majik_demo.cxx
 
-majik_demo_LDADD = -lplibssg -lplibsg
+majik_demo_LDADD = -lplibssg -lplibsg -lplibul
 
 EXTRA_DIST = majik_demo.dsp
 
