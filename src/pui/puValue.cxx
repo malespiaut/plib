@@ -31,14 +31,27 @@ static int strtoint ( const char *str )
 
   if ( *str == '\0')
     return 0 ;
-  else if ( ulStrNEqual ( str, "0x", 2 ) == TRUE )
-    return (int) strtol ( str + 2, NULL, 16 ) ; /* try hexadecimal */
-  else if ( ulStrNEqual ( str, "0o", 2 ) == TRUE )
-    return (int) strtol ( str + 2, NULL, 8 ) ; /* try octal */
-  else if ( ulStrNEqual ( str, "0b", 2 ) == TRUE )
-    return (int) strtol ( str + 2, NULL, 2 ) ; /* try binary */
+
+  int result ;
+
+  if ( *str == '-' )
+  {
+    result = -1 ;
+    str++ ;
+  }
   else
-    return (int) strtol ( str, NULL, 10 ) ; /* try decimal */
+    result = 1 ;
+
+  if ( ulStrNEqual ( str, "0x", 2 ) == TRUE )
+    result *= (int) strtol ( str + 2, NULL, 16 ) ; /* try hexadecimal */
+  else if ( ulStrNEqual ( str, "0o", 2 ) == TRUE )
+    result *= (int) strtol ( str + 2, NULL, 8 ) ; /* try octal */
+  else if ( ulStrNEqual ( str, "0b", 2 ) == TRUE )
+    result *= (int) strtol ( str + 2, NULL, 2 ) ; /* try binary */
+  else
+    result *= (int) strtol ( str, NULL, 10 ) ; /* try decimal */
+
+  return result ;
 }
 
 
