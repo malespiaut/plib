@@ -46,6 +46,17 @@ struct pslFwdRef
 
 class pslCompiler
 {
+  int line_no ;
+
+  int getLineNo () { return line_no ; }
+
+  int getChar ( FILE *fd ) ;
+  int unGetChar ( int c, FILE *fd ) ;
+
+  void ungetToken     ( const char *c ) ;
+  void getToken       ( char *c, FILE *fd = NULL ) ;
+  void setDefaultFile ( FILE *fd ) ;                                          
+
   void pushCodeByte ( unsigned char b ) ;
   void pushCodeAddr ( pslAddress a ) ;
 
@@ -122,6 +133,19 @@ class pslCompiler
 
 private:
 
+  int num_errors   ;
+  int num_warnings ;
+
+  void bumpErrors   () { num_errors++   ; }
+  void bumpWarnings () { num_warnings++ ; }
+
+  char *progName ;
+
+  const char *getProgName () { return progName ; }
+
+  void error   ( const char *fmt, ... ) ;
+  void warning ( const char *fmt, ... ) ;
+
   int next_var   ;
   int next_label ;
   int next_code  ;
@@ -146,7 +170,7 @@ private:
   void pushLocality ()
   {
     if ( locality_sp >= MAX_NESTING-1 )
-      ulSetError ( UL_WARNING, "PSL: Too many nested {}'s" ) ;
+      error ( "Too many nested {}'s" ) ;
     else
       locality_stack [ locality_sp++ ] = next_var ;
   }
@@ -154,7 +178,7 @@ private:
   void popLocality  ()
   {
     if ( locality_sp <= 0 )
-      ulSetError ( UL_FATAL, "PSL: Locality stack underflow !!" ) ;
+      error ( "Locality stack underflow !!" ) ;
 
     /* Delete any local symbols */
 
@@ -172,8 +196,11 @@ private:
 
 public:
 
-  pslCompiler ( pslOpcode *_code, pslExtension *_extn )
+  pslCompiler ( pslOpcode *_code, pslExtension *_extn, const char *_progName )
   {
+    progName = new char [ strlen ( _progName ) + 1 ] ;
+    strcpy ( progName, _progName ) ;
+
     code       = _code ;
     extensions = _extn ;
 
@@ -205,6 +232,8 @@ public:
   {
     int i ;
 
+    line_no = 1 ;
+
     for ( i = 0 ; i < MAX_CODE   ; i++ ) code   [ i ] = OPCODE_HALT ; 
 
     for ( i = 0 ; i < MAX_SYMBOL ; i++ )
@@ -213,6 +242,8 @@ public:
       delete [] code_symtab [ i ] . symbol ; code_symtab [ i ] . symbol = NULL ;
       delete [] forward_ref [ i ] . symbol ; forward_ref [ i ] . symbol = NULL ;
     }
+
+    num_errors = num_warnings = 0 ;
 
     locality_sp = 0 ;
     next_fwdref = 0 ;

@@ -24,7 +24,7 @@
 
 #include "pslLocal.h"
 
-pslProgram::pslProgram ( pslExtension *ext )
+pslProgram::pslProgram ( pslExtension *ext, char *_prgnm )
 {
   if ( ! _pslInitialised )
     ulSetError ( UL_FATAL,
@@ -34,18 +34,30 @@ pslProgram::pslProgram ( pslExtension *ext )
 
   extensions = ext ;
 
-  compiler  = new pslCompiler ( code, ext ) ;
-  context = new pslContext ( this ) ;
+  progName = NULL ;
 
-  compiler  -> init  () ;
+  if ( _prgnm == NULL ) _prgnm = "PSLptogram" ;
+
+  setProgName ( _prgnm ) ;
+
+  compiler = new pslCompiler ( code, ext, getProgName () ) ;
+  context  = new pslContext ( this ) ;
+
+  compiler-> init  () ;
   context -> reset () ;
 }
  
 
-pslProgram::pslProgram ( pslProgram *src )
+pslProgram::pslProgram ( pslProgram *src, char *_prgnm )
 {
+  progName = NULL ;
+
+  if ( _prgnm == NULL ) _prgnm = src -> getProgName () ;
+
+  setProgName ( _prgnm ) ;
+
   code       = src -> getCode       () ;
-  compiler     = src -> getCompiler     () ;
+  compiler   = src -> getCompiler   () ;
   extensions = src -> getExtensions () ;
   userData   = src -> getUserData   () ;
 
@@ -56,24 +68,33 @@ pslProgram::pslProgram ( pslProgram *src )
 
 pslProgram::~pslProgram ()
 {
-  delete compiler ;
-  delete context ;
-  delete [] code ;
+  delete [] progName ;
+  delete    compiler ;
+  delete    context  ;
+  delete [] code     ;
 }
 
 
-void       pslProgram::dump  () const {        compiler  -> dump  () ; }
+void       pslProgram::dump  () const {        compiler-> dump  () ; }
 void       pslProgram::reset ()       {        context -> reset () ; }
 pslResult  pslProgram::step  ()       { return context -> step  () ; }
 pslResult  pslProgram::trace ()       { return context -> trace () ; }
 
-int        pslProgram::compile ( const char *fname )
+
+
+int pslProgram::compile ( const char *fname )
 {
-  return compiler -> compile (fname) ;
+  if ( strcmp ( getProgName(), "PSLprogram" ) == 0 )
+    setProgName ( fname ) ;
+
+  return compiler -> compile ( fname ) ;
 }
 
-int        pslProgram::compile ( FILE *fd )
+
+int pslProgram::compile ( FILE *fd )
 {
-  return compiler -> compile( fd  ) ;
+  return compiler -> compile ( fd ) ;
 }
+
+
 

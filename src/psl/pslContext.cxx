@@ -29,9 +29,9 @@ pslResult pslContext::step ()
   switch ( code [ pc ] )
   {
     case OPCODE_NOOP :
-      ulSetError ( UL_FATAL, "PSL: Suspicious opcode 0x00?!", code[pc] ) ;
+      error ( "Suspicious opcode 0x00?!", code[pc] ) ;
       pc++ ;
-      return PSL_PROGRAM_CONTINUE ;
+      return PSL_PROGRAM_END ;
 
     case OPCODE_PUSH_INT_CONSTANT :
       {
@@ -80,8 +80,7 @@ pslResult pslContext::step ()
 
         if ( required_argc >= 0 && argc != required_argc )
         {
-          ulSetError ( UL_WARNING,
-                    "PSL: Wrong number of parameters for function %s\n",
+          warning ( "Wrong number of parameters for function %s\n",
                                           extensions [ ext ] . symbol ) ;
         }
 
@@ -155,14 +154,14 @@ pslResult pslContext::step ()
           if ( v1 -> getFloat() != 0.0f )
             v2 -> set ( v2 -> getFloat() / v1 -> getFloat() ) ;
           else
-            ulSetError ( UL_WARNING, "PSL: Floating Point Divide by Zero!" ) ;
+            warning ( "Floating Point Divide by Zero!" ) ;
         }
         else
         {
           if ( v1 -> getInt() != 0 )
             v2 -> set ( v2 -> getInt() / v1 -> getInt() ) ;
           else
-            ulSetError ( UL_WARNING, "PSL: Integer Divide by Zero!" ) ;
+            warning ( "Integer Divide by Zero!" ) ;
         }
         popVoid () ;
         pc++ ;
@@ -176,14 +175,14 @@ pslResult pslContext::step ()
 
         if ( v1->getType() == PSL_FLOAT || v2->getType() == PSL_FLOAT )
         {
-          ulSetError ( UL_WARNING, "PSL: Floating Point Modulo!" ) ;
+          warning ( "Floating Point Modulo!" ) ;
         }
         else
         {
           if ( v1 -> getInt() != 0 )
             v2 -> set ( v2 -> getInt () % v1 -> getInt () ) ;
           else
-            ulSetError ( UL_WARNING, "PSL: Integer Modulo Zero!" ) ;
+            warning ( "Integer Modulo Zero!" ) ;
         }
 
         popVoid () ;
@@ -353,8 +352,8 @@ pslResult pslContext::step ()
       return PSL_PROGRAM_CONTINUE ;
 
     default :
-      ulSetError ( UL_FATAL, "PSL: Suspicious opcode 0x02x?!", code[pc] ) ;
-      return PSL_PROGRAM_CONTINUE ;
+      error ( "Suspicious opcode 0x02x?!", code[pc] ) ;
+      return PSL_PROGRAM_END ;
   }
 }
 

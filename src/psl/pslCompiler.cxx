@@ -25,20 +25,63 @@
 #include "pslLocal.h"
 
 
+ 
+int pslCompiler::compile ( const char *fname )
+{
+  FILE *fd = fopen ( fname, "ra" ) ;
+ 
+  if ( fd == NULL )
+  {
+    perror ( "PSL:" ) ;
+    ulSetError ( UL_WARNING, "PSL: Failed while opening '%s' for reading.",
+                                                                  fname );
+    return FALSE ;
+  }
+ 
+  int res = compile ( fd ) ;
+  fclose ( fd ) ;
+  return res ;
+}
+ 
+ 
+int pslCompiler::compile ( FILE *fd )
+{
+  init () ;
+ 
+  setDefaultFile ( fd ) ;
+  pushProgram () ;
+ 
+  if ( num_errors != 0 || num_warnings != 0 )
+    fprintf ( stderr, "PSL: Compiled with %d Warnings, %d Fatal Errors\n",
+             num_warnings, num_errors ) ;
+ 
+  /* If there are errors, prevent the program from running. */
+
+  if ( num_errors != 0 )
+  {
+    next_code = 0 ;
+    pushCodeByte ( OPCODE_HALT ) ;
+  }
+
+  return num_errors ;
+}
+                                                                                
+
+
 int pslCompiler::pushReturnStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c [ 0 ] == ';' )   /* Return without data == "return 0" */
   {
-    pslUngetToken   ( c ) ;
+    ungetToken   ( c ) ;
     pushConstant ( "0.0" ) ;
   }
   else
   {
-    pslUngetToken     ( c ) ;
+    ungetToken     ( c ) ;
     pushExpression () ;
   }
 
@@ -56,7 +99,7 @@ int pslCompiler::pushWhileStatement ()
 
   if ( ! pushExpression () )
   {
-    ulSetError ( UL_WARNING, "PSL: Missing expression for 'while'" ) ;
+    error ( "Missing expression for 'while'" ) ;
     return FALSE ;
   }
 
@@ -64,7 +107,7 @@ int pslCompiler::pushWhileStatement ()
 
   if ( ! pushStatement () )
   {
-    ulSetError ( UL_WARNING, "PSL: Missing statement for 'while'" ) ;
+    error ( "Missing statement for 'while'" ) ;
     return FALSE ;
   }
 
@@ -80,7 +123,7 @@ int pslCompiler::pushIfStatement ()
 {
   if ( ! pushExpression () )
   {
-    ulSetError ( UL_WARNING, "PSL: Missing expression for 'if'" ) ;
+    error ( "Missing expression for 'if'" ) ;
     return FALSE ;
   }
 
@@ -88,29 +131,29 @@ int pslCompiler::pushIfStatement ()
 
   if ( ! pushStatement () )
   {
-    ulSetError ( UL_WARNING, "PSL: Missing statement for 'if'" ) ;
+    error ( "Missing statement for 'if'" ) ;
     return FALSE ;
   }
 
   char c [ MAX_TOKEN ] ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c [ 0 ] != ';' )
   {
-    pslUngetToken ( c ) ;
+    ungetToken ( c ) ;
     return FALSE ;
   }
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( strcmp ( c, "else" ) != 0 )
   {
     code [ else_loc   ] = next_code & 0xFF ;
     code [ else_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
 
-    pslUngetToken ( c ) ;
-    pslUngetToken ( ";" ) ;
+    ungetToken ( c ) ;
+    ungetToken ( ";" ) ;
     return TRUE ;
   }
 
@@ -121,7 +164,7 @@ int pslCompiler::pushIfStatement ()
 
   if ( ! pushStatement () )
   {
-    ulSetError ( UL_WARNING, "PSL: Missing statement for 'else'" ) ;
+    error ( "Missing statement for 'else'" ) ;
     return FALSE ;
   }
 
@@ -136,7 +179,7 @@ int pslCompiler::pushFunctionCall ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   /*
     'var' should be the name of a function,
@@ -145,31 +188,29 @@ int pslCompiler::pushFunctionCall ( const char *var )
 
   if ( c[0] != '(' )
   {
-    ulSetError ( UL_WARNING,
-                    "PSL: Missing '(' in call to '%s'", var ) ;
+    error ( "Missing '(' in call to '%s'", var ) ;
     return FALSE ;
   }
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   int argc = 0 ;
 
   while ( c[0] != ')' )
   { 
-    pslUngetToken ( c ) ;
+    ungetToken ( c ) ;
     pushExpression () ;
     argc++ ;
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
 
     if ( c[0] == ')' )
       break ;
 
     if ( c[0] == ',' )
-      pslGetToken ( c ) ;
+      getToken ( c ) ;
     else
     {
-      ulSetError ( UL_WARNING,
-                     "PSL: Missing ')' or ',' in call to '%s'", var ) ;
+      error ( "Missing ')' or ',' in call to '%s'", var ) ;
       exit ( -1 ) ;
     }
   }
@@ -183,11 +224,11 @@ int pslCompiler::pushAssignmentStatement ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c [ 0 ] != '=' )
   {
-    pslUngetToken ( c ) ;
+    ungetToken ( c ) ;
     pushFunctionCall ( var ) ;
     pushPop () ;
     return TRUE ;
@@ -211,7 +252,7 @@ int pslCompiler::pushCompoundStatement ()
 
   while ( pushStatement () )
   {
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
 
     if ( c[0] != ';' )
     {
@@ -220,17 +261,17 @@ int pslCompiler::pushCompoundStatement ()
     }
   }
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c[0] == '}' )
   {
     popLocality () ;
-    pslUngetToken ( ";" ) ;
+    ungetToken ( ";" ) ;
     return TRUE ;
   }
 
   popLocality () ;
-  pslUngetToken ( c ) ;
+  ungetToken ( c ) ;
   return FALSE ;
 }
 
@@ -239,7 +280,7 @@ int pslCompiler::pushStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( strcmp ( c, "static" ) == 0 )
     return pushStaticVariableDeclaration () ;
@@ -271,7 +312,7 @@ int pslCompiler::pushStatement ()
   if ( c [ 0 ] == '{' )
     return pushCompoundStatement () ;
 
-  pslUngetToken ( c ) ;
+  ungetToken ( c ) ;
   return FALSE ;
 }
 
@@ -284,12 +325,12 @@ void pslCompiler::pushProgram ()
 
   while ( TRUE )
   {
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
 
     if ( c[0] == '\0' )
       break ;
 
-    pslUngetToken ( c ) ;
+    ungetToken ( c ) ;
 
     pushGlobalDeclaration () ;
   }
@@ -311,7 +352,7 @@ int pslCompiler::pushLocalVariableDeclaration ( pslType t )
   char c  [ MAX_TOKEN ] ;
   char s  [ MAX_TOKEN ] ;
 
-  pslGetToken ( s ) ;
+  getToken ( s ) ;
 
   setVarSymbol ( s ) ;
 
@@ -323,16 +364,16 @@ int pslCompiler::pushLocalVariableDeclaration ( pslType t )
     case PSL_STRING : makeStringVariable ( s ) ; break ;
   }
  
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c[0] == '=' )
   {
-    pslUngetToken ( c ) ;
+    ungetToken ( c ) ;
     pushAssignmentStatement ( s ) ;
     return TRUE ;
   }
  
-  pslUngetToken ( c ) ;
+  ungetToken ( c ) ;
   return TRUE ;
 }
 
@@ -340,8 +381,7 @@ int pslCompiler::pushLocalVariableDeclaration ( pslType t )
 
 int pslCompiler::pushStaticVariableDeclaration ()
 {
-  ulSetError ( UL_WARNING,
-       "PSL: Local Variables are Not Supported Yet." ) ;
+  error ( "Local Variables are Not Supported Yet." ) ;
   return FALSE ;
 }
 
@@ -362,19 +402,18 @@ int pslCompiler::pushGlobalVariableDeclaration ( const char *s, pslType t )
   }
  
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c[0] == '=' )
   {
-    pslUngetToken ( c ) ;
+    ungetToken ( c ) ;
     pushAssignmentStatement ( s ) ;
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
   }
  
   if ( c[0] != ';' )
   {
-    ulSetError ( UL_WARNING,
-         "PSL: Missing ';' after declaration of '%s'", s ) ;
+    error ( "Missing ';' after declaration of '%s'", s ) ;
     return FALSE ;
   }
 
@@ -388,13 +427,13 @@ int pslCompiler::pushGlobalDeclaration ()
   char c  [ MAX_TOKEN ] ;
   char fn [ MAX_TOKEN ] ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( strcmp ( c, "static" ) == 0 ||
        strcmp ( c, "extern" ) == 0 )
   {
     /* Something complicated should probably happen here! */
-    pslGetToken ( c ) ;
+    getToken ( c ) ;
   }
 
   pslType t ;
@@ -404,30 +443,27 @@ int pslCompiler::pushGlobalDeclaration ()
       if ( strcmp ( c, "float"  ) == 0 ) t = PSL_FLOAT  ; else
         if ( strcmp ( c, "string" ) == 0 ) t = PSL_STRING ; else
         {
-          ulSetError ( UL_WARNING,
-            "PSL: Expected declaration of variable or function - but got '%s'",
-                                                                          c ) ;
+          error ( "Expected declaration - but got '%s'", c ) ;
           return FALSE ;
         }
 
-  pslGetToken ( fn ) ;
+  getToken ( fn ) ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c[0] == '(' )
   {
-    pslUngetToken ( c ) ;
+    ungetToken ( c ) ;
     return pushFunctionDeclaration ( fn ) ;
   }
 
   if ( c[0] == '=' || c[0] == ';' )
   {
-    pslUngetToken ( c ) ;
+    ungetToken ( c ) ;
     return pushGlobalVariableDeclaration ( fn, t ) ;
   }
 
-  ulSetError ( UL_WARNING,
-     "PSL: Expected a declaration of a variable or function - but got '%s'", c);
+  error ( "Expected a declaration - but got '%s'", c);
   return FALSE ;
 }
 
@@ -440,35 +476,31 @@ int pslCompiler::pushFunctionDeclaration ( const char *fn )
 
   setCodeSymbol ( fn, next_code ) ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c[0] != '(' )
   {
-    ulSetError ( UL_WARNING,
-                    "PSL: Missing '(' in declaration of '%s'", fn ) ;
+    error ( "Missing '(' in declaration of '%s'", fn ) ;
     return FALSE ;
   }
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c[0] != ')' )
   { 
-    ulSetError ( UL_WARNING,
-                    "PSL: Missing ')' in declaration of '%s'", fn ) ;
+    error ( "Missing ')' in declaration of '%s'", fn ) ;
     return FALSE ;
   }
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   if ( c [ 0 ] != '{' )
-    ulSetError ( UL_WARNING,
-       "PSL: Missing '{' in function '%s'", fn ) ;
+    error ( "Missing '{' in function '%s'", fn ) ;
 
   if ( ! pushCompoundStatement () )
-    ulSetError ( UL_WARNING,
-       "PSL: Missing '}' in function '%s'", fn ) ;
+    error ( "Missing '}' in function '%s'", fn ) ;
 
-  pslGetToken ( c ) ;
+  getToken ( c ) ;
 
   /* If we fall off the end of the function, we still need a return value */
 

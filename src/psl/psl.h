@@ -32,6 +32,11 @@ enum pslResult
 } ;
 
 
+#define PSL_COMPILETIME_WARNING 1
+#define PSL_COMPILETIME_ERROR   2
+#define PSL_RUNTIME_WARNING     3
+#define PSL_RUNTIME_ERROR       4
+
 typedef unsigned char pslOpcode ;
 class pslContext ;
 class pslCompiler  ;
@@ -223,10 +228,12 @@ class pslProgram
 
   void *userData ;
 
+  char *progName ;
+
 public:
 
-   pslProgram ( pslExtension *ext ) ;
-   pslProgram ( pslProgram   *src ) ;
+   pslProgram ( pslExtension *ext, char *_progName = NULL ) ;
+   pslProgram ( pslProgram   *src, char *_progName = NULL ) ;
 
   ~pslProgram () ;
 
@@ -234,6 +241,15 @@ public:
   pslOpcode    *getCode        () const { return code       ; }
   pslCompiler  *getCompiler    () const { return compiler   ; }
   pslExtension *getExtensions  () const { return extensions ; }
+
+  char *getProgName () const { return progName ; }
+
+  void  setProgName ( const char *nm )
+  {
+    delete [] progName ;
+    progName = new char [ strlen ( nm ) + 1 ] ;
+    strcpy ( progName, nm ) ;
+  }
 
   void      *getUserData () const     { return userData ; }
   void       setUserData ( void *ud ) { userData = ud ; }
@@ -248,4 +264,6 @@ public:
 
 
 void pslInit () ;
+void pslSetErrorCallback ( void (*CB) ( int, char *, int, char * ) ) ;
+
 

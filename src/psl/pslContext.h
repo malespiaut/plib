@@ -33,6 +33,17 @@ class pslContext
   int          sp ;
   pslAddress   pc ;
 
+  int num_errors   ;
+  int num_warnings ;
+ 
+  void bumpErrors   () { num_errors++   ; }
+  void bumpWarnings () { num_warnings++ ; }
+ 
+  const char *getProgName () { return program -> getProgName () ; }
+ 
+  void error   ( const char *fmt, ... ) ;
+  void warning ( const char *fmt, ... ) ;                                       
+
 public:
 
   pslContext ( pslProgram *p )

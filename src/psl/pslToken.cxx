@@ -31,13 +31,33 @@ static char ungotten_token [ MAX_UNGET ][ MAX_TOKEN ] ;
 static int  unget_stack_depth = 0 ;
 
 
-void pslSetDefaultFile ( FILE *fd )
+void pslCompiler::setDefaultFile ( FILE *fd )
 {
   defaultFile = fd ;
 }
 
 
-void pslGetToken ( char *res, FILE *fd )
+int pslCompiler::getChar ( FILE *fd )
+{
+  int c = getc ( fd ) ;
+
+  if ( c == '\n' ) line_no++ ;
+
+  return c ;
+}
+
+
+int pslCompiler::unGetChar ( int c, FILE *fd )
+{
+  int res = ungetc ( c, fd ) ;
+
+  if ( c == '\n' ) line_no-- ;
+
+  return res ;
+}
+
+
+void pslCompiler::getToken ( char *res, FILE *fd )
 {
   if ( unget_stack_depth > 0 )
   {
@@ -51,7 +71,7 @@ void pslGetToken ( char *res, FILE *fd )
 
   do
   {
-    c = getc ( fd ) ;
+    c = getChar ( fd ) ;
 
     if ( c < 0 )
     {
@@ -61,13 +81,13 @@ void pslGetToken ( char *res, FILE *fd )
 
     if ( c == '/' )
     {
-      int d = getc ( fd ) ;
+      int d = getChar ( fd ) ;
 
       if ( d == '/' ) /* C++ style comment */
       {
         do
         {
-          d = getc ( fd ) ;
+          d = getChar ( fd ) ;
         } while ( d != '\n' && d != -1 ) ;
 
         c = ' ' ;
@@ -85,15 +105,15 @@ void pslGetToken ( char *res, FILE *fd )
 
           do
           {
-            d = getc ( fd ) ;
+            d = getChar ( fd ) ;
           } while ( d != '*' && d != -1 ) ;
 
-          c = getc ( fd ) ;
+          c = getChar ( fd ) ;
 
           /* If you get two stars in a row - unget the second one */
 
           if ( c == '*' )
-            ungetc ( '*', fd ) ;
+            unGetChar ( '*', fd ) ;
 
         } while ( c != '/' ) ;
 
@@ -137,20 +157,18 @@ void pslGetToken ( char *res, FILE *fd )
       else
         res [ tp++ ] = c ;
 
-      c = getc ( fd ) ;
+      c = getChar ( fd ) ;
 
       if ( tp >= MAX_TOKEN - 1 )
       {
-        ulSetError ( UL_WARNING,
-                 "PSL: Input string is bigger than %d characters!",
+        error ( "Input string is bigger than %d characters!",
                                                        MAX_TOKEN - 1 ) ;
         tp-- ;
       }
     } while ( ( isBkSlash || c != '"' ) && c != -1 ) ;
 
     if ( c == -1 )
-      ulSetError ( UL_WARNING,
-               "PSL: Missing \\\" character" ) ;
+      error ( "Missing \\\" character" ) ;
    
     /* The trailing quotes character is not included into the string */
     res [ tp ] = '\0' ;
@@ -160,12 +178,11 @@ void pslGetToken ( char *res, FILE *fd )
   while ( isalnum ( c ) || c == '.' || c == '_' )
   {
     res [ tp++ ] = c ;
-    c = getc ( fd ) ;
+    c = getChar ( fd ) ;
 
     if ( tp >= MAX_TOKEN - 1 )
     {
-      ulSetError ( UL_WARNING,
-               "PSL: Input string is bigger than %d characters!",
+      error ( "Input string is bigger than %d characters!",
                                                      MAX_TOKEN - 1 ) ;
       tp-- ;
     }
@@ -173,7 +190,7 @@ void pslGetToken ( char *res, FILE *fd )
 
   if ( tp > 0 )
   {
-    ungetc ( c, fd ) ;
+    unGetChar ( c, fd ) ;
     res [ tp ] = '\0' ;
   }
   else
@@ -184,12 +201,11 @@ void pslGetToken ( char *res, FILE *fd )
 }
 
 
-void pslUngetToken ( const char *s )
+void pslCompiler::ungetToken ( const char *s )
 {
   if ( unget_stack_depth >= MAX_UNGET-1 )
   {
-    ulSetError ( UL_WARNING,
-          "PSL: Too many ungetTokens! This must be an *UGLY* PSL program!" ) ;
+    error ( "Too many ungetTokens! This must be an *UGLY* PSL program!" ) ;
     exit ( -1 ) ;
   }
 
