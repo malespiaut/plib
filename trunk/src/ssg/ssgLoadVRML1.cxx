@@ -728,7 +728,7 @@ bool vrml1_parseRotation( ssgBranch *parentBranch, _traversalState *currentData,
      return FALSE;
    vrmlParser.expectNextToken("}");
 
-   angle /= (3.14159265/360); // convert radians to degrees 
+   angle *= SG_RADIANS_TO_DEGREES;
    
    sgMakeRotMat4( rotation, angle, axis ) ;
    currentTransform->setTransform( rotation );
