@@ -866,7 +866,9 @@ float sgTriArea( sgVec3 p0, sgVec3 p1, sgVec3 p2 );
 // Fast code. Result is in the range  0..pi:
 inline SGfloat sgAngleBetweenNormalizedVec3 ( sgVec3 v1, sgVec3 v2 )
 {
-  return (float)(acos(sgScalarProductVec3(v1,v2))*SG_RADIANS_TO_DEGREES) ;
+  float f = sgScalarProductVec3 ( v1, v2 ) ;
+  
+  return (float)(acos((f>=1.0f)?1.0f:(f<=-1.0f)?-1.0f:f)*SG_RADIANS_TO_DEGREES) ;
 }
 
 // Fast code. Result is in the range  0..pi:
