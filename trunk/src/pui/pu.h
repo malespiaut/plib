@@ -1373,6 +1373,7 @@ public:
   puInput *__getInput () { return input ; }
   char *__getStartDir () { return startDir ; }
 
+  void setInitialValue ( char *fname ) ;
   void setSize ( int w, int h ) ;
 } ;
 

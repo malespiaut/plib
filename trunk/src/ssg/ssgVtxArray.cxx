@@ -353,3 +353,4 @@ int ssgVtxArray::save ( FILE *fd )
    
   return TRUE ;
 }
+
