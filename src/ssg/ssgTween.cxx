@@ -259,13 +259,17 @@ void ssgTween::draw ()
   stats_num_vertices += getNumVertices() ;
 
   float tstate = _ssgGetCurrentTweenState () ;
+  int num_banks = banked_vertices -> getNumEntities () ;
 
-  if ( tstate >= (float)( banked_vertices -> getNumEntities () - 1) )
-    tstate = (float)( banked_vertices -> getNumEntities () - 1) - 0.001f ;
+  if ( tstate < 0.0f ) tstate = 0.0f ;
 
   int   state1 = (int) floor ( tstate ) ;
   int   state2 = state1 + 1 ;
   float tween  = tstate - (float) state1 ;
+
+  if ( state1 >= num_banks ) state1 = num_banks - 1 ;
+  if ( state2 >= num_banks ) state2 = num_banks - 1 ;
+  if ( state1 == state2    ) tween  = 0.0f ;
 
   int l1, l2 ;
 
@@ -282,9 +286,7 @@ void ssgTween::draw ()
     render_vertices -> setNum ( l1 ) ;
 
   if ( v1 == v2 )
-{
     vertices = v1 ;
-}
   else
   {
     vertices = render_vertices ;

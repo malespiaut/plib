@@ -513,6 +513,34 @@ void walkBones ( ssgBranch *root, sgMat4 mat )
         root -> removeKid ( e ) ;
         i-- ;
       }
+      else
+      {
+        ssgVertexArray   *v0 = new ssgVertexArray   ;
+        ssgNormalArray   *n0 = new ssgNormalArray   ;
+        ssgTexCoordArray *t0 = new ssgTexCoordArray ;
+        ssgColourArray   *c0 = new ssgColourArray   ;
+
+        for ( int ii = 0 ; ii < l -> getNumVertices () ; ii++ )
+        {
+          /*
+            Copy the sphere's vertex (unmolested) into
+            the vertex arrays that are destined to become
+            bank zero.
+          */
+
+          v0 -> add ( l -> getVertex   ( ii ) ) ;
+          n0 -> add ( l -> getNormal   ( ii ) ) ;
+          t0 -> add ( l -> getTexCoord ( ii ) ) ;
+          c0 -> add ( l -> getColour   ( ii ) ) ;
+        }
+
+        ssgTween *tween = new ssgTween ( l -> getPrimitiveType () ) ;
+
+        tween -> setState ( l -> getState () ) ;
+        tween -> newBank ( v0, n0, t0, c0 ) ;
+
+        root -> replaceKid ( l, tween ) ;
+      }
     }
   }
 }
