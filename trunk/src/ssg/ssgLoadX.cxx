@@ -203,17 +203,19 @@ static int ParseEntity(char *token)
 				{ parser.error("unexpected end fo file\n");
 					return FALSE;
 				}
-        
-				if (0!=strcmp(sNextToken, "{"))
-				{ sName=sNextToken;
-					sNextToken=parser.getNextToken(0);
-					if (0!=strcmp(sNextToken, "{"))
+        sName = NULL;
+				if (0 != strcmp(sNextToken, "{"))
+				{ sName = new char[ strlen(sNextToken) + 1 ];
+					assert ( sName );
+					strcpy(sName, sNextToken);
+					sNextToken = parser.getNextToken(0);
+					if (0 != strcmp(sNextToken, "{"))
 						parser.error("\"{\" expected\n");
 				}
-				sNextToken=parser.getNextToken(0);
+				sNextToken = parser.getNextToken(0);
 				
-				if(sNextToken[0]=='<') // UUID
-					sNextToken=parser.getNextToken(0);
+				if(sNextToken[0] == '<') // UUID
+					sNextToken = parser.getNextToken(0);
 				if ( parser.eof ) 
 				{ parser.error("unexpected end fo file\n");
 					return FALSE;
@@ -221,6 +223,8 @@ static int ParseEntity(char *token)
         
 				if (!aEntities[i].HandleEntity(sName, sNextToken))
 					return FALSE;
+				if ( sName )
+					delete [] sName;
 			}
 			else
 				if (aEntities[i].bMayBeIgnored)
@@ -252,7 +256,7 @@ static class ssgLoaderWriterMesh currentMesh;
 static ssgSimpleState *currentState;
 extern sgVec4 currentDiffuse;
 
-static int HandleTextureFileName(const char *sName, const char *firstToken)
+static int HandleTextureFileName(const char * /*sName*/, const char *firstToken)
 {/*
 	  TextureFilename {
     "../image/box_top.gif";
@@ -277,7 +281,7 @@ static int HandleTextureFileName(const char *sName, const char *firstToken)
 	return TRUE;
 }
 
-static int HandleMaterial(const char *sName, const char *firstToken)
+static int HandleMaterial(const char * /*sName*/, const char *firstToken)
 // return TRUE on success
 { SGfloat power;
   int bFoundTextureFileName = FALSE;
@@ -481,10 +485,9 @@ static int HandleMeshMaterialList(const char * /* sName */, const char *firstTok
 }
 
 
-static int HandleMesh(const char * /* sName */, const char *firstToken)
+static int HandleMesh(const char * sName, const char *firstToken)
 { u32 i, j, nNoOfVertices, nNoOfVerticesForThisFace, nNoOfFaces;
 	int iVertex, aiVertices[MAX_NO_VERTICES_PER_FACE];
-	
 	
 	//char *sMeshName = parser.getNextToken("Mesh name");
 	//parser.expectNextToken("{");
@@ -494,6 +497,7 @@ static int HandleMesh(const char * /* sName */, const char *firstToken)
 	//parser.getNextInt("number of vertices");
 
 	currentMesh.reInit ();
+	currentMesh.setName( sName );
 	currentMesh.createVertices( nNoOfVertices );
  
 	parser.expectNextToken(";");
