@@ -25,13 +25,14 @@
 #ifndef _FNT_H_
 #define _FNT_H_  1
 
+#include "sg.h"
+
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
 #else
 #  include <GL/gl.h>
 #endif
 
-#include "sg.h"
 
 #define FNTMAX_CHAR  256
 #define FNT_TRUE  1
