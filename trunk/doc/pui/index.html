@@ -114,6 +114,7 @@ Non-class functions:</h3>
   <li>  <a href="#puSetDefaults">puSetDefault*</a>  </li> 
   <li>  <a href="#puInit">puInit</a>  </li> 
   <li>  <a href="#puDisplay">puDisplay</a>  </li> 
+  <li>  <a href="#puDeleteObject">puDeleteObject</a>  </li>
   <li>  <a href="#puKeyboard">puKeyboard</a>  </li> 
   <li>  <a href="#puMouse">puMouse</a>  </li> 
   <li>  <a href="#puShowCursor">puShowCursor</a>  </li> 
@@ -1786,6 +1787,15 @@ Example:
   .
   .
   glutMainLoop() ;
+
+</pre>
+<a NAME="puDeleteObject"></a>
+<h3>
+puDeleteObject</h3>
+You should use this routine instead of deleting widgets directly.
+<pre>
+
+   void puDeleteObject ( puObject *ob ) ;
 
 </pre>
 <a NAME="puKeyboard"></a>
