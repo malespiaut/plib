@@ -148,7 +148,7 @@ void puFilePicker::handle_select ( puObject* list_box )
 
     chop_file ( dst ) ;
 
-    if ( strcmp ( src, "." ) == 0 )
+    if ( strcmp ( src, "[.]" ) == 0 )
     {
       /* Do nothing - but better refresh anyway. */
 
@@ -156,7 +156,7 @@ void puFilePicker::handle_select ( puObject* list_box )
       return ;
     } 
 
-    if ( strcmp ( src, ".." ) == 0 )
+    if ( strcmp ( src, "[..]" ) == 0 )
     {
       /* Do back up one level - so refresh. */
 
@@ -176,8 +176,8 @@ void puFilePicker::handle_select ( puObject* list_box )
 	return ;
       }
 
-      strcat ( dst, src ) ;
-      strcat ( dst, SLASH ) ;
+      strcat ( dst, &src[1] ) ;  /* Remove leading '[' */
+      dst [ strlen ( dst ) - 1 ] = SLASH[0] ;  /* Replace trailing ']' with slash */
       file_picker -> find_files () ;
       return ;
     }
@@ -284,16 +284,11 @@ puFilePicker::~puFilePicker ()
   if ( files )
   {
     for ( int i=0; i<num_files; i++ )
-    {
       delete files[i];
-      files[i] = 0;
-    }
+
     delete[] files;
     delete[] dflag;
-    files = 0;
-    dflag = 0;
   }
-  num_files = 0;
 
   if ( this == puActiveWidget () )
     puDeactivateWidget () ;
@@ -303,9 +298,11 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
                                       const char *dir, const char *title )
 {
   type |= PUCLASS_FILEPICKER ;
-  files = 0 ;
-  dflag = 0 ;
+
+  files = NULL ;
+  dflag = NULL ;
   num_files = 0 ;
+
   strcpy ( getStringValue(), "" ) ;
   strcpy ( startDir, dir ) ;
 
@@ -313,7 +310,7 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
   if ( arrows < 0 ) arrows = 0 ;
   arrow_count = arrows ;
 
-  new puFrame ( 0, 0, w, h );
+  frame = new puFrame ( 0, 0, w, h );
 
   slider = new puSlider (w-30,40+20*arrows,h-70-40*arrows,TRUE,20);
   slider->setDelta(0.1f);
@@ -332,7 +329,7 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
   find_files () ;
 
   handle_select ( list_box ) ;
-  
+
   slider -> setUserData ( list_box ) ;
   slider -> setCallback ( puFilePickerHandleSlider ) ;
 
@@ -340,7 +337,7 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
   cancel_button -> setLegend ( "Cancel" ) ;
   cancel_button -> setUserData ( this ) ;
   cancel_button -> setCallback ( puFilePickerHandleCancel ) ;
-  
+
   ok_button = new puOneShot ( (w<170)?(w/2+5):90, 10, (w<170)?(w-10):160, 30 ) ;
   ok_button -> setLegend ( "Ok" ) ;
   ok_button -> setUserData ( this ) ;
@@ -373,8 +370,15 @@ void puFilePicker::puFilePickerInit ( int x, int y, int w, int h, int arrows,
   reveal () ;
 }
 
-static int puFilePickerStringCompare ( const char *s1, const char *s2 )
+static int puFilePickerStringCompare ( const char *s1, const char *s2,
+                                       const char  f1, const char  f2 )
 {
+  if ( f1 > f2 )    /* Directories before regular files. */
+    return -1 ;
+
+  if ( f1 < f2 )
+    return 1 ;
+
   while ( 1 )
   {
     char c1 = s1? (*s1++): 0 ;
@@ -392,12 +396,23 @@ static int puFilePickerStringCompare ( const char *s1, const char *s2 )
     
     if ( c1 == c2 )
       continue ;
-    
+
+    /*
+      Windoze users are case-insensitive - so they presumably
+      want case ignored in the sorting.
+
+      UNIX users, however, do things like calling their makefiles
+      'Makefile' so as to force them to the start of the directory
+      listing.
+    */
+
+#if defined(WIN32)
     if ( c1 >= 'a' && c1 <= 'z' )
       c1 = c1 - ('a'-'A') ;
     
     if ( c2 >= 'a' && c2 <= 'z' )
       c2 = c2 - ('a'-'A') ;
+#endif
     
     if ( c1 != c2 )
     {
@@ -415,27 +430,35 @@ static void puFilePickerSort ( char** list, char *flags, int size )
 //    taken from BYTE, April 1991, ppg 315-320
 //
 {
-  int switches;
-  int gap = size;
+  int switches ;
+  int gap = size ;
+
   do
   {
     gap = ((gap * 197) >> 8);  // gap /= 1.3;
+
     switch (gap)
     {
-    case 0:  // the smallest gap is 1 -- bubble sort
-      gap = 1;
-      break;
-    case 9:  // this is what makes this Combsort11
-    case 10:
-      gap = 11;
-      break;
+      case 0:  // the smallest gap is 1 -- bubble sort
+	gap = 1;
+	break;
+
+      case 9:  // this is what makes this Combsort11
+      case 10:
+	gap = 11;
+	break;
     }
-    switches = 0; // dirty pass flag
+
+    switches = 0 ; // dirty pass flag
+
     int top = size - gap;
+
     for ( int i=0; i<top; ++i )
     {
       int j=i+gap;
-      if (puFilePickerStringCompare(list[i],list[j]) > 0)
+
+      if ( puFilePickerStringCompare ( list [i], list [j],
+                                       flags[i], flags[j] ) > 0 )
       {
         char* temp = list[i] ;
         list[i] = list[j] ;
@@ -448,13 +471,23 @@ static void puFilePickerSort ( char** list, char *flags, int size )
         ++switches;
       }
     }
-  }
-  while(switches || gap>1);
+  } while ( switches || gap > 1 ) ;
 }
 
 
 void puFilePicker::find_files ()
 {
+  if ( files != NULL )
+  {
+    for ( int i = 0 ; i < num_files ; i++ )
+      delete files[i] ;
+
+    delete [] files ;
+    delete [] dflag ;
+  }
+
+  num_files = 0 ;
+
   char dir [ PUSTRING_MAX * 2 ] ;
 
   strcpy ( dir, startDir ) ;
@@ -464,64 +497,79 @@ void puFilePicker::find_files ()
   if ( dir [ strlen ( dir ) - 1 ] != SLASH[0] )  /* Someone forgot a trailing '/' */
     strcat ( dir, SLASH ) ;
 
-fprintf ( stderr, "Finding files in '%s'\n", dir ) ;
+  int ifile = 0 ;
 
-  num_files = 0;
+fprintf(stderr,"Searching '%s'\n", dir ) ;
 
-  for ( int pass=0; pass<2; pass++ )
+  ulDir    *dirp = ulOpenDir ( dir ) ;
+  ulDirEnt *dp ;
+
+  if ( dirp == NULL )
   {
-    int ifile = 0;
-    
-    ulDir* dirp = ulOpenDir(dir);
-    if ( dirp != NULL )
+    perror ("puFilePicker") ;
+    ulSetError ( UL_WARNING, "PUI:puFilePicker - can't open directory '%s'", dir ) ;
+    num_files = 0 ;
+  }
+
+  while ( ( dp = ulReadDir(dirp) ) != NULL )
+    ifile++ ;
+
+  ulCloseDir ( dirp ) ;
+
+  num_files = ifile ;
+
+  if ( num_files == 0 )
+  {
+    ulSetError ( UL_WARNING,
+		   "PUI:puFilePicker - no entries in directory '%s'?!", dir ) ;
+    num_files = 0 ;
+    return;
+  }
+
+  files = new char* [ num_files+1 ] ;
+  dflag = new char  [ num_files+1 ] ;
+
+  dirp = ulOpenDir ( dir ) ;
+
+  if ( dirp == NULL )
+  {
+    perror ("puFilePicker") ;
+    ulSetError ( UL_WARNING,
+                   "PUI:puFilePicker - can't re-open directory '%s'", dir ) ;
+    num_files = 0 ;
+    return ;
+  }
+
+fprintf(stderr,"Num_files=%d\n", num_files ) ;
+
+  for ( ifile = 0 ; (dp = ulReadDir(dirp)) != NULL && ifile < num_files ; ifile++ )
+  {
+    dflag[ ifile ] = dp->d_isdir ;
+
+fprintf(stderr,"Found '%s'\n", dp->d_name ) ;
+
+    if ( dflag[ ifile ] )
     {
-      ulDirEnt* dp;
-      while ( (dp = ulReadDir(dirp)) != NULL )
-      {
-	if ( pass )
-	{
-          dflag[ ifile ] = dp->d_isdir ;
-          files[ ifile ] = new char[ strlen(dp->d_name)+1 ];
-          strcpy( files[ ifile ], dp->d_name );
-        }
-          
-        ifile ++;
-      }
-      ulCloseDir(dirp);
+      files[ ifile ] = new char[ strlen(dp->d_name)+4 ] ;
+      strcpy ( files [ ifile ], "[" ) ;
+      strcat ( files [ ifile ], dp->d_name ) ;
+      strcat ( files [ ifile ], "]" ) ;
     }
     else
-{
-perror ("puFilePicker") ;
-fprintf ( stderr, "puFilePicker - Can't open directory '%s'\n", dir ) ;
-
-      ulSetError ( UL_WARNING, "PUI:puFilePicker - can't open directory '%s'", dir ) ;
-}
-    
-    if ( pass == 0 )
     {
-      num_files = ifile;
-      if ( num_files == 0 )
-        return;
-      
-      if ( files == NULL )
-      {
-        delete [] files ;
-        delete [] dflag ;
-      }
-
-      files = new char* [ num_files+1 ] ;
-      dflag = new char  [ num_files+1 ] ;
-
-      for ( int i=0; i<=num_files; i++ )
-      {
-        files [i] = 0 ;
-        dflag [i] = FALSE ;
-      }
+      files[ ifile ] = new char[ strlen(dp->d_name)+1 ] ;
+      strcpy ( files [ ifile ], dp->d_name ) ;
     }
   }
+
+  files [ ifile ] = NULL ;
+
+  ulCloseDir ( dirp ) ;
 
   puFilePickerSort( files, dflag, num_files ) ;
 
   list_box -> newList ( files ) ;
 }
+
+
 
