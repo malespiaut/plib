@@ -756,6 +756,7 @@ public:
 } ;
 
 
+extern char *ulStrDup ( const char *s ) ;
 extern int ulStrNEqual ( const char *s1, const char *s2, int len );
 extern int ulStrEqual ( const char *s1, const char *s2 );
 
