@@ -910,6 +910,7 @@ protected:
   float cb_delta ;
   int   cb_mode ;
   float slider_fraction ;
+  void draw_slider_box ( int dx, int dy, float val, char *box_label = NULL ) ;
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
