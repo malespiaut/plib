@@ -77,9 +77,6 @@ if test "x$need_opengl" = "xyes" && test "x$GL_PREFIX" != "xauto"; then
 fi
 
 
-CPPFLAGS="$CPPFLAGS -I/usr/local/include"
-LDFLAGS="$LDFLAGS -L/usr/local/lib"
-
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
 
