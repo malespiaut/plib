@@ -962,6 +962,7 @@ public:
                             miny + puGetDefaultLegendFont().getStringHeight () + puGetDefaultLegendFont().getStringDescender () + PUSTR_TGAP + PUSTR_BGAP )
   {
     type |= PUCLASS_BUTTON ;
+    button_type = PUBUTTON_NORMAL ;
     setLegend ( l ) ;
   }
 
