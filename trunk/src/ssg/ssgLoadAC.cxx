@@ -541,20 +541,17 @@ int do_refs     ( char *s )
     vlist -> add ( vtab[vtx] ) ;
   }
 
-  if ( nrefs < 3 )
-  {
-    delete vlist ;
-    delete tlist ;
-    return PARSE_POP ;
-  }
-
   ssgNormalArray *nrm = new ssgNormalArray ( 1 ) ;
   ssgColourArray *col = new ssgColourArray ( 1 ) ;
 
   col -> add ( *current_colour ) ;
 
   sgVec3 nm ;
-  sgMakeNormal ( nm, vlist->get(0), vlist->get(1), vlist->get(2) ) ;
+
+  if ( nrefs < 3 )
+    sgSetVec3 ( nm, 0.0f, 0.0f, 1.0f ) ;
+  else
+    sgMakeNormal ( nm, vlist->get(0), vlist->get(1), vlist->get(2) ) ;
 
   nrm -> add ( nm ) ;
 
