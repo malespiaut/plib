@@ -15,28 +15,33 @@
 
 #include "ul.h"
 
+#if defined(WIN32)
+double ulClock::res ;
+int ulClock::perf_timer = -1;
+
+void ulClock::initPerformanceTimer ()
+{
+	if( perf_timer == -1 ) {
+		/* Use Performance Timer if it's available, mmtimer if not.  */
+
+		__int64 frequency ;
+
+		perf_timer = QueryPerformanceFrequency ( (LARGE_INTEGER *) & frequency ) ;
+
+		if ( perf_timer )
+		{
+			res = 1.0 / (double) frequency ;
+			perf_timer = 1 ;
+		}
+	}
+}
+#endif
 
 double ulClock::getRawTime () const
 {
 #if defined(WIN32)
 
-  static double res ;
-  static int perf_timer = -1 ;
-
   /* Use Performance Timer if it's available, mmtimer if not.  */
-
-  if ( perf_timer == -1 )
-  {
-    __int64 frequency ;
-
-    perf_timer = QueryPerformanceFrequency ( (LARGE_INTEGER *) & frequency ) ;
-
-    if ( perf_timer )
-    {
-      res = 1.0 / (double) frequency ;
-      perf_timer = 1 ;
-    }
-  }
 
   if ( perf_timer )
   {

@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#if !defined(WIN32) && !defined(__CYGWIN__)
+#if defined(__CYGWIN__) || !defined(WIN32)
 #include <dirent.h>
 #endif
 

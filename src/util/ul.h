@@ -118,6 +118,12 @@ class ulClock
   double delta ;
   double last_time ;
   double max_delta ;
+  
+#ifdef WIN32
+  static double res ;
+  static int perf_timer ;
+  void initPerformanceTimer () ;
+#endif
 
   double getRawTime () const ;
 
@@ -127,6 +133,9 @@ public:
 
   void reset ()
   {
+#ifdef WIN32
+	  initPerformanceTimer () ;
+#endif
     start     = getRawTime () ;
     now       = start ;
     max_delta = 0.2 ; 
