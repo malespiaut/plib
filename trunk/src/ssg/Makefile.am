@@ -21,7 +21,7 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgLoadOFF.cxx ssgSaveOFF.cxx ssgSaveQHI.cxx ssgLoadVRML1.cxx ssgSaveVRML1.cxx\
 	ssgLoaderWriterStuff.h ssgMSFSPalette.h ssg3ds.h ssgLoadMDL.h \
 	ssgSave3ds.cxx ssgAxisTransform.cxx ssgLoadATG.cxx ssgSaveATG.cxx\
-	ssgLoadIV.cxx ssgLoad.cxx ssgLoadVRML.h
+	ssgLoadIV.cxx ssgLoad.cxx ssgLoadVRML.h ssgLoadBGL.cxx ssgLoadMDL_BGLTexture.cxx
 
 INCLUDES = -I$(top_srcdir)/src/sg
 INCLUDES += -I$(top_srcdir)/src/util
