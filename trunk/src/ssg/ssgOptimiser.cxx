@@ -374,7 +374,7 @@ short OptVertexList::add ( sgVec3 v, sgVec2 t, sgVec4 c )
 {
   short i = find ( v, t, c, FALSE ) ;
   
-  if (( i >= 0 ) && (i <0xFFFF))
+  if ( i >= 0 )
   {
     vlist [ i ] -> bump () ;
     return i ;
