@@ -1,7 +1,11 @@
 
 #include "ssgLocal.h"
 
+#ifdef SSG_LOAD_MDL_SUPPORTED
 #include "ssgMSFSPalette.h"
+#endif
+
+#ifdef SSG_LOAD_BMP_SUPPORTED
 
 static FILE          *curr_image_fd ;
 static char           curr_image_fname [ 512 ] ;
@@ -292,6 +296,18 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
   return ssgMakeMipMaps ( image, w, h, z ) ;
 }
 
+#else
+
+bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
+{
+  ulSetError ( UL_WARNING,
+    "ssgLoadTexture: '%s' - BMP support not configured", fname ) ;
+  return false ;
+}
+
+#endif
+
+#ifdef SSG_LOAD_MDL_SUPPORTED
 
 // This really simple (raw paletted) format is used by older MSFS for textures
 bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
@@ -338,3 +354,14 @@ bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
     return ssgMakeMipMaps ( texels, 256, 256, 4 ) ;
   }
 }
+
+#else
+
+bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
+{
+  ulSetError ( UL_WARNING,
+    "ssgLoadTexture: '%s' - MDL support not configured", fname ) ;
+  return false ;
+}
+
+#endif

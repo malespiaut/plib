@@ -1,6 +1,8 @@
 
 #include "ssgLocal.h"
 
+#ifdef SSG_LOAD_SGI_SUPPORTED
+
 static FILE          *curr_image_fd ;
 static char           curr_image_fname [ 512 ] ;
 static int            isSwapped ;
@@ -407,3 +409,14 @@ bool ssgLoadSGI ( const char *fname, ssgTextureInfo* info )
 
   return result ;
 }
+
+#else
+
+bool ssgLoadSGI ( const char *fname, ssgTextureInfo* info )
+{
+  ulSetError ( UL_WARNING,
+    "ssgLoadTexture: '%s' - SGI support not configured", fname ) ;
+  return false ;
+}
+
+#endif
