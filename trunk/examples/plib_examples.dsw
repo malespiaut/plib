@@ -3,6 +3,22 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "PointPicker"=.\src\pui\PointPicker.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    PointPicker
+    .\src\pui
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "WavingFlag"=.\src\ssg\tux\WavingFlag.dsp - Package Owner=<4>
 
 Package=<5>
