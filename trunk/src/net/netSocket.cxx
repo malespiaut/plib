@@ -1,6 +1,21 @@
 #include "netSocket.h"
+
+#if defined(__CYGWIN__) || !defined (WIN32)
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <fcntl.h>
+
+#else
+
 #include <winsock.h>
 #include <stdarg.h>
+
+#endif
 
 netAddress::netAddress ( cchar* host, int port )
 {
@@ -79,16 +94,28 @@ netSocket::create ( bool stream )
 void
 netSocket::setBlocking ( bool blocking )
 {
-  int res = SOCKET_ERROR ;
-  u_long block = blocking? 1: 0;
-  ::ioctlsocket(handle, FIONBIO, &block);
+#if defined(__CYGWIN__) || !defined (WIN32)
+
+	int delay_flag = ::fcntl (handle, F_GETFL, 0);
+	if (blocking)
+		delay_flag &= (~O_NDELAY);
+	else
+		delay_flag |= O_NDELAY;
+  ::fcntl (handle, F_SETFL, delay_flag);
+
+#else
+
+  u_long nblocking = blocking? 0: 1;
+  ::ioctlsocket(handle, FIONBIO, &nblocking);
+
+#endif
 }
 
 int
 netSocket::bind ( cchar* host, int port )
 {
   netAddress addr ( host, port ) ;
-  return ::bind(handle,(const sockaddr*)&addr,sizeof(netAddress));
+  return ::bind(handle,(sockaddr*)&addr,sizeof(netAddress));
 }
 
 int
@@ -142,7 +169,11 @@ netSocket::close (void)
 {
   if ( handle != -1 )
   {
+#if defined(__CYGWIN__) || !defined (WIN32)
+    ::close( handle );
+#else
     ::closesocket( handle );
+#endif
     handle = -1 ;
   }
 }
@@ -150,7 +181,15 @@ netSocket::close (void)
 bool
 netSocket::isNonBlockingError ()
 {
-#ifdef WIN32
+#if defined(__CYGWIN__) || !defined (WIN32)
+  switch (errno) {
+  case EWOULDBLOCK: // always == NET_EAGAIN?
+  case EALREADY:
+  case EINPROGRESS:
+    return true;
+  }
+  return false;
+#else
   int wsa_errno = WSAGetLastError();
   if ( wsa_errno != 0 )
   {
@@ -162,14 +201,6 @@ netSocket::isNonBlockingError ()
     case WSAEINPROGRESS:
       return true;
     }
-  }
-  return false;
-#else
-  switch (errno) {
-  case EWOULDBLOCK: // always == NET_EAGAIN?
-  case EALREADY:
-  case EINPROGRESS:
-    return true;
   }
   return false;
 #endif
@@ -249,6 +280,8 @@ netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
 /* Init/Exit functions */
 static void netExit ( void )
 {
+#if defined(__CYGWIN__) || !defined (WIN32)
+#else
 	/* Clean up windows networking */
 	if ( WSACleanup() == SOCKET_ERROR ) {
 		if ( WSAGetLastError() == WSAEINPROGRESS ) {
@@ -256,12 +289,15 @@ static void netExit ( void )
 			WSACleanup();
 		}
 	}
+#endif
 }
 
 int netInit ( int* argc, char** argv )
 {
   assert ( sizeof(sockaddr_in) == sizeof(netAddress) ) ;
 
+#if defined(__CYGWIN__) || !defined (WIN32)
+#else
 	/* Start up the windows networking */
 	WORD version_wanted = MAKEWORD(1,1);
 	WSADATA wsaData;
@@ -270,6 +306,8 @@ int netInit ( int* argc, char** argv )
 		fprintf(stderr,"Couldn't initialize Winsock 1.1\n");
 		return(-1);
 	}
+#endif
+
   atexit( netExit ) ;
 	return(0);
 }
