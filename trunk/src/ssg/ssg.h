@@ -1427,7 +1427,15 @@ public:
                            ssgTexCoordArray *tl,
                            ssgColourArray   *cl ) ;
 
-  virtual void drawHighlight ( sgVec4 colour ) ;
+  void textureMe(float uP, float vP) 
+	{ texcoords = new ssgTexCoordArray;
+	  for(int i=vertices->getNum()-1; i>=0; i--)
+		{ sgVec2 v;
+			v[0] = uP; v[1] = vP; 
+			texcoords->add(v);
+		}
+	}
+	virtual void drawHighlight ( sgVec4 colour ) ;
   virtual void drawHighlight ( sgVec4 colour, int i ) ;
   virtual void pick ( int baseName ) ;
   virtual void transform ( const sgMat4 m ) ;
