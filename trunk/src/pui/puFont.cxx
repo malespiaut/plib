@@ -75,15 +75,22 @@ static int count_lines ( const char *str )
 
 int puFont::getStringHeight ( const char *s ) const
 {
-  /* Height *excluding* descender */
+  if (!s || !fnt_font_handle) return 0 ;
 
-  if ( s == NULL )
-    return 0 ;
+  // The height of a single line is the ascender plus descender, not
+  // including whitespace above and below.  Each additional line
+  // adds one point size, of course.  Remember to round up to avoid
+  // overlapping artifacts. The bbox string is just a sample of
+  // "likely to be tall" glyphs.
+  float ascend;
+  fnt_font_handle -> getBBox ( "$lfKL", pointsize, slant, NULL, NULL, NULL, &ascend ) ;
+  float height = ascend + getStringDescender() ;
+  int lines = count_lines ( s ) ;
+  if ( lines > 1 )
+    height += ( lines - 1 ) * pointsize ;
 
-  if ( fnt_font_handle != NULL )
-    return int ( pointsize * ( 1.333f * count_lines ( s ) - 0.333f ) ) ;
-
-  return 0 ;
+  return int ( height + 0.999 ) ;
+  // return int ( pointsize * count_lines ( s ) + 0.999 ) - getStringDescender();
 }
 
 
