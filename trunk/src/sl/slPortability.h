@@ -15,6 +15,14 @@
 #include <sys/param.h>
 #endif
 
+#ifdef macintosh
+  #include <Sound.h>
+  #include <Timer.h>
+  #ifdef __MWERKS__
+  #include <unix.h>
+  #endif
+#endif
+
 #ifndef  WIN32
 #include <unistd.h>
 #include <sys/ioctl.h>

@@ -42,7 +42,7 @@ struct InstHirevInfo
   unsigned char *ptr;
   unsigned char *end;
   unsigned char *loopBeg;
-  int xor;
+  int x_or;
   int volL;
   int volR;
   int fadeout;
@@ -62,14 +62,14 @@ struct SampleInfo
 {
   unsigned char *beg;
   unsigned char *end;
-  int xor;	/* 0x80 (or 0x8000?) */
+  int x_or;	/* 0x80 (or 0x8000?) */
   unsigned char *loopBeg;
   int c4spd;
   int vol;
   int mag;	/* magnification */
 } ;
 
-void _MOD_instOutRate(unsigned int or);
+void _MOD_instOutRate(unsigned int _or);
 void _MOD_instSelectCh(int ch);
 void _MOD_instClearPFW(void);
 void _MOD_instDoPerFrameWorks(int frame);
@@ -126,7 +126,7 @@ void _MOD_playNoteSetMasterVol(int mv);
 void _MOD_playNoteSetGlobalVol(int gv);
 void _MOD_playNoteSetSample(SampleInfo *sip);
 void _MOD_playNoteInit(void);
-void _MOD_playNoteSetOutRate(int or);
+void _MOD_playNoteSetOutRate(int _or);
 void _MOD_playNoteSetTempo(int n);
 void _MOD_playNoteSetSpeed(int n);
 void _MOD_playNoteSetNote(int ch, Note *np);

@@ -14,6 +14,8 @@
 #define SLDSP_DEFAULT_DEVICE "dsp"		// dummy ...
 #elif defined(SOLARIS)
 #define SLDSP_DEFAULT_DEVICE "/dev/audio"
+#elif defined(macintosh)
+#define SLDSP_DEFAULT_DEVICE "dsp" // dummy
 #else
 #error "Port me !"
 #endif
@@ -90,7 +92,7 @@ private:
 #endif
 
 
-#ifndef WIN32
+#ifndef WIN32 && !defined(macintosh)
   int ioctl ( int cmd, int param = 0 )
   {
     if ( error ) return param ;
