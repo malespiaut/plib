@@ -188,8 +188,32 @@ static puObject *objects_to_delete = NULL;
 
 void puDeleteObject ( puObject *ob )
 {
-  ob -> setNextObject ( objects_to_delete ) ;
-  objects_to_delete = ob ;
+  puGroup *parent = ob->getParent () ;
+
+  /* Add object to linked list to be deleted */
+
+  if ( objects_to_delete == NULL )
+    objects_to_delete = ob ;
+  else
+  {
+    /* Ensure that objects are deleted in the order of puDeleteObject calls */
+
+    puObject *last ;
+
+    for ( last = objects_to_delete ;
+          last -> getNextObject() != NULL ;
+          last = last -> getNextObject() )
+      /* Find last object. */ ;
+
+    last -> setNextObject ( ob ) ;
+  }
+
+  /* Remove from parent interface */
+
+  if ( parent != ob && parent != NULL )
+    parent -> remove ( ob ) ;
+
+  ob -> setNextObject ( NULL ) ;
 }
 
 
