@@ -24,45 +24,7 @@
 
 #include "puLocal.h"
 
-UL_RTTI_DEF1(puInput,puObject)
-
-
-void puInput::normalize_cursors ( void )
-{
-  int sl = strlen ( getStringValue () ) ;
-
-  /* Clamp the positions to the limits of the text.  */
-
-  if ( cursor_position       <  0 ) cursor_position       =  0 ;
-  if ( select_start_position <  0 ) select_start_position =  0 ;
-  if ( select_end_position   <  0 ) select_end_position   =  0 ;
-  if ( cursor_position       > sl ) cursor_position       = sl ;
-  if ( select_start_position > sl ) select_start_position = sl ;
-  if ( select_end_position   > sl ) select_end_position   = sl ;
-
-  /* Swap the ends of the select window if they get crossed over */
-
-  if ( select_end_position < select_start_position )
-  {
-    int tmp = select_end_position ;     
-    select_end_position = select_start_position ;     
-    select_start_position = tmp ;
-  }
-}
-
-void puInput::removeSelectRegion ( void )
-{
-  char *p = new char [   strlen ( getStringValue () )
-                       + select_start_position - select_end_position
-                       + 1 ] ;
-  strncpy ( p, getStringValue (), select_start_position ) ;
-  strcpy ( p + select_start_position,
-           getStringValue () + select_end_position ) ;
-  setValue ( p ) ;
-  delete [] p ;
-  
-  cursor_position = select_end_position = select_start_position ;
-}
+UL_RTTI_DEF2(puInput,puInputBase,puObject)
 
 
 static char *chop_to_width ( puFont fnt, const char *s, int width, int *ncut )
@@ -85,7 +47,7 @@ static char *chop_to_width ( puFont fnt, const char *s, int width, int *ncut )
 
 void puInput::draw ( int dx, int dy )
 {
-  normalize_cursors () ;
+  normalizeCursors () ;
 
   if ( !visible || ( window != puGetWindow () ) ) return ;
 
@@ -246,7 +208,7 @@ void puInput::doHit ( int button, int updown, int x, int y )
 
       accepting = TRUE ;
       cursor_position = i ;
-      normalize_cursors () ;
+      normalizeCursors () ;
       puSetActiveWidget ( this, x, y ) ;
       invokeCallback () ;
     }
@@ -300,7 +262,7 @@ int puInput::checkKey ( int key, int /* updown */ )
     puDeactivateWidget () ;
   }
 
-  normalize_cursors () ;
+  normalizeCursors () ;
 
   char *p = NULL ;
 
@@ -319,7 +281,7 @@ int puInput::checkKey ( int key, int /* updown */ )
     case '\r' :
     case '\n' : /* Carriage return/Line Feed/TAB  -- End of input */
       rejectInput () ;
-      normalize_cursors () ;
+      normalizeCursors () ;
       invokeCallback () ;
       puDeactivateWidget () ;
       break ;
@@ -430,45 +392,8 @@ int puInput::checkKey ( int key, int /* updown */ )
     delete [] p ;
   }
 
-  normalize_cursors () ;
+  normalizeCursors () ;
   return TRUE ;
 }
 
-
-void puInput::addValidData ( const char *data )
-{
-  int valid_len    = valid_data != NULL ? strlen ( valid_data ) : 0 ;
-  int data_len     = data       != NULL ? strlen ( data       ) : 0 ;
-  int new_data_len = valid_len + data_len ;
-
-  char *new_data = new char [ new_data_len + 1 ] ;
-
-  if ( valid_len != 0 )
-    memcpy ( new_data, valid_data, valid_len ) ;
-  if ( data_len  != 0 )
-    memcpy ( new_data + valid_len, data, data_len ) ;
-
-  new_data [ new_data_len ] = '\0' ;
-  delete [] valid_data ;
-  valid_data = new_data ;
-}
-
-
-puInput::puInput ( int minx, int miny, int maxx, int maxy ) :
-   puObject ( minx, miny, maxx, maxy )
-{
-  type |= PUCLASS_INPUT ;
-
-  accepting = FALSE ;
-
-  cursor_position       =  0 ;
-  select_start_position = -1 ;
-  select_end_position   = -1 ;
-
-  valid_data = NULL ;
-  input_disabled = FALSE ;
-
-  setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
-  setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; /* Colour of 'I' bar cursor */
-}
 

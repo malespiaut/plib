@@ -13,7 +13,7 @@ libplibpu_a_SOURCES = \
         puValue.cxx       puFont.cxx      puBiSlider.cxx  puTriSlider.cxx \
         puDial.cxx        puVerticalMenu.cxx  puLargeInput.cxx            \
         puFileSelector.cxx puComboBox.cxx puSelectBox.cxx puRange.cxx	  \
-        puSpinBox.cxx     puScrollBar.cxx
+        puSpinBox.cxx     puScrollBar.cxx puInputBase.cxx
 
 INCLUDES = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/fnt
 INCLUDES += -I$(top_srcdir)/src/util

@@ -154,6 +154,10 @@ SOURCE=.\puGroup.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puInputBase.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\puInput.cxx
 # End Source File
 # Begin Source File
