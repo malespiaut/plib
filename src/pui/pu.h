@@ -1313,9 +1313,10 @@ public:
 
   void setSize ( int w, int h ) ;
 
-  void setStyle ( int style ) ;
-  void setColour ( int which, float  r, float g, float  b, float  a = 1.0f ) ;
-  void setBorderThickness ( int t ) ;
+  void setChildStyle ( int childs, int style ) ;
+  void setChildColour ( int childs, int which,
+                        float r, float g, float b, float a = 1.0f ) ;
+  void setChildBorderThickness ( int childs, int t ) ;
 } ;
 
 
@@ -1367,9 +1368,10 @@ public:
   void setInitialValue ( char *fname ) ;
   void setSize ( int w, int h ) ;
 
-  void setStyle ( int style ) ;
-  void setColour ( int which, float  r, float g, float  b, float  a = 1.0f ) ;
-  void setBorderThickness ( int t ) ;
+  void setChildStyle ( int childs, int style ) ;
+  void setChildColour ( int childs, int which,
+                        float r, float g, float b, float a = 1.0f ) ;
+  void setChildBorderThickness ( int childs, int t ) ;
 } ;
 
 
@@ -1487,9 +1489,10 @@ public:
   void  appendText ( char *l ) ;
   void  removeText ( int start, int end ) ;
 
-  void setStyle ( int style ) ;
-  void setColour ( int which, float  r, float g, float  b, float  a = 1.0f ) ;
-  void setBorderThickness ( int t ) ;
+  void setChildStyle ( int childs, int style ) ;
+  void setChildColour ( int childs, int which,
+                        float r, float g, float b, float a = 1.0f ) ;
+  void setChildBorderThickness ( int childs, int t ) ;
 } ;
 
 #endif
