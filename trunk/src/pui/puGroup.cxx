@@ -99,13 +99,6 @@ void puGroup::empty ( void )
       group->empty () ;
     }
 
-    if ( obj->getUserData () )
-    {
-      puGroup *group = (puGroup *)( obj->getUserData () ) ;
-      group->empty () ;
-      obj->setUserData ( NULL ) ;
-    }
-
     puObject *temp = obj->getNextObject () ;
     delete obj ;
     obj = temp ;
