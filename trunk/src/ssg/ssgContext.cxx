@@ -40,8 +40,11 @@ ssgContext::ssgContext ()
 
   currentState -> force () ;
 
-  basicState->dont_care      = 0 ;
+  /* The order of the two following lines is essential.
+     setTexture(NULL) currently sets the TEXTURE bit in
+     dont_care... not the desired effect here. /PL */
   basicState->setTexture ( (ssgTexture*) NULL ) ;
+  basicState->dont_care      = 0 ;
   basicState->colour_material_mode = GL_AMBIENT_AND_DIFFUSE ;
   sgSetVec4(basicState->specular_colour,1.0f,1.0f,1.0f,1.0f);
   sgSetVec4(basicState->emission_colour,0.0f,0.0f,0.0f,1.0f);
