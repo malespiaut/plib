@@ -523,11 +523,11 @@ the value of the widget:
   void  puObject::getValue ( float *f ) ;
   void  puObject::getValue ( char  *s ) ;  /* copies the string value into the string that is passed in */
   void  puObject::getValue ( char **s ) ;  /* sets the argument to point to the string value */
-  int   puObject::getValue () ;
+  int   puObject::getValue () ;            /* Obsolete ! Use getIntegerValue instead. */
 
   int   puObject::getIntegerValue () ;
   float puObject::getFloatValue   () ;
-  char  puObject::getCharValue    () ;      /* returns the first character in the string value */
+  char  puObject::getCharValue    () ;     /* returns the first character in the string value */
   char *puObject::getStringValue  () ;
 
 </pre>
@@ -541,14 +541,19 @@ to.
 </pre>
 ...allows you to return the widget to some known default value. The default
 value can also be set and read:
-<pre>  void puObject::setDefaultValue ( int    i ) ;
-  void puObject::setDefaultValue ( float  f ) ;
-  void puObject::setDefaultValue ( const char  *s ) ;
+<pre>  void  puObject::setDefaultValue ( int    i ) ;
+  void  puObject::setDefaultValue ( float  f ) ;
+  void  puObject::setDefaultValue ( const char  *s ) ;
 
-  void puObject::getDefaultValue ( int   *i ) ;
-  void puObject::getDefaultValue ( float *f ) ;
-  void puObject::getDefaultValue ( char **s ) ;
-  int  puObject::getDefaultValue () ;
+  void  puObject::getDefaultValue ( int   *i ) ;
+  void  puObject::getDefaultValue ( float *f ) ;
+  void  puObject::getDefaultValue ( char  *s ) ;
+  void  puObject::getDefaultValue ( char **s ) ;
+  int   puObject::getDefaultValue () ;  /* Obsolete ! Use getDefaultIntegerValue instead. */
+
+  int   puObject::getDefaultIntegerValue () ;
+  float puObject::getDefaultFloatValue   () ;
+  char *puObject::getDefaultStringValue  () ;
 
 </pre>
 There are many occasions when you'd really like to have the PUI widget
