@@ -48,7 +48,7 @@ void puTriSlider::draw ( int dx, int dy )
       val = 0.5f ;
 
     char str_value[10] ;
-    sprintf (str_value, "%d", getFloatValue () ) ;
+    sprintf (str_value, "%g", getFloatValue () ) ;
 
     draw_slider_box ( dx, dy, abox, val, str_value ) ;
 
