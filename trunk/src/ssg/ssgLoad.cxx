@@ -177,6 +177,17 @@ static int num_formats = 0 ;
 void ssgAddModelFormat ( const char* extension,
                         ssgLoadFunc *loadfunc , ssgSaveFunc  *savefunc )
 {
+  for ( int i = 0 ; i < num_formats ; i++ ) 
+  {
+    if ( ulStrEqual ( formats [ i ] . extension, extension ) )
+    {
+      formats [ i ] . extension = extension ;
+      formats [ i ] . loadfunc = loadfunc ;
+      formats [ i ] . savefunc = savefunc ;
+      return ;
+    }
+  }
+
   if ( num_formats < MAX_FORMATS )
   {
     formats [ num_formats ] . extension = extension ;

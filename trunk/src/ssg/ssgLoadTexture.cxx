@@ -192,6 +192,16 @@ static void ssgLoadDummyTexture ( ssgTextureInfo* info )
 void ssgAddTextureFormat ( const char* extension,
           bool (*loadfunc) (const char*, ssgTextureInfo* info) )
 {
+  for ( int i = 0 ; i < num_formats ; i++ )
+  {
+    if ( ulStrEqual ( formats [ i ] . extension, extension ) )
+    {
+      formats [ i ] . extension = extension ;
+      formats [ i ] . loadfunc = loadfunc ;
+      return ;
+    }
+  }
+
   if ( num_formats < MAX_FORMATS )
   {
     formats [ num_formats ] . extension = extension ;
