@@ -23,8 +23,6 @@ CFG=plib - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "plib"
-# PROP Scc_LocalPath "."
 MTL=midl.exe
 
 !IF  "$(CFG)" == "plib - Win32 Release"

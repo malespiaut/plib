@@ -23,8 +23,6 @@ CFG=sg_quat_test - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "sg_quat_test"
-# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 

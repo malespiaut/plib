@@ -23,8 +23,6 @@ CFG=net_udp_client - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "net_udp_client"
-# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 
