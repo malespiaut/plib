@@ -2,6 +2,20 @@
 PLIB Change Log.
 ================
 
+PLIB v1.3.3 (June 18th 2001 ???)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Various warnings cleaned up under MSVC.
+
+  * Fixed function prototypes for the Quaternion functions in SG
+
+  * Fixed bug in sgEulerToQuat where the angles were not being
+    converted from degrees to radians.
+
+  * Changed PUI to make sliders and dial widgets grab a hold
+    of the mouse focus and not release it until the button is
+    released.  This is a subtle but important behavioural change.
+
 PLIB v1.3.2 (June 13th 2001)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
