@@ -1124,3 +1124,23 @@ void puLargeInput::setColour( int which, float r, float g, float b, float  a )
   puObject::setColour ( which, r, g, b, a ) ;
 }
 
+void puLargeInput::setBorderThickness( int t )
+{
+  frame->setBorderThickness ( t ) ;
+  bottom_slider->setBorderThickness ( t ) ;
+  right_slider->setBorderThickness ( t ) ;
+
+  if ( down_arrow != NULL )
+  {
+    down_arrow->setBorderThickness ( t ) ;
+    up_arrow->setBorderThickness ( t ) ;
+    if ( fastdown_arrow != NULL )
+    {
+      fastdown_arrow->setBorderThickness ( t ) ;
+      fastup_arrow->setBorderThickness ( t ) ;
+    }
+  }
+
+  puObject::setBorderThickness ( t ) ;
+}
+

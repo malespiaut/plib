@@ -133,8 +133,6 @@ static int glIsValidContext ()
 #endif
 }
 
-puValue::~puValue () {}  
-
 static int _puCursor_enable = FALSE ;
 static int _puCursor_x      = 0 ;
 static int _puCursor_y      = 0 ;

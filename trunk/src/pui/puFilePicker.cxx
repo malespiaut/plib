@@ -565,5 +565,69 @@ void puFilePicker::find_files ()
   list_box -> newList ( files ) ;
 }
 
+void puFilePicker::setStyle( int style )
+{
+  frame->setStyle ( style ) ;
+  list_box->setStyle ( style ) ;
+  slider->setStyle ( style ) ;
+  cancel_button->setStyle ( style ) ;
+  ok_button->setStyle ( style ) ;
 
+  if ( down_arrow != NULL )
+  {
+    down_arrow->setStyle ( style ) ;
+    up_arrow->setStyle ( style ) ;
+    if ( fastdown_arrow != NULL )
+    {
+      fastdown_arrow->setStyle ( style ) ;
+      fastup_arrow->setStyle ( style ) ;
+    }
+  }
+
+  puObject::setStyle ( style ) ;
+}
+
+void puFilePicker::setColour( int which, float r, float g, float b, float  a )
+{
+  frame->setColour ( which, r, g, b, a ) ;
+  list_box->setColour ( which, r, g, b, a ) ;
+  slider->setColour ( which, r, g, b, a ) ;
+  cancel_button->setColour ( which, r, g, b, a ) ;
+  ok_button->setColour ( which, r, g, b, a ) ;
+
+  if ( down_arrow != NULL )
+  {
+    down_arrow->setColour ( which, r, g, b, a ) ;
+    up_arrow->setColour ( which, r, g, b, a ) ;
+    if ( fastdown_arrow != NULL )
+    {
+      fastdown_arrow->setColour ( which, r, g, b, a ) ;
+      fastup_arrow->setColour ( which, r, g, b, a ) ;
+    }
+  }
+
+  puObject::setColour ( which, r, g, b, a ) ;
+}
+
+void puFilePicker::setBorderThickness( int t )
+{
+  frame->setBorderThickness ( t ) ;
+  list_box->setBorderThickness ( t ) ;
+  slider->setBorderThickness ( t ) ;
+  cancel_button->setBorderThickness ( t ) ;
+  ok_button->setBorderThickness ( t ) ;
+
+  if ( down_arrow != NULL )
+  {
+    down_arrow->setBorderThickness ( t ) ;
+    up_arrow->setBorderThickness ( t ) ;
+    if ( fastdown_arrow != NULL )
+    {
+      fastdown_arrow->setBorderThickness ( t ) ;
+      fastup_arrow->setBorderThickness ( t ) ;
+    }
+  }
+
+  puObject::setBorderThickness ( t ) ;
+}
 
