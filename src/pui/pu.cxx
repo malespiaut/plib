@@ -105,12 +105,28 @@ static void puDrawCursor ( int x, int y )
   glEnd      () ;
 }
 
-void  puInit ( void )
+
+void puInit ( void )
 {
   static int firsttime = TRUE ;
 
   if ( firsttime )
   {
+#ifdef WIN32
+    if ( wglGetCurrentContext () == NULL )
+#else
+#if defined(macintosh)
+    if ( aglGetCurrentContext () == NULL )
+#else
+    if ( glXGetCurrentContext () == NULL )
+#endif
+#endif
+    {
+      fprintf ( stderr,
+      "FATAL: puInit called without a valid OpenGL context.\n");
+      exit ( 1 ) ;
+    }
+
     puInterface *base_interface = new puInterface ( 0, 0 ) ;
     puPushGroup         ( base_interface ) ;
     puPushLiveInterface ( base_interface ) ;

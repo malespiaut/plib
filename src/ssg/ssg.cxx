@@ -58,6 +58,21 @@ ssgLight *ssgGetLight ( int i )
 
 void ssgInit ()
 {
+#ifdef WIN32
+  if ( wglGetCurrentContext () == NULL )
+#else
+#if defined(macintosh)
+  if ( aglGetCurrentContext () == NULL )
+#else
+  if ( glXGetCurrentContext () == NULL )
+#endif
+#endif
+  {
+    fprintf ( stderr,
+    "FATAL: ssgInit called without a valid OpenGL context.\n");
+    exit ( 1 ) ;
+  }
+
   ssgTexturePath ( "." ) ;
   ssgModelPath   ( "." ) ;
 
