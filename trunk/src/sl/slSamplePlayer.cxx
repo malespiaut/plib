@@ -8,13 +8,20 @@ int slSamplePlayer::preempt ( int delay )
   return slPlayer::preempt ( delay ) ;
 }
 
-slSamplePlayer::~slSamplePlayer ()
-{
-  if ( sample )
-    sample -> unRef () ;
+slSamplePlayer::~slSamplePlayer () 
+{ 
+  if ( sample ) 
+    sample -> unRef () ; 
 
-  slScheduler::getCurrent() -> addCallBack ( callback, sample, SL_EVENT_COMPLETE, magic ) ;
-}
+  /* unRef() attached envelopes */ 
+  for ( int i = 0 ; i < SL_MAX_ENVELOPES ; i++ ) 
+  { 
+    if ( env [ i ] != NULL ) 
+      env [ i ] -> unRef(); 
+  } 
+
+  slScheduler::getCurrent() -> addCallBack ( callback, sample, SL_EVENT_COMPLETE, magic ) ; 
+} 
 
 void slSamplePlayer::skip ( int nframes )
 {
