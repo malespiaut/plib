@@ -638,7 +638,7 @@ void slDSP::open ( char *device, int _rate, int _stereo, int _bps )
   }
 */
 
-  init_bytes = 1024 * 8;
+  init_bytes = 1024 * 16;
 
   config = alNewConfig();
   
@@ -713,7 +713,7 @@ void slDSP::write ( void *buffer, size_t length )
   for ( int i = 0; i < (int)length; i++ )
     buf[i] = buf[i] >> 1;
 
-  alWriteFrames(port, buffer, length);
+  alWriteFrames(port, buffer, length / 2);
 }
 
 
