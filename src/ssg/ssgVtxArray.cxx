@@ -210,10 +210,14 @@ int ssgVtxArray::getNumTriangles ()
 
 
 
-void ssgVtxArray::print ( FILE *fd, char *indent )
+void ssgVtxArray::print ( FILE *fd, char *indent, int how_much )
 {
-  //ssgVtxTable::print ( fd, indent ) ;
-  //indices   -> print ( fd, indent ) ;
+	char in [ 100 ] ;
+  sprintf ( in, "%s  ", indent );
+	
+	// wk: Why were these 2 lines commented out?:
+  ssgVtxTable::print ( fd, indent, how_much ) ;
+  indices   -> print ( fd, in, how_much ) ;
 }
 
 

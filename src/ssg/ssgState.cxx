@@ -24,10 +24,12 @@ ssgState::ssgState (void)
 ssgState::~ssgState (void) {}
 
 
-void ssgState::print ( FILE *fd, char *indent )
+void ssgState::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgBase::print ( fd, indent ) ;
+	ssgBase::print ( fd, indent, how_much ) ;
 
+	if ( how_much < 2 )
+		return;
   fprintf ( fd, "%s  Translucent  = %s\n", indent, translucent?"True":"False");
   fprintf ( fd, "%s  ExternalProp = %d\n", indent, external_property_index ) ;
 }

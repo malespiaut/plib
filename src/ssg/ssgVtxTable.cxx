@@ -564,13 +564,17 @@ void ssgVtxTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
 }
 
 
-void ssgVtxTable::print ( FILE *fd, char *indent )
+void ssgVtxTable::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgLeaf  ::print ( fd, indent ) ;
-  vertices ->print ( fd, indent ) ;
-  normals  ->print ( fd, indent ) ;
-  texcoords->print ( fd, indent ) ;
-  colours  ->print ( fd, indent ) ;
+	char in [ 100 ] ;
+  sprintf ( in, "%s  ", indent );
+	
+  ssgLeaf  ::print ( fd, indent, how_much ) ;
+		
+  vertices ->print ( fd, in, how_much ) ;
+  normals  ->print ( fd, in, how_much ) ;
+  texcoords->print ( fd, in, how_much ) ;
+  colours  ->print ( fd, in, how_much ) ;
 }
 
 

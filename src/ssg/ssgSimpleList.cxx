@@ -51,9 +51,12 @@ ssgBase *ssgColourArray::clone ( int clone_flags )
 
 
  
-void ssgVertexArray::print ( FILE *fd, char *indent )
+void ssgVertexArray::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgSimpleList::print ( fd, indent ) ;
+  ssgSimpleList::print ( fd, indent, how_much ) ;
+
+	if ( how_much < 4 )
+		return;
 
   for ( unsigned int i = 0 ; i < total ; i++ )
     fprintf ( fd, "%s  V%d) { %f, %f, %f }\n", indent, i,
@@ -63,9 +66,11 @@ void ssgVertexArray::print ( FILE *fd, char *indent )
 
 
  
-void ssgNormalArray::print ( FILE *fd, char *indent )
+void ssgNormalArray::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgSimpleList::print ( fd, indent ) ;
+  ssgSimpleList::print ( fd, indent, how_much ) ;
+	if ( how_much < 4 )
+		return;
 
   for ( unsigned int i = 0 ; i < total ; i++ )
     fprintf ( fd, "%s  N%d) { %f, %f, %f }\n", indent, i,
@@ -75,9 +80,11 @@ void ssgNormalArray::print ( FILE *fd, char *indent )
 
 
  
-void ssgTexCoordArray::print ( FILE *fd, char *indent )
+void ssgTexCoordArray::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgSimpleList::print ( fd, indent ) ;
+  ssgSimpleList::print ( fd, indent, how_much ) ;
+	if ( how_much < 4 )
+		return;
 
   for ( unsigned int i = 0 ; i < total ; i++ )
     fprintf ( fd, "%s  T%d) { S=%f, T=%f }\n", indent, i,
@@ -87,9 +94,11 @@ void ssgTexCoordArray::print ( FILE *fd, char *indent )
 
 
  
-void ssgColourArray::print ( FILE *fd, char *indent )
+void ssgColourArray::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgSimpleList::print ( fd, indent ) ;
+  ssgSimpleList::print ( fd, indent, how_much ) ;
+	if ( how_much < 4 )
+		return;
 
   for ( unsigned int i = 0 ; i < total ; i++ )
     fprintf ( fd, "%s  C%d) { R=%f, G=%f, B=%f, A=%f }\n", indent, i,
@@ -98,11 +107,15 @@ void ssgColourArray::print ( FILE *fd, char *indent )
  
 
 
-void ssgSimpleList::print ( FILE *fd, char *indent )
+void ssgSimpleList::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgBase::print ( fd, indent ) ;
+  ssgBase::print ( fd, indent, how_much ) ;
 
   fprintf ( fd, "%s  Total # items = %d\n", indent, total ) ;
+
+	if ( how_much < 3 )
+		return;
+
   fprintf ( fd, "%s  Size of items = %d bytes\n", indent, size_of ) ;
 }
  
