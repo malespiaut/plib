@@ -23,6 +23,8 @@ CFG=ssg - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
 CPP=cl.exe
 RSC=rc.exe
 
@@ -182,6 +184,10 @@ SOURCE=.\ssgLoadAC.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadASC.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadASE.cxx
 # End Source File
 # Begin Source File
@@ -215,10 +221,6 @@ SOURCE=.\ssgLoadFLT.cxx
 # Begin Source File
 
 SOURCE=.\ssgLoadIV.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\ssgSaveIV.cxx
 # End Source File
 # Begin Source File
 
@@ -351,6 +353,10 @@ SOURCE=.\ssgSaveDXF.cxx
 # Begin Source File
 
 SOURCE=.\ssgSaveFLT.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgSaveIV.cxx
 # End Source File
 # Begin Source File
 
