@@ -147,7 +147,9 @@ void puArrowButton::draw ( int dx, int dy )
       glEnd      () ;
       break;
 
-    default : break ;
+    default :
+      ulSetError ( UL_WARNING, "PUI: Unrecognised 'arrow_type' %d", arrow_type ) ;
+      break;
     }
   }
 
