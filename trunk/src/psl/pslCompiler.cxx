@@ -59,6 +59,7 @@ int pslCompiler::compile ( FILE *fd )
 
   if ( num_errors != 0 )
   {
+dump () ;
     next_code = 0 ;
     pushCodeByte ( OPCODE_HALT ) ;
   }
@@ -90,6 +91,86 @@ int pslCompiler::pushReturnStatement ()
 }
 
 
+
+/* Administer the break/continue jump addresses */
+
+void pslCompiler::pushBreakToLabel ()
+{
+  if ( next_break >= MAX_LABEL-1 )
+    error ( "Too many nested 'break' contexts" ) ;
+  else
+    breakToAddressStack [ next_break++ ] = next_tmp_label++ ;
+}
+
+void pslCompiler::pushNoContinue ()
+{
+  continueToAddressStack [ next_continue++ ] = -1 ;
+}
+
+int pslCompiler::pushContinueToLabel ()
+{
+  if ( next_continue >= MAX_LABEL-1 )
+    error ( "Too many nested 'continue' contexts" ) ;
+  else
+    continueToAddressStack [ next_continue++ ] = next_tmp_label++ ;
+
+  return next_tmp_label-1 ;
+}
+
+void pslCompiler::setContinueToLabel ( int which )
+{
+  char s [ 10 ] ;
+  sprintf ( s, "L%d", which ) ;
+  setCodeSymbol ( s, next_code ) ;
+}
+
+void pslCompiler::popBreakToLabel ()
+{
+  char s [ 10 ] ;
+  sprintf ( s, "L%d", breakToAddressStack[next_break-1] ) ;
+  setCodeSymbol ( s, next_code ) ;
+  next_break-- ;
+}
+
+void pslCompiler::popContinueToLabel ()
+{
+  next_continue-- ;
+}
+
+
+
+/* Implement actual break and continue statements. */
+
+int pslCompiler::pushBreakStatement ()
+{
+  if ( next_break <= 0 )
+    return error ( "'break' statement is not inside a 'switch' or a loop." ) ;
+
+  char s [ 10 ] ;
+  sprintf ( s, "L%d", breakToAddressStack [ next_break-1 ] ) ;
+  pushJump ( getCodeSymbol ( s, next_code+1 ) ) ;
+  return TRUE ;
+}
+
+
+int pslCompiler::pushContinueStatement ()
+{
+  if ( next_break <= 0 )
+    return error ( "'continue' statement is not inside a loop." ) ;
+
+  if ( continueToAddressStack [ next_continue-1 ] < 0 )
+    return error ( "'continue' statement not allowed inside a 'switch'." ) ;
+
+  char s [ 10 ] ;
+  sprintf ( s, "L%d", continueToAddressStack [ next_continue-1 ] ) ;
+  pushJump ( getCodeSymbol ( s, next_code+1 ) ) ;
+  return TRUE ;
+}
+
+
+
+
+
 int pslCompiler::pushSwitchStatement ()
 {
   if ( ! pushExpression () )
@@ -105,6 +186,9 @@ int pslCompiler::pushSwitchStatement ()
   int jumpToNextCase = pushJump ( 0 ) ;
   int jumpAfterTest  = 0 ;
 
+  pushBreakToLabel () ;
+  pushNoContinue   () ;
+
   while ( TRUE )
   {
     getToken ( c ) ;
@@ -119,12 +203,12 @@ int pslCompiler::pushSwitchStatement ()
       pushStackDup () ;
 
       if ( ! pushExpression () )
-        return error ( "Expected expression after 'case'." ) ;
+        error ( "Missing expression after 'case'." ) ;
 
       getToken ( c ) ;
 
       if ( c[0] != ':' )
-        return error ( "Expected ':' after 'case' expression." ) ;
+        error ( "Missing ':' after 'case' expression." ) ;
 
       pushEqual () ;
 
@@ -142,12 +226,11 @@ int pslCompiler::pushSwitchStatement ()
       getToken ( c ) ;
 
       if ( c[0] != ':' )
-        return error ( "Expected ':' after 'default'." ) ;
+        error ( "Missing ':' after 'default'." ) ;
     }
     else
     if ( strcmp ( c, "}" ) == 0 )
     {
-      pushPop () ;
       ungetToken ( ";" ) ;
       break ;
     }
@@ -156,15 +239,18 @@ int pslCompiler::pushSwitchStatement ()
       ungetToken ( c ) ;
 
       if ( ! pushStatement () )
-        return error ( "Expected statement within switch." ) ;
+        error ( "Missing statement within switch." ) ;
 
       getToken ( c ) ;
 
       if ( c [ 0 ] != ';' )
-        return error ( "Missing semicolon." ) ;
+        error ( "Missing semicolon." ) ;
     }
   }
 
+  popBreakToLabel    () ;
+  popContinueToLabel () ;
+  pushPop () ;
   return TRUE ;
 }
 
@@ -175,6 +261,9 @@ int pslCompiler::pushDoWhileStatement ()
   /* Remember place to jump back to */
 
   int start_loc = next_code ;
+
+  pushBreakToLabel    () ;
+  setContinueToLabel ( pushContinueToLabel () ) ;
 
   if ( ! pushStatement () )
     return error ( "Missing statement for 'do/while'" ) ;
@@ -192,6 +281,9 @@ int pslCompiler::pushDoWhileStatement ()
     return error ( "Missing expression for 'while' in a 'do/while'" ) ;
 
   pushJumpIfTrue ( start_loc ) ;
+
+  popBreakToLabel    () ;
+  popContinueToLabel () ;
   return TRUE ;
 }
 
@@ -199,6 +291,9 @@ int pslCompiler::pushDoWhileStatement ()
 int pslCompiler::pushForStatement ()
 {
   char c [ MAX_TOKEN ] ;
+
+  pushBreakToLabel    () ;
+  int ct_lab = pushContinueToLabel () ;
 
   getToken ( c ) ;    /* The initial '(' of the action */
 
@@ -252,6 +347,8 @@ int pslCompiler::pushForStatement ()
   if ( ! pushStatement () )
     return error ( "Missing action body for 'for' loop" ) ;
  
+  setContinueToLabel ( ct_lab ) ;
+
   getToken ( c ) ;   /* Throw away the ';' */
 
   /* Put the increment test back onto the token stream */
@@ -268,6 +365,9 @@ int pslCompiler::pushForStatement ()
 
   code [ label_loc   ] = next_code & 0xFF ;
   code [ label_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
+
+  popBreakToLabel    () ;
+  popContinueToLabel () ;
   return TRUE ;
 }
 
@@ -275,6 +375,9 @@ int pslCompiler::pushForStatement ()
 int pslCompiler::pushWhileStatement ()
 {
   /* Remember place to jump back to */
+
+  pushBreakToLabel    () ;
+  setContinueToLabel ( pushContinueToLabel () ) ;
 
   int start_loc = next_code ;
 
@@ -290,6 +393,10 @@ int pslCompiler::pushWhileStatement ()
 
   code [ label_loc   ] = next_code & 0xFF ;
   code [ label_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
+
+  popBreakToLabel    () ;
+  popContinueToLabel () ;
+
   return TRUE ;
 }
 
@@ -311,7 +418,7 @@ int pslCompiler::pushIfStatement ()
   if ( c [ 0 ] != ';' )
   {
     ungetToken ( c ) ;
-    return error ( "Expected ';' or 'else' after 'if' statement" ) ;
+    return error ( "Missing ';' or 'else' after 'if' statement" ) ;
   }
 
   getToken ( c ) ;
@@ -442,21 +549,23 @@ int pslCompiler::pushStatement ()
 
   getToken ( c ) ;
 
-  if ( strcmp ( c, "static" ) == 0 ) return pushStaticVarDecl    () ;
-  if ( strcmp ( c, "string" ) == 0 ) return pushLocalVarDecl     ( PSL_STRING);
-  if ( strcmp ( c, "int"    ) == 0 ) return pushLocalVarDecl     ( PSL_INT ) ;
-  if ( strcmp ( c, "float"  ) == 0 ) return pushLocalVarDecl     ( PSL_FLOAT );
-  if ( strcmp ( c, "return" ) == 0 ) return pushReturnStatement  () ;
-  if ( strcmp ( c, "pause"  ) == 0 ) return pushPauseStatement   () ;
-  if ( strcmp ( c, "for"    ) == 0 ) return pushForStatement     () ;
-  if ( strcmp ( c, "do"     ) == 0 ) return pushDoWhileStatement () ;
-  if ( strcmp ( c, "switch" ) == 0 ) return pushSwitchStatement  () ;
-  if ( strcmp ( c, "while"  ) == 0 ) return pushWhileStatement   () ;
-  if ( strcmp ( c, "if"     ) == 0 ) return pushIfStatement      () ;
-  if ( isalnum ( c [ 0 ] )         ) return pushAssignmentStatement ( c ) ;
-  if ( c [ 0 ] == '{'              ) return pushCompoundStatement() ;
+  if ( strcmp ( c, "static"   ) == 0 ) return pushStaticVarDecl      () ;
+  if ( strcmp ( c, "string"   ) == 0 ) return pushLocalVarDecl ( PSL_STRING) ;
+  if ( strcmp ( c, "int"      ) == 0 ) return pushLocalVarDecl ( PSL_INT   ) ;
+  if ( strcmp ( c, "float"    ) == 0 ) return pushLocalVarDecl ( PSL_FLOAT ) ;
+  if ( strcmp ( c, "return"   ) == 0 ) return pushReturnStatement    () ;
+  if ( strcmp ( c, "break"    ) == 0 ) return pushBreakStatement     () ;
+  if ( strcmp ( c, "continue" ) == 0 ) return pushContinueStatement  () ;
+  if ( strcmp ( c, "pause"    ) == 0 ) return pushPauseStatement     () ;
+  if ( strcmp ( c, "for"      ) == 0 ) return pushForStatement       () ;
+  if ( strcmp ( c, "do"       ) == 0 ) return pushDoWhileStatement   () ;
+  if ( strcmp ( c, "switch"   ) == 0 ) return pushSwitchStatement    () ;
+  if ( strcmp ( c, "while"    ) == 0 ) return pushWhileStatement     () ;
+  if ( strcmp ( c, "if"       ) == 0 ) return pushIfStatement        () ;
+  if ( isalnum ( c [ 0 ] )           ) return pushAssignmentStatement(c);
+  if ( c [ 0 ] == '{'                ) return pushCompoundStatement  () ;
 
-  if ( strcmp ( c, "case"    ) == 0 || strcmp ( c, "default" ) == 0 )
+  if ( strcmp ( c, "case"     ) == 0 || strcmp ( c, "default" ) == 0 )
     return error ( "'%s' encountered - not inside 'switch' statement", c ) ;
 
   ungetToken ( c ) ;

@@ -106,6 +106,9 @@ class pslCompiler
 
   /* Top level parsers. */
 
+  int  pushBreakStatement      () ;
+  int  pushContinueStatement   () ;
+
   int  pushReturnStatement     () ;
   int  pushPauseStatement      () ;
   int  pushSwitchStatement     () ;
@@ -130,6 +133,20 @@ class pslCompiler
 
   pslAddress getVarSymbol       ( const char *s ) ;
   pslAddress setVarSymbol       ( const char *s ) ;
+
+  int breakToAddressStack    [ MAX_LABEL ] ;
+  int continueToAddressStack [ MAX_LABEL ] ;
+  int next_break     ;
+  int next_tmp_label ;
+  int next_continue  ;
+
+  void pushBreakToLabel    () ;
+  int  pushContinueToLabel () ;
+  void  setContinueToLabel ( int which ) ;
+  void pushNoContinue      () ;
+
+  void popBreakToLabel     () ;
+  void popContinueToLabel  () ;
 
   pslAddress getCodeSymbol      ( const char *s, pslAddress fixupLoc ) ;
   void       setCodeSymbol      ( const char *s, pslAddress v ) ;
@@ -250,11 +267,15 @@ public:
     num_errors = num_warnings = 0 ;
 
     locality_sp = 0 ;
-    next_fwdref = 0 ;
-    next_label = 0 ;
+
+    next_continue = 0 ;
+    next_break    = 0 ;
+    next_tmp_label= 0 ;
+    next_fwdref   = 0 ;
+    next_label    = 0 ;
     next_code_symbol = 0 ;
-    next_code  = 0 ;
-    next_var   = 0 ;
+    next_code     = 0 ;
+    next_var      = 0 ;
   }
 
   void dump () const ;
