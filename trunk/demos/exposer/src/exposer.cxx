@@ -9,6 +9,7 @@ int scroll_controllers = 0 ;
 unsigned int floor_texhandle =  0 ;
        float floor_z_coord   = -1 ;
 
+TimeBox *timebox = NULL ;
 puFileSelector *file_selector = NULL ;
 puButton *dialog_button  = NULL ;
 
@@ -93,7 +94,7 @@ void update_motion ()
   sgNegateVec3 ( vec ) ;
   sgCopyVec3 ( mat[3], vec ) ;
   ssgSetCamera ( mat ) ;
-  transformModel ( boneScene, getCursor () ) ;
+  transformModel ( boneScene, timebox->getCursorTime () ) ;
 }
 
 
@@ -126,7 +127,7 @@ static void passmotionfn ( int x, int y )
 static void motionfn ( int x, int y )
 {
   puMouse ( x, y ) ;
-  updateEventQueue ( curr_button, x, y, FALSE ) ;
+  timebox->updateEventQueue ( curr_button, x, y, FALSE ) ;
 }
  
 
@@ -135,7 +136,7 @@ static void mousefn ( int button, int updown, int x, int y )
   puMouse ( button, updown, x, y ) ;
 
   curr_button = button ;
-  updateEventQueue ( curr_button, x, y, updown == PU_DOWN ) ;
+  timebox->updateEventQueue ( curr_button, x, y, updown == PU_DOWN ) ;
 }
 
 
@@ -214,8 +215,8 @@ void bnsavepickfn ( puObject * )
   }
 
   fprintf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
-                        getNumBones(), getNumEvents(), getMaxTime (),
-                        -floor_z_coord, getVCRGroundSpeed() ) ;
+                        getNumBones(), getNumEvents(), timebox->getMaxTime (),
+                        -floor_z_coord, timebox->getVCRGroundSpeed() ) ;
 
   for ( i = 0 ; i < getNumBones () ; i++ )
     getBone ( i ) -> write ( fd ) ;
@@ -285,7 +286,7 @@ void bnpickfn ( puObject * )
     return ;
   }
 
-  deleteAll () ;
+  timebox->deleteAll () ;
 
   int numbones, numevents ;
   float tmp_floor_z_coord, maxtime, new_ground_speed ;
@@ -296,8 +297,8 @@ void bnpickfn ( puObject * )
                 &numbones, &numevents,
                 &maxtime, &tmp_floor_z_coord, &new_ground_speed ) ;
 
-  setMaxTime ( maxtime ) ;
-  setVCRGroundSpeed ( new_ground_speed ) ;
+  timebox->setMaxTime ( maxtime ) ;
+  timebox->setVCRGroundSpeed ( new_ground_speed ) ;
 
   if ( numbones != getNumBones () )
   {
@@ -424,7 +425,7 @@ void pickfn ( puObject * )
   boneScene -> addKid ( extractBones ( skinScene ) ) ;
 
   extractVertices ( skinScene ) ;
-  deleteAll () ;
+  timebox->deleteAll () ;
 
   Event *e = new Event ( getNumBones(), 0.0f ) ;
   addEvent ( e ) ;
@@ -526,6 +527,25 @@ void exitCB ( puObject *ob )
 }
 
 
+
+/*
+  CALLBACK FUNCTIONS FOR GUI.
+*/
+ 
+void reverseRegionCB (puObject *) { timebox -> reverseRegion () ; }
+void deleteAllCB ( puObject * ) { timebox -> deleteAll () ; }
+void deleteRegionCB (puObject *) { timebox -> deleteRegion () ; }
+void deleteRegionAndCompressCB ( puObject * ) { timebox -> deleteRegionAndCompress () ; }
+void zoom_nrm_CB ( puObject * ) { timebox -> setZoom ( 1.0f ) ; }
+void zoom_in_CB  ( puObject * ) { timebox -> setZoom ( timebox -> getZoom () * 1.5 ) ; }
+void zoom_out_CB ( puObject * ) { float scale = timebox -> getZoom () / 1.5 ; timebox -> setZoom ( ( scale <= 1.0f ) ? 1.0f : scale ) ; }
+void add_1_CB ( puObject * ) { timebox -> setMaxTime ( timebox -> getMaxTime () + 1.0f ) ; }
+void add_2_CB ( puObject * ) { timebox -> setMaxTime ( timebox -> getMaxTime () + 2.0f ) ; }
+void add_5_CB ( puObject * ) { timebox -> setMaxTime ( timebox -> getMaxTime () + 5.0f ) ; }
+void deleteEventCB (puObject *) { timebox -> deleteEvent () ; }
+void addNewEventCB (puObject *) { timebox -> addNewEvent () ; }
+
+
 void drawFloor ()
 {
   glMatrixMode ( GL_PROJECTION ) ;
@@ -539,13 +559,13 @@ void drawFloor ()
   glBindTexture ( GL_TEXTURE_2D, floor_texhandle ) ;
   glColor4f ( 1, 1, 1, 1 ) ;
   glBegin ( GL_QUADS ) ;
-  glTexCoord2f ( -30, getVCRGroundPosition() - 30 ) ;
+  glTexCoord2f ( -30, timebox->getVCRGroundPosition() - 30 ) ;
   glVertex3f ( -30, -30, floor_z_coord ) ;
-  glTexCoord2f (  30, getVCRGroundPosition() - 30 ) ;
+  glTexCoord2f (  30, timebox->getVCRGroundPosition() - 30 ) ;
   glVertex3f (  30, -30, floor_z_coord ) ;
-  glTexCoord2f (  30, getVCRGroundPosition() + 30 ) ;
+  glTexCoord2f (  30, timebox->getVCRGroundPosition() + 30 ) ;
   glVertex3f (  30,  30, floor_z_coord ) ;
-  glTexCoord2f ( -30, getVCRGroundPosition() + 30 ) ;
+  glTexCoord2f ( -30, timebox->getVCRGroundPosition() + 30 ) ;
   glVertex3f ( -30,  30, floor_z_coord ) ;
   glEnd () ;
   glDisable ( GL_TEXTURE_2D ) ;
@@ -561,7 +581,7 @@ void redraw ()
 {
   int i ;
 
-  updateVCR () ;
+  timebox->updateVCR () ;
   update_motion () ;
 
   glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
@@ -616,7 +636,7 @@ void redraw ()
 
   puDisplay () ;
 
-  drawTimeBox () ;
+  timebox->draw () ;
 
   glutPostRedisplay () ;
   glutSwapBuffers   () ;
@@ -727,7 +747,9 @@ void init_graphics ()
   sgSetVec3 ( sunposn, 0.2f, 0.5f, 0.5f ) ;
   ssgGetLight ( 0 ) -> setPosition ( sunposn ) ;
 
-  /* File I/O. */
+  /* GUI setup. */
+
+  timebox = new TimeBox () ;
 
   menuBar = new puMenuBar () ;
   {
@@ -742,8 +764,6 @@ void init_graphics ()
   show_angle   -> rejectInput () ;
   message      =  new puText    ( 80, 560 ) ;
   message      -> setLabel      ( "Angle"  ) ;
-
-  initTimeBox () ;
 
   scroller     =  new puSlider  ( 5, 70, 400, TRUE ) ;
   scroller     -> setCBMode     ( PUSLIDER_DELTA   ) ;
