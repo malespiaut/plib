@@ -778,6 +778,9 @@ static void safe_replace_kid ( ssgBranch *parent, ssgEntity *old_kid, ssgEntity 
     If parent is null then loop over all parents of old_kid.
   */
 
+  if ( old_kid == new_kid )
+    return ;
+
   if ( parent == NULL )
   {
     int n = old_kid -> getNumParents () ;
@@ -786,26 +789,20 @@ static void safe_replace_kid ( ssgBranch *parent, ssgEntity *old_kid, ssgEntity 
     return ;
   }
 
-  assert ( parent -> searchForKid ( old_kid ) >= 0 ) ;
+  // assert ( parent -> searchForKid ( old_kid ) >= 0 ) ;
 
   if ( new_kid == NULL )
   {
-    if ( parent -> isAKindOf ( ssgTypeRangeSelector () ) )
-    {
-      ssgRangeSelector *s = (ssgRangeSelector *) parent ;
-      for ( int i = s -> searchForKid ( old_kid ) ; 
-	        i < s -> getNumKids () ; i++ )
-	s -> setRange ( i, s -> getRange ( i + 1 ) ) ;
-    }
-
-    else if ( parent -> isAKindOf ( ssgTypeSelector () ) )
+    if ( parent -> isAKindOf ( ssgTypeSelector () ) )
     { 
-      /* ssgTimedSelector among others -- jarnspikar */
-      parent -> replaceKid ( old_kid, new ssgInvisible ) ;
-      return ;
+      /* cannot remove kids from selectors */
+      static ssgInvisible empty ;
+      parent -> replaceKid ( old_kid, &empty ) ;
     }
-
-    parent -> removeKid ( old_kid ) ;
+    else
+    {
+      parent -> removeKid ( old_kid ) ;
+    }
   }
   else
   {
