@@ -167,6 +167,7 @@ typedef unsigned int uint;
 
 #if !defined(BYTE_ORDER) || BYTE_ORDER != BIG_ENDIAN
 
+#if !defined(BYTE_ORDER)
 static void _swab16(const void *src, void *dst, int n)
 {
    ushort *s = (ushort *)src;
@@ -177,6 +178,7 @@ static void _swab16(const void *src, void *dst, int n)
 	      ((t & 0x00ffU) << 8));
    }
 }
+#endif
 
 static void _swab32(const void *src, void *dst, int n)
 {
@@ -1863,7 +1865,8 @@ static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
 }
 
 /* link nodes while removing crap (post traversal) */
-static void PostLink(ssgEntity **stack, fltNodeAttr **attr)
+static void PostLink(ssgEntity **stack, fltNodeAttr **attr, 
+		     int instance, fltState *state)
 {
 #if 0
    ulSetError(UL_DEBUG, "PostLink: %s %s <-- %s %s",
@@ -1879,14 +1882,28 @@ static void PostLink(ssgEntity **stack, fltNodeAttr **attr)
       return;
    }
    assert(!stack[1]->isA(0xDeadBeef));
+
+   stack[1] = PostClean(stack[1], attr[1]);
+   
+   if (stack[1] && instance >= 0) {
+       state->refs = sinsert(state->refs, (void *)instance, 0, ptrcmp);
+       if (state->refs->data != (void *)-1) {
+	   ulSetError(UL_WARNING, "[flt] Instance %d redefined.", instance);
+	   ssgDeRefDelete((ssgEntity *) state->refs->data);
+       }
+       state->refs->data = stack[1];
+       stack[1]->ref();
+   }
    
    if (stack[0] == 0) {
-      stack[0] = stack[1]; /* delay further processing */
-      attr[0] = attr[1];
+      stack[0] = stack[1];
+      if (attr[0]) {
+	  delete attr[0];
+	  attr[0] = 0;
+      }
    }
    else {
       assert(!stack[0]->isA(0xDeadBeef));
-      stack[1] = PostClean(stack[1], attr[1]);
       if (stack[1]) {
          if (stack[0]->isAKindOf(ssgTypeBranch())) {
 	    ((ssgBranch *)stack[0])->addKid(stack[1]);
@@ -1899,6 +1916,7 @@ static void PostLink(ssgEntity **stack, fltNodeAttr **attr)
          }
       }
    }
+
    stack[1] = 0;
    attr[1] = 0;
 }
@@ -2026,13 +2044,16 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 {
    ssgEntity *stack[MAXDEPTH + 1];
    fltNodeAttr *attr[MAXDEPTH + 1];
+   int instance[MAXDEPTH + 1];
    int sp, op, len, k;
 
    stack[0] = new ssgBranch;
    stack[0]->setName("reserved");
    attr[0] = 0;
+   instance[0] = -1;
    stack[1] = 0;
    attr[1] = 0;
+   instance[1] = -1;
    sp = 1;
 
    for (;;) {
@@ -2045,6 +2066,12 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
       len = get16u(ptr + 2);
       if (len < 4 || (len & 3) != 0 || ptr + len > end)
          break;
+
+#if 0
+      for (int i = 0; i < sp; i++)
+	  putchar('\t');
+      printf("op %d\n", op);
+#endif
       
       switch (op) {
 
@@ -2052,7 +2079,8 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
          if (stack[sp] && !stack[sp]->isAKindOf(ssgTypeBranch())) {
             /* shouldn't happen */
             ulSetError(UL_DEBUG, "[flt] Objects are not allowed to contain other objects or groups.");
-            PostLink(stack + sp - 1, attr + sp - 1);
+            PostLink(stack + sp - 1, attr + sp - 1, instance[sp], state);
+	    instance[sp] = -1;
          }
 	 if (sp >= MAXDEPTH) {
 	    ulSetError(UL_WARNING, "[flt] Stack overflow.");
@@ -2061,6 +2089,7 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 	    sp++;
 	    stack[sp] = 0;
 	    attr[sp] = 0;
+	    instance[sp] = -1;
 	 }
 	 ptr += len;
          break;
@@ -2069,8 +2098,8 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
          if (sp == 1) 
             ulSetError(UL_WARNING, "[flt] Stack underflow.");
          else {
-            PostLink(stack + sp - 1, attr + sp - 1);
-            sp--;            
+            PostLink(stack + sp - 1, attr + sp - 1, instance[sp], state);
+            sp--;
          }
          ptr += len;
          break;
@@ -2104,7 +2133,8 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 
 	 int flags = get32i(ptr + 12);
 	 int trans = get16u(ptr + 18);
-         PostLink(stack + sp - 1, attr + sp - 1);
+         PostLink(stack + sp - 1, attr + sp - 1, instance[sp], state);
+	 instance[sp] = -1;
          ptr += len;
          ptr += AttrChunks(ptr, end, &attr[sp]);
 	 state->parent_name = (char *)ptr + 4; /* OK?? */
@@ -2118,7 +2148,8 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
       case 5: /* Face */
          /* polygons are not allowed to be outside objects, but this rule is not always respected */
 	 //ulSetError(UL_DEBUG, "[flt] Implicit object.");
-         PostLink(stack + sp - 1, attr + sp - 1);
+         PostLink(stack + sp - 1, attr + sp - 1, instance[sp], state);
+	 instance[sp] = -1;
          ptr += GeomChunks(ptr, end, state, &stack[sp], 0, 0);
          break;
 
@@ -2128,7 +2159,8 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
       case 96: /* Switch */
       case 98: /* Clip Region */
 
-         PostLink(stack + sp - 1, attr + sp - 1);
+         PostLink(stack + sp - 1, attr + sp - 1, instance[sp], state);
+	 instance[sp] = -1;
 
 	 switch (op) {
 
@@ -2202,20 +2234,23 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 
       case 61: /* Instance Reference */
          k = get16u(ptr + 6);
-         /*ulSetError(UL_DEBUG, "[flt] instance reference %d", k);*/
-         PostLink(stack + sp - 1, attr + sp - 1);	 
-         if (state->refs) {
-	    state->refs = splay(state->refs, (void *)k, ptrcmp);
-	    if (state->refs->key == (void *)k)
-	       stack[sp] = (ssgEntity *)state->refs->data;
+	 if (k != instance[sp]) { // current instance inserted by default
+	     PostLink(stack + sp - 1, attr + sp - 1, instance[sp], state);
+	     instance[sp] = -1;
+	     if (state->refs) {
+		 state->refs = splay(state->refs, (void *)k, ptrcmp);
+		 if (state->refs->key == (void *)k) {
+		     stack[sp] = (ssgEntity *)state->refs->data;
+		 }
+	     }
 	 }
-         ptr += len;
+	 ptr += len;
          ptr += AttrChunks(ptr, end, &attr[sp]);
          break;
 
       case 62: /* Instance Definition */
          k = get16u(ptr + 6);
-         /*ulSetError(UL_DEBUG, "[flt] instance definition %d", k);*/
+#if 0	 
          if (stack[sp]) {
 	    state->refs = sinsert(state->refs, (void *)k, 0, ptrcmp);
 	    if (state->refs->data == (void *)-1) {
@@ -2223,12 +2258,20 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 	       stack[sp]->ref();
 	    }
 	 }
+	 else 
+	 {
+	     ulSetError(UL_DEBUG, "[flt] yeah, but the node is empty!");
+	 }
+#else	 
+	 instance[sp] = k;
+#endif
          ptr += len;
          break;
 
       case 63: /* External Reference */
          /*ulSetError(UL_DEBUG, "external reference %s", ptr + 4);*/
-         PostLink(stack + sp - 1, attr + sp - 1);
+         PostLink(stack + sp - 1, attr + sp - 1, instance[sp], state);
+	 instance[sp] = -1;
          if (!NoExternals) {
             char *file = (char *)ptr + 4, *p;
 	    if ((p = strrchr(file, '/')))
@@ -2272,7 +2315,7 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 
    /* pop stack (expected one iteration but may be more for incomplete databases) */
    while (sp-- > 0)
-      PostLink(stack + sp, attr + sp);
+      PostLink(stack + sp, attr + sp, -1, 0);
    
    if (stack[0])
       stack[0] = PostClean(stack[0], attr[0]);
