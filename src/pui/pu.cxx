@@ -188,10 +188,8 @@ static puObject *objects_to_delete = NULL;
 
 void puDeleteObject ( puObject *ob )
 {
-  ob -> setPrevObject ( NULL ) ;            // Add to linked list to be deleted
   ob -> setNextObject ( objects_to_delete ) ;
   objects_to_delete = ob ;
-  ob -> setParent ( NULL ) ;
 }
 
 
