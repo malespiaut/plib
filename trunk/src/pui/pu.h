@@ -25,6 +25,7 @@
 #define _PU_H_ 1
 
 #include "fnt.h"
+#include "ulRTTI.h"
 
 /*
   Configuration
@@ -378,7 +379,7 @@ extern int puGetPressedButton () ;
 
 class puValue
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int   type    ;
@@ -522,6 +523,9 @@ public:
   float getFloatValue ( void )   { re_eval () ; return *getFloaterp () ; }
   char  getCharValue ( void )    { re_eval () ; return getStringp ()[0]; }
   char *getStringValue ( void )  { re_eval () ; return getStringp   () ; }
+
+  /* RTTI */
+  ulRTTItypeid getTypeInfo ( void ) const { return RTTI_vinfo () ; }
 } ;
 
 typedef void (*puCallback)(class puObject *) ;
@@ -551,7 +555,7 @@ inline void puGetDefaultColorScheme ( float *r, float *g, float *b, float *a = N
 
 class puObject : public puValue
 {
-  
+  UL_TYPE_DATA
 
 protected:
   puValue default_value ;
@@ -836,7 +840,7 @@ puGroup *puGetCurrGroup ( void ) ;
 
 class puGroup : public puObject
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int num_children ;
@@ -932,7 +936,7 @@ public:
 
 class puInterface : public puGroup
 {
-  
+  UL_TYPE_DATA
 
 public:
 
@@ -948,7 +952,7 @@ public:
 
 class puFrame : public puObject
 {
-  
+  UL_TYPE_DATA
 
 public:
   void draw ( int dx, int dy ) ;
@@ -977,7 +981,7 @@ public:
 
 class puText : public puObject
 {
-  
+  UL_TYPE_DATA
 
 public:
   virtual int  isHit ( int /* x */, int /* y */ ) const { return FALSE ; }
@@ -991,7 +995,7 @@ public:
 
 class puButton : public puObject
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int button_type ;
@@ -1024,7 +1028,7 @@ public:
 
 class puOneShot : public puButton
 {
-  
+  UL_TYPE_DATA
 
 protected:
 public:
@@ -1046,7 +1050,7 @@ public:
 
 class puArrowButton : public puOneShot
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int arrow_type ;
@@ -1067,7 +1071,7 @@ public:
 
 class puRange : public puObject
 {
-
+  UL_TYPE_DATA
 
 protected:
   float minimum_value ;
@@ -1141,6 +1145,8 @@ public:
 
 class puSlider : public puRange
 {
+  UL_TYPE_DATA
+
 protected:
   int vert ;
   float slider_fraction ;
@@ -1193,7 +1199,7 @@ public:
 
 class puBiSlider : public puSlider
 {
-  
+  UL_TYPE_DATA
 
 protected:
   float current_max ;
@@ -1260,7 +1266,7 @@ public:
 
 class puTriSlider : public puBiSlider
 {
-  
+  UL_TYPE_DATA
 
 protected:
   // "active_button" is now zero for none, one for min, two for middle, three for max
@@ -1291,7 +1297,7 @@ public:
 
 class puScrollBar : public puSlider
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int arrow_count ;
@@ -1340,7 +1346,7 @@ public:
 
 class puListBox : public puButton
 {
-  
+  UL_TYPE_DATA
 
 protected:
   char ** list ;
@@ -1368,6 +1374,8 @@ public:
 
 class puDial : public puRange
 {
+  UL_TYPE_DATA
+
 protected:
   int wrap ;  // Flag telling whether you can wrap around the bottom of the dial
 public:
@@ -1398,7 +1406,7 @@ public:
 
 class puPopup : public puInterface
 {
-  
+  UL_TYPE_DATA
 
 protected:
 public:
@@ -1412,7 +1420,7 @@ public:
 
 class puPopupMenu : public puPopup
 {
-  
+  UL_TYPE_DATA
 
 protected:
 public:
@@ -1430,7 +1438,7 @@ public:
 
 class puMenuBar : public puInterface
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int bar_height ;
@@ -1450,7 +1458,7 @@ public:
 
 class puVerticalMenu : public puGroup
 {
-  
+  UL_TYPE_DATA
 
 protected:
 public:
@@ -1476,7 +1484,7 @@ public:
 
 class puInput : public puObject
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int accepting ;
@@ -1594,6 +1602,8 @@ public:
 
 class puSpinBox : public puRange
 {
+  UL_TYPE_DATA
+
 protected :
   puInput *input_box ;
 
@@ -1663,7 +1673,7 @@ public :
 
 class puButtonBox : public puObject
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int one_only ;
@@ -1688,7 +1698,7 @@ public:
 
 class puDialogBox : public puPopup
 {
-  
+  UL_TYPE_DATA
 
 protected:
 public:
@@ -1703,7 +1713,7 @@ public:
 
 class puFilePicker : public puDialogBox
 {
-  
+  UL_TYPE_DATA
 
 protected:
   char** files ;
@@ -1774,7 +1784,7 @@ public:
 
 class puFileSelector : public puDialogBox
 {
-  
+  UL_TYPE_DATA
 
 protected:
   char** files ;
@@ -1846,7 +1856,7 @@ public:
 
 class puLargeInput : public puInput
 {
-  
+  UL_TYPE_DATA
 
 protected:
   int num_lines ;              // Number of lines of text in the box
@@ -1932,7 +1942,7 @@ public:
 
 class puComboBox : public puGroup
 {
-  
+  UL_TYPE_DATA
 
 protected:
   char ** list  ;
@@ -1989,7 +1999,7 @@ public:
 
 class puSelectBox : public puGroup
 {
-  
+  UL_TYPE_DATA
 
 protected:
   char ** list  ;

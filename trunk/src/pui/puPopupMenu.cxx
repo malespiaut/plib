@@ -24,6 +24,9 @@
 
 #include "puLocal.h"
 
+UL_RTTI_DEF1(puPopupMenu,puPopup)
+
+
 puObject *puPopupMenu::add_item ( const char *str, puCallback _cb )
 {
   int w, h ;
