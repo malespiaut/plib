@@ -478,6 +478,8 @@ the puObject base class:
   #define PUCLASS_TRISLIDER
   #define PUCLASS_VERTMENU
   #define PUCLASS_LARGEINPUT
+  #define PUCLASS_COMBOBOX
+  #define PUCLASS_SELECTBOX
 
 </pre>
 Hence, if you declare an object of (say) class <a href="#puOneShot">puOneShot</a>, then calling
@@ -734,8 +736,8 @@ need to set the colours individually.
 </pre>
 Please note that these routines only affect the appearance of the widget
 itself in case of classes that contain subwidgets and are not menu
-widgets (currently <a href="#puFileSelector">puFileSelector</a>, <a href="#puLargeInput">puLargeInput</a> and the obsolete
-<a href="#puFilePicker">puFilePicker</a> class).
+widgets (currently <a href="#puFileSelector">puFileSelector</a>, <a href="#puLargeInput">puLargeInput</a>, <a href="#puComboBox">puComboBox</a>,
+<a href="#puSelectBox">puSelectBox</a> and the obsolete <a href="#puFilePicker">puFilePicker</a> class).
 <p>
 However, these classes are all derived directly or indirectly from
 <a href="#puGroup">puGroup</a>, and thus you can use the appropriate <a href="#puGroup">puGroup</a> functions in
