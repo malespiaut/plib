@@ -38,6 +38,11 @@
 #include "ssgLocal.h"
 #include "ssgParser.h"
 
+#ifndef _WIN32
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+#endif
+
 #define u32 unsigned int
 #define f32 float
 #define cchar const char
