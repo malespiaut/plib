@@ -1,3 +1,8 @@
+#ifdef WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 #include <GL/glut.h>
 #include "plib/ssg.h"
 #include "WavingFlag.h"
