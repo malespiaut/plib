@@ -389,16 +389,18 @@ int puInput::checkKey ( int key, int /* updown */ )
         break ;
 
       case 0x16 /* ^V */ : /* Paste buffer into text */
-        if ( select_start_position != select_end_position )
-          removeSelectRegion () ;
+        {
+          if ( select_start_position != select_end_position )
+            removeSelectRegion () ;
 
-        p = new char [  strlen ( getStringValue () )
-                      + strlen ( puGetPasteBuffer () )
-                      + 1 ] ;
-        strncpy ( p, getStringValue (), cursor_position ) ;
-        strcpy ( p + cursor_position, puGetPasteBuffer () ) ;
-        strcat ( p, getStringValue () + cursor_position ) ;
-        cursor_position += strlen ( puGetPasteBuffer () ) ;
+          int str_val_len = strlen ( getStringValue () ) ;
+          int paste_len = strlen ( puGetPasteBuffer () ) ;
+          p = new char [  str_val_len + paste_len + 1 ] ;
+          memcpy ( p, getStringValue (), cursor_position ) ;
+          memcpy ( p + cursor_position, puGetPasteBuffer (), paste_len ) ;
+          memcpy ( p + cursor_position + paste_len, getStringValue () + cursor_position, str_val_len - cursor_position + 1 ) ;
+          cursor_position += paste_len ;
+        }
 
         break ;
 
@@ -432,4 +434,41 @@ int puInput::checkKey ( int key, int /* updown */ )
   return TRUE ;
 }
 
+
+void puInput::addValidData ( const char *data )
+{
+  int valid_len    = valid_data != NULL ? strlen ( valid_data ) : 0 ;
+  int data_len     = data       != NULL ? strlen ( data       ) : 0 ;
+  int new_data_len = valid_len + data_len ;
+
+  char *new_data = new char [ new_data_len + 1 ] ;
+
+  if ( valid_len != 0 )
+    memcpy ( new_data, valid_data, valid_len ) ;
+  if ( data_len  != 0 )
+    memcpy ( new_data + valid_len, data, data_len ) ;
+
+  new_data [ new_data_len ] = '\0' ;
+  delete [] valid_data ;
+  valid_data = new_data ;
+}
+
+
+puInput::puInput ( int minx, int miny, int maxx, int maxy ) :
+   puObject ( minx, miny, maxx, maxy )
+{
+  type |= PUCLASS_INPUT ;
+
+  accepting = FALSE ;
+
+  cursor_position       =  0 ;
+  select_start_position = -1 ;
+  select_end_position   = -1 ;
+
+  valid_data = NULL ;
+  input_disabled = FALSE ;
+
+  setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
+  setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; /* Colour of 'I' bar cursor */
+}
 

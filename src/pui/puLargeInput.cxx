@@ -77,11 +77,11 @@ void puLargeInput::normalize_cursors ( void )
 void puLargeInput::removeSelectRegion ( void )
 {
   char *text = getStringValue () ;
-  char *p = new char [ strlen ( text ) + 1 -
+  int text_len = strlen ( text ) ;
+  char *p = new char [ text_len + 1 -
                            ( select_end_position - select_start_position ) ] ;
-  strncpy ( p, text, select_start_position ) ;
-  p [ select_start_position ] = '\0' ;
-  strcat ( p, (text + select_end_position ) ) ;
+  memcpy ( p, text, select_start_position ) ;
+  memcpy ( p + select_start_position, text + select_end_position, text_len - select_end_position + 1 ) ;
   setValue ( p ) ;
   delete [] p ;
 
@@ -253,25 +253,33 @@ void  puLargeInput::addText ( const char *l )
 {
   char *text = getStringValue () ;
 
-  if ( !l ) return ;
+  if ( l == NULL ) return ;
 
-  int length = strlen ( l ) + strlen ( text )  /* Length of the final string */
+  int l_len = strlen ( l ) ;
+  int text_len = strlen ( text ) ;
+  int length = l_len + text_len  /* Length of the final string */
                + select_start_position - select_end_position + 2 ;
-  if ( *(l+strlen(l)-1) == '\n' ) length -- ;           // Decrement "length" for each final
+  if ( *(l+l_len-1) == '\n' ) length -- ;           // Decrement "length" for each final
   if ( text[select_end_position] == '\n' ) length -- ;  // carriage return already there
 
   char *temp_text = new char [ length ] ;
 
-  strncpy ( temp_text, text, select_start_position ) ;
-  *(temp_text+select_start_position) = '\0' ;
+  memcpy ( temp_text, text, select_start_position ) ;
+  memcpy ( temp_text + select_start_position, l, l_len + 1 ) ;  /* Plus one to get the final '\0' */
+  int temp_text_len = select_start_position + l_len ;
 
-  strcat ( temp_text, l ) ;
-  if ( ( *(l+strlen(l)-1) == '\n' ) && ( text[select_end_position] == '\n' ) )
-    temp_text[strlen(temp_text)-1] = '\0' ;  /* Erase the duplicate carriage return */
-  else if ( ( *(l+strlen(l)-1) != '\n' ) && ( text[select_end_position] != '\n' ) )
-    strcat ( temp_text, "\n" ) ;  /* Add a carriage return */
+  if ( ( *(l+l_len-1) == '\n' ) && ( text[select_end_position] == '\n' ) )
+  {
+    temp_text[temp_text_len-1] = '\0' ;  /* Erase the duplicate carriage return */
+    temp_text_len -- ;
+  }
+  else if ( ( *(l+l_len-1) != '\n' ) && ( text[select_end_position] != '\n' ) )
+  {
+    strcpy ( temp_text + temp_text_len, "\n" ) ;  /* Add a carriage return */
+    temp_text_len ++ ;
+  }
 
-  strcat ( temp_text, (text+select_end_position) ) ;
+  memcpy ( temp_text + temp_text_len, text + select_end_position, text_len - select_end_position + 1 ) ;
   int temp_select_start = select_start_position ;
   setValue ( temp_text ) ;
   delete [] temp_text ;
@@ -284,34 +292,43 @@ void  puLargeInput::appendText ( const char *l )
 {
   if ( !l ) return ;
 
-  int oldlen = strlen ( getStringValue () ) ;
-  if ( oldlen == 1 ) oldlen = 0 ;  /* Don't want null line at the beginning */
-  int length = oldlen + strlen ( l ) + 2 ;
-  if ( *(l+strlen(l)-1) == '\n' ) length -- ;  /* Already have a trailing carriage return, decrement the length */
+  int str_val_len = strlen ( getStringValue () ) ;
+  int l_len = strlen ( l ) ;
+  if ( str_val_len == 1 ) str_val_len = 0 ;  /* Don't want null line at the beginning */
+  int length = str_val_len + l_len + 2 ;
+  if ( *(l+l_len-1) == '\n' ) length -- ;  /* Already have a trailing carriage return, decrement the length */
 
   char *temp_text = new char [ length ] ;
+  int temp_text_len ;
 
-  if ( oldlen > 0 )  /* More than just the empty carriage return */
-    strcpy ( temp_text, getStringValue () ) ;
+  if ( str_val_len > 0 )  /* More than just the empty carriage return */
+  {
+    memcpy ( temp_text, getStringValue (), str_val_len ) ;
+    temp_text_len = str_val_len ;
+  }
   else
-    temp_text[0] = '\0' ;
+    temp_text_len = 0 ;
 
-  strcat ( temp_text, l ) ;
-  if ( *(l+strlen(l)-1) != '\n' )
-    strcat ( temp_text, "\n" ) ;
+  memcpy ( temp_text + temp_text_len, l, l_len + 1 ) ;  /* Plus one to get the final '\0' */
+  temp_text_len += l_len ;
+  if ( *(l+l_len-1) != '\n' )
+  {
+    strcpy ( temp_text + temp_text_len, "\n" ) ;
+    temp_text_len ++ ;
+  }
 
   setValue ( temp_text ) ;
-  setSelectRegion ( oldlen, strlen(temp_text) ) ;
-  setCursor ( oldlen ) ;
+  setSelectRegion ( str_val_len, temp_text_len ) ;
+  setCursor ( str_val_len ) ;
   delete [] temp_text ;
 }
 
 void  puLargeInput::removeText ( int start, int end )
 {
-  char *temp_text = new char [ strlen(getStringValue ()) + start - end + 1 ] ;
-  strncpy ( temp_text, getStringValue (), start ) ;
-  temp_text[start] = '\0' ;
-  strcat ( temp_text, getStringValue ()+end ) ;
+  int str_val_len = strlen ( getStringValue () ) ;
+  char *temp_text = new char [ str_val_len + start - end + 1 ] ;
+  memcpy ( temp_text, getStringValue (), start ) ;
+  memcpy ( temp_text + start, getStringValue ()+end, str_val_len - end + 1 ) ;  /* Plus one to get the final '\0' */
   setValue ( temp_text ) ;
   setCursor ( start ) ;
   setSelectRegion ( start, start ) ;
@@ -323,7 +340,7 @@ void  puLargeInput::setValue ( const char *s )
   if ( bottom_slider ) bottom_slider->setSliderFraction ( 0.0f ) ;
   right_slider->setSliderFraction ( 0.0f ) ;
 
-  if ( !s )
+  if ( s == NULL )
   {
     puValue::setValue ( "\n" ) ;
     num_lines = 0 ;
@@ -331,14 +348,15 @@ void  puLargeInput::setValue ( const char *s )
     return ;
   }
 
-  int length = strlen ( s ) + 2 ;
-  if ( ( strlen(s) > 0 ) && ( *(s+strlen(s)-1) == '\n' ) )
+  int s_len = strlen ( s ) ;
+  int length = s_len + 2 ;
+  if ( ( s_len > 0 ) && ( *(s+s_len-1) == '\n' ) )
     length -- ;  /* Already have a trailing carriage return, don't need to add one */
 
   char *text = new char [ length ] ;
-  strcpy ( text, s ) ;
-  if ( ( s [ 0 ] == '\0' ) || ( *(s+strlen(s)-1) != '\n' ) )
-    strcat ( text, "\n" ) ;
+  memcpy ( text, s, s_len + 1 ) ;  /* Plus one to get the final '\0' */
+  if ( ( s [ 0 ] == '\0' ) || ( *(s+s_len-1) != '\n' ) )
+    strcpy ( text + s_len, "\n" ) ;
 
   puValue::setValue ( text ) ;
   delete [] text ;
@@ -913,16 +931,15 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
              ( tmp_cursor_position > 0) )
       tmp_cursor_position-- ;          
   
-    p [0] = '\0' ;
-    strcat ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
+    strcpy ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
     if ( bottom_slider )
     {
       line_end = strchr ( p, '\n' ) ;
       if ( line_end )  // Found an end-of-line
       {
-          *line_end = '\0' ;  // Temporary break in line
-          line_width = int(legendFont.getFloatStringWidth ( p )) ;
-          *line_end = '\n' ;  // Reset the carriage return
+        *line_end = '\0' ;  // Temporary break in line
+        line_width = int(legendFont.getFloatStringWidth ( p )) ;
+        *line_end = '\n' ;  // Reset the carriage return
       }
       /*Now delete all characters in the string beyond i, and re-find its width*/
       p [i+1] = '\0' ;
@@ -934,8 +951,8 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
     while ( ( old_text [ tmp_cursor_position ] != '\n' ) &&
             ( tmp_cursor_position > 0) )
       tmp_cursor_position-- ;          
-    p [0] = '\0' ;
-    strcat ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
+
+    strcpy ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
     if ( bottom_slider )
     {
       line_end = strchr ( p, '\n' ) ; 
@@ -1091,9 +1108,9 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
       else if ( cursor_position > 0 )
       {
         p = new char [ strlen(old_text) ] ;
-        strncpy ( p, old_text, cursor_position ) ;
-        p [ --cursor_position ] = '\0' ;
-        strcat ( p, ( old_text + cursor_position + 1 ) ) ;
+        memcpy ( p, old_text, cursor_position ) ;
+        --cursor_position ;
+        strcpy ( p + cursor_position, old_text + cursor_position + 1 ) ;
         setValue ( p ) ;
         setCursor ( temp_cursor - 1 ) ;
         delete [] p ;
@@ -1107,9 +1124,8 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
       else if (cursor_position != (int)strlen ( old_text ) )
       {
         p = new char [ strlen(old_text) ] ;
-        strncpy ( p, old_text, cursor_position ) ;
-        p [ cursor_position ] = '\0' ;
-        strcat ( p, ( old_text + cursor_position + 1 ) ) ;
+        memcpy ( p, old_text, cursor_position ) ;
+        strcpy ( p + cursor_position, old_text + cursor_position + 1 ) ;
         setValue ( p ) ;
         setCursor ( temp_cursor ) ;
         delete [] p ;
@@ -1138,15 +1154,15 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
       if ( select_start_position != select_end_position )
         removeSelectRegion () ;
 
-      p = puGetPasteBuffer () ;
-      if ( p )  // Make sure something has been cut previously!
+      if ( puGetPasteBuffer () )  // Make sure something has been cut previously!
       {
-        p = new char [ strlen ( getStringValue () ) + strlen ( p ) + 1 ] ;
-        strncpy ( p, getStringValue (), cursor_position ) ;
-        p[cursor_position] = '\0' ;
-        strcat ( p, puGetPasteBuffer () ) ;
-        strcat ( p, getStringValue() + cursor_position ) ;
-        temp_cursor += strlen ( puGetPasteBuffer () ) ;
+        int str_val_len = strlen ( getStringValue () ) ;
+        int paste_len = strlen ( puGetPasteBuffer () ) ;
+        p = new char [ str_val_len + paste_len + 1 ] ;
+        memcpy ( p, getStringValue (), cursor_position ) ;
+        memcpy ( p + cursor_position, puGetPasteBuffer (), paste_len ) ;
+        memcpy ( p + cursor_position + paste_len, getStringValue() + cursor_position, str_val_len - cursor_position + 1 ) ;
+        temp_cursor += paste_len ;
         setValue ( p ) ;
         setCursor ( temp_cursor ) ;
         delete [] p ;
@@ -1173,12 +1189,11 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
 
       p = new char [ strlen(old_text) + 2 ] ;
 
-      strncpy ( p, old_text, cursor_position ) ;
+      memcpy ( p, old_text, cursor_position ) ;
 
       p [ cursor_position ] = key ;
-      p [ cursor_position + 1 ] = '\0' ;
      
-      strcat (p, ( old_text + cursor_position ) ) ;
+      strcpy ( p + cursor_position + 1, ( old_text + cursor_position ) ) ;
       bottom_line_in_window = top_line_in_window + getLinesInWindow() ;
 
       /* If running off the screen, scroll right. - JCJ 28 Jun 2002 */
@@ -1279,4 +1294,21 @@ void puLargeInput::wrapText ( void )
   }
 }
 
+void puLargeInput::addValidData ( const char *data )
+{
+  int valid_len    = valid_data != NULL ? strlen ( valid_data ) : 0 ;
+  int data_len     = data       != NULL ? strlen ( data       ) : 0 ;
+  int new_data_len = valid_len + data_len ;
+
+  char *new_data = new char [ new_data_len + 1 ] ;
+
+  if ( valid_len != 0 )
+    memcpy ( new_data, valid_data, valid_len ) ;
+  if ( data_len  != 0 )
+    memcpy ( new_data + valid_len, data, data_len ) ;
+
+  new_data [ new_data_len ] = '\0' ;
+  delete [] valid_data ;
+  valid_data = new_data ;
+}
 
