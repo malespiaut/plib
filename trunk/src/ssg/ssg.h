@@ -388,10 +388,10 @@ public:
 
 struct ssgInterleavedArrayElement
 {
-	sgVec2 texCoord ;
-	sgVec4 colour ;
-	sgVec3 normal ;
-	sgVec3 vertex ;
+  sgVec2 texCoord ;
+  sgVec4 colour ;
+  sgVec3 normal ;
+  sgVec3 vertex ;
 } ;
 
 
@@ -1117,13 +1117,14 @@ public:
 #ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
 #endif
-  virtual void transform ( sgMat4 m ) ;
 
   void setIndices ( ssgIndexArray *il ) ;
 
   int getNumIndices () { return indices -> getNum () ; }
 
   int getNumTriangles () ;
+
+  void getTriangle ( int n, short *v1, short *v2, short *v3 ) ;
 
   void getIndexList ( void **list ) { *list = indices  -> get ( 0 ) ; }
 
@@ -1134,11 +1135,7 @@ public:
   virtual ~ssgVtxArray (void) ;
 
   virtual char *getTypeName(void) ;
-  virtual void recalcBSphere () ;
-  virtual void draw () ;
 
-  virtual void isect_triangles ( sgSphere  *s, sgMat4 m, int test_needed ) ;
-  virtual void hot_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
