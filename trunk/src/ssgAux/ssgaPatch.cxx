@@ -175,23 +175,24 @@ void ssgaPatch::makePatch ( float points[4][4][9], int level )
   makeVSplines ( newHVerts, newVertices ) ;
  
   sgVec9 patch[4][4] ;
+  int i ;
  
-  for ( int i = 0 ; i < 16 ; i++ )
+  for ( i = 0 ; i < 16 ; i++ )
    memcpy ( patch[i>>2][i&3], newVertices[i>>2][i&3], 9*sizeof(float) ) ;
  
   makePatch ( patch, level-1 ) ;
  
-  for ( int i = 0 ; i < 16 ; i++ )
+  for ( i = 0 ; i < 16 ; i++ )
    memcpy ( patch[i>>2][i&3], newVertices[i>>2][3+(i&3)], 9*sizeof(float) ) ;
  
   makePatch ( patch, level-1 ) ;
  
-  for ( int i = 0 ; i < 16 ; i++ )
+  for ( i = 0 ; i < 16 ; i++ )
    memcpy ( patch[i>>2][i&3], newVertices[3+(i>>2)][i&3], 9*sizeof(float) ) ;
  
   makePatch ( patch, level-1 ) ;
  
-  for ( int i = 0 ; i < 16 ; i++ )
+  for ( i = 0 ; i < 16 ; i++ )
    memcpy ( patch[i>>2][i&3], newVertices[3+(i>>2)][3+(i&3)], 9*sizeof(float));
  
   makePatch ( patch, level-1 ) ;
