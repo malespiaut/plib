@@ -13,11 +13,14 @@ void defaultExitFunc ()
   exit ( 0 ) ;
 }
 
+void pwOpenWindow ( pwKeybdFunc    *kb, pwMouseFunc *ms,
+                    pwMousePosFunc *mp, pwResizeCB *rcb,
+                    pwExitCB *ecb )
+{
+  fprintf ( stderr, "PW: ***** NOT IMPLEMENTED FOR OS-X YET!! *****\n" ) ;
+}
 
-
-void pwInit ( int multisample, int num_samples, 
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb, pwExitCB *ecb )
+void pwInit ( int multisample, int num_samples ) ;
 {
   /* Open a full-screen window here please. */
   fprintf ( stderr, "PW: ***** NOT IMPLEMENTED FOR OS-X YET!! *****\n" ) ;
@@ -25,9 +28,7 @@ void pwInit ( int multisample, int num_samples,
 
 
 void pwInit ( int x, int y, int w, int h, int multisample,
-              char *title, int border, int num_samples, 
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb, pwExitCB *ecb )
+              char *title, int border, int num_samples )
 {
   /* Open a regular window here please. */
   fprintf ( stderr, "PW: ***** NOT IMPLEMENTED FOR OS-X YET!! *****\n" ) ;
