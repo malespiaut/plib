@@ -131,7 +131,7 @@ static void displayfn (void)
 {
   /* Clear the screen */
 
-  glClearColor ( 0.55, 0.55, 0.55, 1.0 ) ;
+  glClearColor ( 0.55f, 0.55f, 0.55f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT ) ;
 
   /* Make PUI redraw */
@@ -196,7 +196,7 @@ int main ( int argc, char **argv )
   puFont times_medium ( tim, 12 ) ;
   puSetDefaultFonts        ( times_medium, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
-  puSetDefaultColourScheme ( 0.8, 0.8, 0.8, 1.0) ;
+  puSetDefaultColourScheme ( 0.8f, 0.8f, 0.8f, 1.0f ) ;
 
 
   /* Set up the secondary windows and their widgets */
