@@ -3,8 +3,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "..\..\..\src\ssg\ssgMSFSPalette.h"
-#include "..\..\..\src\util\ul.h"
+#include <plib/ul.h>
+#include <plib/ssgMSFSPalette.h>
 
 // *.?af textures are always 256 x 256:
 #define XSIZE 256
