@@ -1,35 +1,20 @@
-Pegasus Network Library
-http://pnet.sourceforge.net
----------------------------
-  by Dave McClurg <dpm@efn.org>
-
+PLIB Network Library
+-------------------
 
 DESCRIPTION:
 
-Pegasus is a C++ library for making networked games.
+This is a C++ library for making networked games.
 It includes event-driven channels, support for
 buffering and pipelining, a monitor server for remote
 telnet admin, and binary messages.
 
+HISTORY
 
-ORIGINS:
-
-Pegasus is based on Medusa, a high-performance internet
-server architecture.
-
+Initial work by Dave McClurg <dpm@efn.org>
+This library is based on from a high-performance
+internet server architecture for Python called Medusa.
   http://www.nightmare.com/medusa/medusa.html
-
-Medusa is mainly for Python -- a really great scripting language.
-I wanted a C++ library which had the same simplicity as Medusa
-and worked for the type of games i wanted to write.
-I found a C++ port of Medusa and used that as a starting point.
-
-I use the name Pegasus because when Perseus (a son of Zeus) killed
-Medusa by cutting off her head, from the drops of her blood sprang
-Pegasus.  Pegasus was a winged horse who immediately flew up to
-Heaven to live with the gods. He was said to carry the thunderbolts
-for Zeus. lol.
-
+Added binary messages and PLIB naming conventions
 
 LICENSING:
 
