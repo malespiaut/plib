@@ -2,6 +2,48 @@
 PLIB Change Log.
 ================
 
+PLIB v1.8.0 (March 19th 2004)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * puAux library added to provide a place for the
+    more obscure PUI widgets.
+
+  * PW (PLIB Windowing) library added to provide a
+    built-in alternative to windowing libraries such
+    as GLUT and SDL.  Applications that only need a
+    single window, mouse and keyboard (and no other
+    features of GLUT) can now have no dependencies
+    whatever outside of PLIB and OpenGL.
+
+  * PLIB is now completely independent of GLUT.  You
+    can even build it without GLUT being installed.
+    Modules to allow PUI to work with GLUT, freeglut,
+    SDL, FLTK and our own PW windowing library are
+    provided.
+
+  * ssgAux now includes a relatively simple sky model
+    kindly donated by the SimGear project.  Now you
+    can have sun, moon, stars and clouds with just
+    a handful of function calls.
+
+  * PSL - a C-like interpreted scripting language
+    is now bundled into PLIB.  It's a byte-code
+    interpreter - and it has some useful properties
+    for games and other interactive packages in
+    that it allows the application much finer control
+    over the running of the script(s) than traditional
+    scripting engines.
+
+  * In the demos area, we added the 'simon' package
+    which provides a simple framework for PSL scripts
+    to be loaded - and they may in turn load 3D models,
+    move them around, etc.  Astropong.psl (a simple 3D
+    'Pong' game in PSL) is provided as a demo.
+
+And of course, many bugs have been slain and numerous
+other smaller features have been added.
+
+
 PLIB v1.6.0 (Sept 2nd 2002)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -30,6 +30,18 @@ echo handling "fnt"
 rm -R fnt
 cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d fnt plib/doc/fnt >/dev/null 2>&1 
 
+echo handling "pw"
+rm -R pw
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d pw plib/doc/pw >/dev/null 2>&1 
+
+echo handling "psl"
+rm -R psl
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d psl plib/doc/psl >/dev/null 2>&1 
+
+echo handling "puAux"
+rm -R puAux
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d puAux plib/doc/puAux >/dev/null 2>&1 
+
 echo handling "ssgAux"
 rm -R ssgAux
 cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d ssgAux plib/doc/ssgAux >/dev/null 2>&1 
@@ -51,9 +63,12 @@ chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/ssg
 chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/sl
 chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/js
 chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/fnt
+chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/puAux
 chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/ssgAux
 chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/util
 chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/pui
+chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/psl
+chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/pw
 chmod -R u=rwX,g=rwX,o=rX /home/groups/p/pl/plib/htdocs/net
 
 echo done.
