@@ -23,7 +23,7 @@
 
 #ifdef DEBUG
 #include <iostream>
-#define DEBUGPRINT(x) cerr << x
+#define DEBUGPRINT(x) std::cerr << x
 #else
 #define DEBUGPRINT(x)
 #endif
@@ -480,8 +480,11 @@ static bool setTexture(char* name)
 static ssgSimpleState *createState(bool use_texture)
 {
  DEBUGPRINT("new State: col = " << curr_col_[0] << ", " << curr_col_[1] <<
-	    ", " << curr_col_[2] << ", " << curr_col_[3] << ", tex = " <<
-	    curr_tex_name_ << std::endl);
+	    ", " << curr_col_[2] << ", " << curr_col_[3]);
+ if ( curr_tex_name_  == NULL )
+   DEBUGPRINT(", tex = <NULL> " << std::endl);
+ else
+   DEBUGPRINT(", tex = " << curr_tex_name_ << std::endl);
  
  ssgSimpleState *state = new ssgSimpleState();
 
@@ -747,7 +750,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
     unsigned short opcode;
     fread(&opcode, 2, 1, fp);
 
-    DEBUGPRINT( "opcode = " << hex << opcode << dec << std::endl );
+    DEBUGPRINT( "opcode = " << std::hex << opcode << std::dec << std::endl );
     
     switch(opcode)
        {
@@ -813,8 +816,8 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           mask   = ulEndianReadLittle16(fp);
           long addr = ftell(fp);
           long dst = addr + offset - 8;
-          DEBUGPRINT( "BGL_IFMSK(" << offset << ", 0x" << hex << var << 
-		      ", 0x" << mask << dec << ")\n" );
+          DEBUGPRINT( "BGL_IFMSK(" << offset << ", 0x" << std::hex << var << 
+						", 0x" << mask << std::dec << ")\n" );
 //          if(var & mask == 0)
           switch(var)
              {
@@ -836,8 +839,8 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           var    = ulEndianReadLittle16(fp);
           lo     = ulEndianReadLittle16(fp);
           hi     = ulEndianReadLittle16(fp);
-          DEBUGPRINT( "BGL_IFIN1(" << offset << ", 0x" << hex << var << 
-		      ", " << dec << lo << ", " << hi << ")\n" );
+          DEBUGPRINT( "BGL_IFIN1(" << offset << ", 0x" << std::hex << var << 
+		      ", " << std::dec << lo << ", " << hi << ")\n" );
           curr_var_ = var;
           }
           break;
@@ -1101,10 +1104,18 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           ulEndianReadLittle32(fp);
 
 	  // Read vertex inidices and texture coordinates
-	  char *texture_extension = 
+		bool flip_y = FALSE;
+		if(curr_tex_name_!=NULL)
+		{ char *texture_extension = 
+	      curr_tex_name_ + strlen(curr_tex_name_) - 3;
+	    flip_y = _ssgStrEqual( texture_extension, "BMP" );
+		}
+	  /*old:
+		char *texture_extension = 
 	    curr_tex_name_ + strlen(curr_tex_name_) - 3;
 	  bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
-	  readTexIndices(fp, numverts, v, flip_y);
+	  */
+		readTexIndices(fp, numverts, v, flip_y);
 
 	  if(!has_normals_)
 	     {
@@ -1155,9 +1166,17 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 	  readVector(fp, v);
 
 	  // Read vertex inidices and texture coordinates
+		bool flip_y = FALSE;
+		if(curr_tex_name_!=NULL)
+		{ char *texture_extension = 
+	      curr_tex_name_ + strlen(curr_tex_name_) - 3;
+	    flip_y = _ssgStrEqual( texture_extension, "BMP" );
+		}
+	  /*
 	  char *texture_extension = 
 	    curr_tex_name_ + strlen(curr_tex_name_) - 3;
 	  bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
+		*/
 	  readTexIndices(fp, numverts, v, flip_y);
 
 	  if(!has_normals_)
@@ -1333,8 +1352,8 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
 	  unsigned char color, param;
 	  fread(&color, 1, 1, fp);
 	  fread(&param, 1, 1, fp);
-	  DEBUGPRINT( "Set color = " << (int)color << " (" << hex << 
-		      (int)param << dec << ")\n");
+		DEBUGPRINT( "Set color = " << (int)color << " (" << std::hex << 
+		      (int)param << std::dec << ")\n");
 	  setColor((int)color, (int)param);
 	  }
 	  break;
