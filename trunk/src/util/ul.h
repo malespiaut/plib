@@ -195,12 +195,6 @@ ulDirEnt* ulReadDir ( ulDir* dir ) ;
 void ulCloseDir ( ulDir* dir ) ;
 
 /*
- ulGetCurrentContext function
-*/
-
-extern "C" int ulGetCurrentContext () ;
-
-/*
   UDP Networking Class NetWork Libriary
   by Ben Woodhead
 */
