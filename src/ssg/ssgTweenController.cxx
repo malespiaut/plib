@@ -58,11 +58,15 @@ ssgTweenController::~ssgTweenController (void)
 void ssgTweenController::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {
   float tmp = _ssgGetCurrentTweenState () ;
+  int   mm  = _ssgGetCurrentTweenMode  () ;
+
   _ssgSetCurrentTweenState ( curr_bank ) ;
+  _ssgSetCurrentTweenMode  ( mode ) ;
  
   ssgBranch::cull ( f, m, test_needed ) ;
 
   _ssgSetCurrentTweenState ( tmp ) ;
+  _ssgSetCurrentTweenMode  ( mm  ) ;
 }
 
 
