@@ -1332,8 +1332,6 @@ public:
    {
  	  if ( which < 33 )
  		  rng_list [ which ] = range ;
- 	  else
- 		  rng_list [ which ] = SG_MAX ;
    }
    
   float getRange ( unsigned int which )
