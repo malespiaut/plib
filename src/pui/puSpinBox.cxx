@@ -24,116 +24,61 @@
 
 #include "puLocal.h"
 
-UL_RTTI_DEF1(puSpinBox,puRange)
+UL_RTTI_DEF2(puSpinBox,puRange,puGroup)
 
 
-void puSpinBox::draw ( int dx, int dy )
+puSpinBox::puSpinBox ( int minx, int miny, int maxx, int maxy, int arrow_pos ) :
+                       puRange ( 1.0f, 10.0f, 1.0f ), puGroup ( minx, miny )
 {
-  extern void puDrawArrowButtonTriangle ( int pos_x, int pos_y, int size_x, int size_y,
-                                          puColour colour, int arrow_type, int active ) ;
-
-  if ( !visible || ( window != puGetWindow () ) ) return ;
-
-  if ( r_cb )
-    r_cb ( this, dx, dy, render_data ) ;
+  extern void puSpinBox_handle_input ( puObject* ob ) ;
+  extern void puSpinBox_handle_arrow ( puObject* ob ) ;
+  type |= PUCLASS_SPINBOX ;
+  arrow_position = arrow_pos ;
+  int arrow_size = ( maxy - miny ) / 2 ;
+  if ( arrow_pos == 1 )
+    input_box = new puInput ( 0, 0, maxx - minx - arrow_size, maxy - miny ) ;
   else
-  {
-    //input_box->draw ( dx, dy ) ;
+    input_box = new puInput ( arrow_size, 0, maxx - minx, maxy - miny ) ;
 
-    int size = int(inbox_height * getArrowHeight()) ;
-    int pos_y = dy + abox.min[1] + size / 2 ;
-    int pos_x = dx ;
-    if ( getArrowPosition() == 1 ) {
-        /* Arrows lie on the right side of the box */
-        pos_x += abox.max[0] - size / 2 ;
-    } else {
-        /* Arrows are on the left side */
-        pos_x += abox.min[0] + size / 2 ;
-    }
+  input_box->setCallback ( puSpinBox_handle_input ) ;
+  input_box->setDownCallback ( puSpinBox_handle_input ) ;
+  input_box->setUserData ( this ) ;
 
-    input_box->draw( dx, dy );
-    
-    puBox box ;
-    box.min[0] = pos_x - size / 2 ;
-    box.max[0] = pos_x + size / 2 ;
-    box.min[1] = pos_y - size / 2 ;
-    box.max[1] = pos_y + size / 2 ;
+  up_arrow = new puArrowButton ( arrow_position?maxx-minx-arrow_size:0, arrow_size,
+                                 arrow_position?maxx-minx:arrow_size, maxy-miny, PUARROW_UP ) ;
+  up_arrow->setCallback ( puSpinBox_handle_arrow ) ;
+  up_arrow->setUserData ( this ) ;
 
-    box.draw ( 0, 0, style, colour, FALSE, border_thickness ) ;
-    puDrawArrowButtonTriangle ( pos_x, pos_y, size, size, colour [ PUCOL_MISC ],
-                                PUARROW_DOWN, down_arrow_active ) ;
-    box.min[1] += size ; 
-    box.max[1] += size ;
-    box.draw ( 0, 0, style, colour, FALSE, border_thickness ) ;
-    puDrawArrowButtonTriangle ( pos_x, pos_y + size, size, size, colour [ PUCOL_MISC ],
-                                    PUARROW_UP, up_arrow_active ) ;
-  }
+  down_arrow = new puArrowButton ( arrow_position?maxx-minx-arrow_size:0, 0,
+                                   arrow_position?maxx-minx:arrow_size, arrow_size, PUARROW_DOWN ) ;
+  down_arrow->setCallback ( puSpinBox_handle_arrow ) ;
+  down_arrow->setUserData ( this ) ;
 
-  draw_label ( dx, dy ) ;
+  close () ;
 }
 
-
-void puSpinBox::doHit ( int button, int updown, int x, int y )
+void puSpinBox_handle_arrow ( puObject *ob ) 
 {
-  if ( puActiveWidget() && ( this != puActiveWidget() ) )
-  {
-    puActiveWidget() -> invokeDownCallback () ;
-    puDeactivateWidget () ;
-  }
-
-  if ( updown != PU_DRAG )
-    puMoveToLast ( this );
-
-  if ( button == PU_LEFT_BUTTON && updown == PU_UP )
-  {
-    int size = int( inbox_height * getArrowHeight()) ;
-    if ( ( x < abox.max[0] - size ) && ( getArrowPosition() == 1 ) ||
-         ( x > abox.min[0] + size ) && ( getArrowPosition() == 0 ) )  
-    {/* User clicked in the input box */
-        /* Now see if it's in the Y of the input box, in case the arrows are made huge */
-        puBox *ibox = input_box->getABox() ;
-        if ( y > ibox->min[1] && y < ibox->max[1] )
-            input_box->doHit ( button, updown, x, y ) ;
-    }
-    else
-    {
-      if ( y < abox.min[1] + size )  /* User clicked on down-arrow */
-        setValue ( getFloatValue () - getStepSize () ) ;
-      else  /* User clicked on up-arrow */
-        setValue ( getFloatValue () + getStepSize () ) ;
-
-      if ( getFloatValue () > getMaxValue () )
-        setValue ( getMaxValue () ) ;
-      else if ( getFloatValue () < getMinValue () )
-        setValue ( getMinValue () ) ;
-
-      input_box->setValue ( getFloatValue () ) ;
-    }
-    puSetActiveWidget ( this, x, y ) ;
-    invokeCallback () ;
-  }
-}
-
-int puSpinBox::checkKey ( int key, int updown )
-{
-  if ( input_box->checkKey ( key, updown ) )
-  {
-    setValue ( input_box->getFloatValue () ) ;
-    if ( getFloatValue () > getMaxValue () )
-      setValue ( getMaxValue () ) ;
-    else if ( getFloatValue () < getMinValue () )
-      setValue ( getMinValue () ) ;
-
-	  invokeCallback () ;
-    return TRUE ;
-  }
+  puSpinBox *master = (puSpinBox *)(ob->getUserData ()) ;
+  float val = master->getFloatValue () ;
+  if ( ((puArrowButton *)ob)->getArrowType () == PUARROW_UP )
+    val += master->getStepSize () ;
   else
-    return FALSE ;
+    val -= master->getStepSize () ;
+
+  if ( val > master->getMaxValue () ) val = master->getMaxValue () ;
+  if ( val < master->getMinValue () ) val = master->getMinValue () ;
+  master->setValue ( val ) ;
+  master->invokeCallback () ;
 }
 
-void puSpinBox_handle_input (puObject *ob) 
+void puSpinBox_handle_input ( puObject *ob ) 
 {
-    puObject *master = (puObject *)(ob->getUserData());
-    master->setValue(ob->getFloatValue());
-    master->invokeCallback();
+  puSpinBox *master = (puSpinBox *)(ob->getUserData ()) ;
+  float val = ob->getFloatValue () ;
+  if ( val > master->getMaxValue () ) val = master->getMaxValue () ;
+  if ( val < master->getMinValue () ) val = master->getMinValue () ;
+  master->setValue ( val ) ;
+  master->invokeCallback () ;
 }
+

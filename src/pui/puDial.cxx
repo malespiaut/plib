@@ -24,7 +24,7 @@
 
 #include "puLocal.h"
 
-UL_RTTI_DEF1(puDial,puRange)
+UL_RTTI_DEF2(puDial,puRange,puObject)
 
 
 void puDial::draw ( int dx, int dy )
