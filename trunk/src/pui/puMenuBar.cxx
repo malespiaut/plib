@@ -31,7 +31,7 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
 
   puPopupMenu *p = (puPopupMenu *) b -> getUserData () ;
 
-  if ( b -> getValue () )
+  if ( b -> getIntegerValue () )
   {
 /*
   SJBL Test hack.

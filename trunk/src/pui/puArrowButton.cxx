@@ -32,7 +32,7 @@ void puArrowButton::draw ( int dx, int dy )
     use inverse style for button itself
   */
 
-  if ( getValue() ^ highlighted )
+  if ( getIntegerValue() ^ highlighted )
   {
     if ( parent && ( ( parent->getType() & PUCLASS_POPUPMENU ) ||
                      ( parent->getType() & PUCLASS_MENUBAR   ) ) )

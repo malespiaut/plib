@@ -64,7 +64,7 @@ int puButtonBox::checkKey ( int key, int updown )
     puDeactivateWidget () ;
   }
 
-  int v = getValue () ;
+  int v = getIntegerValue () ;
 
   if ( ! one_only )
     v = ~v ;
@@ -104,7 +104,7 @@ int puButtonBox::checkHit ( int /*button*/, int updown, int x, int y )
   if ( one_only )
     setValue ( i ) ;
   else
-    setValue ( getValue () ^ ( 1 << i ) ) ;
+    setValue ( getIntegerValue () ^ ( 1 << i ) ) ;
 
   puSetActiveWidget ( this, x, y ) ;
   invokeCallback () ;
@@ -131,8 +131,8 @@ void puButtonBox::draw ( int dx, int dy )
       tbox.max [ 0 ] = tbox.min [ 0 ] ;
       tbox.max [ 1 ] = tbox.min [ 1 ] ;
 
-      if (( one_only && i == getValue() ) ||
-          ( !one_only && ((1<<i) & getValue() ) != 0 ) ) 
+      if (( one_only && i == getIntegerValue() ) ||
+          ( !one_only && ((1<<i) & getIntegerValue() ) != 0 ) ) 
         tbox.draw ( dx, dy + PUSTR_BGAP + PUSTR_BGAP, -PUSTYLE_RADIO, colour, FALSE, border_thickness ) ;
       else
         tbox.draw ( dx, dy + PUSTR_BGAP + PUSTR_BGAP, PUSTYLE_RADIO, colour, FALSE, border_thickness ) ;
