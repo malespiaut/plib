@@ -1,6 +1,12 @@
 // af2rgb.cpp : Defines the entry point for the console application.
 //
 
+// Written by Wolfram Kuss (w_kus@rz-online.de) in dec 2000 / jan 2001
+// with some help by Marten Strömberg.
+//
+// Published as part of Steve Baker's PLIB
+// License is LGPL
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <plib/ul.h>
@@ -25,11 +31,21 @@ static size_t writeByte (unsigned char x )
 
 static size_t writeShort (unsigned short x )
 {
+
+  if (ulIsLittleEndian) // this is the other way round compared to normally.
+		                    // obviously, this is because the .rgb format comes from SGI.
+    _ulEndianSwap(&x);
+
+
   return fwrite( & x, sizeof(unsigned short), 1, fd ) ;
 }
 
 static size_t writeInt (unsigned int x)
 {
+ if (ulIsLittleEndian) // this is the other way round compared to normally.
+		                    // obviously, this is because the .rgb format comes from SGI.
+    _ulEndianSwap(&x);
+
   return fwrite( & x, sizeof(unsigned int), 1, fd ) ;
 }
 
@@ -151,7 +167,7 @@ void DoAllFiles( char *sDirectoryP )
 						if ((dp->d_name[len-2] == 'a') || (dp->d_name[len-2] == 'A'))
 							if ((dp->d_name[len-4] == '.') || (dp->d_name[len-4] == '.'))
 							{ strcpy( newname, dp->d_name );
-								int i;
+								unsigned int i;
 								for (i=0; i<len;  i++)
 									newname [i] = tolower ( newname [i] );
 
