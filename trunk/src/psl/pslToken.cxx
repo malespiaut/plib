@@ -37,31 +37,48 @@ void pslCompiler::skipToEOL ()
   } while ( c != '\n' && c != -1 ) ;
 }
 
+
+
 int pslCompiler::getChar ()
 {
-  /*
-    If we got a newline then we have to test to see whether
-    a '#' preprocessor directive is on this line.
-  */
- 
-  int c = _pslGetChar () ;
+  int c ;
 
-  if ( c == '\n' )
+  /* Skip characters so long as the 'skipping' flag is set */
+
+  do
   {
-    int d = _pslGetChar () ;
+    /*
+      If we got a newline then we have to test to see whether
+      a '#' preprocessor directive is on this line.
+    */
  
-    if ( d == '#' )
-      return doPreProcessorCommand () ;
+    c = _pslGetChar () ;
 
-    _pslUnGetChar ( d ) ;
-  }
+    if ( c == '\n' )
+    {
+      int d = _pslGetChar () ;
  
+      if ( d == '#' )
+      {
+        skipOverride = TRUE ;
+        c = doPreProcessorCommand () ;
+        skipOverride = FALSE ;
+
+        if ( ! skipping () )
+          return c ;
+      }
+      else      
+        _pslUnGetChar ( d ) ;
+    }
+  } while ( skipping () && c != -1 ) ;
+
   /*
     All done - return the character.
   */
  
   return c ;
 }
+
 
 
 int pslCompiler::searchDefines ( const char *token ) const
@@ -106,16 +123,78 @@ void pslCompiler::doUndefStatement  ()
 
   if ( def == -1 ) return ;  /* Not an error to have undefined undef's */
  
-  delete define_token       [ def ] ;
-  delete define_replacement [ def ] ;
-  define_token       [ def ] = NULL ;
-  define_replacement [ def ] = NULL ;
+  if ( ! skipping () )
+  {
+    delete define_token       [ def ] ;
+    delete define_replacement [ def ] ;
+    define_token       [ def ] = NULL ;
+    define_replacement [ def ] = NULL ;
+  }
 }
 
-void pslCompiler::doIfdefStatement  () { fprintf(stderr,"#ifdef? - Not yet!\n");}
-void pslCompiler::doIfndefStatement () { fprintf(stderr,"#ifndef? - Not yet!\n");}
-void pslCompiler::doElseStatement   () { fprintf(stderr,"#else? - Not yet!\n");}
-void pslCompiler::doEndifStatement  () { fprintf(stderr,"#endif? - Not yet!\n");}
+
+void pslCompiler::doIfdefStatement  ()
+{
+  char token [ MAX_TOKEN ] ;
+  
+  getToken ( token, FALSE ) ;
+
+  if ( next_skippingLevel >= 30 )
+  {
+    error ( "Too many levels of #ifdef/#ifndef processing." ) ;
+    skipToEOL () ;
+    return ;
+  }
+
+  if ( searchDefines ( token ) == -1 )
+    skippingFlag |= ( 1 << next_skippingLevel++ ) ;
+  else
+    skippingFlag &= ~( 1 << next_skippingLevel++ ) ;
+}
+
+
+void pslCompiler::doIfndefStatement ()
+{
+  char token [ MAX_TOKEN ] ;
+  
+  getToken ( token, FALSE ) ;
+
+  if ( next_skippingLevel >= 30 )
+  {
+    error ( "Too many levels of #ifdef/#ifndef processing." ) ;
+    skipToEOL () ;
+    return ;
+  }
+
+  if ( searchDefines ( token ) == -1 )
+    skippingFlag &= ~( 1 << next_skippingLevel++ ) ;
+  else
+    skippingFlag |= ( 1 << next_skippingLevel++ ) ;
+
+  skipToEOL () ;
+}
+
+
+void pslCompiler::doElseStatement ()
+{
+  if ( next_skippingLevel <= 1 )
+    error ( "#else without prior matching #ifdef/#ifndef." ) ;
+
+  skipToEOL () ;
+  skippingFlag ^= ( 1 << (next_skippingLevel-1) ) ;
+}
+
+
+
+void pslCompiler::doEndifStatement ()
+{
+  if ( next_skippingLevel <= 1 )
+    error ( "#endif without prior matching #ifdef/#ifndef." ) ;
+
+  skipToEOL () ;
+  skippingFlag &= ~( 1 << (--next_skippingLevel) ) ;
+}
+
 
 void pslCompiler::doDefineStatement ()
 {
@@ -147,18 +226,21 @@ void pslCompiler::doDefineStatement ()
 
   *(p-1) = '\0' ;
 
-  if ( searchDefines ( token ) != -1 )
-    error ( "Attempt to re-#define %s", token ) ;
-  else
-  if ( next_define >= MAX_SYMBOL - 1 )
-    error ( "Too many #define's\n" ) ;
-  else
+  if ( ! skipping () )
   {
-    define_token       [ next_define ] = new char [ strlen ( token ) + 1 ] ;
-    define_replacement [ next_define ] = new char [ strlen ( subst ) + 1 ] ;
-    strcpy ( define_token       [ next_define ], token ) ;
-    strcpy ( define_replacement [ next_define ], subst ) ;
-    next_define++ ;
+    if ( searchDefines ( token ) != -1 )
+      error ( "Attempt to re-#define %s", token ) ;
+    else
+    if ( next_define >= MAX_SYMBOL - 1 )
+      error ( "Too many #define's\n" ) ;
+    else
+    {
+      define_token       [ next_define ] = new char [ strlen ( token ) + 1 ] ;
+      define_replacement [ next_define ] = new char [ strlen ( subst ) + 1 ] ;
+      strcpy ( define_token       [ next_define ], token ) ;
+      strcpy ( define_replacement [ next_define ], subst ) ;
+      next_define++ ;
+    }
   }
 }
 
@@ -199,7 +281,9 @@ void pslCompiler::doIncludeStatement ()
   */
 
   skipToEOL () ;
-  _pslPushDefaultFile ( p ) ;
+
+  if ( ! skipping () )
+    _pslPushDefaultFile ( p ) ;
 }
 
 
