@@ -31,11 +31,6 @@
   Configuration
 */
 
-#ifndef PU_NOT_USING_GLUT
-#define _PU_USE_GLUT   1
-#define _PU_USE_GLUT_FONTS   1
-#endif
-
 #define PU_NOBUTTON             -1
 #define PU_LEFT_BUTTON          0
 #define PU_MIDDLE_BUTTON        1
@@ -43,40 +38,24 @@
 #define PU_DOWN                 0
 #define PU_UP                   1
 
-#ifdef _PU_USE_GLUT_FONTS
-typedef void *GlutFont ;
-#endif
-
 class puFont 
 {
 protected:
-#ifdef _PU_USE_GLUT_FONTS
-  GlutFont     glut_font_handle ;
-#endif
-  fntTexFont * fnt_font_handle ; float pointsize ; float slant ;
+  fntFont * fnt_font_handle ; 
+  float pointsize ; 
+  float slant ;
 
 public:
 
   puFont () ;
 
-#ifdef _PU_USE_GLUT_FONTS
-  puFont ( GlutFont gfh )
-  {
-    glut_font_handle = gfh  ;
-    fnt_font_handle  = NULL ;
-  }
-#endif
-
-  puFont ( fntTexFont *tfh, float ps, float sl = 0 )
+  puFont ( fntFont *tfh, float ps = 13, float sl = 0 )
   {
     initialize ( tfh, ps, sl ) ;
   }
 
-  void initialize ( fntTexFont *tfh, float ps, float sl = 0 )
+  void initialize ( fntFont *tfh, float ps, float sl = 0 )
   {
-#ifdef _PU_USE_GLUT_FONTS
-    glut_font_handle = (GlutFont) 0 ;
-#endif
     fnt_font_handle  = tfh  ;
     pointsize = ps ;
     slant = sl ;
@@ -266,15 +245,6 @@ extern int puRefresh ; /* Should not be used directly by applications any
 #define PUCLASS_SPINBOX          0x02000000
 #define PUCLASS_SCROLLBAR        0x04000000
 
-/* This function is not required for GLUT programs */
-void puSetWindowSize ( int width, int height ) ;
-void puSetResizeMode ( int mode ) ;
-
-int  puGetWindow       ( void ) ;
-void puSetWindow       ( int w ) ;
-int  puGetWindowHeight ( void ) ;
-int  puGetWindowWidth  ( void ) ;
-
 class puValue            ;
 class puObject           ;
 class puGroup            ;
@@ -348,7 +318,8 @@ inline void puSetColor ( puColour c, float r, float g, float b, float a = 1.0f )
 }
 
 
-void  puInit           ( void ) ;
+//    puInit () -- is a macro, see below
+void  puRealInit       ( void ) ;
 void  puExit           ( void ) ;
 void  puDisplay        ( void ) ;
 void  puDisplay        ( int window_number ) ;  /* Deprecated */
@@ -363,6 +334,16 @@ void  puDeleteObject   ( puObject *ob ) ;
 
 int  puNeedRefresh     ( void ) ;
 void puPostRefresh     ( void ) ;
+
+int  puGetWindow       ( void ) ;
+void puGetWindowSize   ( int *width, int *height ) ;
+int  puGetWindowWidth  ( void ) ;
+int  puGetWindowHeight ( void ) ;
+
+void puSetWindow       ( int w ) ; // don't use it!
+void puSetWindowSize   ( int width, int height ) ; // don't use it!
+
+void puSetResizeMode   ( int mode ) ; // DEPRECATED
 
 
 // Active widget functions
@@ -2036,5 +2017,83 @@ public:
                 char **list ) ;
 } ;
 
+
+
+
+/*
+ * Window System Integration 
+ * -------------------------
+ *
+ * PUI has direct support for GLUT, FLTK, SDL and GTK. All code is provided
+ * inline, making PUI itself independent. There are several ways to choose
+ * implementation, for instance:
+ *
+ *  #include <FL/Fl.H>
+ *  #include <plib/pu.h>
+ *
+ * or simply:
+ *
+ *  #include <plib/puFLTK.h>
+ *
+ * Note that both cases may fail if pu.h has been included earlier.
+ * A safer option is therefore to compile with -DPU_USE_FLTK.
+ *
+ * The default system is GLUT for backwards compability.
+ *
+ * To use PUI with an unsupported system, define PU_USE_NONE and
+ * provide your own callbacks (if needed, the defaults will work
+ * in many cases).
+ *
+ * When compiling the PUI library itself, PU_USE_NONE must be defined.
+ *
+ */
+
+typedef int  (*puGetWindowCallback) ( ) ;
+typedef void (*puSetWindowCallback) ( int window ) ;
+typedef void (*puGetWindowSizeCallback) ( int *width, int *height ) ;
+typedef void (*puSetWindowSizeCallback) ( int width, int height ) ;
+
+void puSetWindowFuncs ( puGetWindowCallback,
+			puSetWindowCallback,
+			puGetWindowSizeCallback,
+			puSetWindowSizeCallback ) ;
+
+
+// Choose implementation
+
+#if !defined(PU_USE_GLUT)   && \
+    !defined(PU_USE_FLTK)   && \
+    !defined(PU_USE_SDL)    && \
+    !defined(PU_USE_NATIVE) && \
+    !defined(PU_USE_NONE)
+
+// Nothing selected. Try to figure out which one to use.
+#if defined(FL_MAJOR_VERSION)
+# define PU_USE_FLTK
+#elif defined(SDL_MAJOR_VERSION)
+# define PU_USE_SDL
+#else
+# define PU_USE_GLUT
 #endif
 
+#endif
+
+
+// Roll out the code and define puInit
+
+#if defined(PU_USE_GLUT)
+# include "puGLUT.h"
+# define puInit  puInitGLUT
+#elif defined(PU_USE_FLTK)
+# include "puFLTK.h"
+# define puInit  puInitFLTK
+#elif defined(PU_USE_SDL)
+# include "puSDL.h"
+# define puInit  puInitSDL
+#elif defined(PU_USE_NATIVE)
+# include "puNative.h"
+# define puInit  puInitNative
+#endif
+
+
+#endif
