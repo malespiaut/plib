@@ -76,7 +76,7 @@ static void update_eye_motion ()
   sgVec3 vec ;
 
   sgMakeCoordMat4 ( mat, 0, 0, 0, h, p, 0 ) ;
-  sgSetVec3       ( vec, 0, r, 0 ) ;
+  sgSetVec3       ( vec, 0, r * 20, 0 ) ;
   sgXformPnt3 ( vec, mat ) ;
   sgNegateVec3 ( vec ) ;
   sgCopyVec3 ( mat[3], vec ) ;

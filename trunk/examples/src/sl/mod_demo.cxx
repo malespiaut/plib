@@ -33,12 +33,19 @@
 
 slScheduler sched ( 44100 ) ;
 
+void callback ( slSample *, slEvent event, int )
+{
+  if ( event == SL_EVENT_COMPLETE )
+    exit ( 0 ) ;
+}
+
+
 int main ( int argc, char **argv )
 {
   sched . setSafetyMargin ( 0.5 ) ;
 
   if ( argc == 2 )
-    sched . loopMusic ( argv[1] ) ;
+    sched . playMusic ( argv[1], 1, SL_SAMPLE_ABORT, 0, callback ) ;
   else
     sched . loopMusic ( "tuxr.mod" ) ;
   

@@ -288,6 +288,19 @@ void pwInit ( int x, int y, int w, int h, int multisample,
 
   AdjustWindowRect( &rect, style, false ) ;
 
+  // The origin is really where the upper left of the window should be. 
+  // rect is the setting for the window if the origin is for the client area.
+  // Adjust the window rect so that it will be located at the origin (x,y).
+
+  int deltaX = x - rect.left ;
+  int deltaY = y - rect.top ;
+
+  rect.left   += deltaX ;
+  rect.right  += deltaX ;
+  rect.top    += deltaY ;
+  rect.bottom += deltaY ;
+
+
   /* Create the window */
   currWnd = CreateWindow(
     "PlibAppClass", title, style,
