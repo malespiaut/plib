@@ -830,6 +830,9 @@ public:
   {
     setChildColourScheme ( childs, r, g, b, a, recursive ) ;
   }
+
+  void setChildLegendFont ( int childs, puFont f, int recursive = FALSE ) ;
+  void setChildLabelFont ( int childs, puFont f, int recursive = FALSE ) ;
 } ;
 
 
