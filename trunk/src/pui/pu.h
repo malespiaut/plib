@@ -582,11 +582,11 @@ protected:
   virtual void draw_label  ( int dx, int dy ) ;
   
 public:
-  virtual int  isHit ( int x, int y ) const { return isVisible() && isActive() &&
-                                               x >= abox.min[0] &&
-                                               x <= abox.max[0] &&
-                                               y >= abox.min[1] &&
-                                               y <= abox.max[1] &&
+  virtual int isHit ( int x, int y ) const { return isVisible() && isActive() &&
+                                               x > abox.min[0] &&
+                                               x < abox.max[0] &&
+                                               y > abox.min[1] &&
+                                               y < abox.max[1] &&
                                                window == puGetWindow () ; }
 
   virtual void doHit ( int button, int updown, int x, int y ) ;
