@@ -81,7 +81,7 @@ case "${host}" in
    dnl Mac OS X
 
    dnl OpenGL libraries
-   LIBS="$LIBS -framework OpenGL -framework GLUT"
+   LIBS="$LIBS -framework OpenGL -framework GLUT -lobjc"
 
    dnl Sound libraries
    LIBS="$LIBS -framework Carbon"
