@@ -220,10 +220,38 @@ static aseMaterial* find_material( u32 mat_index, u32 sub_index )
 }
 
 
-static ssgSimpleState* get_state( aseMaterial* mat, bool prelit )
+static ssgSimpleState* make_state( aseMaterial* mat, bool prelit )
 {
   ssgSimpleState *st = new ssgSimpleState () ;
 
+  bool has_alpha = false ;
+
+  if (mat -> tfname != NULL)
+  {
+    ssgTexture* tex = current_options -> createTexture ( mat->tfname ) ;
+    has_alpha = tex -> hasAlpha () ;
+
+    st -> setTexture ( tex ) ;
+    st -> enable ( GL_TEXTURE_2D ) ;
+  }
+  else
+  {
+    st -> disable( GL_TEXTURE_2D ) ;
+  }
+
+  st -> disable ( GL_ALPHA_TEST ) ;
+
+  if ( sgCompareFloat ( mat -> transparency, 0.0f, 0.01f ) > 0 || has_alpha )
+  {
+    st -> enable  ( GL_BLEND ) ;
+    st -> setTranslucent () ;
+  }
+  else
+  {
+    st -> disable ( GL_BLEND ) ;
+    st -> setOpaque () ;
+  }
+  
   if ( prelit )
   {
     st -> disable ( GL_LIGHTING ) ;
@@ -243,29 +271,32 @@ static ssgSimpleState* get_state( aseMaterial* mat, bool prelit )
   
   st -> setShadeModel ( GL_SMOOTH ) ;
   
-  if ( sgCompareFloat ( mat -> transparency, 0.0f, 0.01f ) > 0 )
-  {
-    st -> disable ( GL_ALPHA_TEST ) ;
-    st -> enable  ( GL_BLEND ) ;
-    st -> setTranslucent () ;
-  }
-  else
-  {
-    st -> disable ( GL_BLEND ) ;
-    st -> setOpaque () ;
-  }
-  
-  if (mat -> tfname != NULL)
-  {
-    st -> setTexture ( current_options -> createTexture ( mat->tfname ) ) ;
-    st -> enable ( GL_TEXTURE_2D ) ;
-  }
-  else
-  {
-    st -> disable( GL_TEXTURE_2D ) ;
-  }
-
   return st ;
+}
+
+
+static ssgSimpleState* get_state( aseMaterial* mat, bool prelit )
+{
+  // is material an ifl (image file list)
+  if ( strnicmp ( "ifl_", mat -> name, 4 ) == 0 )
+  {
+    u32 num_subs = count_sub_materials ( mat -> mat_index );
+    if ( num_subs < 2 )
+      parser.error("ifl material only has <2 frames: %s",mat -> name);
+
+    ssgStateSelector* selector = new ssgStateSelector ( num_subs ) ;
+    for ( u32 i=0; i<num_subs; i++ )
+    {
+      aseMaterial* mat2 = find_material ( mat -> mat_index, i ) ;
+      assert ( mat2 != NULL ) ;
+
+      ssgSimpleState* st = make_state ( mat2, prelit ) ;
+      selector -> setStep ( i, st ) ;
+    }
+    selector -> selectStep ( 0 ) ;
+    return selector ;
+  }
+  return make_state ( mat, prelit ) ;
 }
 
 

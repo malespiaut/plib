@@ -546,6 +546,7 @@ static void loadTextureSGI ( const char *fname )
   delete bbuf   ;
   delete abuf   ;
 
+  _ssgAlphaFlag = ( sgihdr->zsize == 4 ) ;
   make_mip_maps ( image, sgihdr->xsize, sgihdr->ysize, sgihdr->zsize ) ;
 
   delete sgihdr ;
@@ -770,6 +771,7 @@ static void loadTextureBMP ( const char *fname )
     return ;
   }
 
+  _ssgAlphaFlag = ( z == 4 ) ;
   make_mip_maps ( image, w, h, z ) ;
 }
 
@@ -782,6 +784,7 @@ void loadTexturePNG ( const char *fname )
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname ) ;
     return ;
   }
+  _ssgAlphaFlag = ( info.Alpha > 0 ) ;
 #else
   ulSetError ( UL_WARNING, "ssgLoadTexture: '%s' - you need glpng for PNG format support",
         fname ) ;
@@ -826,6 +829,7 @@ void loadTextureMDL ( const char *fname )
 
     fclose(tfile);
     
+    // _ssgAlphaFlag = true ; ??
     make_mip_maps ( texels, 256, 256, 4 ) ;
   }
 }
@@ -932,6 +936,8 @@ void loadTextureTGA ( const char *fname )
   }
 
   free(pData);
+
+  _ssgAlphaFlag = is32Bit ;
   make_mip_maps ( texels, width, height, 4) ;
 }
 
@@ -979,6 +985,8 @@ static _ssgTextureFormat formats[] =
 
 void ssgLoadTexture ( const char *fname )
 {
+  _ssgAlphaFlag = false ;
+
   if ( fname == NULL || *fname == '\0' )
     return ;
 

@@ -121,7 +121,7 @@ ssgEntity *ssgVtxTable::makeConvex() {
   gluEndPolygon( tesselator );
   gluDeleteTess( tesselator );
 
-  delete dvertices;
+  delete [] dvertices;
   delete vert_indices;
 
   if ( poly_branch -> getNumKids() > 1 ) {
