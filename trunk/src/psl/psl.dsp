@@ -134,6 +134,10 @@ SOURCE=.\pslLocal.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\pslOpcodes.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\pslProgram.cxx
 # End Source File
 # Begin Source File
