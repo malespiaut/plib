@@ -86,9 +86,12 @@ static bool 			  curr_cull_face_;
 #endif
 
 // File Address Stack
-static const int          MAX_STACK_DEPTH = 64; // wk: 32 is too small
-static long       	      stack_        [MAX_STACK_DEPTH];
+static const int          MAX_STACK_DEPTH = 128; // wk: 32 is too small
+static long       	      stack_        [MAX_STACK_DEPTH]; // adress part
+static short              lod_          [MAX_STACK_DEPTH]; // lod part of the stack
 static int                stack_depth_;
+static short              noLoDs;
+static short              curr_lod;
 
 //  static sgMat4	      matrix_stack_ [MAX_STACK_DEPTH];
 //  static char	        *textures_    [MAX_STACK_DEPTH];
@@ -141,16 +144,18 @@ static void newPart()
 
 //===========================================================================
 
-static void push_stack( long entry ) {
+static void push_stack( long entry, short lod ) {
   assert( stack_depth_ < MAX_STACK_DEPTH - 1 );
   
+	lod_ [stack_depth_] = lod;
   stack_[stack_depth_++] = entry;
 }
 
-static long pop_stack() {
+static long pop_stack(short &lod) {
   assert( stack_depth_ > 0 );
   
-  return stack_[--stack_depth_];
+	lod = lod_[--stack_depth_];
+  return stack_[stack_depth_];
 }
 
 //===========================================================================
@@ -786,6 +791,8 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   last_idx_  = 0;
   curr_var_ = 0;
   stack_depth_ = 0;
+	noLoDs = 0;
+	curr_lod = 0;
   sgMakeIdentMat4(curr_matrix_);
   
   // Parse opcodes
@@ -814,7 +821,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         offset = ulEndianReadLittle16(fp);
         long addr = ftell(fp);
         DEBUGPRINT( "BGL_CALL(" << offset << ")\n" );
-        push_stack(addr);
+        push_stack(addr, curr_lod);
         long dst = addr + offset - 4;
         fseek(fp, dst, SEEK_SET);
 
@@ -830,7 +837,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         long addr = ftell(fp);
         DEBUGPRINT( "BGL_CALL32(" << offset << ")\n" );
 				PRINT_STRUCTURE( "call32 %lx\n", (long)offset)
-        push_stack(addr);
+        push_stack(addr, curr_lod);
         long dst = addr + offset - 6;
         fseek(fp, dst, SEEK_SET);
       }
@@ -983,7 +990,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         long addr = ftell(fp);
         long dst = addr + offset - 22;
         fseek(fp, dst, SEEK_SET);
-        push_stack(addr);
+        push_stack(addr, curr_lod);
         
         break;
       }
@@ -1001,7 +1008,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         long addr = ftell(fp);
         long dst = addr + offset - 8;
         fseek(fp, dst, SEEK_SET);
-        push_stack(addr);
+        push_stack(addr, ++noLoDs);
         break;
       }
       
@@ -1039,7 +1046,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           done = true;
         else
         {
-          long addr = pop_stack();
+          long addr = pop_stack(curr_lod);
           fseek(fp, addr, SEEK_SET);
         }
       }
@@ -1115,6 +1122,9 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           NULL,
           curr_index_ );
         curr_part_->setState( createState(false) );
+				char sName[10];
+				sprintf(sName, "lod %d", (int)curr_lod);
+				curr_part_->setName(sName);
 #ifdef EXPERIMENTAL_CULL_FACE_CODE
         curr_part_->setCullFace ( curr_cull_face_ ) ;    
 #endif
@@ -1156,7 +1166,10 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           NULL,
           curr_index_ );
         curr_part_->setState( createState(true) );
-        
+ 				char sName[10];
+				sprintf(sName, "lod %d", (int)curr_lod);
+				curr_part_->setName(sName);
+
         //assert(curr_part_->getState()->getTexture() != NULL);
         
         unsigned short numverts = ulEndianReadLittle16(fp);
@@ -1222,6 +1235,10 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           NULL,
           curr_index_ );
         curr_part_->setState( createState(true) );
+				char sName[10];
+				sprintf(sName, "lod %d", (int)curr_lod);
+				curr_part_->setName(sName);
+
 #ifdef EXPERIMENTAL_CULL_FACE_CODE
         curr_part_->setCullFace ( curr_cull_face_ ) ;    
 #endif        
@@ -1287,6 +1304,10 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           NULL,
           curr_index_);
         curr_part_->setState( createState(false) );
+				char sName[10];
+				sprintf(sName, "lod %d", (int)curr_lod);
+				curr_part_->setName(sName);
+
 #ifdef EXPERIMENTAL_CULL_FACE_CODE
         curr_part_->setCullFace ( curr_cull_face_ ) ;    
 #endif
@@ -1339,7 +1360,10 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
           NULL,
           curr_index_);
         curr_part_->setState( createState(false) );
-        
+        char sName[10];
+				sprintf(sName, "lod %d", (int)curr_lod);
+				curr_part_->setName(sName);
+
         //assert(curr_part_->getState()->getTexture() == NULL);
         
         unsigned short numverts = ulEndianReadLittle16(fp);
@@ -1584,6 +1608,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
     delete curr_norm_;
     
     DEBUGPRINT("\n" << vertex_array_->getNum() << " vertices\n");
+		printf("NoLoDs = %d\n", (int)noLoDs);
 
     return model_;
 }
