@@ -122,7 +122,7 @@ void pslCompiler::genFloatConstant ( const char *c )
 void pslCompiler::genGetParameter ( pslAddress var, int argpos )
 {
   genCodeByte ( OPCODE_GET_PARAMETER ) ;
-  genCodeByte ( var ) ;
+  genCodeByte ( (unsigned char) var ) ;
   genCodeByte ( argpos ) ;
 }
 
