@@ -15,7 +15,7 @@
 
 void siUpdate () ;
 void siRun () ;
-int  siLoad ( char *filename ) ;
+int  siLoad ( const char *filename ) ;
 void siPosition ( int hh, float x, float y,
                           float z = 0.0f,
                           float h = 0.0f,
