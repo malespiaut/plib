@@ -115,9 +115,6 @@ static ssgBranch                *models_;
 static ssgTransform             *curr_branch_;
 
 static sgMat4                   curr_matrix_;
-static char                     *curr_tex_name_;
-static int                      curr_tex_type_;
-static int                      curr_tex_wrap_;
 
 // File Address Stack
 static const int                MAX_STACK_DEPTH = 128;
@@ -138,14 +135,21 @@ static ssgBranch                *background_[64];
 static bool                     perspective_;
 static GLboolean                depth_mask_;
 static bool                     for_scenery_center;
+static long                     scenery_center_lat;
+static long                     scenery_center_lon;
+
+// Color state
+static COLOR                    line_;
+static COLOR                    surface_;
+static COLOR                    goraud_;
+
+//static bool                     has_color;
+static bool                     has_emission;
+static bool                     emissive_color_;
 static sgVec4                   GColor;
 static sgVec4                   LColor;
 static sgVec4                   SColor;
-static long                     scenery_center_lat;
-static long                     scenery_center_lon;
-static bool                     has_color;
-static bool                     has_texture;
-static bool                     has_emission;
+
 static int                      layer_;
 
 static double                   ref_scale;
@@ -153,13 +157,20 @@ static short                    haze_;
 static SGfloat                  alpha_;
 static SGfloat                  shininess_;
 
+// texture state variables
 static char                     tex_filename[128];
+static bool                     has_texture;
+static char                     *curr_tex_name_;
+static int                      curr_tex_type_;
+static int                      curr_tex_wrap_;
+static int                      curr_tex_flags_;
+
 static struct {
   sgVec3 point;
   sgVec3 norm;
   int    index;
-  }                             tmp_vtx[400];
-static bool                     blending;
+  }                             tmp_vtx[1024];
+//static bool                     blending;
 
 // This struct contains variable definitions of MS Flightsimulator
 // up to now only season, complexity and day time are supported
@@ -171,7 +182,7 @@ static struct {
   }                             vardef[100] = { {0x346,4},      // complexity: 0 lowest; 4 most
                                                 {0x6f8,2},      // season: 0=winter; 1=spring;
                                                                 //         2=summer; 3=autumn;
-                                                {0x28c,0x01},   // Day time: 0=Day, 1=Dusk,
+                                                {0x28c,0x00},   // Day time: 0=Day, 1=Dusk,
                                                                 //           2=Night, bit2=light on/off
                                                 {0x000,0}       // END of table
                                               };
@@ -179,9 +190,10 @@ static struct {
 //===========================================================================
 static int PreDrawSubface(ssgEntity *entity)
 {
-   glGetBooleanv(GL_DEPTH_WRITEMASK, &depth_mask_);
-   if (depth_mask_ != GL_FALSE)
-     glDepthMask(GL_FALSE);
+//   glGetBooleanv(GL_DEPTH_WRITEMASK, &depth_mask_);
+//   if (depth_mask_ != GL_FALSE)
+   glPushAttrib(GL_DEPTH_BUFFER_BIT);
+   glDepthMask(GL_FALSE);
    return 1;
 }
 
@@ -189,8 +201,9 @@ static int PreDrawSubface(ssgEntity *entity)
 
 static int PostDrawSubface(ssgEntity *)
 {
-   if (depth_mask_ != GL_FALSE)
-     glDepthMask(GL_TRUE);
+//   if (depth_mask_ != GL_FALSE)
+//     glDepthMask(GL_TRUE);
+   glPopAttrib();
    return 1;
 }
 
@@ -198,7 +211,7 @@ static int PostDrawSubface(ssgEntity *)
 // ssgLayeredVtxArray Class definition
 //===========================================================================
 
-ssgLayeredVtxArray::ssgLayeredVtxArray ( unsigned int ty,
+ssgLayeredVtxArray::ssgLayeredVtxArray ( GLenum ty,
                        ssgVertexArray   *vl,
                        ssgNormalArray   *nl,
                        ssgTexCoordArray *tl,
@@ -271,9 +284,7 @@ for (int i=0; vardef[i].var != 0; i++){
 
 static void newPart()
 {
-  has_color = false;
-//  has_texture = false;
-
+//  has_color = false;
 }
 
 //===========================================================================
@@ -850,14 +861,14 @@ static GLenum readTexIndices(FILE *fp, int numverts, sgVec3 s_norm, bool flip_y)
 
 //===========================================================================
 
-static GLenum readIndices(FILE* fp, int numverts, sgVec3 s_norm)
+static GLenum readIndices(FILE* fp, int numverts, sgVec3 s_norm, bool use_texture)
 {
   if(numverts <= 0)
     return GL_FALSE;
 
   ssgIndexArray *curr_index_ = new ssgIndexArray();
 
-  if (has_texture == true) {
+  if (use_texture == true) {
   // add dummy texture coordinates if necessary
     if(tex_coords_->getNum() < vertex_array_->getNum())
     {
@@ -885,7 +896,7 @@ static GLenum readIndices(FILE* fp, int numverts, sgVec3 s_norm)
       vertex_array_->add(tmp_vtx[ix].point);
       normal_array_->add(sgEqualVec3(tmp_vtx[ix].norm, zeroVec3)==TRUE ? s_norm : tmp_vtx[ix].norm);
       tmp_vtx[ix].index = last_idx;
-      if (has_texture == true) {
+      if (use_texture == true) {
         sgVec2 tc;
         sgSetVec2(tc, FLT_MAX, FLT_MAX);
         tex_coords_->add(tc);
@@ -905,7 +916,7 @@ static GLenum readIndices(FILE* fp, int numverts, sgVec3 s_norm)
         vertex_array_->add(tmp_vtx[ix].point);
         normal_array_->add(v2);
         tmp_vtx[ix].index = last_idx;
-        if (has_texture == true) {
+        if (use_texture == true) {
           sgVec2 tc;
           sgSetVec2(tc, FLT_MAX, FLT_MAX);
           tex_coords_->add(tc);
@@ -913,7 +924,7 @@ static GLenum readIndices(FILE* fp, int numverts, sgVec3 s_norm)
       }
     }
     int tex_idx = tmp_vtx[ix].index;
-    if (has_texture == true) {
+    if (use_texture == true) {
       sgVec2 tc;
       sgVec3 x,y;
       sgSetVec3(x, 1.0f, 0.0f, 0.0f);
@@ -959,33 +970,35 @@ static GLenum readIndices(FILE* fp, int numverts, sgVec3 s_norm)
 
 //===========================================================================
 
-static void setColor(sgVec4 color, int cindex, int pal_id)
+static void setColor(COLOR *color, int cindex, int pal_id)
 {
   if(pal_id == 0x68)
   {
-    color[0] = fsAltPalette[cindex].r / 255.0f;
-    color[1] = fsAltPalette[cindex].g / 255.0f;
-    color[2] = fsAltPalette[cindex].b / 255.0f;
-    color[3] = 0.2f;
+    color->color[0] = fsAltPalette[cindex].r / 255.0f;
+    color->color[1] = fsAltPalette[cindex].g / 255.0f;
+    color->color[2] = fsAltPalette[cindex].b / 255.0f;
+    color->color[3] = 0.2f;
   }
   else
   {
-    color[0] = fsAcPalette[cindex].r / 255.0f;
-    color[1] = fsAcPalette[cindex].g / 255.0f;
-    color[2] = fsAcPalette[cindex].b / 255.0f;
-    color[3] = 1.0f;
+    color->color[0] = fsAcPalette[cindex].r / 255.0f;
+    color->color[1] = fsAcPalette[cindex].g / 255.0f;
+    color->color[2] = fsAcPalette[cindex].b / 255.0f;
+    color->color[3] = 1.0f;
   }
-  has_texture = false;
+  color->has_emission = ( (cindex > 0xe) && (cindex < 0x17) ) ? true:false;
+  color->has_alpha = false;
 }
 
 //===========================================================================
 
-static void setColor(sgVec4 color, int r, int g, int b, int attr)
+static void setColor(COLOR *color, int r, int g, int b, int attr)
 {
   switch (attr) {
   
   case 0xf0: setColor( color, r, 0xf0); break;
   
+//  case 0xbf: color->emissive = true; //???
   case 0xe0:
   case 0xe1:
   case 0xe2:
@@ -1002,28 +1015,29 @@ static void setColor(sgVec4 color, int r, int g, int b, int attr)
   case 0xed:
   case 0xee:
   case 0xef: {
-               color[0] = r / 255.0f;
-               color[1] = g / 255.0f;
-               color[2] = b / 255.0f;
-               color[3] = (attr & 0xf) / 15.0;
-               if (attr == 0xef) blending = false; else blending = true;
+               color->color[0] = r / 255.0f;
+               color->color[1] = g / 255.0f;
+               color->color[2] = b / 255.0f;
+               color->color[3] = (attr & 0xf) / 15.0;
+               color->has_alpha = (attr == 0xef)? false : true;
+               color->has_emission = false;
              } break;
    default: {
-               color[0] = r / 255.0f;
-               color[1] = g / 255.0f;
-               color[2] = b / 255.0f;
-               color[3] = 1.0f;
-               blending = false;
+               color->color[0] = r / 255.0f;
+               color->color[1] = g / 255.0f;
+               color->color[2] = b / 255.0f;
+               color->color[3] = 1.0f;
+               color->has_alpha = false;
+               color->has_emission = false;
                ulSetError( UL_WARNING, "[ssgLoadBGL] Set Color unknown color attribut: %x", (short)attr);
              } break;
 
   }
-  has_texture = false;
 }
 
 //===========================================================================
 
-static void setColor(FILE *fp, sgVec4 color)
+static void setColor(FILE *fp, COLOR *color)
 {
   unsigned char cindex, param;
   fread(&cindex, 1, 1, fp);
@@ -1034,7 +1048,7 @@ static void setColor(FILE *fp, sgVec4 color)
 
 //===========================================================================
 
-static void setTrueColor(FILE *fp, sgVec4 color)
+static void setTrueColor(FILE *fp, COLOR *color)
 {
   unsigned char rgba[4];
   fread(rgba, 1, 4, fp);
@@ -1045,60 +1059,87 @@ static void setTrueColor(FILE *fp, sgVec4 color)
 
 //===========================================================================
 
-static bool setTexture(char* name, int type)
+static bool setTexture(char* name, int type, int flags)
 {
   curr_tex_name_ = name;
   curr_tex_type_ = type;
+  curr_tex_flags_ = flags;
 
   return true;
 }
 
+
+//===========================================================================
+// tex_name must have space for length of tex_name + length of tex_ext
+
+static bool lookUpTexture(char *tex_name, const char *tex_ext)
+{
+  char *p =strrchr(tex_name,'.');
+  if ( p != NULL ) {
+    char tex_org[MAX_PATH_LENGTH];
+    strcpy(tex_org, tex_name);
+
+    char tname[MAX_PATH_LENGTH];
+    *p = '\0';
+    strcat(tex_name, tex_ext);
+    strcat(tex_name, strrchr(tex_org,'.'));
+    current_options->makeTexturePath(tname, tex_name);
+    if ( ulFileExists ( tname ) == true) {       // look if light map exists
+      return(true);
+    }
+    else {
+      strcpy(tex_name, tex_org);
+      return(false);
+    }
+  }
+  return(false);
+}
+
 //===========================================================================
 
-static ssgSimpleState *createState(bool use_texture, sgVec4 &color)
+static ssgSimpleState *createState(bool use_texture, COLOR *cs)
 {
-  JMPRINT(ios::dec,"new State: col = " << color[0] << ", " \
-                                       << color[1] << ", " \
-                                       << color[2] << ", " \
-                                       << color[3]);
+  JMPRINT(ios::dec,"new State: col = " << cs->color[0] << ", " \
+                                       << cs->color[1] << ", " \
+                                       << cs->color[2] << ", " \
+                                       << cs->color[3]);
 
   ssgSimpleState *state = new ssgSimpleState();
 
   state->setShadeModel(GL_SMOOTH);
-
   state->enable   (GL_LIGHTING);
   state->enable   (GL_CULL_FACE);
   state->disable  (GL_COLOR_MATERIAL);
 
   if(curr_tex_name_ != NULL && use_texture)
   {
-    // Handle light maps.
-    // For the moment light maps are applied only when the light flag is selected in
-    // variable (0x28c). If so we check whether there an equivalent light map exists
-    // <texture name>+"_lm"+<extension>
-    int day_time;
-    bool enable_emission = false;
     char tex_name[MAX_PATH_LENGTH];
     strcpy(tex_name, curr_tex_name_);
-    if(getVariableValue(0x28c, &day_time) == 0 ){  // get daytime
-      if ((day_time&0x04) == 0x4) {                // light enabled
-        char *p =strrchr(tex_name,'.');
-        if ( p != NULL ) {
-          char tname[MAX_PATH_LENGTH];
-          *p = '\0';
-          strcat(tex_name, "_lm");
-          strcat(tex_name, strrchr(curr_tex_name_,'.'));
-          current_options->makeTexturePath(tname, tex_name);
-          if ( ulFileExists ( tname ) == true) {       // look if light map exists
-            enable_emission = true;
+
+    bool enable_emission = false;
+    int day_time;
+    getVariableValue(0x28c, &day_time);
+    if ( curr_tex_type_ == 0x43) {
+      if ( ((curr_tex_flags_ & TF_LIGHT_MAP) == TF_LIGHT_MAP) && ((day_time&0x04) == 0x04) ){ // texture has a light map
+        if ( lookUpTexture(tex_name, "_lm") == true ) {
+          enable_emission = true;
+        }
+      }
+      else {
+        int season;
+        if(getVariableValue(0x6f8, &season) == 0 ){           // get season
+          if ( ((curr_tex_flags_ & TF_SPRING) == TF_SPRING) && (season == 1) ) {
+            lookUpTexture(tex_name, "_sp");
           }
-          else {
-            strcpy(tex_name, curr_tex_name_);
+          if ( ((curr_tex_flags_ & TF_FALL) == TF_FALL) && (season == 3) ) {
+            lookUpTexture(tex_name, "_fa");
+          }
+          if ( ((curr_tex_flags_ & TF_WINTER) == TF_WINTER) && (season == 0) ) {
+            lookUpTexture(tex_name, "_wi");
           }
         }
       }
     }
-
     char tname[MAX_PATH_LENGTH];
     if (haze_ > 0) {
       sprintf(tname,"%s_%d",tex_name, haze_);
@@ -1109,11 +1150,11 @@ static ssgSimpleState *createState(bool use_texture, sgVec4 &color)
     JMPRINT(ios::dec,".. using Texture:" << tname);
     ssgTexture* tex = current_options ->createTexture(tname, curr_tex_wrap_, curr_tex_wrap_ );
     state->setTexture( tex ) ;
-    
+
     // handle opaque/translucent textures
     if ( ( (curr_tex_type_ == 0x18)&&(haze_ > 0) ) ||
          ( alpha_ != 1.0f ) ||
-         ( blending == true ) ||
+         ( cs->has_alpha == true ) ||
          ( (curr_tex_type_ == 0x43)&&(tex->hasAlpha() == true) ) ){
       state->enable(GL_BLEND);
       state->enable(GL_ALPHA_TEST);
@@ -1131,7 +1172,7 @@ static ssgSimpleState *createState(bool use_texture, sgVec4 &color)
     }
     else {
       if  ( (has_emission == true) && ((day_time&0x06) != 0x0) ) {
-        state->setMaterial( GL_EMISSION, color[0], color[1], color[2], 1.0 );
+        state->setMaterial( GL_EMISSION, cs->color[0], cs->color[1], cs->color[2], 1.0 );
       }
       else {
         state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
@@ -1140,8 +1181,9 @@ static ssgSimpleState *createState(bool use_texture, sgVec4 &color)
     state->enable(GL_TEXTURE_2D);
   }
   else
+  // solid color 
   {
-    if(color[3] < 0.99f)
+    if ( (cs->color[3] < 0.99f) || (alpha_ < 0.99f) )
     {
       state->setTranslucent();
       state->enable(GL_BLEND);
@@ -1153,45 +1195,33 @@ static ssgSimpleState *createState(bool use_texture, sgVec4 &color)
       state->disable(GL_BLEND);
       state->disable(GL_ALPHA_TEST);
     }
-    if (has_emission == true) {
-      int day_time;
-      if(getVariableValue(0x28c, &day_time) == 0 ){  // get daytime
-        if ((day_time&0x04) == 0x4) {               // light enabled
-          JMPRINT(ios::dec, " 2a: color: " << SColor[0] << "; " << SColor[1] << "; " << SColor[2] << "; " << SColor[3]);
-          JMPRINT(ios::dec, " 2a: emission: " << color[0] << "; " << color[1] << "; " << color[2] << "; " << color[3]);
-          state->setMaterial( GL_AMBIENT, 0.0f, 0.0f, 0.0f, 1.0f );
-          state->setMaterial( GL_DIFFUSE, 0.0f, 0.0f, 0.0f, 1.0f );
-          state->setMaterial( GL_EMISSION, color[0] * GColor[0],
-                                           color[1] * GColor[1],
-                                           color[2] * GColor[2],
-                                           color[3] );
-        }
-        else {
-
-          state->setMaterial( GL_AMBIENT,  color[0] * GColor[0],
-                                           color[1] * GColor[1],
-                                           color[2] * GColor[2],
-                                           color[3] );
-          state->setMaterial( GL_DIFFUSE,  color[0] * GColor[0],
-                                           color[1] * GColor[1],
-                                           color[2] * GColor[2],
-                                           color[3] );
-
-          state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f  );
-        }
-      }
+//    int day_time;
+//    getVariableValue(0x28c, &day_time);               // get daytime
+    
+    if (cs->has_emission == true) {
+      state->setMaterial( GL_AMBIENT, 0.0f, 0.0f, 0.0f, 1.0f );
+      state->setMaterial( GL_DIFFUSE, 0.0f, 0.0f, 0.0f, 1.0f );
+      state->setMaterial( GL_EMISSION, cs->color[0],
+                                       cs->color[1],
+                                       cs->color[2],
+                                       (alpha_ < 0.99f)? alpha_:cs->color[3] );
+      state->setShininess(0);
     }
     else {
-      state->setMaterial( GL_AMBIENT, color );
-      state->setMaterial( GL_DIFFUSE, color );
+      state->setMaterial( GL_AMBIENT,  cs->color[0],
+                                       cs->color[1],
+                                       cs->color[2],
+                                       (alpha_ < 0.99f)? alpha_:cs->color[3] );
+      state->setMaterial( GL_DIFFUSE,  cs->color[0],
+                                       cs->color[1],
+                                       cs->color[2],
+                                       (alpha_ < 0.99f)? alpha_:cs->color[3] );
       state->setMaterial( GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f );
+      state->setShininess(shininess_);
+      state->setMaterial( GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f );
     }
     state->disable(GL_TEXTURE_2D);
   }
-  
-  state->setShininess(shininess_);
-  state->setMaterial( GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f );
-  state->enable (GL_CULL_FACE);
 
   has_emission = false;
   return state;
@@ -1221,7 +1251,7 @@ static ssgBranch *getCurrGroup() {
 
 //===========================================================================
 
-static void readFacet(FILE *fp, sgVec4 &color)
+static void readFacet(FILE *fp, COLOR *color, bool use_texture)
 {
   curr_index_ = new ssgIndexArray();
   unsigned short numverts = ulEndianReadLittle16(fp);
@@ -1235,12 +1265,12 @@ static void readFacet(FILE *fp, sgVec4 &color)
   ulEndianReadLittle32(fp);
   
   // Read vertex indices
-  GLenum type = readIndices(fp, numverts, v);
+  GLenum type = readIndices(fp, numverts, v, use_texture);
   
   curr_part_ = new ssgLayeredVtxArray(type,
           vertex_array_,
           normal_array_,
-          has_texture==true?tex_coords_:NULL,
+          use_texture==true?tex_coords_:NULL,
           NULL,
           curr_index_);
 
@@ -1248,11 +1278,11 @@ static void readFacet(FILE *fp, sgVec4 &color)
     // we have a background texture
     curr_part_->moveToBackground();
     shininess_ = 0;        // background does not shine
-    curr_part_->setState( createState(has_texture, color) );
+    curr_part_->setState( createState(use_texture, color) );
     shininess_ = DEF_SHININESS;
   }
   else {
-    curr_part_->setState( createState(has_texture, color) );
+    curr_part_->setState( createState(use_texture, color) );
   }
   ssgBranch* grp = getCurrGroup();
   ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
@@ -1261,7 +1291,7 @@ static void readFacet(FILE *fp, sgVec4 &color)
 
 //===========================================================================
 
-static void readTMapFacet(FILE *fp, sgVec4 &color)
+static void readTMapFacet(FILE *fp, COLOR *color)
 {
   curr_index_ = new ssgIndexArray();
   unsigned short numverts = ulEndianReadLittle16(fp);
@@ -1423,16 +1453,16 @@ static ssgBranch *ssgLoadBGLFile(const char *fname )
 
 static void parse_proc_scenery(FILE* fp)
 {
-  sgSetVec4(GColor, 1.0f, 1.0f, 1.0f, 0.0f);      // set Emission value to default
+//  sgSetVec4(GColor, 1.0f, 1.0f, 1.0f, 0.0f);      // set Emission value to default
   alpha_ = 1.0f;                                  // set aplpha value to default: opaque
   shininess_ = DEF_SHININESS;                     // set aplpha shininess to default value
 
   poly_from_line = false;
-  
+  emissive_color_ = false;
+
   // Create group nodes for textured and non-textured objects
   vertex_array_ = new ssgVertexArray();
   normal_array_ = new ssgNormalArray();
-
   tex_coords_ = new ssgTexCoordArray();
 
   curr_branch_=0;
@@ -1894,7 +1924,7 @@ static void parse_proc_scenery(FILE* fp)
             NULL,
             NULL,
             curr_index_ );
-          curr_part_->setState( createState(false, LColor) );
+          curr_part_->setState( createState(false, &line_) );
           ssgBranch* grp = getCurrGroup();
           ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
 					grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
@@ -1920,7 +1950,6 @@ static void parse_proc_scenery(FILE* fp)
 
           // john .....
           if ( !poly_from_line ) {  // don't add this kid right now
-
             curr_part_ = new ssgLayeredVtxArray( GL_LINE_STRIP,
               vertex_array_,
               normal_array_,
@@ -1929,14 +1958,14 @@ static void parse_proc_scenery(FILE* fp)
               draw_point_index_ );
 
             if ( has_texture ) {
-              curr_part_->setState( createState(true, LColor) );
+              curr_part_->setState( createState(true, &line_) );
             }
             else {
-              curr_part_->setState( createState(false, LColor) );
+              curr_part_->setState( createState(false, &line_) );
             }
             ssgBranch *grp = getCurrGroup();
-            grp->addKid(curr_part_);
-
+//            grp->addKid(curr_part_);
+          grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
           }
         }
         break;
@@ -1957,17 +1986,19 @@ static void parse_proc_scenery(FILE* fp)
 
       case 0x7a:  // Goraud shaded Texture-mapped ABCD Facet with night emission
         {
-          curr_tex_wrap_ = FALSE;
+          curr_tex_wrap_ = (curr_tex_type_==0x18)?TRUE:FALSE;
           has_emission=true;
-          readTMapFacet(fp, GColor);
+          readTMapFacet(fp, &goraud_);
+          has_texture=false;
         }
         break;
 
       case 0x20:  // Goraud shaded Texture-mapped ABCD Facet
         {
-          curr_tex_wrap_ = FALSE;
+          curr_tex_wrap_ = (curr_tex_type_==0x18)?TRUE:FALSE;
           has_emission=false;
-          readTMapFacet(fp, SColor);
+          readTMapFacet(fp, &surface_);
+          has_texture=false;
         }
         break;
 
@@ -2002,9 +2033,9 @@ static void parse_proc_scenery(FILE* fp)
             NULL,
             curr_index_ );
           
-          curr_tex_wrap_ = FALSE;
+          curr_tex_wrap_ = (curr_tex_type_==0x18)?TRUE:FALSE;
 
-          curr_part_->setState( createState(true, GColor) );
+          curr_part_->setState( createState(true, &goraud_) );
           ssgBranch* grp = getCurrGroup();
           ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
 					grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
@@ -2024,7 +2055,7 @@ static void parse_proc_scenery(FILE* fp)
           readVector(fp, v);
 
           // Read vertex indices
-          GLenum type = readIndices(fp, numverts, v);
+          GLenum type = readIndices(fp, numverts, v, has_texture);
 
           curr_part_ = new ssgLayeredVtxArray(type,
             vertex_array_,
@@ -2034,7 +2065,7 @@ static void parse_proc_scenery(FILE* fp)
             curr_index_);
 
           curr_tex_wrap_ = TRUE;
-          curr_part_->setState( createState(false, SColor) );
+          curr_part_->setState( createState(false, &surface_) );
           ssgBranch* grp = getCurrGroup();
           ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
 					grp->addKid( current_options -> createLeaf(curr_part_, NULL) );
@@ -2044,17 +2075,19 @@ static void parse_proc_scenery(FILE* fp)
       case 0x2a:  // Goraud shaded ABCD Facet
         {
           curr_tex_wrap_ = TRUE;
-          has_emission=true;
-          has_texture=false;
-          readFacet(fp, SColor);
+          has_emission = true;
+//          has_emission = emissive_color_;
+          has_texture = false;
+          readFacet(fp, &goraud_, has_texture );
         }
         break;
 
-      case 0x3e:  // FACETN (no texture)
+      case 0x3e:  // FACETN
         {
           curr_tex_wrap_ = TRUE;
-          has_emission=false;
-          readFacet(fp, SColor);
+          has_emission = false;
+          readFacet(fp, &surface_, has_texture );
+          has_texture = false;
         }
         break;
 
@@ -2077,7 +2110,7 @@ static void parse_proc_scenery(FILE* fp)
           tex_filename[j] = '\0';
           JMPRINT( ios::dec, "Set texture: name = " << tex_filename << ", id = " << id
             << ", dx = " << dx << ", dy = " << dy << ", scale = " << scale);
-          setTexture(tex_filename, 0x18);
+          setTexture(tex_filename, 0x18, 0x00);
           has_texture = true;
         }
         break;
@@ -2114,38 +2147,41 @@ static void parse_proc_scenery(FILE* fp)
           JMPRINT( ios::hex, "Set texture2: name = " << tex_filename << ", length = 0x" << length
             << ", idx = 0x" << idx << ", flags = 0x" << (short)flags << ", color = 0x" << color);
 
-          setTexture(tex_filename, 0x43);
+          setTexture(tex_filename, 0x43, flags);
           has_texture = true;
           break;
         }
 
       case 0x50:  // GCOLOR (Goraud shaded color)
         {
-          setColor(fp, GColor);
+          setColor(fp, &goraud_);
+          has_texture = false;
         }
         break;
 
       case 0x51:  // LCOLOR (Line color)
         {
-          setColor(fp, LColor);
+          setColor(fp, &line_);
         }
         break;
 
       case 0x52:  // SCOLOR (Light source shaded surface color)
         {
-          setColor(fp, SColor);
+          setColor(fp, &surface_);
+          has_texture = false;
         }
         break;
 
       case 0x2D:  // BGL_SCOLOR24
         {
-          setTrueColor(fp, SColor);
+          setTrueColor(fp, &surface_);
+          has_texture = false;
         }
         break;
 
       case 0x2E:  // BGL_LCOLOR24
         {
-          setTrueColor(fp, LColor);
+          setTrueColor(fp, &line_);
         }
         break;
 
@@ -2202,7 +2238,7 @@ static void parse_proc_scenery(FILE* fp)
                 sgCopyVec2(tex_coords_->get(*draw_point_index_->get(i)), tc);
               }
             }
-            int type = createTriangIndices(draw_point_index_, poly_from_line_numverts, v);
+            GLenum type = createTriangIndices(draw_point_index_, poly_from_line_numverts, v);
 
             while (normal_array_->getNum() < vertex_array_->getNum())
               normal_array_->add(v);
@@ -2219,7 +2255,7 @@ static void parse_proc_scenery(FILE* fp)
             curr_part_->moveToBackground();
             shininess_ = 0;        // background does not shine
             curr_tex_wrap_ = TRUE;
-            curr_part_->setState( createState(true, SColor) );
+            curr_part_->setState( createState(true, &surface_) );
             shininess_ = DEF_SHININESS;
           }
           else {                   // open surface draw a ployline
@@ -2230,7 +2266,7 @@ static void parse_proc_scenery(FILE* fp)
               NULL,
               NULL,
               draw_point_index_ );
-            curr_part_->setState( createState(false, LColor) );
+            curr_part_->setState( createState(false, &line_) );
           }
           ssgBranch* grp = getCurrGroup();
           ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
@@ -2577,7 +2613,8 @@ static void parse_proc_scenery(FILE* fp)
         }
         ssgVtxTable *Vtx = new ssgVtxTable(GL_TRIANGLE_FAN, vertices, normals, texcoords, NULL);
         Vtx->setState(state);
-        building -> addKid (Vtx);
+//        building -> addKid (Vtx);
+        building->addKid( current_options -> createLeaf(Vtx, NULL) );
         toffset += ntoffset;
       }
     }
@@ -2747,7 +2784,7 @@ static void parse_proc_scenery(FILE* fp)
                                           tex_coords_,
                                           NULL,
                                           strips );
-            curr_part_->setState( createState(true, SColor) );
+            curr_part_->setState( createState(true, &surface_) );
             ssgBranch* grp = getCurrGroup();
             ((ssgVtxArray *)curr_part_)->removeUnusedVertices();
 						grp->addKid( current_options -> createLeaf(curr_part_, NULL) );

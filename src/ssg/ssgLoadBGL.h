@@ -61,6 +61,12 @@
 #define RUNAWAY_LAYER 24
 #define ZERO_LAYER 24
 
+#define TF_LIGHT_MAP 0x80
+#define TF_HAZE_MAP 0x40
+#define TF_SPRING 0x08
+#define TF_FALL 0x10
+#define TF_WINTER 0x20
+
 #undef ABS
 #undef MIN
 #undef MAX
@@ -78,12 +84,17 @@
 
 
 // type definitions
+typedef struct {
+  sgVec4  color;
+  bool    has_emission;
+  bool    has_alpha;
+} COLOR;
 
 // class declarations
 class ssgLayeredVtxArray : public ssgVtxArray
 {
 public:
-  ssgLayeredVtxArray ( unsigned int,
+  ssgLayeredVtxArray ( GLenum,
                        ssgVertexArray *,
                        ssgNormalArray *,
                        ssgTexCoordArray *,
