@@ -36,9 +36,7 @@ Before using any other PW functions, you should initialise the
 library by calling either:
 <pre>
 
-void pwInit ( int multisample, int num_samples,
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb = NULL, pwExitCB *ecb = NULL ) ;
+void pwInit ( int multisample, int num_samples ) ;
 
 </pre>
 ...or:
@@ -46,9 +44,7 @@ void pwInit ( int multisample, int num_samples,
 
 void pwInit ( int x, int y, int w, int h,
               int multisample,
-              char *title, int border, int num_samples,
-              pwKeybdFunc *kb, pwMouseFunc *ms, pwMousePosFunc *mp,
-              pwResizeCB *rcb = NULL, pwExitCB *ecb = NULL ) ;
+              char *title, int border, int num_samples ) ;
 
 </pre>
 The first version creates a full-screen window with no borders,
@@ -65,13 +61,27 @@ to be enabled or not - and if so, with how many samples.  If your
 system cannot produce the number of samples requested, pwInit will
 fall back to the best it can do.
 <p>
-The final five parameters are callback functions for (repectively)
+Then, initialise other PLIB components such as PUI.  When initialisation
+is complete, call this function:
+<pre>
+
+void pwOpenWindow ( pwKeybdFunc    *kb = NULL, pwMouseFunc *ms = NULL,
+                    pwMousePosFunc *mp = NULL, pwResizeCB *rcb = NULL,
+                    pwExitCB      *ecb = NULL ) ;
+
+</pre>
+These parameters are callback functions for (repectively)
 incoming keyboard keystrokes, incoming mouse button press or
 release events, mouse movements, window resize events and finally,
 a window close callback.  (That's invoked by PW when the user attempts
 to close the window by pressing the exit button on the window border.)
 PW also calls the exit function when it detects a fatal error that
 occurs after the window has been successfully opened.
+<p>
+Your application has to be prepared for these callbacks to be invoked
+at any time after pwOpenWindow.  PW doesn't guarantee that the window
+won't be opened before pwOpenWindow - but the window will certainly
+be opened after it returns.
 <p>
 The specifications of these various callbacks are:
 <pre>
