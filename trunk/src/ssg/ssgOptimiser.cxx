@@ -182,50 +182,75 @@ short OptVertexList::add ( sgVec3 v1, sgVec2 t1, sgVec4 c1,
                           sgVec3 v2, sgVec2 t2, sgVec4 c2,
                           sgVec3 v3, sgVec2 t3, sgVec4 c3 )
 {
-  /*
-  Sharing vertices is tricky because of texture coordinates
-  that have the same all-important fractional part - but
-  differ in their integer parts.
-  */
+	// If possible, this routine moves the texturecoordinates of
+	// all three vertices of a Tria so that one needs less vertices.
+	// This doesnÄt affect looks, but enhances the speed a bit.
+	// This is not possible, if warpu or wrapv is FALSE
+
+	int bWrapsInBothDirections = FALSE;
+	short vi1, vi2, vi3;
+/*
+  if ( state->isAKindOf( ssgTypeSimpleState() ) )
+		bWrapsInBothDirections = 
+	      ( (((ssgSimpleState *)state)->getWrapU()) &&
+          (((ssgSimpleState *)state)->getWrapV()) );
+	*/
+  fprintf(stdout, "bWrapsInBothDirections=%s\n",
+                		bWrapsInBothDirections? "TRUE": "FALSE" );
+	if (!bWrapsInBothDirections)
+	{
+		/* Find which (if any) of the vertices are a match for one in the list */
   
-  sgVec2 adjust ;
+		 vi1 = add ( v1, t1, c1 ) ;
+		 vi2 = add ( v2, t2, c2 ) ;
+		 vi3 = add ( v3, t3, c3 ) ;
+	}
+	else
+	{
+		/*
+		Sharing vertices is tricky because of texture coordinates
+		that have the same all-important fractional part - but
+		differ in their integer parts.
+		*/
   
-  /* Find which (if any) of the vertices are a match for one in the list */
+		sgVec2 adjust ;
   
-  short vi1 = find ( v1, t1, c1, TRUE ) ;
-  short vi2 = find ( v2, t2, c2, TRUE ) ;
-  short vi3 = find ( v3, t3, c3, TRUE ) ;
+		/* Find which (if any) of the vertices are a match for one in the list */
   
-  /* Compute texture offset coordinates (if needed) to make everything match */
+		vi1 = find ( v1, t1, c1, TRUE ) ;
+		vi2 = find ( v2, t2, c2, TRUE ) ;
+		vi3 = find ( v3, t3, c3, TRUE ) ;
   
-  if ( vi1 >= 0 )
-    sgSubVec2 ( adjust, t1, vlist[vi1]->texcoord ) ;
-  else
-    if ( vi2 >= 0 )
-      sgSubVec2 ( adjust, t2, vlist[vi2]->texcoord ) ;
-    else
-      if ( vi3 >= 0 )
-        sgSubVec2 ( adjust, t3, vlist[vi3]->texcoord ) ;
-      else
-      {
-      /*
-      OK, there was no match - so just remove
-      any large numbers from the texture coords
-        */
+		/* Compute texture offset coordinates (if needed) to make everything match */
+  
+		if ( vi1 >= 0 )
+			sgSubVec2 ( adjust, t1, vlist[vi1]->texcoord ) ;
+		else
+			if ( vi2 >= 0 )
+				sgSubVec2 ( adjust, t2, vlist[vi2]->texcoord ) ;
+			else
+				if ( vi3 >= 0 )
+					sgSubVec2 ( adjust, t3, vlist[vi3]->texcoord ) ;
+				else
+				{
+				/*
+				OK, there was no match - so just remove
+				any large numbers from the texture coords
+					*/
         
-        adjust [ 0 ] = (float) floor ( t1[0] ) ;
-        adjust [ 1 ] = (float) floor ( t1[1] ) ;
-      }
+					adjust [ 0 ] = (float) floor ( t1[0] ) ;
+					adjust [ 1 ] = (float) floor ( t1[1] ) ;
+				}
       
-      /*
-      Now adjust the texture coordinates and add them into the list
-      */
-      sgVec2 tmp ;
-      sgSubVec2 ( tmp, t1, adjust ) ; vi1 = add ( v1, tmp, c1 ) ;
-      sgSubVec2 ( tmp, t2, adjust ) ; vi2 = add ( v2, tmp, c2 ) ;
-      sgSubVec2 ( tmp, t3, adjust ) ; vi3 = add ( v3, tmp, c3 ) ;
-      
-      return add ( vi1, vi2, vi3 ) ;
+		/*
+		Now adjust the texture coordinates and add them into the list
+		*/
+		sgVec2 tmp ;
+		sgSubVec2 ( tmp, t1, adjust ) ; vi1 = add ( v1, tmp, c1 ) ;
+		sgSubVec2 ( tmp, t2, adjust ) ; vi2 = add ( v2, tmp, c2 ) ;
+		sgSubVec2 ( tmp, t3, adjust ) ; vi3 = add ( v3, tmp, c3 ) ;
+  }
+  return add ( vi1, vi2, vi3 ) ;
 }
 
 
