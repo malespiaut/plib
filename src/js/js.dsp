@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy js.h ..\..\js.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "js - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy js.h ..\..\js.h
 # End Special Build Tool
 
 !ENDIF 
@@ -99,33 +99,6 @@ SOURCE=.\js.cxx
 # Begin Source File
 
 SOURCE=.\js.h
-
-!IF  "$(CFG)" == "js - Win32 Release"
-
-# PROP Ignore_Default_Tool 1
-# Begin Custom Build - 'js' gets installed
-ProjDir=.
-InputPath=.\js.h
-
-"$(ProjDir)\..\..\js.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy $(ProjDir)\js.h $(ProjDir)\..\..\js.h
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "js - Win32 Debug"
-
-# PROP Ignore_Default_Tool 1
-# Begin Custom Build - 'js' gets installed
-ProjDir=.
-InputPath=.\js.h
-
-"$(ProjDir)\..\..\js.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy $(ProjDir)\js.h $(ProjDir)\..\..\js.h
-
-# End Custom Build
-
-!ENDIF 
-
 # End Source File
 # End Target
 # End Project
