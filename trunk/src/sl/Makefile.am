@@ -12,7 +12,7 @@ libplibsl_a_SOURCES = \
 
 libplibsm_a_SOURCES = slPortability.h smMixer.cxx
 
-INCLUDES = -I$(top_srcdir)/src/util
+INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/src/util
 
 endif
 

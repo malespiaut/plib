@@ -10,7 +10,7 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgLoadAC.cxx ssgLocal.h ssgOptimiser.cxx ssgRoot.cxx ssgSaveAC.cxx \
 	ssgSelector.cxx ssgSimpleState.cxx ssgState.cxx ssgStateTables.cxx \
 	ssgStats.cxx  ssgTween.cxx ssgTweenController.cxx \
-        ssgTexTrans.cxx ssgTexture.cxx ssgTransform.cxx \
+	ssgTexTrans.cxx ssgTexture.cxx ssgTransform.cxx \
 	ssgStateSelector.cxx ssgRangeSelector.cxx ssgLoadTexture.cxx \
 	ssgLoadBMP.cxx ssgLoadSGI.cxx ssgLoadPNG.cxx ssgLoadTGA.cxx \
 	ssgInvisible.cxx ssgLoadSSG.cxx ssgVTable.cxx \
@@ -20,13 +20,13 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgLoadOBJ.cxx ssgSaveOBJ.cxx ssgVtxArray.cxx ssgLoadMD2.cxx \
 	ssgLoadMDL.cxx ssgLoadX.cxx ssgSaveX.cxx ssgLoaderWriterStuff.cxx \
 	ssgLoadFLT.cxx ssgLoadM.cxx ssgSaveM.cxx ssgLoadStrip.cxx \
-	ssgLoadOFF.cxx ssgSaveOFF.cxx ssgSaveQHI.cxx ssgLoadVRML1.cxx ssgSaveVRML1.cxx\
-	ssgLoaderWriterStuff.h ssgMSFSPalette.h ssg3ds.h ssgLoadMDL.h \
-	ssgSave3ds.cxx ssgAxisTransform.cxx ssgLoadATG.cxx ssgSaveATG.cxx\
-	ssgLoadIV.cxx ssgLoad.cxx ssgLoadVRML.h ssgLoadMDL_BGLTexture.cxx
+	ssgLoadOFF.cxx ssgSaveOFF.cxx ssgSaveQHI.cxx ssgLoadVRML1.cxx \
+	ssgSaveVRML1.cxx ssgLoaderWriterStuff.h ssgMSFSPalette.h ssg3ds.h \
+	ssgLoadMDL.h ssgSave3ds.cxx ssgAxisTransform.cxx ssgLoadATG.cxx \
+	ssgSaveATG.cxx ssgLoadIV.cxx ssgLoad.cxx ssgLoadVRML.h \
+	ssgLoadMDL_BGLTexture.cxx
 
-INCLUDES = -I$(top_srcdir)/src/sg
-INCLUDES += -I$(top_srcdir)/src/util
+INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/util
 
 endif
 
