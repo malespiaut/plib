@@ -25,7 +25,7 @@
 #include "pslLocal.h"
 
 
-int pslParser::pushPrimitive ()
+int pslCompiler::pushPrimitive ()
 {
   char c [ MAX_TOKEN ] ;
   pslGetToken ( c ) ;
@@ -102,7 +102,7 @@ int pslParser::pushPrimitive ()
 
 
 
-int pslParser::pushMultExpression ()
+int pslCompiler::pushMultExpression ()
 {
   if ( ! pushPrimitive () )
     return FALSE ;
@@ -132,7 +132,7 @@ int pslParser::pushMultExpression ()
 
 
 
-int pslParser::pushAddExpression ()
+int pslCompiler::pushAddExpression ()
 {
   if ( ! pushMultExpression () )
     return FALSE ;
@@ -162,7 +162,7 @@ int pslParser::pushAddExpression ()
 
 
 
-int pslParser::pushRelExpression ()
+int pslCompiler::pushRelExpression ()
 {
   if ( ! pushAddExpression () )
     return FALSE ;
@@ -227,7 +227,7 @@ int pslParser::pushRelExpression ()
 }
 
 
-int pslParser::pushExpression ()
+int pslCompiler::pushExpression ()
 {
   return pushRelExpression () ;
 }

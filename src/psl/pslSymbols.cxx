@@ -25,7 +25,7 @@
 #include "pslLocal.h"
 
 
-pslAddress pslParser::setVarSymbol ( const char *s )
+pslAddress pslCompiler::setVarSymbol ( const char *s )
 {
   for ( int i = 0 ; i < next_var ; i++ )
     if ( strcmp ( s, symtab [ i ] . symbol ) == 0 &&
@@ -48,7 +48,7 @@ pslAddress pslParser::setVarSymbol ( const char *s )
 
 
 
-pslAddress pslParser::getVarSymbol ( const char *s )
+pslAddress pslCompiler::getVarSymbol ( const char *s )
 {
   /* Search Backwards so most local variable shows up first */
 
@@ -62,7 +62,7 @@ pslAddress pslParser::getVarSymbol ( const char *s )
 }
 
 
-int pslParser::getExtensionSymbol ( const char *s )
+int pslCompiler::getExtensionSymbol ( const char *s )
 {
   for ( int i = 0 ; extensions [ i ] . symbol != NULL ; i++ )
     if ( strcmp ( s, extensions [ i ] . symbol ) == 0 )
@@ -72,7 +72,7 @@ int pslParser::getExtensionSymbol ( const char *s )
 }
 
 
-void pslParser::addFwdRef ( const char *s, pslAddress where )
+void pslCompiler::addFwdRef ( const char *s, pslAddress where )
 {
   for ( int i = 0 ; i < next_fwdref ; i++ )
   {
@@ -94,7 +94,7 @@ void pslParser::addFwdRef ( const char *s, pslAddress where )
 
 
 
-void pslParser::fixup ( const char *s, pslAddress v )
+void pslCompiler::fixup ( const char *s, pslAddress v )
 {
   for ( int i = 0 ; i < next_fwdref ; i++ )
   {
@@ -113,7 +113,7 @@ void pslParser::fixup ( const char *s, pslAddress v )
 
 
 
-void pslParser::checkUnresolvedSymbols ()
+void pslCompiler::checkUnresolvedSymbols ()
 {
   for ( int i = 0 ; i < next_fwdref ; i++ )
   {
@@ -131,7 +131,7 @@ void pslParser::checkUnresolvedSymbols ()
 
 
 
-pslAddress pslParser::getCodeSymbol ( const char *s, pslAddress where )
+pslAddress pslCompiler::getCodeSymbol ( const char *s, pslAddress where )
 {
   for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
@@ -146,7 +146,7 @@ pslAddress pslParser::getCodeSymbol ( const char *s, pslAddress where )
 
 
 
-void pslParser::setCodeSymbol ( const char *s, pslAddress v )
+void pslCompiler::setCodeSymbol ( const char *s, pslAddress v )
 {
   for ( int i = 0 ; i < next_code_symbol ; i++ )
     if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )

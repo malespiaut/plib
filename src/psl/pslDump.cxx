@@ -59,7 +59,7 @@ static const OpcodeDecode opcodeDecode [] =
 } ;
 
 
-void pslParser::print_opcode ( FILE *fd, unsigned char op ) const
+void pslCompiler::print_opcode ( FILE *fd, unsigned char op ) const
 {
   if ( ( op & 0xF0 ) == OPCODE_PUSH_VARIABLE )
     fprintf ( fd, "  PUSH_VAR\t%s", symtab [ op & 0x0F ] . symbol ) ;
@@ -76,7 +76,7 @@ void pslParser::print_opcode ( FILE *fd, unsigned char op ) const
 }
 
 
-void pslParser::dump () const
+void pslCompiler::dump () const
 {
   int i ;
 

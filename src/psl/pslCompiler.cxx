@@ -25,7 +25,7 @@
 #include "pslLocal.h"
 
 
-int pslParser::pushReturnStatement ()
+int pslCompiler::pushReturnStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
@@ -47,7 +47,7 @@ int pslParser::pushReturnStatement ()
 }
 
 
-int pslParser::pushWhileStatement ()
+int pslCompiler::pushWhileStatement ()
 {
 
   /* Remember place to jump back to */
@@ -76,7 +76,7 @@ int pslParser::pushWhileStatement ()
 }
 
 
-int pslParser::pushIfStatement ()
+int pslCompiler::pushIfStatement ()
 {
   if ( ! pushExpression () )
   {
@@ -132,7 +132,7 @@ int pslParser::pushIfStatement ()
 }
 
 
-int pslParser::pushFunctionCall ( const char *var )
+int pslCompiler::pushFunctionCall ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
@@ -179,7 +179,7 @@ int pslParser::pushFunctionCall ( const char *var )
 }
 
 
-int pslParser::pushAssignmentStatement ( const char *var )
+int pslCompiler::pushAssignmentStatement ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
@@ -203,7 +203,7 @@ int pslParser::pushAssignmentStatement ( const char *var )
 }
 
 
-int pslParser::pushCompoundStatement ()
+int pslCompiler::pushCompoundStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
@@ -235,7 +235,7 @@ int pslParser::pushCompoundStatement ()
 }
 
 
-int pslParser::pushStatement ()
+int pslCompiler::pushStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
@@ -270,7 +270,7 @@ int pslParser::pushStatement ()
 }
 
 
-void pslParser::pushProgram ()
+void pslCompiler::pushProgram ()
 {
   char c [ MAX_TOKEN ] ;
 
@@ -300,7 +300,7 @@ void pslParser::pushProgram ()
 
 
 
-int pslParser::pushLocalVariableDeclaration ()
+int pslCompiler::pushLocalVariableDeclaration ()
 {
   char c  [ MAX_TOKEN ] ;
   char s  [ MAX_TOKEN ] ;
@@ -324,7 +324,7 @@ int pslParser::pushLocalVariableDeclaration ()
 
 
 
-int pslParser::pushStaticVariableDeclaration ()
+int pslCompiler::pushStaticVariableDeclaration ()
 {
   ulSetError ( UL_WARNING,
        "PSL: Local Variables are Not Supported Yet." ) ;
@@ -333,7 +333,7 @@ int pslParser::pushStaticVariableDeclaration ()
 
 
 
-int pslParser::pushGlobalVariableDeclaration ( const char *s )
+int pslCompiler::pushGlobalVariableDeclaration ( const char *s )
 {
   char c  [ MAX_TOKEN ] ;
 
@@ -360,7 +360,7 @@ int pslParser::pushGlobalVariableDeclaration ( const char *s )
 
 
 
-int pslParser::pushGlobalDeclaration ()
+int pslCompiler::pushGlobalDeclaration ()
 {
   char c  [ MAX_TOKEN ] ;
   char fn [ MAX_TOKEN ] ;
@@ -404,7 +404,7 @@ int pslParser::pushGlobalDeclaration ()
 }
 
 
-int pslParser::pushFunctionDeclaration ( const char *fn )
+int pslCompiler::pushFunctionDeclaration ( const char *fn )
 {
   char c  [ MAX_TOKEN ] ;
 
