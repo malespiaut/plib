@@ -13,19 +13,19 @@
 
 //#define VOODOO 1
 
-static void motionfn ( int x, int y )
+void motionfn ( int x, int y )
 {
   puMouse ( x, y ) ;
   glutPostRedisplay () ;
 }
 
-static void mousefn ( int button, int updown, int x, int y )
+void mousefn ( int button, int updown, int x, int y )
 {
   puMouse ( button, updown, x, y ) ;
   glutPostRedisplay () ;
 }
 
-static void displayfn ( void )
+void displayfn ( void )
 {
   glClearColor ( 0.1f, 0.4f, 0.1f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT ) ;
@@ -41,13 +41,13 @@ static void displayfn ( void )
      than creating user interface widgets, you normally do want to
      redraw your scenery as often as possible for smooth animation. */
 
-  //glutPostRedisplay () ;
+  glutPostRedisplay () ;
 }
 
-/*static void button_cb ( puObject * )
+void button_cb ( puObject * )
 {
   fprintf ( stderr, "Hello World.\n" ) ;
-}*/
+}
  
 
 int main ( int argc, char **argv )
@@ -67,23 +67,27 @@ int main ( int argc, char **argv )
      can write their applications upon this example code without running
      into problems. */
 
-  glutInitDisplayMode    ( GLUT_RGB | GLUT_DOUBLE /*| GLUT_DEPTH*/ ) ;
+  glutInitDisplayMode    ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
 
   glutCreateWindow       ( "PUI Application"  ) ;
   glutDisplayFunc        ( displayfn ) ;
   glutMouseFunc          ( mousefn   ) ;
   glutMotionFunc         ( motionfn  ) ;
-  glutPassiveMotionFunc  ( motionfn  ) ;
 
-/*#ifdef VOODOO
+#ifdef VOODOO
   glutPassiveMotionFunc  ( motionfn  ) ;
-#endif*/
+#endif
 
   puInit () ;
 
 #ifdef VOODOO
   puShowCursor () ;
 #endif
+
+  puOneShot *b = new puOneShot ( 50, 50, 200, 80 ) ;
+
+  b -> setLegend   ( "Say Hello" ) ;
+  b -> setCallback ( button_cb ) ;
 
   glutMainLoop () ;
 
