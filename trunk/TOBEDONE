@@ -70,8 +70,6 @@ Bugs:
 	.AC stuff on my private computer, please don't start major changes 
 	to .AC loading/saving. But if someone wants to search for the bug 
 	and fix	it in .ASE, you are very welcome.
-- David Megginson bug list. Marten said 1, 2, 3, 4, 7 and 8 are now
-  fixed. What's the status of the others?
 
 - WK: I have a crash in ssgFlatten if I load .ac files with 
   unused materials (not reproducable?)
@@ -143,9 +141,10 @@ Misc:
   because of performance issues we need a warning in the docs and 
   IMHO PLIB should "write out" a warning if an unallowed matrix is
   sent to it.
-- Dave McClurgs new Net stuff: 
-  One of the Linux persons should make it compilable and 
-  test it.
+  Update: Scaling does not work (intentionally). Uniform scaling may be
+  enabled by uncommenting "radius *= sgLengthVec3(m[0])" in
+  sgSphere::orthoXform. It is currently disabled because that extra
+  calculation would degrade performance on non-scaled matrices.
 - Search for todo, fix, fixme, kludge, Pfusch.
   I would suggest we mark things we have looked at and want to 
   do later with "NIV14".
@@ -182,6 +181,10 @@ Misc:
   for it, search for "14.feb"
 - AFAIK the define PROXY_TEXTURES_ARE_NOT_BROKEN is not yet added 
   to the makefiles.
+- There is a bug in the 3Dfx driver for Linux (tdfx_dri-4.0.1-1) that
+  causes the "complex" example program to crash in "fxSetupBlend".
+  Since there are no signs of updated 3Dfx drivers, it would be nice
+  if a work-around could be found instead.
 
 Testing:
 ========
