@@ -120,6 +120,19 @@ of applications I have, it will certainly need more
 work in the future.
 
 
+
+AUX LIBRARIES AND TOOLS:
+
+PLIB comes with a number of auxiliary libraries in the
+'auxlibs' folder.  These add capabilities to PLIB that
+not every program will wish to be burdened with.
+
+The 'tools' directory contains a number of useful tools
+and utility programs that are either built using PLIB or
+which are specifically useful when writing PLIB programs.
+
+
+
 COMPILING/LINKING WITH PLIB
 
 In your source code, add any combination of:
