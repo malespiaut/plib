@@ -65,7 +65,7 @@ void puDial::draw ( int dx, int dy )
     glBegin ( GL_LINE_STRIP ) ;
 
     float theta ;
-    for ( theta = -3.1415927f; theta < 3.1415927f+dtheta; theta+= dtheta )
+    for ( theta = -SG_PI; theta < SG_PI+dtheta; theta+= dtheta )
     {
       float x = (float)x_cen + rad * (float)cos ( (double)theta ) ;
       float y = (float)y_cen + rad * (float)sin ( (double)theta ) ;
@@ -85,7 +85,7 @@ void puDial::draw ( int dx, int dy )
     if ( val < 0.0 ) val = 0.0 ;
     if ( val > 1.0 ) val = 1.0 ;
 
-    val = ( 2.0f * val - 1.0f ) * 3.1415927f ;
+    val = ( 2.0f * val - 1.0f ) * SG_PI ;
 
     glBegin ( GL_LINES ) ;
 
@@ -124,7 +124,7 @@ void puDial::doHit ( int button, int updown, int x, int y )
   {
     int x_cen = ( abox.max [0] + abox.min [0] ) / 2 ;
     int y_cen = ( abox.max [1] + abox.min [1] ) / 2 ;
-    float angle = (float)atan2 ( (double)(x-x_cen), (double)(y-y_cen) ) / 3.1415927f ;
+    float angle = (float)atan2 ( (double)(x-x_cen), (double)(y-y_cen) ) / SG_PI ;
 
     // Move to within the (0,1) interval
 
