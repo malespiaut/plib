@@ -130,7 +130,7 @@ float sgTriArea( sgVec3 p0, sgVec3 p1, sgVec3 p2 )
 	}
 
 	float area = sgAbs(sgScalarProductVec3( norm, sum ));
-	return( area / 2.0 );
+	return( area / 2.0f );
 }
 
 

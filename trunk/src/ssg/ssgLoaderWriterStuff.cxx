@@ -611,7 +611,7 @@ void ssgLoaderWriterMesh::add2SSG(
 			class ssgListOfLists *newFaces = new ssgListOfLists ( theFaces->getNum() );
 			class ssgIndexArray *oldVertexInd2NewVertexInd = new ssgIndexArray ( theVertices->getNum() );
 			for (j=0;j<theVertices->getNum();j++)
-				oldVertexInd2NewVertexInd->add ( static_cast<short>(0xFFFF) ); // 0xFFFF stands for "unused in new Mesh"
+				oldVertexInd2NewVertexInd->add ( short(0xFFFF) ); // 0xFFFF stands for "unused in new Mesh"
 
 			// Go through all the old Faces, look for the correct material and copy those
 			// faces and indexes into the new
