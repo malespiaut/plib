@@ -2293,6 +2293,21 @@ public:
   }
 } ;
 
+#ifdef FOR_PPE
+// PPE start
+
+class appLoaderOptions: public ssgLoaderOptions
+{
+  virtual void makeModelPath ( char* path, const char *fname ) const ;
+  virtual void makeTexturePath ( char* path, const char *fname ) const ;
+
+};
+
+char * ssgGetAPOM(); // get actual path of (last loaded) model
+
+// PPE end 
+#endif
+
 int        ssgSave     ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveAC   ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveASE  ( const char *fname, ssgEntity *ent ) ;
