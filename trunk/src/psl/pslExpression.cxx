@@ -49,7 +49,7 @@ int pslCompiler::genLValue ()
   if ( ! isArray && ! isStruct )
   {
     ungetToken   ( n ) ;
-    genVariable ( c ) ;
+    genVariable ( c, FALSE ) ;
     return TRUE ;
   }
 
@@ -63,10 +63,10 @@ int pslCompiler::genLValue ()
 
   getToken ( n ) ;
 
-  if ( n[0] == ']' )
+  if ( n[0] != ']' )
     return error ( "Missing ']' after array index." ) ;
 
-  genVariable ( c ) ;
+  genVariable ( c, TRUE ) ;
   return TRUE ;
 }
 

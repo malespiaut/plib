@@ -24,6 +24,30 @@
 
 #include "pslLocal.h"
 
+pslVariable *pslContext::peekLValue ()
+{
+  return ( stack[sp-2].getInt() == 0 ) ?
+    & ( variable [ stack[sp-1].getInt() ] ) :
+    variable [ stack[sp-1].getInt() ] . getIndex ( stack [ sp-3 ].getInt() ) ;
+}
+
+
+pslVariable *pslContext::popLValue ()
+{
+  if ( stack[sp-2].getInt() == 0 )
+  {
+    sp -= 2 ;
+    return & ( variable [ stack[sp+1].getInt() ] ) ;
+  }
+  else
+  {
+    sp -= 3 ;
+    return variable [ stack[sp+2].getInt() ] .
+                                        getIndex ( stack [ sp ].getInt() ) ;
+  }
+}
+
+
 pslResult pslContext::step ()
 {
   switch ( code [ pc ] )
@@ -515,43 +539,43 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_ADD_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
         if ( v -> getType () == PSL_INT )
-          v -> set ( v -> getInt() + stack[sp-1].getInt()) ;
+          v -> set ( v -> getInt() + s -> getInt() ) ;
         else
         if ( v -> getType () == PSL_STRING )
         {
-          int s1_len = strlen (     v      -> getString () ) ;
-          int s2_len = strlen ( stack[sp-1] . getString () ) ;
-          char *s = new char [ s1_len + s2_len + 1 ] ;
+          int s1_len = strlen ( v -> getString () ) ;
+          int s2_len = strlen ( s -> getString () ) ;
+          char *str = new char [ s1_len + s2_len + 1 ] ;
 
-          memcpy ( s, v -> getString (), s1_len ) ;
-          memcpy ( s+s1_len, stack[sp-1] . getString (), s2_len+1 ) ;
+          memcpy ( str, v -> getString (), s1_len ) ;
+          memcpy ( str+s1_len, s -> getString (), s2_len+1 ) ;
 
-          v -> set ( s ) ;
-          delete [] s ;
+          v -> set ( str ) ;
+          delete [] str ;
         }
         else
-          v -> set ( v -> getFloat() + stack[sp-1].getFloat()) ;
+          v -> set ( v -> getFloat() + s -> getFloat() ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_POP_SUB_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
         if ( v -> getType () == PSL_INT )
-          v -> set ( v -> getInt() - stack[sp-1].getInt()) ;
+          v -> set ( v -> getInt() - s -> getInt() ) ;
         else
-          v -> set ( v -> getFloat() - stack[sp-1].getFloat()) ;
+          v -> set ( v -> getFloat() - s -> getFloat() ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -559,15 +583,15 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_MUL_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
         if ( v -> getType () == PSL_INT )
-          v -> set ( v -> getInt() * stack[sp-1].getInt()) ;
+          v -> set ( v -> getInt() * s -> getInt() ) ;
         else
-          v -> set ( v -> getFloat() * stack[sp-1].getFloat()) ;
+          v -> set ( v -> getFloat() * s -> getFloat() ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -575,13 +599,13 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_MOD_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
-        pslValue   *vv = & stack[sp-1] ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
         if ( v -> getType () == PSL_INT )
         {
-          if ( vv -> getInt () != 0 )
-            v -> set ( v -> getInt() % vv->getInt()) ;
+          if ( s -> getInt () != 0 )
+            v -> set ( v -> getInt() % s -> getInt() ) ;
           else
             warning ( "Integer Modulo by Zero!" ) ;
         }
@@ -589,7 +613,6 @@ pslResult pslContext::step ()
           warning ( "Floating Point Modulo!" ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -597,26 +620,25 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_DIV_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
-        pslValue   *vv = & stack[sp-1] ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
         if ( v -> getType () == PSL_INT )
         {
-          if ( vv -> getInt () != 0 )
-            v -> set ( v -> getInt() / vv->getInt()) ;
+          if ( s -> getInt () != 0 )
+            v -> set ( v -> getInt() / s -> getInt() ) ;
           else
             warning ( "Integer Divide by Zero!" ) ;
         }
         else
         {
-          if ( vv -> getFloat () != 0.0f )
-            v -> set ( v -> getFloat() / vv->getFloat()) ;
+          if ( s -> getFloat () != 0.0f )
+            v -> set ( v -> getFloat() / s -> getFloat() ) ;
           else
             warning ( "Floating Point Divide by Zero!" ) ;
         }
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -624,12 +646,12 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_AND_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
-        v -> set ( v -> getInt() & stack[sp-1].getInt()) ;
+        v -> set ( v -> getInt() & s -> getInt() ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -637,12 +659,12 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_OR_VARIABLE  :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
-        v -> set ( v -> getInt() | stack[sp-1].getInt()) ;
+        v -> set ( v -> getInt() | s -> getInt() ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -650,12 +672,12 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_XOR_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
-        v -> set ( v -> getInt() ^ stack[sp-1].getInt()) ;
+        v -> set ( v -> getInt() ^ s -> getInt() ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -663,12 +685,12 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_SHL_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
-        v -> set ( v -> getInt() << stack[sp-1].getInt()) ;
+        v -> set ( v -> getInt() << s -> getInt() ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -676,12 +698,12 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_SHR_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
-        v -> set ( v -> getInt() >> stack[sp-1].getInt()) ;
+        v -> set ( v -> getInt() >> s -> getInt() ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
@@ -689,49 +711,22 @@ pslResult pslContext::step ()
 
     case OPCODE_POP_VARIABLE :
       {
-        pslVariable *v = & ( variable [ stack[sp-2].getInt() ] ) ;
+        pslValue *s = & stack[--sp] ;
+        pslVariable *v = popLValue () ;
 
         if ( v -> getType () == PSL_INT )
-          v -> set ( stack[sp-1].getInt    () ) ;
+          v -> set ( s -> getInt () ) ;
         else
         if ( v -> getType () == PSL_FLOAT )
-          v -> set ( stack[sp-1].getFloat  () ) ;
+          v -> set ( s -> getFloat () ) ;
         else
-          v -> set ( stack[sp-1].getString () ) ;
+          v -> set ( s -> getString () ) ;
 
         pc++ ;
-        sp -= 2 ;
         pushNumber ( v ) ;
       }
       return PSL_PROGRAM_CONTINUE ;
 
-
-    case OPCODE_DECREMENT :
-      {
-        pslVariable *v = & ( variable [ code[++pc] ] ) ;
-
-        if ( v -> getType () == PSL_INT )
-          v -> set ( v -> getInt () - 1 ) ;
-        else
-          v -> set ( v -> getFloat () - 1 ) ;
-
-        pc++ ;
-      }
-      return PSL_PROGRAM_CONTINUE ;
-
-
-    case OPCODE_INCREMENT :
-      {
-        pslVariable *v = & ( variable [ code[++pc] ] ) ;
-
-        if ( v -> getType () == PSL_INT )
-          v -> set ( v -> getInt () + 1 ) ;
-        else
-          v -> set ( v -> getFloat () + 1 ) ;
-
-        pc++ ;
-      }
-      return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_SET_INT_ARRAY :
       variable [ code[++pc] ] . setArrayType ( PSL_INT,
@@ -780,7 +775,7 @@ pslResult pslContext::step ()
 
     case OPCODE_FETCH            :
       {
-        pslVariable *v = & ( variable [ stack[--sp].getInt() ] ) ;
+        pslVariable *v = popLValue () ;
         pushNumber ( v ) ;
         pc++ ;
       }
@@ -788,7 +783,7 @@ pslResult pslContext::step ()
 
     case OPCODE_INCREMENT_LVALUE :
       {
-        pslVariable *v = & ( variable [ stack[sp-1].getInt() ] ) ;
+        pslVariable *v = peekLValue () ;
 
         if ( v -> getType () == PSL_INT )
           v -> set ( v -> getInt () + 1 ) ;
@@ -801,7 +796,7 @@ pslResult pslContext::step ()
 
     case OPCODE_DECREMENT_LVALUE :
       {
-        pslVariable *v = & ( variable [ stack[sp-1].getInt() ] ) ;
+        pslVariable *v = peekLValue () ;
 
         if ( v -> getType () == PSL_INT )
           v -> set ( v -> getInt () - 1 ) ;
@@ -814,7 +809,7 @@ pslResult pslContext::step ()
 
     case OPCODE_INCREMENT_FETCH  :
       {
-        pslVariable *v = & ( variable [ stack[--sp].getInt() ] ) ;
+        pslVariable *v = popLValue () ;
         pushNumber ( v ) ;
 
         if ( v -> getType () == PSL_INT )
@@ -828,7 +823,7 @@ pslResult pslContext::step ()
 
     case OPCODE_DECREMENT_FETCH  :
       {
-        pslVariable *v = & ( variable [ stack[--sp].getInt() ] ) ;
+        pslVariable *v = popLValue () ;
         pushNumber ( v ) ;
 
         if ( v -> getType () == PSL_INT )

@@ -130,12 +130,24 @@ public:
 
 class pslVariable : public pslNumber
 {
+  pslVariable *array ;
+  int         array_size ;
 public:
+
+  pslVariable () { array = NULL ; array_size = 0 ; }
 
   void setArrayType ( pslType _type, int arraysize )
   {
     setType ( _type ) ;
-/* SET THE ARRAY SIZE HERE */
+    delete [] array ;
+    array_size = arraysize ;
+    array = new pslVariable [ array_size ] ;
+
+    for ( int i = 0 ; i < array_size ; i++ )
+    {
+      array [ i ] . setType ( getType () ) ;
+      array [ i ] . set ( 0 ) ;
+    }
   }
 
   virtual void set ( int v )
@@ -182,6 +194,48 @@ public:
       case PSL_STRING : set ( v -> getString () ) ; return ;
       case PSL_VOID   : return ;
     }
+  }
+
+
+  pslVariable *getIndex ( int index )
+  {
+    if ( index < 0 || index >= array_size || array == NULL )
+      return this ;
+
+    return & ( array [ index ] ) ;
+  }
+
+
+  virtual void set ( int v, int index )
+  {
+    if ( index < 0 || index >= array_size || array == NULL )
+      set ( v ) ;
+
+    array [ index ] . set ( v ) ;
+  }
+
+  virtual void set ( float v, int index )
+  {
+    if ( index < 0 || index >= array_size || array == NULL )
+      set ( v ) ;
+
+    array [ index ] . set ( v ) ;
+  }
+
+  virtual void set ( const char *v, int index )
+  {
+    if ( index < 0 || index >= array_size || array == NULL )
+      set ( v ) ;
+
+    array [ index ] . set ( v ) ;
+  }
+
+  virtual void set ( const pslNumber *v, int index )
+  {
+    if ( index < 0 || index >= array_size || array == NULL )
+      set ( v ) ;
+
+    array [ index ] . set ( v ) ;
   }
 
 } ;

@@ -67,8 +67,7 @@
 #define OPCODE_SET_STRING_VARIABLE   0x26
 #define OPCODE_STACK_DUPLICATE       0x27
 #define OPCODE_GET_PARAMETER         0x28
-#define OPCODE_INCREMENT             0x29
-#define OPCODE_DECREMENT             0x2A
+
 #define OPCODE_PEEK_JUMP_FALSE       0x2B
 #define OPCODE_PEEK_JUMP_TRUE        0x2C
 #define OPCODE_LINE_NUMBER           0x2D

@@ -45,6 +45,9 @@ class pslContext
   void error   ( const char *fmt, ... ) ;
   void warning ( const char *fmt, ... ) ;                                       
 
+  pslVariable *popLValue () ;
+  pslVariable *peekLValue () ;
+
 public:
 
   pslContext ( pslProgram *p )

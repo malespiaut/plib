@@ -126,23 +126,6 @@ void pslCompiler::genGetParameter ( pslAddress var, int argpos )
   genCodeByte ( argpos ) ;
 }
 
-
-void pslCompiler::genIncrement ( const char *c )
-{
-  int a = getVarSymbol ( c ) ;
-
-  genCodeByte ( OPCODE_INCREMENT ) ;
-  genCodeByte ( a ) ;
-} 
-
-void pslCompiler::genDecrement ( const char *c )
-{
-  int a = getVarSymbol ( c ) ;
-
-  genCodeByte ( OPCODE_DECREMENT ) ;
-  genCodeByte ( a ) ;
-} 
-
 int pslCompiler::genMakeIntArray ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
@@ -198,10 +181,11 @@ int pslCompiler::genMakeStringVariable ( const char *c )
 } 
 
 
-void pslCompiler::genVariable ( const char *c )
+void pslCompiler::genVariable ( const char *c, int array_ref )
 {
   int a = getVarSymbol ( c ) ;
 
+  genIntConstant ( array_ref ) ;
   genIntConstant ( a ) ;
 } 
 

@@ -110,9 +110,6 @@ class pslCompiler
 
   void genGetParameter     ( pslAddress var, int argpos ) ;
 
-  void genIncrement        ( const char *s ) ;
-  void genDecrement        ( const char *s ) ;
-
   int  genMakeIntVariable    ( const char *s ) ;
   int  genMakeFloatVariable  ( const char *s ) ;
   int  genMakeStringVariable ( const char *s ) ;
@@ -137,7 +134,7 @@ class pslCompiler
   void genIncrementFetch   () ;
   void genDecrementFetch   () ;
 
-  void genVariable         ( const char *s ) ;
+  void genVariable         ( const char *s, int dimension ) ;
   void genAssignment       () ;
   void genAddAssignment    () ;
   void genSubAssignment    () ;
