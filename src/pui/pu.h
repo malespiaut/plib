@@ -669,20 +669,20 @@ public:
 
   void       setCallback ( puCallback c ) { cb = c ;    }
   puCallback getCallback ( void ) const   { return cb ; }
-  void       invokeCallback ( void ) { if ( cb ) (*cb)(this) ; }
+  void       invokeCallback ( void ) { if ( cb != NULL ) (*cb)(this) ; }
 
   void       setActiveCallback ( puCallback c ) { active_cb = c ;    }
   puCallback getActiveCallback ( void ) const   { return active_cb ; }
-  void       invokeActiveCallback ( void ) { if ( active_cb ) (*active_cb)(this) ; }
+  void       invokeActiveCallback ( void ) { if ( active_cb != NULL ) (*active_cb)(this) ; }
 
   void       setDownCallback ( puCallback c ) { down_cb = c ;    }
   puCallback getDownCallback ( void ) const   { return down_cb ; }
-  virtual void invokeDownCallback ( void ) { if ( down_cb ) (*down_cb)(this) ; }
+  virtual void invokeDownCallback ( void ) { if ( down_cb != NULL ) (*down_cb)(this) ; }
 
   void       setRenderCallback ( puRenderCallback c, void *d = NULL ) { r_cb = c ; render_data = d ; }
   puRenderCallback getRenderCallback ( void ) const { return r_cb ; }
   void      *getRenderCallbackData ( void ) const { return render_data ; }
-  void       invokeRenderCallback ( int dx, int dy ) { if ( r_cb ) (*r_cb)(this, dx, dy, render_data) ; }
+  void       invokeRenderCallback ( int dx, int dy ) { if ( r_cb != NULL ) (*r_cb)(this, dx, dy, render_data) ; }
 
   void  setBorderThickness ( int t ) { border_thickness = t ; puPostRefresh () ; }
   int   getBorderThickness ( void ) const { return border_thickness ; }
@@ -1472,7 +1472,7 @@ public:
 } ;
 
 
-class puInput : public puObject
+class puInputBase
 {
   UL_TYPE_DATA
 
@@ -1482,32 +1482,29 @@ protected:
   int select_start_position ;
   int select_end_position ;
   char *valid_data ;
-
-  virtual void normalize_cursors ( void ) ;
-  virtual void removeSelectRegion ( void ) ;
-
   int input_disabled ;
 
-public:
-  void draw     ( int dx, int dy ) ;
-  void doHit    ( int button, int updown, int x, int y ) ;
-  int  checkKey ( int key, int updown ) ;
+  puObject *widget ; /* Pointer to associated input box widget */
 
+  virtual void normalizeCursors ( void ) ;
+  virtual void removeSelectRegion ( void ) ;
+
+public:
   int  isAcceptingInput ( void ) const { return accepting ; }
   void rejectInput      ( void ) { accepting = FALSE ; puPostRefresh () ; }
 
   void acceptInput ( void )
   {
     accepting = TRUE ;
-    cursor_position = strlen ( getStringValue() ) ;
+    cursor_position = strlen ( widget -> getStringValue () ) ;
     select_start_position = select_end_position = -1 ;
     puPostRefresh () ;
   }
 
   int  getCursor ( void ) const { return cursor_position ; }
-  void setCursor ( int c ) { cursor_position = c ; }
+  void setCursor ( int c ) { cursor_position = c ; puPostRefresh () ; }
 
-  void setSelectRegion ( int s, int e )
+  virtual void setSelectRegion ( int s, int e )
   {
     select_start_position = s ;
     select_end_position   = e ;
@@ -1536,19 +1533,51 @@ public:
       return 1 ;
   }
 
-  puInput ( int minx, int miny, int maxx, int maxy ) ;
-  ~puInput () { delete [] valid_data ; }
+  void enableInput ( void )  { input_disabled = FALSE ; }
+  void disableInput ( void ) { input_disabled = TRUE  ; }
+  int  inputDisabled ( void ) const { return input_disabled ; }
+
+  puInputBase ( puObject *wgt )
+  {
+    accepting = FALSE ;
+    cursor_position = 0 ;
+    select_start_position = -1 ;
+    select_end_position = -1 ;
+    valid_data = NULL;
+
+    widget = wgt ;
+
+    input_disabled = FALSE ;
+  }
+  virtual ~puInputBase () { delete [] valid_data ; }
+
+} ;
+
+
+class puInput : public puInputBase, public puObject
+{
+  UL_TYPE_DATA
+
+public:
+  void draw     ( int dx, int dy ) ;
+  void doHit    ( int button, int updown, int x, int y ) ;
+  int  checkKey ( int key, int updown ) ;
 
   void invokeDownCallback ( void )
   {
     rejectInput () ;
-    normalize_cursors () ;
+    normalizeCursors () ;
     if ( down_cb != NULL ) (*down_cb)(this) ;
   }
 
-  void enableInput ( void )  { input_disabled = FALSE ; }
-  void disableInput ( void ) { input_disabled = TRUE  ; }
-  int  inputDisabled ( void ) const { return input_disabled ; }
+  puInput ( int minx, int miny, int maxx, int maxy ) :
+     puInputBase ( this ), puObject ( minx, miny, maxx, maxy )
+  {
+    type |= PUCLASS_INPUT ;
+
+    setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
+    setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; /* Colour of 'I' bar cursor */
+  }
 } ;
 
 class puSpinBox : public puRange, public puGroup
@@ -1778,7 +1807,7 @@ public:
 
 
 
-class puLargeInput : public puGroup
+class puLargeInput : public puInputBase, public puGroup
 {
   UL_TYPE_DATA
 
@@ -1788,31 +1817,30 @@ protected:
   int top_line_in_window ;     // Number of the first line in the window
   float max_width ;            // Width of longest line of text in box, in pixels
   int slider_width ;
-  int accepting ;
-  int cursor_position ;
-  int select_start_position ;
-  int select_end_position ;
-  char *valid_data ;
 
   puFrame *frame ;
 
   puSlider *bottom_slider ;    // Horizontal slider at bottom of window
-  puScrollBar *right_slider ;     // Vertical slider at right of window
+  puScrollBar *right_slider ;  // Vertical slider at right of window
 
   char *wrapped_text ;         // Pointer to word-wrapped text in the box
 
   int arrow_count ;          // Number of up/down arrows above and below the right slider
 
-  int input_disabled ;
-
-  void normalize_cursors ( void ) ;
+  void normalizeCursors ( void ) ;
   void removeSelectRegion ( void ) ;
 
   void wrapText ( void ) ;
 
 public:
   puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text = FALSE ) ;
-  ~puLargeInput () ;
+  ~puLargeInput ()
+  {
+    delete [] wrapped_text ;
+
+    if ( puActiveWidget() == this )
+      puDeactivateWidget () ;
+  }
 
   void setSize ( int w, int h ) ;
 
@@ -1828,52 +1856,12 @@ public:
   void setSelectRegion ( int s, int e ) ;
   void selectEntireLine ( void ) ;
 
-  int  isAcceptingInput ( void ) const { return accepting ; }
-  void rejectInput      ( void ) { accepting = FALSE ; puPostRefresh () ; }
-
-  void acceptInput ( void )
-  {
-    accepting = TRUE ;
-    cursor_position = strlen ( getStringValue() ) ;
-    select_start_position = select_end_position = -1 ;
-    puPostRefresh () ;
-  }
-
-  int  getCursor ( void ) const { return cursor_position ; }
-  void setCursor ( int c ) { cursor_position = c ; puPostRefresh () ; }
-
-  void getSelectRegion ( int *s, int *e ) const
-  {
-    if ( s ) *s = select_start_position ;
-    if ( e ) *e = select_end_position   ;
-  }
-
-  char *getValidData ( void ) const { return valid_data ; }
-  void setValidData ( const char *data )
-  {
-    delete [] valid_data ;
-    valid_data = data != NULL ? ulStrDup ( data ) : NULL ;
-  }
-  void addValidData ( const char *data ) ;
-
-  int isValidCharacter ( char c ) const
-  {
-    if ( valid_data != NULL )
-      return ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ;
-    else
-      return 1 ;
-  }
-
   void invokeDownCallback ( void )
   {
     rejectInput () ;
-    normalize_cursors () ;
+    normalizeCursors () ;
     if ( down_cb != NULL ) (*down_cb)(this) ;
   }
-
-  void enableInput ( void )  { input_disabled = FALSE ; }
-  void disableInput ( void ) { input_disabled = TRUE  ; }
-  int  inputDisabled ( void ) const { return input_disabled ; }
 
   void  setValue ( const char *s ) ;
   void  setText ( const char *l ) { setValue ( l ) ; }  /* DEPRECATED */

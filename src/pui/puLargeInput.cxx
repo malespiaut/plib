@@ -24,12 +24,12 @@
 
 #include "puLocal.h"
 
-UL_RTTI_DEF1(puLargeInput,puGroup)
+UL_RTTI_DEF2(puLargeInput,puInputBase,puGroup)
 
 
 // Callbacks from the internal widgets
 
-static void puLargeInputHandleRightSlider ( puObject * slider )
+static void puLargeInputHandleRightSlider ( puObject *slider )
 {
   float val = ((puScrollBar *)slider)->getMaxValue () - slider->getFloatValue () ;
 
@@ -43,28 +43,9 @@ static void puLargeInputHandleRightSlider ( puObject * slider )
 
 // Private function from the widget itself
 
-void puLargeInput::normalize_cursors ( void )
+void puLargeInput::normalizeCursors ( void )
 {
-  char *val = getStringValue () ;
-  int sl = strlen ( val ) ;
-
-  // Clamp the positions to the limits of the text.
-
-  if ( cursor_position       <  0 ) cursor_position       =  0 ;
-  if ( select_start_position <  0 ) select_start_position =  0 ;
-  if ( select_end_position   <  0 ) select_end_position   =  0 ;
-  if ( cursor_position       > sl ) cursor_position       = sl ;
-  if ( select_start_position > sl ) select_start_position = sl ;
-  if ( select_end_position   > sl ) select_end_position   = sl ;
-
-  // Swap the ends of the select window if they get crossed over
-
-  if ( select_end_position < select_start_position )
-  {
-    int tmp = select_end_position ;     
-    select_end_position = select_start_position ;     
-    select_start_position = tmp ;
-  }
+  puInputBase::normalizeCursors () ;
 
   // Set the top line in the window so that the last line is at the bottom of the window
 
@@ -76,16 +57,7 @@ void puLargeInput::normalize_cursors ( void )
 
 void puLargeInput::removeSelectRegion ( void )
 {
-  char *text = getStringValue () ;
-  int text_len = strlen ( text ) ;
-  char *p = new char [ text_len + 1 -
-                           ( select_end_position - select_start_position ) ] ;
-  memcpy ( p, text, select_start_position ) ;
-  memcpy ( p + select_start_position, text + select_end_position, text_len - select_end_position + 1 ) ;
-  setValue ( p ) ;
-  delete [] p ;
-
-  cursor_position = select_end_position = select_start_position ;
+  puInputBase::removeSelectRegion () ;
 
   wrapText () ;
 }
@@ -94,7 +66,7 @@ void puLargeInput::removeSelectRegion ( void )
 // Public functions from the widget itself
 
 puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text ) :
-    puGroup( x, y )
+    puInputBase ( this ), puGroup ( x, y )
 {
   setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; // Colour of the 'I' bar cursor
 
@@ -107,12 +79,6 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
                     ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
   top_line_in_window = 0 ;
   max_width = 0 ;
-
-  accepting = FALSE ;
-  cursor_position = 0 ;
-  select_start_position = 0 ;
-  select_end_position = -1 ;
-  valid_data = NULL;
 
   // Set up the widgets
 
@@ -139,22 +105,11 @@ puLargeInput::puLargeInput ( int x, int y, int w, int h, int arrows, int sl_widt
   right_slider->setUserData ( this ) ;
   right_slider->setCallback ( puLargeInputHandleRightSlider ) ;
 
-  input_disabled = FALSE ;
-
   wrapped_text = NULL ;
   setValue ( "\n" ) ;
 
   close  () ;
   reveal () ;
-}
-
-puLargeInput::~puLargeInput ()
-{
-  delete [] wrapped_text ;
-  delete [] valid_data ;
-
-  if ( puActiveWidget() == this )
-    puDeactivateWidget () ;
 }
 
 void puLargeInput::setSize ( int w, int h )
@@ -412,14 +367,14 @@ void  puLargeInput::setValue ( const char *s )
   right_slider->setMaxValue ( float(right_slider_max) ) ;
 
   // Normalize the cursors
-  normalize_cursors () ;
+  normalizeCursors () ;
 }
 
 
 void puLargeInput::draw ( int dx, int dy )
 {
   if ( !visible || ( window != puGetWindow () ) ) return ;
-  normalize_cursors () ;
+  normalizeCursors () ;
 
   // 3D Input boxes look nicest if they are always in inverse style.
 
@@ -850,7 +805,7 @@ void puLargeInput::doHit ( int button, int updown, int x, int y )
 
       accepting = TRUE ;
       cursor_position = i ;
-      normalize_cursors () ;
+      normalizeCursors () ;
       puSetActiveWidget ( this, x, y ) ;
       invokeCallback () ;
     }
@@ -900,7 +855,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
     puDeactivateWidget () ;
   }
 
-  normalize_cursors () ;
+  normalizeCursors () ;
 
   //char *old_text = getStringValue () ;
   char *old_text = bottom_slider ? getStringValue () : getWrappedText () ;
@@ -1047,7 +1002,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
   case 0x1B :  // ESC
   case '\t' :  // TAB  -- End of input
     rejectInput () ;
-    normalize_cursors () ;
+    normalizeCursors () ;
     invokeCallback () ;
     puDeactivateWidget () ;
     break ;
@@ -1222,7 +1177,7 @@ int puLargeInput::checkKey ( int key, int /* updown */ )
     }
   }
 
-  normalize_cursors () ;
+  normalizeCursors () ;
   return TRUE ;
 }
 
@@ -1294,21 +1249,4 @@ void puLargeInput::wrapText ( void )
   }
 }
 
-void puLargeInput::addValidData ( const char *data )
-{
-  int valid_len    = valid_data != NULL ? strlen ( valid_data ) : 0 ;
-  int data_len     = data       != NULL ? strlen ( data       ) : 0 ;
-  int new_data_len = valid_len + data_len ;
-
-  char *new_data = new char [ new_data_len + 1 ] ;
-
-  if ( valid_len != 0 )
-    memcpy ( new_data, valid_data, valid_len ) ;
-  if ( data_len  != 0 )
-    memcpy ( new_data + valid_len, data, data_len ) ;
-
-  new_data [ new_data_len ] = '\0' ;
-  delete [] valid_data ;
-  valid_data = new_data ;
-}
 
