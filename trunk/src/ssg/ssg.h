@@ -1609,9 +1609,13 @@ public:
 } ;
 
 
+#define SSGTWEEN_STOP_AT_END    0
+#define SSGTWEEN_REPEAT         1
+
 class ssgTweenController : public ssgBranch
 {
   float curr_bank ;
+  int   mode ;  /* STOP_AT_END or REPEAT */
 
 protected:
 
@@ -1622,6 +1626,9 @@ public:
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
   ssgTweenController (void) ;
   virtual ~ssgTweenController (void) ;
+
+  void  setMode ( int _mode ) { mode = _mode ; }
+  int   getMode ()            { return mode ; }
 
   void  selectBank ( float f ) { curr_bank = f ; }
   float getCurrBank () { return curr_bank ; }

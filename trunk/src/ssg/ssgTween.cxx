@@ -27,16 +27,15 @@
 #include "ul.h"
 
 static float current_tween_state = 0.0f ;
+static int   current_tween_mode  = SSGTWEEN_STOP_AT_END ;
 
 const char *ssgTween::getTypeName (void) { return "ssgTween" ; }
 
+int   _ssgGetCurrentTweenMode  () { return current_tween_mode  ; }
 float _ssgGetCurrentTweenState () { return current_tween_state ; }
 
-
-void  _ssgSetCurrentTweenState ( float tstate )
-{
-  current_tween_state = tstate ;
-}
+void  _ssgSetCurrentTweenMode  ( int   mode   ) { current_tween_mode = mode ; }
+void  _ssgSetCurrentTweenState ( float tstate ) { current_tween_state= tstate ;}
 
 void ssgTween::copy_from ( ssgTween *src, int clone_flags )
 {
@@ -269,8 +268,17 @@ void ssgTween::draw ()
   int   state2 = state1 + 1 ;
   float tween  = tstate - (float) state1 ;
 
-  if ( state1 >= num_banks ) state1 = num_banks - 1 ;
-  if ( state2 >= num_banks ) state2 = num_banks - 1 ;
+  if ( _ssgGetCurrentTweenMode () == SSGTWEEN_REPEAT )
+  {
+    state1 %= num_banks ;
+    state2 %= num_banks ;
+  }
+  else
+  {
+    if ( state1 >= num_banks ) state1 = num_banks - 1 ;
+    if ( state2 >= num_banks ) state2 = num_banks - 1 ;
+  }
+
   if ( state1 == state2    ) tween  = 0.0f ;
 
   int l1, l2 ;

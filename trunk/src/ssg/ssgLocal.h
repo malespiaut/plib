@@ -117,6 +117,8 @@ int _ssgWriteError   ( void ) ;
 
 float _ssgGetCurrentTweenState () ;
 void  _ssgSetCurrentTweenState ( float tweenstate ) ;
+int   _ssgGetCurrentTweenMode  () ;
+void  _ssgSetCurrentTweenMode  ( int   tweenmode  ) ;
 
 /*
   Routines for storing arbitrary ssgBase derived objects within SSG files.

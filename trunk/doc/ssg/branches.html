@@ -82,6 +82,22 @@ This allows you to set which of the banks of it's daughter ssgTweens
 will be rendered.  That's a "float" quantity - so if you selectBank(2.4)
 then the ssgTweens will render their vertices in a position (colour, etc)
 that's 40% of the way between the bank 2 and bank 3.
+<p>
+You can also set the behaviour when the selected bank number is larger
+than the number of banks in the model.  This tends to happen when you
+simply add some amount of to the bank selector each frame in order
+to keep the animation running forever:
+<pre>
+
+  ssgTweenController::setMode ( int mode ) ;
+
+</pre>
+'mode' can either be SSGTWEEN_STOP_AT_END or SSGTWEEN_REPEAT.
+The default is STOP_AT_END - where anytime the bank selector
+is larger than the actual number of banks in the ssgTween node,
+it is clamped to the largest possible number.  If you choose
+REPEAT, then the bank number will be taken modulo the number of
+banks.
 <H2><code>class ssgSelector</code> - A switch point,</H2>
 Most ssgBranch nodes represent a collection of objects that
 are all present in the scene at the same time. ssgSelector
