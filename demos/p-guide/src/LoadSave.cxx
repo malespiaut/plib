@@ -23,8 +23,6 @@
 
 #include <stdio.h>
 
-#include <plib/pu.h>
-
 #include "WidgetList.h"
 
 #define TAG_SAVEFILE        0x00000001

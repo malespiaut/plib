@@ -28,8 +28,6 @@
 
 // Program to allow the user to build a PUI Graphical User Interface
 
-#include <plib/pu.h>
-
 #include "WidgetList.h"
 
 WidgetList *widgets = (WidgetList *)NULL ;
