@@ -471,41 +471,38 @@ static void createTriangIndices(ssgIndexArray *ixarr,
   else
     {
       unsigned short ix0 = *ixarr->get(0);
-      for(int i = 2; i < numverts; i++)
-	{
-	  unsigned short ix1 = *ixarr->get(i-1);
-	  unsigned short ix2 = *ixarr->get(i);
+      unsigned short ix1 = *ixarr->get(1);
+      unsigned short ix2 = *ixarr->get(2);
+      if ( ix0 >= curr_part_->vtx->getNum() ||
+	   ix1 >= curr_part_->vtx->getNum() ||
+	   ix2 >= curr_part_->vtx->getNum() ) {
+	ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
+	return;
+      }
 
-	  if ( ix0 >= curr_part_->vtx->getNum() ||
-	       ix1 >= curr_part_->vtx->getNum() ||
-	       ix2 >= curr_part_->vtx->getNum() ) {
+      // Ensure counter-clockwise ordering
+      bool flip;
+      sgMakeNormal(cross, 
+		   curr_part_->vtx->get(ix0), 
+		   curr_part_->vtx->get(ix1), 
+		   curr_part_->vtx->get(ix2));
+      if (sgScalarProductVec3(cross, s_norm) > 0.0) {
+	flip = false;
+      } else {
+	flip = true;
+      }
+
+      curr_part_->idx->add(ix0);
+      for(int i = 1; i < numverts; i++)
+	{
+	  ix1 = *ixarr->get( flip ? numverts-i : i);
+
+	  if ( ix1 >= curr_part_->vtx->getNum() ) {
 	    ulSetError(UL_WARNING, "ssgLoadMDL: Index out of bounds.");
 	    continue;
 	  }
 
-
-	  // Ensure counter-clockwise ordering
-	  sgSubVec3(v1, 
-		    curr_part_->vtx->get(ix1),
-		    curr_part_->vtx->get(ix0));
-	  sgSubVec3(v2,
-		    curr_part_->vtx->get(ix2),
-		    curr_part_->vtx->get(ix0));
-       
-	  sgVectorProductVec3(cross, v1, v2);
-
-	  if(sgScalarProductVec3(cross, s_norm) > 0.0)
-	    {
-	      curr_part_->idx->add(ix0);
-	      curr_part_->idx->add(ix1);
-	      curr_part_->idx->add(ix2);
-	    }
-	  else
-	    {
-	      curr_part_->idx->add(ix0);
-	      curr_part_->idx->add(ix2);
-	      curr_part_->idx->add(ix1);
-	    }
+	  curr_part_->idx->add(ix1);
 	}
        
     }
@@ -595,7 +592,7 @@ static bool readTexIndices(FILE* fp, int numverts, const sgVec3 s_norm)
 
 //===========================================================================
 
-bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
+static bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
 {
   if(numverts <= 0)
     return false;
@@ -618,7 +615,7 @@ bool readIndices(FILE* fp, int numverts, const sgVec3 s_norm)
 
 //===========================================================================
 
-ssgSimpleState* createMaterialState(int color, int pal_id)
+static ssgSimpleState* createMaterialState(int color, int pal_id)
 { 
   ssgSimpleState* state = new ssgSimpleState();
     
@@ -662,7 +659,7 @@ ssgSimpleState* createMaterialState(int color, int pal_id)
 
 //===========================================================================
 
-ssgSimpleState* createTextureState(char *name)
+static ssgSimpleState* createTextureState(char *name)
 {
   ssgSimpleState* state = new ssgSimpleState();
 
@@ -904,7 +901,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	      }
 	  
 	    curr_part_ = new _MDLPart;
-	    curr_part_->type = GL_TRIANGLES;
+	    curr_part_->type = GL_TRIANGLE_FAN;
 	    curr_part_->vtx = vertex_array_;
 	    curr_part_->nrm = normal_array_;
 	    curr_part_->crd = tex_coords_;
@@ -966,7 +963,7 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	      }
 	  
 	    curr_part_ = new _MDLPart;
-	    curr_part_->type = GL_TRIANGLES ;
+	    curr_part_->type = GL_TRIANGLE_FAN ;
 	    curr_part_->vtx  = vertex_array_;
 	    curr_part_->nrm  = normal_array_;
 	    curr_part_->crd  = NULL;
