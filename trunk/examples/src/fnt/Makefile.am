@@ -7,5 +7,5 @@ slideshow_SOURCES = slideshow.cxx
 fnt_test_LDADD = -lplibfnt -lplibul
 slideshow_LDADD = -lplibfnt -lplibul
 
-EXTRA_DIST = fnt_test.dsp
+EXTRA_DIST = fnt_test.dsp slideshow.dsp
 
