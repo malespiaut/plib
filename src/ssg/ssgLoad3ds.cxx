@@ -2,9 +2,9 @@
  **  ssgLoad3ds.cxx
  **  
  **  Written by Per Liedman (liedman@home.se)
- **  Last updated: 1999-10-29
+ **  Last updated: 2000-04-06
  **
- **  This was written to be a part of Stephe J Bakers
+ **  This was written to be a part of Stephen J Bakers
  **  PLIB (http://www.woodsoup.org/projs/plib)
  *******************************************************/
 
@@ -12,11 +12,11 @@
 #include <string.h>
 #include "ssgLocal.h"
 
-#define MAX_MATERIALS 128
+#define MAX_MATERIALS 512
 
 #define PARSE_OK 1
 #define PARSE_ERROR 0
-#define CHUNK_HEADER_SIZE (sizeof(short)+sizeof(long))
+#define CHUNK_HEADER_SIZE (2 + 4)
 
 #define IS_DOUBLESIDED 1
 #define HAS_TEXTURE    2
@@ -28,77 +28,83 @@ float _ssg_smooth_threshold = 0.8f;
 
 // 3ds chunk identifiers
 enum {
-  CHUNK_RGB1        = 0x0010,  // 3 floats of RGB
-  CHUNK_RGB2      	= 0x0011,  // 3 bytes of RGB
-  CHUNK_RGB3        = 0x0012,  // 3 bytes of RGB (gamma corrected)
-  CHUNK_AMOUNT      = 0x0030,
-  CHUNK_MAIN      	= 0x4D4D,
-  CHUNK_OBJMESH     = 0x3D3D,
-  CHUNK_ONEUNIT     = 0x0100,
-  CHUNK_BKGCOLOR    = 0x1200,
-  CHUNK_AMBCOLOR  	= 0x2100,
-  CHUNK_OBJBLOCK  	= 0x4000,
-  CHUNK_TRIMESH   	= 0x4100,
-  CHUNK_VERTLIST    = 0x4110,
-  CHUNK_FACELIST    = 0x4120,
-  CHUNK_FACEMAT     = 0x4130,
-  CHUNK_MAPLIST     = 0x4140,
-  CHUNK_SMOOLIST    = 0x4150,
-  CHUNK_TRMATRIX    = 0x4160,
-  CHUNK_LIGHT     	= 0x4600,
-  CHUNK_SPOTLIGHT   = 0x4610,
-  CHUNK_CAMERA    	= 0x4700,
-  CHUNK_MATERIAL  	= 0xAFFF,
-  CHUNK_MATNAME   	= 0xA000,
-  CHUNK_AMBIENT   	= 0xA010,
-  CHUNK_DIFFUSE   	= 0xA020,
-  CHUNK_SPECULAR  	= 0xA030,
+  CHUNK_RGB1            = 0x0010,  // 3 floats of RGB
+  CHUNK_RGB2            = 0x0011,  // 3 bytes of RGB
+  CHUNK_RGB3            = 0x0012,  // 3 bytes of RGB (gamma corrected)
+  CHUNK_AMOUNT          = 0x0030,
+  CHUNK_MAIN            = 0x4D4D,
+  CHUNK_OBJMESH         = 0x3D3D,
+  CHUNK_ONEUNIT         = 0x0100,
+  CHUNK_BKGCOLOR        = 0x1200,
+  CHUNK_AMBCOLOR        = 0x2100,
+  CHUNK_OBJBLOCK        = 0x4000,
+  CHUNK_TRIMESH         = 0x4100,
+  CHUNK_VERTLIST        = 0x4110,
+  CHUNK_FACELIST        = 0x4120,
+  CHUNK_FACEMAT         = 0x4130,
+  CHUNK_MAPLIST         = 0x4140,
+  CHUNK_SMOOLIST        = 0x4150,
+  CHUNK_TRMATRIX        = 0x4160,
+  CHUNK_LIGHT           = 0x4600,
+  CHUNK_SPOTLIGHT       = 0x4610,
+  CHUNK_CAMERA          = 0x4700,
+  CHUNK_MATERIAL        = 0xAFFF,
+  CHUNK_MATNAME         = 0xA000,
+  CHUNK_AMBIENT         = 0xA010,
+  CHUNK_DIFFUSE         = 0xA020,
+  CHUNK_SPECULAR        = 0xA030,
   CHUNK_SHININESS       = 0xA040,
   CHUNK_SHINE_STRENGTH  = 0xA041,
   CHUNK_TRANSPARENCY    = 0xA050,
   CHUNK_TRANSP_FALLOFF  = 0xA052,
   CHUNK_DOUBLESIDED     = 0xA081,
-  CHUNK_TEXTURE   	= 0xA200,
-  CHUNK_BUMPMAP   	= 0xA230,
-  CHUNK_MAPFILENAME	= 0xA300,
-  CHUNK_MAPOPTIONS  = 0xA351,
-  CHUNK_MAP_VSCALE  = 0xA354,
-  CHUNK_MAP_USCALE  = 0xA356,
-  CHUNK_MAP_UOFFST  = 0xA358,
-  CHUNK_MAP_VOFFST  = 0xA35A,
-  CHUNK_KEYFRAMER 	= 0xB000,
-  CHUNK_FRAMES      = 0xB008
+  CHUNK_TEXTURE         = 0xA200,
+  CHUNK_BUMPMAP         = 0xA230,
+  CHUNK_MAPFILENAME     = 0xA300,
+  CHUNK_MAPOPTIONS      = 0xA351,
+  CHUNK_MAP_VSCALE      = 0xA354,
+  CHUNK_MAP_USCALE      = 0xA356,
+  CHUNK_MAP_UOFFST      = 0xA358,
+  CHUNK_MAP_VOFFST      = 0xA35A,
+  CHUNK_KEYFRAMER       = 0xB000,
+  CHUNK_FRAMES          = 0xB008
 } _3dsChunkIds;
 
 // parsing functions for chunks that need separate treatment.
-static int parse_material( char **p, unsigned long length);
-static int parse_objblock( char **p, unsigned long length);
-static int parse_rgb1( char **p, unsigned long length);
-static int parse_rgb2( char **p, unsigned long length);
-static int parse_material_name( char **p, unsigned long length);
-static int parse_ambient( char **p, unsigned long length);
-static int parse_diffuse( char **p, unsigned long length);
-static int parse_specular( char **p, unsigned long length);
-static int parse_shininess( char **p, unsigned long length);
-static int parse_transparency( char **p, unsigned long length);
-static int parse_doublesided( char **p, unsigned long length);
-static int parse_vert_list( char **p, unsigned long length);
-static int parse_face_list( char **p, unsigned long length);
-static int parse_map_list( char **p, unsigned long length);
-static int parse_tra_matrix( char **p, unsigned long length);
-static int parse_trimesh( char **p, unsigned long length);
-static int parse_smooth_list( char **p, unsigned long length);
-static int parse_face_materials( char **p, unsigned long length);
-static int parse_mapname( char **p, unsigned long length);
-static int parse_uscale( char **p, unsigned long length);
-static int parse_vscale( char **p, unsigned long length);
-static int parse_uoffst( char **p, unsigned long length);
-static int parse_voffst( char **p, unsigned long length);
+static int parse_material( char **p, unsigned int length);
+static int parse_objblock( char **p, unsigned int length);
+static int parse_rgb1( char **p, unsigned int length);
+static int parse_rgb2( char **p, unsigned int length);
+static int parse_material_name( char **p, unsigned int length);
+static int parse_ambient( char **p, unsigned int length);
+static int parse_diffuse( char **p, unsigned int length);
+static int parse_specular( char **p, unsigned int length);
+static int parse_shininess( char **p, unsigned int length);
+static int parse_transparency( char **p, unsigned int length);
+static int parse_doublesided( char **p, unsigned int length);
+static int parse_vert_list( char **p, unsigned int length);
+static int parse_face_list( char **p, unsigned int length);
+static int parse_map_list( char **p, unsigned int length);
+static int parse_tra_matrix( char **p, unsigned int length);
+static int parse_trimesh( char **p, unsigned int length);
+static int parse_smooth_list( char **p, unsigned int length);
+static int parse_face_materials( char **p, unsigned int length);
+static int parse_mapname( char **p, unsigned int length);
+static int parse_mapoptions( char **p, unsigned int length);
+static int parse_uscale( char **p, unsigned int length);
+static int parse_vscale( char **p, unsigned int length);
+static int parse_uoffst( char **p, unsigned int length);
+static int parse_voffst( char **p, unsigned int length);
 
 struct _ssg3dsChunk {
   unsigned short id;
   _ssg3dsChunk *subchunks;
-  int (*parse_func) (char** , unsigned long );
+  int (*parse_func) (char** , unsigned int );
+};
+
+static _ssg3dsChunk FaceListDataChunks[] =
+{ { CHUNK_SMOOLIST, NULL, parse_smooth_list             },
+  { 0, NULL, NULL }
 };
 
 static _ssg3dsChunk FaceListChunks[] =
@@ -106,10 +112,15 @@ static _ssg3dsChunk FaceListChunks[] =
   { 0, NULL, NULL }
 };
 
-static _ssg3dsChunk TriMeshChunks[] =
+static _ssg3dsChunk TriMeshDataChunks[] =
 { { CHUNK_VERTLIST, NULL, parse_vert_list               },
-  { CHUNK_FACELIST, FaceListChunks, parse_face_list     },
   { CHUNK_MAPLIST, NULL, parse_map_list                 },
+  { 0, NULL, NULL }
+};  /* these chunks have to be known *before* we call parse_face_list
+       (see parse_trimesh for more info) */
+
+static _ssg3dsChunk TriMeshChunks[] =
+{ { CHUNK_FACELIST, FaceListChunks, parse_face_list     },
   { CHUNK_TRMATRIX, NULL, parse_tra_matrix              },
   { 0, NULL, NULL }
 };
@@ -125,6 +136,7 @@ static _ssg3dsChunk TextureChunks[] =
   { CHUNK_MAP_VSCALE, NULL, parse_vscale                },
   { CHUNK_MAP_UOFFST, NULL, parse_uoffst                },
   { CHUNK_MAP_VOFFST, NULL, parse_voffst                },
+  { CHUNK_MAPOPTIONS, NULL, parse_mapoptions            },
   { 0, NULL, NULL }
 };
 
@@ -163,6 +175,8 @@ static _ssg3dsChunk TopChunk[] =
   { 0, NULL, NULL }
 };
 
+static int parse_chunks(char *p, char *chunk_end, _ssg3dsChunk *chunk_list);
+
 static int is_little_endian;
 static int num_objects, num_materials, num_textures;
 static int double_sided;     // is there some double sided material?
@@ -171,50 +185,53 @@ static ssgBranch *top_object;
 
 static ssgSimpleState **materials, *current_material;
 static char **material_names;
+static char **mat_tfnames;
 static int *mat_flag;
 static sgVec2 *texture_scale, *texture_offst;
 
 static unsigned short *vertex_index, *normal_index, num_vertices, num_faces;
-static unsigned long  *smooth_list;
+static unsigned int  *smooth_list;
 
 static ssgTransform *current_transform;
+
 
 static sgVec3 *vertex_list;
 static sgVec3 *face_normals, *vertex_normals;
 static sgVec2 *texcrd_list;
+static int smooth_found;
 
 static GLenum colour_mode;
 static float  current_alpha;
 
 //==========================================================
 // ENDIAN ISSUES
-static inline void endian_swap(unsigned long *x) {
+static inline void endian_swap(unsigned int *x) {
   *x = (( *x >> 24 ) & 0x000000FF ) | 
-       (( *x >>  8 ) & 0x0000FF00 ) | 
-       (( *x <<  8 ) & 0x00FF0000 ) | 
-       (( *x << 24 ) & 0xFF000000 ) ;
+    (( *x >>  8 ) & 0x0000FF00 ) | 
+    (( *x <<  8 ) & 0x00FF0000 ) | 
+    (( *x << 24 ) & 0xFF000000 ) ;
 }
 
 static inline void endian_swap(unsigned short *x) {
   *x = (( *x >>  8 ) & 0x00FF ) | 
-       (( *x <<  8 ) & 0xFF00 ) ;
+    (( *x <<  8 ) & 0xFF00 ) ;
 }
 
 static float get(float *f) {
   if (is_little_endian)
     return *f;
   else {
-    unsigned long p = (unsigned long)*f;
+    unsigned int p = (unsigned int)*f;
     endian_swap(&p);
     return p;
   }
 }
 
-static unsigned long get(unsigned long *f) {
+static unsigned int get(unsigned int *f) {
   if (is_little_endian)
     return *f;
   else {
-    unsigned long p = *f;
+    unsigned int p = *f;
     endian_swap(&p);
     return p;
   }
@@ -232,8 +249,9 @@ static unsigned short get(unsigned short *f) {
 
 //==========================================================
 // MATERIAL PARSERS
-static int parse_mapname( char **p, unsigned long length )
+static int parse_mapname( char **p, unsigned int length )
 {
+  int dbgtex=0;
   char filename[1024];
 
   if (*p[0] != '/') {
@@ -242,7 +260,32 @@ static int parse_mapname( char **p, unsigned long length )
     strcat(filename, *p);
   }
 
-  current_material -> setTexture( filename );
+  int mat_num;
+  ssgSimpleState *sametex = NULL;
+  char *texname = *p;
+  // find a material with the same texture
+  for (mat_num = 0; mat_num < num_materials-1; mat_num++)
+    // since texture path is in common, just store (and compare) tex file name
+    if ( mat_tfnames[mat_num] != (char *)NULL && strcmp( texname, mat_tfnames[mat_num] ) == 0 ) {
+      sametex = materials[mat_num];
+      break;
+    }
+
+  if (dbgtex) printf("%s\t mat #%03d (%s)", texname,num_materials,material_names[num_materials-1]);
+  if ( sametex == (ssgSimpleState *)NULL ) {
+    current_material -> setTexture( filename );
+
+    char *tf = mat_tfnames[num_materials-1] = strdup( texname );
+    if ( tf == (char *)NULL )
+      perror("problems with malloc - can't store old texnames\n");
+    else {
+      if (dbgtex) printf(" new!\n");
+    }
+  }
+  else {
+    current_material -> setTexture( sametex->getTextureHandle() );
+    if (dbgtex) printf(" found at mat #%03d (%s)\n", mat_num+1,material_names[mat_num]);
+  }
   current_material -> enable(GL_TEXTURE_2D);
 
   mat_flag[num_materials-1] |= HAS_TEXTURE;
@@ -250,31 +293,57 @@ static int parse_mapname( char **p, unsigned long length )
   return PARSE_OK;
 }
 
-static int parse_uscale( char **p, unsigned long length )
+static int parse_mapoptions( char **p, unsigned int length )
 {
-  texture_scale[ num_materials - 1 ][0] = get((float*)*p);
+  unsigned short value = get((unsigned short *)*p);
+  // bit 4: 0=tile (default), 1=do not tile (a single bit for both u and v)
+  unsigned int tile = !(value & 0x10);
+
+  GLuint handle = materials[num_materials-1]->getTextureHandle();
+  GLfloat *diff_rgb = materials[num_materials-1]->getMaterial( GL_DIFFUSE );
+#ifdef GL_VERSION_1_1
+  glBindTexture ( GL_TEXTURE_2D, handle ) ;
+#else
+  glBindTextureEXT ( GL_TEXTURE_2D, handle ) ;
+#endif
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tile ? GL_REPEAT : GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tile ? GL_REPEAT : GL_CLAMP);
+  if ( diff_rgb != (GLfloat *)NULL )
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, diff_rgb);
+#ifdef GL_VERSION_1_1
+  glBindTexture ( GL_TEXTURE_2D, 0 ) ;
+#else
+  glBindTextureEXT ( GL_TEXTURE_2D, 0 ) ;
+#endif
+
   return PARSE_OK;
 }
 
-static int parse_vscale( char **p, unsigned long length )
+static int parse_uscale( char **p, unsigned int length )
 {
   texture_scale[ num_materials - 1 ][1] = get((float*)*p);
   return PARSE_OK;
 }
 
-static int parse_uoffst( char **p, unsigned long length )
+static int parse_vscale( char **p, unsigned int length )
+{
+  texture_scale[ num_materials - 1 ][0] = get((float*)*p);
+  return PARSE_OK;
+}
+
+static int parse_uoffst( char **p, unsigned int length )
 {
   texture_offst[ num_materials - 1 ][0] = get((float*)*p);
   return PARSE_OK;
 }
 
-static int parse_voffst( char **p, unsigned long length )
+static int parse_voffst( char **p, unsigned int length )
 {
   texture_offst[ num_materials - 1 ][1] = get((float*)*p);
   return PARSE_OK;
 }
 
-static int parse_material( char **p, unsigned long length ) {
+static int parse_material( char **p, unsigned int length ) {
   materials[num_materials] = current_material = new ssgSimpleState();
   mat_flag[num_materials] = 0;
   num_materials++;
@@ -293,13 +362,13 @@ static int parse_material( char **p, unsigned long length ) {
   return PARSE_OK;
 }
 
-static int parse_material_name( char **p, unsigned long length ) {
+static int parse_material_name( char **p, unsigned int length ) {
   material_names[num_materials - 1] = *p;
   
   return PARSE_OK;
 }
 
-static int parse_rgb1( char **p, unsigned long length ) {
+static int parse_rgb1( char **p, unsigned int length ) {
   float *w = (float*)*p, r, g, b;
 
   r = get(w++);
@@ -313,7 +382,7 @@ static int parse_rgb1( char **p, unsigned long length ) {
   return PARSE_OK;
 }
 
-static int parse_rgb2( char **p, unsigned long length ) {
+static int parse_rgb2( char **p, unsigned int length ) {
   unsigned char *w = (unsigned char*)*p;
   float r, g, b;
 
@@ -328,29 +397,29 @@ static int parse_rgb2( char **p, unsigned long length ) {
   return PARSE_OK;
 }
 
-static int parse_ambient( char **p, unsigned long length ) {
+static int parse_ambient( char **p, unsigned int length ) {
   colour_mode = GL_AMBIENT;
   return PARSE_OK;
 }
 
-static int parse_diffuse( char **p, unsigned long length ) {
+static int parse_diffuse( char **p, unsigned int length ) {
   colour_mode = GL_DIFFUSE;
   return PARSE_OK;
 }
 
-static int parse_specular( char **p, unsigned long length ) {
+static int parse_specular( char **p, unsigned int length ) {
   colour_mode = GL_SPECULAR;
   return PARSE_OK;
 }
 
-static int parse_shininess( char **p, unsigned long length ) {
+static int parse_shininess( char **p, unsigned int length ) {
   unsigned short *w = (unsigned short*)(*p + CHUNK_HEADER_SIZE);
   current_material -> setShininess( get(w) * 128.0 / 100.0 );
 
   return PARSE_OK;
 }
 
-static int parse_transparency( char **p, unsigned long length ) {
+static int parse_transparency( char **p, unsigned int length ) {
   float *col;
   unsigned short *w = (unsigned short*)(*p + CHUNK_HEADER_SIZE);
   current_alpha = 1.0f - (float)(get(w)) / 100.0f;
@@ -368,7 +437,7 @@ static int parse_transparency( char **p, unsigned long length ) {
   return PARSE_OK;
 }
 
-static int parse_doublesided( char **p, unsigned long length ) {
+static int parse_doublesided( char **p, unsigned int length ) {
   double_sided = mat_flag[num_materials - 1] |= IS_DOUBLESIDED;
 
   fprintf( stderr, "Warning: '%s' is doublesided.\n", material_names[num_materials-1] );
@@ -408,19 +477,24 @@ static void free_trimesh()
   vertex_index = NULL;
 }
 
-static int parse_trimesh( char **p, unsigned long length ) {
+static int parse_trimesh( char **p, unsigned int length ) {
   current_transform = new ssgTransform();
 
   free_trimesh();
 
   top_object -> addKid( current_transform );
 
-  return PARSE_OK;
+  /* Before we parse CHUNK_FACEMAT, we have to know vertices and texture
+     coordinates. To ensure this, we make a special pass of the Trimesh
+     chunks, just extracting this information.
+     This is kind of a kludge, but it was the easiest way to solve this problem */
+
+  return parse_chunks( *p, *p + length - CHUNK_HEADER_SIZE, TriMeshDataChunks );
 }
 
-static int parse_vert_list( char **p, unsigned long length ) {
+static int parse_vert_list( char **p, unsigned int length ) {
   num_vertices = get((unsigned short*)(*p));
-  float *l = (float*)(*p + sizeof(short));
+  float *l = (float*)(*p + 2);
 
   vertex_list = new sgVec3[num_vertices];
 
@@ -434,12 +508,13 @@ static int parse_vert_list( char **p, unsigned long length ) {
   return PARSE_OK;
 }
 
-static int parse_smooth_list( char **p, unsigned long length )
+static int parse_smooth_list( char **p, unsigned int length )
 {
   int i;
-  unsigned long *w = (unsigned long*)*p;
+  unsigned int *w = (unsigned int*)*p;
+  smooth_found = TRUE;
 
-  smooth_list = new unsigned long[num_faces];
+  smooth_list = new unsigned int[num_faces];
 
   for (i = 0; i < num_faces; i++)
     smooth_list[i] = get(w++);
@@ -455,8 +530,8 @@ static void smooth_normals( int use_smooth_list )
 
   for (i = 0; i < num_faces; i++) {
     int v1 = i * 3,
-        v2 = i * 3 + 1,
-        v3 = i * 3 + 2;
+      v2 = i * 3 + 1,
+      v3 = i * 3 + 2;
 
     sgZeroVec3( vertex_normals[v1] );
     sgZeroVec3( vertex_normals[v2] );
@@ -466,9 +541,11 @@ static void smooth_normals( int use_smooth_list )
       int should_smooth;
 
       if (use_smooth_list) {
-        should_smooth = (smooth_list[i] & smooth_list[j]) && (sgScalarProductVec3( face_normals[i], face_normals[j] ) >= -0.5f);
+        should_smooth = (smooth_list[i] & smooth_list[j]) && 
+          (sgScalarProductVec3( face_normals[i], face_normals[j] ) >= -0.5f);
       } else {
-        should_smooth = (sgScalarProductVec3( face_normals[i], face_normals[j] ) > _ssg_smooth_threshold);
+        should_smooth = (sgScalarProductVec3( face_normals[i], face_normals[j] ) > 
+                         _ssg_smooth_threshold);
       }
 
       if (should_smooth) {
@@ -498,7 +575,7 @@ static void smooth_normals( int use_smooth_list )
 }
 
 
-static int parse_face_list( char **p, unsigned long length ) {
+static int parse_face_list( char **p, unsigned int length ) {
   int i;
   unsigned short *w = (unsigned short*)*p;     // to make less mess with dereferencing
   num_faces = get(w++);
@@ -524,34 +601,18 @@ static int parse_face_list( char **p, unsigned long length ) {
     }
 
     sgMakeNormal( face_normals[i], vertex_list[vertex_index[i*3    ]], 
-                                   vertex_list[vertex_index[i*3 + 1]], 
-                                   vertex_list[vertex_index[i*3 + 2]] );
+                  vertex_list[vertex_index[i*3 + 1]], 
+                  vertex_list[vertex_index[i*3 + 2]] );
 
   }
 
   /* this is a special "hack" for the face list chunk
      because we HAVE to know the smooth list (if there is one)
-     before building the ssgVTable objects, this parsing has to
+     before building the ssgVtxTable objects, this parsing has to
      be done first...*ugh*/
 
-  char *c = (char*)w;
-  int smooth_found = FALSE;
-
-  while (c < *p + length - CHUNK_HEADER_SIZE) {
-    unsigned short id = get((unsigned short*)c);
-    unsigned long sub_length = get((unsigned long*)(c + sizeof(short)));
-    char *next_chunk = c + sub_length;
-
-    if (id == CHUNK_SMOOLIST) {
-      c += CHUNK_HEADER_SIZE;
-      parse_smooth_list( &c, sub_length );
-      smooth_found = TRUE;
-    }
-    /* ignore all other chunks (they will be handled in the
-       main parsing loop). */
-
-    c = next_chunk;
-  }
+  smooth_found = FALSE;
+  parse_chunks( (char*)w, *p + length - CHUNK_HEADER_SIZE, FaceListDataChunks );
 
   /* now apply correct smoothing. If smooth list has been found,
      use it, otherwise use threshold value. */
@@ -561,9 +622,9 @@ static int parse_face_list( char **p, unsigned long length ) {
   return PARSE_OK;
 }
 
-static int parse_map_list( char **p, unsigned long length ) {
+static int parse_map_list( char **p, unsigned int length ) {
   unsigned short num_v = get((unsigned short*)*p);
-  float *w = (float*)(*p + sizeof(short));
+  float *w = (float*)(*p + 2);
 
   texcrd_list = new sgVec2[num_v];
 
@@ -575,7 +636,7 @@ static int parse_map_list( char **p, unsigned long length ) {
   return PARSE_OK;
 }
 
-static int parse_tra_matrix( char **p, unsigned long length ) {
+static int parse_tra_matrix( char **p, unsigned int length ) {
   sgMat4 m;
 
   sgMakeIdentMat4( m );
@@ -585,31 +646,31 @@ static int parse_tra_matrix( char **p, unsigned long length ) {
      this out, but things seems to work better without
      it (which is odd).
   
-  float *f = (float*)*p;
-  int i, j;
+     float *f = (float*)*p;
+     int i, j;
 
-  for (i = 0; i < 4; i++) {
-    for (j = 0; j < 3; j++) {
-      m[i][j] = get(f++);
-    }
-  }
+     for (i = 0; i < 4; i++) {
+     for (j = 0; j < 3; j++) {
+     m[i][j] = get(f++);
+     }
+     }
 
 
-  for (int a = 0; a < 4; a++) {
-    for (int b = 0; b < 4; b++) {
-      printf("%6.2f  ", m[a][b]);
-    }
-    printf("\n");
-  }
+     for (int a = 0; a < 4; a++) {
+     for (int b = 0; b < 4; b++) {
+     printf("%6.2f  ", m[a][b]);
+     }
+     printf("\n");
+     }
 
-  printf("\n");*/
+     printf("\n");*/
 
   current_transform -> setTransform( m );
   
   return PARSE_OK;
 }
 
-static int parse_face_materials( char **p, unsigned long length ) {
+static int parse_face_materials( char **p, unsigned int length ) {
   int mat_num;
   char *material = *p;
   ssgSimpleState *state = NULL;
@@ -628,8 +689,8 @@ static int parse_face_materials( char **p, unsigned long length ) {
   unsigned short listed_faces = get(w++);
 
   int is_ds       = mat_flag[mat_num] & IS_DOUBLESIDED, 
-      has_texture = mat_flag[mat_num] & HAS_TEXTURE, 
-      num_allocate;
+    has_texture = mat_flag[mat_num] & HAS_TEXTURE, 
+    num_allocate;
   
   if (is_ds)
     num_allocate = listed_faces * 3 * 2; // material is double sided
@@ -638,22 +699,25 @@ static int parse_face_materials( char **p, unsigned long length ) {
 
   sgVec3 *vertices = new sgVec3[ num_allocate ];
   sgVec3 *normals  = new sgVec3[ num_allocate ];
-  sgVec2 *texcrds;
+  sgVec2 *texcrds  = NULL;
   
-  if (has_texture)
-    texcrds = new sgVec2[ num_allocate ];  
-  else
-    texcrds = NULL;
+  if (has_texture) {
+    if (texcrd_list == NULL) {
+      fprintf(stderr, "ssgLoad3ds: Texture coords seems to be missing.\n");
+    } else {
+      texcrds = new sgVec2[ num_allocate ];  
+    }
+  }
 
   int vertex_count = 0,
-      normal_count = 0,
-      texcrd_count = 0;
+    normal_count = 0,
+    texcrd_count = 0;
 
   for (int i = 0; i < listed_faces; i++) {
     unsigned short faceindex = get(w++);
     int v1 = faceindex * 3,
-        v2 = faceindex * 3 + 1,
-        v3 = faceindex * 3 + 2;
+      v2 = faceindex * 3 + 1,
+      v3 = faceindex * 3 + 2;
 
     sgCopyVec3( vertices[vertex_count++], vertex_list[ vertex_index[v1] ] );
     sgCopyVec3( vertices[vertex_count++], vertex_list[ vertex_index[v2] ] );
@@ -663,7 +727,7 @@ static int parse_face_materials( char **p, unsigned long length ) {
     sgCopyVec3( normals[normal_count++], vertex_normals[ v2 ] );
     sgCopyVec3( normals[normal_count++], vertex_normals[ v3 ] );
 
-    if (has_texture) {
+    if (has_texture && texcrd_list != NULL) {
       int num_texcrds = 3;
 
       sgCopyVec2( texcrds[texcrd_count    ], texcrd_list[ vertex_index[v1] ] );
@@ -673,8 +737,8 @@ static int parse_face_materials( char **p, unsigned long length ) {
       if (is_ds) {
         num_texcrds = 6;
         sgCopyVec2( texcrds[texcrd_count + 3], texcrd_list[ vertex_index[v1] ] );
-        sgCopyVec2( texcrds[texcrd_count + 4], texcrd_list[ vertex_index[v2] ] );
-        sgCopyVec2( texcrds[texcrd_count + 5], texcrd_list[ vertex_index[v3] ] );
+        sgCopyVec2( texcrds[texcrd_count + 4], texcrd_list[ vertex_index[v3] ] );
+        sgCopyVec2( texcrds[texcrd_count + 5], texcrd_list[ vertex_index[v2] ] );
       }
 
       for (int j = 0; j < num_texcrds; j++) {
@@ -682,6 +746,8 @@ static int parse_face_materials( char **p, unsigned long length ) {
         texcrds[texcrd_count + j][1] *= texture_scale[mat_num][1];
         sgAddVec2( texcrds[texcrd_count + j], texture_offst[mat_num] );
       }
+
+      texcrd_count += num_texcrds;
     }
 
     if (is_ds) {
@@ -697,10 +763,10 @@ static int parse_face_materials( char **p, unsigned long length ) {
   }
 
   ssgVTable *v = new ssgVTable( GL_TRIANGLES, vertex_count, vertices,
-                                              normal_count, normals,
-                                              texcrd_count, texcrds,
-                                              0, NULL);
-
+                                normal_count, normals,
+                                texcrd_count, texcrds,
+                                0, NULL);
+  v -> setName( material );
   v -> setState( state );
   current_transform -> addKid( v );
 
@@ -710,7 +776,7 @@ static int parse_face_materials( char **p, unsigned long length ) {
 //==========================================================
 // OBJBLOCK PARSER
 
-static int parse_objblock( char **p, unsigned long length ) {
+static int parse_objblock( char **p, unsigned int length ) {
   while (*(*p)++);    // skip object name
 
   return PARSE_OK;
@@ -725,12 +791,12 @@ static int parse_chunks(char *p, char *chunk_end, _ssg3dsChunk *chunk_list)
   int parse_ok = PARSE_OK;
   char *next_chunk;
   unsigned short id;
-  unsigned long sub_length;
+  unsigned int sub_length;
   _ssg3dsChunk *t;
 
   while (parse_ok && p < chunk_end) {
     id = get((unsigned short*)p);
-    sub_length = get((unsigned long*)(p + sizeof(short)));
+    sub_length = get((unsigned int*)(p + 2));
 
     if (p + sub_length > chunk_end) {
       fprintf(stderr, "Illegal chunk %X of length %i. Chunk is longer than parent chunk.\n", (int)id, (int)sub_length);
@@ -799,9 +865,15 @@ ssgEntity *ssgLoad3ds( char *filename, ssgHookFunc hookfunc ) {
   // (ok, could be implemented as linked list, but...well I'm lazy)
   materials = new ssgSimpleState*[MAX_MATERIALS];
   material_names = new char*[MAX_MATERIALS];
+  mat_tfnames = new char*[MAX_MATERIALS];
   mat_flag = new int[MAX_MATERIALS];
   texture_scale = new sgVec2[MAX_MATERIALS]; 
+  int _i;
+  for ( _i=0; _i < MAX_MATERIALS; _i++ )
+    texture_scale[_i][0] = texture_scale[_i][1] = 1.0f;
   texture_offst = new sgVec2[MAX_MATERIALS]; 
+  for ( _i=0; _i < MAX_MATERIALS; _i++ )
+    texture_offst[_i][0] = texture_offst[_i][1] = 0.0f;
   double_sided = FALSE;
 
   // Get file length and load into buffer
@@ -812,19 +884,19 @@ ssgEntity *ssgLoad3ds( char *filename, ssgHookFunc hookfunc ) {
   buffer = new char [ size ] ;
 
   if ( buffer == NULL )
-  {
-    fprintf( stderr, "ssgLoad3ds: Failed to allocate memory for file %s.\n",
-                      filepath);
-    fclose ( loader_fd ) ;
-    return NULL;
-  }
+    {
+      fprintf( stderr, "ssgLoad3ds: Failed to allocate memory for file %s.\n",
+               filepath);
+      fclose ( loader_fd ) ;
+      return NULL;
+    }
 
   if ((long)fread(buffer, 1, size, loader_fd) < size)
-  {
-    fprintf(stderr, "ssgLoad3ds: Could not read file '%s' - size mismatch.\n",
-                      filepath );
-    return NULL;
-  }
+    {
+      fprintf(stderr, "ssgLoad3ds: Could not read file '%s' - size mismatch.\n",
+              filepath );
+      return NULL;
+    }
 
   fclose ( loader_fd ) ;
   
@@ -834,6 +906,7 @@ ssgEntity *ssgLoad3ds( char *filename, ssgHookFunc hookfunc ) {
   delete [] filepath;
   
   delete [] material_names;
+  delete [] mat_tfnames;
   delete [] mat_flag;
   delete [] texture_scale; 
   delete [] texture_offst; 
