@@ -137,7 +137,7 @@ ObjLoader::fgets( char* s, int size, FILE* fp )
 
     for (--size; n < size; ++n)
     {
-	c = fgetc(fp);
+	c = getc(fp);
 	if (c == EOF)
 	    return 0;
 
@@ -148,7 +148,7 @@ ObjLoader::fgets( char* s, int size, FILE* fp )
 
     *p = 0;
 
-    c = fgetc(fp);
+    c = getc(fp);
     if (c != '\n')
 	ungetc( c, fp );
 
@@ -460,3 +460,4 @@ ssgLoadXPlaneOBJ( const char* fname, const ssgLoaderOptions* options )
     ObjLoader loader( options );
     return loader.load( fname );
 }
+
