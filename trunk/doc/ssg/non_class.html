@@ -146,8 +146,7 @@ wish to load - or you can call 'ssgLoad' - which parses
 the filename extension and calls the appropriate format-specific
 loader.
 <p>
-This is one major area where SSG could use some work.
-So far, there are only three file loaders:
+At first, there were only three file loaders:
 <ul>
 <li> ssgLoadSSG - for '.ssg' files - the 'native' SSG format.
 <li> ssgLoadAC  - for '.ac' files - a somewhat obscure format produced
@@ -155,6 +154,20 @@ So far, there are only three file loaders:
                  and tested.
 <li> ssgLoad3ds - for '.3ds' files as produced by 3DStudio.
 </ul>
+but in CVS you will also find
+<ul>
+<li> ssgLoadASE - 3DSMAX ASCII EXPORT Version 2.00, well tested
+<li> ssgLoadDXF - AutoCADs famous DXF format. well tested
+<li> ssgLoadFLT - OpenFlight
+<li> ssgLoadMD2 - Quake MD2
+<li> ssgLoadMDL - the format for Micro$ofts Flight simulator, some features
+missing, not all models can be loaded (yet)
+<li> ssgLoadOBJ - Wavefront, works well
+<li> ssgLoadTRI - simple Tri format from "Andy Colbournes Editor".
+<li> ssgLoadVRML - Doesn't work at the moment :-(
+<li> ssgLoadX - Microsofts DirectX-Format. Most features work.
+</ul>
+
 <pre>
 
   typedef ssgBranch *(*ssgHookFunc)(char *) ;
@@ -232,7 +245,7 @@ wish to save - or you can call 'ssgSave' - which parses
 the filename extension and calls the appropriate format-specific
 writer.
 <p>
-So far, there is only one file writer:
+Saving into ssg-format is done with these functions:
 <ul>
 <li> ssgSaveSSG - for '.ssg' files - the 'native' SSG format.
 </ul>
@@ -243,12 +256,14 @@ So far, there is only one file writer:
 
 </pre>
 This returns TRUE if the operation worked - FALSE if it failed.
+In the newest version from cvs, you will also find writers for the
+AC, ASE, DXF, OBJ and TRI-formats.
 <hr>
 <table width="100%">
    	<tr>
    		<td width="33%" align="left"><a href="ssgContext.html">&lt;= previous =</a></td>
    		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
-   		<td width="33%" align="right"></td>
+   		<td width="33%" align="right"><a href="LoaderWriter.html">= next =&gt;</a></td>
    	</tr>
 </table>
 <hr>
