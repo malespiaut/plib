@@ -96,6 +96,8 @@ UTIL-- Should be portable to POSIX-compliant
 SG  -- Totally portable, no dependancies.
 
 PUI -- Requires GLUT and OpenGL also FNT and SG.
+       There is now an option to compile PUI without
+       GLUT - but that is not the default.
 
 NET -- Should be portable to POSIX-compliant
        OS's.
@@ -126,30 +128,22 @@ SL  -- This has now been ported onto:
 
 STABILITY AND RELIABILITY:
 
-SG, SL, JS and PUI have all been in use for a long time
+SSG, SG, SL, JS and PUI have all been in use for a long time
 in a huge number of applications - so they are reliable
 and unlikely to change much in the future.
 
 UTIL and FNT are pretty simple and should be very stable.
 
-SSG is still fairly new though - and it's by far the
-most complex and ambitious of the libraries. Whilst
-it seems to work well and to be stable for the couple
-of applications I have, it will certainly need more
-work in the future.
-
+SSGAUX is still fairly new though - new features added
+to it should not destroy older features though - so
+you can use it with confidence.
 
 
 AUX LIBRARIES AND TOOLS:
 
-PLIB comes with a number of auxiliary libraries in the
-'auxlibs' folder.  These add capabilities to PLIB that
-not every program will wish to be burdened with.
-
 The 'tools' directory contains a number of useful tools
 and utility programs that are either built using PLIB or
 which are specifically useful when writing PLIB programs.
-
 
 
 COMPILING/LINKING WITH PLIB
@@ -164,10 +158,12 @@ In your source code, add any combination of:
      #include <plib/ssg.h>
      #include <plib/sl.h>
      #include <plib/net.h>
+     #include <plib/ssgAux.h>
 
 Add any of these to your link line:
 
-  -lplibssg -lplibsl -lplibpu -lplibfnt -lplibnet -lplibsg -lplibul
+  -lplibjs -lplibssgaux -lplibssg -lplibsl -lplibpu 
+  -lplibfnt -lplibnet -lplibsg -lplibul
 
 Under UNIX/Linux, you'll also need:
 
