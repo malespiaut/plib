@@ -6,7 +6,10 @@ static ssgLoaderOptions default_options ;
 extern ssgLoaderOptions *_ssgCurrentOptions = &default_options ;
 
 
-#if 0
+#ifdef FOR_PPE
+
+
+
 static char _ssgAPOM[16*1024]=""; // APOM = actual path of model (!=ModelPath)
 
 char * ssgGetAPOM() // get actual path of (last loaded) model
@@ -91,10 +94,10 @@ void appLoaderOptions::makeModelPath ( char *path, const char *fname ) const
 
 void appLoaderOptions::makeTexturePath ( char *path, const char *fname ) const
 {
-	ulFindFile( filepath, texture_dir, fname, ssgGetAPOM() ) ;
+	ulFindFile( path, texture_dir, fname, ssgGetAPOM() ) ;
 }
 
-
+// end of PPE stuff
 #endif
 
 
