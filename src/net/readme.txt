@@ -9,8 +9,7 @@ DESCRIPTION:
 Pegasus is a C++ library for making networked games.
 It includes event-driven channels, support for
 buffering and pipelining, a monitor server for remote
-telnet admin, and several design patterns including
-a Yahoo-like game room.
+telnet admin, and binary messages.
 
 
 ORIGINS:
@@ -24,8 +23,6 @@ Medusa is mainly for Python -- a really great scripting language.
 I wanted a C++ library which had the same simplicity as Medusa
 and worked for the type of games i wanted to write.
 I found a C++ port of Medusa and used that as a starting point.
-I added my netRoom client-server design pattern and that
-became Pegasus.
 
 I use the name Pegasus because when Perseus (a son of Zeus) killed
 Medusa by cutting off her head, from the drops of her blood sprang

@@ -59,10 +59,8 @@ BuildCmds= \
 	copy $(ProjDir)\netBuffer.h $(ProjDir)\..\..\netBuffer.h \
 	copy $(ProjDir)\netChannel.h $(ProjDir)\..\..\netChannel.h \
 	copy $(ProjDir)\netChat.h $(ProjDir)\..\..\netChat.h \
-	copy $(ProjDir)\netList.h $(ProjDir)\..\..\netList.h \
 	copy $(ProjDir)\netMessage.h $(ProjDir)\..\..\netMessage.h \
 	copy $(ProjDir)\netMonitor.h $(ProjDir)\..\..\netMonitor.h \
-	copy $(ProjDir)\netRoom.h $(ProjDir)\..\..\netRoom.h \
 	copy $(ProjDir)\netSocket.h $(ProjDir)\..\..\netSocket.h \
 	
 
@@ -75,16 +73,10 @@ BuildCmds= \
 "$(ProjDir)\..\..\netChat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"$(ProjDir)\..\..\netList.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
 "$(ProjDir)\..\..\netMessage.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "$(ProjDir)\..\..\netMonitor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netRoom.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "$(ProjDir)\..\..\netSocket.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -127,10 +119,8 @@ BuildCmds= \
 	copy $(ProjDir)\netBuffer.h $(ProjDir)\..\..\netBuffer.h \
 	copy $(ProjDir)\netChannel.h $(ProjDir)\..\..\netChannel.h \
 	copy $(ProjDir)\netChat.h $(ProjDir)\..\..\netChat.h \
-	copy $(ProjDir)\netList.h $(ProjDir)\..\..\netList.h \
 	copy $(ProjDir)\netMessage.h $(ProjDir)\..\..\netMessage.h \
 	copy $(ProjDir)\netMonitor.h $(ProjDir)\..\..\netMonitor.h \
-	copy $(ProjDir)\netRoom.h $(ProjDir)\..\..\netRoom.h \
 	copy $(ProjDir)\netSocket.h $(ProjDir)\..\..\netSocket.h \
 	
 
@@ -143,16 +133,10 @@ BuildCmds= \
 "$(ProjDir)\..\..\netChat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"$(ProjDir)\..\..\netList.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
 "$(ProjDir)\..\..\netMessage.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "$(ProjDir)\..\..\netMonitor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netRoom.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "$(ProjDir)\..\..\netSocket.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -196,10 +180,6 @@ SOURCE=.\netChat.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\netList.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\netMessage.cxx
 # End Source File
 # Begin Source File
@@ -213,26 +193,6 @@ SOURCE=.\netMonitor.cxx
 # Begin Source File
 
 SOURCE=.\netMonitor.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\netRoom.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\netRoom.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\netRoomClient.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\netRoomMaster.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\netRoomServer.cxx
 # End Source File
 # Begin Source File
 
