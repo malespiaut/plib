@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\sg" /I "..\util" /I "..\ssg" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "GLUT_IS_PRESENT" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\sg" /I "..\util" /I "..\ssg" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
 # ADD RSC /l 0x407 /d "NDEBUG"
@@ -70,7 +70,7 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ss
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\sg" /I "..\util" /I "..\ssg" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "GLUT_IS_PRESENT" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\sg" /I "..\util" /I "..\ssg" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
 # ADD RSC /l 0x407 /d "_DEBUG"
