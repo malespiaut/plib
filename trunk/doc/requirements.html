@@ -75,7 +75,7 @@ need a sound card and some speakers or headphones.
 The PLIB team works hard to minimise our dependance on other
 libraries to make it easy for end-users to install application
 software without having to visit dozens of web sites to collect
-the libraries they need.  
+the libraries they need.
 <ul>
 <li>3D/2D Graphics: OpenGL. If you aren't already set up to
     run OpenGL, you should check:
@@ -89,36 +89,40 @@ the libraries they need.
          had a copy of OpenGL delivered with your operating
          system.
     </ul>
-<li>Windowing: <A HREF="http://www.opengl.org/Documentation/GLUT.html">GLUT</A>
-    (The OpenGL Utility Toolkit by Mark Kilgard) - fully portable
-    windowing library with support for mouse and keyboard.
-    As an alternative, there is an OpenSource clone of GLUT called
-    <A HREF="http://freeglut.sf.net">freeglut</A> - it
+<li>Windowing: From version 1.8.0, PLIB itself is completely independent of 
+    any other windowing library.  However, some of the demo and example
+    programs use <A HREF="http://freeglut.sf.net">freeglut</A> (or at a
+    pinch: 
+    <A HREF="http://www.opengl.org/Documentation/GLUT.html">the original
+    GLUT</A> (GL Utility Toolkit by Mark Kilgard).
+    <A HREF="http://freeglut.sf.net">freeglut</A>
     works very well with PLIB applications and is maintained by
-    many of the same people.
+    many of the same people - so there is good continuity.
     It's perfectly possible to write PLIB programs that don't use
-    GLUT (for example, you can use PLIB with 
-    <a href="http://www.libsdl.org">SDL</a>) - but the examples and demo's 
-    do require it.
+    either GLUT or freeglut - for example, you can use PLIB with 
+    <a href="http://www.libsdl.org">SDL</a>).
 </ul>
 
 <H2>How Portable is PLIB?</H2>
 VERY!
 <ul>
-<li> All flavors of Win32 (Win 2000, WinME, WinNT, Win95 and Win98) are
+<li> All flavors of Linux are supported - on any CPU platform that
+     supports Xfree86 and OpenGL.
+<li> All flavors of Win32 are
      supported, using either MSVC++ or CygWin for compilation.
      Theoretically you could use Borland C++ also, but since there is little
      user base these days, the necessary 'project' files to build PLIB
-     under Borland's IDE do tend to get outdated.
-<li> All flavors of Linux are supported - on any CPU platform that
-     supports Xfree86 and OpenGL.
-<li> Most other UNIX-like systems (at least BSD, IRIX, Solaris, OS-X).
-<li> MacOS now runs everything except the joystick library. I have yet to
-     hear of anyone who has a Mac with a joystick - so this isn't a great loss.
+     under Borland's IDE tend to get outdated.
+<li> Most other UNIX-like systems (at least BSD, IRIX, Solaris, OS-X) providing
+     they support X-windows.
+<li> MacOS-X is also reasonably well supported.
+<li> MacOS-9 runs everything except the joystick library.  However, it's getting
+     hard to find people to test this port - so it may have problems by the time
+     you come to use it.
 <li> Support for BeOS is problematic - for some reason, people who are prepared
      to help out with porting PLIB to BeOS are hard to find. However, since
-     BeOS (I'm told) has compatibility with GLUT, OpenGL and OSS, it should
-     be easy to port to.
+     BeOS (I'm told) has compatibility with X, OpenGL and OSS, it should
+     be easy to port to and may just work 'out of the box'.
 </ul>
 
 </TD>
