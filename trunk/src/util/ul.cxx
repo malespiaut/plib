@@ -183,7 +183,7 @@ char* ulMakePath( char* path, const char* dir, const char* fname )
 {
   if ( fname )
   {
-    if ( fname [ 0 ] != '\0' && fname [ 0 ] != '/' &&
+    if ( !ulIsAbsolutePathName (fname) &&
        dir != NULL && dir[0] != '\0' )
     {
       strcpy ( path, dir ) ;
