@@ -67,6 +67,8 @@
 #define OPCODE_SET_STRING_VARIABLE   0x26
 #define OPCODE_STACK_DUPLICATE       0x27
 #define OPCODE_GET_PARAMETER         0x28
+#define OPCODE_INCREMENT             0x29
+#define OPCODE_DECREMENT             0x2A
 
 #define OPCODE_POP_ADD_VARIABLE      0x30
 #define OPCODE_POP_SUB_VARIABLE      0x31

@@ -114,6 +114,21 @@ int pslCompiler::pushPrimitive ()
     return TRUE ;
   }
 
+  int preInc = FALSE ;
+  int preDec = FALSE ;
+
+  if ( strcmp ( c, "++" ) == 0 )
+  {
+    preInc = TRUE ;
+    getToken ( c ) ;
+  }
+  else
+  if ( strcmp ( c, "--" ) == 0 )
+  {
+    preDec = TRUE ;
+    getToken ( c ) ;
+  }
+
   if ( isalpha ( c [ 0 ] ) || c [ 0 ] == '_' )
   {
     char n [ MAX_TOKEN ] ;
@@ -121,9 +136,25 @@ int pslCompiler::pushPrimitive ()
     ungetToken ( n ) ;
 
     if ( n[0] == '(' )
+    {
+      if ( preInc || preDec )
+        error ( "You can't apply '++' or '--' to a function call!" ) ;
+
       pushFunctionCall ( c ) ;
+    }
     else
+    {
+      if ( preInc ) pushIncrement ( c ) ;
+      if ( preDec ) pushDecrement ( c ) ;
+
       pushVariable ( c ) ;
+
+      getToken ( n ) ;
+
+      if ( strcmp ( n, "++" ) == 0 ) pushIncrement ( c ) ; else
+      if ( strcmp ( n, "--" ) == 0 ) pushDecrement ( c ) ; else
+        ungetToken ( n ) ;
+    }
 
     return TRUE ;
   }
