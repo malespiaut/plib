@@ -2,11 +2,100 @@
 PLIB Change Log.
 ================
 
-PLIB v1.3.1 (??)
-~~~~~~~~~~~~~~~~
+PLIB v1.3.1 (Sept 15th 2000)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  * Changed License conditions to specifically permit
+    use of PLIB outside of LGPL for embedded applications.
+
+  * There is now a task and bug tracking system for PLIB
+    on Sourceforge.
+
+  * Configuration/Install tool changed to support CygWin
+    better than in the past.
+
+  * PLIB examples' data files consolidated into a single
+    'examples/data' directory.
+
+  * PLIB's documentation is now under CVS.
 
   * Added 'SSGAUX' library - include <plib/ssgAux.h>
     and link to /usr/lib/libplibssgaux.a
+
+  * Aux library has 'ssga' classes to add high level
+    shapes such as cylinders, cubes and spheres (two
+    different kinds).
+
+  * Lots of new example programs.
+    + New PUI 'complex' uses multiple windows.
+    + Cute 'waving flag' demo
+    + Working Quaternions versus Eulers demo 
+    + Model viewer (this is actually a useful
+      program - as well as a demo).
+ 
+  * More const-correctness throughout library.
+
+  * OPTIONAL support for PNG image loading (you have
+    to compile PLIB specially to get this because it
+    introduces an additional dependancy).
+
+  * PLIB now checks that a valid OpenGL rendering
+    context exists when the various ssgInit/puInit/etc
+    routines are called.
+
+  * PUI hasi:
+    + better support for multiple windows,
+    + a new function to allow the deletion of an object
+      within one of it's own callbacks.
+    + the ability to operate in a separate OpenGL
+      coordinate space.
+    + puFilePicker and puListBox
+    + enhancements to puSlider
+
+  * SL has a completely new audio driver for SGI's IRIX.
+    Unfortunately, we don't think it fixes the long-standing
+    timing problems for audio under IRIX.
+
+  * SSG's ssgVtxArray and ssgIndexArray now use 'short's for
+    indices - which is more efficient on most OpenGL's.
+
+  * Several bugs fixed in SSG - also some changes to make it
+    more suited to embedded use in game consoles and such.
+
+  * Many improvements to SSG's post-processing tools that are
+    typically applied to scene graph fragments after loading
+    from disk.
+
+  * SSG now permits you to disable MIPmapping for selected
+    textures.
+
+  * SSG's print() functions now work for more classes and
+    produce more useful output.
+
+  * Code for ssgVtxArray streamlined.
+
+  * Added a 'Lookat' function for SSG's camera model.
+
+  * ssgSelectors can now have more than 32 kids.
+
+  * ssgContext had incorrect defaults for the camera
+    orientation.
+
+  * Some loaders were not sharing ssgState's between
+    polygons - that's fixed.
+
+  * 3DS loader has had numerous improvements...but the
+    limitations of this format are becoming evident.
+
+  * All error/warning handling is now done through a
+    centralized handler that can be redirected (eg to
+    send errors to a popup window or something)
+
+  * Some bugs fixed in ASE loader.  It now uses
+    ssgVtxArray primitives.
+
+  * Added a loader for the Quake 'MD2' format. It
+    seems to work amazingly well.
 
   * Added 'UL' library.  Applications MUST link to
     -lplibul  (/usr/lib/libplibul.a) - and should
@@ -19,6 +108,12 @@ PLIB v1.3.1 (??)
 
     AC_CHECK_LIB(plibul, ulInit,,,)
 
+    libplibul currently contains:
+
+    + Fast, portable clock/timer routines.
+    + Low level networking code.
+    + Some directory searching routines.
+  
   * Documents and Examples are now under CVS.
 
   * Added Tools and Auxlibs folders for future

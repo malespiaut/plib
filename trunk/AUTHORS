@@ -1,28 +1,52 @@
-PLIB was written by Steve Baker, with help from
-numerous others.  Special mention must go to:
+PLIB was originally written by Steve Baker as a solo project - but
+has subsequently been greatly enhanced and expanded by a 'cast of
+thousands'.
 
-  Daryll Strauss (GLIDE port to Linux)
+Special mention must go to:
+
+  Daryll Strauss    (GLIDE port to Linux)
   David Bucciarelli (Mesa -> GLIDE interface)
-  Brian Paul (Mesa)
-  Curtis Olson  (FlightGear guru and all-round "Mr Nice Guy")
-  Vasily Lewis (Tireless maintainer and sysadmin at Woodsoup)
+  Brian Paul        (Mesa)
+  Curtis Olson      (FlightGear guru and all-round "Mr Nice Guy",
+                     who nagged me into writing most of this stuff!)
+  Vasily Lewis      (Tireless maintainer and sysadmin at Woodsoup
+                     where PLIB was first hosted)
+  Toru Egashira     (Who wrote a program called 'NSPmod' which was
+                     the original basis of the SL 'MOD' player -
+                     although the original code has been almost
+                     entirely rewritten in the process of merging
+                     it with SL.
   Everyone at OPENGL-GAMEDEV-L and 3Dfx.glide.linux
 
-Specific contributions came from:
+Most important of all - the 'official' PLIB developers:
 
-  Ton Knienieder
-    -- Ported SL to a bunch of non-Linux OS's
+  Ben Woodhead
+  Dave McClurg
+  Gil Carter
+  John Fay
+  Mark Vallevand
+  Norman Vine
+  Sam Stickland
+  Steve Baker
+  Wolfram Kuss
 
-  Simon Britnell <ughbash@yahoo.com>
-    -- Added SSG methods for searching for
-       objects by name, etc.
-    -- Added an SSG loader for the Me3D file format.
+Additional contributions came from:
 
-  Toru Egashira <toru@jms.jeton.or.jp>
-    -- Who wrote a program called 'NSPmod' which was
-       the original basis of the SL 'MOD' player -
-       although the original code has been almost
-       entirely rewritten in the process of merging
-       it with SL.
+  Christopher St.John
+  Curtis Olson
+  Darrell Walisser
+  Dave Heil
+  Kevin Thompson
+  Karl Kremer
+  Negative0
+  Mark Danks
+  Michael Kurth
+  Per Liedman
+  Sean Palmer
+  Simon Britnell
+  Tony Knienieder
+  Trent Gamblin
 
+Apologies to anyone I've left out - please let me know
+who you are and I'll add you in.
 
