@@ -30,7 +30,8 @@ UL_RTTI_DEF1(puVerticalMenu,puGroup)
 extern void puMenuBar_drop_down_the_menu ( puObject *b );
 
 /* If there is only one entry in a vmenu, just act as if clicking the menu clicks the oneshot underneath it. */
-void puVerticalMenu::add_submenu ( const char *str, char *items[], puCallback _cb[] )
+void puVerticalMenu::add_submenu ( const char *str, char *items[],
+                                   puCallback _cb[], void *_user_data[] )
 {
   int w, h ;
   getSize ( &w, &h ) ;
@@ -56,8 +57,12 @@ void puVerticalMenu::add_submenu ( const char *str, char *items[], puCallback _c
 
     b -> setUserData ( p ) ;
 
-    for ( int i = 0 ; items[i] != NULL ; i++ )
-      p -> add_item ( items[i], _cb[i] ) ;
+    if ( _user_data != NULL )
+      for ( int i = 0 ; items[i] != NULL ; i++ )
+        p -> add_item ( items[i], _cb[i], _user_data[i] ) ;
+    else
+      for ( int i = 0 ; items[i] != NULL ; i++ )
+        p -> add_item ( items[i], _cb[i] ) ;
 
     p->close () ;
   }

@@ -27,7 +27,8 @@
 UL_RTTI_DEF1(puPopupMenu,puPopup)
 
 
-puObject *puPopupMenu::add_item ( const char *str, puCallback _cb )
+puObject *puPopupMenu::add_item ( const char *str, puCallback _cb,
+                                  void *_user_data )
 {
   int w, h ;
   getSize ( &w, &h ) ;
@@ -39,6 +40,7 @@ puObject *puPopupMenu::add_item ( const char *str, puCallback _cb )
 		       colour[PUCOL_FOREGROUND][3] ) ;
   b->setCallback     ( _cb ) ;
   b->setLegendPlace  ( PUPLACE_LOWER_LEFT ) ;
+  b->setUserData     ( _user_data ) ;
   recalc_bbox () ;
   return b ;
 }
