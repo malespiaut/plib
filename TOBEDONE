@@ -3,6 +3,10 @@
 | TO BE DONE |
 +============+
 
+A tasks and bugs are now being tracked by sourceforge. Please 
+goto: http://sourceforge.net/projects/plib/
+
+
   * Lines in ASCII files are terminated...
 
           With '\n' under UNIX/Linux
