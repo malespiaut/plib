@@ -259,6 +259,7 @@ void ssgVtxArray::removeUnusedVertices()
     colours = newCL;
     newCL->ref();
   }
+  delete [] oldIndex2NewIndex;
 }
 
 void ssgVtxArray::draw_geometry ()
