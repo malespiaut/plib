@@ -38,4 +38,34 @@ void puValue::update_res ()
   if ( res_string  ) strcpy ( res_string, string ) ;
 }
 
+char *puValue::getTypeString ( void )
+{
+  int i = getType () ;
+
+  if ( i & PUCLASS_LARGEINPUT  ) return "puDialogBox" ;
+  if ( i & PUCLASS_VERTMENU    ) return "puSlider" ;
+  if ( i & PUCLASS_TRISLIDER   ) return "puButtonBox" ;
+  if ( i & PUCLASS_BISLIDER    ) return "puInput" ;
+  if ( i & PUCLASS_FILEPICKER  ) return "puMenuBar" ;
+  if ( i & PUCLASS_DIAL        ) return "puPopupMenu" ;
+  if ( i & PUCLASS_LISTBOX     ) return "puPopup" ;
+  if ( i & PUCLASS_ARROW       ) return "puOneShot" ;
+  if ( i & PUCLASS_DIALOGBOX   ) return "puDialogBox" ;
+  if ( i & PUCLASS_SLIDER      ) return "puSlider" ;
+  if ( i & PUCLASS_BUTTONBOX   ) return "puButtonBox" ;
+  if ( i & PUCLASS_INPUT       ) return "puInput" ;
+  if ( i & PUCLASS_MENUBAR     ) return "puMenuBar" ;
+  if ( i & PUCLASS_POPUPMENU   ) return "puPopupMenu" ;
+  if ( i & PUCLASS_POPUP       ) return "puPopup" ;
+  if ( i & PUCLASS_ONESHOT     ) return "puOneShot" ;
+  if ( i & PUCLASS_BUTTON      ) return "puButton" ;
+  if ( i & PUCLASS_TEXT        ) return "puText" ;
+  if ( i & PUCLASS_FRAME       ) return "puFrame" ;
+  if ( i & PUCLASS_GROUP       ) return "puGroup" ;
+  if ( i & PUCLASS_INTERFACE   ) return "puInterface" ;
+  if ( i & PUCLASS_OBJECT      ) return "puObject" ;
+  if ( i & PUCLASS_VALUE       ) return "puValue" ;
+
+  return "Unknown Object type." ;
+}
 
