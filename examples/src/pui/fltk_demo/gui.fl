@@ -1,0 +1,48 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0104 
+header_name {.h} 
+code_name {.cxx}
+Function {make_window()} {open
+} {
+  Fl_Window main_window {
+    label {fluid window} open
+    xywh {544 347 265 285} type Double hide
+  } {
+    Fl_Box gl_area {selected
+      xywh {15 50 235 180} labelsize 12 align 1
+      code0 {\#include "puf.h"}
+      class Puf_Window
+    }
+    Fl_Menu_Bar {} {open
+      xywh {0 0 265 20} labelsize 12 textsize 12
+    } {
+      submenu {} {
+        label File open
+        xywh {0 0 100 20} labelsize 12
+      } {
+        menuitem {} {
+          label Quit
+          callback {exit(0);}
+          xywh {0 0 100 20} labelsize 12
+          code0 {\#include <stdlib.h>}
+        }
+      }
+      submenu {} {
+        label Edit open
+        xywh {0 0 100 20} labelsize 12
+      } {}
+      submenu {} {
+        label View open
+        xywh {15 15 100 20} labelsize 12
+      } {}
+    }
+    Fl_Box {} {
+      label {OpenGL Area}
+      xywh {15 30 235 20} labelfont 1 labelsize 12
+    }
+    Fl_Button toggle_other {
+      label {Show / Hide}
+      xywh {70 250 120 25} labelsize 12
+    }
+  }
+} 
