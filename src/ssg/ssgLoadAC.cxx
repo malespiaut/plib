@@ -14,7 +14,7 @@ struct _ssgMaterial
 static int num_materials = 0 ;
 static sgVec3 *vtab = NULL ;
 
-static ssgHookFunc      current_hookFunc = NULL ;
+static const ssgLoaderOptions* current_options = NULL ;
 static _ssgMaterial    *current_material = NULL ;
 static sgVec4          *current_colour   = NULL ;
 static ssgBranch       *current_branch   = NULL ;
@@ -314,9 +314,9 @@ int do_data     ( char *s )
 
   fgetc ( loader_fd ) ;  /* Final RETURN */
 
-  if ( current_hookFunc != NULL )
+  if ( current_options -> getHookFunc () != NULL )
   {
-    ssgBranch *br = (*current_hookFunc) ( current_data ) ;
+    ssgBranch *br = current_options -> invokeHookFunc ( current_data ) ;
 
     if ( br != NULL )
     {
@@ -543,7 +543,7 @@ int do_refs     ( char *s )
     vtab -> setState ( get_state ( current_material ) ) ;
     vtab -> setCullFace ( ! ( (current_flags>>4) & 0x02 ) ) ;
 
-    ssgLeaf* leaf = (*_ssgCreateFunc) ( vtab, current_tfname, 0 ) ;
+    ssgLeaf* leaf = current_options -> createLeaf ( vtab, current_tfname, 0 ) ;
 
     if ( leaf )
        current_branch -> addKid ( leaf ) ;
@@ -560,9 +560,9 @@ int do_kids ( char *s )
 }
 
 
-ssgEntity *ssgLoadAC3D ( const char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadAC3D ( const char *fname, const ssgLoaderOptions* options )
 {
-  ssgEntity *obj = ssgLoadAC ( fname, hookfunc ) ;
+  ssgEntity *obj = ssgLoadAC ( fname, options ) ;
 
   if ( obj == NULL )
     return NULL ;
@@ -580,11 +580,8 @@ ssgEntity *ssgLoadAC3D ( const char *fname, ssgHookFunc hookfunc )
   Original function for backwards compatibility...
 */
 
-ssgEntity *ssgLoadAC ( const char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
 {
-  current_hookFunc = hookfunc ;
-  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
-
   char filename [ 1024 ] ;
 
   if ( fname [ 0 ] != '/' &&
@@ -605,6 +602,7 @@ ssgEntity *ssgLoadAC ( const char *fname, ssgHookFunc hookfunc )
   current_colour   = NULL ;
   current_tfname   = NULL ;
   current_branch   = NULL ;
+  current_options  = NULL ;
 
   sgSetVec2 ( texrep, 1.0, 1.0 ) ;
   sgSetVec2 ( texoff, 0.0, 0.0 ) ;
@@ -621,6 +619,9 @@ ssgEntity *ssgLoadAC ( const char *fname, ssgHookFunc hookfunc )
   int firsttime = TRUE ;
 
   current_branch = new ssgTransform () ;
+
+  current_options = options? options: &_ssgDefaultOptions ;
+  current_options -> begin () ;
 
   while ( fgets ( buffer, 1024, loader_fd ) != NULL )
   {
@@ -650,7 +651,8 @@ ssgEntity *ssgLoadAC ( const char *fname, ssgHookFunc hookfunc )
       search ( top_tags, s ) ;
   }
 
-  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
+  current_options -> end () ;
+
   delete current_tfname ;
   current_tfname = NULL ;
   delete [] vtab ;

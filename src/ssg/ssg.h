@@ -1882,7 +1882,83 @@ enum {
 	SSG_MD2_POSE
 };
 
+typedef ssgState *(*ssgAppStateFunc)(char*) ;
+typedef ssgLeaf *(*ssgCreateLeafFunc)(ssgLeaf*,const char*,const char*) ;
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
+
+class ssgLoaderOptions
+{
+  ssgAppStateFunc app_state_cb ;
+  ssgCreateLeafFunc create_leaf_cb ;
+  ssgHookFunc hook_cb ;
+
+  //NOTES: we could add more later
+  //...pointer to ssgTexture creation callback...
+  //...model scale factor...
+  //...create normals or read them from the file?...
+  //...cutoff angle for smooth shading where there isn`t one in the file format...
+  //...which direction is front-facing in formats that don`t get it right...
+  //...etc...
+
+  ssgLeaf* defaultCreateLeaf ( ssgLeaf* leaf,
+    const char* tfname, const char* parent_name ) const ;
+
+public:
+  ssgLoaderOptions (
+      ssgAppStateFunc   _app_state_cb,
+      ssgCreateLeafFunc _create_leaf_cb = 0,
+      ssgHookFunc       _hook_cb = 0
+    ) :
+    app_state_cb    ( _app_state_cb ),
+    create_leaf_cb  ( _create_leaf_cb ),
+    hook_cb         ( _hook_cb )
+  {}
+
+  void setAppStateCallback ( ssgAppStateFunc cb )
+  {
+    app_state_cb = cb ;
+  }
+
+  ssgState* createState ( char* tfname ) const
+  {
+    if ( app_state_cb )
+      return (*app_state_cb)(tfname) ;
+    else
+      return NULL ;
+  }
+
+  ssgLeaf* createLeaf ( ssgLeaf* leaf,
+    const char* tfname, const char* parent_name ) const
+  {
+    if ( create_leaf_cb )
+      return (*create_leaf_cb)(leaf,tfname,parent_name) ;
+    else
+      return defaultCreateLeaf(leaf,tfname,parent_name) ;
+  }
+
+  ssgHookFunc getHookFunc () const
+  {
+    return hook_cb ;
+  }
+
+  ssgBranch* invokeHookFunc ( char* text ) const
+  {
+    if ( hook_cb )
+      return (*hook_cb)(text) ;
+    else
+      return NULL ;
+  }
+
+  void begin () const
+  {
+    createLeaf ( 0, 0, 0 ) ;
+  }
+
+  void end () const
+  {
+    createLeaf ( 0, 0, 0 ) ;
+  }
+} ;
 
 int        ssgSave     ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveAC   ( const char *fname, ssgEntity *ent ) ;
@@ -1892,21 +1968,28 @@ int        ssgSaveDXF  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveTRI  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveOBJ  ( const char *fname, ssgEntity *ent ) ;
 
-ssgEntity *ssgLoad     ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadVRML ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoad3ds  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadAC3D ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadSSG  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadASE  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadDXF  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadTRI  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadOBJ  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadMD2  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadMDL  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoad     ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadVRML ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoad3ds  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadAC3D ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadSSG  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadASE  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadDXF  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadTRI  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadOBJ  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadMD2  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+ssgEntity *ssgLoadMDL  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 
 /* For backwards compatibility */
 
-ssgEntity *ssgLoadAC   ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadAC   ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+
+extern ssgLoaderOptions _ssgDefaultOptions ;
+
+inline void ssgSetAppStateCallback ( ssgAppStateFunc cb )
+{
+  _ssgDefaultOptions.setAppStateCallback ( cb ) ;
+}
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;
@@ -1918,11 +2001,6 @@ void ssgModelPath   ( const char *path ) ;
 void ssgTexturePath ( const char *path ) ;
 
 ssgLight *ssgGetLight ( int i ) ;
-
-extern ssgLeaf *(*_ssgCreateFunc)(ssgLeaf*,const char*,const char*) ;
-void  ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgLeaf*,const char*,const char*) ) ;
-
-void  ssgSetAppStateCallback ( ssgState *(*cb)(char *) ) ;
 
 char *ssgShowStats () ;
 void  ssgDelete ( ssgBranch *br ) ;

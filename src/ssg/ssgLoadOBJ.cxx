@@ -88,7 +88,6 @@ static matData* materials ;
 static ssgSimpleState** states ;
 static int num_states ;
 
-static ssgHookFunc      current_hookFunc = NULL ;
 static ssgBranch       *current_branch   = NULL ;
 
 
@@ -340,8 +339,8 @@ static void add_mesh ( int mat_index )
   ssgState *st = NULL ;
   if ( mat_index < num_mat ) {
     matData* mat = &materials[ mat_index ];
-    if ( _ssgGetAppState != NULL && mat->tfname[0] != 0 )
-      st =_ssgGetAppState ( mat->tfname ) ;
+    if ( mat->tfname[0] != 0 )
+      st = _ssgDefaultOptions.createState ( mat->tfname ) ;
     if ( st == NULL )
       st = find_state ( mat ) ;
   }
@@ -732,9 +731,8 @@ static int obj_read ( FILE *filein )
   return TRUE;
 }
 
-ssgEntity *ssgLoadOBJ ( const char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadOBJ ( const char *fname, const ssgLoaderOptions* options )
 {
-  current_hookFunc = hookfunc ;
   current_branch   = NULL ;
 
   char filename [ 1024 ] ;

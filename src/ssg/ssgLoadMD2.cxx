@@ -339,7 +339,7 @@ ssgEntity * convert_to_ssg()
 }
 
 
-ssgEntity * ssgLoadMD2( const char *filename, ssgHookFunc hookfunc)
+ssgEntity * ssgLoadMD2( const char *filename, const ssgLoaderOptions* options)
 {
  
   int j = 1 ;

@@ -11,6 +11,8 @@
 #define cchar const char
 
 
+static const ssgLoaderOptions* current_options = NULL ;
+
 struct aseVertexBuffer
 {
   bool use_flag ;
@@ -710,7 +712,7 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
     vl, nl, tl, cl, il ) ;
   leaf -> setCullFace ( TRUE ) ;
   leaf -> setState ( st ) ;
-  return (*_ssgCreateFunc) ( leaf, mat -> tfname, mesh_name ) ;
+  return current_options -> createLeaf ( leaf, mat -> tfname, mesh_name ) ;
 }
 
 
@@ -988,9 +990,10 @@ static void parse_free()
 }
 
 
-ssgEntity *ssgLoadASE ( const char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadASE ( const char *fname, const ssgLoaderOptions* options )
 {
-  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
+  current_options = options? options: &_ssgDefaultOptions ;
+  current_options -> begin () ;
 
   top_branch = new ssgBranch ;
   parser.openFile( fname, &parser_spec );
@@ -1002,6 +1005,6 @@ ssgEntity *ssgLoadASE ( const char *fname, ssgHookFunc hookfunc )
   parse_free();
   parser.closeFile();
 
-  (*_ssgCreateFunc) ( 0, 0, 0 ) ;  //reset
+  current_options -> end () ;
   return top_branch ;
 }

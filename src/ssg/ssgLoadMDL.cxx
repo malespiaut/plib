@@ -66,6 +66,8 @@ static FILE*                    model_file_;
 static int                      is_little_endian_;
 
 
+static const ssgLoaderOptions* current_options = NULL ;
+
 //static void joinChildren(ssgEntity*);
 
 //==========================================================
@@ -543,8 +545,11 @@ ssgSimpleState* createTextureState(char *name)
 }
 //===========================================================================
 
-ssgEntity *ssgLoadMDL( const char* fname, ssgHookFunc hook )
+ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 {
+  current_options = options? options: &_ssgDefaultOptions ;
+  current_options -> begin () ;
+
   int endiantest = 1 ;
   is_little_endian_ = *((char *) &endiantest );
 
@@ -724,7 +729,7 @@ ssgEntity *ssgLoadMDL( const char* fname, ssgHookFunc hook )
       vtab -> setCullFace ( TRUE ) ;
       vtab -> setState ( st ) ;
 
-      ssgLeaf* leaf = (*_ssgCreateFunc) ( vtab, NULL, NULL ) ;
+      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL, NULL ) ;
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -792,7 +797,7 @@ ssgEntity *ssgLoadMDL( const char* fname, ssgHookFunc hook )
       vtab -> setCullFace ( TRUE ) ;
       vtab -> setState ( st ) ;
 
-      ssgLeaf* leaf = (*_ssgCreateFunc) ( vtab, curr_tex_name_, NULL ) ;
+      ssgLeaf* leaf = current_options -> createLeaf ( vtab, curr_tex_name_, NULL ) ;
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -850,7 +855,7 @@ ssgEntity *ssgLoadMDL( const char* fname, ssgHookFunc hook )
       vtab -> setCullFace ( TRUE ) ;
       vtab -> setState ( st ) ;
 
-      ssgLeaf* leaf = (*_ssgCreateFunc) ( vtab, NULL, NULL ) ;
+      ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL, NULL ) ;
 	    curr_branch_->addKid(leaf);
 	  }
 	  break;
@@ -1081,6 +1086,8 @@ ssgEntity *ssgLoadMDL( const char* fname, ssgHookFunc hook )
 
   //joinChildren( model_ );
   
+  current_options -> end () ;
+
   return model_;
 }
 

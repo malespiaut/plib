@@ -239,13 +239,6 @@ int _ssgStrNEqual ( const char *s1, const char *s2, int len )
   return TRUE ;
 }
 
-ssgState *( *_ssgGetAppState)( char *) = NULL ;
-
-void ssgSetAppStateCallback ( ssgState *(*cb)(char *) )
-{
-  _ssgGetAppState = cb ;
-}
-
 enum { MAX_SHARED_TEXTURES = 100, MAX_SHARED_STATES = 1000 };
 static ssgTexture* shared_textures [ MAX_SHARED_TEXTURES ] ;
 static ssgSimpleState* shared_states [ MAX_SHARED_STATES ] ;
@@ -341,8 +334,8 @@ static ssgSimpleState* _ssgShareState ( ssgSimpleState* st )
   return NULL ; //don't change state
 }
 
-static ssgLeaf* default_createfunc ( ssgLeaf* leaf,
-  const char* tfname, const char* parent_name ) /* context of leaf creation */
+ssgLeaf* ssgLoaderOptions::defaultCreateLeaf ( ssgLeaf* leaf,
+  const char* tfname, const char* parent_name ) const
 {
   /* is this just a sharing 'reset' */
   if ( leaf == NULL )
@@ -351,11 +344,10 @@ static ssgLeaf* default_createfunc ( ssgLeaf* leaf,
      return NULL ;
   }
 
-  /* do we have a global AppState function? */
-  if ( _ssgGetAppState != NULL &&
-    tfname != NULL && tfname[0] != 0 )
+  /* custom state create function?? */
+  if ( tfname != NULL && tfname[0] != 0 )
   {
-    ssgState *st = _ssgGetAppState ( (char*)tfname ) ;
+    ssgState *st = createState ( (char*)tfname ) ;
     if ( st != NULL )
     {
       leaf -> setState ( st ) ;
@@ -396,13 +388,7 @@ static ssgLeaf* default_createfunc ( ssgLeaf* leaf,
   return leaf ;
 }
 
-
-ssgLeaf *(*_ssgCreateFunc)(ssgLeaf*,const char*,const char*) = default_createfunc ;
-
-void ssgSetCreateFunc ( ssgLeaf *(*cb)(ssgLeaf*,const char*,const char*) )
-{
-   _ssgCreateFunc = cb ;
-}
+ssgLoaderOptions _ssgDefaultOptions ( NULL, NULL, NULL ) ;
 
 void ssgModelPath ( const char *s )
 {
@@ -430,7 +416,7 @@ static const char *file_extension ( const char *fname )
 }
 
 
-typedef ssgEntity *_ssgLoader ( const char *, ssgHookFunc ) ;
+typedef ssgEntity *_ssgLoader ( const char *, const ssgLoaderOptions * ) ;
 typedef int         _ssgSaver ( const char *, ssgEntity * ) ;
 
 struct _ssgFileFormat
@@ -457,7 +443,7 @@ static _ssgFileFormat formats[] =
 } ;
 
   
-ssgEntity *ssgLoad ( const char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
 {
   if ( fname == NULL || *fname == '\0' )
     return NULL ;
@@ -473,7 +459,7 @@ ssgEntity *ssgLoad ( const char *fname, ssgHookFunc hookfunc )
   for ( _ssgFileFormat *f = formats; f->extension != NULL; f++ )
     if ( f->loadfunc != NULL &&
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
-      return f->loadfunc( fname, hookfunc ) ;
+      return f->loadfunc( fname, options ) ;
 
   ulSetError ( UL_WARNING, "ssgLoad: Unrecognised file type '%s'", extn ) ;
   return NULL ;
