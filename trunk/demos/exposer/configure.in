@@ -107,9 +107,6 @@ else
   CXXFLAGS="$CXXFLAGS -O6 -Wall $MACH -malign-double"
 fi
 
-MY_EXPAND_DIR(exposer, "$datadir/games/$PACKAGE")
-AC_DEFINE_UNQUOTED(EXPOSER_DATADIR, "$exposer_datadir")
-
 AC_OUTPUT( Makefile          \
            data/Makefile     \
            doc/Makefile     \
