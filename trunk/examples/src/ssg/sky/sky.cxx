@@ -91,16 +91,16 @@ static char *cloudNameList[] = { "Cloud 0", "Cloud 1", "Cloud 2", NULL } ;
 static int   curr_body  = 0 ;
 static int   curr_cloud = 0 ;
 
-static sgVec4 black             = { 0.0, 0.0, 0.0, 1.0 } ;
-static sgVec4 white             = { 1.0, 1.0, 1.0, 1.0 } ;
-static sgVec4 translucent_white = { 1.0, 1.0, 1.0, 0.8 } ;
+static sgVec4 black             = { 0.0f, 0.0f, 0.0f, 1.0f } ;
+static sgVec4 white             = { 1.0f, 1.0f, 1.0f, 1.0f } ;
+static sgVec4 translucent_white = { 1.0f, 1.0f, 1.0f, 0.8f } ;
 
-static sgVec4 base_sky_color    = { 0.39, 0.5, 0.74, 1.0 } ;
-static sgVec4 base_fog_color    = { 0.84, 0.87, 1.0, 1.0 } ;
+static sgVec4 base_sky_color    = { 0.39f, 0.50f, 0.74f, 1.0f } ;
+static sgVec4 base_fog_color    = { 0.84f, 0.87f, 1.00f, 1.0f } ;
 
-static sgVec4 base_ambient      = { 0.2, 0.2, 0.2, 1.0 } ;
-static sgVec4 base_diffuse      = { 1.0, 1.0, 1.0, 1.0 } ;
-static sgVec4 base_specular     = { 1.0, 1.0, 1.0, 1.0 } ;
+static sgVec4 base_ambient      = { 0.2f, 0.2f, 0.2f, 1.0f } ;
+static sgVec4 base_diffuse      = { 1.0f, 1.0f, 1.0f, 1.0f } ;
+static sgVec4 base_specular     = { 1.0f, 1.0f, 1.0f, 1.0f } ;
 
 static sgVec4 sky_color ;
 static sgVec4 fog_color ;
@@ -183,7 +183,7 @@ static void update_motion ()
   ck . update () ;
 
   double t = ck . getAbsTime   () ;
-  float dt = ck . getDeltaTime () ;
+  double dt = ck . getDeltaTime () ;
 
   /* update camera
 
@@ -217,13 +217,13 @@ static void update_motion ()
 
   if ( keypress == 'a' || keypress == 'A' )
   {
-    campos.xyz[SG_X] -= sin ( campos.hpr[0] * SG_DEGREES_TO_RADIANS ) * TRANS_SPEED ;
-    campos.xyz[SG_Y] += cos ( campos.hpr[0] * SG_DEGREES_TO_RADIANS ) * TRANS_SPEED ;
+    campos.xyz[SG_X] -= sgSin ( campos.hpr[0] * SG_DEGREES_TO_RADIANS ) * TRANS_SPEED ;
+    campos.xyz[SG_Y] += sgCos ( campos.hpr[0] * SG_DEGREES_TO_RADIANS ) * TRANS_SPEED ;
   }
   else if ( keypress == 'z' || keypress == 'Z' )
   {
-    campos.xyz[SG_X] += sin ( campos.hpr[0] * SG_DEGREES_TO_RADIANS ) * TRANS_SPEED ;
-    campos.xyz[SG_Y] -= cos ( campos.hpr[0] * SG_DEGREES_TO_RADIANS ) * TRANS_SPEED ;
+    campos.xyz[SG_X] += sgSin ( campos.hpr[0] * SG_DEGREES_TO_RADIANS ) * TRANS_SPEED ;
+    campos.xyz[SG_Y] -= sgCos ( campos.hpr[0] * SG_DEGREES_TO_RADIANS ) * TRANS_SPEED ;
   }
 
   ssgSetCamera ( & campos ) ;
@@ -231,7 +231,7 @@ static void update_motion ()
   /* update teapot */
 
   sgCoord teapotpos ;
-  sgSetCoord ( & teapotpos, -280.0, -8.0, 3.0, frameno/5.0, 0.0, 0.0 ) ;
+  sgSetCoord ( & teapotpos, -280.0f, -8.0f, 3.0f, frameno/5.0f, 0.0f, 0.0f ) ;
   teapot -> setTransform ( & teapotpos ) ;
 
   /* update waves */
@@ -239,7 +239,7 @@ static void update_motion ()
   sgCoord wavepos ;
   sgSetCoord ( & wavepos, 0, 0, 0, 0, 0, 0 ) ;
   wave     -> setTransform ( & wavepos ) ;
-  wave_obj -> updateAnimation ( t ) ;
+  wave_obj -> updateAnimation ( (float)t ) ;
 
   /* move heaven & earth ...
      if you wish to place sun, moon, planets & stars correctly then
@@ -250,22 +250,22 @@ static void update_motion ()
   /* update sky */
 
   sky -> repositionFlat ( campos.xyz, 0, dt );
-  sky -> modifyVisibility ( campos.xyz[SG_Z], dt );
+  sky -> modifyVisibility ( campos.xyz[SG_Z], (float)dt );
 
   double sol_angle = bodies[0]->getAngle();
   double sky_brightness = (1.0 + cos(sol_angle))/2.0; // 0.0 - 1.0
   double scene_brightness = pow(sky_brightness,0.5);
 
   /* set sky color */
-  sky_color[0] = base_sky_color[0] * sky_brightness;
-  sky_color[1] = base_sky_color[1] * sky_brightness;
-  sky_color[2] = base_sky_color[2] * sky_brightness;
+  sky_color[0] = base_sky_color[0] * (float)sky_brightness;
+  sky_color[1] = base_sky_color[1] * (float)sky_brightness;
+  sky_color[2] = base_sky_color[2] * (float)sky_brightness;
   sky_color[3] = base_sky_color[3];
 
   /* set cloud and fog color */
-  cloud_color[0] = fog_color[0] = base_fog_color[0] * sky_brightness;
-  cloud_color[1] = fog_color[1] = base_fog_color[1] * sky_brightness;
-  cloud_color[2] = fog_color[2] = base_fog_color[2] * sky_brightness;
+  cloud_color[0] = fog_color[0] = base_fog_color[0] * (float)sky_brightness;
+  cloud_color[1] = fog_color[1] = base_fog_color[1] * (float)sky_brightness;
+  cloud_color[2] = fog_color[2] = base_fog_color[2] * (float)sky_brightness;
   cloud_color[3] = fog_color[3] = base_fog_color[3];
 
   /* repaint the sky */
@@ -276,19 +276,19 @@ static void update_motion ()
   bodies[0] -> getPosition ( & solpos );
   ssgGetLight ( 0 ) -> setPosition ( solpos.xyz ) ;
 
-  scene_ambient[0] = base_ambient[0] * scene_brightness;
-  scene_ambient[1] = base_ambient[1] * scene_brightness;
-  scene_ambient[2] = base_ambient[2] * scene_brightness;
+  scene_ambient[0] = base_ambient[0] * (float)scene_brightness;
+  scene_ambient[1] = base_ambient[1] * (float)scene_brightness;
+  scene_ambient[2] = base_ambient[2] * (float)scene_brightness;
   scene_ambient[3] = 1.0;
 
-  scene_diffuse[0] = base_diffuse[0] * scene_brightness;
-  scene_diffuse[1] = base_diffuse[1] * scene_brightness;
-  scene_diffuse[2] = base_diffuse[2] * scene_brightness;
+  scene_diffuse[0] = base_diffuse[0] * (float)scene_brightness;
+  scene_diffuse[1] = base_diffuse[1] * (float)scene_brightness;
+  scene_diffuse[2] = base_diffuse[2] * (float)scene_brightness;
   scene_diffuse[3] = 1.0;
 
-  scene_specular[0] = base_specular[0] * scene_brightness;
-  scene_specular[1] = base_specular[1] * scene_brightness;
-  scene_specular[2] = base_specular[2] * scene_brightness;
+  scene_specular[0] = base_specular[0] * (float)scene_brightness;
+  scene_specular[1] = base_specular[1] * (float)scene_brightness;
+  scene_specular[2] = base_specular[2] * (float)scene_brightness;
   scene_specular[3] = 1.0;
   // GL_LIGHT_MODEL_AMBIENT has a default non-zero value so if
   // we only update GL_AMBIENT for our lights we will never get
@@ -385,7 +385,7 @@ static void redraw ()
     glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL ) ;
 
   /* Adjust fog based on visibility (when in clouds) */
-  GLfloat fog_exp2_density = sqrt_m_log01 / sky->getVisibility();
+  GLfloat fog_exp2_density = (float)sqrt_m_log01 / sky->getVisibility();
   glEnable( GL_FOG );
   glFogf  ( GL_FOG_DENSITY, fog_exp2_density);
   glFogi  ( GL_FOG_MODE,    GL_EXP2 );
@@ -612,7 +612,7 @@ static void init_gui ()
   bodyRADial->setWrap        ( 1 ) ;
   bodyRADial->setMaxValue    ( 360 ) ;
   bodyRADial->setMinValue    ( 0 ) ;
-  bodyRADial->setStepSize    ( 0.1 ) ;
+  bodyRADial->setStepSize    ( 0.1f ) ;
   bodyRADial->setCBMode      ( PUSLIDER_ALWAYS ) ;
   bodyRADial->setCallback    ( bodyRADial_cb ) ;
   bodyRADial->setLabel       ( "Right Ascension" ) ;
@@ -624,7 +624,7 @@ static void init_gui ()
   bodyDeclDial->setWrap        ( 1 ) ;
   bodyDeclDial->setMaxValue    ( 360 ) ;
   bodyDeclDial->setMinValue    ( 0 ) ;
-  bodyDeclDial->setStepSize    ( 0.1 ) ;
+  bodyDeclDial->setStepSize    ( 0.1f ) ;
   bodyDeclDial->setCBMode      ( PUSLIDER_ALWAYS ) ;
   bodyDeclDial->setCallback    ( bodyDeclDial_cb ) ;
   bodyDeclDial->setLabel       ( "Declination" ) ;
