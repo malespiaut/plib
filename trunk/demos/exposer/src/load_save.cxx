@@ -9,10 +9,6 @@ puFileSelector *file_selector = NULL ;
 char lastModelFilePath [ PUSTRING_MAX ] ;
 char lastModelFileName [ PUSTRING_MAX ] ;
 
-void          loadCB ( puObject * ) ;
-void        scloadCB ( puObject * ) ;
-void        bnloadCB ( puObject * ) ;
-void        bnsaveCB ( puObject * ) ;
 void dismissDialogCB ( puObject * ) ;
 
 puButton *dialog_button  = NULL ;
@@ -22,8 +18,8 @@ void initDialog ()
   if ( dialog_button != NULL )
     return ;
 
-  dialog_button = new puButton    ( 300, 240, "" ) ;
-  dialog_button -> setSize        ( 300, 40 ) ;
+  dialog_button = new puButton    ( 250, 240, "" ) ;
+  dialog_button -> setSize        ( 400, 40 ) ;
   dialog_button -> setLegendFont  ( PUFONT_TIMES_ROMAN_24 ) ;
   dialog_button -> setCallback    ( dismissDialogCB ) ;
   dialog_button -> setColorScheme ( 1, 1, 0, 1 ) ;
@@ -43,6 +39,72 @@ void dialog ( char *msg, float r, float g, float b )
   dialog_button -> setColorScheme ( r, g, b, 1 ) ;
   dialog_button -> reveal () ;
 }
+
+
+void twsavepickfn ( puObject * )
+{
+  char path  [ PUSTRING_MAX ] ;
+  char fname [ PUSTRING_MAX ] ;
+
+  file_selector -> getValue ( path ) ;
+
+  if ( path [ 0 ] == '\0' )
+  {
+    puDeleteObject ( file_selector ) ;
+    file_selector = NULL ;
+
+    dialog ( "FAILED TO SAVE TWEENED MODEL!", 1, 0, 0 ) ;
+    return ;
+  }
+
+  char *p = NULL ;
+  int i ;
+
+  for ( i = strlen(path) ; i >= 0 ; i-- )
+    if ( path[i] == '/' || path[i] == '\\' )
+    {
+      p = & ( path[i+1] ) ;
+      path[i] = '\0' ;
+      break ;
+    }
+
+  if ( p == NULL )
+  {
+    ssgModelPath   ( "." ) ;
+    ssgTexturePath ( "." ) ;
+    strcpy ( fname, path ) ;
+  }
+  else
+  {
+    ssgModelPath   ( path ) ;
+    ssgTexturePath ( path ) ;
+    strcpy ( fname, p ) ;
+  }
+
+  /* SAVE THE TWEENED MODEL */
+
+  if ( file_selector->getStringValue()[0] == '\0' )
+  {
+    puDeleteObject ( file_selector ) ;
+    file_selector = NULL ;
+    dialog ( "FAILED TO SAVE TWEENED MODEL!", 1, 0, 0 ) ;
+    return ;
+  }
+
+  if ( ! ssgSave ( file_selector->getStringValue(), skinScene ) )
+  {
+    puDeleteObject ( file_selector ) ;
+    file_selector = NULL ;
+    dialog ( "FAILED TO SAVE TWEENED MODEL!", 1, 0, 0 ) ;
+    return ;
+  }
+
+  puDeleteObject ( file_selector ) ;
+  file_selector = NULL ;
+
+  dialog ( "TWEENED MODEL WAS SAVED OK.", 1, 1, 0 ) ;
+}
+
 
 void bnsavepickfn ( puObject * )
 {
@@ -117,7 +179,6 @@ void bnsavepickfn ( puObject * )
   fclose ( fd ) ;
   dialog ( "BONES WERE SAVED OK.", 1, 1, 0 ) ;
 }
-
 
 
 void bnpickfn ( puObject * )
@@ -319,6 +380,30 @@ void pickfn ( puObject * )
 }
 
 
+void twsaveCB ( puObject * )
+{
+  if ( file_selector == NULL )
+  {
+    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+		            lastModelFilePath, "Save Tweened Model As..." ) ;
+    file_selector -> setCallback ( twsavepickfn ) ;
+
+    char guess_fname [ PUSTRING_MAX ] ;
+    strcpy ( guess_fname, lastModelFileName ) ;
+
+    for ( int i = strlen ( guess_fname ) ; i >= 0 ; i-- )
+      if ( guess_fname [ i ] == '.' )
+      {
+        guess_fname[i] = '\0' ;
+        break ;
+      }
+
+    strcat ( guess_fname, "_tweened.ssg" ) ;
+    file_selector -> setInitialValue ( guess_fname ) ;
+  }
+}
+
+
 void bnsaveCB ( puObject * )
 {
   if ( file_selector == NULL )
@@ -341,7 +426,6 @@ void bnsaveCB ( puObject * )
     file_selector -> setInitialValue ( guess_fname ) ;
   }
 }
-
 
 
 void bnloadCB ( puObject * )

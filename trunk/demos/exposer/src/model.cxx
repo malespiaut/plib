@@ -186,8 +186,6 @@ void walkBones ( ssgBranch *root, sgMat4 mat )
           {
             ssgSimpleState *ss = (ssgSimpleState *)( l -> getState () ) ;
 
-//            if ( ! ss -> getColourMaterial () == GL_DIFFUSE &&
-//                 ! ss -> getColourMaterial () == GL_AMBIENT_AND_DIFFUSE )
             if ( ss -> getColourMaterial () != GL_DIFFUSE &&
                  ss -> getColourMaterial () != GL_AMBIENT_AND_DIFFUSE )
             {
