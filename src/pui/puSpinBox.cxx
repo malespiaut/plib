@@ -113,13 +113,24 @@ void puSpinBox::doHit ( int button, int updown, int x, int y )
 
 int puSpinBox::checkKey ( int key, int updown )
 {
-  input_box->checkKey ( key, updown ) ;
-  setValue ( input_box->getFloatValue () ) ;
-  if ( getFloatValue () > getMaxValue () )
-    setValue ( getMaxValue () ) ;
-  else if ( getFloatValue () < getMinValue () )
-    setValue ( getMinValue () ) ;
-	invokeCallback () ;
-  return TRUE ;
+  if ( input_box->checkKey ( key, updown ) )
+  {
+    setValue ( input_box->getFloatValue () ) ;
+    if ( getFloatValue () > getMaxValue () )
+      setValue ( getMaxValue () ) ;
+    else if ( getFloatValue () < getMinValue () )
+      setValue ( getMinValue () ) ;
+
+	  invokeCallback () ;
+    return TRUE ;
+  }
+  else
+    return FALSE ;
 }
 
+void puSpinBox_handle_input (puObject *ob) 
+{
+    puObject *master = (puObject *)(ob->getUserData());
+    master->setValue(ob->getFloatValue());
+    master->invokeCallback();
+}

@@ -49,7 +49,7 @@ void puBiSlider::draw ( int dx, int dy )
       val = 1.0f ;
 
     char str_value[10] ;
-    sprintf (str_value, "%d", getCurrentMax() ) ;
+    sprintf (str_value, "%g", getCurrentMax() ) ;
 
     draw_slider_box ( dx, dy, abox, val, str_value ) ;
 
@@ -60,7 +60,7 @@ void puBiSlider::draw ( int dx, int dy )
     else
       val = 0.0f ;
 
-    sprintf (str_value, "%d", getCurrentMin() ) ;
+    sprintf (str_value, "%g", getCurrentMin() ) ;
 
     draw_slider_box ( dx, dy, abox, val, str_value ) ;
 

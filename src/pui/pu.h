@@ -129,11 +129,11 @@ public:
   int getStringHeight ( const char *str ) const ;
   int getStringHeight ( void ) const { return getStringHeight ( "K" ) ; }
 
-  float getFloatStringWidth ( const char *str ) const ;
-  int   getStringWidth      ( const char *str ) const /* Deprecated ? */
-  {
-    return (int) getFloatStringWidth ( str ) ;
-  }
+  float getFloatStringWidth ( const char *str ) const ; 
+  int   getStringWidth      ( const char *str ) const /* Deprecated ? */ 
+  { 
+    return (int) getFloatStringWidth ( str ) ; 
+  } 
 
   void drawString ( const char *str, int x, int y ) ;
 } ;
@@ -328,6 +328,7 @@ extern int puRefresh ; /* Should not be used directly by applications any
 #define PUCLASS_SELECTBOX        0x01000000
 #define PUCLASS_RANGE            0x02000000
 #define PUCLASS_SPINBOX          0x04000000
+#define PUCLASS_SCROLLBAR        0x08000000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -365,6 +366,7 @@ class puVerticalMenu     ;
 class puLargeInput       ;
 class puComboBox         ;
 class puSelectBox        ;
+class puScrollBar        ;
 
 // Global function to move active object to the end of the "dlist"
 // so it is displayed in front of everything else
@@ -437,8 +439,12 @@ puObject *puActiveWidget ( void ) ;
 // Return the currently active mouse button
 extern int puGetPressedButton () ;
 
+
+
 class puValue
 {
+  
+
 protected:
   int   type    ;
 
@@ -489,7 +495,7 @@ public:
   const char *getTypeString ( void ) const ;
   void clrValue ( void ) { setValue ( "" ) ; }
 
-  void setValue ( puValue *pv )
+  virtual void setValue ( puValue *pv )
   {
     *getIntegerp () = pv -> getIntegerValue () ;
     *getFloaterp () = pv -> getFloatValue () ;
@@ -534,7 +540,7 @@ public:
   /* Obsolete ! */
   void setValuator ( char *s ) { setValuator ( s, PUSTRING_MAX ) ; }
 
-  void setValue ( int   i )
+  virtual void setValue ( int   i )
   {
     *getIntegerp () = i ;
 
@@ -546,7 +552,7 @@ public:
     puPostRefresh () ;
   }
 
-  void setValue ( float f )
+  virtual void setValue ( float f )
   {
     *getFloaterp () = f ;
 
@@ -610,6 +616,8 @@ inline void puGetDefaultColorScheme ( float *r, float *g, float *b, float *a = N
 
 class puObject : public puValue
 {
+  
+
 protected:
   puValue default_value ;
 
@@ -626,6 +634,7 @@ protected:
   int am_default  ;
   int window ;        /* Which window does the object appear in? */
   int v_status ;      /* 1 if the Object should lock in the top left corner, 0 if not */
+  bool isSubWidget;   /* TRUE if the Object is a child of another object but does not inherit from puGroup (SpinBoxes' puInput) */
 
   const char *label  ; puFont  labelFont ; int labelPlace ;
   const char *legend ; puFont legendFont ; int legendPlace ;
@@ -640,7 +649,7 @@ protected:
 
   virtual void draw_legend ( int dx, int dy ) ;
   virtual void draw_label  ( int dx, int dy ) ;
-
+  
 public:
   virtual int  isHit ( int x, int y ) const { return isVisible() && isActive() &&
                                                x >= abox.min[0] &&
@@ -651,7 +660,7 @@ public:
 
   virtual void doHit ( int button, int updown, int x, int y ) ;
 
-   puObject ( int minx, int miny, int maxx, int maxy ) ;
+  puObject ( int minx, int miny, int maxx, int maxy ) ;
   ~puObject () ;
 
   puObject *next ; /* Should not be used directly by applications any longer. */
@@ -787,6 +796,9 @@ public:
   void hide       ( void ) { if (   visible ) { visible = FALSE ; puPostRefresh () ; } }
   int  isVisible  ( void ) const { return visible ; }
 
+  bool IsItSubWidget( void ) { return isSubWidget ; }
+  void ItIsSubWidget( void ) { isSubWidget = TRUE ; }
+
   void setStyle ( int which )
   {
     style = which ;
@@ -889,6 +901,8 @@ puGroup *puGetCurrGroup ( void ) ;
 
 class puGroup : public puObject
 {
+  
+
 protected:
   int num_children ;
   puObject *dlist ;
@@ -983,6 +997,8 @@ public:
 
 class puInterface : public puGroup
 {
+  
+
 public:
 
   puInterface ( int x, int y ) : puGroup ( x, y )
@@ -997,6 +1013,8 @@ public:
 
 class puFrame : public puObject
 {
+  
+
 public:
   void draw ( int dx, int dy ) ;
   puFrame ( int minx, int miny, int maxx, int maxy ) :
@@ -1024,6 +1042,8 @@ public:
 
 class puText : public puObject
 {
+  
+
 public:
   virtual int  isHit ( int /* x */, int /* y */ ) const { return FALSE ; }
   void draw ( int dx, int dy ) ;
@@ -1036,6 +1056,8 @@ public:
 
 class puButton : public puObject
 {
+  
+
 protected:
   int button_type ;
 
@@ -1067,6 +1089,8 @@ public:
 
 class puOneShot : public puButton
 {
+  
+
 protected:
 public:
   void doHit ( int button, int updown, int x, int y ) ;
@@ -1087,6 +1111,8 @@ public:
 
 class puArrowButton : public puOneShot
 {
+  
+
 protected:
   int arrow_type ;
 
@@ -1205,7 +1231,7 @@ public:
                ( miny + puGetDefaultLegendFont().getStringHeight () +
                         puGetDefaultLegendFont().getStringDescender () +
                         PUSTR_TGAP + PUSTR_BGAP )
-             )
+              )
   {
     puSlider_init ( vertical ) ;
   }
@@ -1222,8 +1248,7 @@ public:
      { 
     puSlider_init ( vertical ) ;
   }
-
-
+  
   int  isVertical ( void ) const { return vert ; }
 
   void setSliderFraction ( float f ) { slider_fraction = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; puPostRefresh () ; }
@@ -1247,8 +1272,9 @@ public:
      puSlider ( minx, miny, sz, vertical )
   {
     type |= PUCLASS_BISLIDER ;
-    setMaxValue(1.0f) ;
-    setMinValue(0.0f) ;
+    setMaxValue ( 1.0f ) ;
+    setMinValue ( 0.0f ) ;
+    setStepSize ( 1.0f ) ;
     current_max = 1.0 ;
     current_min = 0.0 ;
     active_button = 0 ;
@@ -1260,8 +1286,9 @@ public:
      puSlider ( minx, miny, sz, vertical, width )
   {
     type |= PUCLASS_BISLIDER ;
-    setMaxValue(1.0f) ;
-    setMinValue(0.0f) ;
+    setMaxValue ( 1.0f ) ;
+    setMinValue ( 0.0f ) ;
+    setStepSize ( 1.0f ) ;
     current_max = 1.0 ;
     current_min = 0.0 ;
     active_button = 0 ;
@@ -1270,7 +1297,7 @@ public:
   void setMaxValue ( float i )
   {
     maximum_value = i ;
-    slider_fraction = 1.0f / (float)( getMaxValue()-getMinValue()+1 ) ;
+    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0 ) ;
     puPostRefresh () ;
   }
 
@@ -1278,7 +1305,7 @@ public:
   void setMinValue ( float i )
   {
     minimum_value = i ;
-    slider_fraction = 1.0f / (float)( getMaxValue()-getMinValue()+1 ) ;
+    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0 ) ;
     puPostRefresh () ;
   }
 
@@ -1293,6 +1320,8 @@ public:
   void setActiveButton ( int i ) { active_button = i ; }
   int getActiveButton ( void ) const { return active_button ; }
 } ;
+
+
 
 class puTriSlider : public puBiSlider
 {
@@ -1325,8 +1354,59 @@ public:
 } ;
 
 
+class puScrollBar : public puSlider
+{
+  
+
+protected:
+  int arrow_count ;
+  int fast_up_arrow_active, fast_down_arrow_active ;
+  int up_arrow_active, down_arrow_active ;
+
+public:
+  void doHit ( int button, int updown, int x, int y ) ;
+  void draw  ( int dx, int dy ) ;
+  puScrollBar ( int minx, int miny, int sz, int arrows, int vertical = FALSE ) :
+     puSlider ( minx, miny, sz, vertical )
+  {
+    type |= PUCLASS_SCROLLBAR ;
+    arrow_count = arrows ;
+    fast_up_arrow_active = fast_down_arrow_active = up_arrow_active = down_arrow_active = FALSE ;
+  }
+
+  /* Alternate constructor which lets you explicitly set width */
+
+  puScrollBar ( int minx, int miny, int sz, int arrows, int vertical, int width ) :
+     puSlider ( minx, miny, sz, vertical, width )
+  {
+    type |= PUCLASS_SCROLLBAR ;
+    arrow_count = arrows ;
+    fast_up_arrow_active = fast_down_arrow_active = up_arrow_active = down_arrow_active = FALSE ;
+  }
+
+  void setMaxValue ( float f )
+  {
+    maximum_value = f ;
+    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0 ) ;
+    puPostRefresh () ;
+  }
+
+
+  void setMinValue ( float i )
+  {
+    minimum_value = i ;
+    slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0 ) ;
+    puPostRefresh () ;
+  }
+} ;
+
+
+
+
 class puListBox : public puButton
 {
+  
+
 protected:
   char ** list ;
   int num ;
@@ -1379,8 +1459,12 @@ public:
   int getWrap ( void ) const {  return wrap ;  }
 } ;
 
+
+
 class puPopup : public puInterface
 {
+  
+
 protected:
 public:
   puPopup ( int x, int y ) : puInterface ( x, y )
@@ -1393,6 +1477,8 @@ public:
 
 class puPopupMenu : public puPopup
 {
+  
+
 protected:
 public:
   puPopupMenu ( int x, int y ) : puPopup ( x, y )
@@ -1409,6 +1495,8 @@ public:
 
 class puMenuBar : public puInterface
 {
+  
+
 protected:
   int bar_height ;
 
@@ -1427,6 +1515,8 @@ public:
 
 class puVerticalMenu : public puGroup
 {
+  
+
 protected:
 public:
   puVerticalMenu ( int x = -1, int y = -1 ) :
@@ -1434,9 +1524,10 @@ public:
   puGroup ( x < 0 ? puGetWindowWidth() -
                      ( puGetDefaultLegendFont().getStringWidth ( " " )
                        + PUSTR_TGAP + PUSTR_BGAP ) : x,
-            y < 0 ? puGetWindowHeight() -
-                     ( puGetDefaultLegendFont().getStringHeight ()
-                       + PUSTR_TGAP + PUSTR_BGAP ) : y)
+
+          y < 0 ? puGetWindowHeight() -
+                   ( puGetDefaultLegendFont().getStringHeight ()
+                     + PUSTR_TGAP + PUSTR_BGAP ) : y)
   {
     type |= PUCLASS_VERTMENU ;
     floating = TRUE ;
@@ -1450,6 +1541,8 @@ public:
 
 class puInput : public puObject
 {
+  
+
 protected:
   int accepting ;
   int cursor_position ;
@@ -1457,8 +1550,8 @@ protected:
   int select_end_position ;
   char *valid_data ;
 
-  void normalize_cursors ( void ) ;
-  void removeSelectRegion ( void ) ;
+  virtual void normalize_cursors ( void ) ;
+  virtual void removeSelectRegion ( void ) ;
 
   int input_disabled ;
 
@@ -1510,22 +1603,15 @@ public:
 
   void addValidData ( const char *data )
   {
-    if ( valid_data == NULL )
-      setValidData ( data ) ;
-    else
-    {
-      if ( data != NULL )
-      {
-        int valid_data_len = strlen ( valid_data ) ;
-        char *new_data = new char [ valid_data_len + strlen ( data ) + 1 ] ;
-
-        strcpy ( new_data, valid_data ) ;
-        strcpy ( new_data + valid_data_len, valid_data ) ;
-
-        delete [] valid_data ;
-        valid_data = new_data ;
-      }
-    }
+    int new_data_len = 1 ;
+    if ( valid_data ) new_data_len += strlen ( valid_data ) ;
+    if ( data )       new_data_len += strlen ( data ) ;
+    char *new_data = new char [ new_data_len ] ;
+    strcpy ( new_data, "\0" ) ;
+    if ( valid_data ) strcat ( new_data, valid_data ) ;
+    if ( data )       strcat ( new_data, data ) ;
+    delete [] valid_data ;
+    valid_data = new_data ;
   }
 
   int isValidCharacter ( char c ) const
@@ -1592,18 +1678,18 @@ public :
       abox.max[1] = ibox->max[1] ;
       abox.max[0] = ibox->max[0] ;
       arrow_height = height ; 
-      abox.min[1] -= (int)(inbox_height * (getArrowHeight() - 0.5)) ;
-      abox.max[1] += (int)(inbox_height * (getArrowHeight() - 0.5)) ;
+      abox.min[1] -= int(inbox_height * (getArrowHeight() - 0.5)) ;
+      abox.max[1] += int(inbox_height * (getArrowHeight() - 0.5)) ;
       /* Push the right side out by scalar to ensure all the arrow area can be clicked */
       if (arrow_position == 0)
       {
-        int size = (int)(( inbox_height ) * ( arrow_height ));      
-	int ih = ibox->max[1]-ibox->min[1] , ix = 0, iy = 0 ;
+        int size = int(inbox_height * arrow_height) ;
+        int ih = ibox->max[1]-ibox->min[1] , ix = 0, iy = 0 ;
         input_box->getPosition(&ix, &iy);
         input_box->setPosition(abox.min[0] + size, iy) ;
         input_box->setSize(abox.max[0]-abox.min[0] - size, ih) ;
       } else {
-	abox.max[0] += int(inbox_height * (getArrowHeight() - 0.5) + inbox_height/2) ;
+        abox.max[0] += int(inbox_height * (getArrowHeight() - 0.5) + inbox_height/2) ;
       }
       recalc_bbox() ;
   }
@@ -1613,6 +1699,7 @@ public :
   puSpinBox ( int minx, int miny, int maxx, int maxy, int arrow_pos = 1 ) :
        puRange ( minx, miny, maxx, maxy, 1.0f, 10.0f, 1.0f )
   {
+    extern void puSpinBox_handle_input(puObject* ob);
     type |= PUCLASS_SPINBOX ;
     if (arrow_pos==1)
         input_box = new puInput ( minx, miny, maxx - (maxy-miny)/2, maxy ) ;
@@ -1622,16 +1709,27 @@ public :
     arrow_position = arrow_pos ;
     arrow_height = 0.5f ;
     inbox_height = maxy - miny ;
+    input_box->setCallback(puSpinBox_handle_input) ;
+    input_box->setDownCallback(puSpinBox_handle_input) ;
+    input_box->setUserData(this) ;
+    input_box->ItIsSubWidget() ;
   }
 
   ~puSpinBox ()
   {
     puDeleteObject ( (puObject *)input_box ) ;  // THIS MAY NEED TO CHANGE !!!
   }
+
+  void setValue ( float f ) { puValue::setValue ( f ) ;  input_box->setValue ( f ) ; }
+  void setValue ( int i ) { puValue::setValue ( i ) ;  input_box->setValue ( i ) ; }
+  void setValue ( const char *s ) { puValue::setValue ( s ) ;  input_box->setValue ( s ) ; }
+  void setValue ( puValue *pv ) { puValue::setValue ( pv ) ;  input_box->setValue ( pv ) ; }
 } ;
 
 class puButtonBox : public puObject
 {
+  
+
 protected:
   int one_only ;
   int num_kids ;
@@ -1655,6 +1753,8 @@ public:
 
 class puDialogBox : public puPopup
 {
+  
+
 protected:
 public:
 
@@ -1668,6 +1768,8 @@ public:
 
 class puFilePicker : public puDialogBox
 {
+  
+
 protected:
   char** files ;
   char*  dflag ;
@@ -1737,6 +1839,8 @@ public:
 
 class puFileSelector : public puDialogBox
 {
+  
+
 protected:
   char** files ;
   char*  dflag ;
@@ -1780,14 +1884,14 @@ public:
   }
 
   puFileSelector ( int x, int y, int arrows,
-                   const char* dir, const char *title = "Pick a file" ) :
+                   const char *dir, const char *title = "Pick a file" ) :
      puDialogBox ( x, y )
   {
-    puFileSelectorInit ( x, y, arrows, 220, 170, dir, title ) ;
+    puFileSelectorInit ( x, y, 220, 170, arrows, dir, title ) ;
   }
 
   puFileSelector ( int x, int y,
-                   const char* dir, const char *title = "Pick a file" ) :
+                   const char *dir, const char *title = "Pick a file" ) :
      puDialogBox ( x, y )
   {
     puFileSelectorInit ( x, y, 220, 170, 1, dir, title ) ;
@@ -1805,36 +1909,23 @@ public:
 
 
 
-class puLargeInput : public puGroup
+class puLargeInput : public puInput
 {
+  
+
 protected:
   int num_lines ;              // Number of lines of text in the box
   int lines_in_window ;        // Number of lines showing in the window
   int top_line_in_window ;     // Number of the first line in the window
-  int max_width ;              // Width of longest line of text in box, in pixels
+  float max_width ;            // Width of longest line of text in box, in pixels
   int slider_width ;
-  int accepting ;
-  int cursor_position ;
-  int select_start_position ;
-  int select_end_position ;
-  char *valid_data ;
-
-  puFrame *frame ;
 
   puSlider *bottom_slider ;    // Horizontal slider at bottom of window
-  puSlider *right_slider ;     // Vertical slider at right of window
+  puScrollBar *right_slider ;     // Vertical slider at right of window
 
-  puArrowButton *down_arrow ;
-  puArrowButton *fastdown_arrow ;
-  puArrowButton *up_arrow ;
-  puArrowButton *fastup_arrow ;
-
-  char *text ;                 // Pointer to text in large input box
   char *wrapped_text ;         // Pointer to word-wrapped text in the box
 
   int arrow_count ;          // Number of up/down arrows above and below the right slider
-
-  int input_disabled ;
 
   void normalize_cursors ( void ) ;
   void removeSelectRegion ( void ) ;
@@ -1879,48 +1970,6 @@ public:
     if ( e ) *e = select_end_position   ;
   }
 
-  char *getValidData ( void ) const { return valid_data ; }
-  void setValidData ( const char *data )
-  {
-    delete [] valid_data ;
-
-    if ( data != NULL )
-    {
-      valid_data = new char [ strlen ( data ) + 1 ] ;
-      strcpy ( valid_data, data ) ;
-    }
-    else
-      valid_data = NULL ;
-  }
-
-  void addValidData ( const char *data )
-  {
-    if ( valid_data == NULL )
-      setValidData ( data ) ;
-    else
-    {
-      if ( data != NULL )
-      {
-        int valid_data_len = strlen ( valid_data ) ;
-        char *new_data = new char [ valid_data_len + strlen ( data ) + 1 ] ;
-
-        strcpy ( new_data, valid_data ) ;
-        strcpy ( new_data + valid_data_len, valid_data ) ;
-
-        delete [] valid_data ;
-        valid_data = new_data ;
-      }
-    }
-  }
-
-  int isValidCharacter ( char c ) const
-  {
-    if ( valid_data != NULL )
-      return ( strchr ( valid_data, c ) != NULL ) ? 1 : 0 ;
-    else
-      return 1 ;
-  }
-
   void invokeDownCallback ( void )
   {
     rejectInput () ;
@@ -1932,11 +1981,12 @@ public:
   void disableInput ( void ) { input_disabled = TRUE  ; }
   int  inputDisabled ( void ) const { return input_disabled ; }
 
-  void  setText ( const char *l ) ;
-  char *getText ( void ) const { return text ; }
-  char *getWrappedText ( void ) const
+  void  setValue ( const char *s ) ;
+  void  setText ( const char *l ) { setValue ( l ) ; }  /* DEPRECATED */
+  char *getText ( void ) { return getStringValue () ; }  /* DEPRECATED */
+  char *getWrappedText ( void )
   {
-    return ( wrapped_text == NULL ? text : wrapped_text ) ;
+    return ( wrapped_text == NULL ? getStringValue () : wrapped_text ) ;
   }
   void  addNewLine ( const char *l ) ;
   void  addText ( const char *l ) ;
@@ -1947,6 +1997,8 @@ public:
 
 class puComboBox : public puGroup
 {
+  
+
 protected:
   char ** list  ;
   int num_items ;
@@ -2002,6 +2054,8 @@ public:
 
 class puSelectBox : public puGroup
 {
+  
+
 protected:
   char ** list  ;
   int num_items ;
