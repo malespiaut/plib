@@ -186,6 +186,7 @@ void ssgCullAndDraw ( ssgRoot *r )
 }
 
 
+char *ssgAxisTransform::getTypeName (void) { return "ssgAxisTransform" ; }
 char *ssgBase         ::getTypeName (void) { return "ssgBase"          ; }
 char *ssgTexture      ::getTypeName (void) { return "ssgTexture"       ; }
 char *ssgState        ::getTypeName (void) { return "ssgState"         ; }
