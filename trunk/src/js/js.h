@@ -56,6 +56,7 @@
 #    define FAR  /* */
 #  endif
 #  include <mmsystem.h>
+#  include <regstr.h>
 #  include <string.h>
 #else
 
@@ -136,6 +137,7 @@ class jsJoystick
   int          id ;
 #endif*/
 #ifdef WIN32
+  JOYCAPS      jsCaps   ;
   JOYINFOEX    js       ;
   UINT         js_id    ;
 #else
@@ -160,6 +162,67 @@ class jsJoystick
   float center    [ _JS_MAX_AXES ] ;
   float max       [ _JS_MAX_AXES ] ;
   float min       [ _JS_MAX_AXES ] ;
+
+#ifdef WIN32
+
+  // Inspired by
+  // http://msdn.microsoft.com/archive/en-us/dnargame/html/msdn_sidewind3d.asp
+  bool getOEMProductName ( char *buf, int buf_sz )
+  {
+    if ( error )
+      return false ;
+
+    union
+    {
+      char key   [ 256 ] ;
+      char value [ 256 ] ;
+    } ;
+    char OEMKey [ 256 ] ;
+
+    HKEY  hKey ;
+    DWORD dwcb ;
+    LONG  lr ;
+
+    // Open .. MediaResources\CurrentJoystickSettings
+    sprintf ( key, "%s\\%s\\%s",
+              REGSTR_PATH_JOYCONFIG, jsCaps.szRegKey,
+              REGSTR_KEY_JOYCURR ) ;
+
+    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_ALL_ACCESS, &hKey) ;
+
+    if ( lr != ERROR_SUCCESS ) return false ;
+
+    // Get OEM Key name
+    dwcb = sizeof(OEMKey) ;
+
+    // JOYSTICKID1-16 is zero-based; registry entries for VJOYD are 1-based.
+    sprintf ( value, "Joystick%d%s", js_id + 1, REGSTR_VAL_JOYOEMNAME ) ;
+
+    lr = RegQueryValueEx ( hKey, value, 0, 0, (LPBYTE) OEMKey, &dwcb);
+    RegCloseKey ( hKey ) ;
+
+    if ( lr != ERROR_SUCCESS ) return false ;
+
+    // Open OEM Key from ...MediaProperties
+    sprintf ( key, "%s\\%s", REGSTR_PATH_JOYOEM, OEMKey ) ;
+
+    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_ALL_ACCESS, &hKey ) ;
+
+    if ( lr != ERROR_SUCCESS ) return false ;
+
+    // Get OEM Name
+    dwcb = buf_sz ;
+
+    lr = RegQueryValueEx ( hKey, REGSTR_VAL_JOYOEMNAME, 0, 0, (LPBYTE) buf,
+                           &dwcb ) ;
+    RegCloseKey ( hKey ) ;
+
+    if ( lr != ERROR_SUCCESS ) return false ;
+
+    return true ;
+  }
+
+#endif
 
   void open ()
   {
@@ -269,8 +332,6 @@ class jsJoystick
 
 #elif defined( WIN32 )
 
-    JOYCAPS jsCaps ;
-
     js . dwFlags = JOY_RETURNALL ;
     js . dwSize  = sizeof ( js ) ;
 
@@ -285,7 +346,15 @@ class jsJoystick
     }
     else
     {
-      strncpy ( name, jsCaps.szPname, sizeof(name) ) ;
+      // Device name from jsCaps is often "Microsoft PC-joystick driver",
+      // at least for USB.  Try to get the real name from the registry.
+      if ( ! getOEMProductName ( name, sizeof(name) ) )
+      {
+        ulSetError ( UL_WARNING,
+                     "JS: Failed to read joystick name from registry" ) ;
+
+        strncpy ( name, jsCaps.szPname, sizeof(name) ) ;
+      }
 
       // Windows joystick drivers may provide any combination of
       // X,Y,Z,R,U,V,POV - not necessarily the first n of these.
