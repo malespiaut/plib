@@ -125,7 +125,7 @@ static void exitCB ( puObject *ob )
 static void deleteEventCB   ( puObject * ) { timebox -> deleteEvent   () ; }
 static void addNewEventCB   ( puObject * ) { timebox -> addNewEvent   () ; }
 static void reverseRegionCB ( puObject * ) { timebox -> reverseRegion () ; }
-static void deleteAllCB     ( puObject * ) { timebox -> deleteAll     () ; }
+// static void deleteAllCB     ( puObject * ) { timebox -> deleteAll     () ; }
 static void deleteRegionCB  ( puObject * ) { timebox -> deleteRegion  () ; }
 static void deleteRegionAndCompressCB ( puObject * )
                                     { timebox -> deleteRegionAndCompress () ; }
@@ -408,13 +408,13 @@ static void init_database ()
 
 static void help ()
 {
-  fprintf ( stderr, "\n\n" ) ;
-  fprintf ( stderr, "exposer: Interactive Usage -\n\n" ) ;
-  fprintf ( stderr, "    exposer\n" ) ;
-  fprintf ( stderr, " ...or...\n" ) ;
-  fprintf ( stderr, "exposer: Batch Tweenfile generation Usage -\n\n" ) ;
+  fprintf ( stderr, "\n" ) ;
+  fprintf ( stderr, "exposer: Interactive Usage -\n" ) ;
+  fprintf ( stderr, "    exposer\n\n" ) ;
+  fprintf ( stderr, " ...or...\n\n" ) ;
+  fprintf ( stderr, "exposer: Batch Tweenfile generation Usage -\n" ) ;
   fprintf ( stderr, "    exposer -f framerate modelfile bonefile tweenfile\n" );
-  fprintf ( stderr, "\n\n" ) ;
+  fprintf ( stderr, "\n" ) ;
 }
 
 
@@ -438,10 +438,18 @@ int main ( int argc, char **argv )
     return 0 ;
   }
 
+  if ( argc != 6 || strcmp ( argv [ 1 ], "-f" ) != 0 ||
+       atof ( argv [ 2 ] ) > 100.0f || atof ( argv[2] ) < 0.1f )
+  {
+    help () ;
+    return 1 ;
+  }
+
   setTweenInterval ( 1.0f / atof ( argv [ 2 ] ) ) ;
   loadFile      ( argv [ 3 ], FALSE ) ;
   loadBoneFile  ( argv [ 4 ], FALSE ) ;
   saveTweenFile ( argv [ 5 ], FALSE ) ;
+  return 0 ;
 }
 
 
