@@ -40,7 +40,7 @@
 /* Define DEBUG if you want debug output
    (this might be a nice way of looking at the
    structure of a 3DS file). */
-/*#define DEBUG 1*/
+#define DEBUG 1
 
 
 #ifdef DEBUG
@@ -301,6 +301,15 @@ static _ssg3dsStructureNode *findStructureNode( short id ) {
   return NULL;
 }
 
+static void addStructureNode( _ssg3dsStructureNode *node ) {
+  if (object_list == NULL) {
+    object_list = node;
+  } else {
+    node -> next = object_list;
+    object_list = node;
+  }
+}
+
 //==========================================================
 // MATERIAL PARSERS
 static int parse_mapname( unsigned int length )
@@ -453,11 +462,8 @@ static int parse_doublesided( unsigned int length ) {
 static ssgSimpleState *get_state( _3dsMat *mat ) {
   ssgSimpleState *st = new ssgSimpleState () ;
 
-  /* 
-     NOTE: wrap_s & wrap_t is not used. How should this be passed
-     before we have a texture!? (Other loaders seem to ignore this problem)
-  */
-  
+  st -> setName( mat -> name );
+
   st -> setMaterial ( GL_AMBIENT, 
 		      mat->colour[_3DSMAT_AMB][0], 
 		      mat->colour[_3DSMAT_AMB][1], 
@@ -896,12 +902,7 @@ static int parse_objblock( unsigned int length ) {
   _ssg3dsStructureNode *object_node = new _ssg3dsStructureNode;
   object_node -> object = current_branch;
 
-  if (object_list == NULL) {
-    object_list = object_node;
-  } else {
-    object_node -> next = object_list;
-    object_list = object_node;
-  }
+  addStructureNode( object_node );
 
   DEBUGPRINT("%sObject block \"%s\"%s%s\n", object_name, "", "");
   delete object_name;
@@ -952,28 +953,31 @@ static int parse_frame_objname( unsigned int length ) {
   ulEndianReadLittle16(model);
   short parent_id = ulEndianReadLittle16(model);
 
-  DEBUGPRINT("%sObject name: %s, flag1: %d, parent: %d\n",
-	     objname, flag1, parent_id);
+  DEBUGPRINT("%sObject name: %s, parent: %d%s\n",
+	     objname, parent_id, "");
 
   _ssg3dsStructureNode *current_structure_node = findStructureNode( objname );
 
   if ( current_structure_node == NULL ) {
-    ulSetError( UL_WARNING, "ssgLoad3ds: Hierarchy entry \"%s\" does not " \
-		"match any defined objects.", objname );
-  } else {
-    current_structure_node -> id = current_structure_id;
+    current_structure_node = new _ssg3dsStructureNode;
+    current_structure_node -> object = new ssgTransform;
+    current_structure_node -> object -> setName( objname );
 
-    if ( parent_id != -1 ) {
-      _ssg3dsStructureNode *parent = findStructureNode( parent_id );
-      if (parent == NULL) {
-	ulSetError( UL_WARNING, "ssgLoad3ds: Hierarchy entry \"%d\" does "\
-		    "not match any defined objects.", parent_id );      
-      } else {
-	parent -> object -> addKid( current_structure_node -> object );
-      }
+    addStructureNode( current_structure_node );
+  }
+
+  current_structure_node -> id = current_structure_id;
+  
+  if ( parent_id != -1 ) {
+    _ssg3dsStructureNode *parent = findStructureNode( parent_id );
+    if (parent == NULL) {
+      ulSetError( UL_WARNING, "ssgLoad3ds: Hierarchy entry \"%d\" does "\
+		  "not match any defined objects.", parent_id );      
     } else {
-      top_object -> addKid( current_structure_node -> object );
+      parent -> object -> addKid( current_structure_node -> object );
     }
+  } else {
+    top_object -> addKid( current_structure_node -> object );
   }
 
   delete objname;
