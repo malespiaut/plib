@@ -1183,7 +1183,7 @@ inline void sgHPRToQuat ( sgQuat dst, const sgVec3 hpr )
   sgScaleVec3 ( tmp, hpr, SG_DEGREES_TO_RADIANS ) ;
 
   sgEulerToQuat ( dst, tmp ) ;
-};
+}
 
 /* Multiply quaternions together (concatenate rotations) */
 
@@ -2380,7 +2380,7 @@ inline void sgdHPRToQuat ( sgdQuat dst, const sgdVec3 hpr )
   sgdScaleVec3 ( tmp, hpr, SGD_DEGREES_TO_RADIANS ) ;
 
   sgdEulerToQuat ( dst, tmp ) ;
-};
+}
 
 /* Multiply quaternions together (concatenate rotations) */
 
