@@ -186,10 +186,6 @@ SOURCE=.\ssgLoadATG.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgLoadBGL.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\ssgLoadBMP.cxx
 # End Source File
 # Begin Source File
@@ -219,10 +215,6 @@ SOURCE=.\ssgLoadM.cxx
 # Begin Source File
 
 SOURCE=.\ssgLoadmd2.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\ssgLoadMDL_BGLTexture.cxx
 # End Source File
 # Begin Source File
 
