@@ -1,3 +1,20 @@
+/****
+* NAME
+*   puFilePicker
+*
+* DESCRIPTION
+*   PUI dialog for picking files
+*
+* AUTHOR
+*   Dave McClurg <dpm@efn.org>
+*
+* CREATION DATE
+*   August 2000
+*
+* MODIFICATION HISTORY
+*   John Fay - many improvements
+****/
+
 
 #include "puLocal.h"
 

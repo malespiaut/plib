@@ -1,3 +1,21 @@
+/****
+* NAME
+*   viewer - SSG model viewer
+*
+* DESCRIPTION
+*   using a PUI interface, allow user to load a model,
+*   animate the model, and manipulate the camera.
+*   several models can be loaded at the same time.
+*
+* AUTHOR
+*   Dave McClurg <dpm@efn.org>
+*
+* CREATION DATE
+*   September 6, 2000
+*
+* MODIFICATION HISTORY
+****/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

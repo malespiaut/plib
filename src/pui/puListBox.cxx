@@ -1,3 +1,19 @@
+/****
+* NAME
+*   puListBox
+*
+* DESCRIPTION
+*   list of strings
+*
+* AUTHOR
+*   Dave McClurg <dpm@efn.org>
+*
+* CREATION DATE
+*   August 2000
+*
+* MODIFICATION HISTORY
+*   John Fay - many improvements
+****/
 
 #include "puLocal.h"
 
