@@ -21,7 +21,6 @@
      $Id$
 */
 
-#define FOR_PPE 1
 
 #ifndef _INCLUDED_SSG_H_
 #define _INCLUDED_SSG_H_
@@ -661,6 +660,7 @@ bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
 
 class ssgTexture : public ssgBase
 {
+protected:
   char *filename ; 
   int own_handle ;
   GLuint handle ;
@@ -2047,6 +2047,7 @@ class ssgContext
 
 public:
 
+
    ssgContext () ;
   ~ssgContext () ;
 
@@ -2262,8 +2263,6 @@ class ssgLoaderOptions
 
 protected:
 
-  ssgSimpleStateArray shared_states ;
-  ssgTextureArray shared_textures ;
 
   /* for backward compatibility */
   ssgState *(*create_state_cb)( char *) ;
@@ -2275,6 +2274,8 @@ protected:
   char* make_path ( char* path, const char* dir, const char* fname ) const ;
 
 public:
+  ssgSimpleStateArray shared_states ;
+  ssgTextureArray shared_textures ;
 
   ssgLoaderOptions ()
   {
@@ -2343,15 +2344,6 @@ public:
 
 #ifdef FOR_PPE
 // PPE start
-
-class appLoaderOptions: public ssgLoaderOptions
-{
-  virtual void makeModelPath ( char* path, const char *fname ) const ;
-  virtual void makeTexturePath ( char* path, const char *fname ) const ;
-
-};
-
-char * ssgGetAPOM(); // get actual path of (last loaded) model
 
 // PPE end 
 #endif
