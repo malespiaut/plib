@@ -23,9 +23,9 @@ static void getStuff ( ssgEntity *e, sgVec3 *vtab, saveTriangle *ttab )
       getStuff ( br -> getKid ( i ), vtab, ttab ) ;
   }
   else
-  if ( e -> isAKindOf ( SSG_TYPE_VTABLE ) )
+  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
   {
-    ssgVTable *vt = (ssgVTable *) e ;
+    ssgVtxTable *vt = (ssgVtxTable *) e ;
     int nv = vt -> getNumVertices () ;
     int nt = vt -> getNumTriangles () ;
     int sv = vcount ;
