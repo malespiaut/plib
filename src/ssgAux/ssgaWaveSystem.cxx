@@ -36,7 +36,8 @@ void ssgaWaveSystem::updateAnimation ( float t )
        orig_vertices == NULL )
     return ;
 
-  for ( int i = 0 ; i <= nstrips ; i++ )
+  int i;
+  for ( i = 0 ; i <= nstrips ; i++ )
   {
     float fade_i = (i<2) ? 0.0f : (i<7) ? (float)(i-2)/5.0f :
                    (i>nstrips-2) ? 0.0f :
@@ -59,25 +60,25 @@ void ssgaWaveSystem::updateAnimation ( float t )
       float k ;
 
       if ( depth < 0.0f )
-        k = 1.8 ;
+        k = 1.8f ;
       else
       if ( depth > 1.0f )
         k = kappa ;
       else
-        k = kappa * depth + 1.8 * (1.0 - depth) ;
+        k = kappa * depth + 1.8f * (1.0f - depth) ;
 
       float phase = k * x0 - omega * t - lambda * dz ;
 
       sgSetVec3 ( vertices [idx], 
-	                  x0 + waveHeight * sin ( phase ),
+	                  x0 + waveHeight * (float) sin ( phase ),
 	                  y0,
-	                  z0 - waveHeight * cos ( phase ) * edge_fade ) ;
+	                  z0 - waveHeight * (float) cos ( phase ) * edge_fade ) ;
 
       sgSetVec2 ( texcoords [idx], tu * x0 / size[0], tv * y0 /size[1] ) ;
     }
   }
 
-  for ( int i = 0 ; i < nstrips ; i++ )
+  for ( i = 0 ; i < nstrips ; i++ )
     for ( int j = 0 ; j < nstacks ; j++ )
     {
       int idx1 =   i   * (nstrips+1) +   j   ;
@@ -90,7 +91,7 @@ void ssgaWaveSystem::updateAnimation ( float t )
       sgNormaliseVec3       ( normals[idx1] ) ;                
     }
 
-  for ( int i = 0 ; i < nstrips ; i++ )
+  for ( i = 0 ; i < nstrips ; i++ )
   {
     ssgVtxTable      *vt = (ssgVtxTable *) getKid ( i ) ;
     ssgVertexArray   *vv = vt -> getVertices  () ;
@@ -144,9 +145,9 @@ ssgaWaveSystem::ssgaWaveSystem ( int np ) : ssgaShape ( np )
   setWaveHeight    ( 0.5f ) ;
   setEdgeFlatten   ( 0.0f ) ;
 
-  kappa  = 0.8 ; // 1.5
-  lambda = 1.0 ;
-  omega  = 9.8 * sqrt ( 2.0f/3.0f ) / windSpeed ;
+  kappa  = 0.8f ; // 1.5
+  lambda = 1.0f ;
+  omega  = 9.8f * (float) sqrt ( 2.0f/3.0f ) / windSpeed ;
   nstrips = nstacks = 0 ;
 
   normals   = NULL ;
@@ -168,11 +169,11 @@ const char *ssgaWaveSystem::getTypeName(void) { return "ssgaWaveSystem" ; }
 
 void ssgaWaveSystem::regenerate ()
 {
-  delete normals   ;
-  delete colours   ;
-  delete texcoords ;
-  delete vertices  ;
-  delete orig_vertices  ;
+  delete[] normals   ;
+  delete[] colours   ;
+  delete[] texcoords ;
+  delete[] vertices  ;
+  delete[] orig_vertices  ;
 
   normals   = NULL ;
   colours   = NULL ;
@@ -203,7 +204,8 @@ void ssgaWaveSystem::regenerate ()
   vertices  = new sgVec3 [ (nstacks+1) * (nstrips+1) ] ;
   orig_vertices = new sgVec3 [ (nstacks+1) * (nstrips+1) ] ;
 
-  for ( int i = 0 ; i <= nstrips ; i++ )
+  int i;
+  for ( i = 0 ; i <= nstrips ; i++ )
     for ( int j = 0 ; j <= nstacks ; j++ )
     {
       int idx = i * (nstrips+1) + j ;
@@ -224,7 +226,7 @@ void ssgaWaveSystem::regenerate ()
       sgCopyVec3 ( orig_vertices [ idx ], vertices [idx] ) ;
     }
 
-  for ( int i = 0 ; i < nstrips ; i++ )
+  for ( i = 0 ; i < nstrips ; i++ )
   {
     ssgVtxTable      *vt = new ssgVtxTable ;
     ssgVertexArray   *vv = new ssgVertexArray   ( nstacks * 2 + 2 ) ;
