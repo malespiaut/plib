@@ -1,5 +1,5 @@
 
-#include "pslPrivate.h"
+#include "pslLocal.h"
 
 
 PSL_Address PSL_Parser::getVarSymbol ( char *s )
@@ -10,7 +10,7 @@ PSL_Address PSL_Parser::getVarSymbol ( char *s )
     {
       if ( next_var >= MAX_VARIABLE-1 )
       {
-        fprintf ( stderr, "PSL: Too many variables.\n" ) ;
+        ulSetError ( UL_WARNING, "PSL: Too many variables." ) ;
         next_var-- ;
       }
 
@@ -22,7 +22,7 @@ PSL_Address PSL_Parser::getVarSymbol ( char *s )
       return symtab [ i ] . address ;
   }
 
-  fprintf ( stderr, "PSL: Too many symbols in one program.\n" ) ;
+  ulSetError ( UL_WARNING, "PSL: Too many symbols." ) ;
   return MAX_VARIABLE-1 ;
 }
 
@@ -41,17 +41,17 @@ PSL_Address PSL_Parser::getCodeSymbol ( char *s )
 {
   for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
   {
-    if ( symtab [ i ] . symbol == NULL )
+    if ( code_symtab [ i ] . symbol == NULL )
     {
-      symtab [ i ] . set ( s, 0 ) ;
-      return 0 ;
+      code_symtab [ i ] . set ( s, 0 ) ;
+      return code_symtab [ i ] . address ;
     }
-    else
-    if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
-      return symtab [ i ] . address ;
+
+    if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
+      return code_symtab [ i ] . address ;
   }
 
-  fprintf ( stderr, "PSL: Too many symbols in one program.\n" ) ;
+  ulSetError ( UL_WARNING, "PSL: Undefined Function '%s'.", s ) ;
   return 0 ;
 }
 
@@ -61,20 +61,20 @@ void PSL_Parser::setCodeSymbol ( char *s, PSL_Address v )
 {
   for ( int i = 0 ; i < MAX_SYMBOL ; i++ )
   {
-    if ( symtab [ i ] . symbol == NULL )
+    if ( code_symtab [ i ] . symbol == NULL )
     {
-      symtab [ i ] . set ( s, v ) ;
+      code_symtab [ i ] . set ( s, v ) ;
       return ;
     }
     else
-    if ( strcmp ( s, symtab [ i ] . symbol ) == 0 )
+    if ( strcmp ( s, code_symtab [ i ] . symbol ) == 0 )
     {
-      symtab [ i ] . address = v ;
+      code_symtab [ i ] . address = v ;
       return ;
     }
   }
 
-  fprintf ( stderr, "PSL: Too many symbols in one program.\n" ) ;
+  ulSetError ( UL_WARNING, "PSL: Too many function names." ) ;
 }
 
 

@@ -14,13 +14,20 @@ class PSL_Context ;
 class PSL_Parser  ;
 class PSL_Program ;
 
+ 
+union PSL_Variable
+{
+  float f ;
+  int   i ;
+} ;                                                                             
+
 
 class PSL_Extension
 {
 public:
   char *symbol ;
   int   argc ;
-  float (*func) ( int, float *, PSL_Program *p ) ;
+  PSL_Variable (*func) ( int, PSL_Variable *, PSL_Program *p ) ;
 } ;
 
 

@@ -1,5 +1,5 @@
 
-#include "pslPrivate.h"
+#include "pslLocal.h"
 
 
 int PSL_Parser::pushPrimitive ()
@@ -11,7 +11,7 @@ int PSL_Parser::pushPrimitive ()
   {
     if ( ! pushExpression () )
     {
-      fprintf ( stderr, "PSL: Missing expression after '('\n" ) ;
+      ulSetError ( UL_WARNING, "PSL: Missing expression after '('" ) ;
       ungetToken ( c ) ;
       return FALSE ;
     }
@@ -20,7 +20,7 @@ int PSL_Parser::pushPrimitive ()
 
     if ( c [ 0 ] != ')' )
     {
-      fprintf ( stderr, "PSL: Missing ')' (found '%s')\n", c ) ;
+      ulSetError ( UL_WARNING, "PSL: Missing ')' (found '%s')", c );
       ungetToken ( c ) ;
       return FALSE ;
     }
