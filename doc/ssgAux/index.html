@@ -41,13 +41,149 @@ named with an 'ssga' or 'SSGA' prefix.
       SSGA_TYPE_CUBE
 
 </pre>
-<H1>ssgaWaveSystem</H1>
-This class is for handling water waves.
+<H1>ssgaShape</H1>
+This is an abstract base class for many of the more
+complex classes in the ssgAux 'collection'.  The idea
+is that these are really ssgGroup nodes - but they
+behave in such a way that you are never concerned
+with the nodes they create beneath themselves.
 <pre>
 
-   class ssgaWaveSystem ;
+class ssgaShape : public ssgBranch
+{
+  ssgaShape (void) ;
+  ssgaShape ( int numtris ) ;
+ 
+  float *getCenter  () { return center     ; }
+  float *getSize    () { return size       ; }
+  int    getNumTris () { return ntriangles ; }
+ 
+  void setColour  ( sgVec4 c ) { sgCopyVec4 ( colour, c ) ; regenerate () ; }
+  void setCenter  ( sgVec3 c ) { sgCopyVec3 ( center, c ) ; regenerate () ; }
+  void setSize    ( sgVec3 s ) { sgCopyVec3 ( size  , s ) ; regenerate () ; }
+  void setSize    ( float  s ) { sgSetVec3  ( size,s,s,s) ; regenerate () ; }
+  void setNumTris ( int ntri ) { ntriangles = ntri ; regenerate () ; }
+ 
+  void setKidState    ( ssgState *s ) ;
+  void setKidCallback ( int cb_type, ssgCallback cb ) ;
+ 
+  virtual void regenerate () = 0 ;                                              
+}
+</pre>
+The constructor allows you to specify the approximate number of
+triangles you'd like the shape to consume.  For some shapes, this
+will be ignored (eg the Cube has 12 triangles - no matter how many
+you ask for) - for others, it's honored only approximately (eg the
+Sphere can only generate certain specific numbers of triangles) -
+and for others, it may be honored exactly.
+<p>
+You can also set the colour of all the polygons and the ssgState and
+callbacks that are applied to all of the child nodes.
+<p>
+setCenter allows you to position the center point of the object in
+3D space - and setSize lets you determine the overall dimensions of
+the object (this too may also be approximate - the 'size' of a teapot
+is hard to specify in any useful way).  The version of 'setSize' that
+takes an sgVec3 allow you to generate cuboids from cubes and sphereoids
+from spheres...but not all shapes allow this.
+<p>
+The 'regenerate' call allows the complete child structure of the object
+to be deleted and then recreated.  This is occasionaly useful if (for
+example) you have walked down into the child structures and modified
+them - and you'd like the shape back into it's pristine conditions.
+<H1>ssgaCube</H1>
+<pre>
+
+class ssgaCube : public ssgaShape
+{
+  ssgaCube (void) ;
+  ssgaCube ( int numtris ) ;
+  virtual void regenerate () ;
+} ;
+ 
+</pre> 
+This is the simplest of ssgaShapes - it defines nothing new over
+and above the standard ssgaShape.
+<H1>ssgaPatch</H1>
+<pre> 
+ 
+class ssgaPatch : public ssgaShape
+{
+  ssgaPatch (void) ;
+  ssgaPatch ( int numtris ) ;
+ 
+  void setControlPoint ( int s, int t, sgVec3 xyz, sgVec2 uv, sgVec4 rgba ) ;
+  void setControlPoint ( int s, int t,
+                         float x, float y, float z,
+                         float u, float v,
+                         float r, float g, float b, float a ) ;
+  void getControlPoint ( int s, int t, sgVec3 xyz, sgVec2 uv, sgVec4 rgba ) ;
+ 
+  virtual void regenerate () ;
+} ;
+ 
+</pre>
+This implements a basic spline patch - with a 4x4 grid of 'control points'
+that define its shape.  'setContolPoint' allows you to set the spatial
+position, the texture coordinate and the colour at any given (s,t) position.
+(s and t each must be in the range 0..3).
+<p>
+It's necessary to call the 'regenerate' function whenever you have added
+or changed one or more control points.
+ 
+<H1>ssgaTeapot </H1>
+<pre>
+ 
+class ssgaTeapot : public ssgaShape
+{
+  ssgaTeapot (void) ;
+  ssgaTeapot ( int numtris ) ;
+  virtual void regenerate () ;
+} ;
+ 
+</pre> 
+This creates the 'classic' Martin Newell teapot model.
+<H1>ssgaSphere</H1>
+<pre>
+  
+class ssgaSphere : public ssgaShape
+{
+  ssgaSphere (void) ;
+  ssgaSphere ( int numtris ) ;
+ 
+  void setLatLongStyle ( int ll ) ;
+  int  isLatLongStyle  () ;
+  virtual void regenerate () ;
+} ;
 
 </pre>
+There are two ways to generate a sphere model - one is to produce a
+fairly uniform grid of triangles that are as nearly equilateral
+as possible.  The alternative is to generate more nearly right-triangles
+in cylindrical strips that are stacked on top of each other with a
+circular disk at top and bottom.
+<p>
+The function 'setLatLongStyle(ll)' allows you to choose which you want,
+call regenerate after you change types!
+<H1>ssgaCylinder</H1>
+<pre>
+ 
+class ssgaCylinder : public ssgaShape
+{
+  ssgaCylinder (void) ;
+  ssgaCylinder ( int numtris ) ;
+ 
+  void makeCapped ( int c ) ;
+  int  isCapped   () ;
+  virtual void regenerate () ;
+} ;                                                                             
+
+</pre>
+Cylinders also come in two forms - capped and uncapped.  Once again,
+if you change the capped versus uncapped status, call regenerate to
+make the new version.
+<H1>ssgaWaveSystem</H1>
+This class is for handling water waves.
 It generates a large polygonal mesh which it distorts in
 realtime to simulate water waves.
 <p>
@@ -55,22 +191,77 @@ The simulation uses between one and sixteen "Wave Trains" - each
 using a class:
 <pre>
 
-  class ssgaWaveTrain ;
+class ssgaWaveTrain
+{
+  ssgaWaveTrain () ;
+ 
+  float getSpeed      () ;
+  float getLength     () ;
+  float getLambda     () ;
+  float getHeading    () ;
+  float getWaveHeight () ;
+
+  void  setSpeed      ( float s ) ;
+  void  setLength     ( float l ) ;
+  void  setLambda     ( float l ) ;
+  void  setHeading    ( float h ) ;
+  void  setWaveHeight ( float h ) ;
+} ;                                                                             
 
 </pre>
+So, you create a bunch of these trains (typically, two or three
+is plenty to generate 'interesting' motion).
 Each wave train has a direction in which the waves are travelling,
 a speed, a wave length (which also affects the shape of the wave),
-the height of the wave and a 'curl' term (which controls how much
+the height of the wave and a 'lambda' term (which controls how much
 the tops of the waves bend over).
 <p>
+Next, generate the ssgaWaveSystem:
+<pre>
+ 
+class ssgaWaveSystem : public ssgaShape
+{
+  ssgaWaveSystem ( int ntri ) ;
+ 
+  virtual void        regenerate  () ;
+ 
+  ssgaWSDepthCallback getDepthCallback () ;
+  void                setDepthCallback ( ssgaWSDepthCallback cb ) ;
+ 
+  ssgaWaveTrain *getWaveTrain ( int i ) ;
+  void           setWaveTrain ( int i, ssgaWaveTrain *t ) ;
+ 
+  float getWindSpeed   () ;
+  float getWindDirn    () ;
+  float getEdgeFlatten () ;
+  float getTexScaleU   () ;
+  float getTexScaleV   () ;
+ 
+  void  setWindSpeed   ( float speed      ) ;
+  void  setWindDirn    ( float dirn       ) ;
+  void  setEdgeFlatten ( float dist       ) ;
+  void  setTexScale    ( float u, float v ) ;
+ 
+  void updateAnimation ( float t ) ;
+} ;
+
+</pre>
 The appearance of waves varies greatly with the depth of the
 water - and this simulation produces the correct effects. There
 is an optional user-callback that can be used to feed water depth
-values into the simulation.
+values into the simulation.  The wave system will likely call this
+function many thousands of times per frame - so make sure your
+depth function is very efficient.  If you don't provide a depth
+function then the water will be assumed to be infinitely deep.
 <p>
 You can determine the number of polygons used to render
 the patch of waves, the size of the wave patch and the amount
-of texture repetition.
+of texture repetition.  The 'EdgeFlatten' setting determines
+to what distance from the edge of the patch the waves are
+gradually flattened out.  This is useful because it allows
+you to keep all those expensive wave polygons close to the
+camera - and feather them out over range so that they blend
+gently into a larger flat ocean.
 <p>
 Designing waves by calling the ssgaWaveSystem API is quite
 difficult.  You are advised to use the wave designer program
