@@ -66,18 +66,18 @@
 #    include <machine/joystick.h>
 #    define JS_DATA_TYPE joystick
 #    define JS_RETURN (sizeof(struct JS_DATA_TYPE))
-/*#  elif defined(__linux__)
+#  elif defined(__linux__)
 #    include <sys/ioctl.h>
 #    include <linux/joystick.h>
 #    include <errno.h>
-*/
+
      /* check the joystick driver version */
-/*
+
 #    ifdef JS_VERSION
 #      if JS_VERSION >= 0x010000
 #        define JS_NEW
 #      endif
-#    endif*/
+#    endif
 
 #  else
 #    ifndef JS_DATA_TYPE
@@ -497,10 +497,12 @@ public:
 #  if defined(__FreeBSD__) || defined(__NetBSD__)
     //id = ident;
     sprintf ( fname, "/dev/joy%d", ident ) ;
-#  else
+#  elif defined(__linux__)
     sprintf ( fname, "/dev/input/js%d", ident ) ;
     if ( access ( fname, F_OK ) != 0 )
       sprintf ( fname, "/dev/js%d", ident ) ;
+#  else
+    sprintf ( fname, "/dev/js%d", ident ) ; /* FIXME */
 #  endif
     open () ;
 #endif
