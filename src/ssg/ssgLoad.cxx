@@ -36,7 +36,7 @@ char* ssgLoaderOptions::make_path ( char* path,
 {
   if ( fname != NULL && fname [ 0 ] != '\0' )
   {
-    if ( fname [ 0 ] != '/' &&
+    if ( ! ulIsAbsolutePathName ( fname ) &&
        dir != NULL && dir[0] != '\0' )
     {
       strcpy ( path, dir ) ;
