@@ -524,9 +524,11 @@ the value of the widget:
   void  puObject::getValue ( char  *s ) ;  /* copies the string value into the string that is passed in */
   void  puObject::getValue ( char **s ) ;  /* sets the argument to point to the string value */
   int   puObject::getValue () ;
-  float puObject::getFloatValue  () ;
-  char  puObject::getCharValue   () ;      /* returns the first character in the string value */
-  char *puObject::getStringValue () ;
+
+  int   puObject::getIntegerValue () ;
+  float puObject::getFloatValue   () ;
+  char  puObject::getCharValue    () ;      /* returns the first character in the string value */
+  char *puObject::getStringValue  () ;
 
 </pre>
 The clrvalue() function has the special function of setting the string
