@@ -22,7 +22,18 @@
 <H2>Introduction</H2>
 PLIB/ssgAux is a suite of auxiliary libraries that build
 higher level classes on top of the basic SSG classes.
-<p>
+Currently we have:
+<ul>
+<li><A HREF="#ssgaShape">ssgaShape - Abstract Base Class</A>
+<li><A HREF="#ssgaCube">ssgaCube - Makes a cube.</A>
+<li><A HREF="#ssgaPatch">ssgaPatch - Makes a Bezier patch.</A>
+<li><A HREF="#ssgaTeapot">ssgaTeapot - Makes a Teapot.</A>
+<li><A HREF="#ssgaSphere">ssgaSphere - Makes a Sphere.</A>
+<li><A HREF="#ssgaCylinder">ssgaCylinder - Makes a Cylinder.</A>
+<li><A HREF="#ssgaWaveSystem">ssgaWaveSystem - Simulates Water Waves</A>
+<li><A HREF="#ssgaParticleSystem">ssgaParticleSystem - Implements a spray of particles</A>
+<li><A HREF="#ssgaLensFlare">ssgaLensFlare - Simulates Lens Flare for drawing bright lights.</A>
+</ul>
 These will be installed and named with the same
 conventions as the base PLIB libraries, eg:
 <pre>
@@ -41,6 +52,7 @@ named with an 'ssga' or 'SSGA' prefix.
       SSGA_TYPE_CUBE
 
 </pre>
+<A NAME="ssgaShape"></A>
 <H1>ssgaShape</H1>
 This is an abstract base class for many of the more
 complex classes in the ssgAux 'collection'.  The idea
@@ -91,6 +103,7 @@ The 'regenerate' call allows the complete child structure of the object
 to be deleted and then recreated.  This is occasionaly useful if (for
 example) you have walked down into the child structures and modified
 them - and you'd like the shape back into it's pristine conditions.
+<A NAME="ssgaCube"></A>
 <H1>ssgaCube</H1>
 <pre>
 
@@ -104,6 +117,7 @@ class ssgaCube : public ssgaShape
 </pre> 
 This is the simplest of ssgaShapes - it defines nothing new over
 and above the standard ssgaShape.
+<A NAME="ssgaPatch"></A>
 <H1>ssgaPatch</H1>
 <pre> 
  
@@ -131,6 +145,7 @@ position, the texture coordinate and the colour at any given (s,t) position.
 It's necessary to call the 'regenerate' function whenever you have added
 or changed one or more control points.
  
+<A NAME="ssgaTeapot"></A>
 <H1>ssgaTeapot </H1>
 <pre>
  
@@ -143,6 +158,7 @@ class ssgaTeapot : public ssgaShape
  
 </pre> 
 This creates the 'classic' Martin Newell teapot model.
+<A NAME="ssgaSphere"></A>
 <H1>ssgaSphere</H1>
 <pre>
   
@@ -165,6 +181,7 @@ circular disk at top and bottom.
 <p>
 The function 'setLatLongStyle(ll)' allows you to choose which you want,
 call regenerate after you change types!
+<A NAME="ssgaCylinder"></A>
 <H1>ssgaCylinder</H1>
 <pre>
  
@@ -182,6 +199,7 @@ class ssgaCylinder : public ssgaShape
 Cylinders also come in two forms - capped and uncapped.  Once again,
 if you change the capped versus uncapped status, call regenerate to
 make the new version.
+<A NAME="ssgaWaveSystem"></A>
 <H1>ssgaWaveSystem</H1>
 This class is for handling water waves.
 It generates a large polygonal mesh which it distorts in
@@ -274,6 +292,7 @@ There is a 'README' in the 'water' source directory that
 explains how to use the program in a little more detail.
 That's all the wave system documentation I have time to write
 just now - sorry.
+<A NAME="ssgaParticleSystem"></A>
 <H1>ssgaParticleSystem</H1>
 This is a very flexible implementation of particle systems - it's not
 as efficient as you might want for thousands of particles - this is intended
@@ -483,7 +502,39 @@ While debugging this, I got a bug which caused a picture of Tux to be
 applied instead of the droplet texture - it was absolutely hilarious
 to see 2000 tiny penguins shooting up in a fountain and falling gently
 to earth!
+<A NAME="ssgaLensFlare"></A>
+<H1>ssgaLensFlare</H1>
+When you view the sun (or some other very bright light source) through
+the imperfect lens of a camera, you get a row of bright circles and
+rings in a line from the light source, through the center of the lens.
+This is called a 'lens flare' and it can be very effective in computer
+graphics in depicting a light source that's brighter than the computer
+screen can display.  It almost makes you want to squint because of
+the brightness.
+<p>
+The ssgaLensFlare object is a special kind of ssgaShape that can be
+positioned beneath the same transform
+as the source of the light - and it 'just works'.  You don't need
+to set any parameters - just add it into the SSG scene graph in the
+right place.
+<p>
+eg:
+<pre>
 
+   ssgTransform *myTransform ;
+   ssgBranch    *myLightSource ;
+
+   /* Set up myTransform and myLightsource */
+
+   ...
+
+   myTransform -> addKid ( myLightSource ) ;
+   myTransform -> addKid ( new ssgaLensFlare ) ;
+
+</pre>
+It contains a (hard-coded) 256x128 texture map which is compiled
+into the code and shared between however many lens flares there
+are in the scene.
 <hr>
 <hr>
 <ADDRESS>
