@@ -84,23 +84,25 @@ Each PSL script is represented by an object of class <code>pslProgram</code>.
 
   class pslProgram
   {
-    pslProgram ( pslExtension *extns, char *name ) ;
+  public:
 
-    pslProgram ( pslProgram    *prog, char *name ) ;
+    pslProgram ( pslExtension *extns, const char *name ) ;
+
+    pslProgram ( pslProgram    *prog, const char *name ) ;
 
 
     void  setUserData ( void *data ) ;
-    void *getUserData () ;
+    void *getUserData () const ;
 
-    void  setProgName ( char *name ) ;
-    char *getProgName () ;
+    void  setProgName ( const char *name ) ;
+    char *getProgName () const ;
 
-    void      dump  () ;
+    void      dump  () const ;
     void      reset () ;
     pslResult step  () ;
     pslResult trace () ;
 
-    int compile ( char *fname ) ;
+    int compile ( const char *fname ) ;
     int compile ( FILE *fd ) ;
   } ;
 
@@ -203,6 +205,8 @@ pslExtension structures:
 
   class pslExtension
   {
+  public:
+
     const char *symbol ;
     int   argc ;
     pslValue (*func) ( int, pslValue *, pslProgram *p ) ;
@@ -265,7 +269,7 @@ value 123.456.
     }
    
     pslValue ret ;
-    ret.set ( 123.456 ) ;
+    ret.set ( 123.456f ) ;
     return ret ;
   }
 
@@ -300,17 +304,19 @@ and it looks like this:
 
   class pslValue
   {
-    pslType getType   () ;
+  public:
 
-    int     getInt    () ;
-    float   getFloat  () ;
-    char   *getString () ;
+    pslType getType   () const ;
 
-    void set ()               ;
-    void set ( int        v ) ;
-    void set ( float      v ) ;
-    void set ( char      *v ) ;
-    void set ( pslNumber *v ) ;
+    int     getInt    () const ;
+    float   getFloat  () const ;
+    char   *getString () const ;
+
+    void set () ;
+    void set ( int   v ) ;
+    void set ( float v ) ;
+    void set ( const char      *v ) ;
+    void set ( const pslNumber *v ) ;
   } ;                                                                            
 
 </pre>
