@@ -346,7 +346,7 @@ void TimeBox::init ()
   timescroller =  new puSlider  ( TIMEBOX_LEFT, TIMEBOX_TOP+5,
                                   570-TIMEBOX_LEFT, FALSE ) ;
   timescroller -> setCBMode     ( PUSLIDER_DELTA   ) ;
-  timescroller -> setDelta      ( 0.01             ) ;
+  timescroller -> setDelta      ( 0.01f             ) ;
   timescroller -> setCallback   ( timescrollerCB   ) ;
   timescroller -> setUserData   ( this             ) ;
   timescroller -> hide () ; 
