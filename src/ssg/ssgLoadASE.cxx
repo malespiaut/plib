@@ -352,8 +352,6 @@ static void parse_material_list()
 
 static void parse_mesh( aseMesh* mesh )
 {
-  memset( mesh, 0, sizeof(aseMesh) );
-
   char* token;
   int startLevel = parser.level;
   while ((token = parser.getLine( startLevel )) != NULL)
