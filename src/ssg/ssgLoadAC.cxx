@@ -256,6 +256,9 @@ int do_object   ( char *  /* s */ )
   int obj_type = search ( obj_type_tags, s ) ;  
 */
 
+  delete current_tfname ;
+  current_tfname = NULL ;
+
   char buffer [ 1024 ] ;
 
   sgSetVec2 ( texrep, 1.0f, 1.0f ) ;
@@ -334,7 +337,14 @@ int do_texture  ( char *s )
   skip_quotes ( &s ) ;
 
   delete current_tfname ;
-  current_tfname = strdup ( s ) ;
+
+  if ( s == NULL || s[0] == '\0' )
+    current_tfname = NULL ;
+  else
+  {
+    current_tfname = new char [ strlen(s)+1 ] ;
+    strcpy ( current_tfname, s ) ;
+  }
 
   return PARSE_CONT ;
 }
@@ -536,7 +546,15 @@ int do_refs     ( char *s )
     data->tl = tlist ;
     data->cl = col ;
     data->st = get_state ( current_material ) ;
-    data->tfname = strdup ( current_tfname ) ;
+
+    if ( current_tfname != NULL )
+    {
+      data->tfname = new char [ strlen ( current_tfname ) + 1 ] ;
+      strcpy ( data->tfname, current_tfname ) ;
+    }
+    else
+      data->tfname = NULL ;
+
     data->cull_face = ! ( (current_flags>>4) & 0x02 ) ;
    
     ssgLeaf* vtab = (*current_createFunc) ( data ) ;
@@ -649,6 +667,7 @@ ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc, ssgCreateFunc createfu
 
   (*current_createFunc) ( 0 ) ;  //reset
   delete current_tfname ;
+  current_tfname = NULL ;
   delete [] vtab ;
   fclose ( loader_fd ) ;
 

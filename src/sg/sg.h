@@ -675,6 +675,11 @@ extern void sgMakeCoordMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const 
                                         const SGfloat h, const SGfloat p, const SGfloat r ) ;
 extern void sgMakeCoordMat4 ( sgMat4 m, const sgCoord *c ) ;
 
+inline SGfloat sgDistToLineVec2 ( const sgVec3 line, const sgVec2 pnt )
+{
+  return sgScalarProductVec2 ( line, pnt ) + line[2] ;
+}
+ 
 inline SGfloat sgDistToPlaneVec3 ( const sgVec4 plane, const sgVec3 pnt )
 {
   return sgScalarProductVec3 ( plane, pnt ) + plane[3] ;
@@ -686,6 +691,15 @@ inline SGfloat sgHeightAbovePlaneVec3 ( const sgVec4 plane, const sgVec3 pnt )
 }
 
 extern void sgMakeNormal    ( sgVec3 dst, const sgVec3 a, const sgVec3 b, const sgVec3 c ) ;
+
+
+inline void sgMake2DLine ( sgVec3 dst, const sgVec2 a, const sgVec2 b )
+{
+  dst[0] = b[1]-a[1] ;
+  dst[1] = b[0]-a[0] ;
+  sgNormalizeVec2 ( dst ) ;
+  dst[2] = - ( dst[0]*a[0] + dst[1]*a[1] ) ;
+}
 
 inline void sgMakePlane ( sgVec4 dst, const sgVec3 normal, const sgVec3 pnt )
 {
@@ -1759,6 +1773,11 @@ extern void sgdMakeCoordMat4 ( sgdMat4 m, const SGDfloat x, const SGDfloat y, co
                                           const SGDfloat h, const SGDfloat p, const SGDfloat r ) ;
 extern void sgdMakeCoordMat4 ( sgdMat4 m, const sgdCoord *c ) ;
 
+inline SGDfloat sgdDistToLineVec2 ( const sgdVec3 line, const sgdVec2 pnt )
+{
+  return sgdScalarProductVec2 ( line, pnt ) + line[2] ;
+}
+ 
 inline SGDfloat sgdDistToPlaneVec3 ( const sgdVec4 plane, const sgdVec3 pnt )
 {
   return sgdScalarProductVec3 ( plane, pnt ) + plane[3] ;
@@ -1770,6 +1789,14 @@ inline SGDfloat sgdHeightAbovePlaneVec3 ( const sgdVec4 plane, const sgdVec3 pnt
 }
 
 extern void sgdMakeNormal    ( sgdVec3 dst, const sgdVec3 a, const sgdVec3 b, const sgdVec3 c ) ;
+
+inline void sgdMake2DLine ( sgdVec3 dst, const sgdVec2 a, const sgdVec2 b )
+{
+  dst[0] = b[1]-a[1] ;
+  dst[1] = b[0]-a[0] ;
+  sgdNormalizeVec2 ( dst ) ;
+  dst[2] = - ( dst[0]*a[0] + dst[1]*a[1] ) ;
+}
 
 inline void sgdMakePlane ( sgdVec4 dst, const sgdVec3 normal, const sgdVec3 pnt )
 {

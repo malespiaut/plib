@@ -358,7 +358,9 @@ ssgCreateData::~ssgCreateData ()
 
 ssgLeaf* _ssgCreateFunc ( ssgCreateData* data )
 {
+  ssgState *st = NULL ;
   ssgVtxTable *vtab = 0 ;
+
   if ( data )
   {
     vtab = new ssgVtxTable ( data->gltype,
@@ -367,41 +369,54 @@ ssgLeaf* _ssgCreateFunc ( ssgCreateData* data )
 
     //an old hack
     if ( _ssgGetAppState != NULL &&
-      data -> tfname && data -> tfname[0] != 0 )
+         data -> tfname != NULL && data -> tfname[0] != 0 )
     {
-      delete data -> st ;
-      data -> st = 0 ;
+      st = _ssgGetAppState ( data -> tfname ) ;
 
-      ssgState* st = _ssgGetAppState ( data -> tfname ) ;
-      vtab -> setState ( st ) ;
+      if ( st != NULL )
+      {
+        delete data -> st ;
+        data -> st = NULL ;
+      }
     }
-    else if ( data -> st != NULL )
+ 
+    if ( st == NULL && data -> st != NULL )
     {
-      ssgSimpleState *st = data -> st ;
-
       char filename [ 1024 ] ;
       _ssgMakePath ( filename, _ssgTexturePath, data->tfname ) ;
 
       GLuint texture_handle = _ssgShareTexture ( filename ) ;
+
       if ( texture_handle )
       {
         /* Don't change the order of these two statements! */
-        st -> setTexture         ( texture_handle ) ;
-        st -> setTextureFilename ( filename ) ;
+        data -> st -> setTexture         ( texture_handle ) ;
+        data -> st -> setTextureFilename ( filename ) ;
  
-        st -> enable ( GL_TEXTURE_2D ) ;
+        data -> st -> enable ( GL_TEXTURE_2D ) ;
       }
       else
-        st -> disable ( GL_TEXTURE_2D ) ;
+        data -> st -> disable ( GL_TEXTURE_2D ) ;
  
-      st = _ssgShareState ( st ) ;
-      vtab -> setState ( st ) ;
+/*
+This allows the code to run...but
+screws up the 'sharing' code.
+Dunno what's wrong with it.
+*/
+
+      /* Replaced this... */
+      /* st = _ssgShareState ( data -> st ) ; */
+      /* With this... */
+      st = data -> st ;
     }
+
+    vtab -> setState ( st ) ;
   }
   else
   {
      _ssgShareReset () ;
   }
+
   return vtab ;
 }
 
