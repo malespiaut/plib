@@ -170,7 +170,7 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
 		  }
 	     }
 	   for (i = 0; i < l_node->getNumTriangles(); i++) {
-	      WKSHORT v1, v2, v3;
+	      short v1, v2, v3;
 	      l_node->getTriangle(i, &v1, &v2, &v3);
 	      indices->add( vert_low + v1 );
 	      indices->add( vert_low + v2 );
@@ -528,7 +528,7 @@ static void recalcNormals( ssgIndexArray* indexList, ssgVertexArray* vertexList,
    sgVec3 v1, v2, n;
    
    for (int i = 0; i < indexList->getNum() / 3; i++) {
-      WKSHORT indices[3] = { *indexList->get( i*3 ), *indexList->get( i*3 + 1), *indexList->get( i*3 + 2) };
+      short indices[3] = { *indexList->get( i*3 ), *indexList->get( i*3 + 1), *indexList->get( i*3 + 2) };
       
       sgSubVec3(v1, vertexList->get(indices[1]), vertexList->get(indices[0]));
       sgSubVec3(v2, vertexList->get(indices[2]), vertexList->get(indices[0]));
@@ -574,7 +574,7 @@ void ssgLoaderWriterMesh::addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2
 	  {
 	     for( j=0; j<oneFace->getNum(); j++ )
 	       { 
-		  WKSHORT *ps = (WKSHORT *)oneFace->get(j);
+		  short *ps = oneFace->get(j);
 		  float *newTextureCoordinate2 = textureCoordsForOneFace->get( j );
 		  float *oldTextureCoordinate2 = perVertexTextureCoordinates2->get( *ps );
 					
@@ -705,7 +705,7 @@ void ssgLoaderWriterMesh::addToSSG(
 	{
 		ulSetError(UL_DEBUG, "%d Material Indexes:", materialIndices->getNum());
 		for(i=0;i<materialIndices->getNum();i++)
-		{ WKSHORT s=*(materialIndices->get(i));
+		{ short s=*(materialIndices->get(i));
 			ulSetError(UL_DEBUG, "%ld", (long)s);
 		}
 	}
@@ -738,7 +738,7 @@ void ssgLoaderWriterMesh::addToSSG(
 	       newPerVertexTextureCoordinates2 = new ssgTexCoordArray();
 	     
 	     for (j=0; j<theVertices->getNum(); j++)
-	       oldVertexIndexToNewVertexIndex->add ( WKSHORT(0xFFFF) ); // 0xFFFF stands for "unused in new Mesh"
+	       oldVertexIndexToNewVertexIndex->add ( short(0xFFFF) ); // 0xFFFF stands for "unused in new Mesh"
 	     
 	     // Go through all the old Faces, look for the correct material and copy those
 	     // faces and indexes into the new
