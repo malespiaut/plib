@@ -261,17 +261,17 @@ void make_matrix( sgMat4 mat )
 {
   SGfloat angle = -EyeAz * SG_DEGREES_TO_RADIANS ;
   sgVec3 eye ;
-  eye[0] = (SGfloat) cos (angle) * EyeDist ;
-  eye[1] = (SGfloat) sin (angle) * EyeDist ;
+  eye[0] = (SGfloat) cos (angle) * EyeDist + Ex ;
+  eye[1] = (SGfloat) sin (angle) * EyeDist + Ey ;
   angle = EyeEl * SG_DEGREES_TO_RADIANS ;
-  eye[2] = (SGfloat) sin (angle) * EyeDist ;
-  
+  eye[2] = (SGfloat) sin (angle) * EyeDist + Ez ;
+
   sgVec3 center ;
   sgSetVec3 ( center, Ex, Ey, Ez ) ;
-  
+
   sgVec3 up ;
   sgSetVec3 ( up, 0.0f, 0.0f, 0.1f ) ;
-  
+
   sgMakeLookAtMat4 ( mat, eye, center, up ) ;
 }
 
@@ -560,9 +560,18 @@ void pick_cb ( puObject * )
   EyeDist = float( radius * 1.5f / tan( float( FOV/2 * SG_DEGREES_TO_RADIANS ) ) );
   
   sgSphere sp = *( scene -> getBSphere() ) ;
-  Ex = - sp.getCenter()[ 0 ] ;
-  Ey = - sp.getCenter()[ 1 ] ;
-  Ez = - sp.getCenter()[ 2 ] ;
+  if ( sp.isEmpty() )
+  {
+    Ex = 0.0f ;
+    Ey = 0.0f ;
+    Ez = 0.0f ;
+  }
+  else
+  {
+    Ex = sp.getCenter()[ 0 ] ;
+    Ey = sp.getCenter()[ 1 ] ;
+    Ez = sp.getCenter()[ 2 ] ;
+  }
 }
 
 
@@ -731,4 +740,3 @@ int main(int argc, char** argv)
   glutMainLoop();
   return 0;             /* ANSI C requires main to return int. */
 }
-
