@@ -48,10 +48,10 @@ ssgTransform *makeGround ()
 
   sgSetVec3 ( normal [ 0 ], 0, 0, 1 ) ;
 
-  sgSetVec3 ( scoord [ 0 ], -60, -60, -5.6 ) ;
-  sgSetVec3 ( scoord [ 1 ],  60, -60, -5.6 ) ;
-  sgSetVec3 ( scoord [ 2 ],  60,  60, -5.6 ) ;
-  sgSetVec3 ( scoord [ 3 ], -60,  60, -5.6 ) ;
+  sgSetVec3 ( scoord [ 0 ], -60, -60, -5.6f ) ;
+  sgSetVec3 ( scoord [ 1 ],  60, -60, -5.6f ) ;
+  sgSetVec3 ( scoord [ 2 ],  60,  60, -5.6f ) ;
+  sgSetVec3 ( scoord [ 3 ], -60,  60, -5.6f ) ;
 
   ssgVTable *vt1 =  new ssgVTable ( (GLenum) GL_TRIANGLE_FAN,
                                4, scoord,
@@ -242,7 +242,7 @@ static ssgBranch *O ()
 {
   ssgaSphere *OOO = new ssgaSphere ( 300 ) ;
 
-  OOO -> setSize ( 0.7 ) ;
+  OOO -> setSize ( 0.7f ) ;
   OOO -> setKidState ( O_gst ) ;
 
   return OOO ;
