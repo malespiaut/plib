@@ -7,6 +7,7 @@ include_HEADERS = ssgAux.h             \
                   ssgaLensFlare.h      \
                   ssgaParticleSystem.h \
                   ssgaWaveSystem.h     \
+                  ssgaScreenDump.h     \
                   ssgaFire.h
 
 libplibssgaux_a_SOURCES = ssgAux.cxx               \
@@ -17,6 +18,7 @@ libplibssgaux_a_SOURCES = ssgAux.cxx               \
                           ssgaLensFlare.cxx        \
                           ssgaLensFlareTexture.cxx \
                           ssgaFire.cxx             \
+                          ssgaScreenDump.cxx       \
                           ssgaTeapot.cxx
 
 INCLUDES = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/ssg
