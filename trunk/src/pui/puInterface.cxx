@@ -11,15 +11,34 @@ void puPushLiveInterface ( puInterface *in )
   if ( currLiveInterface < PUSTACK_MAX )
     liveInterfaceStack [ ++currLiveInterface ] = in ;
   else
-    fprintf ( stderr, "PUI: Too many live puInterfaces open at once!\n" ) ;
+    ulSetError ( UL_WARNING, "PUI: Too many live puInterfaces open at once!\n" ) ;
 }
 
-void  puPopLiveInterface ( void )
+void  puPopLiveInterface ( puInterface *in )
 {
-  if ( currLiveInterface > 0 )
+  if ( currLiveInterface <= 0 )
+  {
+    ulSetError ( UL_WARNING, "PUI: Live puInterface stack is empty!\n" ) ;
+    return;
+  }
+
+  if ( in == NULL || in == liveInterfaceStack [ currLiveInterface ] )
+  {
     --currLiveInterface ;
-  else 
-    fprintf ( stderr, "PUI: Live puInterface stack is empty!\n" ) ;
+  }
+  else
+  {
+    //Houston, we have a problem...
+    for ( int i = currLiveInterface-1 ; i >= 0 ; i-- )
+    {
+      if ( in == liveInterfaceStack [ i ] )
+      {
+        //error-- the interface is buried in the stack
+        //interface creation/deletion should be nested (LIFO)
+        ulSetError ( UL_FATAL, "PUI: interface stack error!\n" ) ;
+      }
+    }
+  }
 }
 
 int  puNoLiveInterface ( void )
@@ -31,7 +50,7 @@ puInterface *puGetUltimateLiveInterface ( void )
 {
   if ( currLiveInterface < 0 )
   {
-    fprintf ( stderr, "PUI: No Live Interface!\n" ) ;
+    ulSetError ( UL_WARNING, "PUI: No Live Interface!\n" ) ;
     return NULL ;
   }
 
@@ -43,7 +62,7 @@ puInterface *puGetBaseLiveInterface ( void )
 {
   if ( currLiveInterface < 0 )
   {
-    fprintf ( stderr, "PUI: No Live Interface!\n" ) ;
+    ulSetError ( UL_WARNING, "PUI: No Live Interface!\n" ) ;
     return NULL ;
   }
 
@@ -63,7 +82,7 @@ puInterface *puGetBaseLiveInterface ( void )
 
 puInterface::~puInterface ()
 {
-  puPopLiveInterface () ;
+  puPopLiveInterface ( this ) ;
 
   for ( puObject *bo = dlist ; bo != NULL ; /* Nothing */ )
   {

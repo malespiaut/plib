@@ -637,7 +637,7 @@ public:
 */
 
 void         puPushLiveInterface        ( puInterface *in ) ;
-void         puPopLiveInterface         ( void ) ;
+void         puPopLiveInterface         ( puInterface *in = 0 ) ;
 int          puNoLiveInterface          ( void ) ;
 puInterface *puGetBaseLiveInterface     ( void ) ;
 puInterface *puGetUltimateLiveInterface ( void ) ;
