@@ -24,53 +24,57 @@
 
 #include "puLocal.h"
 
-void puValue::re_eval ( void )
+void puValue::re_eval ( void ) const
 {
   if ( res_integer != NULL )
-    setValue ( *res_integer )  ;
+  {
+    *floater = (float) *res_integer ;
+    sprintf ( string, "%d", *res_integer ) ;
+  }
   else if ( res_floater != NULL )
-    setValue ( *res_floater ) ;
-  else if ( res_string  != NULL )
-    setValue ( res_string ) ;
-}
-
-void puValue::update_res ( void ) const
-{
-  if ( res_integer != NULL )
-    *res_integer = integer ;
-  else if ( res_floater != NULL )
-    *res_floater = floater ;
+  {
+    *integer = (int) *res_floater ;
+    sprintf ( string, "%g", *res_floater ) ;
+  }
   else if ( res_string  != NULL )
   {
-    /* Work around ANSI strncpy's null-fill behaviour */
-
-    res_string[0] = '\0' ;
-    strncat ( res_string, string, res_string_sz-1 ) ;
+    *integer = (int) strtol ( res_string, NULL, 0 ) ;
+    *floater = (float) strtod ( res_string, NULL ) ;
   }
 }
 
 void puValue::copy_stringval ( const char *str )
 {
-  int str_len = strlen ( str ) ;
-  int new_size = string_size ;
-
-  while ( new_size < str_len + 1 )
-  /* While our array is too small, double it. */
-    new_size += new_size ;
-
-  while ( ( new_size > 4 * str_len + 1 ) && ( new_size > PUSTRING_INITIAL ) )
-  /* While our array is too big, halve it */
-    new_size /= 2 ;
-
-  if ( new_size != string_size )
-  /* If the array size has changed, allocate a new array */
+  if ( res_string != NULL )
   {
-    delete string ;
-    string = new char [ new_size ] ;
-    string_size = new_size ;
-  }
+    /* Work around ANSI strncpy's null-fill behaviour */
 
-  memcpy ( string, str, str_len + 1 ) ;
+    res_string[0] = '\0' ;
+    strncat ( res_string, str, res_string_sz-1 ) ;
+  }
+  else
+  {
+    int str_len = strlen ( str ) ;
+    int new_size = string_size ;
+
+    while ( new_size < str_len + 1 )
+    /* While our array is too small, double it. */
+      new_size += new_size ;
+
+    while ( ( new_size > 4 * str_len + 1 ) && ( new_size > PUSTRING_INITIAL ) )
+    /* While our array is too big, halve it */
+      new_size /= 2 ;
+
+    if ( new_size != string_size )
+    /* If the array size has changed, allocate a new array */
+    {
+      delete string ;
+      string = new char [ new_size ] ;
+      string_size = new_size ;
+    }
+
+    memcpy ( string, str, str_len + 1 ) ;
+  }
 }
 
 
