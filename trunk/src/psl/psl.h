@@ -87,7 +87,7 @@ public:
     {
       case PSL_INT    : return       i ;
       case PSL_FLOAT  : return (int) f ;
-      case PSL_STRING : return atoi(s) ;
+      case PSL_STRING : return strtol(s,NULL,0) ;
       case PSL_VOID   : return       0 ;
     }
     return 0 ;
@@ -185,7 +185,7 @@ public:
   {
     switch ( t )
     {
-      case PSL_INT    : i = atoi ( v ) ; return ;
+      case PSL_INT    : i = strtol ( v, NULL, 0 ) ; return ;
       case PSL_FLOAT  : f = (float) atof ( v ) ; return ;
       case PSL_STRING : delete [] s ;
                         s = ulStrDup ( v ) ;

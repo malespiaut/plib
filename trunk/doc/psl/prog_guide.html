@@ -100,7 +100,6 @@ Some new features have been added that are not part of C:
   <li> C++ style '//' comments.
   <li> C++ style local variable declarations.
 </ul>
-
 Some features of C are NOT IMPLEMENTED in PSL:
 <ul>
   <li> Pointers.
@@ -125,9 +124,7 @@ The following features are "NOT IMPLEMENTED YET" - but will
 hopefully arrive soon:
 <ul>
   <li> Logic operators "&&", "||".
-  <li> "++" and "--"
   <li> Character constants.
-  <li> Hex and octal constants.
   <li> Arrays & Structs.
   <li> Operations on "string" variables.
   <li> String concatenation.
@@ -137,6 +134,24 @@ hopefully arrive soon:
   <li> Many of C's standard library functions are needed.
 </ul>
 
+<H1> Compatibility Notes: </H1>
+<H3> C++ style local variables. </H3>
+With PSL's C++ style locals, you can say things like this:
+<pre>
+
+    for ( int i = 0 ; i < 10 ; i++ )  /* Do something */ ;
+
+</pre>
+In standard C++, the scope of the variable 'i' is from it's
+declaration to the end of the 'for' loop.  However, Microsoft's
+Visual C++ uses an obsolete version of the C++ standard that
+allows the scope of 'i' to continue to the end of the block
+that contains the for loop. So:
+<p>
+WINDOWS USERS BEWARE: PSL IMPLEMENTS THIS CORRECTLY - *NOT* LIKE
+MSVC.
+
+<H3>Hard Limits</H3>
 Currently there are hard limits in many places - the number of
 variables, the size of the program, the depth of nesting, etc.
 These limits will gradually be removed as PSL is developed.
