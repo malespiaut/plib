@@ -36,8 +36,23 @@ struct WidgetList
   short callbacks ;
   char object_name [ PUSTRING_MAX ] ;
   bool visible ;
+  bool locked ;
   int layer ;  // GUI layer:  0 - in back, positive nubmers - greater in front of lesser
   WidgetList *next ;
+  /* Additional data for the extended properties of widgets */
+  char *items ;
+  char *allowed ;
+  int intval1 ;
+  int intval2 ;
+  bool boolval1 ;
+  bool boolval2 ;
+  bool boolval3 ;
+  float floatval1 ;
+  float floatval2 ;
+  float floatval3 ;
+  float floatval4 ;
+  float floatval5 ;
+  float floatval6 ;
 } ;
 
 
