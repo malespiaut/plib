@@ -224,7 +224,7 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
   for ( int i=0; i<num_formats; i++, f++ )
   {
     if ( f->loadfunc != NULL &&
-	       _ssgStrEqual ( extn, f->extension ) )
+	       ulStrEqual ( extn, f->extension ) )
       return f->loadfunc( fname, options ) ;
   }
 
@@ -250,7 +250,7 @@ int ssgSave ( const char *fname, ssgEntity *ent )
   for ( int i=0; i<num_formats; i++, f++ )
   {
     if ( f->savefunc != NULL &&
-         _ssgStrEqual ( extn, f->extension ) )
+         ulStrEqual ( extn, f->extension ) )
       return f->savefunc( fname, ent ) ;
   }
 
