@@ -58,14 +58,11 @@ ssgTexture* ssgLoaderOptions::defaultCreateTexture ( char* tfname,
 						     int wrapv,
 						     int mipmap ) const
 {
-  char filename [ 1024 ] ;
-	ulFindFile( filename, _ssgTexturePath, tfname, _ssgAPOM ) ;
-
-  ssgTexture *tex = shared_textures.findByFilename ( filename ) ;
+  ssgTexture *tex = shared_textures.findByFilename ( tfname ) ;
   if ( tex )
     return tex ;
   
-  tex = new ssgTexture ( filename, wrapu, wrapv, mipmap ) ;
+  tex = new ssgTexture ( tfname, wrapu, wrapv, mipmap ) ;
   if ( tex )
     shared_textures.add ( tex ) ;
   return tex ;
