@@ -144,8 +144,8 @@ void puInput::doHit ( int button, int updown, int x, int /* y */ )
       accepting = TRUE ;
       cursor_position = i ;
       normalize_cursors () ;
-      invokeCallback () ;
       puSetActiveWidget ( this ) ;
+      invokeCallback () ;
     }
     else
       highlight () ;

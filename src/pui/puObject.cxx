@@ -206,8 +206,8 @@ void puObject::doHit ( int button, int updown, int /* x */, int /* y */ )
     if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )
     {
       lowlight () ;
-      invokeCallback () ;
       puSetActiveWidget ( this ) ;
+      invokeCallback () ;
     }
     else
       highlight () ;
