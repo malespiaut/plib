@@ -53,7 +53,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=Copy to plib directory
+PostBuild_Desc=Copy Library to plib directory
 PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy sl.h ..\..\sl.h  	copy slPortability.h ..\..\slPortability.h 	copy sm.h ..\..\sm.h
 # End Special Build Tool
 
@@ -82,7 +82,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:"Debug\sl_d.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=Copy to plib directory
+PostBuild_Desc=Copy Library to plib directory
 PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy sl.h ..\..\sl.h  	copy slPortability.h ..\..\slPortability.h 	copy sm.h ..\..\sm.h
 # End Special Build Tool
 
