@@ -376,8 +376,8 @@ CXXFLAGS="-pthread $CXXFLAGS"
 CFLAGS="-pthread $CFLAGS"
 AC_CHECK_LIB(c_r, pthread_exit)
 if test "x$ac_cv_lib_c_r_pthread_exit" != "xyes"; then
-    CFLAGS="$CFLAGS -pthread"
-    CXXFLAGS="$CXXFLAGS -pthread"
+   CFLAGS=$save_CFLAGS
+   CXXFLAGS=$save_CXXFLAGS
 fi
 LIBS=$save_LIBS
 
