@@ -182,7 +182,7 @@ void ssgAddTextureFormat ( const char* extension,
 }
 
 
-bool ssgLoadTexture ( const char * filename_from_model, ssgTextureInfo* info )
+bool ssgLoadTexture ( const char * filename, ssgTextureInfo* info )
 {
   if ( info != NULL )
   {
@@ -192,36 +192,8 @@ bool ssgLoadTexture ( const char * filename_from_model, ssgTextureInfo* info )
     info -> alpha = 0 ;
   }
 
-  if ( filename_from_model == NULL || *filename_from_model == '\0' )
+  if ( filename == NULL || *filename == '\0' )
     return false ;
-
-  /*
-   * figure out where the file is located
-   */
-  char filename [ 1024 ] ;
-  if ( ulFileExists ( filename_from_model ) )
-    strcpy ( filename, filename_from_model ) ;
-  else
-  {
-  	ulFindFile( filename, _ssgTexturePath, filename_from_model, ssgGetAPOM() ) ;
-    if ( !ulFileExists ( filename ) )
-    {
-      //find path seperator
-      const char * sep = &filename_from_model[strlen(filename_from_model)-1] ;
-    	while (sep > filename_from_model)
-      {
-        if ( *sep == '/' || *sep == '\\' )
-        {
-          //we just want the filename without the path
-          //because that is what ulFindFile expects??
-      		sep++;
-          break;
-        }
-    		sep--;
-      }
-    	ulFindFile( filename, _ssgTexturePath, sep, ssgGetAPOM() ) ;
-    }
-  }
 
   //find extension
   const char *extn = & ( filename [ strlen(filename) ] ) ;

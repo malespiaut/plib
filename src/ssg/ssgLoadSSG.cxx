@@ -167,18 +167,12 @@ int _ssgSaveObject ( FILE *f, ssgBase *obj )
 
 ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
 {
+  const ssgLoaderOptions* current_options =
+    options? options: ssgGetCurrentOptions () ;
+  current_options -> begin () ;
+ 
   char filename [ 1024 ] ;
-
-  if ( fname [ 0 ] != '/' &&
-       _ssgModelPath != NULL &&
-       _ssgModelPath [ 0 ] != '\0' )
-  {
-    strcpy ( filename, _ssgModelPath ) ;
-    strcat ( filename, "/" ) ;
-    strcat ( filename, fname ) ;
-  }
-  else
-    strcpy ( filename, fname ) ;
+  current_options -> makeModelPath ( filename, fname ) ;
 
   FILE *fd = fopen ( filename, "rb" ) ;
 
@@ -248,25 +242,14 @@ ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions* options )
 
   fclose ( fd ) ;
 
+  current_options -> end () ;
+
   return kid ;
 }
 
 
-int ssgSaveSSG ( const char *fname, ssgEntity *ent )
+int ssgSaveSSG ( const char *filename, ssgEntity *ent )
 {
-  char filename [ 1024 ] ;
-
-  if ( fname [ 0 ] != '/' &&
-       _ssgModelPath != NULL &&
-       _ssgModelPath [ 0 ] != '\0' )
-  {
-    strcpy ( filename, _ssgModelPath ) ;
-    strcat ( filename, "/" ) ;
-    strcat ( filename, fname ) ;
-  }
-  else
-    strcpy ( filename, fname ) ;
-
   FILE *fd = fopen ( filename, "wb" ) ;
 
   if ( fd == NULL )

@@ -1434,7 +1434,7 @@ static void parse_free()
 
 ssgEntity *ssgLoadASE ( const char *fname, const ssgLoaderOptions* options )
 {
-  current_options = options? options: &_ssgDefaultOptions ;
+  current_options = options? options: ssgGetCurrentOptions () ;
   current_options -> begin () ;
 
   top_branch = new ssgBranch ;

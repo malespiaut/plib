@@ -36,10 +36,6 @@ sgVec4 _ssgColourWhite = { 1.0f, 1.0f, 1.0f, 1.0f } ;
 sgVec3 _ssgNormalUp    = { 0.0f, 0.0f, 1.0f } ;
 sgVec2 _ssgTexCoord00  = { 0.0f, 0.0f } ;
 short  _ssgIndex0      = 0;
-bool   _ssgAlphaFlag   = false ;
-
-char *_ssgModelPath   = NULL ;
-char *_ssgTexturePath = NULL ;
 
 ssgLight _ssgLights [ 8 ] ;
 int      _ssgFrameCounter = 0 ;

@@ -6,9 +6,6 @@
 extern void (*__ssgEnableTable[64])() ;
 extern void (*__ssgDisableTable[64])() ;
 
-extern char  *_ssgModelPath ;
-extern char  *_ssgTexturePath ;
-
 extern sgMat4 _ssgOpenGLAxisSwapMatrix ;
 extern int    _ssgIsHotTest ;
 extern int    _ssgFileVersionNumber ;

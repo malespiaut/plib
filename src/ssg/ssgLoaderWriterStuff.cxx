@@ -120,11 +120,11 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname )
 	extension[3] = 'b';
 	extension[4] = 0;
 			
-	ulFindFile( filepath, _ssgTexturePath, tmp, ssgGetAPOM() ) ;
+	ulFindFile( filepath, ssgGetCurrentOptions () -> getTextureDir(), tmp, ssgGetAPOM() ) ;
 	if ( ulFileExists ( filepath ) )
 		return; // found *.rgb-file
 	// look for original, non-rgb - file
-  ulFindFile( filepath, _ssgTexturePath, tfname, ssgGetAPOM() ) ;
+  ulFindFile( filepath, ssgGetCurrentOptions () -> getTextureDir(), tfname, ssgGetAPOM() ) ;
 	if ( !ulFileExists ( filepath ) )
 		return; // found *.rgb nor original file
 	// found original file. convert it.

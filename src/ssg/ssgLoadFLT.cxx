@@ -2545,7 +2545,7 @@ static const char *FindFile(const char *file)
    if (ulFileExists((char *)file))
       return file;
 
-   _ssgMakePath(path, _ssgModelPath, file);
+   ulMakePath(path, ssgGetCurrentOptions () -> getModelDir(), file);
 
    if (ulFileExists(path))
       return path;
@@ -2939,7 +2939,7 @@ ssgEntity *ssgLoadFLT(const char *filename,
    NotImplementedFlag = 0;
 
 #ifndef NO_LOADER_OPTIONS
-   LoaderOptions = options ? options : &_ssgDefaultOptions;
+   LoaderOptions = options ? options : ssgGetCurrentOptions () ;
    LoaderOptions->begin();
 #endif
 

@@ -2190,10 +2190,6 @@ int  ssgIsect       ( ssgRoot *root, sgSphere *s, sgMat4 m, ssgHit **results ) ;
 int  ssgHOT         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 
-/* Weird private stuff */
-
-char* _ssgMakePath( char* path, const char* dir, const char* fname ) ;
-
 /* Load/Save functions */
 
 enum {
@@ -2220,20 +2216,8 @@ enum {
 	SSG_MD2_POSE
 };
 
-typedef ssgState *(*ssgAppStateFunc)(char*) ;
-typedef ssgLeaf *(*ssgCreateLeafFunc)(ssgLeaf*,const char*) ;
-typedef ssgBranch *(*ssgHookFunc)(char *) ;
-typedef ssgTexture *(*ssgCreateTextureFunc)(char*,int,int,int) ;
-typedef ssgTransform *(*ssgCreateTransformFunc)(ssgTransform*,ssgTransformArray*) ;
-
 class ssgLoaderOptions
 {
-  ssgAppStateFunc app_state_cb ;
-  ssgCreateLeafFunc create_leaf_cb ;
-  ssgHookFunc hook_cb ;
-  ssgCreateTextureFunc create_texture_cb ;
-  ssgCreateTransformFunc create_transform_cb ;
-
   //NOTES: we could add more later
   //...model scale factor...
   //...create normals or read them from the file?...
@@ -2241,91 +2225,72 @@ class ssgLoaderOptions
   //...which direction is front-facing in formats that don`t get it right...
   //...etc...
 
-  ssgLeaf* defaultCreateLeaf ( ssgLeaf* leaf,
-			       const char* parent_name ) const ;
-  ssgTexture *defaultCreateTexture ( char *tfname, 
-				     int wrapu, int wrapv,
-				     int mipmap ) const ;
-  ssgTransform *defaultCreateTransform ( ssgTransform* tr,
-      ssgTransformArray* ta ) const ;
+protected:
+
+  ssgSimpleStateArray shared_states ;
+  ssgTextureArray shared_textures ;
+
+  /* for backward compatibility */
+  ssgState *(*create_state_cb)( char *) ;
+  ssgBranch *(*create_branch_cb)(char *) ;
+
+  char* model_dir ;
+  char* texture_dir ;
+
+  char* make_path ( char* path, const char* dir, const char* fname ) const ;
 
 public:
-  ssgLoaderOptions (
-      ssgAppStateFunc        _app_state_cb,
-      ssgCreateLeafFunc      _create_leaf_cb = 0,
-      ssgHookFunc            _hook_cb = 0,
-      ssgCreateTextureFunc   _create_texture_cb = 0,
-      ssgCreateTransformFunc _create_transform_cb = 0
-    ) :
-    app_state_cb        ( _app_state_cb ),
-    create_leaf_cb      ( _create_leaf_cb ),
-    hook_cb             ( _hook_cb ),
-    create_texture_cb   ( _create_texture_cb ),
-    create_transform_cb ( _create_transform_cb )
-  {}
 
-  virtual void setAppStateCallback ( ssgAppStateFunc cb )
+  ssgLoaderOptions ()
   {
-    app_state_cb = cb ;
+    model_dir = 0 ;
+    texture_dir = 0 ;
+
+    create_state_cb = 0 ;
+    create_branch_cb = 0 ;
   }
 
-  virtual ssgState* createState ( char* tfname ) const
+  const char* getModelDir ( void ) { return model_dir ; }
+  const char* getTextureDir ( void ) { return texture_dir ; }
+  void setModelDir ( const char *s ) ;
+  void setTextureDir ( const char *s ) ;
+
+  void setCreateBranchCallback ( ssgBranch *(*cb)(char *) )
   {
-    if ( app_state_cb )
-      return (*app_state_cb)(tfname) ;
-    else
-      return NULL ;
+    create_branch_cb = cb ;
+  }
+  void setCreateStateCallback ( ssgState *(*cb)(char *) )
+  {
+    create_state_cb = cb ;
   }
 
-  virtual ssgLeaf* createLeaf ( ssgLeaf* leaf, const char* parent_name ) const
-  {
-    if ( create_leaf_cb )
-      return (*create_leaf_cb)(leaf,parent_name) ;
-    else
-      return defaultCreateLeaf(leaf,parent_name) ;
-  }
+  //
+  // the idea is that you derive a class from ssgLoaderOptions and
+  // override these methods to customize how the loaders work
+  //
+  virtual void makeModelPath ( char* path, const char *fname ) const ;
+  virtual void makeTexturePath ( char* path, const char *fname ) const ;
 
+  virtual ssgLeaf* createLeaf ( ssgLeaf* leaf, const char* parent_name ) const ;
   virtual ssgTexture* createTexture ( char* tfname, 
 			      int wrapu  = TRUE, int wrapv = TRUE, 
-			      int mipmap = TRUE ) const
-  {
-    if ( create_texture_cb )
-      return (*create_texture_cb)(tfname, wrapu, wrapv, mipmap) ;
-    else
-      return defaultCreateTexture(tfname, wrapu, wrapv, mipmap) ;
-  }
-
+			      int mipmap = TRUE ) const ;
   virtual ssgTransform* createTransform ( ssgTransform* tr,
-      ssgTransformArray* ta ) const
+      ssgTransformArray* ta ) const ;
+  virtual ssgBranch* createBranch ( char* text ) const
   {
-    if ( create_transform_cb )
-      return (*create_transform_cb) (tr,ta) ;
-    else
-      return defaultCreateTransform (tr,ta) ;
+    if ( create_branch_cb != NULL )
+      return (*create_branch_cb)(text) ;
+    return NULL ;
   }
-
-  virtual ssgHookFunc getHookFunc () const
+  virtual ssgState* createState ( char* tfname ) const
   {
-    return hook_cb ;
+    if ( create_state_cb != NULL )
+      return (*create_state_cb)(tfname) ;
+    return NULL ;
   }
-
-  virtual ssgBranch* invokeHookFunc ( char* text ) const
-  {
-    if ( hook_cb )
-      return (*hook_cb)(text) ;
-    else
-      return NULL ;
-  }
-
-  virtual void begin () const
-  {
-    createLeaf ( 0, 0 ) ;
-  }
-
-  virtual void end () const
-  {
-    createLeaf ( 0, 0 ) ;
-  }
+  virtual void begin () const {}
+  virtual void end () const {}
 } ;
 
 int        ssgSave     ( const char *fname, ssgEntity *ent ) ;
@@ -2365,25 +2330,52 @@ typedef int        ssgSaveFunc ( const char *, ssgEntity * ) ;
 void ssgAddModelFormat ( const char* extension,
                         ssgLoadFunc *loadfunc , ssgSaveFunc  *savefunc ) ;
 
+/* current loader options */
+
+extern ssgLoaderOptions *_ssgCurrentOptions ;
+
+inline ssgLoaderOptions *ssgGetCurrentOptions ()
+{
+  return _ssgCurrentOptions ;
+}
+
+inline void ssgSetCurrentOptions ( ssgLoaderOptions * options )
+{
+  _ssgCurrentOptions = options ;
+}
+
 /* For backwards compatibility */
+
+inline ssgEntity *ssgLoad ( char *fname, ssgBranch *(*cb)(char *))
+{
+  _ssgCurrentOptions -> setCreateBranchCallback ( cb ) ;
+  return ssgLoad ( fname ) ;
+}
+
+inline void ssgSetAppStateCallback ( ssgState *(*cb)(char *) )
+{
+  _ssgCurrentOptions -> setCreateStateCallback ( cb ) ;
+}
+
+inline void ssgModelPath   ( const char *path )
+{
+  _ssgCurrentOptions -> setModelDir ( path ) ;
+}
+
+inline void ssgTexturePath ( const char *path )
+{
+  _ssgCurrentOptions -> setTextureDir ( path ) ;
+}
 
 ssgEntity *ssgLoadAC   ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
 
-extern ssgLoaderOptions _ssgDefaultOptions ;
-
-inline void ssgSetAppStateCallback ( ssgAppStateFunc cb )
-{
-  _ssgDefaultOptions.setAppStateCallback ( cb ) ;
-}
+/* scene walkers */
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;
 
 void ssgArrayTool ( ssgEntity *ent, float* vtol = 0, bool make_normals = false ) ;
 void ssgTransTool ( ssgEntity *ent, const sgMat4 trans ) ;
-
-void ssgModelPath   ( const char *path ) ;
-void ssgTexturePath ( const char *path ) ;
 
 ssgLight *ssgGetLight ( int i ) ;
 

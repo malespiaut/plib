@@ -170,8 +170,14 @@ int do_obj_light ( char * ) { return OBJ_LIGHT ; }
 int last_num_kids    = -1 ;
 int current_flags    = -1 ;
 
-static ssgSimpleState *get_state ( _ssgMaterial *mat )
+static ssgState *get_state ( _ssgMaterial *mat )
 {
+  if (current_tfname != NULL) {
+    ssgState *st = current_options -> createState ( current_tfname ) ;
+    if ( st != NULL )
+      return st ;
+  }
+
   ssgSimpleState *st = new ssgSimpleState () ;
 
   st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
@@ -321,18 +327,16 @@ int do_data     ( char *s )
 
   fgetc ( loader_fd ) ;  /* Final RETURN */
 
-  if ( current_options -> getHookFunc () != NULL )
+  ssgBranch *br = current_options -> createBranch ( current_data ) ;
+
+  if ( br != NULL )
   {
-    ssgBranch *br = current_options -> invokeHookFunc ( current_data ) ;
-
-    if ( br != NULL )
-    {
-      current_branch -> addKid ( br ) ;
-      current_branch = br ;
-    }
-
-    current_data = NULL ;
+    current_branch -> addKid ( br ) ;
+    current_branch = br ;
   }
+
+  /* delete [] current_data ; */
+  current_data = NULL ;
 
   return PARSE_CONT ;
 }
@@ -589,18 +593,11 @@ ssgEntity *ssgLoadAC3D ( const char *fname, const ssgLoaderOptions* options )
 
 ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
 {
-  char filename [ 1024 ] ;
+  current_options = options? options: ssgGetCurrentOptions () ;
+  current_options -> begin () ;
 
-  if ( fname [ 0 ] != '/' &&
-       _ssgModelPath != NULL &&
-       _ssgModelPath [ 0 ] != '\0' )
-  {
-    strcpy ( filename, _ssgModelPath ) ;
-    strcat ( filename, "/" ) ;
-    strcat ( filename, fname ) ;
-  }
-  else
-    strcpy ( filename, fname ) ;
+  char filename [ 1024 ] ;
+  current_options -> makeModelPath ( filename, fname ) ;
 
   num_materials = 0 ;
   vtab = NULL ;
@@ -609,7 +606,6 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
   current_colour   = NULL ;
   current_tfname   = NULL ;
   current_branch   = NULL ;
-  current_options  = NULL ;
 
   sgSetVec2 ( texrep, 1.0, 1.0 ) ;
   sgSetVec2 ( texoff, 0.0, 0.0 ) ;
@@ -626,9 +622,6 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
   int firsttime = TRUE ;
 
   current_branch = new ssgTransform () ;
-
-  current_options = options? options: &_ssgDefaultOptions ;
-  current_options -> begin () ;
 
   while ( fgets ( buffer, 1024, loader_fd ) != NULL )
   {
