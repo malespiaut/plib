@@ -37,7 +37,7 @@
 #define SLDSP_DEFAULT_DEVICE "dsp"		// dummy ...
 #elif defined(SOLARIS)
 #define SLDSP_DEFAULT_DEVICE "/dev/audio"
-#elif defined(macintosh)
+#elif defined(macintosh) || defined(__APPLE__)
 #define SLDSP_DEFAULT_DEVICE "dsp" // dummy
 #else
 #error "Port me !"
@@ -83,7 +83,7 @@ private:
 #elif defined(sgi)
   ALconfig        config;       // configuration stuff
   ALport          port;         // .. we are here 
-#elif defined(macintosh)
+#elif defined(macintosh) || defined(__APPLE__)
 
 // Size of the data chunks written with write().
 // This should be a multiple of 1024.
