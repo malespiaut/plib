@@ -161,8 +161,7 @@ Misc:
   Has task number 18384 been done (Mac patches)?
 - There is a bug in the 3Dfx driver for Linux (tdfx_dri-4.0.1-1) that
   causes the "complex" example program to crash in "fxSetupBlend".
-  Since there are no signs of updated 3Dfx drivers, it would be nice
-  if a work-around could be found instead.
+  This is fixed in more recent DRI snapshots (requires kernel 2.4.x).
 
 Testing:
 ========
