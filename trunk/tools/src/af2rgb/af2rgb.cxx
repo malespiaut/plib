@@ -1,5 +1,5 @@
-// af2rgb.cpp : Defines the entry point for the console application.
-//
+// Convert textures made for MSFS to rgb textures.
+
 
 // Written by Wolfram Kuss (w_kus@rz-online.de) in dec 2000 / jan 2001
 // with some help by Marten Strömberg.
