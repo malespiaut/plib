@@ -324,17 +324,16 @@ inline void puSetColour ( puColour c, float r, float g, float b, float a = 1.0f 
 }
 
 
-void  puInit                 ( void ) ;
-void  puDisplay              ( void ) ;
-void  puDisplay              ( int window_number ) ;
-int   puMouse                ( int button, int updown, int x, int y ) ;
-int   puMouse                ( int x, int y ) ;
-int   puKeyboard             ( int key, int updown ) ;
-void  puHideCursor           ( void ) ;
-void  puShowCursor           ( void ) ;
-int   puCursorIsHidden       ( void ) ;
-void  puDeleteObject         ( puObject *ob ) ;
-
+void  puInit           ( void ) ;
+void  puDisplay        ( void ) ;
+void  puDisplay        ( int window_number ) ;
+int   puMouse          ( int button, int updown, int x, int y ) ;
+int   puMouse          ( int x, int y ) ;
+int   puKeyboard       ( int key, int updown ) ;
+void  puHideCursor     ( void ) ;
+void  puShowCursor     ( void ) ;
+int   puCursorIsHidden ( void ) ;
+void  puDeleteObject   ( puObject *ob ) ;
 
 // Active widget functions
 
@@ -789,7 +788,27 @@ public:
 } ;
 
 
-class puArrowButton : public puButton
+class puOneShot : public puButton
+{
+protected:
+public:
+  void doHit ( int button, int updown, int x, int y ) ;
+
+  puOneShot ( int minx, int miny, const char *l ) : puButton   ( minx, miny, l )
+  {
+    type |= PUCLASS_ONESHOT ;
+  }
+
+  puOneShot ( int minx, int miny, int maxx, int maxy ) :
+                 puButton ( minx, miny, maxx, maxy )
+  {
+    type |= PUCLASS_ONESHOT ;
+  }
+} ;
+
+
+
+class puArrowButton : public puOneShot
 {
 protected:
 
@@ -802,7 +821,7 @@ public:
   void setArrowType ( int i ) { arrow_type = i ; }
 
   puArrowButton ( int minx, int miny, int maxx, int maxy, int ptype ) :
-                 puButton ( minx, miny, maxx, maxy )
+                 puOneShot ( minx, miny, maxx, maxy )
   {
     type |= PUCLASS_ARROW ;
     arrow_type = ptype ;
@@ -992,26 +1011,6 @@ public:
 
 
 
-class puOneShot : public puButton
-{
-protected:
-public:
-  void doHit ( int button, int updown, int x, int y ) ;
-
-  puOneShot ( int minx, int miny, const char *l ) : puButton   ( minx, miny, l )
-  {
-    type |= PUCLASS_ONESHOT ;
-  }
-
-  puOneShot ( int minx, int miny, int maxx, int maxy ) :
-                 puButton ( minx, miny, maxx, maxy )
-  {
-    type |= PUCLASS_ONESHOT ;
-  }
-} ;
-
-
-
 class puPopup : public puInterface
 {
 protected:
@@ -1145,17 +1144,18 @@ class puFilePicker : public puDialogBox
 {
   char** files;
   int num_files;
+  int arrow_count ;
 
   void find_files ( const char* dir ) ;
   static void handle_select ( puObject* ) ;
 
 protected:
-  void puFilePickerInit ( int x, int y, int w, int h, const char *dir, const char *title ) ;
+  void puFilePickerInit ( int x, int y, int w, int h, int arrows, const char *dir, const char *title ) ;
 
 public:
 
-  puFilePicker ( int x, int y, const char* dir, const char *title = "Pick a file" ) ;
-  puFilePicker ( int x, int y, int w, int h, const char *dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, int arrows, const char* dir, const char *title = "Pick a file" ) ;
+  puFilePicker ( int x, int y, int w, int h, int arrows, const char *dir, const char *title = "Pick a file" ) ;
   ~puFilePicker () ;
 
   void setSize ( int w, int h ) ;
