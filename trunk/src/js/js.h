@@ -269,10 +269,6 @@ class jsJoystick
 
 #elif defined( WIN32 )
 
-    /*
-      FIXME: get joystick name in Windows
-    */
-
     JOYCAPS jsCaps ;
 
     js . dwFlags = JOY_RETURNALL ;
@@ -289,6 +285,8 @@ class jsJoystick
     }
     else
     {
+      strncpy ( name, jsCaps.szPname, sizeof(name) ) ;
+
       // Windows joystick drivers may provide any combination of
       // X,Y,Z,R,U,V,POV - not necessarily the first n of these.
       if ( jsCaps.wCaps & JOYCAPS_HASPOV ) {
@@ -382,7 +380,7 @@ class jsJoystick
 #  ifdef JS_NEW
     ioctl ( fd, JSIOCGAXES   , & num_axes    ) ;
     ioctl ( fd, JSIOCGBUTTONS, & num_buttons ) ;
-    ioctl ( fd, JSIOCGNAME ( 128 ), name ) ;
+    ioctl ( fd, JSIOCGNAME ( sizeof(name) ), name ) ;
     fcntl ( fd, F_SETFL, O_NONBLOCK ) ;
 
     if ( num_axes > _JS_MAX_AXES )
