@@ -31,7 +31,8 @@
 static FILE *save_fd ;
 static ssgSimpleStateArray gSSL;
 
-
+float save_scale = 1.0f;
+int calledByTheHuman = TRUE;
 
 static void save_vtx_table ( ssgVtxTable *vt )
 {
@@ -55,86 +56,90 @@ static void save_vtx_table ( ssgVtxTable *vt )
   int num_face = vt -> getNumTriangles () ;
 
   ssgSimpleState* st = ( istate != -1 )? gSSL.get( istate ): 0;
-	bool mapped =  ( st && st -> isEnabled ( GL_TEXTURE_2D ) &&
+  bool mapped =  ( st && st -> isEnabled ( GL_TEXTURE_2D ) &&
     vt -> getNumTexCoords () == num_vert );
 
   fprintf ( save_fd, "Named object: \"%s\"\n", vt->getPrintableName());
   fprintf ( save_fd, "Tri-mesh, Vertices: %d     Faces: %d\n", num_vert, num_face );
-	if(mapped)	
-		fprintf ( save_fd, "Mapped\n"); 
+  if(mapped)  
+    fprintf ( save_fd, "Mapped\n"); 
   
 /*
   Vertex list:
 */
   fprintf ( save_fd, "Vertex list:\n"); 
-	const char *material = "PALGREY27";
-	ssgState *s = vt->getState();
-	if (s)
-		if(s->isAKindOf(ssgTypeSimpleState()))
-		{
-	
-			ssgTexture * t = ((ssgSimpleState *)s)->getTexture();
-			if(t)
-			{
-				char *fn = t->getFilename();
-				if (fn)
-				{
-				
-					char *tsA = new char [strlen(fn)+1];
-					strcpy(tsA, fn);
-					char *t = strrchr(tsA, '.');
-					if (t)
-					{
-						// special handling for *.0af .. *.9af to be able to differntiate between them:
-						if((t[2]=='a') && (t[3]=='f'))
-							*t='_';
-						else
-							*t=0;
-					}
+  const char *material = "PALGREY27";
+  ssgState *s = vt->getState();
+  if (s)
+    if(s->isAKindOf(ssgTypeSimpleState()))
+    {
+  
+      ssgTexture * t = ((ssgSimpleState *)s)->getTexture();
+      if(t)
+      {
+        char *fn = t->getFilename();
+        if (fn)
+        {
+          char *tsA = new char [strlen(fn)+1]; // kludge: mem leak!
+          strcpy(tsA, fn);
 
-					t = strrchr(tsA, '\\');
-					if (!t)
-						t = tsA;
-					else
-						t++;
-					
+          char *t = strrchr(tsA, '\\');
+          if (!t)
+            t = tsA;
+          else
+            t++;
+          char *t1 = strrchr(t, '/');
+          if (!t1)
+            t1 = t;
+          else
+            t1++;
 
-						
-					material = t;
-				}
-			}
-		}
-	for ( j = 0; j < num_vert; j++ )
+          char *t2 = strrchr(t1, '.');
+          if (t2)
+          {
+            // special handling for *.0af .. *.9af to be able to differntiate between them:
+            if((t2[2]=='a') && (t2[3]=='f'))
+              *t2='_';
+            else
+              *t2=0;
+          }
+          
+          material = t1;
+        }
+      }
+    }
+  for ( j = 0; j < num_vert; j++ )
   {
     sgVec3 v;
     sgCopyVec3 ( v, vt->getVertex ( j ) ) ;
-    fprintf ( save_fd, "Vertex %d: X:%f Y:%f Z:%f", j, 100.0*v[0], 100.0*v[1], 100.0*v[2] ); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		if(mapped)
-	  {
-			sgVec2 tv ;
+
+    fprintf ( save_fd, "Vertex %d: X:%f Y:%f Z:%f", j, save_scale*v[0], save_scale*v[1], save_scale*v[2] ); 
+    if(mapped)
+    {
+      sgVec2 tv ;
       sgCopyVec2 ( tv, vt->getTexCoord ( j ) ) ;
-			// ***************************************************
-			// WK: Originally I did not have the "U:" and "V:" !!!
-			// Strange !! Maybe there are two formats??
-			// ***************************************************
+      // ***************************************************
+      // WK: Originally I did not have the "U:" and "V:" !!!
+      // Strange !! Maybe there are two formats??
+      // ***************************************************
       fprintf ( save_fd, " U:%f V:%f\n", tv[0], tv[1]); // 1.0f - tv[1]);
-		}
- 		else
-		  fprintf ( save_fd, "\n"); 
+    }
+    else
+      fprintf ( save_fd, "\n"); 
   }
   
 /*
   Face list:
 */
-	if(num_face > 0)
-		fprintf ( save_fd, "Face list:\n"); 
-	for ( j = 0; j < num_face; j++ )
+  if(num_face > 0)
+    fprintf ( save_fd, "Face list:\n"); 
+  for ( j = 0; j < num_face; j++ )
   {
-    short i1,i2,i3;
+    WKSHORT i1,i2,i3;
     vt -> getTriangle ( j, &i1, &i2, &i3 ) ;
 
     fprintf ( save_fd, "Face %d: A:%d B:%d C:%d AB:1 BC:1 CA:1\n", j, i1, i2, i3 ); 
-		fprintf ( save_fd, "Material:\"%s\"\n", material ); 
+    fprintf ( save_fd, "Material:\"%s\"\n", material ); 
   }
   fprintf ( save_fd, "\n");  // empty line after the named object
   
@@ -161,31 +166,32 @@ static void save_geom ( ssgEntity *e )
   if ( e -> isAKindOf ( ssgTypeBranch() ) )
   {
     ssgBranch *br = (ssgBranch *) e ;
+    int i, j;
+    for ( i = 0 ; i < br -> getNumKids () ; i++ )
+      if(br -> getKid ( i )-> isAKindOf ( ssgTypeVtxTable() ))
+        for ( j = i+1 ; j < br -> getNumKids () ; j++ )
+          if(br -> getKid ( j )-> isAKindOf ( ssgTypeVtxTable() ))
+            if(0 == stricmp(br -> getKid ( i )-> getPrintableName(), 
+                            br -> getKid ( j )-> getPrintableName())
+            {
+            }
 
-    if ( br -> isAKindOf ( ssgTypeSelector() ) )
-    {
-      for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-        save_geom ( br -> getKid ( i ) ) ;
-    }
-    else
-    {
-      for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-        save_geom ( br -> getKid ( i ) ) ;
-    }
+    for ( i = 0 ; i < br -> getNumKids () ; i++ )
+      save_geom ( br -> getKid ( i ) ) ;
   }
   else
   if ( e -> isAKindOf ( ssgTypeVtxTable() ) )
-	{ int bSaveIt = TRUE;
-	  if(bUseSpare)
-			if( 1 != e->getSpare() )
-				bSaveIt = FALSE;
-		
-		if ( bSaveIt )
-		{
-			ssgVtxTable *vt = (ssgVtxTable *) e ;
-			save_vtx_table ( vt ) ;
-		}
-	}
+  { int bSaveIt = TRUE;
+    if(bUseSpare)
+      if( 1 != e->getSpare() )
+        bSaveIt = FALSE;
+    
+    if ( bSaveIt )
+    {
+      ssgVtxTable *vt = (ssgVtxTable *) e ;
+      save_vtx_table ( vt ) ;
+    }
+  }
 }
 
 
@@ -203,7 +209,7 @@ int ssgSaveASC ( FILE* fileout, ssgEntity *ent )
   gSSL.collect ( ent ) ;
   //save_states () ;
   save_geom ( ent ) ;  
-	gSSL.removeAll();  
+  gSSL.removeAll();  
 
   fflush ( save_fd ) ;
   
@@ -220,10 +226,19 @@ int ssgSaveASC ( const char *filename, ssgEntity *ent )
     ulSetError ( UL_WARNING, "ssgSaveASC: Failed to open '%s' for writing", filename ) ;
     return FALSE ;
   }
-  
+  if(calledByTheHuman)
+    if(save_scale!=1.0f)
+    {
+#ifdef WIN32
+      char temp[999];
+      sprintf(temp, "Applying a scale factor of %f", save_scale);
+      ::MessageBox(0, temp, "For your info:", 0);
+#else
+      printf("Applying a scale factor of %f", save_scale);
+#endif
+    }
   int result = ssgSaveASC ( save_fd, ent ) ;
 
   fclose ( save_fd ) ;
-  
   return result ;
 }
