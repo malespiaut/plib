@@ -20,6 +20,14 @@
 
      $Id$
 */
+/* 
+ .off writer for SSG/PLIB
+ Warning: There are two formats called OFF, see comment in ssgLoadOFF
+
+ Written by Wolfram Kuss (Wolfram.Kuss@t-online.de) in February 2001
+
+ We only support 2D and 3D data
+*/
 
 #include <stdio.h>
 #include "ssgLocal.h"
