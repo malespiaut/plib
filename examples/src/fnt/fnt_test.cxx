@@ -15,7 +15,7 @@ fntRenderer *text ;
 
 #define MAX_FONTS 20
 
-char *font_names [ MAX_FONTS ] = 
+const char *font_names [ MAX_FONTS ] =
 {
   "sorority.txf",          /* This is the default */
   "charter.txf", 
@@ -107,58 +107,58 @@ void displayfn (void)
   glClear      ( GL_COLOR_BUFFER_BIT ) ;
 
   text -> setFont      ( font_list [ 0 ] ) ;
-  text -> setPointSize ( 25 ) ;
+  text -> setPointSize ( 25.0f ) ;
 
   text -> begin () ;
-    glColor3f ( 1, 1, 0 ) ;
-    text -> start2f ( 50, 400 ) ;
+    glColor3f ( 1.0f, 1.0f, 0.0f ) ;
+    text -> start2f ( 50.0f, 400.0f ) ;
     text -> puts ( "This is the PLIB Font Demo." ) ;
   text -> end () ;
 
   text -> setFont      ( font_list [ 0 ] ) ;
-  text -> setPointSize ( 12 ) ;
+  text -> setPointSize ( 12.0f ) ;
 
   text -> begin () ;
-    glColor3f ( 0, 0, 0 ) ;
-    text -> start2f ( 270, 168 ) ;
+    glColor3f ( 0.0f, 0.0f, 0.0f ) ;
+    text -> start2f ( 270.0f, 168.0f ) ;
     text -> puts ( "The current font is:" ) ;
-    text -> start2f ( 300, 148 ) ;
+    text -> start2f ( 300.0f, 148.0f ) ;
     text -> puts ( font_names [ cur_font ] ) ;
-    text -> start2f ( 270, 128 ) ;
+    text -> start2f ( 270.0f, 128.0f ) ;
     text -> puts ( "Press any key to change the font.\nClick the mouse to exit." ) ;
   text -> end () ;
 
   text -> setFont      ( font_list [ cur_font ] ) ;
-  text -> setPointSize ( 25 ) ;
+  text -> setPointSize ( 25.0f ) ;
 
   text -> begin () ;
-    glColor3f ( 0, 1, 1 ) ;
-    text -> start2f ( 50, 360 ) ;
+    glColor3f ( 0.0f, 1.0f, 1.0f ) ;
+    text -> start2f ( 50.0f, 360.0f ) ;
     text -> puts ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ) ;
-    glColor3f ( 1, 0, 1 ) ;
-    text -> start2f ( 50, 320 ) ;
+    glColor3f ( 1.0f, 0.0f, 1.0f ) ;
+    text -> start2f ( 50.0f, 320.0f ) ;
     text -> puts ( "abcdefghijklmnopqrstuvwxyz" ) ;
-    glColor3f ( 1, 0, 0 ) ;
-    text -> start2f ( 50, 280 ) ;
+    glColor3f ( 1.0f, 0.0f, 0.0f ) ;
+    text -> start2f ( 50.0f, 280.0f ) ;
     text -> puts ( "0123456789!@#$%^&*()+-={}[]:\"'<>?,./`~_" ) ;
   text -> end () ;
 
   glDisable ( GL_TEXTURE_2D ) ;
   glBegin ( GL_LINE_LOOP ) ;
-  glColor3f ( 1, 0, 1 ) ;
-   glVertex2f (   0,   0 ) ;
-   glVertex2f ( 256,   0 ) ;
-   glVertex2f ( 256, 256 ) ;
-   glVertex2f (   0, 256 ) ;
+  glColor3f ( 1.0f, 0.0f, 1.0f ) ;
+   glVertex2f (   0.0f,   0.0f ) ;
+   glVertex2f ( 256.0f,   0.0f ) ;
+   glVertex2f ( 256.0f, 256.0f ) ;
+   glVertex2f (   0.0f, 256.0f ) ;
   glEnd () ;
 
   glEnable ( GL_TEXTURE_2D ) ;
   glBegin ( GL_TRIANGLE_STRIP ) ;
-  glColor3f ( 1, 1, 1 ) ;
-  glTexCoord2f( 0, 0 ) ; glVertex2f (   0,   0 ) ;
-  glTexCoord2f( 1, 0 ) ; glVertex2f ( 256,   0 ) ;
-  glTexCoord2f( 0, 1 ) ; glVertex2f (   0, 256 ) ;
-  glTexCoord2f( 1, 1 ) ; glVertex2f ( 256, 256 ) ;
+  glColor3f ( 1.0f, 1.0f, 1.0f ) ;
+  glTexCoord2f( 0.0f, 0.0f ) ; glVertex2f (   0.0f,   0.0f ) ;
+  glTexCoord2f( 1.0f, 0.0f ) ; glVertex2f ( 256.0f,   0.0f ) ;
+  glTexCoord2f( 0.0f, 1.0f ) ; glVertex2f (   0.0f, 256.0f ) ;
+  glTexCoord2f( 1.0f, 1.0f ) ; glVertex2f ( 256.0f, 256.0f ) ;
   glEnd () ;
 
   restoreOpenGLState () ;
@@ -199,5 +199,4 @@ int main ( int argc, char **argv )
   glutMainLoop () ;
   return 0 ;
 }
-
 
