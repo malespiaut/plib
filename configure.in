@@ -208,9 +208,9 @@ case "${host}" in
         dnl OpenGL libraries
 
         if test "x$need_glut" = "xyes"; then
-                LIBS="$LIBS -lglut32"
+                LIBS="$LIBS -lglut32 -lglu32"
         fi
-        LIBS="$LIBS -lglu32 -lopengl32"
+        LIBS="$LIBS -lopengl32"
     fi
 	;;
 *-apple-darwin*)
@@ -253,14 +253,14 @@ dnl =========================================================
                 AC_MSG_ERROR([could not find working GL library]))
         fi
 
-        AC_CHECK_LIB(GLU, gluLookAt)
-        if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
-                dnl if no GLU, check for MesaGLU
-                AC_CHECK_LIB(MesaGLU, gluLookAt,,
-                AC_MSG_ERROR([could not find working GLU library]))
-        fi
-
         if test "x$need_glut" = "xyes"; then
+                AC_CHECK_LIB(GLU, gluLookAt)
+                if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
+                        dnl if no GLU, check for MesaGLU
+                        AC_CHECK_LIB(MesaGLU, gluLookAt,,
+                        AC_MSG_ERROR([could not find working GLU library]))
+                fi
+
                 AC_CHECK_LIB(freeglut, glutGetModifiers)
                 if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xno" ; then
                         dnl if no freeglut, check for real GLUT
@@ -291,8 +291,8 @@ if test "x$need_opengl" = "xyes"; then
     *-*-cygwin* | *-*-mingw32*)
         dnl CygWin under Windoze.
 
-        AC_CHECK_HEADERS(GL/gl.h GL/glu.h,,
-        AC_MSG_ERROR([OpenGL header files not found]))
+        AC_CHECK_HEADER(GL/gl.h,,
+        AC_MSG_ERROR([OpenGL header file not found]))
 
         if test "x$need_glut" = "xyes"; then
                 AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
@@ -302,8 +302,8 @@ if test "x$need_opengl" = "xyes"; then
     *-apple-darwin*)
         dnl Mac OS X
 
-        AC_CHECK_HEADERS(OpenGL/gl.h OpenGL/glu.h,,
-        AC_MSG_ERROR([OpenGL header files not found]))
+        AC_CHECK_HEADER(OpenGL/gl.h,,
+        AC_MSG_ERROR([OpenGL header file not found]))
 
         if test "x$need_glut" = "xyes"; then
                 AC_CHECK_HEADER(GLUT/glut.h, AC_DEFINE(GLUT_IS_PRESENT),
@@ -311,8 +311,8 @@ if test "x$need_opengl" = "xyes"; then
         fi
 		;;
     *)
-        AC_CHECK_HEADERS(GL/gl.h GL/glu.h,,
-        AC_MSG_ERROR([OpenGL header files not found]))
+        AC_CHECK_HEADER(GL/gl.h,,
+        AC_MSG_ERROR([OpenGL header file not found]))
 
         if test "x$need_glut" = "xyes"; then
                 if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xyes"; then
