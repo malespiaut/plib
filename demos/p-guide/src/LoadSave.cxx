@@ -321,8 +321,9 @@ void loadProject ( puObject *ob ) {
     // Verify file is XML
 
     float tver = 0.0f ;
+    char encversion[PUSTRING_MAX];
     fgets( rawbuffer, sizeof(rawbuffer), in) ;
-    sscanf(rawbuffer,"<?xml version=\"%f\" encoding=\"*%s\" ?>", &tver) ;
+    sscanf(rawbuffer,"<?xml version=\"%f\" encoding=\"%s\" ?>", &tver, encversion) ;
     if (!tver) {
         printf ("File does not contain proper XML headings.\n");
         return ;
@@ -333,7 +334,7 @@ void loadProject ( puObject *ob ) {
     char tagvalue[PUSTRING_MAX] ;
     fgets( rawbuffer, sizeof(rawbuffer), in) ;
 
-    if (!sscanf(rawbuffer,"<!DOCTYPE %s>", &tag)) {
+    if (!sscanf(rawbuffer,"<!DOCTYPE %s>", tag)) {
         printf ("File, though XML, does not contain P-Guide information (or has damaged header information).\n");
         return ;
     }

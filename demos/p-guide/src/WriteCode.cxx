@@ -205,7 +205,7 @@ void write_code ( puObject *ob )
   fprintf ( out, "//*                    The Main Program                    *\n" ) ;
   fprintf ( out, "//**********************************************************\n\n" ) ;
 
-  fprintf ( out, "void main ( int argc, char *argv[] )\n" ) ;
+  fprintf ( out, "int main ( int argc, char *argv[] )\n" ) ;
   fprintf ( out, "{\n" ) ;
   fprintf ( out, "  // TODO:  Add any non-GLUT functionality you want to\n\n" ) ;
 
@@ -577,7 +577,7 @@ void write_code ( puObject *ob )
 
   fprintf ( out, "  // GLUT Main Loop\n" ) ;
   fprintf ( out, "  glutMainLoop () ;\n" ) ;
-  fprintf ( out, "  return ;\n" ) ;
+  fprintf ( out, "  return 0;\n" ) ;
   fprintf ( out, "}\n\n" ) ;
 
   // Close up shop
