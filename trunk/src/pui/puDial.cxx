@@ -34,20 +34,20 @@ void puDial::draw ( int dx, int dy )
                        style==PUSTYLE_SHADED) ? -PUSTYLE_BOXED : -style,
                        colour, FALSE, border_thickness ) ;
 
-  // If greyed out then halve the opacity when drawing the label and legend
-
-  if ( active )
-    glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
-  else
-    glColor4f ( colour [ PUCOL_LEGEND ][0],
-                colour [ PUCOL_LEGEND ][1],
-                colour [ PUCOL_LEGEND ][2],
-                colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
-
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;
   else
   {
+    // If greyed out then halve the opacity when drawing the widget
+
+    if ( active )
+      glColor4fv ( colour [ PUCOL_MISC ] ) ;
+    else
+      glColor4f ( colour [ PUCOL_MISC ][0],
+                  colour [ PUCOL_MISC ][1],
+                  colour [ PUCOL_MISC ][2],
+                  colour [ PUCOL_MISC ][3] / 2.0f ) ; // 50% more transparent
+
     // Draw the surrounding circle.
 
     float rad = (float)( abox.max [0] - abox.min [0] ) / 2.0f - 3.0f ;
