@@ -101,6 +101,15 @@ pslResult  pslProgram::trace ()       { return context -> trace () ; }
 
 
 
+int pslProgram::compile ( const char *memptr, const char *fname )
+{
+  if ( strcmp ( getProgName(), "PSLprogram" ) == 0 )
+    setProgName ( fname ) ;
+
+  return compiler -> compile ( memptr, fname ) ;
+}
+
+
 int pslProgram::compile ( const char *fname )
 {
   if ( strcmp ( getProgName(), "PSLprogram" ) == 0 )

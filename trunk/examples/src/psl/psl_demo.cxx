@@ -96,17 +96,26 @@ int main ()
 
   pslProgram *prog_2 = new pslProgram ( prog_1, "code2" ) ;
 
+  /* Make program 3 from inline strings. */
+
+  pslProgram *prog_3 = new pslProgram ( extensions, "inline" ) ;
+
+  prog_3 -> compile ( "int main () { printf ( \"Hello World.\\n\" ) ; }\n",
+                      "HelloProgram" ) ;
+
   /* Make them unique by assigning user data to them */
 
   prog_1 -> setUserData ( (void *) "Program 1" ) ;
   prog_2 -> setUserData ( (void *) "Program 2" ) ;
+  prog_3 -> setUserData ( (void *) "Program 3" ) ;
 
   ck.update () ;
 
   while ( 1 )
   {
-    if ( prog_1 -> step () == PSL_PROGRAM_END ||
-         prog_2 -> step () == PSL_PROGRAM_END )
+    if ( prog_1 -> step () == PSL_PROGRAM_END &&
+         prog_2 -> step () == PSL_PROGRAM_END &&
+         prog_3 -> step () == PSL_PROGRAM_END )
       break ;
   }
   ck.update () ;

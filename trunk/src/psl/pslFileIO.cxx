@@ -31,6 +31,7 @@ static int      fileStackPointer = 0 ;
 class pslFile
 {
   FILE *fd ;
+  const char *memptr ;
   char *fname ;
 
   int  ungetStack [ MAX_UNGET_CHAR ] ;
@@ -38,14 +39,9 @@ class pslFile
 
   int  line_no ;
 
-public:
-
-  pslFile ( FILE *_fd, const char *_fname )
+  void init ()
   {
-    fname = ulStrDup ( _fname ) ;
-
-    fd = _fd ;
-    ungetSP  = 0 ;
+    ungetSP = 0 ;
     line_no = 0 ;
 
     if ( fileStackPointer >= MAX_INCLUDE_DEPTH - 1 )
@@ -64,6 +60,24 @@ public:
     line_no = 0 ;
   }
  
+public:
+
+  pslFile ( const char *_memptr, const char *_fname )
+  {
+    fname = ulStrDup ( _fname ) ;
+    memptr = _memptr ;
+    fd = NULL ;
+    init () ;
+  }
+
+  pslFile ( FILE *_fd, const char *_fname )
+  {
+    fname = ulStrDup ( _fname ) ;
+    memptr = NULL ;
+    fd = _fd ;
+    init () ;
+  }
+ 
   ~pslFile ()
   {
     if ( fileStackPointer <= 0 )
@@ -73,6 +87,7 @@ public:
       if ( defaultFileStack [ --fileStackPointer ] != this )
         fprintf ( stderr, "PSL: ERROR - #include nesting problem?!?" ) ;
       else
+      if ( fd != NULL )
         fclose ( fd ) ;
     }
 
@@ -93,12 +108,31 @@ public:
   {
     int c ;
 
-    /* Get a new character - either from the 'undo' stack or from the file.  */
+    /*
+      Get a new character - either from the 'undo' stack or
+      from the file or from the memory pointer.
+
+      Return -1 on EOF.
+    */
 
     if ( ungetSP > 0 )
       c = ungetStack [ --ungetSP ] ;
     else
+    if ( fd != NULL )
       c = getc ( fd ) ;
+    else
+    if ( memptr != NULL )
+    {
+      c = (int)((unsigned char)(*(memptr++))) ;
+
+      if ( c == '\0' )
+      {
+        memptr = NULL ;
+        c = -1 ;
+      }
+    }
+    else
+      c = -1 ;
 
     if ( c == '\n' ) line_no++ ;
 
@@ -117,6 +151,7 @@ int  _pslGetLineNo ()
 
 void _pslPopDefaultFile  () { delete defaultFileStack [ fileStackPointer - 1 ] ; } 
 void _pslPushDefaultFile ( FILE *fd, const char *fname ) { new pslFile ( fd, fname ) ; }
+void _pslPushDefaultFile ( const char *memptr, const char *fname ) { new pslFile ( memptr, fname ) ; }
 
 void _pslPushDefaultFile ( const char *fname )
 {
