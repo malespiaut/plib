@@ -10,16 +10,20 @@ static FILE *fileout ;
 static void save_vtx_table ( ssgVtxTable *vt )
 {
   GLenum mode = vt -> getGLtype () ;
-  if ( mode == GL_LINES )
+  if (( mode == GL_LINES ) || ( mode == GL_LINE_LOOP) || ( mode == GL_LINE_STRIP))
   {
     int num_vert = vt -> getNumVertices () ;
     num_vert = num_vert - ( num_vert & 1 ) ; //discard odd vertex
+		int local_num_lines = vt -> getNumLines();
 
-    for ( int j = 0; j < num_vert; j += 2 )
+    for ( int j = 0; j < local_num_lines ; j ++ )
     {
       sgVec3 vert1, vert2;
-      sgCopyVec3 ( vert1, vt->getVertex ( j ) ) ;
-      sgCopyVec3 ( vert2, vt->getVertex ( j+1 ) ) ;
+			short iv1, iv2;
+			vt -> getLine (j, &iv1, &iv2);
+
+      sgCopyVec3 ( vert1, vt->getVertex ( iv1 ) ) ;
+      sgCopyVec3 ( vert2, vt->getVertex ( iv2 ) ) ;
 
       fprintf ( fileout, "  0\n" );
       fprintf ( fileout, "LINE\n" );
@@ -68,6 +72,8 @@ static void save_vtx_table ( ssgVtxTable *vt )
       }
     }
   }
+	else
+		ulSetError ( UL_WARNING, "ssgSaveDXF: OpenGL mode %d not implmented yet. Parts or all of the model are ignored!' for writing", (int)mode ) ;
 }
 
 
