@@ -41,7 +41,7 @@ public:
 
   virtual void handleClose (void)
   {
-    printf("%d: Client disconnected.\n",getHandle());
+    ulSetError(UL_DEBUG, "%d: Client disconnected.",getHandle());
     shouldDelete () ;
     netChat::handleClose () ;
     server -> active = 0 ;
@@ -145,7 +145,7 @@ void netMonitorChannel::foundTerminator (void)
     }
     else
     {
-      printf("echo: %s\n",line);
+      ulSetError(UL_DEBUG,"echo: %s",line);
 
       push(line);
       push(getTerminator());
@@ -164,7 +164,7 @@ void netMonitorServer::handleAccept (void)
     netAddress addr ;
     int s = accept ( &addr ) ;
 
-    printf("%d: Client %s:%d connected\n",s,addr.getHost(),addr.getPort());
+    ulSetError(UL_DEBUG, "%d: Client %s:%d connected",s,addr.getHost(),addr.getPort());
 
     active = new netMonitorChannel ( this ) ;
     active -> setHandle (s);

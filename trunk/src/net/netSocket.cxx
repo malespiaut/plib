@@ -284,7 +284,7 @@ netSocket::isNonBlockingError ()
   if ( wsa_errno != 0 )
   {
     WSASetLastError(0);
-    fprintf(stderr,"WSAGetLastError() => %d\n",wsa_errno);
+    ulSetError(UL_WARNING,"WSAGetLastError() => %d",wsa_errno);
     switch (wsa_errno) {
     case WSAEWOULDBLOCK: // always == NET_EAGAIN?
     case WSAEALREADY:
@@ -393,7 +393,7 @@ int netInit ( int* argc, char** argv )
 	WSADATA wsaData;
 
 	if ( WSAStartup(version_wanted, &wsaData) != 0 ) {
-		fprintf(stderr,"Couldn't initialize Winsock 1.1\n");
+		ulSetError(UL_WARNING,"Couldn't initialize Winsock 1.1");
 		return(-1);
 	}
 #endif

@@ -221,7 +221,7 @@ public:
   {
     if ( out_buffer.append(msg,msg_len) )
       return true ;
-    fprintf ( stderr, "netBufferChannel: output buffer overflow!\n" ) ;
+    ulSetError ( UL_WARNING, "netBufferChannel: output buffer overflow!" ) ;
     return false ;
   }
 

@@ -34,7 +34,7 @@ netBufferChannel::handleRead (void)
     if (num_read > 0)
     {
       in_buffer.append (num_read) ;
-      //fprintf ( stderr, "netBufferChannel: %d read\n", num_read ) ;
+      //ulSetError ( UL_DEBUG, "netBufferChannel: %d read", num_read ) ;
     }
   }
   if (in_buffer.getLength())
@@ -58,7 +58,7 @@ netBufferChannel::handleWrite (void)
       if (num_sent > 0)
       {
         out_buffer.remove (0, num_sent);
-        //fprintf ( stderr, "netBufferChannel: %d sent\n", num_sent ) ;
+        //ulSetError ( UL_DEBUG, "netBufferChannel: %d sent", num_sent ) ;
       }
     }
   }
