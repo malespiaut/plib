@@ -201,3 +201,49 @@ void _ssgWriteVec4 ( FILE *fd, const sgVec4 var ) { _ssgWriteFloat ( fd, 4, var 
 void _ssgReadMat4  ( FILE *fd, sgMat4 var ) { _ssgReadFloat  ( fd, 16, (float *)var ) ; }
 void _ssgWriteMat4 ( FILE *fd, const sgMat4 var ) { _ssgWriteFloat ( fd, 16, (float *)var ) ; }
 
+
+/*
+  I'm sick of half the machines on the planet supporting
+  strncasecmp and the other half strnicmp - so here is my own
+  offering:
+*/
+
+int _ssgStrNEqual ( char *s1, char *s2, int len )
+{
+  int l1 = (s1==NULL) ? 0 : strlen ( s1 ) ;
+  int l2 = (s2==NULL) ? 0 : strlen ( s2 ) ;
+
+  if ( l1 > len ) l1 = len ;
+
+  if ( l2 < l1 )
+    return FALSE ;
+
+  for ( int i = 0 ; i < l1 ; i++ )
+  {
+    char c1 = s1[i] ;
+    char c2 = s2[i] ;
+
+    if ( c1 == c2 )
+     continue ;
+
+    if ( c1 >= 'a' && c1 <= 'z' )
+    if ( c1 >= 'a' && c1 <= 'z' )
+      c1 = c1 - ('a'-'A') ;
+
+    if ( c2 >= 'a' && c2 <= 'z' )
+      c2 = c2 - ('a'-'A') ;
+
+    if ( c1 != c2 )
+     return FALSE ;
+  }
+
+  return TRUE ;
+}
+
+ssgState *( *_ssgGetAppState)( char *) = NULL ;
+
+void ssgSetAppStateCallback ( ssgState *(*cb)(char *) )
+{
+  _ssgGetAppState = cb ;
+}
+

@@ -1737,13 +1737,14 @@ int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
 
+ssgEntity *ssgLoad     ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-
 ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-int        ssgSaveAC   ( char *fname, ssgEntity *ent ) ;
-
 ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+
+int        ssgSave     ( char *fname, ssgEntity *ent ) ;
+int        ssgSaveAC   ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveSSG  ( char *fname, ssgEntity *ent ) ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;

@@ -51,6 +51,8 @@ extern int stats_hot_radius_reject ;
 extern int stats_hot_triv_accept ;
 extern int stats_hot_straddle    ;
 
+extern ssgState *( *_ssgGetAppState)( char *) ;
+
 void _ssgReadFloat   ( FILE *fd,                float *var ) ;
 void _ssgWriteFloat  ( FILE *fd, const          float  var ) ;
 void _ssgReadUInt    ( FILE *fd,       unsigned int   *var ) ;
@@ -89,9 +91,11 @@ void _ssgWriteMat4   ( FILE *fd, const sgMat4 var ) ;
 int _ssgReadError    ( void ) ;
 int _ssgWriteError   ( void ) ;
 
+int _ssgStrNEqual ( char *s1, char *s2, int len ) ;
 
 ssgBase *_ssgGetFromList ( int key ) ;
 void     _ssgAddToList   ( int key, ssgBase *b ) ;
 int      _ssgGetNextInstanceKey  () ;
+
 
 
