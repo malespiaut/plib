@@ -63,6 +63,8 @@ void puListBox::newList ( char ** _list )
 
   /* Set index of selected item */
   setValue ( -1 ) ;
+
+  puPostRefresh() ;
 }
 
 
@@ -73,6 +75,8 @@ void puListBox::setTopItem( int item_index )
     top = 0 ;
   else if ( top > num-1 )
     top = num-1;
+
+  puPostRefresh() ;
 }
 
 
