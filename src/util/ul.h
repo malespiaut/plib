@@ -88,6 +88,10 @@
 
 #define UL_BSD       1
 
+#elif defined(hpux)
+
+#define UL_HPUX      1
+
 #endif
 
 /*

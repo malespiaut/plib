@@ -375,7 +375,7 @@ AC_MSG_CHECKING(for socklen_t)
 AC_TRY_COMPILE([
 #include <sys/types.h>
 #include <sys/socket.h>
-socklen_t x;
+int accept (int, struct sockaddr *, socklen_t *);
 ],[],[
 AC_MSG_RESULT(yes)],[   
 AC_TRY_COMPILE([
