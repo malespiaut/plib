@@ -103,6 +103,7 @@ void write_code ( puObject *ob )
 
   fprintf ( out, "// TODO:  Any additional includes you may need\n\n" ) ;
 
+  fprintf ( out, "#include <GL/glut.h>\n\n" ) ;
   fprintf ( out, "#include <plib/pu.h>\n\n" ) ;
 
   fprintf ( out, "// GLUT Window Handle\n" ) ;
