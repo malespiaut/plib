@@ -1578,3 +1578,83 @@ void sgReflectInPlaneVec3 ( sgVec3 dst, const sgVec3 src, const sgVec4 plane )
 
                                                                                 
 
+int sgClassifyMat4 ( const sgMat4 m )
+{
+  const SGfloat epsilon = 1e-6 ;
+
+  int flags = 0 ;
+
+
+  SGfloat sx, sy, sz ;
+
+  if ( m[0][1] == SG_ZERO && m[0][2] == SG_ZERO &&
+       m[1][0] == SG_ZERO && m[1][2] == SG_ZERO &&
+       m[2][0] == SG_ZERO && m[2][1] == SG_ZERO )
+  {
+
+    int n = ( m[0][0] < 0 ) + ( m[1][1] < 0 ) + ( m[2][2] < 0 ) ;
+
+    if ( n > 1 )
+      flags |= SG_ROTATION ;
+
+    if ( n % 2 )
+      flags |= SG_MIRROR ;
+
+    sx = m[0][0] * m[0][0] ;
+    sy = m[1][1] * m[1][1] ;
+    sz = m[2][2] * m[2][2] ;
+
+  }
+  else
+  {
+
+    flags |= SG_ROTATION ;
+
+    if ( sgAbs ( sgScalarProductVec3 ( m[1], m[2] ) ) > epsilon ||
+         sgAbs ( sgScalarProductVec3 ( m[2], m[0] ) ) > epsilon ||
+         sgAbs ( sgScalarProductVec3 ( m[0], m[1] ) ) > epsilon )
+    {
+      flags |= SG_NONORTHO ;
+    }
+
+    sgVec3 temp ;
+    sgVectorProductVec3 ( temp, m[0], m[1] ) ;
+    SGfloat det = sgScalarProductVec3 ( temp, m[2] ) ;
+
+    if ( det < 0 )
+      flags |= SG_MIRROR ;
+
+    sx = sgScalarProductVec3 ( m[0], m[0] ) ;
+    sy = sgScalarProductVec3 ( m[1], m[1] ) ;
+    sz = sgScalarProductVec3 ( m[2], m[2] ) ;
+
+  }
+
+
+  if ( sgAbs ( sx - sy ) > epsilon ||
+       sgAbs ( sx - sz ) > epsilon )
+  {
+    flags |= SG_GENERAL_SCALE ;
+  }
+  else
+  {
+    if ( sgAbs ( sx - SG_ONE ) > epsilon )
+      flags |= SG_UNIFORM_SCALE ;
+  }
+
+
+  if ( m[3][0] != SG_ZERO || m[3][1] != SG_ZERO || m[3][2] != SG_ZERO )
+  {
+    flags |= SG_TRANSLATION ;
+  }
+
+
+  if ( m[0][3] != SG_ZERO || m[1][3] != SG_ZERO || m[2][3] != SG_ZERO ||
+       m[3][3] != SG_ONE )
+  {
+    flags |= SG_PROJECTION ;
+  }
+
+
+  return flags ;
+}
