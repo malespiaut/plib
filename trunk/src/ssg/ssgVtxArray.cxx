@@ -205,7 +205,8 @@ void ssgVtxArray::removeUnusedVertices()
 			doColours = TRUE;
 	
 	long * oldIndex2NewIndex = new long[vertices->getNum()];
-	int i, oldIndex, newIndex;
+	int i;
+	short oldIndex, newIndex;
 	for(i=0;i<vertices->getNum();i++)
 		oldIndex2NewIndex[i]=-1; // marker for "not used"
   
@@ -224,7 +225,7 @@ void ssgVtxArray::removeUnusedVertices()
 	for(i=0; i<indices->getNum(); i++)
 	{ oldIndex = *indices->get(i);
 		if (oldIndex2NewIndex[ oldIndex ] != -1)
-	    indices->set((short)oldIndex2NewIndex[ oldIndex ], i);
+	    indices->set(static_cast<short>(oldIndex2NewIndex[ oldIndex ]), i);
 		else
 		{ newIndex = newVL->getNum();
 	    indices->set(newIndex , i);
@@ -238,20 +239,25 @@ void ssgVtxArray::removeUnusedVertices()
 				newCL->add(colours->get(oldIndex));
 		}
 	}
-	vertices->deRef();
+	vertices->deRef(); //ssgDeRefDelete(vertices);
 	vertices = newVL;
+	newVL->ref();
 
 	if(doNormals)
-	{ normals->deRef();
+	{ normals->deRef(); //ssgDeRefDelete(normals);
 	  normals = newNL;
+		newNL->ref();
+
 	}
 	if (doTexCoords)
-	{ texcoords->deRef();
+	{ texcoords->deRef(); //ssgDeRefDelete(texcoords);
 	  texcoords = newTL;
+		newTL->ref();
 	}
 	if (doColours)
-	{ colours->deRef();
+	{ colours->deRef(); //ssgDeRefDelete(colours);
 	  colours = newCL;
+		newCL->ref();
 	}
 }
 
