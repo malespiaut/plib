@@ -1,0 +1,285 @@
+<HTML>
+<TITLE>Pegasus Network Library</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+<center>
+<H1>Pegasus Network Library</H1>
+</center>
+<H2>Introduction</H2>
+Pegasus is a C++ library for making networked games.  Pegasus is based on
+<a href="http://www.nightmare.com/medusa/medusa.html">Medusa</a>
+and is part of <A HREF="../index.html">PLIB</A>.
+Pegasus, like Medusa, runs as a single process, multiplexing I/O with its various
+client and server connections within a single process/thread.  Pegasus is supported
+on any platform that includes a socket implementation with the select() function.
+This includes Win32, Linux, and a majority of Unix implementations.
+<p>
+This document assumes a certain degree of knowledge of
+TCP/IP and socket programming.
+<p>
+<H2>Symbol Conventions.</H2>
+Pegasus follows the same conventions for symbols and tokens that
+are used by OpenGL and GLUT.  All Pegasus symbols for classes and
+functions start with <code>net</code> and all <code>#define</code>
+tokens start with <code>NET</code>.  Words within a class or function
+name are Capitalised and NOT separated with underscores. Words
+within <code>#define</code> tokens may be separated with underscores
+to make them readable.
+<H2>Initialisation.</H2>
+The first Pegasus call in any program must always be netInit().
+<H2>Classes</H2>
+The following class hierarchy makes up the core package - which
+can be extended to add functionality or to change some underlying
+mechanisms.
+<pre>
+
+   class netAddress
+
+   class netBuffer
+    |__ class netMessage
+
+   class netGuid
+    
+   class netSocket
+    |__ class netChannel
+         |__ class netBufferChannel
+         |    |__ class netChat
+         |    |
+         |    |__ class netMessageChannel
+         |         |__ class netRoomClient
+         |         |__ class netRoomBrowser
+         |         |__ class netRoomAdvertiser
+         |
+         |__ class netRoomServer
+         |__ class netRoomMasterServer
+         |
+         |__ class netMonitorServer
+
+   class netRoom
+   class netRoomPlayerInfo
+   class netRoomGameInfo
+   class netRoomServerInfo
+   class netRoomServerList
+
+</pre>
+<H2><code>class netBuffer</code></h2>
+A simple buffer class.
+<pre>
+class netBuffer
+{
+public:
+  netBuffer ( int max_length ) ;
+  ~netBuffer () ;
+
+  int getLength() const ;
+  int getMaxLength() const ;
+  char* getData() ;
+
+  void remove () ;
+  void remove (int pos, int n) ;
+  bool append (const char* s, int n) ;
+  bool append (int n) ;
+} ;
+</pre>
+<H2><code>class netMessage</code></h2>
+A message buffer used to transfer binary data and handle byte swapping.
+<pre>
+class netMessage : public netBuffer
+{
+public:
+
+  netMessage ( const char* s, int n ) ;
+  netMessage ( int type, int to_id, int from_id ) ;
+
+  int getType () const ;
+  int getToID () const ;
+  int getFromID () const ;
+
+  void geta ( void* a, int n ) const ;  // a=array; array should already be serialized
+  void puta ( const void* a, int n ) ;
+
+  int getch () const ;
+  void putch ( int c ) ;
+
+  bool getb () const ;
+  void putb ( bool b ) ;
+
+  int getw () const ;
+  void putw ( int i ) ;
+
+  int geti () const ;
+  void puti ( int i ) ;
+
+  void gets ( char* s, int n ) const ;
+  void puts ( const char* s ) ;
+
+  void print ( FILE *fd = stderr ) const ;
+};
+</pre>
+<H2><code>class netSocket</code></h2>
+netSocket is the low-level socket class.
+<pre>
+class netSocket
+{
+public:
+  netSocket () ;
+  virtual ~netSocket () ;
+
+  int getHandle () const ;
+  void setHandle (int handle) ;
+
+  bool  create ( bool stream=true ) ;
+  int   bind ( cchar* host, int port ) ;
+  int   listen ( int backlog ) ;
+  int   accept ( netAddress* addr ) ;
+  int   connect ( cchar* host, int port ) ;
+  int   send ( const void * buffer, int size, int flags = 0 ) ;
+  int   sendto ( const void * buffer, int size, int flags, const netAddress* to ) ;
+  int   recv ( void * buffer, int size, int flags = 0 ) ;
+  int   recvfrom ( void * buffer, int size, int flags, netAddress* from ) ;
+  void  close ( void ) ;
+  void  setBlocking ( bool blocking ) ;
+} ;
+</pre>
+<H2><code>class netChannel</code></h2>
+netChannel adds event-handling to the low-level
+netSocket class.  Otherwise, it can be treated as
+a normal non-blocking socket object.
+The direct interface between the poll loop and
+the channel object are the handleReadEvent and
+handleWriteEvent methods. These are called
+whenever a channel object 'fires' that event.
+The firing of these low-level events can tell us whether
+certain higher-level events have taken place, depending on
+the timing and state of the connection.
+<pre>
+class netChannel : public netSocket
+{
+public:
+
+  netChannel () ;
+  virtual ~netChannel () ;
+
+  void setHandle (int s, bool is_connected = true);
+  bool isConnected () const ;
+  bool isClosed () const ;
+  void shouldDelete () ;
+
+  // --------------------------------------------------
+  // socket methods
+  // --------------------------------------------------
+  
+  bool  create      ( bool stream=true ) ;
+  int   listen	    ( int backlog ) ;
+  int   connect     ( cchar* host, int port ) ;
+  int   send        ( const void * buf, int size, int flags = 0 ) ;
+  int   recv        ( void * buf, int size, int flags = 0 ) ;
+  void  close       ( void ) ;
+
+  // poll() eligibility predicates
+  virtual bool readable (void) ;
+  virtual bool writable (void) ;
+  
+  // --------------------------------------------------
+  // event handlers
+  // --------------------------------------------------
+  
+  void handleReadEvent (void);
+  void handleWriteEvent (void);
+  
+  // These are meant to be overridden.
+  virtual void handleConnect (void) ;
+  virtual void handleRead (void) ;
+  virtual void handleWrite (void) ;
+  virtual void handleClose (void) ;
+  virtual void handleAccept (void) ;
+  virtual void handleError (int error) ;
+
+  static bool poll (u32 timeout = 0 ) ;
+  static void loop (u32 timeout = 0 ) ;
+};
+</pre>
+<H2><code>class netBufferChannel</code></h2>
+netBufferChannel is a netChannel with I/O buffering.
+Clients and servers built on top of netBufferChannel
+automatically support pipelining where you can send
+multiple commands without waiting for the response
+to each command before you send the next.
+<pre>
+class netBufferChannel : public netChannel
+{
+public:
+  netBufferChannel (int in_buffer_size = 512, int out_buffer_size = 4096) ;
+  void closeWhenDone (void) ;
+
+  virtual bool bufferSend (const char* msg, int msg_len) ;
+  virtual void handleBufferRead (netBuffer& buffer) ;
+};
+</pre>
+<H2><code>class netChat</code></h2>
+netChat adds support for 'chat' style protocols -
+where one side sends a 'command', and the other sends
+a response (examples would be the common internet
+protocols - smtp, nntp, ftp, etc..).
+<p>
+The handle_buffer_read() method looks at the input
+stream for the current 'terminator' (usually '\r\n'
+for single-line responses, '\r\n.\r\n' for multi-line
+<pre>
+class netChat : public netBufferChannel
+{
+public:
+  netChat () ;
+
+  void setTerminator (const char* t);
+  const char* getTerminator (void);
+
+  bool push (const char* s) ;
+
+  virtual void collectIncomingData (const char* s, int n) ;
+  virtual void foundTerminator (void) ;
+};
+</pre>
+<H2><code>class netMessageChannel</code></h2>
+A channel for binary messages.  Takes care of packing and unpacking them in/out of the buffers.
+<pre>
+class netMessageChannel : public netBufferChannel
+{
+public:
+  netMessageChannel () ;
+
+  bool sendMessage ( const netMessage& msg ) ;
+  virtual void processMessage ( const netMessage& msg ) ;
+
+  void setCallback ( void (*callback)(const netMessage& msg) ) ;
+};
+</pre>
+<H2><code>class netMonitorServer</code></h2>
+The monitor server gives you remote, 'back-door' access to your server while it is running.   netMonitor is a telnet command port with
+password authorization.  It can be paired with and used to remotely admin another server. 
+Once connected via any telnet client to the monitor, you can issue commands. The monitor can be hooked up to a python interpreter for added power.  Since an ordinary telnet session is not secure, the password could be intercepted, but that level of security is usually not needed for games.
+<pre>
+class netMonitorServer : public netChannel
+{
+public:
+  netMonitorServer( cchar* _name, int port ) ;
+  ~netMonitorServer() ;
+
+  cchar* getPassword () const ;
+  void setPassword ( cchar* string ) ;
+  void setPrompt ( cchar* string ) ;
+  void setCommandFunc ( void (*func)(cchar*, netMonitorChannel*) ) ;
+} ;
+</pre>
+<hr>
+<ADDRESS>
+<A HREF="http://mcdave.cjb.net">
+Dave McClurg</A>
+&lt;<A HREF="mailto:dpm@efn.org">dpm@efn.org</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+
