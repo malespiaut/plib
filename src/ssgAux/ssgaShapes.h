@@ -16,7 +16,17 @@ protected:
 
   int ntriangles ;
 
+  ssgState   *kidState      ;
+  ssgCallback kidPreDrawCB  ;
+  ssgCallback kidPostDrawCB ;
+
   void init () ;
+
+protected:
+
+  ssgState    *getKidState      () { return kidState      ; }
+  ssgCallback  getKidPreDrawCB  () { return kidPreDrawCB  ; }
+  ssgCallback  getKidPostDrawCB () { return kidPostDrawCB ; }
 
 public:
   virtual ssgBase *clone ( int clone_flags = 0 ) ;
@@ -28,10 +38,32 @@ public:
   void makeCorrupt () { corrupted = TRUE ; }
   int  isCorrupt   () { return corrupted ; }
 
+  float *getCenter () { return center ; }
+  float *getSize   () { return size   ; }
+
   void setCenter  ( sgVec3 c ) { sgCopyVec3 ( center, c ) ; regenerate () ; }
   void setSize    ( sgVec3 s ) { sgCopyVec3 ( size  , s ) ; regenerate () ; }
   void setSize    ( float  s ) { sgSetVec3  ( size,s,s,s) ; regenerate () ; }
   void setNumTris ( int ntri ) { ntriangles = ntri ; regenerate () ; }
+
+  void setKidState    ( ssgState *s )
+  {
+    kidState = s ;
+
+    for ( int i = 0 ; i < getNumKids() ; i++ )
+      ((ssgLeaf *)getKid(i)) -> setState ( s ) ;
+  }
+
+  void setKidCallback ( int cb_type, ssgCallback cb )
+  {
+    if ( cb_type == SSG_CALLBACK_PREDRAW )
+      kidPreDrawCB = cb ;
+    else
+      kidPostDrawCB = cb ;
+
+    for ( int i = 0 ; i < getNumKids() ; i++ )
+      ((ssgLeaf *)getKid(i)) -> setCallback ( cb_type, cb ) ;
+  }
 
   virtual void regenerate () = 0 ;
 } ;
