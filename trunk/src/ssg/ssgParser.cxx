@@ -8,7 +8,17 @@
 #include "ssgParser.h"
 
 
-void _ssgParser::error( cchar *format, ... )
+static _ssgParserSpec default_spec =
+{
+   "\r\n\t ",  //delim_chars
+   0,          //open_brace_chars
+   0,          //close_brace_chars
+   '"',        //quote_char
+   0           //comment_char
+} ;
+
+
+void _ssgParser::error( const char *format, ... )
 {
   char msgbuff[ 255 ];
   va_list argp;
@@ -28,7 +38,7 @@ void _ssgParser::error( cchar *format, ... )
 }
 
 
-void _ssgParser::message( cchar *format, ... )
+void _ssgParser::message( const char *format, ... )
 {
   char msgbuff[ 255 ];
   va_list argp;
@@ -48,63 +58,115 @@ void _ssgParser::message( cchar *format, ... )
 }
 
 
-void _ssgParser::openFile( cchar* fname )
+void _ssgParser::openFile( const char* fname, const _ssgParserSpec* _spec )
 {
+  if ( !_spec ) _spec = &default_spec ;
   memset(this,0,sizeof(_ssgParser));
-  ptr = fopen( _ssgMakePath(path,_ssgModelPath,fname), "rb" );
-  if ( ! ptr )
+  memcpy( &spec, _spec, sizeof(spec) );
+  fileptr = fopen( _ssgMakePath(path,_ssgModelPath,fname), "rb" );
+  if ( ! fileptr )
     error("cannot open file: %s",path);
 }
 
 
 void _ssgParser::closeFile()
 {
-  fclose( ptr ) ;
-  ptr = 0 ;
+  fclose( fileptr ) ;
+  fileptr = 0 ;
 }
 
 
 char* _ssgParser::getLine( int startLevel )
 {
-  linenum++ ;
-  if ( fgets ( linebuf, sizeof(linebuf), ptr ) == NULL )
-    return(0) ;
-    
-  //adjust level
-  if (strchr(linebuf,'{') != 0)
-    level++ ;
-  else if (strchr(linebuf,'}') != 0)
-    level-- ;
+  tokbuf [ 0 ] = 0 ;
+  numtok = 0 ;
+  curtok = 0 ;
+
+  //get the next line with something on it
+  char* ptr = tokbuf ;
+  while ( *ptr == 0 )
+  {
+     linenum++ ;
+     if ( fgets ( linebuf, sizeof(linebuf), fileptr ) == NULL )
+       return(0) ;
+
+     memcpy( tokbuf, linebuf, sizeof(linebuf) ) ;
+     ptr = tokbuf ;
+       
+     //skip delim_chars
+     while ( *ptr && strchr(spec.delim_chars,*ptr) )
+       ptr++ ;
+  }
+
+  //comment line?
+  if ( spec.comment_char && *ptr == spec.comment_char )
+    return(ptr);
+
+  //tokenize the line
+  numtok = 0 ;
+  while ( *ptr )
+  {
+    if ( *ptr == spec.comment_char )
+    {
+      *ptr = 0 ;
+      break;
+    }
+
+    //count the token
+    tokptr [ numtok++ ] = ptr ;
+
+    //handle quoted string
+    if ( spec.quote_char && *ptr == spec.quote_char )
+    {
+      ptr++ ;
+      while ( *ptr && *ptr != spec.quote_char )
+        ptr++ ;
+    }
+
+    //adjust level
+    if ( spec.open_brace_chars && *ptr && strchr(spec.open_brace_chars,*ptr) )
+      level++ ;
+    else if ( spec.close_brace_chars && *ptr && strchr(spec.close_brace_chars,*ptr) )
+      level-- ;
+
+    //find end of token
+    while ( *ptr && !strchr(spec.delim_chars,*ptr) )
+      ptr++ ;
+
+    //mark end of token
+    while ( *ptr && strchr(spec.delim_chars,*ptr) )
+      *ptr++ = 0 ;
+  }
 
   if (level >= startLevel)
-  {
-    memcpy( tokbuf, linebuf, sizeof(linebuf) ) ;
-    tokptr = tokbuf ;
-    
     return parseToken (0) ;
-  }
   return 0 ;
 }
 
 
-char* _ssgParser::parseToken( cchar* name )
+char* _ssgParser::parseToken( const char* name )
 {
-  static cchar delims[] = "\r\n\t ";
-
-  //skip delims
-  while ( *tokptr && strchr(delims,*tokptr) )
-    tokptr++ ;
-
   char* token = 0 ;
-  if ( *tokptr )
+  if ( curtok < numtok )
+    token = tokptr [ curtok++ ] ;
+  else if ( name )
+    error("missing %s",name) ;
+  return(token) ;
+}
+
+
+char* _ssgParser::parseString( const char* name )
+{
+  char* token = 0 ;
+  if ( numtok > 0 && spec.quote_char && *tokptr [ curtok ] == spec.quote_char )
   {
-    token = tokptr ;
-    
-    //find end of token
-    while ( *tokptr && !strchr(delims,*tokptr) )
-      tokptr++ ;
-    if ( *tokptr )
-      *tokptr++ = 0 ;
+    token = tokptr [ curtok++ ] ;
+
+    //knock off the quotes
+    token++ ;
+    int len = strlen (token) ;
+    if (len > 0 && token[len-1] == spec.quote_char)
+       token[len-1] = 0 ;
   }
   else if ( name )
     error("missing %s",name) ;
@@ -112,44 +174,23 @@ char* _ssgParser::parseToken( cchar* name )
 }
 
 
-char* _ssgParser::parseString( cchar* name )
-{
-  //find and return a double quoted string in the linebuf
-  static char str[256];
-  int maxlen = sizeof(str);
-  char* start = strchr(linebuf,'"');
-  if (!start)
-    error("missing %s",name);
-  start++;
-  char* end = strchr(start,'"');
-  if (!end)
-    error("missing %s",name);
-  int len = end-start;
-  if (len >= maxlen)
-    error("string too long");
-  memcpy(str,start,len);
-  memset(str+len,0,maxlen-len);
-  return(str);
-}
-
-
-f32 _ssgParser::parseFloat( cchar* name )
+SGfloat _ssgParser::parseFloat( const char* name )
 {
   char* token = parseToken(name);
-  f32 value = f32(atof(token));
+  SGfloat value = SGfloat(atof(token));
   return( value );
 }
 
 
-s32 _ssgParser::parseInt( cchar* name )
+int _ssgParser::parseInt( const char* name )
 {
   char* token = parseToken(name);
-  s32 value = s32(atoi(token));
+  int value = int(atoi(token));
   return( value );
 }
 
 
-void _ssgParser::expect( cchar* name )
+void _ssgParser::expect( const char* name )
 {
   char* token = parseToken(name);
   if (strcmp(token,name))

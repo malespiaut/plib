@@ -53,6 +53,28 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#ifndef WIN32
+#  ifndef macintosh
+#    include <GL/glx.h>
+#  else
+#    include <agl.h>
+#  endif
+#endif
+
+/*
+  glGetCurrentContext()
+*/
+
+#ifdef WIN32
+#  define glGetCurrentContext() wglGetCurrentContext()
+#else
+#  if defined(macintosh)
+#     define glGetCurrentContext() aglGetCurrentContext()
+#  else
+#     define glGetCurrentContext() glXGetCurrentContext()
+#  endif
+#endif
+
 /* SGI machines seem to suffer from a lack of FLT_EPSILON so... */
 
 #ifndef FLT_EPSILON
@@ -80,19 +102,6 @@ const   int false = 0 ;
 /*
   Basic Types
 */
-
-typedef unsigned char   u8 ;
-typedef unsigned short  u16 ;
-typedef unsigned int    u32 ;
-
-typedef short           s16 ;
-typedef int             s32 ;
-
-typedef float           f32 ;
-typedef double          f64 ;
-
-typedef const char      cchar ;
-typedef const void      cvoid ;
 
 
 /*
