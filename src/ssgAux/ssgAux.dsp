@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaFire.h ..\..\ssgaFire.h	copy ssgaLensFlare.h ..\..\ssgaLensFlare.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaFire.h ..\..\ssgaFire.h	copy ssgaLensFlare.h ..\..\ssgaLensFlare.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h	copy ssgaSky.h ..\..\ssgaSky.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ssgAux - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaFire.h ..\..\ssgaFire.h	copy ssgaLensFlare.h ..\..\ssgaLensFlare.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaFire.h ..\..\ssgaFire.h	copy ssgaLensFlare.h ..\..\ssgaLensFlare.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h	copy ssgaSky.h ..\..\ssgaSky.h
 # End Special Build Tool
 
 !ENDIF 
@@ -95,6 +95,14 @@ PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssga
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\ssgaCelestialBody.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaCloudLayer.cxx
+# End Source File
 # Begin Source File
 
 SOURCE=.\ssgaFire.cxx
@@ -121,15 +129,31 @@ SOURCE=.\ssgaShapes.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgaSky.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaSkyDome.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaSphere.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaStars.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgaTeapot.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgaWaveSystem.cxx
+SOURCE=.\ssgAux.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgAux.cxx
+SOURCE=.\ssgaWaveSystem.cxx
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -153,11 +177,19 @@ SOURCE=.\ssgaShapes.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ssgaWaveSystem.h
+SOURCE=.\ssgaSky.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaSphere.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\ssgAux.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgaWaveSystem.h
 # End Source File
 # End Group
 # End Target
