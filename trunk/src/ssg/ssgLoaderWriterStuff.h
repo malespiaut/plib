@@ -51,13 +51,13 @@ class ssgListOfLists : public ssgSimpleList
 {
 public:
 
-  virtual ssgBase *clone ( int clone_flags = 0 ) { return NULL; }; // Fixme NIV14: 2do
-  ssgListOfLists ( int init = 3 ) : ssgSimpleList ( sizeof(class ssgSimpleList*), init ) {} 
-  class ssgSimpleList **get ( unsigned int n ) { return (class ssgSimpleList **) raw_get ( n ) ; }
-  void   add ( class ssgSimpleList **thing ) { raw_add ( (char *) thing ) ; } ;
-	void   set ( class ssgSimpleList **thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
+   virtual ssgBase *clone ( int clone_flags = 0 ) { return NULL; }; // Fixme NIV14: 2do
+   ssgListOfLists ( int init = 3 ) : ssgSimpleList ( sizeof(class ssgSimpleList*), init ) {} 
+   class ssgSimpleList **get ( unsigned int n ) { return (class ssgSimpleList **) raw_get ( n ) ; }
+   void   add ( class ssgSimpleList **thing ) { raw_add ( (char *) thing ) ; } ;
+   void   set ( class ssgSimpleList **thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) {}; // Fixme NIV14: 2do
+   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) {}; // Fixme NIV14: 2do
 } ;
 
 //ssgSimpleState* 
@@ -79,7 +79,7 @@ class ssgLoaderWriterMesh
 {
    // ***** general ****
    // array of Vec3s:
-   class ssgVertexArray *theVertices; 
+   class ssgVertexArray *theVertices;
    // one index per face:
    class ssgIndexArray *materialIndices; 
 
@@ -92,7 +92,7 @@ class ssgLoaderWriterMesh
    int textureCoordinatesArePerVertex; // and not per vertex and face (bTCs_are_per_vertex)
    // ***** complicated (texture coordinates are per face and vertex) mode *****
    // Each sublist is of type ssgTexCoordArray and contains the texture coordinates
-   class ssgListOfLists *perFaceAndVertexTextureCoordinates2; // was: tCPFAV = TextureCoordinatesPerFaceAndVertex
+   class ssgListOfLists *perFaceAndVertexTextureCoordinate2Lists; // was: tCPFAV = TextureCoordinatesPerFaceAndVertex
 	
    // ***** easy (texture coordinates are per vertex) mode *********
    class ssgTexCoordArray *perVertexTextureCoordinates2; // was: tCPV = TextureCoordinatesPerVertex
@@ -104,7 +104,7 @@ class ssgLoaderWriterMesh
 							class ssgLoaderOptions* current_options,
 							class ssgBranch *curr_branch_ ); // was: AddOneNode2SSGFromCPV
    void addOneNodeToSSGFromPerFaceAndVertexTextureCoordinates2( class ssgVertexArray *theVertices, 
-							       class ssgListOfLists *thePerFaceAndVertexTextureCoordinates2,
+							       class ssgListOfLists *theTextureCoordinate2Lists,
 							       class ssgListOfLists *theFaces,
 							       class ssgSimpleState *currentState,// Pfusch, kludge. NIV135
 							       class ssgLoaderOptions* current_options,
@@ -112,9 +112,11 @@ class ssgLoaderWriterMesh
    
  public:
    
-   class ssgVertexArray *getVertices(void) { return theVertices; }; 
-   class ssgTexCoordArray *getPerVertexTextureCoordinates2(void) { return perVertexTextureCoordinates2; } ;
-  
+   class ssgVertexArray *getVertices(void) { return theVertices; }
+   void setVertices( class ssgVertexArray *vertexArray );
+   class ssgTexCoordArray *getPerVertexTextureCoordinates2(void) { return perVertexTextureCoordinates2; }
+   void setPerVertexTextureCoordinates2( class ssgTexCoordArray *texCoordArray );
+	  
    void addToSSG(
 		 class ssgSimpleState *currentstate, 
 		 class ssgLoaderOptions* currentOptions,
