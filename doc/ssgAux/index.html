@@ -368,6 +368,7 @@ public:
   sgVec3 vel ;
   sgVec3 acc ;
  
+  float size ;
   float time_to_live ;
   void *userData ;
  
@@ -429,7 +430,8 @@ and (for the 'update' function only) - the amount of elapsed time since
 this particle was last updated.
 <p>
 The callbacks can set, read or change any or all aspects of the particle...
-it's colour, position, velocity, accelleration and 'time to live' (in seconds).
+it's colour, position, velocity, accelleration, size and 'time to live'
+(in seconds).
 There is also a user data pointer - so you can hang your own data onto
 each individual particle.
 <p>
@@ -505,9 +507,13 @@ for an explosion or something where you'd want to save CPU time by not
 running the explosion particle system when all the pieces have landed
 and 'gone away'.
 <p>
-All the particles have to be the same size - but you can use
-the 'setSize' function to change their size on-the-fly - for example
-to make a cloud of bubbles that grow over time.
+The size of each particle is the size field of the individual particle
+MULTIPLIED by the number you pass into the size parameter of the
+ssgaParticleSystem constructor (or set with setSize()).  This allows you
+to cheaply set the particle size for all the particles at once - or to
+tweak the size of each one in turn.  The number in the particle structure
+defaults to 1.0 so you can ignore it and just set the size in the
+particle system overall.
 <p>
 ssgaParticleSystem is derived from ssgVtxArray - so you can apply textures and
 other state things using the usual ssgVtxArray::setState(ssgSimpleState*)
