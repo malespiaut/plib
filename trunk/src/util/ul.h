@@ -121,7 +121,7 @@
 #include <unistd.h>
 #endif
 
-#if defined(UL_LINUX) || defined(UL_BSD)
+#if defined(UL_LINUX) || defined(UL_BSD) || defined(UL_IRIX)
 #include <unistd.h>
 #include <dlfcn.h>
 #include <fcntl.h>

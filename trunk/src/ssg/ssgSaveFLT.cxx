@@ -355,10 +355,12 @@ static void writeFace ( ssgLeaf *leaf, int isLine )
 
 static void writeLeaf ( ssgLeaf *leaf )
 {
+  int i ;
+
   writeObject () ;
   writePush   () ;
 
-  for ( int i = 0 ; i < leaf -> getNumLines () ; i++ )
+  for ( i = 0 ; i < leaf -> getNumLines () ; i++ )
   {
     writeFace ( leaf, TRUE ) ;
 
@@ -384,7 +386,7 @@ static void writeLeaf ( ssgLeaf *leaf )
     writePop  () ;
   }
 
-  for ( int i = 0 ; i < leaf -> getNumTriangles () ; i++ )
+  for ( i = 0 ; i < leaf -> getNumTriangles () ; i++ )
   {
     writeFace ( leaf, FALSE ) ;
 

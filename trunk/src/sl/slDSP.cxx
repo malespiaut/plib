@@ -636,13 +636,13 @@ void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
     return;
   }
 
-  init_bytes = 1024 * 16;
+  init_bytes = 1024 * 4 ;
 
   config  = ALnewconfig();
  
   ALsetchannels (  config, _stereo ? AL_STEREO : AL_MONO );
   ALsetwidth    (  config, _bps == 8 ? AL_SAMPLE_8 : AL_SAMPLE_16 );
-  ALsetqueuesize(  config, init_bytes );
+  ALsetqueuesize(  config, init_bytes * 2 );
 
   port = ALopenport( device, "w", config );
   
@@ -690,7 +690,7 @@ int slDSP::getDriverBufferSize ()
   if ( error )
     return 0 ;
 
-  return  ALgetqueuesize( config );
+  return  ALgetqueuesize( config ) / 2 ;
 }
 
 void slDSP::getBufferInfo ()
@@ -700,8 +700,6 @@ void slDSP::getBufferInfo ()
 }
 
 
-#define swap_half(a) ( ((a & 0xff) << 8) | ((unsigned short)(a) >> 8) )
-
 void slDSP::write ( void *buffer, size_t length )
 {
   char *buf = (char *)buffer;
@@ -709,15 +707,10 @@ void slDSP::write ( void *buffer, size_t length )
   if ( error || (int)length <= 0 )
     return ;
 
-  // Steve: is this a problem ??
-
-  for ( int i = 0; i < (int)length; i++ ) {
+  for ( int i = 0; i < (int)length; i++ )
     buf[i] = buf[i] >> 1;
-    if (bps == 16)
-       buf[i] = swap_half( buf[i] );
-  }
 
-  ALwritesamps(port, (void *)buf, length/2 );
+  ALwritesamps(port, (void *)buf, length );
 }
 
 
@@ -728,10 +721,7 @@ float slDSP::secondsRemaining ()
   if ( error )
     return 0.0f ;
 
-  samples_remain = ALgetfillable(port);
-
-  if (  stereo   ) samples_remain /= 2 ;
-  if ( bps == 16 ) samples_remain /= 2 ;
+  samples_remain = ALgetfillable(port) / 2 ;
 
   return   (float) samples_remain / (float) rate ;
 }
@@ -744,10 +734,7 @@ float slDSP::secondsUsed ()
   if ( error )
     return 0.0f ;
 
-  samples_used = ALgetfilled(port);
-
-  if (  stereo   ) samples_used /= 2 ;
-  if ( bps == 16 ) samples_used /= 2 ;
+  samples_used = ALgetfilled(port) * 2 ;
 
   return   (float) samples_used / (float) rate ;
 }

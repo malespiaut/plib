@@ -37,9 +37,15 @@
 #endif
 
 #ifdef UL_BSD
-#    include <machine/joystick.h>
-#    define JS_DATA_TYPE joystick
-#    define JS_RETURN (sizeof(struct JS_DATA_TYPE))
+#  include <machine/joystick.h>
+#  define JS_DATA_TYPE joystick
+#  define JS_RETURN (sizeof(struct JS_DATA_TYPE))
+#endif
+
+#ifdef UL_MAC_OSX
+#  include <mach/mach.h>
+#  include <IOKit/IOkitLib.h>
+#  include <IOKit/hid/IOHIDLib.h>
 #endif
 
 #ifdef UL_LINUX 
@@ -85,6 +91,31 @@ class jsJoystick
 #define  isp_num_needs  41
   ISpElementReference isp_elem  [ isp_num_needs ] ;
   ISpNeed             isp_needs [ isp_num_needs ] ;
+
+#elif defined(UL_MAC_OSX)
+
+  IOHIDDeviceInterface ** hidDev;
+  static const int kNumDevices;
+  static int numDevices;
+  static io_object_t ioDevices[kNumDevices];
+
+  static void findDevices(mach_port_t);
+  static CFDictionaryRef getCFProperties(io_object_t);
+
+  void enumerateElements(CFTypeRef element);
+  /// callback for CFArrayApply
+  static void elementEnumerator( const void *element, void* vjs);
+  void parseElement(CFDictionaryRef element);
+
+  void addAxisElement(CFDictionaryRef axis);
+  void addButtonElement(CFDictionaryRef button);
+  void addHatElement(CFDictionaryRef hat);
+
+  IOHIDElementCookie buttonCookies[41];
+  IOHIDElementCookie axisCookies[_JS_MAX_AXES];
+  long minReport[_JS_MAX_AXES],
+       maxReport[_JS_MAX_AXES];
+
 #elif defined(UL_WIN32)
   JOYCAPS      jsCaps ;
   JOYINFOEX    js     ;
