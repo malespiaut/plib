@@ -122,11 +122,11 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   user_data   = NULL ;
   next = prev = NULL ;
   label       = NULL ;
-  labelPlace  = PUPLACE_LOWER_RIGHT ;
+  labelPlace  = PUPLACE_LABEL_DEFAULT ;
   labelFont   = defaultLabelFont  ;
   legend      = NULL ;
   legendFont  = defaultLegendFont ;
-  legendPlace = PUPLACE_CENTERED_CENTERED  ;
+  legendPlace = PUPLACE_LEGEND_DEFAULT ;
 
   for ( int i = 0 ; i < PUCOL_MAX ; i++ )
     puSetColour ( colour[i], _puDefaultColourTable[i] ) ;
