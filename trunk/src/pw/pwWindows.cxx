@@ -121,7 +121,20 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 
     case WM_KEYDOWN:
       /* If the key is already down, we are on auto-repeat.  Break if the autorepeat is disabled. */
-      if ( ( updown == PW_DOWN ) && ( int(wParam) == old_key ) && !autoRepeat ) break ;
+      if ( ( updown == PW_DOWN ) && ( int(wParam) == old_key ) )
+      {
+        if ( autoRepeat )
+        {
+          /* Disable CTRL, SHIFT, CapsLock keys from making a callback */
+          if ( ( key == VK_CONTROL ) || ( key == VK_SHIFT ) || ( key == VK_CAPITAL ) )
+            break ;
+
+          if ( key != -1 && kbCB )  // Autorepeat enabled, call the callback with an "up" setting
+            (*kbCB) ( key, PW_UP, lastx, lasty ) ;
+        }
+        else
+          break ;  // Autorepeat not enabled, just break
+      }
 
       updown = PW_DOWN ;
       old_key = wParam ;
@@ -202,7 +215,6 @@ void pwSetAutoRepeatKey ( bool enable )
   autoRepeat = enable ;
 }
 
-
 void pwSetCallbacks ( pwKeybdFunc *kb, pwMouseFunc *ms,
                       pwMousePosFunc *mp, pwResizeCB *rcb, pwExitCB *ecb )
 {
@@ -225,6 +237,8 @@ void pwInit ( int multisample, int num_samples )
   pwInit ( 0, 0, -1, -1, multisample, "NoName", FALSE, num_samples ) ;
 }
 
+
+//typedef const char * wglGetExtensionsStringARBtype ( HDC hdc ) ;
 
 void pwInit ( int x, int y, int w, int h, int multisample,
               char *title, int border, int num_samples )
@@ -293,6 +307,14 @@ void pwInit ( int x, int y, int w, int h, int multisample,
     fprintf ( stderr, "PW: Can't get window DC" ) ;
     exit ( 1 ) ;
   }
+
+//  wglGetExtensionsStringARBtype *wglGetExtensionsStringARB = (wglGetExtensionsStringARBtype *)wglGetProcAddress ( "wglGetExtensionsStringARB" ) ;
+//  const char *extensionsString = wglGetExtensionsStringARB ( currDC ) ;
+
+//  printf ( "%s %x %s\n", glGetString ( GL_EXTENSIONS ), wglGetExtensionsStringARB, extensionsString ) ;
+
+//  if (!GLExtensionExists("WGL_ARB_multisample "))
+//    return suggestedFormat;
 
   /* Set pixel format for DC */
   PIXELFORMATDESCRIPTOR pfd = {
