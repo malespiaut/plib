@@ -397,7 +397,7 @@ static void parseAndMakePath ( char *filename, /*_ssgTexturePath, */ char * tfna
 				  s_ptr1++;
 				}
 			}
-			else if ( 0 == strcmp( s_ptr, "$(APOM)" ) )
+			else if ( 0 == strncmp( s_ptr, "$(APOM)", strlen("$(APOM)" ) ) )
 			{ // replace "$(APOM)" by _ssgAPOM
 				char temp_buffer[1024];
 				* s_ptr = 0;
@@ -417,6 +417,7 @@ static void parseAndMakePath ( char *filename, /*_ssgTexturePath, */ char * tfna
 	_ssgMakePath ( filename, current_path, tfname ) ; // pfusch? kludge?
 
 }
+
 
 ssgTexture* ssgLoaderOptions::defaultCreateTexture ( char* tfname,
 						     int wrapu,
