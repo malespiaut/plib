@@ -394,6 +394,10 @@ int main ( int argc, char **argv )
   glutPassiveMotionFunc ( motionfn  ) ;
   glutIdleFunc          ( sliderdisplayfn ) ;
 
+  //load the texture for the 2nd window
+  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
+  tim -> load ( "../fnt/data/times_medium.txf" ) ;
+
   puGroup *slider_group = new puGroup ( 0, 0 ) ;  // Necessary so that "sliderdisplayfn" will draw all widgets
 
   rspeedSlider = new puSlider (10,30,150,TRUE);
