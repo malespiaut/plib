@@ -1,0 +1,13 @@
+
+PLIB Demonstration Programs and other Utilities.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The programs released under this directory are
+fully complete programs written either as demonstrations
+of PLIB or as useful utility programs.  Each one
+has it's own licensing rules (although all are OpenSourced
+in some way) and each has it's own build mechanism and
+documentation.
+
+Enjoy!
+
