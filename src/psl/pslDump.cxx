@@ -36,7 +36,7 @@ struct OpcodeDecode
 
 static const OpcodeDecode opcodeDecode [] =
 {
-  { "NO_OP"              , OPCODE_NOOP    , 0 },
+  { "**BAD_INSTRUCTION**", OPCODE_BAD        , 0 },
 
   { "SOURCE LINE NUMBER:", OPCODE_LINE_NUMBER, 2 },
 
@@ -45,15 +45,24 @@ static const OpcodeDecode opcodeDecode [] =
   { "PUSH_INT_CONSTANT"  , OPCODE_PUSH_INT_CONSTANT  , sizeof(int)   },
   { "PUSH_FLOAT_CONSTANT", OPCODE_PUSH_FLOAT_CONSTANT, sizeof(float) },
   { "PUSH_STRING_CONSTANT",OPCODE_PUSH_STRING_CONSTANT, 0 },
-  { "PUSH_VARIABLE"      , OPCODE_PUSH_VARIABLE      , 1 },
+  { "PUSH_VARIABLE"      , OPCODE_PUSH_VARIABLE       , 1 },
 
-  { "DUPLICATE"          , OPCODE_STACK_DUPLICATE    , 0 },
+  { "STACK_DUPLICATE"    , OPCODE_STACK_DUPLICATE    , 0 },
 
-  { "POP_INTO_VARIABLE"  , OPCODE_POP_VARIABLE       , 1 },
+  { "POP_VARIABLE"       , OPCODE_POP_VARIABLE       , 0 },
   { "POP"                , OPCODE_POP                , 0 },
+
+  { "FETCH"              , OPCODE_FETCH              , 0 },
+  { "INCREMENT_FETCH"    , OPCODE_INCREMENT_FETCH    , 0 },
+  { "DECREMENT_FETCH"    , OPCODE_DECREMENT_FETCH    , 0 },
+  { "INCREMENT_LVALUE"   , OPCODE_INCREMENT_LVALUE   , 0 },
+  { "DECREMENT_LVALUE"   , OPCODE_DECREMENT_LVALUE   , 0 },
 
   /* Variable creation */
 
+  { "SET_INT_ARRAY"      , OPCODE_SET_INT_ARRAY      , 1 },
+  { "SET_FLOAT_ARRAY"    , OPCODE_SET_FLOAT_ARRAY    , 1 },
+  { "SET_STRING_ARRAY"   , OPCODE_SET_STRING_ARRAY   , 1 },
   { "SET_INT_VARIABLE"   , OPCODE_SET_INT_VARIABLE   , 1 },
   { "SET_FLOAT_VARIABLE" , OPCODE_SET_FLOAT_VARIABLE , 1 },
   { "SET_STRING_VARIABLE", OPCODE_SET_STRING_VARIABLE, 1 },
@@ -83,6 +92,7 @@ static const OpcodeDecode opcodeDecode [] =
   { "MULT",            OPCODE_MULT        , 0 },
   { "MOD",             OPCODE_MOD         , 0 },
   { "NEG",             OPCODE_NEG         , 0 },
+  { "EXCHG",           OPCODE_EXCHANGE    , 0 },
 
   /* Bitwise operators */
 
@@ -108,16 +118,16 @@ static const OpcodeDecode opcodeDecode [] =
   { "NOTEQUAL",        OPCODE_NOTEQUAL    , 0 },
   { "EQUAL",           OPCODE_EQUAL       , 0 },
 
-  { "POP_ADD_VARIABLE", OPCODE_POP_ADD_VARIABLE, 1 },
-  { "POP_SUB_VARIABLE", OPCODE_POP_SUB_VARIABLE, 1 },
-  { "POP_MUL_VARIABLE", OPCODE_POP_MUL_VARIABLE, 1 },
-  { "POP_MOD_VARIABLE", OPCODE_POP_MOD_VARIABLE, 1 },
-  { "POP_DIV_VARIABLE", OPCODE_POP_DIV_VARIABLE, 1 },
-  { "POP_AND_VARIABLE", OPCODE_POP_AND_VARIABLE, 1 },
-  { "POP_OR_VARIABLE" , OPCODE_POP_OR_VARIABLE , 1 },
-  { "POP_XOR_VARIABLE", OPCODE_POP_XOR_VARIABLE, 1 },
-  { "POP_SHL_VARIABLE", OPCODE_POP_SHL_VARIABLE, 1 },
-  { "POP_SHR_VARIABLE", OPCODE_POP_SHR_VARIABLE, 1 },
+  { "POP_ADD_VARIABLE", OPCODE_POP_ADD_VARIABLE, 0 },
+  { "POP_SUB_VARIABLE", OPCODE_POP_SUB_VARIABLE, 0 },
+  { "POP_MUL_VARIABLE", OPCODE_POP_MUL_VARIABLE, 0 },
+  { "POP_MOD_VARIABLE", OPCODE_POP_MOD_VARIABLE, 0 },
+  { "POP_DIV_VARIABLE", OPCODE_POP_DIV_VARIABLE, 0 },
+  { "POP_AND_VARIABLE", OPCODE_POP_AND_VARIABLE, 0 },
+  { "POP_OR_VARIABLE" , OPCODE_POP_OR_VARIABLE , 0 },
+  { "POP_XOR_VARIABLE", OPCODE_POP_XOR_VARIABLE, 0 },
+  { "POP_SHL_VARIABLE", OPCODE_POP_SHL_VARIABLE, 0 },
+  { "POP_SHR_VARIABLE", OPCODE_POP_SHR_VARIABLE, 0 },
 
   { NULL, 0, 0 }
 } ;
@@ -213,30 +223,18 @@ int pslCompiler::printInstruction ( FILE *fd, int addr ) const
                               code[addr+1] + ( code[addr+2] << 8 ) ) ;
       break ;
 
-    case OPCODE_SET_INT_VARIABLE :
-    case OPCODE_SET_FLOAT_VARIABLE :
-    case OPCODE_SET_STRING_VARIABLE :
-    case OPCODE_PUSH_VARIABLE :
+    case OPCODE_SET_INT_ARRAY         :
+    case OPCODE_SET_FLOAT_ARRAY       :
+    case OPCODE_SET_STRING_ARRAY      :
+    case OPCODE_SET_INT_VARIABLE      :
+    case OPCODE_SET_FLOAT_VARIABLE    :
+    case OPCODE_SET_STRING_VARIABLE   :
+    case OPCODE_PUSH_VARIABLE         :
       fprintf ( fd, "\t\t[%d]", code [ addr+1 ] ) ;
       break ;
 
     case OPCODE_GET_PARAMETER :
       fprintf ( fd, "\t\t[%d],off=%d", code [ addr+1 ], code [ addr+2 ] ) ;
-      break ;
-
-    case OPCODE_POP_ADD_VARIABLE :
-    case OPCODE_POP_SUB_VARIABLE :
-    case OPCODE_POP_MUL_VARIABLE :
-    case OPCODE_POP_DIV_VARIABLE :
-    case OPCODE_POP_AND_VARIABLE :
-    case OPCODE_POP_OR_VARIABLE  :
-    case OPCODE_POP_XOR_VARIABLE :
-    case OPCODE_POP_SHL_VARIABLE :
-    case OPCODE_POP_SHR_VARIABLE :
-    case OPCODE_POP_VARIABLE :
-    case OPCODE_INCREMENT :
-    case OPCODE_DECREMENT :
-      fprintf ( fd, "\t[%d]", code [ addr+1 ] ) ;
       break ;
 
     case OPCODE_PUSH_INT_CONSTANT :
@@ -274,8 +272,8 @@ int pslCompiler::printInstruction ( FILE *fd, int addr ) const
 
     case OPCODE_PEEK_JUMP_FALSE :
     case OPCODE_PEEK_JUMP_TRUE  :
-    case OPCODE_JUMP_FALSE :
-    case OPCODE_JUMP_TRUE  :
+    case OPCODE_JUMP_FALSE      :
+    case OPCODE_JUMP_TRUE       :
       fprintf ( fd, "\t\t%d", code[addr+1] + ( code[addr+2] << 8 ) ) ;
       break ;
 

@@ -69,113 +69,126 @@ class pslCompiler
 
   /* Write data into Code space */
 
-  void pushCodeByte ( unsigned char b ) ;
-  void pushCodeAddr ( pslAddress a ) ;
+  void genCodeByte ( unsigned char b ) ;
+  void genCodeAddr ( pslAddress a ) ;
   int  printOpcode  ( FILE *fd, int addr ) const ;
 
-  void pushLineNumber ( int l ) ;
+  void genLineNumber ( int l ) ;
 
   /* Write single byte-coded instructions into code space.  */
 
-  void pushStackDup     () ;
-  void pushPop          () ;
-  void pushSubtract     () ;
-  void pushAdd          () ;
-  void pushDivide       () ;
-  void pushMultiply     () ;
-  void pushModulo       () ;
-  void pushNegate       () ;
-  void pushNot          () ;
-  void pushTwiddle      () ;
-  void pushOrOr         () ;
-  void pushAndAnd       () ;
-  void pushOr           () ;
-  void pushAnd          () ;
-  void pushXor          () ;
-  void pushShiftLeft    () ;
-  void pushShiftRight   () ;
-  void pushLess         () ;
-  void pushLessEqual    () ;
-  void pushGreater      () ;
-  void pushGreaterEqual () ;
-  void pushNotEqual     () ;
-  void pushEqual        () ;
-  int  pushPeekJumpIfFalse ( int l ) ;
-  int  pushPeekJumpIfTrue  ( int l ) ;
-  int  pushJumpIfFalse  ( int l ) ;
-  int  pushJumpIfTrue   ( int l ) ;
-  int  pushJump         ( int l ) ;
+  void genStackDup     () ;
+  void genPop          () ;
+  void genSubtract     () ;
+  void genAdd          () ;
+  void genDivide       () ;
+  void genMultiply     () ;
+  void genModulo       () ;
+  void genNegate       () ;
+  void genNot          () ;
+  void genTwiddle      () ;
+  void genOrOr         () ;
+  void genAndAnd       () ;
+  void genOr           () ;
+  void genAnd          () ;
+  void genXor          () ;
+  void genShiftLeft    () ;
+  void genShiftRight   () ;
+  void genLess         () ;
+  void genLessEqual    () ;
+  void genGreater      () ;
+  void genGreaterEqual () ;
+  void genNotEqual     () ;
+  void genEqual        () ;
+  void genExchange     () ;
 
-  void pushGetParameter  ( pslAddress var, int argpos ) ;
+  int  genPeekJumpIfFalse  ( int l ) ;
+  int  genPeekJumpIfTrue   ( int l ) ;
+  int  genJumpIfFalse      ( int l ) ;
+  int  genJumpIfTrue       ( int l ) ;
+  int  genJump             ( int l ) ;
 
-  void pushIncrement     ( const char *s ) ;
-  void pushDecrement     ( const char *s ) ;
+  void genGetParameter     ( pslAddress var, int argpos ) ;
 
-  void makeIntVariable   ( const char *s ) ;
-  void makeFloatVariable ( const char *s ) ;
-  void makeStringVariable( const char *s ) ;
+  void genIncrement        ( const char *s ) ;
+  void genDecrement        ( const char *s ) ;
 
-  void pushConstant      ( const char *s ) ;
-  void pushIntConstant   ( const char *s ) ;
-  void pushFloatConstant ( const char *s ) ;
-  void pushStringConstant( const char *s ) ;
-  void pushCharConstant  ( char c ) ;
-  void pushIntConstant   ( int i ) ;
+  int  genMakeIntVariable    ( const char *s ) ;
+  int  genMakeFloatVariable  ( const char *s ) ;
+  int  genMakeStringVariable ( const char *s ) ;
 
-  void pushVoidConstant  () ;
+  int  genMakeIntArray     ( const char *s ) ;
+  int  genMakeFloatArray   ( const char *s ) ;
+  int  genMakeStringArray  ( const char *s ) ;
 
-  void pushVariable      ( const char *s ) ;
-  void pushAssignment    ( const char *s ) ;
-  void pushAddAssignment ( const char *s ) ;
-  void pushSubAssignment ( const char *s ) ;
-  void pushMulAssignment ( const char *s ) ;
-  void pushModAssignment ( const char *s ) ;
-  void pushDivAssignment ( const char *s ) ;
-  void pushAndAssignment ( const char *s ) ;
-  void pushOrAssignment  ( const char *s ) ;
-  void pushXorAssignment ( const char *s ) ;
-  void pushSHLAssignment ( const char *s ) ;
-  void pushSHRAssignment ( const char *s ) ;
+  void genConstant         ( const char *s ) ;
+  void genIntConstant      ( const char *s ) ;
+  void genFloatConstant    ( const char *s ) ;
+  void genStringConstant   ( const char *s ) ;
+  void genCharConstant     ( char c ) ;
+  void genIntConstant      ( int i ) ;
 
-  void pushCall          ( const char *s, int argc ) ;
-  void pushReturn        () ;
+  void genVoidConstant     () ;
+
+  void genFetch            () ;
+
+  void genIncrementLValue  () ;
+  void genDecrementLValue  () ;
+  void genIncrementFetch   () ;
+  void genDecrementFetch   () ;
+
+  void genVariable         ( const char *s ) ;
+  void genAssignment       () ;
+  void genAddAssignment    () ;
+  void genSubAssignment    () ;
+  void genMulAssignment    () ;
+  void genModAssignment    () ;
+  void genDivAssignment    () ;
+  void genAndAssignment    () ;
+  void genOrAssignment     () ;
+  void genXorAssignment    () ;
+  void genSHLAssignment    () ;
+  void genSHRAssignment    () ;
+
+  void genCall             ( const char *s, int argc ) ;
+  void genReturn           () ;
 
   /* Expression parsers & code generators.  */
 
-  int pushPrimitive            () ;
-  int pushBitwiseExpression    () ;
-  int pushMultExpression       () ;
-  int pushAddExpression        () ;
-  int pushShiftExpression      () ;
-  int pushRelExpression        () ;
-  int pushBoolExpression       () ;
-  int pushExpression           () ;
+  int genLValue            () ;
+  int genPrimitive         () ;
+  int genBitwiseExpression () ;
+  int genMultExpression    () ;
+  int genAddExpression     () ;
+  int genShiftExpression   () ;
+  int genRelExpression     () ;
+  int genBoolExpression    () ;
+  int genExpression        () ;
 
   /* Statement-level parsers & code generators. */
 
-  int  pushBreakStatement      () ;
-  int  pushContinueStatement   () ;
-  int  pushReturnStatement     () ;
-  int  pushPauseStatement      () ;
-  int  pushSwitchStatement     () ;
-  int  pushWhileStatement      () ;
-  int  pushDoWhileStatement    () ;
-  int  pushForStatement        () ;
-  int  pushIfStatement         () ;
-  int  pushFunctionCall        ( const char *s ) ;
-  int  pushAssignmentStatement ( const char *s ) ;
-  int  pushCompoundStatement   () ;
-  int  pushStatement           () ;
+  int  genBreakStatement   () ;
+  int  genContinueStatement() ;
+  int  genReturnStatement  () ;
+  int  genPauseStatement   () ;
+  int  genSwitchStatement  () ;
+  int  genWhileStatement   () ;
+  int  genDoWhileStatement () ;
+  int  genForStatement     () ;
+  int  genIfStatement      () ;
+  int  genFunctionCall     ( const char *s ) ;
+  int  genCompoundStatement() ;
+  int  genStatement        () ;
 
-  int  pushLocalVarDecl  ( pslType t ) ;
-  int  pushGlobalVarDecl ( const char *fn, pslType t ) ;
-  int  pushStaticVarDecl () ;
+  int  genLocalVarDecl     ( pslType t ) ;
+  int  genGlobalVarDecl    ( const char *fn, pslType t ) ;
+  int  genStaticVarDecl    () ;
 
   /* Top level constructs */
 
-  int  pushFunctionDeclaration       ( const char *fn ) ;
-  int  pushGlobalDeclaration         () ;
-  void pushProgram                   () ;
+  int  genFunctionDeclaration ( const char *fn ) ;
+  int  genGlobalDeclaration   () ;
+  void genProgram             () ;
 
   /* The symbol tables for variables, code and define's */
 

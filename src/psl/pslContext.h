@@ -60,6 +60,7 @@ public:
 
   int getLineNo () const { return line_no ; }
 
+  void printStack ( FILE *fd ) ;
 
   void pushInt    ( int              x ) { stack [ sp++ ] . set ( x ) ; }
   void pushFloat  ( float            x ) { stack [ sp++ ] . set ( x ) ; }
@@ -81,6 +82,7 @@ public:
 
   pslResult trace ()
   {
+    if ( program -> getStackTraceFlag () ) printStack ( stdout ) ;
     program -> getCompiler () -> printInstruction ( stdout, pc ) ;
     fflush ( stdout ) ;
     return step () ;

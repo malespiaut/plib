@@ -124,36 +124,6 @@ public:
 
 
 /*
-  psValues can change their type as needed.
-*/
-
-class pslValue : public pslNumber
-{
-public:
-  virtual void set ()                { t = PSL_VOID   ; }
-  virtual void set ( int         v ) { t = PSL_INT    ; i = v ; }
-  virtual void set ( float       v ) { t = PSL_FLOAT  ; f = v ; }
-  virtual void set ( const char *v ) { t = PSL_STRING ;
-                                         delete [] s ;
-                                         s = ulStrDup ( v ) ; }
-
-  virtual void set ( const pslNumber *v )
-  {
-    t = v -> getType ()  ;
-
-    switch ( t )
-    {
-      case PSL_INT    : set ( v -> getInt    () ) ; break ;
-      case PSL_FLOAT  : set ( v -> getFloat  () ) ; break ;
-      case PSL_STRING : set ( v -> getString () ) ; break ;
-      case PSL_VOID   : break ;
-    }
-  }
-
-} ;
-
-
-/*
   psVariables can change value - but their type is
   fixed once set.
 */
@@ -161,6 +131,13 @@ public:
 class pslVariable : public pslNumber
 {
 public:
+
+  void setArrayType ( pslType _type, int arraysize )
+  {
+    setType ( _type ) ;
+/* SET THE ARRAY SIZE HERE */
+  }
+
   virtual void set ( int v )
   {
     switch ( t )
@@ -206,6 +183,37 @@ public:
       case PSL_VOID   : return ;
     }
   }
+
+} ;
+
+
+/*
+  psValues can change their type as needed.
+*/
+
+class pslValue : public pslNumber
+{
+public:
+  virtual void set ()                { t = PSL_VOID   ; }
+  virtual void set ( int         v ) { t = PSL_INT    ; i = v ; }
+  virtual void set ( float       v ) { t = PSL_FLOAT  ; f = v ; }
+  virtual void set ( const char *v ) { t = PSL_STRING ;
+                                         delete [] s ;
+                                         s = ulStrDup ( v ) ; }
+
+  virtual void set ( const pslNumber *v )
+  {
+    t = v -> getType ()  ;
+
+    switch ( t )
+    {
+      case PSL_INT    : set ( v -> getInt    () ) ; break ;
+      case PSL_FLOAT  : set ( v -> getFloat  () ) ; break ;
+      case PSL_STRING : set ( v -> getString () ) ; break ;
+      case PSL_VOID   : break ;
+    }
+  }
+
 } ;
 
 
@@ -231,6 +239,7 @@ class pslProgram
   char *progName ;
 
   int force_trace ;
+  int force_stacktrace ;
 
 public:
 
@@ -243,6 +252,8 @@ public:
   pslOpcode          *getCode       () const { return code       ; }
   pslCompiler        *getCompiler   () const { return compiler   ; }
   const pslExtension *getExtensions () const { return extensions ; }
+
+  int getStackTraceFlag () { return force_stacktrace ; }
 
   char *getProgName () const { return progName ; }
 

@@ -24,7 +24,7 @@
 
 /* Code Opcodes */
 
-#define OPCODE_NOOP                  0x00
+#define OPCODE_BAD                   0x00
 #define OPCODE_PUSH_INT_CONSTANT     0x01
 #define OPCODE_PUSH_FLOAT_CONSTANT   0x02
 #define OPCODE_PUSH_STRING_CONSTANT  0x03
@@ -73,6 +73,8 @@
 #define OPCODE_PEEK_JUMP_TRUE        0x2C
 #define OPCODE_LINE_NUMBER           0x2D
 
+
+
 #define OPCODE_POP_ADD_VARIABLE      0x30
 #define OPCODE_POP_SUB_VARIABLE      0x31
 #define OPCODE_POP_MUL_VARIABLE      0x32
@@ -83,4 +85,17 @@
 #define OPCODE_POP_XOR_VARIABLE      0x37
 #define OPCODE_POP_SHL_VARIABLE      0x38
 #define OPCODE_POP_SHR_VARIABLE      0x39
+#define OPCODE_EXCHANGE              0x3A
+#define OPCODE_SET_INT_ARRAY         0x3B
+#define OPCODE_SET_FLOAT_ARRAY       0x3C
+#define OPCODE_SET_STRING_ARRAY      0x3D
+
+
+
+#define OPCODE_FETCH                 0x40
+#define OPCODE_INCREMENT_FETCH       0x41
+#define OPCODE_DECREMENT_FETCH       0x42
+#define OPCODE_INCREMENT_LVALUE      0x43
+#define OPCODE_DECREMENT_LVALUE      0x44
+
 

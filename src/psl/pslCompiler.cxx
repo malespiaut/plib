@@ -49,7 +49,7 @@ int pslCompiler::compile ( FILE *fd, const char *fname )
   init () ;
  
   _pslPushDefaultFile ( fd, (fname == NULL) ? progName : fname ) ;
-  pushProgram     () ;
+  genProgram     () ;
   _pslPopDefaultFile  () ;
  
   if ( num_errors != 0 || num_warnings != 0 )
@@ -65,7 +65,7 @@ int pslCompiler::compile ( FILE *fd, const char *fname )
       dump () ;
 
     next_code = 0 ;
-    pushCodeByte ( OPCODE_HALT ) ;
+    genCodeByte ( OPCODE_HALT ) ;
   }
   else
   if ( dump_env != NULL &&
@@ -77,7 +77,7 @@ int pslCompiler::compile ( FILE *fd, const char *fname )
 
 
 
-int pslCompiler::pushReturnStatement ()
+int pslCompiler::genReturnStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
@@ -86,15 +86,15 @@ int pslCompiler::pushReturnStatement ()
   if ( c [ 0 ] == ';' )   /* Return without data == "return 0" */
   {
     ungetToken   ( c ) ;
-    pushConstant ( "0.0" ) ;
+    genConstant ( "0.0" ) ;
   }
   else
   {
     ungetToken     ( c ) ;
-    pushExpression () ;
+    genExpression () ;
   }
 
-  pushReturn () ;
+  genReturn () ;
   return TRUE ;
 }
 
@@ -149,19 +149,19 @@ void pslCompiler::popContinueToLabel ()
 
 /* Implement actual break and continue statements. */
 
-int pslCompiler::pushBreakStatement ()
+int pslCompiler::genBreakStatement ()
 {
   if ( next_break <= 0 )
     return error ( "'break' statement is not inside a 'switch' or a loop." ) ;
 
   char s [ 10 ] ;
   sprintf ( s, "L%d", breakToAddressStack [ next_break-1 ] ) ;
-  pushJump ( getCodeSymbol ( s, next_code+1 ) ) ;
+  genJump ( getCodeSymbol ( s, next_code+1 ) ) ;
   return TRUE ;
 }
 
 
-int pslCompiler::pushContinueStatement ()
+int pslCompiler::genContinueStatement ()
 {
   if ( next_break <= 0 )
     return error ( "'continue' statement is not inside a loop." ) ;
@@ -171,7 +171,7 @@ int pslCompiler::pushContinueStatement ()
 
   char s [ 10 ] ;
   sprintf ( s, "L%d", continueToAddressStack [ next_continue-1 ] ) ;
-  pushJump ( getCodeSymbol ( s, next_code+1 ) ) ;
+  genJump ( getCodeSymbol ( s, next_code+1 ) ) ;
   return TRUE ;
 }
 
@@ -179,9 +179,9 @@ int pslCompiler::pushContinueStatement ()
 
 
 
-int pslCompiler::pushSwitchStatement ()
+int pslCompiler::genSwitchStatement ()
 {
-  if ( ! pushExpression () )
+  if ( ! genExpression () )
     return error ( "Missing control expression for 'switch'" ) ;
 
   char c [ MAX_TOKEN ] ;
@@ -191,7 +191,7 @@ int pslCompiler::pushSwitchStatement ()
   if ( c [ 0 ] != '{' )
     return error ( "Missing '{' after 'switch'" ) ;
 
-  int jumpToNextCase = pushJump ( 0 ) ;
+  int jumpToNextCase = genJump ( 0 ) ;
   int jumpAfterTest  = 0 ;
 
   pushBreakToLabel () ;
@@ -203,14 +203,14 @@ int pslCompiler::pushSwitchStatement ()
 
     if ( strcmp ( c, "case" ) == 0 )
     {
-      jumpAfterTest = pushJump ( 0 ) ;
+      jumpAfterTest = genJump ( 0 ) ;
 
       code [ jumpToNextCase   ] =   next_code        & 0xFF ;
       code [ jumpToNextCase+1 ] = ( next_code >> 8 ) & 0xFF ;
 
-      pushStackDup () ;
+      genStackDup () ;
 
-      if ( ! pushExpression () )
+      if ( ! genExpression () )
         error ( "Missing expression after 'case'." ) ;
 
       getToken ( c ) ;
@@ -218,9 +218,9 @@ int pslCompiler::pushSwitchStatement ()
       if ( c[0] != ':' )
         error ( "Missing ':' after 'case' expression." ) ;
 
-      pushEqual () ;
+      genEqual () ;
 
-      jumpToNextCase = pushJumpIfFalse ( 0 ) ;
+      jumpToNextCase = genJumpIfFalse ( 0 ) ;
 
       code [ jumpAfterTest   ] = next_code & 0xFF ;
       code [ jumpAfterTest+1 ] = ( next_code >> 8 ) & 0xFF ;
@@ -246,7 +246,7 @@ int pslCompiler::pushSwitchStatement ()
     {
       ungetToken ( c ) ;
 
-      if ( ! pushStatement () )
+      if ( ! genStatement () )
         error ( "Missing statement within switch." ) ;
 
       getToken ( c ) ;
@@ -258,13 +258,13 @@ int pslCompiler::pushSwitchStatement ()
 
   popBreakToLabel    () ;
   popContinueToLabel () ;
-  pushPop () ;
+  genPop () ;
   return TRUE ;
 }
 
 
 
-int pslCompiler::pushDoWhileStatement ()
+int pslCompiler::genDoWhileStatement ()
 {
   /* Remember place to jump back to */
 
@@ -273,7 +273,7 @@ int pslCompiler::pushDoWhileStatement ()
   pushBreakToLabel    () ;
   setContinueToLabel ( pushContinueToLabel () ) ;
 
-  if ( ! pushStatement () )
+  if ( ! genStatement () )
     return error ( "Missing statement for 'do/while'" ) ;
 
   char c [ MAX_TOKEN ] ;
@@ -285,10 +285,10 @@ int pslCompiler::pushDoWhileStatement ()
   if ( strcmp ( c, "while" ) != 0 )
     return error ( "Missing 'while' for 'do/while'" ) ;
 
-  if ( ! pushExpression () )
+  if ( ! genExpression () )
     return error ( "Missing expression for 'while' in a 'do/while'" ) ;
 
-  pushJumpIfTrue ( start_loc ) ;
+  genJumpIfTrue ( start_loc ) ;
 
   popBreakToLabel    () ;
   popContinueToLabel () ;
@@ -296,7 +296,7 @@ int pslCompiler::pushDoWhileStatement ()
 }
 
 
-int pslCompiler::pushForStatement ()
+int pslCompiler::genForStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
@@ -312,7 +312,7 @@ int pslCompiler::pushForStatement ()
     return error ( "Missing '(' for 'for' loop" ) ;
   }
 
-  if ( ! pushStatement () )
+  if ( ! genStatement () )
   {
     popLocality () ;
     return error ( "Missing initialiser for 'if'" ) ;
@@ -332,7 +332,7 @@ int pslCompiler::pushForStatement ()
 
   /* The test */
 
-  if ( ! pushExpression () )
+  if ( ! genExpression () )
     return error ( "Missing test for 'for' loop" ) ;
 
   getToken ( c ) ;    /* The ';' after the initialiser */
@@ -366,9 +366,9 @@ int pslCompiler::pushForStatement ()
  
   next_saved-- ;  /* Throw away the ')' */
 
-  int label_loc = pushJumpIfFalse ( 0 ) ;
+  int label_loc = genJumpIfFalse ( 0 ) ;
 
-  if ( ! pushStatement () )
+  if ( ! genStatement () )
   {
     popLocality () ;
     return error ( "Missing action body for 'for' loop" ) ;
@@ -385,13 +385,13 @@ int pslCompiler::pushForStatement ()
   for ( int i = next_saved-1 ; i >= 0 ; i-- )
     ungetToken ( saved[i] ) ;    
 
-  if ( ! pushStatement () )
+  if ( ! genStatement () )
   {
     popLocality () ;
     return error ( "Missing 'increment' part of 'for' loop" ) ;
   }
 
-  pushJump ( start_loc ) ;
+  genJump ( start_loc ) ;
 
   code [ label_loc   ] = next_code & 0xFF ;
   code [ label_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
@@ -403,7 +403,7 @@ int pslCompiler::pushForStatement ()
 }
 
 
-int pslCompiler::pushWhileStatement ()
+int pslCompiler::genWhileStatement ()
 {
   /* Remember place to jump back to */
 
@@ -412,15 +412,15 @@ int pslCompiler::pushWhileStatement ()
 
   int start_loc = next_code ;
 
-  if ( ! pushExpression () )
+  if ( ! genExpression () )
     return error ( "Missing expression for 'while'" ) ;
 
-  int label_loc = pushJumpIfFalse ( 0 ) ;
+  int label_loc = genJumpIfFalse ( 0 ) ;
 
-  if ( ! pushStatement () )
+  if ( ! genStatement () )
     return error ( "Missing statement for 'while'" ) ;
 
-  pushJump ( start_loc ) ;
+  genJump ( start_loc ) ;
 
   code [ label_loc   ] = next_code & 0xFF ;
   code [ label_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
@@ -432,14 +432,14 @@ int pslCompiler::pushWhileStatement ()
 }
 
 
-int pslCompiler::pushIfStatement ()
+int pslCompiler::genIfStatement ()
 {
-  if ( ! pushExpression () )
+  if ( ! genExpression () )
     return error ( "Missing expression for 'if'" ) ;
 
-  int else_loc = pushJumpIfFalse ( 0 ) ;
+  int else_loc = genJumpIfFalse ( 0 ) ;
 
-  if ( ! pushStatement () )
+  if ( ! genStatement () )
     return error ( "Missing statement for 'if'" ) ;
 
   char c [ MAX_TOKEN ] ;
@@ -464,12 +464,12 @@ int pslCompiler::pushIfStatement ()
     return TRUE ;
   }
 
-  int label_loc = pushJump ( 0 ) ;
+  int label_loc = genJump ( 0 ) ;
 
   code [ else_loc   ] = next_code & 0xFF ;
   code [ else_loc+1 ] = ( next_code >> 8 ) & 0xFF ;
 
-  if ( ! pushStatement () )
+  if ( ! genStatement () )
     return error ( "Missing statement for 'else'" ) ;
 
   code [ label_loc   ] = next_code & 0xFF ;
@@ -479,7 +479,7 @@ int pslCompiler::pushIfStatement ()
 }
 
 
-int pslCompiler::pushFunctionCall ( const char *var )
+int pslCompiler::genFunctionCall ( const char *var )
 {
   char c [ MAX_TOKEN ] ;
 
@@ -500,7 +500,7 @@ int pslCompiler::pushFunctionCall ( const char *var )
   while ( c[0] != ')' )
   { 
     ungetToken ( c ) ;
-    pushExpression () ;
+    genExpression () ;
     argc++ ;
     getToken ( c ) ;
 
@@ -513,59 +513,18 @@ int pslCompiler::pushFunctionCall ( const char *var )
     getToken ( c ) ;
   }
 
-  pushCall ( var, argc ) ;
+  genCall ( var, argc ) ;
   return TRUE ;
 }
 
 
-int pslCompiler::pushAssignmentStatement ( const char *var )
-{
-  char c [ MAX_TOKEN ] ;
-
-  getToken ( c ) ;
-
-  if ( strcmp ( c, "="   ) != 0 && strcmp ( c, "+="  ) != 0 && 
-       strcmp ( c, "-="  ) != 0 && strcmp ( c, "/="  ) != 0 && 
-       strcmp ( c, "*="  ) != 0 && strcmp ( c, "%="  ) != 0 && 
-       strcmp ( c, "&="  ) != 0 && strcmp ( c, "|="  ) != 0 && 
-       strcmp ( c, "^="  ) != 0 && strcmp ( c, "<<=" ) != 0 && 
-       strcmp ( c, ">>=" ) != 0 )
-  {
-    ungetToken ( c ) ;
-    ungetToken ( var ) ;
-    pushExpression () ;
-    pushPop () ;
-    return TRUE ;
-  }
-
-  if ( pushExpression () )
-  {
-    if ( strcmp ( c, "="   ) == 0 ) pushAssignment    ( var ) ; else
-    if ( strcmp ( c, "+="  ) == 0 ) pushAddAssignment ( var ) ; else
-    if ( strcmp ( c, "-="  ) == 0 ) pushSubAssignment ( var ) ; else
-    if ( strcmp ( c, "*="  ) == 0 ) pushMulAssignment ( var ) ; else
-    if ( strcmp ( c, "%="  ) == 0 ) pushModAssignment ( var ) ; else
-    if ( strcmp ( c, "/="  ) == 0 ) pushDivAssignment ( var ) ; else
-    if ( strcmp ( c, "&="  ) == 0 ) pushAndAssignment ( var ) ; else
-    if ( strcmp ( c, "|="  ) == 0 ) pushOrAssignment  ( var ) ; else
-    if ( strcmp ( c, "^="  ) == 0 ) pushXorAssignment ( var ) ; else
-    if ( strcmp ( c, "<<=" ) == 0 ) pushSHLAssignment ( var ) ; else
-    if ( strcmp ( c, ">>=" ) == 0 ) pushSHRAssignment ( var ) ;
-
-    return TRUE ; 
-  }
-
-  return warning ( "Unexpected '%s' after Assignment statement", c ) ;
-}
-
-
-int pslCompiler::pushCompoundStatement ()
+int pslCompiler::genCompoundStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
   pushLocality () ;
 
-  while ( pushStatement () )
+  while ( genStatement () )
   {
     getToken ( c ) ;
 
@@ -591,42 +550,46 @@ int pslCompiler::pushCompoundStatement ()
 }
 
 
-int pslCompiler::pushStatement ()
+int pslCompiler::genStatement ()
 {
   char c [ MAX_TOKEN ] ;
 
   if ( generate_line_numbers )
-    pushLineNumber ( _pslGetLineNo () ) ;
+    genLineNumber ( _pslGetLineNo () ) ;
 
   getToken ( c ) ;
 
-  if ( strcmp ( c, "static"   ) == 0 ) return pushStaticVarDecl      () ;
-  if ( strcmp ( c, "string"   ) == 0 ) return pushLocalVarDecl ( PSL_STRING) ;
-  if ( strcmp ( c, "int"      ) == 0 ) return pushLocalVarDecl ( PSL_INT   ) ;
-  if ( strcmp ( c, "float"    ) == 0 ) return pushLocalVarDecl ( PSL_FLOAT ) ;
-  if ( strcmp ( c, "return"   ) == 0 ) return pushReturnStatement    () ;
-  if ( strcmp ( c, "break"    ) == 0 ) return pushBreakStatement     () ;
-  if ( strcmp ( c, "continue" ) == 0 ) return pushContinueStatement  () ;
-  if ( strcmp ( c, "pause"    ) == 0 ) return pushPauseStatement     () ;
-  if ( strcmp ( c, "for"      ) == 0 ) return pushForStatement       () ;
-  if ( strcmp ( c, "do"       ) == 0 ) return pushDoWhileStatement   () ;
-  if ( strcmp ( c, "switch"   ) == 0 ) return pushSwitchStatement    () ;
-  if ( strcmp ( c, "while"    ) == 0 ) return pushWhileStatement     () ;
-  if ( strcmp ( c, "if"       ) == 0 ) return pushIfStatement        () ;
-  if ( strcmp ( c, "++"       ) == 0 ) return pushAssignmentStatement ( c ) ;
-  if ( strcmp ( c, "--"       ) == 0 ) return pushAssignmentStatement ( c ) ;
-  if ( isalnum ( c [ 0 ] )           ) return pushAssignmentStatement ( c ) ;
-  if ( c [ 0 ] == '{'                ) return pushCompoundStatement  () ;
-
+  if ( strcmp ( c, "static"   ) == 0 ) return genStaticVarDecl      () ;
+  if ( strcmp ( c, "string"   ) == 0 ) return genLocalVarDecl ( PSL_STRING) ;
+  if ( strcmp ( c, "int"      ) == 0 ) return genLocalVarDecl ( PSL_INT   ) ;
+  if ( strcmp ( c, "float"    ) == 0 ) return genLocalVarDecl ( PSL_FLOAT ) ;
+  if ( strcmp ( c, "return"   ) == 0 ) return genReturnStatement    () ;
+  if ( strcmp ( c, "break"    ) == 0 ) return genBreakStatement     () ;
+  if ( strcmp ( c, "continue" ) == 0 ) return genContinueStatement  () ;
+  if ( strcmp ( c, "pause"    ) == 0 ) return genPauseStatement     () ;
+  if ( strcmp ( c, "for"      ) == 0 ) return genForStatement       () ;
+  if ( strcmp ( c, "do"       ) == 0 ) return genDoWhileStatement   () ;
+  if ( strcmp ( c, "switch"   ) == 0 ) return genSwitchStatement    () ;
+  if ( strcmp ( c, "while"    ) == 0 ) return genWhileStatement     () ;
+  if ( strcmp ( c, "if"       ) == 0 ) return genIfStatement        () ;
   if ( strcmp ( c, "case"     ) == 0 || strcmp ( c, "default" ) == 0 )
     return error ( "'%s' encountered - not inside 'switch' statement", c ) ;
 
-  ungetToken ( c ) ;
+  if ( c [ 0 ] == '{' ) return genCompoundStatement () ;
+
+  ungetToken ( c ) ; 
+
+  if ( genExpression () )
+  {
+    genPop () ;   /* Discard result */
+    return TRUE ;
+  }
+
   return FALSE ;
 }
 
 
-void pslCompiler::pushProgram ()
+void pslCompiler::genProgram ()
 {
   char c [ MAX_TOKEN ] ;
 
@@ -641,24 +604,24 @@ void pslCompiler::pushProgram ()
 
     ungetToken ( c ) ;
 
-    pushGlobalDeclaration () ;
+    genGlobalDeclaration () ;
   }
 
   /* Have the program call 'main' and then halt */
 
-  pushIntConstant ( 0 ) ;  /* No arguments to main *YET*  */
+  genIntConstant ( 0 ) ;  /* No arguments to main *YET*  */
 
-  pushCodeByte ( OPCODE_CALL ) ;
-  pushCodeAddr ( getCodeSymbol ( "main", next_code ) ) ;
-  pushCodeByte ( 0 ) ;  /* Argc */
-  pushCodeByte ( OPCODE_HALT ) ;
+  genCodeByte ( OPCODE_CALL ) ;
+  genCodeAddr ( getCodeSymbol ( "main", next_code ) ) ;
+  genCodeByte ( 0 ) ;  /* Argc */
+  genCodeByte ( OPCODE_HALT ) ;
 
   checkUnresolvedSymbols () ;
 }
 
 
 
-int pslCompiler::pushLocalVarDecl ( pslType t )
+int pslCompiler::genLocalVarDecl ( pslType t )
 {
   char c  [ MAX_TOKEN ] ;
   char s  [ MAX_TOKEN ] ;
@@ -667,58 +630,101 @@ int pslCompiler::pushLocalVarDecl ( pslType t )
 
   setVarSymbol ( s ) ;
 
+  getToken ( c ) ;
+
+  if ( c[0] == '[' )
+  {
+    genExpression () ;
+
+    switch ( t )
+    {
+      case PSL_FLOAT  : genMakeFloatArray  ( s ) ; break ;
+      case PSL_STRING : genMakeStringArray ( s ) ; break ;
+      default :         genMakeIntArray    ( s ) ; break ;
+    }
+
+    getToken ( c ) ;
+
+    if ( c[0] != ']' )
+      return error ( "Missing ']' after array declaration" ) ; 
+
+    return TRUE ;
+  }
+
+  int v ;
+
   switch ( t )
   {
-    case PSL_VOID   :
-    case PSL_INT    : makeIntVariable    ( s ) ; break ;
-    case PSL_FLOAT  : makeFloatVariable  ( s ) ; break ;
-    case PSL_STRING : makeStringVariable ( s ) ; break ;
+    case PSL_FLOAT  : v = genMakeFloatVariable  ( s ) ; break ;
+    case PSL_STRING : v = genMakeStringVariable ( s ) ; break ;
+    default :         v = genMakeIntVariable    ( s ) ; break ;
   }
- 
-  getToken ( c ) ;
 
   if ( strcmp ( c, "=" ) == 0 )
   {
-    ungetToken ( c ) ;
-    pushAssignmentStatement ( s ) ;
+    genIntConstant ( v ) ;
+    genExpression () ;
+    genAssignment () ;
+    genPop        () ;
     return TRUE ;
   }
- 
+
   ungetToken ( c ) ;
   return TRUE ;
 }
 
 
 
-int pslCompiler::pushStaticVarDecl ()
+int pslCompiler::genStaticVarDecl ()
 {
-  return error ( "Local Variables are Not Supported Yet." ) ;
+  return error ( "Static Local Variables are Not Supported Yet." ) ;
 }
 
 
 
-int pslCompiler::pushGlobalVarDecl ( const char *s, pslType t )
+int pslCompiler::genGlobalVarDecl ( const char *s, pslType t )
 {
   char c  [ MAX_TOKEN ] ;
 
   setVarSymbol ( s ) ;
 
-  switch ( t )
-  {
-    case PSL_VOID   :
-    case PSL_INT    : makeIntVariable    ( s ) ; break ;
-    case PSL_FLOAT  : makeFloatVariable  ( s ) ; break ;
-    case PSL_STRING : makeStringVariable ( s ) ; break ;
-  }
- 
-
   getToken ( c ) ;
 
-  if ( c[0] == '=' )
+  if ( c[0] == '[' )
   {
-    ungetToken ( c ) ;
-    pushAssignmentStatement ( s ) ;
+    genExpression () ;
+
+    switch ( t )
+    {
+      case PSL_FLOAT  : genMakeFloatArray  ( s ) ; break ;
+      case PSL_STRING : genMakeStringArray ( s ) ; break ;
+      default :         genMakeIntArray    ( s ) ; break ;
+    }
+
     getToken ( c ) ;
+
+    if ( c[0] != ']' )
+      return error ( "Missing ']' after array declaration" ) ; 
+  }
+  else
+  {
+    int v ;
+
+    switch ( t )
+    {
+      case PSL_FLOAT  : v = genMakeFloatVariable  ( s ) ; break ;
+      case PSL_STRING : v = genMakeStringVariable ( s ) ; break ;
+      default :         v = genMakeIntVariable    ( s ) ; break ;
+    }
+ 
+    if ( strcmp ( c, "=" ) == 0 )
+    {
+      genIntConstant ( v ) ;
+      genExpression () ;
+      genAssignment () ;
+      genPop        () ;
+      getToken ( c ) ;
+    }
   }
  
   if ( c[0] != ';' )
@@ -729,7 +735,7 @@ int pslCompiler::pushGlobalVarDecl ( const char *s, pslType t )
 
 
 
-int pslCompiler::pushGlobalDeclaration ()
+int pslCompiler::genGlobalDeclaration ()
 {
   char c  [ MAX_TOKEN ] ;
   char fn [ MAX_TOKEN ] ;
@@ -758,24 +764,24 @@ int pslCompiler::pushGlobalDeclaration ()
   if ( c[0] == '(' )
   {
     ungetToken ( c ) ;
-    return pushFunctionDeclaration ( fn ) ;
+    return genFunctionDeclaration ( fn ) ;
   }
 
-  if ( c[0] == '=' || c[0] == ';' )
+  if ( c[0] == '[' || strcmp ( c, "=" ) == 0 || c[0] == ';' )
   {
     ungetToken ( c ) ;
-    return pushGlobalVarDecl ( fn, t ) ;
+    return genGlobalVarDecl ( fn, t ) ;
   }
 
   return error ( "Expected a declaration - but got '%s'", c);
 }
 
 
-int pslCompiler::pushFunctionDeclaration ( const char *fn )
+int pslCompiler::genFunctionDeclaration ( const char *fn )
 {
   char c  [ MAX_TOKEN ] ;
 
-  pslAddress jump_target = pushJump ( 0 ) ;
+  pslAddress jump_target = genJump ( 0 ) ;
 
   setCodeSymbol ( fn, next_code ) ;
 
@@ -801,15 +807,15 @@ int pslCompiler::pushFunctionDeclaration ( const char *fn )
 
     pslAddress a = setVarSymbol ( s ) ;
 
-    if ( strcmp ( c, "int" ) == 0 ) makeIntVariable    ( s ) ; else
-    if ( strcmp ( c, "float" ) == 0 ) makeFloatVariable  ( s ) ; else
-    if ( strcmp ( c, "string" ) == 0 ) makeStringVariable ( s ) ; else
+    if ( strcmp ( c, "int"    ) == 0 ) genMakeIntVariable    ( s ) ; else
+    if ( strcmp ( c, "float"  ) == 0 ) genMakeFloatVariable  ( s ) ; else
+    if ( strcmp ( c, "string" ) == 0 ) genMakeStringVariable ( s ) ; else
     {
       popLocality () ;
       return error ( "Missing ')' in declaration of '%s'", fn ) ;
     }
  
-    pushGetParameter ( a, argpos++ ) ;
+    genGetParameter ( a, argpos++ ) ;
 
     getToken ( c ) ;
 
@@ -837,7 +843,7 @@ int pslCompiler::pushFunctionDeclaration ( const char *fn )
     return error ( "Missing '{' in function '%s'", fn ) ;
   }
 
-  if ( ! pushCompoundStatement () )
+  if ( ! genCompoundStatement () )
   {
     popLocality () ;
     return error ( "Missing '}' in function '%s'", fn ) ;
@@ -847,8 +853,8 @@ int pslCompiler::pushFunctionDeclaration ( const char *fn )
 
   /* If we fall off the end of the function, we still need a return value */
 
-  pushConstant ( "0.0" ) ;
-  pushReturn   () ;
+  genConstant ( "0.0" ) ;
+  genReturn   () ;
 
   code [  jump_target  ] =  next_code       & 0xFF ;
   code [ jump_target+1 ] = (next_code >> 8) & 0xFF ;

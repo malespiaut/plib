@@ -25,7 +25,7 @@
 #include "pslLocal.h"
 
 
-void pslCompiler::pushCodeByte ( pslOpcode op )
+void pslCompiler::genCodeByte ( pslOpcode op )
 {
   if ( next_code >= MAX_CODE - 1 )
     error ( "Program too big!" ) ;
@@ -34,34 +34,34 @@ void pslCompiler::pushCodeByte ( pslOpcode op )
 }
 
 
-void pslCompiler::pushCodeAddr ( pslAddress a )
+void pslCompiler::genCodeAddr ( pslAddress a )
 {
-  pushCodeByte ( a & 0xFF ) ;
-  pushCodeByte ( ( a >> 8 ) & 0xFF ) ;
+  genCodeByte ( a & 0xFF ) ;
+  genCodeByte ( ( a >> 8 ) & 0xFF ) ;
 }
 
 
-void pslCompiler::pushLineNumber ( int l )
+void pslCompiler::genLineNumber ( int l )
 {
-  pushCodeByte ( OPCODE_LINE_NUMBER ) ;
-  pushCodeByte ( l & 0xFF ) ;
-  pushCodeByte ( ( l >> 8 ) & 0xFF ) ;
+  genCodeByte ( OPCODE_LINE_NUMBER ) ;
+  genCodeByte ( l & 0xFF ) ;
+  genCodeByte ( ( l >> 8 ) & 0xFF ) ;
 }
 
 
-void pslCompiler::pushCharConstant ( char c )
+void pslCompiler::genCharConstant ( char c )
 {
   /* A bit wasteful but... */
 
-  pushCodeByte ( OPCODE_PUSH_INT_CONSTANT ) ;
-  pushCodeByte ( c ) ;
-  pushCodeByte ( 0 ) ;
-  pushCodeByte ( 0 ) ;
-  pushCodeByte ( 0 ) ;
+  genCodeByte ( OPCODE_PUSH_INT_CONSTANT ) ;
+  genCodeByte ( c ) ;
+  genCodeByte ( 0 ) ;
+  genCodeByte ( 0 ) ;
+  genCodeByte ( 0 ) ;
 }
 
 
-void pslCompiler::pushConstant ( const char *c )
+void pslCompiler::genConstant ( const char *c )
 {
   int isInteger = TRUE ;
 
@@ -73,314 +73,337 @@ void pslCompiler::pushConstant ( const char *c )
     }
 
   if ( isInteger )
-    pushIntConstant ( c ) ;
+    genIntConstant ( c ) ;
   else
-    pushFloatConstant ( c ) ;
+    genFloatConstant ( c ) ;
 }
 
 
-void pslCompiler::pushStringConstant ( const char *c )
+void pslCompiler::genStringConstant ( const char *c )
 {
-  pushCodeByte ( OPCODE_PUSH_STRING_CONSTANT ) ;
+  genCodeByte ( OPCODE_PUSH_STRING_CONSTANT ) ;
 
   for ( int i = 0 ; c [ i ] != '\0' ; i++ )
-    pushCodeByte ( (unsigned char)( c [ i ]) ) ;
+    genCodeByte ( (unsigned char)( c [ i ]) ) ;
 
-  pushCodeByte ( '\0' ) ;
+  genCodeByte ( '\0' ) ;
 }
 
 
-void pslCompiler::pushIntConstant ( int i )
+void pslCompiler::genIntConstant ( int i )
 {
   char *ii = (char *) & i ;
 
-  pushCodeByte ( OPCODE_PUSH_INT_CONSTANT ) ;
-  pushCodeByte ( ii [ 0 ] ) ;
-  pushCodeByte ( ii [ 1 ] ) ;
-  pushCodeByte ( ii [ 2 ] ) ;
-  pushCodeByte ( ii [ 3 ] ) ;
+  genCodeByte ( OPCODE_PUSH_INT_CONSTANT ) ;
+  genCodeByte ( ii [ 0 ] ) ;
+  genCodeByte ( ii [ 1 ] ) ;
+  genCodeByte ( ii [ 2 ] ) ;
+  genCodeByte ( ii [ 3 ] ) ;
 }
 
-void pslCompiler::pushIntConstant ( const char *c )
+void pslCompiler::genIntConstant ( const char *c )
 {
   int i = (int) strtol ( c, NULL, 0 ) ; 
-  pushIntConstant ( i ) ;
+  genIntConstant ( i ) ;
 }
 
-void pslCompiler::pushFloatConstant ( const char *c )
+void pslCompiler::genFloatConstant ( const char *c )
 {
   float f = (float) atof ( c ) ; 
   char *ff = (char *) & f ;
 
-  pushCodeByte ( OPCODE_PUSH_FLOAT_CONSTANT ) ;
-  pushCodeByte ( ff [ 0 ] ) ;
-  pushCodeByte ( ff [ 1 ] ) ;
-  pushCodeByte ( ff [ 2 ] ) ;
-  pushCodeByte ( ff [ 3 ] ) ;
+  genCodeByte ( OPCODE_PUSH_FLOAT_CONSTANT ) ;
+  genCodeByte ( ff [ 0 ] ) ;
+  genCodeByte ( ff [ 1 ] ) ;
+  genCodeByte ( ff [ 2 ] ) ;
+  genCodeByte ( ff [ 3 ] ) ;
 }
 
-void pslCompiler::pushGetParameter ( pslAddress var, int argpos )
+void pslCompiler::genGetParameter ( pslAddress var, int argpos )
 {
-  pushCodeByte ( OPCODE_GET_PARAMETER ) ;
-  pushCodeByte ( var ) ;
-  pushCodeByte ( argpos ) ;
+  genCodeByte ( OPCODE_GET_PARAMETER ) ;
+  genCodeByte ( var ) ;
+  genCodeByte ( argpos ) ;
 }
 
-void pslCompiler::pushIncrement ( const char *c )
+
+void pslCompiler::genIncrement ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_INCREMENT ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_INCREMENT ) ;
+  genCodeByte ( a ) ;
 } 
 
-void pslCompiler::pushDecrement ( const char *c )
+void pslCompiler::genDecrement ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_DECREMENT ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_DECREMENT ) ;
+  genCodeByte ( a ) ;
 } 
 
-void pslCompiler::makeIntVariable ( const char *c )
+int pslCompiler::genMakeIntArray ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_SET_INT_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_SET_INT_ARRAY ) ;
+  genCodeByte ( a ) ;
+  return a ;
 } 
 
-void pslCompiler::makeFloatVariable ( const char *c )
+int pslCompiler::genMakeFloatArray ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_SET_FLOAT_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_SET_FLOAT_ARRAY ) ;
+  genCodeByte ( a ) ;
+  return a ;
 } 
 
-void pslCompiler::makeStringVariable ( const char *c )
+int pslCompiler::genMakeStringArray ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_SET_STRING_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_SET_STRING_ARRAY ) ;
+  genCodeByte ( a ) ;
+  return a ;
 } 
 
-void pslCompiler::pushVariable ( const char *c )
+int pslCompiler::genMakeIntVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_PUSH_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_SET_INT_VARIABLE ) ;
+  genCodeByte ( a ) ;
+  return a ;
 } 
 
-void pslCompiler::pushAssignment ( const char *c )
+int pslCompiler::genMakeFloatVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_POP_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_SET_FLOAT_VARIABLE ) ;
+  genCodeByte ( a ) ;
+  return a ;
 } 
 
-void pslCompiler::pushAddAssignment ( const char *c )
+int pslCompiler::genMakeStringVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_POP_ADD_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_SET_STRING_VARIABLE ) ;
+  genCodeByte ( a ) ;
+  return a ;
 } 
 
 
-void pslCompiler::pushSubAssignment ( const char *c )
+void pslCompiler::genVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
 
-  pushCodeByte ( OPCODE_POP_SUB_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genIntConstant ( a ) ;
 } 
 
-
-void pslCompiler::pushMulAssignment ( const char *c )
+void pslCompiler::genFetch ()
 {
-  int a = getVarSymbol ( c ) ;
-
-  pushCodeByte ( OPCODE_POP_MUL_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_FETCH ) ;
 } 
 
-
-void pslCompiler::pushModAssignment ( const char *c )
+void pslCompiler::genIncrementFetch ()
 {
-  int a = getVarSymbol ( c ) ;
-
-  pushCodeByte ( OPCODE_POP_MOD_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_INCREMENT_FETCH ) ;
 } 
 
-
-void pslCompiler::pushDivAssignment ( const char *c )
+void pslCompiler::genDecrementFetch ()
 {
-  int a = getVarSymbol ( c ) ;
-
-  pushCodeByte ( OPCODE_POP_DIV_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_DECREMENT_FETCH ) ;
 } 
 
-
-void pslCompiler::pushAndAssignment ( const char *c )
+void pslCompiler::genIncrementLValue ()
 {
-  int a = getVarSymbol ( c ) ;
-
-  pushCodeByte ( OPCODE_POP_AND_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_INCREMENT_LVALUE ) ;
 } 
 
-
-void pslCompiler::pushOrAssignment ( const char *c )
+void pslCompiler::genDecrementLValue ()
 {
-  int a = getVarSymbol ( c ) ;
-
-  pushCodeByte ( OPCODE_POP_OR_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_DECREMENT_LVALUE ) ;
 } 
 
-
-void pslCompiler::pushXorAssignment ( const char *c )
+void pslCompiler::genAssignment ()
 {
-  int a = getVarSymbol ( c ) ;
-
-  pushCodeByte ( OPCODE_POP_XOR_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_POP_VARIABLE ) ;
 } 
 
-
-void pslCompiler::pushSHLAssignment ( const char *c )
+void pslCompiler::genAddAssignment ()
 {
-  int a = getVarSymbol ( c ) ;
-
-  pushCodeByte ( OPCODE_POP_SHL_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_POP_ADD_VARIABLE ) ;
 } 
 
 
-void pslCompiler::pushSHRAssignment ( const char *c )
+void pslCompiler::genSubAssignment ()
 {
-  int a = getVarSymbol ( c ) ;
-
-  pushCodeByte ( OPCODE_POP_SHR_VARIABLE ) ;
-  pushCodeByte ( a ) ;
+  genCodeByte ( OPCODE_POP_SUB_VARIABLE ) ;
 } 
 
 
-void pslCompiler::pushCall ( const char *c, int argc )
+void pslCompiler::genMulAssignment ()
+{
+  genCodeByte ( OPCODE_POP_MUL_VARIABLE ) ;
+} 
+
+
+void pslCompiler::genModAssignment ()
+{
+  genCodeByte ( OPCODE_POP_MOD_VARIABLE ) ;
+} 
+
+
+void pslCompiler::genDivAssignment ()
+{
+  genCodeByte ( OPCODE_POP_DIV_VARIABLE ) ;
+} 
+
+
+void pslCompiler::genAndAssignment ()
+{
+  genCodeByte ( OPCODE_POP_AND_VARIABLE ) ;
+} 
+
+
+void pslCompiler::genOrAssignment ()
+{
+  genCodeByte ( OPCODE_POP_OR_VARIABLE ) ;
+} 
+
+
+void pslCompiler::genXorAssignment ()
+{
+  genCodeByte ( OPCODE_POP_XOR_VARIABLE ) ;
+} 
+
+
+void pslCompiler::genSHLAssignment ()
+{
+  genCodeByte ( OPCODE_POP_SHL_VARIABLE ) ;
+} 
+
+
+void pslCompiler::genSHRAssignment ()
+{
+  genCodeByte ( OPCODE_POP_SHR_VARIABLE ) ;
+} 
+
+
+void pslCompiler::genCall ( const char *c, int argc )
 {
   int ext = getExtensionSymbol ( c ) ;
 
   if ( ext < 0 )
   {
-    pushIntConstant ( argc ) ;
-    pushCodeByte ( OPCODE_CALL ) ;
+    genIntConstant ( argc ) ;
+    genCodeByte ( OPCODE_CALL ) ;
 
     int a = getCodeSymbol ( c, next_code ) ;
 
-    pushCodeAddr ( a ) ;
-    pushCodeByte ( argc ) ;
+    genCodeAddr ( a ) ;
+    genCodeByte ( argc ) ;
   }
   else
   {
-    pushCodeByte ( OPCODE_CALLEXT ) ;
-    pushCodeByte ( ext ) ;
-    pushCodeByte ( argc ) ;
+    genCodeByte ( OPCODE_CALLEXT ) ;
+    genCodeByte ( ext ) ;
+    genCodeByte ( argc ) ;
   }
 } 
 
+void pslCompiler::genExchange     () { genCodeByte ( OPCODE_EXCHANGE   ) ; } 
+void pslCompiler::genReturn       () { genCodeByte ( OPCODE_RETURN     ) ; } 
+void pslCompiler::genPop          () { genCodeByte ( OPCODE_POP        ) ; } 
+void pslCompiler::genSubtract     () { genCodeByte ( OPCODE_SUB        ) ; } 
+void pslCompiler::genAdd          () { genCodeByte ( OPCODE_ADD        ) ; } 
+void pslCompiler::genDivide       () { genCodeByte ( OPCODE_DIV        ) ; } 
+void pslCompiler::genMultiply     () { genCodeByte ( OPCODE_MULT       ) ; } 
+void pslCompiler::genModulo       () { genCodeByte ( OPCODE_MOD        ) ; } 
+void pslCompiler::genNegate       () { genCodeByte ( OPCODE_NEG        ) ; } 
+void pslCompiler::genNot          () { genCodeByte ( OPCODE_NOT        ) ; } 
+void pslCompiler::genTwiddle      () { genCodeByte ( OPCODE_TWIDDLE    ) ; } 
+void pslCompiler::genOrOr         () { genCodeByte ( OPCODE_OROR       ) ; } 
+void pslCompiler::genAndAnd       () { genCodeByte ( OPCODE_ANDAND     ) ; } 
+void pslCompiler::genOr           () { genCodeByte ( OPCODE_OR         ) ; } 
+void pslCompiler::genAnd          () { genCodeByte ( OPCODE_AND        ) ; } 
+void pslCompiler::genXor          () { genCodeByte ( OPCODE_XOR        ) ; } 
+void pslCompiler::genShiftLeft    () { genCodeByte ( OPCODE_SHIFTLEFT  ) ; } 
+void pslCompiler::genShiftRight   () { genCodeByte ( OPCODE_SHIFTRIGHT ) ; } 
 
-void pslCompiler::pushReturn       () { pushCodeByte ( OPCODE_RETURN) ; } 
-void pslCompiler::pushPop          () { pushCodeByte ( OPCODE_POP   ) ; } 
-void pslCompiler::pushSubtract     () { pushCodeByte ( OPCODE_SUB   ) ; } 
-void pslCompiler::pushAdd          () { pushCodeByte ( OPCODE_ADD   ) ; } 
-void pslCompiler::pushDivide       () { pushCodeByte ( OPCODE_DIV   ) ; } 
-void pslCompiler::pushMultiply     () { pushCodeByte ( OPCODE_MULT  ) ; } 
-void pslCompiler::pushModulo       () { pushCodeByte ( OPCODE_MOD   ) ; } 
-void pslCompiler::pushNegate       () { pushCodeByte ( OPCODE_NEG   ) ; } 
-void pslCompiler::pushNot          () { pushCodeByte ( OPCODE_NOT   ) ; } 
-void pslCompiler::pushTwiddle      () { pushCodeByte ( OPCODE_TWIDDLE); } 
-void pslCompiler::pushOrOr         () { pushCodeByte ( OPCODE_OROR  ) ; } 
-void pslCompiler::pushAndAnd       () { pushCodeByte ( OPCODE_ANDAND) ; } 
-void pslCompiler::pushOr           () { pushCodeByte ( OPCODE_OR    ) ; } 
-void pslCompiler::pushAnd          () { pushCodeByte ( OPCODE_AND   ) ; } 
-void pslCompiler::pushXor          () { pushCodeByte ( OPCODE_XOR   ) ; } 
-void pslCompiler::pushShiftLeft    () { pushCodeByte ( OPCODE_SHIFTLEFT  ) ; } 
-void pslCompiler::pushShiftRight   () { pushCodeByte ( OPCODE_SHIFTRIGHT ) ; } 
+void pslCompiler::genLess         () { genCodeByte ( OPCODE_LESS       ) ; } 
+void pslCompiler::genLessEqual    () { genCodeByte ( OPCODE_LESSEQUAL  ) ; } 
+void pslCompiler::genGreater      () { genCodeByte ( OPCODE_GREATER    ) ; } 
+void pslCompiler::genGreaterEqual () { genCodeByte ( OPCODE_GREATEREQUAL); } 
+void pslCompiler::genNotEqual     () { genCodeByte ( OPCODE_NOTEQUAL   ) ; } 
+void pslCompiler::genEqual        () { genCodeByte ( OPCODE_EQUAL      ) ; } 
 
-void pslCompiler::pushLess         () { pushCodeByte ( OPCODE_LESS ) ; } 
-void pslCompiler::pushLessEqual    () { pushCodeByte ( OPCODE_LESSEQUAL ) ; } 
-void pslCompiler::pushGreater      () { pushCodeByte ( OPCODE_GREATER ) ; } 
-void pslCompiler::pushGreaterEqual () { pushCodeByte ( OPCODE_GREATEREQUAL ) ; } 
-void pslCompiler::pushNotEqual     () { pushCodeByte ( OPCODE_NOTEQUAL ) ; } 
-void pslCompiler::pushEqual        () { pushCodeByte ( OPCODE_EQUAL ) ; } 
+void pslCompiler::genStackDup () { genCodeByte ( OPCODE_STACK_DUPLICATE ) ; } 
 
-void pslCompiler::pushStackDup () { pushCodeByte ( OPCODE_STACK_DUPLICATE ) ; } 
-
-int pslCompiler::pushPeekJumpIfTrue  ( int l )
+int pslCompiler::genPeekJumpIfTrue  ( int l )
 {
-  pushCodeByte ( OPCODE_PEEK_JUMP_TRUE ) ;
+  genCodeByte ( OPCODE_PEEK_JUMP_TRUE ) ;
 
   int res = next_code ;
 
-  pushCodeAddr ( l ) ;
+  genCodeAddr ( l ) ;
 
   return res ;
 }
 
-int pslCompiler::pushPeekJumpIfFalse  ( int l )
+int pslCompiler::genPeekJumpIfFalse  ( int l )
 {
-  pushCodeByte ( OPCODE_PEEK_JUMP_FALSE ) ;
+  genCodeByte ( OPCODE_PEEK_JUMP_FALSE ) ;
 
   int res = next_code ;
 
-  pushCodeAddr ( l ) ;
+  genCodeAddr ( l ) ;
 
   return res ;
 }
 
-int pslCompiler::pushJumpIfTrue  ( int l )
+int pslCompiler::genJumpIfTrue  ( int l )
 {
-  pushCodeByte ( OPCODE_JUMP_TRUE ) ;
+  genCodeByte ( OPCODE_JUMP_TRUE ) ;
 
   int res = next_code ;
 
-  pushCodeAddr ( l ) ;
+  genCodeAddr ( l ) ;
 
   return res ;
 }
 
-int pslCompiler::pushJumpIfFalse  ( int l )
+int pslCompiler::genJumpIfFalse  ( int l )
 {
-  pushCodeByte ( OPCODE_JUMP_FALSE ) ;
+  genCodeByte ( OPCODE_JUMP_FALSE ) ;
 
   int res = next_code ;
 
-  pushCodeAddr ( l ) ;
+  genCodeAddr ( l ) ;
 
   return res ;
 }
 
-int pslCompiler::pushJump ( int l )
+int pslCompiler::genJump ( int l )
 {
-  pushCodeByte ( OPCODE_JUMP ) ;
+  genCodeByte ( OPCODE_JUMP ) ;
 
   int res = next_code ;
 
-  pushCodeAddr ( l ) ;
+  genCodeAddr ( l ) ;
 
   return res ;
 }
 
 
-int pslCompiler::pushPauseStatement()
+int pslCompiler::genPauseStatement()
 { 
-  pushCodeByte ( OPCODE_PAUSE ) ;
+  genCodeByte ( OPCODE_PAUSE ) ;
   return TRUE ;
 } 
 
