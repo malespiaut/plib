@@ -273,23 +273,23 @@ void puFileSelector::setSize ( int w, int h )
 
   // Resize and position the slider
   slider->setPosition ( w-30, 40+20*arrow_count ) ;
-  slider->setSize ( 20, h-70-40*arrow_count ) ;
+  slider->setSize ( 20, h-60-40*arrow_count ) ;
 
   // Position the arrow buttons
   if ( up_arrow )
   {
-    up_arrow->setPosition ( w-30, h-30-20*arrow_count ) ;
+    up_arrow->setPosition ( w-30, h-20-20*arrow_count ) ;
     down_arrow->setPosition ( w-30, 20+20*arrow_count ) ;
   }
 
   if ( fastup_arrow )
   {
-    fastup_arrow->setPosition ( w-30, h-50 ) ;
+    fastup_arrow->setPosition ( w-30, h-40 ) ;
     fastdown_arrow->setPosition ( w-30, 40 ) ;
   }
 
   // Resize the list box
-  list_box->setSize ( w-40, h-70 ) ;
+  list_box->setSize ( w-40, h-80 ) ;
 
   // Resoze and position the buttons
   cancel_button->setSize ( (w<170)?(w/2-15):70, 20 ) ;
@@ -383,12 +383,12 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
 
   frame = new puFrame ( 0, 0, w, h );
 
-  slider = new puSlider (w-30,40+20*arrows,h-70-40*arrows,TRUE,20);
+  slider = new puSlider (w-30,40+20*arrows,h-60-40*arrows,TRUE,20);
   slider->setValue(1.0f);
   slider->setSliderFraction (0.2f) ;
   slider->setCBMode( PUSLIDER_DELTA );
   
-  list_box = new puListBox ( 10, 60, w-40, h-30 ) ;
+  list_box = new puListBox ( 10, 60, w-40, h-20 ) ;
   list_box -> setLabel ( title );
   list_box -> setLabelPlace ( PUPLACE_TOP_LEFT ) ;
   list_box -> setStyle ( -PUSTYLE_SMALL_SHADED ) ;
@@ -428,7 +428,7 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
     down_arrow->setUserData ( slider ) ;
     down_arrow->setCallback ( puFileSelectorHandleArrow ) ;
 
-    up_arrow = new puArrowButton ( w-30, h-30-20*arrows, w-10, h-10-20*arrows, PUARROW_UP ) ;
+    up_arrow = new puArrowButton ( w-30, h-20-20*arrows, w-10, h-20*arrows, PUARROW_UP ) ;
     up_arrow->setUserData ( slider ) ;
     up_arrow->setCallback ( puFileSelectorHandleArrow ) ;
   }
@@ -439,7 +439,7 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
     fastdown_arrow->setUserData ( slider ) ;
     fastdown_arrow->setCallback ( puFileSelectorHandleArrow ) ;
 
-    fastup_arrow = new puArrowButton ( w-30, h-50, w-10, h-30, PUARROW_FASTUP ) ;
+    fastup_arrow = new puArrowButton ( w-30, h-40, w-10, h-20, PUARROW_FASTUP ) ;
     fastup_arrow->setUserData ( slider ) ;
     fastup_arrow->setCallback ( puFileSelectorHandleArrow ) ;
   }
