@@ -1,21 +1,21 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
@@ -24,12 +24,12 @@
 
 #include "puLocal.h"
 
-void puSlider::draw_slider_box ( int dx, int dy, float val, const char *box_label )
+void puSlider::draw_slider_box ( int dx, int dy, const puBox &box, float val, const char *box_label )
 {
   int sd, od ;
   if ( isVertical() ) { sd = 1 ; od = 0 ; } else { sd = 0 ; od = 1 ; }
 
-  int sz = abox.max [sd] - abox.min [sd] ;  // Size of slider box, in pixels
+  int sz = box.max [sd] - box.min [sd] ;  // Size of slider box, in pixels
 
   if ( val < 0.0f ) val = 0.0f ;
   if ( val > 1.0f ) val = 1.0f ;
@@ -38,10 +38,10 @@ void puSlider::draw_slider_box ( int dx, int dy, float val, const char *box_labe
 
   puBox bx ;
     
-  bx.min [ sd ] = abox.min [ sd ] + (int) val ;
+  bx.min [ sd ] = box.min [ sd ] + (int) val ;
   bx.max [ sd ] = (int) ( (float) bx.min [ sd ] + (float) sz * slider_fraction ) ;
-  bx.min [ od ] = abox.min [ od ] + 2 ;
-  bx.max [ od ] = abox.max [ od ] - 2 ;
+  bx.min [ od ] = box.min [ od ] + 2 ;
+  bx.max [ od ] = box.max [ od ] - 2 ;
 
   bx.draw ( dx, dy, PUSTYLE_SMALL_SHADED, colour, FALSE, 2 ) ;
 
@@ -88,11 +88,9 @@ void puSlider::draw ( int dx, int dy )
     r_cb ( this, dx, dy, render_data ) ;
   else
   {
-    float val ;
+    float val = getFloatValue () ;
 
-    getValue ( & val ) ;
-
-    draw_slider_box ( dx, dy, val ) ;
+    draw_slider_box ( dx, dy, abox, ( val - minimum_value ) / ( maximum_value - minimum_value ) ) ;
 
     draw_legend ( dx, dy ) ;
   }
@@ -135,9 +133,10 @@ void puSlider::doHit ( int button, int updown, int x, int y )
     }
 
     next_value = (next_value < 0.0f) ? 0.0f : (next_value > 1.0f) ? 1.0f : next_value ;
+    next_value = next_value * ( maximum_value - minimum_value ) + minimum_value ;
 
-    setValue ( next_value ) ;
-
+    setValue ( checkStep (next_value) );
+    
     switch ( cb_mode )
     {
       case PUSLIDER_CLICK :
@@ -149,7 +148,7 @@ void puSlider::doHit ( int button, int updown, int x, int y )
         }
         break ;
 
-      case PUSLIDER_DELTA :
+      case PUSLIDER_DELTA : /* Deprecated! */
         if ( fabs ( last_cb_value - next_value ) >= cb_delta )
         {
 	  last_cb_value = next_value ;

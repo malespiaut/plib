@@ -51,7 +51,7 @@ void puBiSlider::draw ( int dx, int dy )
     char str_value[10] ;
     sprintf (str_value, "%d", getCurrentMax() ) ;
 
-    draw_slider_box ( dx, dy, val, str_value ) ;
+    draw_slider_box ( dx, dy, abox, val, str_value ) ;
 
     // Draw the current_min slider and label it
 
@@ -62,7 +62,7 @@ void puBiSlider::draw ( int dx, int dy )
 
     sprintf (str_value, "%d", getCurrentMin() ) ;
 
-    draw_slider_box ( dx, dy, val, str_value ) ;
+    draw_slider_box ( dx, dy, abox, val, str_value ) ;
 
     draw_legend ( dx, dy ) ;
   }
@@ -107,29 +107,29 @@ void puBiSlider::doHit ( int button, int updown, int x, int y )
 
     next_value = (next_value < 0.0f) ? 0.0f : (next_value > 1.0) ? 1.0f : next_value ;
 
-    int new_value = getMinValue() + (int)( next_value * ( getMaxValue() - getMinValue() ) + 0.5 ) ;
+    float new_value = getMinValue() + ( next_value * ( getMaxValue() - getMinValue() ) + 0.5 ) ;
 
     if ( ( getActiveButton() == 0 ) || ( updown == PU_DOWN ) )  // No currently-active slider, set whichever is closest
     {
       if ( (new_value-getCurrentMin()) < (getCurrentMax()-new_value) ) // Closest to current_min
       {
-        setCurrentMin ( new_value ) ;
+        setCurrentMin ( checkStep(new_value) ) ;
         setActiveButton ( 1 ) ;
       }
       else  // Closest to current_max
       {
-        setCurrentMax ( new_value ) ;
+        setCurrentMax ( checkStep(new_value) ) ;
         setActiveButton ( 2 ) ;
       }
     }
     else if ( getActiveButton() == 1 )  // Currently moving current_min
     {
-      setCurrentMin ( new_value ) ;
+      setCurrentMin ( checkStep(new_value) ) ;
       if ( getCurrentMax() < getCurrentMin() ) setCurrentMax ( getCurrentMin() ) ;
     }
     else if ( getActiveButton() == 2 )  // Currently moving current_max
     {
-      setCurrentMax ( new_value ) ;
+      setCurrentMax ( checkStep(new_value) ) ;
       if ( getCurrentMax() < getCurrentMin() ) setCurrentMin ( getCurrentMax() ) ;
     }
 
@@ -145,7 +145,7 @@ void puBiSlider::doHit ( int button, int updown, int x, int y )
         }
         break ;
 
-      case PUSLIDER_DELTA :
+      case PUSLIDER_DELTA :/* Deprecated! */
         if ( fabs ( last_cb_value - next_value ) >= cb_delta )
         {
           last_cb_value = next_value ;
