@@ -84,6 +84,7 @@ public:
     vlist = new OptVertex* [ MAX_OPT_VERTEX_LIST ] ;
     tlist = new short [ MAX_OPT_VERTEX_LIST * 3 ] ;
     state = s ;
+    if (state != NULL) state -> ref(); //~T.G.
     cullface = cf ;
     vnum = tnum = 0 ;
   }
@@ -95,6 +96,8 @@ public:
     
     delete vlist ;
     delete tlist ;
+
+    if (state != NULL) ssgDeRefDelete(state); //~T.G.
   }
   
   short find ( sgVec3 v, sgVec2 t, sgVec4 c, int tex_fraction_only = FALSE ) ;
