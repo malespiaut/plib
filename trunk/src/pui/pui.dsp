@@ -110,6 +110,10 @@ SOURCE=.\puDialogBox.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puFilePicker.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\puFont.cxx
 # End Source File
 # Begin Source File
@@ -127,6 +131,10 @@ SOURCE=.\puInput.cxx
 # Begin Source File
 
 SOURCE=.\puInterface.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puListBox.cxx
 # End Source File
 # Begin Source File
 

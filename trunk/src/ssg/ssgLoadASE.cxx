@@ -70,7 +70,7 @@ enum { MAX_MATERIALS = 1000 };
 static aseMaterial** materials ;
 static u32 num_materials ;
 
-enum { MAX_FRAMES = 32 };   /* ssgTimedSelector only handles 32 kids */
+enum { MAX_FRAMES = 256 };
 aseMesh* mesh_list[ MAX_FRAMES ];
 int mesh_count = 0 ;
 

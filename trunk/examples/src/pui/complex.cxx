@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -26,6 +27,7 @@ puText      *dialog_box_message ;
 puOneShot   *dialog_box_ok_button ;
 puText      *timer_text ;
 puSlider    *rspeedSlider;
+puFilePicker* file_picker = 0 ;
 
 
 /***********************************\
@@ -211,8 +213,15 @@ void go_away_cb ( puObject * )
   dialog_box = NULL ;
 }
 
-void mk_dialog ( char *txt )
+void mk_dialog ( char *fmt, ... )
 {
+  static char txt [ PUSTRING_MAX ] ;
+
+  va_list argptr ;
+  va_start(argptr, fmt) ;
+  vsprintf( txt, fmt, argptr ) ;
+  va_end(argptr) ;
+
   dialog_box = new puDialogBox ( 150, 50 ) ;
   {
     new puFrame ( 0, 0, 400, 100 ) ;
@@ -225,6 +234,28 @@ void mk_dialog ( char *txt )
   }
   dialog_box -> close  () ;
   dialog_box -> reveal () ;
+}
+
+void pick_cb ( puObject * )
+{
+  char* filename ;
+  file_picker -> getValue ( &filename ) ;
+
+#if 0
+  if ( filename[0] != 0 )
+    mk_dialog ( "Saving File:\n%s", filename ) ;
+  else
+    mk_dialog ( "Save canceled" ) ;
+#endif
+
+  puDeleteObject ( file_picker ) ;
+  file_picker = 0 ;
+}
+
+void save_cb ( puObject * )
+{
+  file_picker = new puFilePicker ( ( 640 - 220 ) / 2, ( 480 - 170 ) / 2, "." ) ;
+  file_picker -> setCallback ( pick_cb ) ;
 }
 
 void ni_cb ( puObject * )
@@ -255,7 +286,7 @@ void exit_cb ( puObject * )
 /* Menu bar entries: */
 
 char      *file_submenu    [] = {  "Exit", "Close", "========", "Print", "========", "Save", "New", NULL } ;
-puCallback file_submenu_cb [] = { exit_cb, exit_cb,       NULL, ni_cb  ,       NULL,  ni_cb, ni_cb, NULL } ;
+puCallback file_submenu_cb [] = { exit_cb, exit_cb,       NULL, ni_cb  ,       NULL,  save_cb, ni_cb, NULL } ;
 
 char      *edit_submenu    [] = { "Do nothing.", NULL } ;
 puCallback edit_submenu_cb [] = {     edit_cb, NULL } ;
@@ -331,5 +362,3 @@ int main ( int argc, char **argv )
   glutMainLoop () ;
   return 0 ;
 }
-
-

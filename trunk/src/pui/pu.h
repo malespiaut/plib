@@ -237,6 +237,7 @@ extern int puRefresh ;
 #define PUCLASS_SLIDER           0x00002000
 #define PUCLASS_DIALOGBOX        0x00004000
 #define PUCLASS_ARROW            0x00008000
+#define PUCLASS_LISTBOX          0x00010000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -258,6 +259,7 @@ class puPopupMenu        ;
 class puMenuBar          ;
 class puInput            ;
 class puSlider           ;
+class puListBox          ;
 class puArrowButton      ;
 
 typedef float puColour [ 4 ] ;  /* RGBA */
@@ -755,7 +757,6 @@ public:
 } ;
 
 
-
 class puSlider : public puObject
 {
 protected:
@@ -799,6 +800,24 @@ public:
   float getSliderFraction ( void ) { return slider_fraction ; }
 } ;
 
+
+class puListBox : public puButton
+{
+  char ** list ;
+  int num ;
+  int top ;
+
+protected:
+public:
+  void doHit ( int button, int updown, int x, int y ) ;
+  void draw  ( int dx, int dy ) ;
+  puListBox  ( int minx, int miny, int maxx, int maxy, char** list ) ;
+
+  int getNumItems() const { return num ; }
+  int getTopItem() const { return top ; }
+  void setTopItem( int item_index ) ;
+
+} ;
 
 
 class puOneShot : public puButton
@@ -938,7 +957,6 @@ public:
 } ;
 
 
-
 class puDialogBox : public puPopup
 {
 protected:
@@ -950,5 +968,21 @@ public:
   }
 } ;
 
-#endif
 
+class puFilePicker : public puDialogBox
+{
+  char** files;
+  int num_files;
+
+  void find_files ( const char* dir ) ;
+  static void handle_select ( puObject* ) ;
+
+protected:
+public:
+
+  puFilePicker ( int x, int y, const char* dir ) ;
+  ~puFilePicker () ;
+} ;
+
+
+#endif
