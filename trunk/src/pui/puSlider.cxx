@@ -60,6 +60,16 @@ void puSlider::draw_slider_box ( int dx, int dy, float val, const char *box_labe
       yy = bx.max[1] + PUSTR_BGAP ;
     }
 
+    /* If greyed out then halve the opacity when drawing the label */
+
+    if ( active )
+      glColor4fv ( colour [ PUCOL_LABEL ] ) ;
+    else
+      glColor4f ( colour [ PUCOL_LABEL ][0],
+                  colour [ PUCOL_LABEL ][1],
+                  colour [ PUCOL_LABEL ][2],
+                  colour [ PUCOL_LABEL ][3] / 2.0f ) ; /* 50% more transparent */
+
     legendFont.drawString ( box_label, dx + xx, dy + yy ) ;
   }
 }
