@@ -122,3 +122,4 @@ ssgBranch *ssgaMakeSphere(
 
   return sphere;
 }
+

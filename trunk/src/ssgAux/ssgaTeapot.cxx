@@ -236,7 +236,6 @@ void ssgaTeapot::regenerate ()
     for ( j = 0 ; j < 16 ; j++ )
     {
       sgVec3 xyz ;
-      sgVec4 rgba = { 1,1,1,1 } ;
       sgVec2 uv ;
 
       uv [ 0 ] = (float)(j&3)/3.0f ;
@@ -245,7 +244,7 @@ void ssgaTeapot::regenerate ()
       sgScaleVec3 ( xyz, vertex[patch[i][j+1]], 1.0f/2.5f ) ;
       xyz [ 0 ] *= -1.0f ;
 
-      p -> setControlPoint ( j>>2, j&3, xyz, uv, rgba ) ;
+      p -> setControlPoint ( j>>2, j&3, xyz, uv, colour ) ;
     }
 
     p -> setKidState ( getKidState () ) ;
