@@ -270,7 +270,7 @@ void ssgaSphere::regenerate ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b),
                        center[1] + size[1]*cos(a)*sin(b),
                        center[2] - size[2]*       cos(b) ) ;
-	sgSetVec3 ( n, sin(a)*sin(b), cos(a)*sin(b), cos(b) ) ;
+	sgSetVec3 ( n, -sin(a)*sin(b), -cos(a)*sin(b), -cos(b) ) ;
 	sgSetVec2 ( t, (float)j/(float)slices, (float) i /(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
         
@@ -294,7 +294,7 @@ void ssgaSphere::regenerate ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b),
                        center[1] + size[1]*cos(a)*sin(b),
                        center[2] - size[2]*       cos(b) ) ;
-	sgSetVec3 ( n, sin(a)*sin(b), cos(a)*sin(b), cos(b) ) ;
+	sgSetVec3 ( n, -sin(a)*sin(b), -cos(a)*sin(b), -cos(b) ) ;
 	sgSetVec2 ( t, (float)j/(float)slices, (float)(i+1)/(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
       }
@@ -312,14 +312,14 @@ void ssgaSphere::regenerate ()
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b0),
                        center[1] + size[1]*cos(a)*sin(b0),
                        center[2] - size[2]*       cos(b0) ) ;
-	sgSetVec3 ( n, sin(a)*sin(b0), cos(a)*sin(b0), cos(b0) ) ;
+	sgSetVec3 ( n, -sin(a)*sin(b0), -cos(a)*sin(b0), -cos(b0) ) ;
 	sgSetVec2 ( t, (float)j/(float)slices, (float)i/(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
 
 	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b1),
                        center[1] + size[1]*cos(a)*sin(b1),
                        center[2] - size[2]*       cos(b1) ) ;
-	sgSetVec3 ( n, sin(a)*sin(b1), cos(a)*sin(b1), cos(b1) ) ;
+	sgSetVec3 ( n, -sin(a)*sin(b1), -cos(a)*sin(b1), -cos(b1) ) ;
 	sgSetVec2 ( t, (float)j/(float)slices, (float)(i+1)/(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
         
