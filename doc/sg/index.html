@@ -558,6 +558,8 @@ are 100% consistent and the paramter order is easy to remember.
 
   void sgVectorProductVec3 ( sgVec3 dst, sgVec3 a, sgVec3 b )
 
+  SGfloat sgLerp ( SGfloat a, SGfloat b, SGfloat f )
+
   void sgLerp2 ( sgVec2 dst, sgVec2 a, sgVec2 b, SGfloat f )
   void sgLerp3 ( sgVec3 dst, sgVec3 a, sgVec3 b, SGfloat f )
   void sgLerp4 ( sgVec4 dst, sgVec4 a, sgVec4 b, SGfloat f )
@@ -693,7 +695,7 @@ which returns a bitmask with zero or more of the following bits set:
   </tr>
   <tr>
     <td>SG_PROJECTION</td>
-    <td>Forth column not 0,0,0,1.</td>
+    <td>Fourth column not 0,0,0,1.</td>
   </tr>
 </table>
 
