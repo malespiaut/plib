@@ -610,7 +610,9 @@ void puFileSelector::find_files ( void )
     return ;
   }
 
-  for ( ifile = 0 ; (dp = ulReadDir(dirp)) != NULL && ifile < num_files ; )
+  for ( ifile = 0 ;
+        (dp = ulReadDir(dirp)) != NULL && ifile < num_files ;
+        ifile++ )
   {
     /* Skip over the "." entry... */
 
@@ -631,8 +633,6 @@ void puFileSelector::find_files ( void )
       files[ ifile ] = new char[ strlen(dp->d_name)+1 ] ;
       strcpy ( files [ ifile ], dp->d_name ) ;
     }
-
-    ifile++ ;
   }
 
   files [ ifile ] = NULL ;

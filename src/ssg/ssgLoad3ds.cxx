@@ -343,7 +343,7 @@ static char* get_string() {
   char *s = new char[256], read;
   int c = 0;
 
-  while ( (read = fgetc(model)) != 0 ) {
+  while ( (read = getc(model)) != 0 ) {
     if (c < 255)
       s[c++] = read;
   }

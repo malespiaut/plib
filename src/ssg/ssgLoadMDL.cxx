@@ -1384,7 +1384,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         
         char c;
         int i = 0;
-        while((c = fgetc(fp)) != 0)
+        while((c = getc(fp)) != 0)
         {
           if(!isspace(c))
             tex_filename[i++] = tolower(c);
@@ -1393,7 +1393,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
         
         // Padding byte
         if((strlen(tex_filename) + 1) % 2)
-          c = fgetc(fp);
+          c = getc(fp);
         
         DEBUGPRINT( "TEXTURE2: Set texture: name = " << tex_filename << 
           std::endl);

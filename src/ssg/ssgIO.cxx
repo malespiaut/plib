@@ -203,7 +203,7 @@ void _ssgReadString ( FILE *fd, char **var )
 
   for ( i = 0 ; i < MAX_ENTITY_NAME_LENGTH ; i++ )
   {
-    int c = fgetc ( fd ) ;
+    int c = getc ( fd ) ;
     s [ i ] = c ;
 
     if ( c == '\0' )

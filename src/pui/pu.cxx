@@ -360,6 +360,8 @@ int puMouse ( int button, int updown, int x, int y )
   else
     last_buttons &= ~( 1 << button ) ;
 
+printf ( "last_buttons: %d\n", last_buttons ) ;
+
   pu_mouse_x = x ;
   pu_mouse_y = h - y ;
   int return_value =  puGetBaseLiveInterface () -> checkHit ( button,
@@ -398,7 +400,9 @@ int puMouse ( int x, int y )
   int button =
     (last_buttons & (1<<PU_LEFT_BUTTON  )) ?  PU_LEFT_BUTTON   :
     (last_buttons & (1<<PU_MIDDLE_BUTTON)) ?  PU_MIDDLE_BUTTON :
-    (last_buttons & (1<<PU_RIGHT_BUTTON )) ?  PU_RIGHT_BUTTON  : 0 ;
+    (last_buttons & (1<<PU_RIGHT_BUTTON )) ?  PU_RIGHT_BUTTON  : PU_NOBUTTON ;
+
+printf ( "%d\n", button ) ;
 
   int h = puGetWindowHeight () ;
 
