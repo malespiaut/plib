@@ -331,6 +331,11 @@ public:
     memcpy ( & list [ size_of * total++ ], thing, size_of ) ;
   } ;
 
+  void raw_set ( char *thing, unsigned int n  )
+  {
+    memcpy ( & list [ size_of * n ], thing, size_of ) ;
+  } ;
+
   void removeLast ()
   {
     if ( total > 0 )
@@ -361,6 +366,7 @@ public:
   ssgVertexArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
+  void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
 } ;
 
@@ -373,6 +379,7 @@ public:
   ssgNormalArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
+  void   set ( sgVec3   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
 } ;
 
@@ -385,6 +392,7 @@ public:
   ssgTexCoordArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec2), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec2   thing ) { raw_add ( (char *) thing ) ; } ;
+  void   set ( sgVec2   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
 } ;
 
@@ -397,6 +405,7 @@ public:
   ssgColourArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec4), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
+  void   set ( sgVec4   thing, unsigned int n ) { raw_set ( (char *) thing, n ) ; } ;
   virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
 } ;
 
@@ -408,6 +417,7 @@ public:
   ssgIndexArray ( int init = 3 ) : ssgSimpleList ( sizeof(short), init ) {} 
   short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
   void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
+  void   set ( short    thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
 } ;
 
 
@@ -443,6 +453,8 @@ public:
   ssgInterleavedArrayElement *get ( unsigned int n ) { return (ssgInterleavedArrayElement *) raw_get ( n ) ; }
   void add ( ssgInterleavedArrayElement  thing ) { raw_add ( (char *) &thing ) ; } ;
   void add ( ssgInterleavedArrayElement *thing ) { raw_add ( (char *)  thing ) ; } ;
+  void set ( ssgInterleavedArrayElement  thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
+  void set ( ssgInterleavedArrayElement *thing, unsigned int n ) { raw_set ( (char *)  thing, n ) ; } ;
 } ;
 
 
