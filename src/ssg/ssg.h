@@ -637,7 +637,7 @@ bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
 
 class ssgTexture : public ssgBase
 {
-  char *filename ; // path + filename
+  char *filename ; 
   int own_handle ;
   GLuint handle ;
 	int wrapu, wrapv, mipmap ;
