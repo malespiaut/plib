@@ -23,6 +23,9 @@
 
 
 #include "ssgAux.h"
+#define SIN(x) (static_cast<float>(sin(x)))
+#define COS(x) (static_cast<float>(cos(x)))
+#define ATAN2(x, y) (static_cast<float>(atan2(x, y)))
 
 
 void ssgaShape::copy_from ( ssgaShape *src, int clone_flags )
@@ -407,7 +410,7 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
                      size[1]*v0[1],
                      size[2]*v0[2] ) ;
       sgNormalizeVec3 ( n ) ;
-      sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v0[2]/2.0f ) ;
+      sgSetVec2 ( t, ATAN2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v0[2]/2.0f ) ;
       vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
     
       sgSetVec3 ( v, center[0]+size[0]*v1[0],
@@ -417,7 +420,7 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
                      size[1]*v1[1],
                      size[2]*v1[2] ) ;
       sgNormalizeVec3 ( n ) ;
-      sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v1[2]/2.0f ) ;
+      sgSetVec2 ( t, ATAN2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v1[2]/2.0f ) ;
       vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
 
       for ( int j = 0 ; j < i ; j++ )
@@ -434,7 +437,7 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
 		       size[1]*va[1],
 		       size[2]*va[2] ) ;
 	sgNormalizeVec3 ( n ) ;
-        sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+va[2]/2.0f ) ;
+        sgSetVec2 ( t, ATAN2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+va[2]/2.0f ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
 
 	sgSetVec3 ( v, center[0]+size[0]*vb[0],
@@ -444,7 +447,7 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
 		       size[1]*vb[1],
 		       size[2]*vb[2] ) ;
 	sgNormalizeVec3 ( n ) ;
-        sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+vb[2]/2.0f ) ;
+        sgSetVec2 ( t, ATAN2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+vb[2]/2.0f ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
       }
  
@@ -455,7 +458,7 @@ void ssgaSphere::regenerateTessellatedIcosahedron ()
                      size[1]*v2[1],
                      size[2]*v2[2] ) ;
       sgNormalizeVec3 ( n ) ;
-      sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v2[2]/2.0f ) ;
+      sgSetVec2 ( t, ATAN2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v2[2]/2.0f ) ;
       vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
 
       vt -> setVertices  ( vv ) ;
@@ -509,12 +512,12 @@ void ssgaSphere::regenerateLatLong ()
         float a = (j==0 || j==slices) ? 0.0f : (float) j * SG_PI * 2.0f / (float) slices ;
         float b = (float) i * SG_PI / (float) stacks ;
 
-	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b)/2.0f,
-                       center[1] + size[1]*cos(a)*sin(b)/2.0f,
-                       center[2] - size[2]*       cos(b)/2.0f ) ;
-	sgSetVec3 ( n, sin(a)*sin(b)*size[0],
-                       cos(a)*sin(b)*size[1],
-                       -cos(b)*size[2] ) ;
+	sgSetVec3 ( v, center[0] + size[0]*SIN(a)*SIN(b)/2.0f,
+                       center[1] + size[1]*COS(a)*SIN(b)/2.0f,
+                       center[2] - size[2]*       COS(b)/2.0f ) ;
+	sgSetVec3 ( n, SIN(a)*SIN(b)*size[0],
+                       COS(a)*SIN(b)*size[1],
+                       -COS(b)*size[2] ) ;
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices, (float) i /(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
@@ -536,12 +539,12 @@ void ssgaSphere::regenerateLatLong ()
         float a = (j==0 || j==slices) ? 0.0f : (float) j * SG_PI * 2.0f / (float) slices ;
         float b = (float)(i+1) * SG_PI / (float) stacks ;
 
-	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b)/2.0f,
-                       center[1] + size[1]*cos(a)*sin(b)/2.0f,
-                       center[2] - size[2]*       cos(b)/2.0f ) ;
-	sgSetVec3 ( n, sin(a)*sin(b)*size[0],
-                       cos(a)*sin(b)*size[1],
-                       -cos(b)*size[2] ) ;
+	sgSetVec3 ( v, center[0] + size[0]*SIN(a)*SIN(b)/2.0f,
+                       center[1] + size[1]*COS(a)*SIN(b)/2.0f,
+                       center[2] - size[2]*       COS(b)/2.0f ) ;
+	sgSetVec3 ( n, SIN(a)*SIN(b)*size[0],
+                       COS(a)*SIN(b)*size[1],
+                       -COS(b)*size[2] ) ;
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices,
                        (float)(i+1)/(float)stacks ) ;
@@ -558,23 +561,23 @@ void ssgaSphere::regenerateLatLong ()
         float b0 = (float) i * SG_PI / (float) stacks ;
         float b1 = (float)(i+1) * SG_PI / (float) stacks ;
 
-	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b0)/2.0f,
-                       center[1] + size[1]*cos(a)*sin(b0)/2.0f,
-                       center[2] - size[2]*       cos(b0)/2.0f ) ;
-	sgSetVec3 ( n, sin(a)*sin(b0)*size[0],
-                       cos(a)*sin(b0)*size[1],
-                       -cos(b0)*size[2] ) ;
+	sgSetVec3 ( v, center[0] + size[0]*SIN(a)*SIN(b0)/2.0f,
+                       center[1] + size[1]*COS(a)*SIN(b0)/2.0f,
+                       center[2] - size[2]*       COS(b0)/2.0f ) ;
+	sgSetVec3 ( n, SIN(a)*SIN(b0)*size[0],
+                       COS(a)*SIN(b0)*size[1],
+                       -COS(b0)*size[2] ) ;
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices,
                        (float)i/(float)stacks ) ;
 	vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
 
-	sgSetVec3 ( v, center[0] + size[0]*sin(a)*sin(b1)/2.0f,
-                       center[1] + size[1]*cos(a)*sin(b1)/2.0f,
-                       center[2] - size[2]*       cos(b1)/2.0f ) ;
-	sgSetVec3 ( n, sin(a)*sin(b1)*size[0],
-                       cos(a)*sin(b1)*size[1],
-                       -cos(b1)*size[2] ) ;
+	sgSetVec3 ( v, center[0] + size[0]*SIN(a)*SIN(b1)/2.0f,
+                       center[1] + size[1]*COS(a)*SIN(b1)/2.0f,
+                       center[2] - size[2]*       COS(b1)/2.0f ) ;
+	sgSetVec3 ( n, SIN(a)*SIN(b1)*size[0],
+                       COS(a)*SIN(b1)*size[1],
+                       -COS(b1)*size[2] ) ;
         sgNormalizeVec3 ( n ) ;
 	sgSetVec2 ( t, (float)j/(float)slices,
                        (float)(i+1)/(float)stacks ) ;
@@ -641,18 +644,18 @@ void ssgaCylinder::regenerate ()
   {
     float a = (j==0 || j==slices) ? 0.0f : (float) j * SG_PI * 2.0f / (float) slices ;
 
-    sgSetVec3 ( v, center[0] + size[0]*sin(a)/2.0f,
-		   center[1] + size[1]*cos(a)/2.0f,
+    sgSetVec3 ( v, center[0] + size[0]*SIN(a)/2.0f,
+		   center[1] + size[1]*COS(a)/2.0f,
 		   center[2] - size[2] / 2.0f ) ;
-    sgSetVec3 ( n, -sin(a) * size[0], -cos(a) * size[1], 0 ) ;
+    sgSetVec3 ( n, -SIN(a) * size[0], -COS(a) * size[1], 0 ) ;
     sgNormalizeVec3 ( n ) ;
     sgSetVec2 ( t, (float)j/(float)slices, 0 ) ;
     vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
 
-    sgSetVec3 ( v, center[0] + size[0]*sin(a)/2.0f,
-		   center[1] + size[1]*cos(a)/2.0f,
+    sgSetVec3 ( v, center[0] + size[0]*SIN(a)/2.0f,
+		   center[1] + size[1]*COS(a)/2.0f,
 		   center[2] + size[2] / 2.0f ) ;
-    sgSetVec3 ( n, -sin(a) * size[0], -cos(a) * size[1], 0 ) ;
+    sgSetVec3 ( n, -SIN(a) * size[0], -COS(a) * size[1], 0 ) ;
     sgNormalizeVec3 ( n ) ;
     sgSetVec2 ( t, (float)j/(float)slices, 1 ) ;
     vv->add(v) ; nn->add(n) ; cc->add(colour) ; tt->add(t) ;
@@ -703,20 +706,20 @@ void ssgaCylinder::regenerate ()
 
       /* Top */
 
-      sgSetVec3 ( v, center[0] + size[0]*sin(a0)/2.0f,
-		     center[1] + size[1]*cos(a0)/2.0f,
+      sgSetVec3 ( v, center[0] + size[0]*SIN(a0)/2.0f,
+		     center[1] + size[1]*COS(a0)/2.0f,
 		     center[2] + size[2] / 2.0f ) ;
       sgSetVec3 ( n, 0, 0, 1 ) ;
-      sgSetVec2 ( t, 0.5 + sin(a0)/2.0f, 0.5 + cos(a0)/2.0f ) ;
+      sgSetVec2 ( t, 0.5f + SIN(a0)/2.0f, 0.5f + COS(a0)/2.0f ) ;
       vv0->add(v) ; nn0->add(n) ; cc0->add(colour) ; tt0->add(t) ;
 
       /* Bottom */
 
-      sgSetVec3 ( v, center[0] + size[0]*sin(a1)/2.0f,
-		     center[1] + size[1]*cos(a1)/2.0f,
+      sgSetVec3 ( v, center[0] + size[0]*SIN(a1)/2.0f,
+		     center[1] + size[1]*COS(a1)/2.0f,
 		     center[2] - size[2] / 2.0f ) ;
       sgSetVec3 ( n, 0, 0, -1 ) ;
-      sgSetVec2 ( t, 0.5 + sin(a1)/2.0f, 0.5 + cos(a1)/2.0f ) ;
+      sgSetVec2 ( t, 0.5f + SIN(a1)/2.0f, 0.5f + COS(a1)/2.0f ) ;
       vv1->add(v) ; nn1->add(n) ; cc1->add(colour) ; tt1->add(t) ;
     }
 
