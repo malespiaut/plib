@@ -108,25 +108,27 @@ void ssgBranch::replaceKid ( ssgEntity *old_entity, ssgEntity *new_entity )
 }
 
 
-void ssgBranch::print ( FILE *fd, char *indent )
+void ssgBranch::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgEntity::print ( fd, indent ) ;
+  ssgEntity::print ( fd, indent, how_much ) ;
   fprintf ( fd, "%s  Num Kids=%d\n", indent, getNumKids() ) ;
 
   if ( getNumParents() != getRef() )
     ulSetError ( UL_WARNING, "Ref count doesn't tally with parent count" ) ;
 
-  if ( bsphere.isEmpty() )
-    fprintf ( fd, "%s  BSphere is Empty.\n", indent ) ;
-  else
-    fprintf ( fd, "%s  BSphere  R=%g, C=(%g,%g,%g)\n", indent,
-      bsphere.getRadius(), bsphere.getCenter()[0], bsphere.getCenter()[1], bsphere.getCenter()[2] ) ;
+	if ( how_much > 1 )
+  {	if ( bsphere.isEmpty() )
+			fprintf ( fd, "%s  BSphere is Empty.\n", indent ) ;
+		else
+			fprintf ( fd, "%s  BSphere  R=%g, C=(%g,%g,%g)\n", indent,
+				bsphere.getRadius(), bsphere.getCenter()[0], bsphere.getCenter()[1], bsphere.getCenter()[2] ) ;
+	}
 
   char in [ 100 ] ;
   sprintf ( in, "%s  ", indent ) ;
 
   for ( ssgEntity *e = getKid ( 0 ) ; e != NULL ; e = getNextKid() )
-    e -> print ( fd, in ) ;
+    e -> print ( fd, in, how_much ) ;
 }
 
 

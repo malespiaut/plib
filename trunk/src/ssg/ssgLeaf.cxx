@@ -121,9 +121,11 @@ void ssgLeaf::isect ( sgSphere *s, sgMat4 m, int test_needed )
 }
 
 
-void ssgLeaf::print ( FILE *fd, char *indent )
+void ssgLeaf::print ( FILE *fd, char *indent, int how_much )
 {
-  ssgEntity::print ( fd, indent ) ;
+	if ( how_much == 0 ) 
+		return; // dont print anything
+  ssgEntity::print ( fd, indent, how_much  ) ;
 
   if ( getNumParents () != getRef () )
     fprintf ( fd, "****** WARNING: Ref count doesn't equal parent count!\n" ) ;
@@ -131,8 +133,11 @@ void ssgLeaf::print ( FILE *fd, char *indent )
   if ( state != NULL )
   {
     char in [ 100 ] ;
-    sprintf ( in, "%s  ", indent ) ;
-    state -> print ( fd, in ) ;
+    sprintf ( in, "%s  ", indent );
+		if ( how_much == 1 )
+			fprintf ( fd, "%s  State: %p\n", indent , state) ;
+		else
+      state -> print ( fd, in, how_much ) ;
   }
   else
     fprintf ( fd, "%s  No State assigned to this node\n", indent ) ;
