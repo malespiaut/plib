@@ -89,8 +89,8 @@ int enableTexGen ( ssgEntity * )
   glTexGeni ( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP ) ;
   glEnable ( GL_TEXTURE_GEN_S ) ;
   glEnable ( GL_TEXTURE_GEN_T ) ;
-  glEnable ( GL_TEXTURE_2D ) ;
 #ifdef GL_ARB_multitexture
+  glEnable ( GL_TEXTURE_2D ) ;  /* Enables the second texture map. */
   glBindTexture ( GL_TEXTURE_2D, tx ) ;
   glActiveTextureARB ( GL_TEXTURE0_ARB ) ;
 #endif    
@@ -104,8 +104,8 @@ int disableTexGen ( ssgEntity * )
 #endif
   glDisable ( GL_TEXTURE_GEN_S ) ;
   glDisable ( GL_TEXTURE_GEN_T ) ;
-  glDisable ( GL_TEXTURE_2D ) ;
 #ifdef GL_ARB_multitexture
+  glDisable ( GL_TEXTURE_2D ) ; /* Disables the second texture map */
   glActiveTextureARB ( GL_TEXTURE0_ARB ) ;
 #endif
   return TRUE ;
