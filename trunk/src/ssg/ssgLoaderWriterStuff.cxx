@@ -193,61 +193,6 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
      }
 } ;
 
-void ssgFindOptConvertTexture( char * filepath, char * tfname ) 
-// Find and optionally (= if necessary) convert texture
-{
-	char tmp[1024], *extension ;
-
-	strcpy( tmp, tfname);
-	extension = strrchr(tmp, '.');
-	if ( extension == NULL )
-	{ strcpy( filepath, tfname );
-	  return ;
-	}
-	extension[1] = 'r';
-	extension[2] = 'g';
-	extension[3] = 'b';
-	extension[4] = 0;
-
-	ssgGetCurrentOptions () -> makeTexturePath ( filepath, tmp ) ;
-	if ( ulFileExists ( filepath ) )
-		return; // found *.rgb-file
-
-	// look for original, non-rgb - file
-	ssgGetCurrentOptions () -> makeTexturePath ( filepath, tfname ) ;
-	if ( !ulFileExists ( filepath ) )
-		return; // found *.rgb nor original file
-
-	// found original file. convert it.
-	strcpy( tmp, filepath );
-
-	extension = strrchr(tmp, '.');
-	if ( extension == NULL )
-	{ strcpy( filepath, tfname );
-	  return ;
-	}
-	extension[1] = 'r';
-	extension[2] = 'g';
-	extension[3] = 'b';
-	extension[4] = 0;
-
-#ifdef WIN32
-        char command [ 1024 ] ;
-	sprintf(command, "convert -verbose %s sgi:%s", filepath, tmp);
-	unsigned int ui = WinExec(command, SW_HIDE );	
-	if ( ui < 32 )
-		ulSetError(UL_WARNING, "Couldn't convert texture. Did you install ImageMagick?");
-#else
-  ulSetError(UL_WARNING, "Converting textures not yet implemented. Please convert %s manually.",
-		    filepath);
-	//sprintf(command, "-verbose %s sgi:%s", filepath, tmp);
-	//execlp ( "convert", "convert",  command, NULL ) ;
-
-#endif
-	// Kludge; warning? NIV135
-	strcpy( filepath, tmp );
-}
-
 
 /*
   ssgTriangulate - triangulate a simple polygon.
