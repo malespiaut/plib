@@ -1,34 +1,34 @@
-# Microsoft Developer Studio Project File - Name="fnt_test" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="plib_examples" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=fnt_test - Win32 Debug
+CFG=plib_examples - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "fnt_test.mak".
+!MESSAGE NMAKE /f "plib_examples.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "fnt_test.mak" CFG="fnt_test - Win32 Debug"
+!MESSAGE NMAKE /f "plib_examples.mak" CFG="plib_examples - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "fnt_test - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "fnt_test - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "plib_examples - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "plib_examples - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName "fnt_test"
+# PROP Scc_ProjName "plib_examples"
 # PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "fnt_test - Win32 Release"
+!IF  "$(CFG)" == "plib_examples - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,12 +51,12 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 
-!ELSEIF  "$(CFG)" == "fnt_test - Win32 Debug"
+!ELSEIF  "$(CFG)" == "plib_examples - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "Debug"
-# PROP BASE Intermediate_Dir "Debug"
+# PROP BASE Output_Dir "plib_examples___Win32_Debug"
+# PROP BASE Intermediate_Dir "plib_examples___Win32_Debug"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
@@ -64,7 +64,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "\usr\include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /I /usr/include" /I /usr/include" /I /usr/include" /GZ " " " /c
+# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "\usr\include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /I /usr/include" /I /usr/include" /GZ " " /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -72,17 +72,13 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib fnt.lib sg.lib ul.lib opengl32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"\usr\lib" /libpath:"/usr/lib" /libpath:"/usr/lib" /libpath:"/usr/lib"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"\usr\lib" /libpath:"/usr/lib" /libpath:"/usr/lib"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "fnt_test - Win32 Release"
-# Name "fnt_test - Win32 Debug"
-# Begin Source File
-
-SOURCE=.\fnt_test.cxx
-# End Source File
+# Name "plib_examples - Win32 Release"
+# Name "plib_examples - Win32 Debug"
 # End Target
 # End Project

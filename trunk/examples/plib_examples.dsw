@@ -119,6 +119,10 @@ Project: "plib_examples"=.\plib_examples.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    plib_examples
+    .
+    end source code control
 }}}
 
 Package=<4>
