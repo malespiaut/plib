@@ -70,6 +70,13 @@
 #define MIN3(a,b,c) ((a) <= (b) ? MIN(a,c) : MIN(b,c))
 #define MAX3(a,b,c) ((a) >= (b) ? MAX(a,c) : MAX(b,c))
 
+#if defined(WIN32) && !defined(__CYGWIN__)
+#define SLASH '\\'
+#else
+#define SLASH '/'
+#endif
+
+
 // type definitions
 
 // class declarations
