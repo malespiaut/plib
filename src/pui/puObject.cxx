@@ -105,7 +105,6 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   visible = active  = TRUE  ;
   highlighted       = FALSE ;
   am_default        = FALSE ;
-  deactivate_when_leaving = TRUE ;
   window            = puGetWindow () ;
 
   cb          = NULL ;
@@ -442,4 +441,4 @@ int puObject::checkHit ( int button, int updown, int x, int y )
   return FALSE ;
 }
 
- 
+
