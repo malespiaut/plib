@@ -1,4 +1,5 @@
 
+#include <stdarg.h>
 #include "ssgLocal.h"
 
 sgMat4 _ssgOpenGLAxisSwapMatrix =
@@ -172,6 +173,31 @@ void ssgCullAndDraw ( ssgRoot *r )
 
   glMatrixMode ( GL_MODELVIEW ) ;
   glLoadIdentity () ;
+}
+
+static char error_buffer [ 256 ] ;
+
+void ssgSetError( const char *fmt, ... )
+{
+  va_list argp;
+
+  va_start ( argp, fmt ) ;
+  vsprintf ( error_buffer, fmt, argp ) ;
+  va_end ( argp ) ;
+
+  fprintf ( stderr, "%s\n", error_buffer ) ;
+
+  //perhaps we should write to stderr.txt
+}
+
+char* ssgGetError ( void )
+{
+   return error_buffer ;
+}
+
+void ssgClearError(void)
+{
+   error_buffer [0] = 0 ;
 }
 
 void ssgModelPath ( char *s )
