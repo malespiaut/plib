@@ -1,8 +1,12 @@
-
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
-<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
-<body text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
+<HEAD>
+   <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+</HEAD>
+<BODY text="#B5A642" link="#8FFF8F" vlink="#18A515" alink="#20336B"
  bgcolor="#005000" background="../marble.png">
+
 <H2>How to write plib-loaders and writers</H2>
 
 <H2>1.1 Introduction</H2>
@@ -131,7 +135,7 @@ ssg to use the <code>ssgSimpleState</code> ss for all faces:
 <pre>
 
 	theMesh.createMaterials( 1 );
-	theMesh.addMaterial( &ss );
+	theMesh.addMaterial( &amp;ss );
 	theMesh.createMaterialIndices( _ssgNoFacesToRead ) ;
 	for(i=0;i<_ssgNoFacesToRead ;i++)
 	   theMesh.addMaterialIndex ( 0 ) ;
