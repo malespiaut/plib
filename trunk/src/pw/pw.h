@@ -25,6 +25,8 @@
 #ifndef _PW_H_
 #define _PW_H_ 1
 
+#include <stdio.h>
+
 #define PW_IS_PRESENT  1
 
 typedef void pwResizeCB ( int w, int h ) ;

@@ -25,6 +25,7 @@
 #ifndef __SL_H__
 #define __SL_H__ 1
 
+#include <stdio.h>
 #include "slPortability.h"
 
 #ifdef SL_USING_OSS_AUDIO

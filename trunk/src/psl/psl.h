@@ -24,6 +24,7 @@
 #ifndef _PSL_H
 #define _PSL_H 1
 
+#include <stdio.h>
 #include "ul.h"
 
 enum pslResult
