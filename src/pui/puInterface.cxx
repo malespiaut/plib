@@ -31,7 +31,7 @@ static puInterface *liveInterfaceStack [ PUSTACK_MAX ] ;
 
 void puPushLiveInterface ( puInterface *in )
 {
-  if ( currLiveInterface < PUSTACK_MAX )
+  if ( currLiveInterface < PUSTACK_MAX - 1 )
     liveInterfaceStack [ ++currLiveInterface ] = in ;
   else
     ulSetError ( UL_WARNING, "PUI: Too many live puInterfaces open at once!\n" ) ;
