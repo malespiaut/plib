@@ -553,8 +553,12 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
 
       if ( mesh -> cverts )
       {
-        sgCopyVec3 ( v, mesh -> cverts[ face->cv[j] ] ) ;
-        clist -> add ( v ) ;
+        sgVec4 c ;
+        sgCopyVec3 ( c, mesh -> cverts[ face->cv[j] ] ) ;
+
+        c[3] = 1.0f; //alpha is always one ??
+
+        clist -> add ( c ) ;
       }
     }
   }
