@@ -92,25 +92,25 @@ void ssgBranch::removeKid  ( int n )
 {
   ssgEntity *k = kids.getEntity ( n ) ;
 
-  if ( k != NULL )
-    removeKid ( k ) ;
+  if ( k != NULL ) {
+    k -> removeParent ( this ) ;
+    kids.removeEntity ( n ) ;
+    dirtyBSphere () ;
+  }
 }
 
 
 void ssgBranch::removeKid ( ssgEntity *entity )
 {
-  entity -> removeParent ( this ) ;
-  kids.removeEntity ( entity ) ;
-  dirtyBSphere () ;
+  removeKid( searchForKid( entity ) );
 }
 
 
 void ssgBranch::removeAllKids (void)
 {
-  ssgEntity *k ;
-
-  while ( ( k = getKid ( 0 ) ) != NULL )
+  for ( int k = getNumKids() - 1; k >= 0; --k ) {
     removeKid ( k ) ;
+  }
 }
 
 
