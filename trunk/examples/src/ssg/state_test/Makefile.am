@@ -4,5 +4,5 @@ stest_SOURCES = stest.cxx
 
 stest_LDADD = -lplibssg -lplibsg -lplibul
 
-# EXTRA_DIST = stest.dsp
+EXTRA_DIST = stest.dsp
 
