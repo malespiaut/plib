@@ -12,15 +12,15 @@ static int total_normal ;
 static void save_vtx_table ( ssgVtxTable *vt )
 {
   float w = 1.0f ;
+	short iv1, iv2;
 
   GLenum mode = vt -> getGLtype () ;
 	//fprintf ( fileout, "g test\n" ); wk: Pfusch fixme: is this necessary?
   
-  if ( mode == GL_LINES )
+  if (( mode == GL_LINES ) || ( mode == GL_LINE_LOOP) || ( mode == GL_LINE_STRIP))
   {
     int num_vert = vt -> getNumVertices () ;
-    num_vert = num_vert - ( num_vert & 1 ) ; //discard odd vertex
-
+    
     // V: vertex coordinates. 
     for ( int i = 0; i < num_vert; i++ ) {
       sgVec3 vert ;
@@ -29,10 +29,13 @@ static void save_vtx_table ( ssgVtxTable *vt )
         vert[0], vert[1], vert[2], w );
     }
 
+
+  
     // L: lines. 
     fprintf ( fileout, "\n" );
-    for ( int j = 0; j < num_vert; j += 2 )
-    {
+		int num_lines = vt -> getNumLines () ;
+    for ( int j = 0; j < num_lines; j ++ )
+    { vt -> getLine ( j, &iv1, &iv2 ) ;
       fprintf ( fileout, "l %d %d\n",
          total_vert + j + 1,
          total_vert + j + 2 );
