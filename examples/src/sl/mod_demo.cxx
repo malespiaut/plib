@@ -15,7 +15,7 @@ int main ( int, char ** )
 {
   sched . setSafetyMargin ( 0.5 ) ;
 
-  sched . loopMusic ( "game.mod" ) ;
+  sched . loopMusic ( "tuxr.mod" ) ;
 
   while ( SL_TRUE )
   {
