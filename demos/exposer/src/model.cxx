@@ -115,23 +115,85 @@ void addTweenBank ( ssgBranch *root )
       ssgTween *tween = (ssgTween *) e ; 
 
       ssgVertexArray   *v1 = new ssgVertexArray   ;
-      ssgNormalArray   *n1 = new ssgNormalArray   ;
-      ssgTexCoordArray *t1 = new ssgTexCoordArray ;
-      ssgColourArray   *c1 = new ssgColourArray   ;
 
       for ( int ii = 0 ; ii < tween -> getNumVertices () ; ii++ )
-      {
 	v1 -> add ( tween -> getVertex   ( ii ) ) ;
-	n1 -> add ( tween -> getNormal   ( ii ) ) ;
-	t1 -> add ( tween -> getTexCoord ( ii ) ) ;
-	c1 -> add ( tween -> getColour   ( ii ) ) ;
-      }
 
-      tween -> newBank ( v1, n1, t1, c1 ) ;
+      tween -> newBank ( v1, NULL, NULL, NULL ) ;
     }
   }
 }
 
+
+void makeTweenCopy ( ssgBranch *dst, ssgBranch *src )
+{
+  for ( int i = 0 ; i < src -> getNumKids () ; i++ )
+  {
+    ssgEntity *s =  src -> getKid ( i ) ;
+    ssgEntity *d =  dst -> getKid ( i ) ;
+
+    if ( s -> isAKindOf ( ssgTypeBranch() ) )
+      makeTweenCopy ( (ssgBranch *)d, (ssgBranch *)s ) ;
+    else
+    {
+      ssgLeaf *ls = (ssgLeaf *) s ;
+      ssgLeaf *ld = (ssgLeaf *) d ;
+
+      for ( int ii = 0 ; ii < ls -> getNumVertices () ; ii++ )
+        sgCopyVec3 ( ld->getVertex(ii), ls->getVertex(ii) ) ;
+    }
+  }
+}
+
+
+void tweenify ( ssgBranch *root )
+{
+  for ( int i = 0 ; i < root -> getNumKids () ; i++ )
+  {
+    ssgEntity *e =  root -> getKid ( i ) ;
+
+    if ( e -> isAKindOf ( ssgTypeBranch() ) )
+      tweenify ( (ssgBranch *)e ) ;
+    else
+    {
+      ssgLeaf *l = (ssgLeaf *) e ;
+
+      ssgVertexArray   *v0 = new ssgVertexArray   ;
+      ssgNormalArray   *n0 = new ssgNormalArray   ;
+      ssgTexCoordArray *t0 = new ssgTexCoordArray ;
+      ssgColourArray   *c0 = new ssgColourArray   ;
+
+      for ( int ii = 0 ; ii < l -> getNumVertices () ; ii++ )
+      {
+        v0 -> add ( l -> getVertex   ( ii ) ) ;
+        n0 -> add ( l -> getNormal   ( ii ) ) ;
+        t0 -> add ( l -> getTexCoord ( ii ) ) ;
+        c0 -> add ( l -> getColour   ( ii ) ) ;
+      }
+
+      ssgTween *tween = new ssgTween ( l -> getPrimitiveType () ) ;
+
+      tween -> setState ( l -> getState () ) ;
+      tween -> newBank ( v0, n0, t0, c0 ) ;
+
+      root -> replaceKid ( l, tween ) ;
+    }
+  }
+}
+
+
+
+ssgEntity *makeTweenCopy ( ssgEntity *root )
+{
+  if ( root == NULL )
+    return NULL ;
+ 
+  ssgEntity *res = (ssgEntity *) ( root -> clone ( SSG_CLONE_RECURSIVE |
+                                                   SSG_CLONE_GEOMETRY ) ) ;
+  tweenify ( (ssgBranch *) res ) ;
+
+  return res ;
+}
 
 
 void walkBones ( ssgBranch *root, sgMat4 mat )
@@ -206,28 +268,6 @@ void walkBones ( ssgBranch *root, sgMat4 mat )
 
         root -> removeKid ( e ) ;
         i-- ;
-      }
-      else
-      {
-        ssgVertexArray   *v0 = new ssgVertexArray   ;
-        ssgNormalArray   *n0 = new ssgNormalArray   ;
-        ssgTexCoordArray *t0 = new ssgTexCoordArray ;
-        ssgColourArray   *c0 = new ssgColourArray   ;
-
-        for ( int ii = 0 ; ii < l -> getNumVertices () ; ii++ )
-        {
-          v0 -> add ( l -> getVertex   ( ii ) ) ;
-          n0 -> add ( l -> getNormal   ( ii ) ) ;
-          t0 -> add ( l -> getTexCoord ( ii ) ) ;
-          c0 -> add ( l -> getColour   ( ii ) ) ;
-        }
-
-        ssgTween *tween = new ssgTween ( l -> getPrimitiveType () ) ;
-
-        tween -> setState ( l -> getState () ) ;
-        tween -> newBank ( v0, n0, t0, c0 ) ;
-
-        root -> replaceKid ( l, tween ) ;
       }
     }
   }
@@ -333,13 +373,10 @@ void walkTransforms ( ssgBranch *root, sgMat4 mat )
   {
     ssgEntity *e =  root -> getKid ( i ) ;
 
-    if ( ! e -> isAKindOf ( ssgTypeBranch () ) )
-      continue ;
-
-    walkTransforms ( (ssgBranch *) e, newmat ) ;
+    if ( e -> isAKindOf ( ssgTypeBranch () ) )
+      walkTransforms ( (ssgBranch *) e, newmat ) ;
   }
 }
-
 
 
 void transformModel ( ssgBranch *boneRoot, float tim )
@@ -392,13 +429,11 @@ void transformModel ( ssgBranch *boneRoot, float tim )
   for ( i = 0 ; i < getNumBones () ; i++ )
     getBone ( i ) -> computeTransform ( prev, next, lerptime ) ;
 
-  ssgBranch *b = boneRoot ;
-
   sgMat4 mat ;
 
   sgMakeIdentMat4 ( mat ) ;
 
-  walkTransforms ( b, mat ) ; 
+  walkTransforms ( (ssgBranch *) boneRoot, mat ) ; 
 
   transformVertices () ;
 }

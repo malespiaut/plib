@@ -94,8 +94,8 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 #define _SSG_TYPE_SELECTOR         0x00000100
 #define _SSG_TYPE_RANGESELECTOR    0x00001000
 #define _SSG_TYPE_TIMEDSELECTOR    0x00002000
-#define _SSG_TYPE_TWEEN            0x00004000
-#define _SSG_TYPE_TWEENCONTROLLER  0x00008000
+#define _SSG_TYPE_TWEEN            0x00008000
+#define _SSG_TYPE_TWEENCONTROLLER  0x00010000
 #define _SSG_TYPE_ROOT             0x00000200
 #define _SSG_TYPE_CUTOUT           0x00000400
 #define _SSG_TYPE_INVISIBLE        0x00000800
@@ -131,7 +131,7 @@ inline int ssgTypeVtxTable     () { return _SSG_TYPE_VTXTABLE  | ssgTypeLeaf    
 inline int ssgTypeVtxArray     () { return _SSG_TYPE_VTXARRAY  | ssgTypeVtxTable() ; }
 inline int ssgTypeTween        () { return _SSG_TYPE_TWEEN     | ssgTypeVtxTable() ; }
 inline int ssgTypeBranch       () { return _SSG_TYPE_BRANCH    | ssgTypeEntity  () ; }
-inline int ssgTypeTweenController(){ return _SSG_TYPE_TWEENCONTROLLER | ssgTypeVtxTable() ; }
+inline int ssgTypeTweenController(){ return _SSG_TYPE_TWEENCONTROLLER | ssgTypeBranch() ; }
 inline int ssgTypeBaseTransform() { return _SSG_TYPE_BASETRANSFORM | ssgTypeBranch () ; }
 inline int ssgTypeTransform    () { return _SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
 inline int ssgTypeTexTrans     () { return _SSG_TYPE_TEXTRANS  | ssgTypeBaseTransform () ; }

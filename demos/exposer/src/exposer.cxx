@@ -7,6 +7,7 @@ EventList * eventList = NULL ;
 TimeBox   *   timebox = NULL ;
 Floor     *    ground = NULL ;
 ssgRoot   * skinScene = NULL ;
+ssgRoot   *tweenScene = NULL ;
 ssgRoot   * boneScene = NULL ;
 ssgRoot   *sceneScene = NULL ;
 
@@ -213,7 +214,7 @@ static void redraw ()
  
 char      *file_submenu    [] = {  "Exit", 
                                    "------------", 
-                  //                 "Save Tweened Model As...",
+                                   "Save Tweened Model As...",
                                    "Save Bones As...",
                                    "Load Bones",
                                    "Load Scenery",
@@ -222,7 +223,7 @@ char      *file_submenu    [] = {  "Exit",
 
 puCallback file_submenu_cb [] = { exitCB,
                                   NULL,
-                  //                twsaveCB,
+                                  twsaveCB,
                                   bnsaveCB,
                                   bnloadCB,
                                   scloadCB,

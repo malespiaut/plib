@@ -29,6 +29,7 @@ extern EventList * eventList ;
 extern TimeBox   *   timebox ;
 extern Floor     *    ground ;
 extern ssgRoot   * skinScene ;
+extern ssgRoot   *tweenScene ;
 extern ssgRoot   * boneScene ;
 extern ssgRoot   *sceneScene ;
 
