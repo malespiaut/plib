@@ -33,6 +33,10 @@ ssgLeaf::ssgLeaf (void)
 
 ssgLeaf::~ssgLeaf (void)
 {
+/*
+  if ( state != NULL )
+    ssgDeRefDelete ( state ) ;
+*/
 #ifdef _SSG_USE_DLIST
   deleteDList () ;
 #endif
@@ -105,6 +109,15 @@ void ssgLeaf::print ( FILE *fd, char *indent )
 
   if ( getNumParents () != getRef () )
     fprintf ( fd, "****** WARNING: Ref count doesn't equal parent count!\n" ) ;
+
+  if ( state != NULL )
+  {
+    char in [ 100 ] ;
+    sprintf ( in, "%s  ", indent ) ;
+    state -> print ( fd, in ) ;
+  }
+  else
+    fprintf ( fd, "%s  No State assigned to this node\n", indent ) ;
 }
 
 

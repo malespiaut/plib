@@ -23,6 +23,16 @@ ssgState::ssgState (void)
 
 ssgState::~ssgState (void) {}
 
+
+void ssgState::print ( FILE *fd, char *indent )
+{
+  ssgBase::print ( fd, indent ) ;
+
+  fprintf ( fd, "%s  Translucent  = %s\n", indent, translucent?"True":"False");
+  fprintf ( fd, "%s  ExternalProp = %d\n", indent, external_property_index ) ;
+}
+
+ 
 int ssgState::load ( FILE *fd )
 {
   _ssgReadInt ( fd, & translucent ) ;

@@ -49,6 +49,65 @@ ssgBase *ssgColourArray::clone ( int clone_flags )
 }
 
 
+
+ 
+void ssgVertexArray::print ( FILE *fd, char *indent )
+{
+  ssgSimpleList::print ( fd, indent ) ;
+
+  for ( unsigned int i = 0 ; i < total ; i++ )
+    fprintf ( fd, "%s  V%d) { %f, %f, %f }\n", indent, i,
+                     get(i)[0], get(i)[1], get(i)[2] ) ;
+}
+ 
+
+
+ 
+void ssgNormalArray::print ( FILE *fd, char *indent )
+{
+  ssgSimpleList::print ( fd, indent ) ;
+
+  for ( unsigned int i = 0 ; i < total ; i++ )
+    fprintf ( fd, "%s  N%d) { %f, %f, %f }\n", indent, i,
+                     get(i)[0], get(i)[1], get(i)[2] ) ;
+}
+ 
+
+
+ 
+void ssgTexCoordArray::print ( FILE *fd, char *indent )
+{
+  ssgSimpleList::print ( fd, indent ) ;
+
+  for ( unsigned int i = 0 ; i < total ; i++ )
+    fprintf ( fd, "%s  T%d) { S=%f, T=%f }\n", indent, i,
+                     get(i)[0], get(i)[1] ) ;
+}
+ 
+
+
+ 
+void ssgColourArray::print ( FILE *fd, char *indent )
+{
+  ssgSimpleList::print ( fd, indent ) ;
+
+  for ( unsigned int i = 0 ; i < total ; i++ )
+    fprintf ( fd, "%s  C%d) { R=%f, G=%f, B=%f, A=%f }\n", indent, i,
+                     get(i)[0], get(i)[1], get(i)[2], get(i)[3] ) ;
+}
+ 
+
+
+void ssgSimpleList::print ( FILE *fd, char *indent )
+{
+  ssgBase::print ( fd, indent ) ;
+
+  fprintf ( fd, "%s  Total # items = %d\n", indent, total ) ;
+  fprintf ( fd, "%s  Size of items = %d bytes\n", indent, size_of ) ;
+}
+ 
+
+
 int ssgSimpleList::load ( FILE *fd )
 {
   delete list ;
