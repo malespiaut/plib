@@ -1,0 +1,52 @@
+# transferCvs2WebSite for plib
+#
+# you must already be logged in !! 
+# That means, you must do the following ONCE (once is enough for a lifetime :-)):
+# cvs -d:pserver:anonymous@cvs1:/cvsroot/plib login
+#
+# export doesnt create the "cvs"-directories. Update would. Therefore I use export
+
+
+echo running cd
+cd /home/groups/plib/htdocs
+
+echo handling "sg"
+rm -R sg
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/sg 
+#>/dev/null 2>&1 
+
+echo handling "ssg"
+rm -R ssg
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/ssg 
+#>/dev/null 2>&1 
+
+echo handling "sl"
+rm -R sl
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/sl 
+#>/dev/null 2>&1 
+
+echo handling "js"
+rm -R js
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/js 
+#>/dev/null 2>&1 
+
+echo handling "fnt"
+rm -R fnt
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/fnt 
+#>/dev/null 2>&1 
+
+echo handling "ssgaux"
+rm -R ssgaux
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/ssgaux 
+#>/dev/null 2>&1 
+
+echo handling "util"
+rm -R util
+cvs -d:pserver:anonymous@cvs1:/cvsroot/plib export -Dtoday -d util plib/doc/util 
+#>/dev/null 2>&1 
+
+echo done.
+
+ 
+
+ 
