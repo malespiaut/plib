@@ -810,7 +810,7 @@ public:
   }
 
   /* Blake Friesen - alternate constructor which lets you explicity set width */
-  puSlider ( int minx, int miny, int sz, int width, int vertical ) :
+  puSlider ( int minx, int miny, int sz, int vertical, int width ) :
      puObject ( minx, miny, vertical ?
                              ( minx + width ) :
                              ( minx + sz ),
