@@ -110,7 +110,8 @@ int ssgTimedSelector::getStep ()
   for ( k = start ; t > 0.0f && k <= end ; k++ )
     t -= times [ k ] ;
 
-  k-- ;
+//DaveM: i removed this line because, in shuttle mode, start plays twice
+//  k-- ;
 
   if ( k < start ) k = start ;
   if ( k > end   ) k =   end ;
