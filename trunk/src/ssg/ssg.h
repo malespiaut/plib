@@ -541,6 +541,7 @@ public:
   {
     type = ssgTypeIndexArray () ;
   }
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
   void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
   void   set ( short    thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
@@ -1536,6 +1537,7 @@ public:
                              return (getNumIndices()<=0) ?
 				      &_ssgIndex0 : indices->get(i);}
 
+	void removeUnusedVertices();
   virtual ~ssgVtxArray (void) ;
 
   virtual const char *getTypeName(void) ;
