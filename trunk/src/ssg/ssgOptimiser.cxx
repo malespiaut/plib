@@ -869,7 +869,7 @@ static void strip ( ssgEntity *ent )
   switch ( b_ent -> getNumKids () )
   {
   case 0:
-    if ( b_ent -> getUserData() == NULL )
+    if ( b_ent -> getUserData() == NULL && b_ent -> getName () == NULL )
       safe_replace_kid ( NULL, b_ent, NULL ) ;
     break;
 
@@ -877,7 +877,13 @@ static void strip ( ssgEntity *ent )
     if ( b_ent -> isA ( ssgTypeBranch () ) &&
 	 b_ent -> getUserData () == NULL )
     {
-      safe_replace_kid ( NULL, b_ent, b_ent -> getKid ( 0 ) ) ;
+      ssgEntity *k = b_ent -> getKid ( 0 ) ;
+      if ( b_ent -> getName () != NULL && k -> getName () != NULL )
+        break;
+      if ( b_ent -> getName () != NULL )
+        k -> setName ( b_ent -> getName () ) ;
+         
+      safe_replace_kid ( NULL, b_ent, k ) ;
     }
     else if ( ! b_ent -> isAKindOf ( ssgTypeSelector () ) &&
 	      b_ent -> getKid ( 0 ) -> isA ( ssgTypeBranch () ) &&

@@ -165,33 +165,36 @@ void ssgTransform::isect ( sgSphere *s, sgMat4 m, int test_needed )
 
 void ssgTransform::setTransform ( sgVec3 xyz )
 {
-  updateTransform () ;
-  sgMakeTransMat4 ( transform, xyz ) ;
-  firsttime       () ; 
-  dirtyBSphere    () ;
+  sgMat4 tmp_trans;
+  sgMakeTransMat4 ( tmp_trans, xyz ) ;
+  setTransform ( tmp_trans ) ;
 }
 
 void ssgTransform::setTransform ( sgCoord *xform )
 {
-  updateTransform () ;
-  sgMakeCoordMat4 ( transform, xform ) ;
-  firsttime       () ; 
-  dirtyBSphere () ;
+  sgMat4 tmp_trans;
+  sgMakeCoordMat4 ( tmp_trans, xform ) ;
+  setTransform ( tmp_trans ) ;
 }
 
 void ssgTransform::setTransform ( sgCoord *xform, float sx, float sy, float sz )
 {
-  updateTransform () ;
-  sgMakeCoordMat4 ( transform, xform ) ;
-  sgScaleVec3     ( transform[0], sx ) ;
-  sgScaleVec3     ( transform[1], sy ) ;
-  sgScaleVec3     ( transform[2], sz ) ;
-  firsttime       () ; 
-  dirtyBSphere () ;
+  sgMat4 tmp_trans;
+  sgMakeCoordMat4 ( tmp_trans, xform ) ;
+  sgScaleVec3     ( tmp_trans[0], sx ) ;
+  sgScaleVec3     ( tmp_trans[1], sy ) ;
+  sgScaleVec3     ( tmp_trans[2], sz ) ;
+  setTransform ( tmp_trans );
 }
 
 void ssgTransform::setTransform ( sgMat4 xform )
 {
+  if ( sgEqualVec4( xform[0], transform[0] ) &&
+       sgEqualVec4( xform[1], transform[1] ) &&
+       sgEqualVec4( xform[2], transform[2] ) &&
+       sgEqualVec4( xform[3], transform[3] ) )
+    return;
+
   updateTransform () ;
   sgCopyMat4      ( transform, xform ) ;
   firsttime       () ; 

@@ -1472,18 +1472,14 @@ public:
   void getTexCoordList ( void **list ) { *list = texcoords -> get ( 0 ) ; } 
   void getColourList   ( void **list ) { *list = colours   -> get ( 0 ) ; } 
 
-  float *getVertex  (int i){ if(i>=getNumVertices())i=getNumVertices()-1;
-                             return (getNumVertices()<=0) ?
-				      _ssgVertex000 : vertices->get(i);}
-  float *getNormal  (int i){ if(i>=getNumNormals())i=getNumNormals()-1;
-			     return (getNumNormals()<=0) ?
-				    _ssgNormalUp    : normals->get(i);}
-  float *getTexCoord(int i){ if(i>=getNumTexCoords())i=getNumTexCoords()-1;
-                             return (getNumTexCoords()<=0) ?
-                                    _ssgTexCoord00  : texcoords->get(i);}
-  float *getColour  (int i){ if(i>=getNumColours())i=getNumColours()-1;
-			     return (getNumColours()<=0) ?
-				    _ssgColourWhite : colours->get(i);}
+  float *getVertex  (int i){ int nv=getNumVertices(); if(i>=nv)i=nv-1;
+                             return (nv<=0) ? _ssgVertex000:vertices->get(i);}
+  float *getNormal  (int i){ int nn=getNumNormals(); if(i>=nn)i=nn-1;
+			     return (nn<=0) ? _ssgNormalUp:normals->get(i);}
+  float *getTexCoord(int i){ int nc=getNumTexCoords(); if(i>=nc)i=nc-1;
+                             return (nc<=0) ? _ssgTexCoord00:texcoords->get(i);}
+  float *getColour  (int i){ int nc=getNumColours(); if(i>=nc)i=nc-1;
+			     return (nc<=0) ? _ssgColourWhite:colours->get(i);}
 
 	ssgVtxArray *getAs_ssgVtxArray ();
 
@@ -1589,9 +1585,8 @@ public:
 
   void getIndexList ( void **list ) { *list = indices  -> get ( 0 ) ; }
 
-  short *getIndex  (int i){ if(i>=getNumIndices())i=getNumIndices()-1;
-                             return (getNumIndices()<=0) ?
-				      &_ssgIndex0 : indices->get(i);}
+  short *getIndex  (int i){ int ni=getNumIndices();if(i>=ni)i=ni-1;
+                             return (ni<=0) ? &_ssgIndex0 : indices->get(i);}
 
 	void removeUnusedVertices();
   virtual ~ssgVtxArray (void) ;

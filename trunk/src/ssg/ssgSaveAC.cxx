@@ -119,7 +119,7 @@ static int ssgSaveLeaf ( ssgEntity *ent )
 
   for ( i = 0 ; i < num_tris ; i++ )
   {
-    fprintf ( save_fd, "SURF 0x0\n" ) ;
+    fprintf ( save_fd, "SURF 0x0%x\n", (! vt -> getCullFace () ) << 5 ) ;
     ssgState *s = vt->getState ();
 
     int istate = 0;
