@@ -1153,9 +1153,7 @@ public:
 
   virtual void drawHighlight ( sgVec4 colour ) = 0 ;
   virtual void drawHighlight ( sgVec4 colour, int i ) = 0 ;
-#ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) = 0 ;
-#endif
 
 #ifdef _SSG_USE_DLIST
   void makeDList () ;
@@ -1265,9 +1263,7 @@ public:
 
   virtual void drawHighlight ( sgVec4 colour ) ;
   virtual void drawHighlight ( sgVec4 colour, int i ) ;
-#ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
-#endif
   virtual void transform ( const sgMat4 m ) ;
 
   int getNumVertices  () { return num_vertices  ; }
@@ -1357,9 +1353,7 @@ public:
 
   virtual void drawHighlight ( sgVec4 colour ) ;
   virtual void drawHighlight ( sgVec4 colour, int i ) ;
-#ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
-#endif
   virtual void transform ( const sgMat4 m ) ;
 
   void setVertices  ( ssgVertexArray   *vl ) ;
@@ -1430,9 +1424,7 @@ public:
 
   virtual void drawHighlight ( sgVec4 colour ) ;
   virtual void drawHighlight ( sgVec4 colour, int i ) ;
-#ifdef _SSG_USE_PICK
   virtual void pick ( int baseName ) ;
-#endif
 
   void setIndices ( ssgIndexArray *il ) ;
 
@@ -2251,9 +2243,7 @@ inline void ssgForceBasicState ()
 void ssgInit () ;
 
 void ssgCullAndDraw ( ssgRoot *root ) ;
-#ifdef _SSG_USE_PICK
 void ssgCullAndPick ( ssgRoot *root, sgVec2 botleft, sgVec2 topright ) ;
-#endif
 int  ssgIsect       ( ssgRoot *root, sgSphere *s, sgMat4 m, ssgHit **results ) ;
 int  ssgHOT         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;

@@ -715,6 +715,10 @@ inline void sgMakeIdentMat4 ( sgMat4 dst )
   sgSetVec4 ( dst[3], SG_ZERO, SG_ZERO, SG_ZERO, SG_ONE  ) ;
 }
 
+
+extern void sgMakePickMatrix( sgMat4 mat, sgFloat x, sgFloat y,
+                    sgFloat width, sgFloat height, sgVec4 viewport ) ;
+
 extern int  sgCompare3DSqdDist ( const sgVec3 a, const sgVec3 b, const SGfloat sqd_dist ) ;
 extern void sgMakeTransMat4 ( sgMat4 m, const SGfloat x, const SGfloat y, const SGfloat z ) ;
 extern void sgMakeTransMat4 ( sgMat4 m, const sgVec3 xyz ) ;
