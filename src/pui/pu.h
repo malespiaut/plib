@@ -284,6 +284,7 @@ extern int puRefresh ;
 #define PUCLASS_LISTBOX          0x00010000
 #define PUCLASS_DIAL             0x00020000
 #define PUCLASS_FILEPICKER       0x00040000
+#define PUCLASS_FILESELECTOR     0x00040000 /* Because FilePicker is obsolete */
 #define PUCLASS_BISLIDER         0x00080000
 #define PUCLASS_TRISLIDER        0x00100000
 #define PUCLASS_VERTMENU         0x00200000
@@ -315,6 +316,7 @@ class puListBox          ;
 class puArrowButton      ;
 class puDial             ;
 class puFilePicker       ;
+class puFileSelector     ;
 class puBiSlider         ;
 class puTriSlider        ;
 class puVerticalMenu     ;
@@ -1283,6 +1285,7 @@ public:
 } ;
 
 
+
 class puFilePicker : public puDialogBox
 {
   char** files ;
@@ -1301,13 +1304,18 @@ class puFilePicker : public puDialogBox
   puSlider  *slider        ;
   puOneShot *cancel_button ;
   puOneShot *ok_button     ;
-/* puInput   *input         ; */
 
 protected:
   void puFilePickerInit ( int x, int y, int w, int h,
                           int arrows, const char *dir, const char *title ) ;
 
 public:
+
+/*******THIS CLASS IS OBSOLETE ********
+  Please use puFileSelector - puFilePicker
+  is obsolete and will be removed in a 
+  future release.
+ *************************************/
 
   puFilePicker ( int x, int y, int w, int h, int arrows,
                  const char *dir, const char *title = "Pick a file" ) ;
@@ -1320,8 +1328,50 @@ public:
 
   ~puFilePicker () ;
 
+  void setSize ( int w, int h ) ;
+} ;
+
+
+class puFileSelector : public puDialogBox
+{
+  char** files ;
+  char*  dflag ;
+  int num_files   ;
+  int arrow_count ;
+
+  char startDir [ PUSTRING_MAX ] ;
+
+  void find_files () ;
+  static void handle_select ( puObject* ) ;
+  static void input_entered ( puObject* ) ;
+
+  puFrame   *frame         ;
+  puListBox *list_box      ;
+  puSlider  *slider        ;
+  puOneShot *cancel_button ;
+  puOneShot *ok_button     ;
+  puInput   *input         ;
+
+protected:
+  void puFileSelectorInit ( int x, int y, int w, int h,
+                          int arrows, const char *dir, const char *title ) ;
+
+public:
+
+  puFileSelector ( int x, int y, int w, int h, int arrows,
+                 const char *dir, const char *title = "Pick a file" ) ;
+  puFileSelector ( int x, int y, int w, int h,
+                 const char *dir, const char *title = "Pick a file" ) ;
+  puFileSelector ( int x, int y, int arrows,
+                 const char* dir, const char *title = "Pick a file" ) ;
+  puFileSelector ( int x, int y,
+                 const char* dir, const char *title = "Pick a file" ) ;
+
+  ~puFileSelector () ;
+
   /* Not for application use!! */
-/* puInput *__getInput () { return input ; } */
+  puInput *__getInput () { return input ; }
+  char *__getStartDir () { return startDir ; }
 
   void setSize ( int w, int h ) ;
 } ;

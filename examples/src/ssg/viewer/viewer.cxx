@@ -36,7 +36,7 @@
 #define ARROWS_USED 1
 /*
 !!!FIXME!!!
-Defines what type of arrows to uses with puFilePicker
+Defines what type of arrows to uses with puFileSelector
 0 - No arrows
 1 - Single move arrows
 2 - Single move and Jump 10 moves
@@ -53,7 +53,7 @@ font vars
 fntRenderer *text ;
 fntTexFont *font ;
 
-puFilePicker* file_picker = 0 ;
+puFileSelector* file_picker = 0 ;
 
 /*
 frame rate vars
@@ -606,7 +606,7 @@ void keyboard(unsigned char key, int, int)
   case 'l':
     if ( !file_picker )
     {
-      file_picker = new puFilePicker ( ( 640 - 320 ) / 2, ( 480 - 270 ) / 2, 320, 270, ARROWS_USED, "data" ) ;
+      file_picker = new puFileSelector ( ( 640 - 320 ) / 2, ( 480 - 270 ) / 2, 320, 270, ARROWS_USED, "data" ) ;
       file_picker -> setCallback ( pick_cb ) ;
     }
     break;
@@ -702,8 +702,8 @@ void init_graphics ()
   Set up the path to the data files
   */
   
-  ssgModelPath   ( "data" ) ;
-  ssgTexturePath ( "data" ) ;
+  ssgModelPath   ( "." ) ;
+  ssgTexturePath ( "." ) ;
   
   /*
   Create a root node

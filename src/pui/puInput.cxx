@@ -64,6 +64,24 @@ void puInput::removeSelectRegion ( void )
 }
 
 
+static char *chop_to_width ( puFont fnt, const char *s, int width, int *ncut )
+{
+  static char res [ PUSTRING_MAX ] ;
+  int n = 0 ;
+  int w ;
+
+  do
+  {
+    strcpy ( res, & s[n] ) ;
+    n++ ;
+    w = puGetStringWidth ( fnt, res ) ;
+  } while ( w >= width ) ;
+
+  if ( ncut != NULL ) *ncut = n-1 ;
+
+  return res ;
+}
+
 void puInput::draw ( int dx, int dy )
 {
   normalize_cursors () ;
@@ -83,62 +101,70 @@ void puInput::draw ( int dx, int dy )
     int xx = puGetStringWidth ( legendFont, " " ) ;
     int yy = ( abox.max[1] - abox.min[1] - puGetStringHeight(legendFont) ) / 2 ;
 
+    int ncut ;
+    char *s2 ;
+
     if ( accepting )
     {
-      char val [ PUSTRING_MAX ] ;
-      getValue ( val ) ;
-
       /* Highlight the select area */
 
       if ( select_end_position > 0 &&
            select_end_position != select_start_position )    
       {
-        val [ select_end_position ] = '\0' ;
-        int cpos2 = puGetStringWidth ( legendFont, val ) + xx + dx + abox.min[0] ;
-        val [ select_start_position ] = '\0' ;
-        int cpos1 = puGetStringWidth ( legendFont, val ) + xx + dx + abox.min[0] ;
+        s2 = chop_to_width ( legendFont, getStringValue(), abox.max[0]-abox.min[0], &ncut ) ;
 
-        glColor3f ( 1.0f, 1.0f, 0.7f ) ;
-        glRecti ( cpos1, dy + abox.min[1] + 6 ,
-                  cpos2, dy + abox.max[1] - 6 ) ;
+        int sep = select_end_position   - ncut ;
+        int ssp = select_start_position - ncut ;
+
+        if ( sep < 0 ) sep = 0 ;
+        if ( ssp < sep )
+        {
+          s2 [ sep ] = '\0' ;
+          int cpos2 = puGetStringWidth ( legendFont, s2 ) +
+                                                  xx + dx + abox.min[0] ;
+          s2 [ ssp ] = '\0' ;
+          int cpos1 = puGetStringWidth ( legendFont, s2 ) +
+                                                  xx + dx + abox.min[0] ;
+
+          glColor3f ( 1.0f, 1.0f, 0.7f ) ;
+          glRecti ( cpos1, dy + abox.min[1] + 2 ,
+                    cpos2, dy + abox.max[1] - 2 ) ;
+        }
+
       }
     }
 
     /* Draw the text */
 
-    {
-      /* If greyed out then halve the opacity when drawing the label and legend */
+    /* If greyed out then halve the opacity when drawing the label and legend */
 
-      if ( active )
-        glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
-      else
-        glColor4f ( colour [ PUCOL_LEGEND ][0],
-                    colour [ PUCOL_LEGEND ][1],
-                    colour [ PUCOL_LEGEND ][2],
-                    colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transparent */
+    if ( active )
+      glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
+    else
+      glColor4f ( colour [ PUCOL_LEGEND ][0],
+                  colour [ PUCOL_LEGEND ][1],
+                  colour [ PUCOL_LEGEND ][2],
+                  colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transp */
 
-      char val [ PUSTRING_MAX ] ;
-      getValue ( val ) ;
+    s2 = chop_to_width ( legendFont, getStringValue(),
+                         abox.max[0]-abox.min[0], &ncut ) ;
 
-      puDrawString ( legendFont, val,
-                    dx + abox.min[0] + xx,
-                    dy + abox.min[1] + yy ) ;
+    puDrawString ( legendFont, s2,
+                  dx + abox.min[0] + xx,
+                  dy + abox.min[1] + yy ) ;
 
-      draw_label ( dx, dy ) ;
-    }
+    draw_label ( dx, dy ) ;
+
 
     if ( accepting )
     { 
-      char val [ PUSTRING_MAX ] ;
-      getValue ( val ) ;
-
       /* Draw the 'I' bar cursor. */
 
-      if ( cursor_position >= 0 )
+      if ( cursor_position - ncut >= 0 )
       {
-        val [ cursor_position ] = '\0' ;
+        s2 [ cursor_position-ncut ] = '\0' ;
 
-        int cpos = puGetStringWidth ( legendFont, val ) + xx + dx + abox.min[0] ;
+        int cpos = puGetStringWidth ( legendFont, s2 ) + xx + dx + abox.min[0] ;
         int top = yy + puGetStringHeight ( legendFont ) ;
         int bot = yy - puGetStringDescender ( legendFont ) ;
 
@@ -178,24 +204,26 @@ void puInput::doHit ( int button, int updown, int x, int y )
 
     /* Find the position of the mouse on the line of text */
 
-    char *strval = getStringValue () ;
-    char *tmpval = new char [ strlen(strval) + 1 ] ;
-    strcpy ( tmpval, strval ) ;
-
-    int i = strlen ( tmpval ) ;
+    int ncut ;
+    char *s2 = chop_to_width ( legendFont, getStringValue(),
+                         abox.max[0]-abox.min[0], &ncut ) ;
+    int i = strlen ( s2 ) ;
 
     int length, prev_length ;
-    length = puGetStringWidth ( legendFont, tmpval ) + abox.min[0] ;
+    length = puGetStringWidth ( legendFont, s2 ) + abox.min[0] ;
     prev_length = length ;
+
     while ( ( x <= prev_length ) && ( i >= 0 ) )
     {
       prev_length = length ;
-      tmpval[--i] = '\0' ;
-      length = puGetStringWidth ( legendFont, tmpval ) + abox.min[0] ;
+      s2[--i] = '\0' ;
+      length = puGetStringWidth ( legendFont, s2 ) + abox.min[0] ;
     }
 
     if ( ( x - length ) > ( prev_length - x ) )
       i++ ;   /* Mouse is closer to next character than previous character */
+
+    i += ncut ;
 
     /* Process the mouse click. */
 
