@@ -1,0 +1,203 @@
+
+<HTML>
+<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<H2><code>class ssgBase</code> - The Universal Abstract Base Class.</H2>
+All significant SSG classes are derived from ssgBase - which offers a type testing
+mechanism and a means to print out the tree hierarchy in human-readable form,
+or to save/load it to/from disk.
+<pre>
+
+class ssgBase 
+{
+  void  ref () ;
+  void  deRef () ;
+  int     getRef () ;
+
+  int   isA ( int ty ) ;
+  int   isAKindOf  ( int ty ) ;
+
+  int   getType (void) ;
+  virtual char *getTypeName(void) ;
+
+  ssgBase *getUserData () ;
+  void  setUserData ( ssgBase *user_data ) ;
+
+  void  setName ( char *nm ) ;
+  char *getName () ;
+  const char *getPrintableName () ;
+
+  virtual void print ( FILE *fd = stderr ) ;
+  virtual int load ( FILE *fd ) ;
+  virtual int save  ( FILE *fd = stderr ) ;
+
+  ssgBase *clone ( int clone_flags ) ;
+}  ;
+
+</pre>
+
+<H3>Reference Counting.</H3>
+All SSG classes are reference counted - that means that whenever you
+connect a node into the scene graph with <code>ssgBranch::addKid()</code>, we
+increment its reference count and each time we remove a node from
+the graph with <code>ssgBranch::removeKid()</code>, we decrement the count -
+and if it's zero, we'll delete the node to recover memory.
+<p>
+Sometimes, you need a node to stay in memory even though it may be
+be disconnected from the scene graph. You can achieve that by
+calling <code>ssgBase::ref()</code> to increment the reference count.
+If you later find you don't need that node anymore then you may
+<code>ssgBase::deRef()</code> it. If you <code>ssgBase::deRef()</code>
+a node to zero, SSG won't automatically delete it - you still need to use
+<code>delete</code> to do that.  Since such deletions are recursive,
+you may delete an entire sub-branch with a single call.
+<p>
+Instead of using <code>ssgBase::deRef()</code> directly, you should use
+<code>ssgDeRefDelete()</code> which automatically deletes the node if
+the reference count drops to zero.
+<p>
+You can read the current ref count for a node
+using <code>ssgBase::getRef()</code>.
+<H3>Names.</H3>
+It's often useful to attach an ASCII name to a node in the
+scene graph - this is often derived from a name field in
+whatever modelling tool was used to create the object.
+<code>ssgBase::setName(s)</code> sets the name,
+<code>ssgBase::getName()</code> returns it.
+
+<H3>User Data</H3>
+Although one can derive a new C++ class from an SSG class and thereby customise
+it's behavior, it's often more convenient to simply attach application-specific
+data structures to a basic entity. Two functions are provided:
+<code>ssgBase::getUserData()</code> and <code>ssgBase::setUserData(data)</code>.
+<p>
+Notice that user data is of class ssgBase - which means that user data
+can be named, ref-counted - and can in turn have user data of it's own.
+This allows user data to be formed into linked lists when multiple
+user data items need to be attached to a single node.
+
+<H3>Destructor Functions</H3>
+When an SSG entity is NOT connected into the scene graph in any
+way, then the correct way to get rid of it and free up memory
+is to call it's destructor function.  However, when the entity
+is included into the scene graph, you should disconnect it
+from the tree and let the reference count mechanism take care
+of the cleanup.
+<H3>Type Names</H3>
+SSG frequently needs to know what kind of an object an ssgBase is. 
+Since C++ programs may create new classes that inherit from SSG
+classes, we provide several functions to make run time type determination
+possible.  There is an external function for each type that
+returns the type token for that type:
+<pre>
+
+  int ssgTypeBase       () ;
+  int ssgTypeEntity     () ;
+  int ssgTypeLeaf       () ;
+  int ssgTypeVTable     () ;
+  int ssgTypeVtxTable   () ;
+  int ssgTypeDisplayList() ;
+  int ssgTypeBranch     () ;
+  int ssgTypeBaseTransform ();
+  int ssgTypeTransform  () ;
+  int ssgTypeTexTrans   () ;
+  int ssgTypeSelector   () ;
+  int ssgTypeTimedSelector () ;
+  int ssgTypeRangeSelector () ;
+  int ssgTypeRoot       () ;
+  int ssgTypeCutout     () ;
+
+</pre>
+Now, you can use the <code>ssgBase::isA(type)</code> or <code>ssgBase::isAKindOf</code>
+to test the type of the node. For example, if you want to test
+whether a node is a Leaf node or a Branch node, you can do this:
+<pre>
+
+  if ( mynode -> isAKindOf ( ssgTypeLeaf() ) )
+    printf ( "Leaf node\n" ) ;
+  else
+  if ( mynode -> isAKindOf ( ssgTypeBranch() ) )
+    printf ( "Branch node\n" ) ;
+  else
+    printf ( "Something else\n" ) ;
+
+</pre>
+Notice that if you ran that code on (say) an ssgSelector, then it'll
+print "Branch node" since the Selector class is derived from the Branch
+class. If you wanted to tell if a node was *exactly* a Branch node -
+and not from a derived class, then you could use:
+<pre>
+
+  if ( mynode -> isA ( ssgTypeBranch() ) )
+    printf ( "Branch node\n" ) ;
+
+</pre>
+Finally, you can actually read the type of a node - either as a
+token (using <code>ssgBase::getType()</code>) or as an ASCII string
+(using <code>ssgBase::getTypeName()</code>). The latter is very useful
+for debug routines:
+<pre>
+
+  printf ( "ERROR - something wrong with my '%s' node.\n",
+                    mynode -> getTypeName () ) ;
+
+</pre>
+
+<H3>Printing</H3>
+It's sometimes useful during debug to print a section of the
+scene graph so you can examine it. <code>ssgBase::print(fd,indent)</code>
+does that for you - it prints out the node itself - and anything
+connected beneath it in the scene graph. <code>fd</code> is the
+file descriptor to print to (defaults to stderr) and
+<code>indent</code> is a string that will prefix all output lines
+- and is used internally within SSG to make printout of tree
+structures more legible by indenting them.  It would be unwise
+to attempt to parse the output of <code>ssgBase::print</code> into another
+program since it is only intended for human consumption and the
+format may change dramatically between revisions of SSG.
+
+<H3>Cloning:</H3>
+All classes derived from ssgBase have a member function
+<code>ssgBase *clone(int clone_flags)</code> which new's a
+new object of that class as a copy of the calling object.
+<p>
+The 'clone_flags' is a set of tokens that you 'OR' together to
+specify how 'deep' you want the cloning to go.  By default
+(with clone_flags==0), only the object itself is cloned and
+the clone will simply point to the same child structures as
+the original object. However, if you OR in 'SSG_CLONE_RECURSIVE',
+then all ssgEntities beneath this one will also be cloned.
+ORing in SSG_CLONE_GEOMETRY will cause all the per-vertex data
+at the leaf nodes to also be cloned.  SSG_CLONE_STATE causes
+ssgState objects to be cloned also, SSG_CLONE_STATE_RECURSIVE
+also causes states pointed to by other states to be copied,
+SSG_CLONE_USERDATA causes user data attached to
+the original node to be referenced (NOT copied) by the clone -
+otherwise, user data for the clone is set to NULL.  Finally,
+SSG_CLONE_TEXTURE causes texture maps to be replicated also.
+<p>
+Most copy operations will typically use either zero, SSG_CLONE_RECURSIVE
+or (SSG_CLONE_RECURSIVE | SSG_CLONE_GEOMETRY)
+
+<hr>
+<table width="100%">
+   	<tr>
+   		<td width="33%" align="left"><a href="index.html">&lt;= previous =</a></td>
+   		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
+   		<td width="33%" align="right"><a href="ssgEntity.html">= next =&gt;</a></td>
+   	</tr>
+</table>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+

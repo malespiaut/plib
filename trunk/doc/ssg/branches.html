@@ -1,0 +1,281 @@
+
+<HTML>
+<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<H2><code>class ssgBranch</code> - A basic branch node.</H2>
+The basic ssgBranch node simply handles a node in the tree,
+with zero or more child nodes which can be any kind of ssgEntity
+except ssgRoot.
+<p>
+There are a rich set of functions for adding, deleting and
+replacing child nodes:
+<pre>
+
+class ssgBranch : public ssgEntity
+{
+  int        getNumKids    (void) ;
+  ssgEntity *getKid        ( int n ) ;
+  ssgEntity *getNextKid    (void) ;
+  int        searchForKid  ( ssgEntity *entity ) ;
+  void       addKid        ( ssgEntity *entity ) ;
+  void       removeKid     ( int n ) ;
+  void       removeKid     ( ssgEntity *entity ) ;
+  void       removeAllKids (void) ;
+  void       replaceKid    ( ssgEntity *old_entity, ssgEntity *new_entity ) ;
+} ;
+
+</pre>
+Most of these are pretty self-explanatory.
+<code>ssgBranch::getNumKids()</code> returns the number of child nodes
+beneath this branch.
+<code>ssgBranch::getKid(n)</code> returns the address of the n'th child ssgEntity.
+<code>ssgBranch::getNextKid()</code> returns the address of the child entity following
+the last one returned by getKid or getNextKid - returning NULL when all child nodes
+have been exhausted.
+<code>ssgBranch::searchForKid(entity)</code> searches for the specified entity
+in the list of child nodes and returns it's index (ie the inverse of getKid).
+<code>ssgBranch::addKid(entity)</code> adds the specified entity to the list of
+child nodes - the new node is added at the end of the list and will therefore
+have the highest numbered index.
+<code>ssgBranch::removeKid(n)</code> removes the n'th child node and renumbers
+any higher numbered children so there are never any gaps in the number range.
+<code>ssgBranch::removeKid(entity)</code> same as removeKid(searchForKid(entity)).
+<code>ssgBranch::removeAllKids()</code> remove ALL child entities.
+<code>ssgBranch::replaceKid(old, new)</code> replaces <code>old</code> with <code>new</code>.
+If the entity removed by any of these commands has a ref count of
+zero, it will be deleted.
+
+<H2><code>class ssgInvisible</code> - Invisible parts of a Scene Graph.</H2>
+It's sometimes useful to have sections of the scene graph that are never
+rendered to the screen. These are frequently used for collision detection
+and other non-graphical operations.
+
+<H2><code>class ssgRoot</code> - The Root of the Scene Graph,</H2>
+The node at the root of the scene graph is special. At present,
+it resembles an ssgBranch externally.
+<pre>
+
+class ssgRoot : public ssgBranch
+{
+} ;
+
+</pre>
+
+<H2><code>class ssgSelector</code> - A switch point,</H2>
+Most ssgBranch nodes represent a collection of objects that
+are all present in the scene at the same time. ssgSelector
+nodes (and derived classes) typically represent a single
+object that can be represented in more than one way.
+<p>
+A selector contains up to 32 daughter objects and a
+32 bit unsigned integer mask. Where there is a one bit
+in the mask, that child object will be drawn, where
+there is a zero, it will not.
+<p>
+<code>ssgSelector::select(mask)</code> sets the mask,
+<code>ssgSelector::getSelect()</code> returns the current
+state of the mask, <code>ssgSelector::selectStep(n)</code>
+sets the n'th mask bit and zeroes out all the others - effectively
+causing only the n'th child object to be displayed.
+<p>
+It is quite common to have an ssgSelector with just one
+child object that can be enabled with select(1) and disabled
+with select(0).
+
+<H2><code>class ssgTimedSelector</code> - An animation node,</H2>
+This is a selector in which the selection is made as a function
+of the amount of time elapsed.
+<p>
+SSG will draw each of the child objects in turn for some amount
+of time before going onto the next node in the sequence. You
+set the time for each child using:
+<pre>
+
+   ssgTimedSelector::setDuration ( float time, int which_child ) ;
+
+</pre>
+...or you can set the same time for each of the child nodes using:
+<pre>
+
+   ssgTimedSelector::setDuration ( float time ) ;
+
+</pre>
+(At present, times are measured in SSG update cycles - ultimately,
+there will be an option to set the times in seconds - but until
+I have a reasonably accurate portable timer library, I can't
+easily implement this).
+<p>
+The animation doesn't have to start at the first child node and
+end at the last. It is sometimes useful to be able to replay
+just a subset of them.
+<pre>
+
+   ssgTimedSelector::setLimits ( int start_child, int end_child ) ;
+
+</pre>
+You can also choose between a number of animation algorithms:
+<pre>
+
+   ssgTimedSelector::setMode ( ssgAnimDirection mode ) ;
+
+     Where mode is one of:
+
+       SSG_ANIM_ONESHOT, SSG_ANIM_SHUTTLE, SSG_ANIM_SWING
+
+</pre>
+<ul>
+<li>In SSG_ANIM_ONESHOT mode, the animation starts at the first child
+    you specified with setLimits and ends at the last child you
+    specified. Once the last child has been displayed, the animation
+    will automatically go into STOP mode and continue to display
+    that last object until the application intervenes.
+<li>In SSG_ANIM_SHUTTLE mode, the animation goes from the start
+    child to the end child - but unlike SSG_ANIM_ONESHOT, when
+    the animation has finished displaying the last child object,
+    it resets to the start child and does it all over again.
+    SSG_ANIM_SHUTTLE animations don't stop running unless the
+    application stops them.
+<li>In SSG_ANIM_SWING mode, the animation goes from the start
+    child to the end child - but when the end is reached, the
+    animation reverses direction and heads back to the start
+    again. The animation oscillates like a swing until the
+    application stops it.
+</ul>
+<p>
+When all this preparation is done, the application must
+control the animation:
+<pre>
+
+    ssgTimedSelector::control ( ssgAnimEnum cntrl ) ;
+
+    Where 'cntrl' is one of:
+
+       SSG_ANIM_START, SSG_ANIM_STOP,
+       SSG_ANIM_PAUSE, SSG_ANIM_RESUME
+
+</pre>
+These controls work just like you'd expect. Start, Stop,
+Pause, Resume.  SSG_ANIM_START resets the animation to
+the 'start' child and lets it rip. SSG_ANIM_STOP causes
+it to stop wherever it is and continue to display that
+child node indefinitely. SSG_ANIM_PAUSE pauses the
+animation wherever it is right now and SSG_ANIM_RESUME
+allows it to continue from whatever point it was paused.
+<p>
+When the animation is in SSG_ANIM_STOP mode, you can
+use this node just like a normal ssgSelector node
+using the ssgSelector API.
+<p>
+If you need to know which child object is currently being
+displayed, you cannot call ssgSelector::getSelect() because
+SSG computes the animation step only if the node is actually
+on-screen. Instead call ssgTimedSelector::getStep() which
+returns the currently selected child node.
+<H2><code>class ssgRangeSelector</code> - A level of detail node,</H2>
+This is a selector in which the selection is made automatically
+based on the range to the object. This is principally used to
+allow you to save time by drawing simpler versions of objects
+at long ranges and more complex ones close up.
+<p>
+Since an <code>ssgRangeSelector</code> is a kind of
+<code>ssgSelector</code>, you can find
+out which version of the object was most recently drawn using
+<code>getSelect()</code>. However, if the object was not drawn recently, that
+may not be a very useful thing to know. Mostly, it's useful in
+the post-cull callback.
+<p>
+You set the ranges at which each daughter object will be drawn
+by passing an array of lengths to
+<code>ssgRangeSelector::setRanges(float *ranges,int nranges)</code>.
+The first parameter is an array of ranges and the second is the
+number of elements in that array. Note that element N of the
+array is the range beyond which child object N will be drawn.
+The array should contain one more range than there are child
+objects - and beyond the last range, nothing will be drawn.
+setRanges takes a copy of your array so you can delete it after
+the call. If nranges is less than the number required, the
+remaining ranges will be set to infinity. You can query the
+current range array with <code>float getRange(int n)</code> which
+returns the n'th range in the array.
+<p>
+In some cases, you'd like to build several complete versions
+of an object such that just one of those versions will be
+drawn - and that is the default behaviour.  In other cases,
+you'd like some basic object to be rendered at long range
+and for additional parts to be added to it at shorter ranges.
+This is called 'additive' mode and it is set using
+<code>setAdditive(int additive)</code>
+and queried with <code>isAdditive()</code>.
+<H2><code>class ssgBaseTransform</code> - Nodes with transformations.</H2>
+It is common to wish to move objects around in the scene, scale and rotate
+them, move their texture maps, etc. All of these operations entail
+manipulating a matrix associated with the branch node and the
+ssgBaseTransform contains the functionality to store and manipulate
+that matrix. Applications use one of the derived classes of ssgBaseTransform
+to actually do something with that matrix.
+<pre>
+
+class ssgBaseTransform : ssgBranch
+{
+  void getTransform ( sgMat4 xform ) ;
+  virtual void setTransform ( sgVec3 xyz ) ;
+  virtual void setTransform ( sgCoord *xform ) ;
+  virtual void setTransform ( sgCoord *xform, float sx, float sy, float sz ) ;
+  virtual void setTransform ( sgMat4 xform ) ;
+} ;
+
+</pre>
+You can set up the transformation matrix using <code>ssgBaseTransform::setTransform()</code>
+which has versions that allow you to pass either a full-blown
+4x4 matrix, a simple translation, an 'sgCoord' (which is an xyz translation
+and a hpr rotation) or an sgCoord and scale factors in each of X, Y and Z
+directions.
+<p>
+<code>ssgBaseTransform::getTransform(matrix)</code> copies the current
+transform into the matrix that you provide.
+<H2><code>class ssgTransform</code> - Nodes with spatial transformations.</H2>
+An ssgTransform is derived from ssgBaseTransform and uses the base classes'
+transform to transform all the spatial vertices and normals of it's
+child nodes. This is done by applying the current transform to the
+GL_MODELVIEW stack each frame.
+<H2><code>class ssgTexTrans</code> - Nodes with moving texture</H2>
+ssgTexTrans nodes are just like ssgTransform nodes except that the
+resulting matrix is applied to the GL_TEXTURE stack rather than
+the modelview stack. Hence, altering the transform moves the texture
+map(s) on the descendent leaf nodes.
+<H2><code>class ssgCutout</code> - turn-to-face-the-viewer nodes.</H2>
+Cutout nodes will normally contain only leaf nodes that are
+modelled with polygons in the X/Z plane. The ssgCutout will rotate
+those polygons such that they turn to continually face the viewer.
+<p>
+There are actually two distinct forms of ssgCutout - depending on
+what value is passed as a parameter to the constructor function.
+ssgCutout(TRUE) produces an object that rotates around it's
+origin such as to keep the X/Z plane parallel to the screen and
+ssgCutout(FALSE) produces one that tries to stay parallel to the
+screen - but which is only allowed to rotate about the Z axis.
+The latter form is useful for objects with cylindrical symmetry
+and the former for those with spherical symmetry.
+
+<hr>
+<table width="100%">
+   	<tr>
+   		<td width="33%" align="left"><a href="ssgLeaf.html">&lt;= previous =</a></td>
+   		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
+   		<td width="33%" align="right"><a href="state.html">= next =&gt;</a></td>
+   	</tr>
+</table>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+

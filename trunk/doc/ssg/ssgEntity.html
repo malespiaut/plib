@@ -1,0 +1,139 @@
+
+<HTML>
+<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+<H2><code>class ssgEntity</code> - A Node in the Tree.</H2>
+All nodes in the SSG scene graph are ssgEntities.
+<pre>
+
+clas ssgEntity : public ssgBase
+{
+public:
+ 
+  ssgEntity (void) ;
+  virtual ~ssgEntity (void) ;
+  
+  int  getTraversalMask     () ;
+  void setTraversalMask     ( int t ) ;
+  void setTraversalMaskBits ( int t ) ;
+  void clrTraversalMaskBits ( int t ) ;
+
+  virtual void recalcBSphere (void) ;
+  int  isDirtyBSphere (void) ;
+  void dirtyBSphere  () ;
+  sgSphere *getBSphere () ;
+
+  virtual int getNumKids (void) ;
+  int getNumParents () ;
+  ssgBranch *getParent ( int p ) ;
+  ssgBranch *getNextParent () ;
+
+  virtual void cull  ( sgFrustum *f, sgMat4 m, int test_needed ) ;
+  virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) ;
+  virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) ;
+} ;
+
+</pre>
+
+<H3>The tree structure.</H3>
+Every entity has a list of parent entities and (conceptually), a list of
+child entities ("kids"). In practice, ssgRoot nodes never have parents
+and ssgLeaf nodes never have kids.
+<p>
+The structure of the scene graph permits the same node to be inserted
+into the graph in multiple locations. This is useful for saving
+space when the same object is needed many times in the scene.
+Hence, any given node may have more than one parent node.
+<p>
+You can traverse the list of parent nodes
+using <code>ssgEntity::getNumParents()</code> to find out the number
+of parents this node has and
+<code>ssgEntity::getParent(n)</code> to locate the n'th parent.
+<p>
+Alternatively, after calling getParent, you can call getNextParent
+to get the N+1'th parent node - it returns NULL when no more parents
+are available.
+<p>
+As a convenience for general tree-walking routines, there is a
+<code>ssgEntity::getNumKids()</code> call - which will always
+return zero on leaf nodes. You cannot actually get kid nodes unless
+the node is some kind of ssgBranch.
+
+<H3>Traversals</H3>
+Much of the work done on an SSG scene graph entails 'traversing'
+the tree structure. This is done most commonly to display the
+scene using OpenGL - but is also done when doing intersection
+testing and other operations.
+<p>
+It's quite useful to be able to limit the traversal so that
+certain nodes do not get tested. This can save time - or
+prevent undesirable side-effects.
+<p>
+Each entity has a 'traveral mask' - which is a simple integer
+with one bit per kind of traversal. At present, there are
+three kinds of traversal:
+<pre>
+
+SSGTRAV_CULL   -- Culling to the field of view.
+SSGTRAV_ISECT  -- General intersection testing.
+SSGTRAV_HOT    -- Height-over-terrain testing.
+
+</pre>
+You can directly set or get the traversal mask with <code>ssgEntity::setTraversalMask(m)</code>
+<code>ssgEntity::getTraversalMask()</code>. You can set an individual traversal bit using
+<code>ssgEntity::setTraversalMaskBits(m)</code> or clear one using
+<code>ssgEntity::clrTraversalMaskBits(m)</code>.
+
+<H3>Bounding Sphere</H3>
+Quite a few graphics algorithms can be accellerated using a
+bounding sphere.  The standard ssgEntity uses bounding
+spheres to do field-of-view and intersection testing.
+<p>
+Clearly one does not want to recompute the bounding sphere
+every frame - just some objects do change their size over
+time. Hence, the bounding sphere is lazily evaluated.
+<p>
+Whenever you do something to change the size or shape of an entity,
+you should call <code>ssgEntity::dirtyBSphere()</code>. This will
+mark this entity's sphere as invalid ("dirty") and also, walk
+backwards up the scene graph tree making all the nodes above
+this one dirty too. The next time SSG needs to know the bounding
+sphere size, it'll recompute it.
+<p>
+If you'd prefer for the bounding sphere recalculation to be
+done immediately, then you can call <code>ssgEntity::recalcBSphere()</code>
+and it will be done immediately.  Branch nodes like ssgTransforms will
+automatically dirty their bounding spheres when necessary. Leaf nodes
+generally do not.
+<p>
+When anyone needs to know the bounding sphere size for a node,
+they'll call <code>ssgEntity::getBSphere()</code> - which will
+recaclulate the Bsphere if it needs to.
+
+<H3>Culling and Drawing</H3>
+The actual tree-traversal, culling and rendering is handled by
+a virtual function <code>ssgEntity::cull()</code> - calling
+this on the root node in the scene graph causes the entire
+scene to be rendered in an efficient manner.
+
+<hr>
+<table width="100%">
+   	<tr>
+   		<td width="33%" align="left"><a href="ssgBase.html">&lt;= previous =</a></td>
+   		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
+   		<td width="33%" align="right"><a href="ssgLeaf.html">= next =&gt;</a></td>
+   	</tr>
+</table>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+

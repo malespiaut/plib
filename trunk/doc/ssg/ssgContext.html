@@ -1,0 +1,155 @@
+
+<HTML>
+<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+
+<H2>ssgContext</H2>
+A 'context' is a set of parameters that relate to rendering
+one SSG image.  It contains the camera parameters and some
+default state information.
+<pre>
+
+  class ssgContext
+  {
+    ssgContext () ;
+    void forceBasicState () { basicState -> force () ; }
+
+    void makeCurrent () ;
+    int  isCurrent () ;
+
+    void overrideTexture   ( int on_off ) ;
+    void overrideCullface  ( int on_off ) ;
+    int  textureOverridden  () { return ovTexture  ; }
+    int  cullfaceOverridden () { return ovCullface ; }
+    void setCullface ( int on_off ) { cullFace = on_off ; }
+    int  cullfaceIsEnabled () { return cullFace ; }
+
+    sgFrustum *getFrustum () { return frustum ; }
+
+    void getNearFar ( float *n, float *f ) ;
+    void getFOV     ( float *w, float *h ) ;
+    void getOrtho   ( float *w, float *h ) ;
+    void setNearFar ( float  n, float  f ) ;
+    void setOrtho   ( float  w, float  h ) ;
+    void setFOV     ( float  w, float  h ) ;
+
+    int  isOrtho () { return orthographic ; }
+
+    void getCameraPosition ( sgVec3 pos ) ;
+    void setCamera ( sgMat4 mat ) ;
+    void setCamera ( sgCoord *coord ) ;
+
+    void loadProjectionMatrix () ;
+    void loadModelviewMatrix  () ;
+
+    void getProjectionMatrix  ( sgMat4 dst ) ;
+    void getModelviewMatrix   ( sgMat4 dst ) ;
+  } ;
+
+</pre>
+In all 3D rendering, you need the concept of a virtual camera - or
+eyepoint. This is set up in SSG with the following calls:
+<pre>
+
+  void ssgContext::setFOV    ( float w, float h ) ;
+  void ssgContext::setNearFar( float n, float f ) ;
+  void ssgContext::setCamera ( sgCoord *coord ) ;
+
+</pre>
+The setFOV call sets up the vertical and horizontal fields
+of view (in degrees), setNearFar sets the near and far
+clip planes (in whatever units your model is built in).
+Finally, you can position the virtual camera relative to
+the database origin using setCamera.
+<p>
+Very often, an SSG program contains other non-SSG routines that
+are accessing OpenGL state. Even a menu drawn using PUI or an
+overlay in raw OpenGL or using FNT will change the current
+state of OpenGL. Since SSG does 'lazy' state changes (only
+updating those states that need to be changed) - it will be
+fooled into no setting some things that some ssgLeaf nodes
+really need.
+<p>
+This isn't a problem so long as the application doesn't change states
+DURING ssgCullAndDraw (by using derived class member functions, callbacks,
+etc). If you need to do that then be sure to call forceBasicState()
+before you return to SSG.
+<pre>
+
+   void ssgContext::forceBasicState ( void ) ;
+
+</pre>
+<p>
+During testing, you sometimes need to disable texture rendering,
+or backface culling:
+<pre>
+
+  void ssgContext::overrideTexture  ( int on_off ) ;
+  void ssgContext::overrideCullface ( int on_off ) ;
+
+</pre>
+Once you have your context set up as you'd like, you have to
+make it become the 'current' context.
+<pre>
+
+  void ssgContext::makeCurrent () ;
+
+</pre>
+There is a non-class function:
+<pre>
+
+  ssgContext *ssgGetCurrentContext() ;
+
+</pre>
+...which returns the current context.
+<p>
+The 'ssgContext' class was not present in PLIB 1.0.xx, so (for
+backwards compatibility) there is an initial context assigned
+inside ssgInit(). In addition to the member functions of ssgContext,
+there are a number of equivelent global functions that are
+equivelent to ssgGetCurrentContext()->member_function().  These
+functions are deprecated for new code:
+<pre>
+
+  inline void ssgForceBasicState   () ;
+  inline void ssgGetCameraPosition ( sgVec3 pos ) ;
+  inline void ssgOverrideTexture   ( int on_off ) ;
+  inline void ssgOverrideCullface  ( int on_off ) ;
+  inline void ssgGetNearFar        ( float *n, float *f ) ;
+  inline void ssgGetFOV            ( float *w, float *h ) ;
+  inline void ssgSetFOV            ( float w, float h ) ;
+  inline void ssgSetOrtho          ( float w, float h ) ;
+  inline void ssgSetNearFar        ( float n, float f ) ;
+  inline void ssgSetCamera         ( sgMat4 mat ) ;
+  inline void ssgSetCamera         ( sgCoord *coord ) ;
+  inline void ssgLoadProjectionMatrix () ;
+  inline void ssgLoadProjectionMatrix ( sgFrustum *f ) ;
+  inline void ssgGetProjectionMatrix  ( sgMat4 dst ) ;
+  inline void ssgGetModelviewMatrix   ( sgMat4 dst ) ;
+  inline void ssgLoadModelviewMatrix  () ;
+  inline void ssgLoadModelviewMatrix  ( sgMat4 mat ) ;
+
+</pre>
+
+
+<hr>
+<table width="100%">
+   	<tr>
+   		<td width="33%" align="left"><a href="state.html">&lt;= previous =</a></td>
+   		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
+   		<td width="33%" align="right"><a href="non_class.html">= next =&gt;</a></td>
+   	</tr>
+</table>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+

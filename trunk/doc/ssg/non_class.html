@@ -1,0 +1,262 @@
+
+<HTML>
+<TITLE>A Simple Scene Graph API for OpenGL.</TITLE>
+<body text="#B5A642">
+<body link="#8FFF8F">
+<body vlink="#18A515">
+<body alink="#20336B">
+<BODY bgcolor="#005000" background="../marble.png">
+<H2>Non-class Functions.</H2>
+So, with the class functions described above, it is
+fairly simple to construct a scene graph. So, now that
+you have one, what can you do with it?
+<pre>
+  void ssgCullAndDraw ( ssgRoot *root ) ;
+</pre>
+This call deals with the entire process of rendering the database.
+Your application need only call ssgInit(), build a database,
+create a current context and call ssgCullAndDraw using the root node
+of that database.
+<H3>Intersection Testing.</H3>
+Most applications need to test the scenery to see if moving
+objects have collided with it - there are several ways to do
+that - but they all share the same mechanisms:
+<pre>
+
+int  ssgIsect ( ssgRoot *root, sgSphere *s, sgMat4 m, ssgHit **results ) ;
+int  ssgHOT   ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
+int  ssgLOS   ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
+
+</pre>
+These three calls implement various ways to test the database for collisions,
+weapon impacts and such like. In each case, the search for a collision
+starts at 'root', and the database is transformed by the matrix 'm'
+before the test is evaluated - hence, 'm' is ususally the inverse of
+the matrix describing the test object's location.
+<ul>
+<li>ssgIsect intersects a sphere against the scene.
+<li>ssgHOT intersects a vertical line starting at the point 's' (remember,
+in SSG, positive Z is 'up'). This is often used to compute
+the Height-of-Terrain - hence the name 'HOT'.
+<li>ssgLOS intersects an arbitary vector whose direction is defined by 's'.
+</ul>
+The result in either case is an integer telling
+you how many triangles impacted the sphere/vector. If you need to know more
+about these intersections, pass the address of a ssgHit * variable as
+the last parameter and it will be returned pointing at a STATIC array
+of ssgHit structures. Thats a confusing explanation - and an example
+will help:
+<pre>
+
+ie:
+
+   ssgHit *results ;
+
+   int num_hits = ssgIsect ( root, &sphere, mat, &results ) ;
+
+   for ( int i = 0 ; i < num_hits ; i++ )
+   {
+     ssgHit *h = &(results [ i ]) ;
+
+     /* Do something with 'h' */
+   }
+
+</pre>
+Remember, you must finish using the results array before you do
+another ssgIsect/ssgHOT/ssgLOS because all three functions share
+the same results array.
+<p>
+An ssgHit looks like this:
+<pre>
+
+class ssgHit
+{
+  ssgLeaf *leaf ;
+  int      triangle ;
+  sgVec4   plane ;
+  sgMat4   matrix ;
+
+  ssgHit ()
+  int getNumPathEntries () ;
+  ssgEntity *getPathEntry ( int i ) ;
+} ;
+
+</pre>
+The 'leaf' member points at the leaf node that impacted the sphere.
+The 'triangle' member tells you which triangle within the leaf
+did the impacting. The 'plane' member contains the plane equation
+of the impacting triangle and the 'matrix' element tells you
+the net result of concatenating all the transform nodes from
+the root to the leaf to the matrix you provided in the ssgIsect call.
+<p>
+It's possible for there to be multiple paths through the
+scene graph to the leaf node. Sometimes you'll need to
+look back up the tree to see nodes above the one that we actually
+impacted with. Hence, you can read all the ssgEntities that were
+traversed on the path from the root down to the leaf.  Calling 
+the 'getNumPathEntries' function to find the number of nodes
+along the path - and then 'getPathEntry(n)' to get the n'th entry
+in the path. The 'root' node will always be the zeroth entry
+in the path - and the leaf node will always be the last.
+<H3>Lights.</H3>
+SSG supports the eight standard OpenGL light sources as class 'ssgLight'.
+Since there are only a finite number of these, they all exist all the
+time - you just call:
+<pre>
+
+  ssgLight *ssgGetLight ( int i ) ;
+
+</pre>
+...to get the i'th light should you need to manipulate it.
+<pre>
+
+class ssgLight
+{
+  int isOn () ;
+  void on  () ;
+  void off () ;
+  void setPosition ( sgVec3 pos ) ;
+  void setHeadlight ( int head ) ;
+  int  isHeadlight () ;
+} ;
+
+</pre>
+Each light can be turned on or off - or tested to see if it's on or off.
+<p>
+Lights are positioned with 'setPosition()' - which can be relative
+to the origin of the world - or relative to the SSG camera (in 'headlight'
+mode).
+<H3>Miscellany.</H3>
+It's convenient to find out how much texture memory has been
+consumed:
+<pre>
+
+  int ssgGetNumTexelsLoaded () ;
+
+</pre>
+(Bear in mind that a texel could be 16 or 32 bits depending on
+the hardware - and with MIPmapping enabled, 25% of the texels
+will be in the MIPmaps - so ssgGetNumTexelsLoaded will return
+a larger number than the total of the sizes of the input images
+might suggest.
+<H3>Loading Database Files.</H3>
+To load a model file into SSG, you can either call a loader
+function that is specific to the format of the file you
+wish to load - or you can call 'ssgLoad' - which parses
+the filename extension and calls the appropriate format-specific
+loader.
+<p>
+This is one major area where SSG could use some work.
+So far, there are only three file loaders:
+<ul>
+<li> ssgLoadSSG - for '.ssg' files - the 'native' SSG format.
+<li> ssgLoadAC  - for '.ac' files - a somewhat obscure format produced
+                 by the 'AC3D' modelling tool - reasonably well tried
+                 and tested.
+<li> ssgLoad3ds - for '.3ds' files as produced by 3DStudio.
+</ul>
+<pre>
+
+  typedef ssgBranch *(*ssgHookFunc)(char *) ;
+
+  ssgEntity *ssgLoad    ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+
+  ssgEntity *ssgLoadSSG ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+  ssgEntity *ssgLoadAC  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+  ssgEntity *ssgLoad3ds ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+
+</pre>
+Minimally, all you need to do is to call ssgLoadAC/ssgLoad3ds with the
+name of the file to load. However, most file formats (AC3D's
+and 3Dstudio's included) lack many desirable features, and it is also often
+necessary to store application-specific information in the
+file.
+<p>
+SSG's loaders will decode the comment fields found in the
+nodes of many common file formats and pass these onto the
+application via 'hookfunc'. This function should decode
+the string and construct whatever kind of SSG node it
+considers appropriate.
+<p>
+Similarly, the application may wish to embellish the
+ssgState of a loaded node - and since state information
+rarely has a comment field in most file formats, we
+pass the texture filename instead and expect the application
+to construct the entire ssgState:
+<pre>
+
+  void ssgSetAppStateCallback ( ssgState *(*cb)(char *) ) ;
+
+</pre>
+One common problem with file loaders is that it's
+often possible to refer to a second file from inside
+the first - but the <b>path</b> to that file is often
+not adequately defined by the original file. Hence,
+the application can specify a file path to be prepended
+to all model or texture file names.
+<pre>
+
+  void ssgModelPath   ( char *path ) ;
+  void ssgTexturePath ( char *path ) ;
+
+</pre>
+Most file formats contain considerable numbers of redundant 
+nodes (because of the way people build using these tools).
+This function walks a database sub-tree multiplying
+out any ssgTransform nodes and replacing them with
+ssgBranch'ed - unless they have userdata associated with them.
+Any branch nodes with zero kids are deleted - any with just
+one kid are eliminated and the child node pushed up one level.
+<pre>
+
+  void ssgFlatten ( ssgEntity *ent ) ;
+
+</pre>
+It's important for 3D performance to optimise
+triangles into triangle strips or fans. Since most
+file formats don't record strip/fan information,
+it's useful to call:
+<pre>
+
+  void ssgStripify ( ssgEntity *ent ) ;
+
+</pre>
+<H3>Saving Database Files.</H3>
+Most SSG programs will simply load a file and display it in
+some way - but occasionally, it's useful to be able to write
+a file back out again.
+<p>
+To write a model file from SSG, you can either call a writer
+function that is specific to the format of the file you
+wish to save - or you can call 'ssgSave' - which parses
+the filename extension and calls the appropriate format-specific
+writer.
+<p>
+So far, there is only one file writer:
+<ul>
+<li> ssgSaveSSG - for '.ssg' files - the 'native' SSG format.
+</ul>
+<pre>
+
+  int ssgSave    ( char *fname, ssgEntity *ent ) ;
+  int ssgSaveSSG ( char *fname, ssgEntity *ent ) ;
+
+</pre>
+This returns TRUE if the operation worked - FALSE if it failed.
+<hr>
+<table width="100%">
+   	<tr>
+   		<td width="33%" align="left"><a href="ssgContext.html">&lt;= previous =</a></td>
+   		<td width="34%" align="center"><a href="index.html">Return to SSG Index</a></td>
+   		<td width="33%" align="right"></td>
+   	</tr>
+</table>
+<hr>
+<ADDRESS>
+<A HREF="http://web2.airmail.net/sjbaker1">
+Steve J. Baker.</A>
+&lt;<A HREF="mailto:sjbaker1@airmail.net">sjbaker1@airmail.net</A>&gt;
+</ADDRESS>
+</BODY>
+</HTML>
+
