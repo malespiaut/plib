@@ -1099,7 +1099,7 @@ void sgAngleAxisToQuat ( sgQuat dst, const SGfloat angle, const sgVec3 axis )
 //from gamasutra.com
 //by nb
 
-void sgMatrixToQuat( sgQuat quat, sgMat4 m )
+void sgMatrixToQuat( sgQuat quat, const sgMat4 m )
 {
   SGfloat tr, s, q[4] ;
   int   i, j, k ;
@@ -1190,18 +1190,18 @@ void sgMultQuat2 ( sgQuat dst, const sgQuat a, const sgQuat b )
 //from gamasutra.com
 //by nb@netcom.ca 
 
-void sgEulerToQuat(sgQuat quat, sgVec3 ypr )
+void sgEulerToQuat(sgQuat quat, const sgVec3 hpr )
 {
   SGfloat cr, cp, cy, sr, sp, sy, cpcy, spsy;
 
 // calculate trig identities
-  cr = (SGfloat) cos(ypr[2]/SG_TWO);
-  cp = (SGfloat) cos(ypr[1]/SG_TWO);
-  cy = (SGfloat) cos(ypr[0]/SG_TWO);
+  cr = (SGfloat) cos(hpr[2]*SG_DEGREES_TO_RADIANS/SG_TWO);
+  cp = (SGfloat) cos(hpr[1]*SG_DEGREES_TO_RADIANS/SG_TWO);
+  cy = (SGfloat) cos(hpr[0]*SG_DEGREES_TO_RADIANS/SG_TWO);
 
-  sr = (SGfloat) sin(ypr[2]/SG_TWO);
-  sp = (SGfloat) sin(ypr[1]/SG_TWO);
-  sy = (SGfloat) sin(ypr[0]/SG_TWO);
+  sr = (SGfloat) sin(hpr[2]*SG_DEGREES_TO_RADIANS/SG_TWO);
+  sp = (SGfloat) sin(hpr[1]*SG_DEGREES_TO_RADIANS/SG_TWO);
+  sy = (SGfloat) sin(hpr[0]*SG_DEGREES_TO_RADIANS/SG_TWO);
   
   cpcy = cp * cy;
   spsy = sp * sy;
@@ -1305,6 +1305,11 @@ void sgQuatToMatrix ( sgMat4 dst, sgQuat q )
 
 //from gamasutra.com
 //by nb@netcom.ca 
+
+/*****************************
+ DEPRECATED...use sgQuatToMatrix instead.
+*****************************/
+
 void sgMakeRotMat42( sgMat4 m, sgQuat quat ){
  SGfloat wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
 
