@@ -379,6 +379,36 @@ inline float ulEndianReadBigFloat(FILE *f) {
   return ulEndianBigFloat(x);
 }
 
+inline size_t ulEndianWriteLittle16(FILE *f, unsigned short x) {
+  x = ulEndianLittle16(x);
+  return fwrite( &x, 2, 1, f );
+}
+
+inline size_t ulEndianWriteLittle32(FILE *f, unsigned int x) {
+  x = ulEndianLittle32(x);
+  return fwrite( &x, 4, 1, f );
+}
+
+inline size_t ulEndianWriteLittleFloat(FILE *f, float x) {
+  x = ulEndianLittleFloat(x);
+  return fwrite( &x, 4, 1, f );
+}
+
+inline size_t ulEndianWriteBig16(FILE *f, unsigned short x) {
+  x = ulEndianBig16(x);
+  return fwrite( &x, 2, 1, f );
+}
+
+inline size_t ulEndianWriteBig32(FILE *f, unsigned int x) {
+  x = ulEndianBig32(x);
+  return fwrite( &x, 4, 1, f );
+}
+
+inline size_t ulEndianWriteBigFloat(FILE *f, float x) {
+  x = ulEndianBigFloat(x);
+  return fwrite( &x, 4, 1, f );
+}
+
 /*
   UDP Networking Class NetWork Libriary
   by Ben Woodhead
