@@ -23,11 +23,14 @@
 
 #include "js.h"
 
-#if defined (UL_LINUX) && !defined (JS_NEW)
+#if defined (UL_LINUX)
+
+#include <linux/joystick.h>
+
+#if !defined(JS_VERSION) || JS_VERSION >= 0x010000
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <linux/joystick.h>
 
 struct os_specific_s {
   JS_DATA_TYPE js ;
@@ -139,4 +142,5 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
 
 void jsInit() {}
 
+#endif
 #endif
