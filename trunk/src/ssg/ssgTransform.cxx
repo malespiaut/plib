@@ -11,7 +11,7 @@ void ssgTransform::copy_from ( ssgTransform *src, int clone_flags )
   ssgBaseTransform::copy_from ( src, clone_flags ) ;
 }
 
-ssgTransform *ssgTransform::clone ( int clone_flags )
+ssgBase *ssgTransform::clone ( int clone_flags )
 {
   ssgTransform *b = new ssgTransform ;
   b -> copy_from ( this, clone_flags ) ;

@@ -18,14 +18,6 @@ void ssgEntity::copy_from ( ssgEntity *src, int clone_flags )
 }
 
 
-ssgEntity *ssgEntity::clone ( int /* clone_flags */ )
-{
-  fprintf ( stderr, "SSG: Cannot clone an ssgEntity base class.\n" ) ;
-  assert ( FALSE ) ;
-  return NULL ;
-}
-
-
 ssgEntity::ssgEntity (void)
 {
   user_data = NULL ;

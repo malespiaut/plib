@@ -29,7 +29,7 @@ void ssgVTable::copy_from ( ssgVTable *src, int clone_flags )
 }
 
 
-ssgVTable *ssgVTable::clone ( int clone_flags )
+ssgBase *ssgVTable::clone ( int clone_flags )
 {
   ssgVTable *b = new ssgVTable ;
   b -> copy_from ( this, clone_flags ) ;

@@ -11,7 +11,7 @@ void ssgTexTrans::copy_from ( ssgTexTrans *src, int clone_flags )
   ssgBaseTransform::copy_from ( src, clone_flags ) ;
 }
 
-ssgTexTrans *ssgTexTrans::clone ( int clone_flags )
+ssgBase *ssgTexTrans::clone ( int clone_flags )
 {
   ssgTexTrans *b = new ssgTexTrans ;
   b -> copy_from ( this, clone_flags ) ;

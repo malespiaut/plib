@@ -21,7 +21,7 @@ void ssgTimedSelector::copy_from ( ssgTimedSelector *src, int clone_flags )
 }
 
 
-ssgTimedSelector *ssgTimedSelector::clone ( int clone_flags )
+ssgBase *ssgTimedSelector::clone ( int clone_flags )
 {
   ssgTimedSelector *b = new ssgTimedSelector ;
   b -> copy_from ( this, clone_flags ) ;

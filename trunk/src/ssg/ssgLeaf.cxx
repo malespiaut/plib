@@ -10,17 +10,11 @@ void ssgLeaf::copy_from ( ssgLeaf *src, int clone_flags )
   ssgState *s = src -> getState () ;
 
   if ( s != NULL && ( clone_flags & SSG_CLONE_STATE ) )
-    state = s -> clone ( clone_flags ) ;
+    state = (ssgState *)( s -> clone ( clone_flags ) ) ;
   else
     state = s ;
 }
 
-ssgLeaf *ssgLeaf::clone ( int clone_flags )
-{
-  fprintf ( stderr, "SSG: Cannot clone a base-class ssgLeaf object!\n" ) ;
-  assert ( FALSE ) ; 
-  return NULL ;
-}
 
 
 ssgLeaf::ssgLeaf (void)

@@ -9,7 +9,7 @@ void ssgSelector::copy_from ( ssgSelector *src, int clone_flags )
 }
 
 
-ssgSelector *ssgSelector::clone ( int clone_flags )
+ssgBase *ssgSelector::clone ( int clone_flags )
 {
   ssgSelector *b = new ssgSelector ;
   b -> copy_from ( this, clone_flags ) ;

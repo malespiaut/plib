@@ -6,7 +6,7 @@ void ssgInvisible::copy_from ( ssgInvisible *src, int clone_flags )
   ssgBranch::copy_from ( src, clone_flags ) ;
 }
 
-ssgInvisible *ssgInvisible::clone ( int clone_flags )
+ssgBase *ssgInvisible::clone ( int clone_flags )
 {
   ssgInvisible *b = new ssgInvisible ;
   b -> copy_from ( this, clone_flags ) ;
