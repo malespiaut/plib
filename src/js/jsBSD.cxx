@@ -177,7 +177,7 @@ static int joy_initialize_hid(struct os_specific_s *os,
 #ifdef HAVE_USBHID_H
   if (ioctl(os->fd, USB_GET_REPORT_ID, &report_id) < 0)
     {
-      fprintf(stderr, "error: %s%d: %s", UHIDDEV, i, strerror(errno));
+      fprintf(stderr, "error: %s: %s", os->fname, strerror(errno));
       return FALSE;
     }
 
