@@ -35,6 +35,7 @@
 #define SG_ONE   1.0f
 #define SG_TWO   2.0f
 #define SG_THREE 3.0f
+#define SG_FOUR  4.0f
 #define SG_45    45.0f
 #define SG_60    60.0f
 #define SG_90    90.0f
@@ -1113,8 +1114,8 @@ public:
   void setFOV ( const SGfloat h, const SGfloat v )
   {
     ortho = FALSE ;
-    hfov = ( h <= 0 ) ? ( v * SG_THREE / SG_TWO ) : h ;
-    vfov = ( v <= 0 ) ? ( h * SG_TWO / SG_THREE ) : v ;
+    hfov = ( h <= 0 ) ? ( v * SG_FOUR / SG_THREE ) : h ;
+    vfov = ( v <= 0 ) ? ( h * SG_THREE / SG_FOUR ) : v ;
     update () ;
   }
 
@@ -1127,8 +1128,8 @@ public:
   void setOrtho ( const SGfloat w, const SGfloat h )
   {
     ortho = TRUE ;
-    hfov = ( w <= 0 ) ? ( h * SG_THREE / SG_TWO ) : w ;
-    vfov = ( h <= 0 ) ? ( w * SG_THREE / SG_TWO ) : h ;
+    hfov = ( w <= 0 ) ? ( h * SG_FOUR / SG_THREE ) : w ;
+    vfov = ( h <= 0 ) ? ( w * SG_FOUR / SG_THREE ) : h ;
     update () ;
   }
 
@@ -1379,6 +1380,7 @@ bool sgPointInTriangle      ( sgVec3 point, sgVec3 tri[3] );
 #define SGD_ONE   1.0
 #define SGD_TWO   2.0
 #define SGD_THREE 3.0
+#define SGD_FOUR  3.0
 #define SGD_45    45.0
 #define SGD_60    60.0
 #define SGD_90    90.0
@@ -2342,8 +2344,8 @@ public:
 
   void setFOV ( const SGDfloat h, const SGDfloat v )
   {
-    hfov = ( h <= 0 ) ? ( v * SGD_THREE / SGD_TWO ) : h ;
-    vfov = ( v <= 0 ) ? ( h * SGD_TWO / SGD_THREE ) : v ;
+    hfov = ( h <= 0 ) ? ( v * SGD_FOUR / SGD_THREE ) : h ;
+    vfov = ( v <= 0 ) ? ( h * SGD_THREE / SGD_FOUR ) : v ;
     update () ;
   }
 
