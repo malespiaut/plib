@@ -35,6 +35,11 @@ puSlider    *directSlider ;
 int          save_window ;
 puFilePicker *file_picker ;
 
+int          coordinate_window ;
+puGroup     *coordinate_group ;
+puBiSlider  *x_coordinate ;
+puTriSlider *y_coordinate ;
+
 fntTexFont *hel ;
 fntTexFont *tim ;
 
@@ -50,7 +55,7 @@ GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0} ;  /* Infinite light location. *
 GLfloat cube_n[6][3] =  /* Normals */
 {
  {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {1.0, 0.0, 0.0},
- { 0.0,-1.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0,-1.0}
+ { 0.0,-1.0, 0.0}, {0.0, 0.0,-1.0}, {0.0, 0.0, 1.0}
 } ;
 
 GLint cube_i[6][4] =  /* Vertex indices */
@@ -104,8 +109,18 @@ void drawCube (void)
   for ( int i = 0 ; i < 6 ; i++ )
   {
     glNormal3fv ( &cube_n[i][0] ) ;
-    glVertex3fv ( cube_v[cube_i[i][0]] ) ; glVertex3fv ( cube_v[cube_i[i][1]] ) ;
-    glVertex3fv ( cube_v[cube_i[i][2]] ) ; glVertex3fv ( cube_v[cube_i[i][3]] ) ;
+    for ( int j = 0; j < 4; j++ )
+    {
+      float xmult =(float)(x_coordinate->getCurrentMax () - x_coordinate->getCurrentMin ()) /
+                   (float)(x_coordinate->getMaxValue () - x_coordinate->getMinValue ()) ;
+      float ymult =(float)(y_coordinate->getCurrentMax () - y_coordinate->getCurrentMin ()) /
+                   (float)(y_coordinate->getMaxValue () - y_coordinate->getMinValue ()) ;
+
+      float x = cube_v[cube_i[i][j]][0] * xmult ;
+      float y = cube_v[cube_i[i][j]][1] * ymult ;
+      float z = cube_v[cube_i[i][j]][2] ;
+      glVertex3f ( x, y, z ) ;
+    }
   }
 
   glEnd () ;
@@ -241,6 +256,31 @@ static void savedisplayfn (void)
 }
 
 
+static void coorddisplayfn (void)
+{
+  /*
+    Function to display only the slider window
+    We must set the glut window first or we get an annoying flicker in the main window.
+  */
+
+  glutSetWindow ( coordinate_window ) ;
+
+  /* Clear the screen */
+
+  glClearColor ( 0.4, 0.1, 0.1, 1.0 ) ;
+  glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
+
+  /* Make PUI redraw the slider window */
+
+  puDisplay ( coordinate_window ) ;
+  
+  /* Off we go again... */
+
+  glutSwapBuffers   () ;
+  glutPostRedisplay () ;
+}
+
+
 /***********************************\
 *                                   *
 * Here are the PUI widget callback  *
@@ -318,6 +358,13 @@ void savereshapefn ( int w, int h )
   file_picker->setSize ( w, h ) ;
 }
 
+void coordreshapefn ( int w, int h )
+{
+  x_coordinate->setSize ( 20, h-40 ) ;
+  y_coordinate->setSize ( 20, h-40 ) ;
+  y_coordinate->setPosition ( w/2 - 5, 30 ) ;
+}
+
 void save_cb ( puObject * )
 {
   int w = 320, h = 270 ;
@@ -368,6 +415,11 @@ puCallback help_submenu_cb [] = {   about_cb, help_cb, NULL } ;
 
 
 void sliderCB( puObject *)
+{
+  glutPostRedisplay();
+}
+
+void coordCB( puObject *)
 {
   glutPostRedisplay();
 }
@@ -473,6 +525,55 @@ int main ( int argc, char **argv )
   //load the texture for the save window
   hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
   tim -> load ( "../fnt/data/times_medium.txf" ) ;
+
+  // Coordinate Selection Window
+
+  coordinate_window = glutCreateWindow      ( "Coordinate Window"  ) ;
+  glutPositionWindow    ( 420, 100 ) ;
+  glutReshapeWindow     ( 250,  400 ) ;
+  glutDisplayFunc       ( coorddisplayfn ) ;
+  glutKeyboardFunc      ( keyfn     ) ;
+  glutSpecialFunc       ( specialfn ) ;
+  glutMouseFunc         ( mousefn   ) ;
+  glutMotionFunc        ( motionfn  ) ;
+  glutPassiveMotionFunc ( motionfn  ) ;
+  glutIdleFunc          ( coorddisplayfn ) ;
+  glutReshapeFunc       ( coordreshapefn ) ;
+
+  //load the texture for the 2nd window
+  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
+  tim -> load ( "../fnt/data/times_medium.txf" ) ;
+
+  puGroup *coordinate_group = new puGroup ( 0, 0 ) ;  // Necessary so that "groupdisplayfn" will draw all widgets
+
+  x_coordinate = new puBiSlider ( 10,10,350,TRUE ) ;
+  x_coordinate->setMinValue ( -20 ) ;
+  x_coordinate->setMaxValue (  20 ) ;
+  x_coordinate->setCurrentMin ( -20 ) ;
+  x_coordinate->setCurrentMax (  20 ) ;
+//  x_coordinate->setDelta(0.1);
+//  x_coordinate->setCBMode( PUSLIDER_DELTA );
+  x_coordinate->setCallback(coordCB);
+  x_coordinate->setLabel ( "X-coords" ) ;
+  x_coordinate->setLabelPlace ( PUPLACE_ABOVE ) ;
+
+  y_coordinate = new puTriSlider (120,30,350,TRUE);
+  y_coordinate->setMinValue ( -20 ) ;
+  y_coordinate->setMaxValue (  20 ) ;
+  y_coordinate->setCurrentMin ( -20 ) ;
+  y_coordinate->setCurrentMax (  20 ) ;
+  y_coordinate->setFreezeEnds ( FALSE ) ;
+  y_coordinate->setValue    (   0 ) ;
+//  y_coordinate->setDelta(0.1);
+//  y_coordinate->setCBMode( PUSLIDER_DELTA );
+  y_coordinate->setCallback(coordCB);
+  y_coordinate->setLabel ( "Y-coords" ) ;
+  y_coordinate->setLabelPlace ( PUPLACE_BELOW ) ;
+
+  coordinate_group -> close () ;
+
+//  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
+//  tim -> load ( "../fnt/data/times_medium.txf" ) ;
 
   glutMainLoop () ;
   return 0 ;

@@ -260,6 +260,8 @@ extern int puRefresh ;
 #define PUCLASS_LISTBOX          0x00010000
 #define PUCLASS_DIAL             0x00020000
 #define PUCLASS_FILEPICKER       0x00040000
+#define PUCLASS_BISLIDER         0x00080000
+#define PUCLASS_TRISLIDER        0x00100000
 
 /* This function is not required for GLUT programs */
 void puSetWindowSize ( int width, int height ) ;
@@ -287,6 +289,8 @@ class puListBox          ;
 class puArrowButton      ;
 class puDial             ;
 class puFilePicker       ;
+class puBiSlider         ;
+class puTriSlider        ;
 
 typedef float puColour [ 4 ] ;  /* RGBA */
 
@@ -849,6 +853,81 @@ public:
   void setSliderFraction ( float f ) { slider_fraction = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; }
   float getSliderFraction ( void ) { return slider_fraction ; }
 } ;
+
+
+class puBiSlider : public puSlider
+{
+protected:
+  int max_value ;
+  int min_value ;
+
+  int current_max ;
+  int current_min ;
+
+  int active_button ;  // Zero for none, one for min, two for max
+public:
+  void doHit ( int button, int updown, int x, int y ) ;
+  void draw  ( int dx, int dy ) ;
+  puBiSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
+     puSlider ( minx, miny, sz, vertical )
+  {
+    type |= PUCLASS_BISLIDER ;
+    max_value = 1 ;
+    min_value = 0 ;
+    current_max = 1 ;
+    current_min = 0 ;
+    active_button = 0 ;
+  }
+
+  void setMaxValue ( int i )
+  {
+    max_value = i ;
+    slider_fraction = 1.0f / (float)( max_value-min_value+1 ) ;
+  }
+
+  int getMaxValue ( void ) { return max_value ; }
+
+  void setMinValue ( int i )
+  {
+    min_value = i ;
+    slider_fraction = 1.0f / (float)( max_value-min_value+1 ) ;
+  }
+
+  int getMinValue ( void ) { return min_value ; }
+
+  void setCurrentMax ( int i ) { current_max = i ; }
+  int getCurrentMax ( void ) { return current_max ; }
+
+  void setCurrentMin ( int i ) { current_min = i ; }
+  int getCurrentMin ( void ) { return current_min ; }
+
+  void setActiveButton ( int i ) { active_button = i ; }
+  int getActiveButton ( void ) { return active_button ; }
+
+} ;
+
+
+
+class puTriSlider : public puBiSlider
+{
+protected:
+  // "active_button" is now zero for none, one for min, two for middle, three for max
+  int freeze_ends ;  // true to make end sliders unmovable
+public:
+  void doHit ( int button, int updown, int x, int y ) ;
+  void draw  ( int dx, int dy ) ;
+  puTriSlider ( int minx, int miny, int sz, int vertical = FALSE ) :
+     puBiSlider ( minx, miny, sz, vertical )
+  {
+    type |= PUCLASS_TRISLIDER ;
+    freeze_ends = TRUE ;
+  }
+
+   int getFreezeEnds () {  return freeze_ends ;  }
+   void setFreezeEnds ( int val ) {  freeze_ends = val ;  }
+
+} ;
+
 
 
 class puListBox : public puButton
