@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/js/js_demo.cxx)
-AM_INIT_AUTOMAKE(plib_examples, 1.4.1)
+AM_INIT_AUTOMAKE(plib_examples, 1.5.2)
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -11,12 +11,48 @@ AC_PROG_CXXCPP
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
-plib_suffix="-lplibsl -lplibssgaux -lplibssg -lplibpu -lplibfnt -lplibsg -lplibul"
- 
 AC_LANG_CPLUSPLUS
+
+dnl Command line arguments.
+
+AC_ARG_WITH(GL,
+AC_HELP_STRING([--with-GL=DIR], [set the prefix directory where GL resides]),
+GL_PREFIX=$withval, GL_PREFIX=auto)
+
+if test "x$GL_PREFIX" != "xauto"; then
+    LDFLAGS="$LDFLAGS -L$GL_PREFIX/lib"
+    CPPFLAGS="$CPPFLAGS -I$GL_PREFIX/include"
+fi
+
+dnl Checks for header files.
+
+AC_HEADER_STDC
+
+AC_CHECK_HEADERS(GL/gl.h GL/glu.h,, AC_MSG_ERROR([OpenGL header files not found]))
+AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
+AC_CHECK_HEADER(GL/glut.h, AC_DEFINE(GLUT_IS_PRESENT))
+AC_CHECK_HEADER(GL/freeglut.h, AC_DEFINE(FREEGLUT_IS_PRESENT))
+
+if test "x$ac_cv_header_GL_glut_h" = "xno" && test "x$ac_cv_header_GL_freeglut_h" = "xno"; then
+   AC_MSG_ERROR([found neither GLUT nor freeglut header file])
+fi
+
+AC_CHECK_HEADER(plib/ul.h,, AC_MSG_ERROR([PLIB header files not found]))
 
 dnl Checks for library functions.
 dnl check for OpenGL related libraries
+
+if test "$HOSTTYPE" = "macintosh"; then
+
+   dnl Mac OS X
+
+   dnl OpenGL libraries
+   LIBS="$LIBS -framework OpenGL -framework GLUT"
+
+   dnl Sound libraries
+   LIBS="$LIBS -framework Carbon"
+
+else
 
 AC_CANONICAL_HOST
 
@@ -32,7 +68,9 @@ case "${host}" in
 
     AC_PATH_XTRA
 
-    x_suffix="$X_LIBS $X_PRE_LIBS -lX11 -lXi -lXext -lXmu $X_EXTRA_LIBS -lm"
+    LDFLAGS="$LDFLAGS $X_LIBS"
+
+    x_suffix="$X_PRE_LIBS -lX11 -lXi -lXext -lXmu $X_EXTRA_LIBS -lm"
 
 dnl =========================================================
 dnl    if test "x$x_includes" != "x"; then
@@ -50,16 +88,6 @@ dnl =========================================================
         AC_CHECK_LIB(MesaGL, glNewList,,,$x_suffix)
     fi
 
-dnl dnl if using mesa, check for xmesa.h
-dnl if test "x$ac_cv_lib_MesaGL_glNewList" = "xyes" ; then
-dnl     AC_CHECK_HEADER(GL/xmesa.h)
-dnl     AM_CONDITIONAL(ENABLE_XMESA_FX, \
-dnl                    test "x$ac_cv_header_GL_xmesa_h" = "xyes")
-dnl else
-dnl     dnl force a failed check
-dnl     AM_CONDITIONAL(ENABLE_XMESA_FX, test "no" = "yes")
-dnl fi
-
     AC_CHECK_LIB(GLU, gluLookAt,,,$x_suffix)
     if test "x$ac_cv_lib_GLU_gluLookAt" = "xno" ; then
         dnl if no GLU, check for MesaGLU
@@ -73,14 +101,35 @@ dnl fi
     if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xno" ; then
         dnl if no freeglut, check for Real GLUT
         AC_CHECK_LIB(glut, glutGetModifiers,,,$opengl_LIBS)
+
+        if test "x$ac_cv_lib_glut_glutGetModifiers" = "xno" ; then
+                AC_MSG_ERROR([could not find working GLUT library])
+        fi
     fi
 
-    CFLAGS="$CFLAGS -Wall -I/usr/local/include -L/usr/local/lib"
-    CXXFLAGS="$CXXFLAGS -Wall -I/usr/local/include -L/usr/local/lib"
+    CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+    LDFLAGS="$LDFLAGS -L/usr/local/lib"
+
+    WFLAG="-Wall"
+    case "$host" in
+    mips-sgi-irix*)
+        if test "x$CXX" = "xCC"; then
+            WFLAG="-fullwarn";
+        fi
+	;;
+    esac
+
+    CFLAGS="$CFLAGS $WFLAG"
+    CXXFLAGS="$CXXFLAGS $WFLAG"
 
     LIBS="$LIBS $x_suffix"
 	;;
 esac
+fi
+
+dnl Check PLIB library
+AC_CHECK_LIB(plibul, ulInit, true,
+AC_MSG_ERROR([there seems to be a problem with the PLIB libraries]))
 
 dnl Check SGI audio library
 AC_CHECK_LIB(audio, ALopenport)
@@ -89,31 +138,6 @@ if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
   dnl this is an SGI machine...
   LIBS="$LIBS -laudio"
 fi
-
-dnl Checks for header files.
-
-AC_HEADER_STDC
-
-AC_CHECK_HEADERS(GL/gl.h GL/glut.h)
-AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
-AC_CHECK_HEADER(joystick.h, AC_DEFINE(JOYSTICK_IS_PRESENT))
-AC_CHECK_HEADER(linux/joystick.h, AC_DEFINE(LINUX_JOYSTICK_IS_PRESENT))
-
-dnl Check for audio support
-
-AM_CONDITIONAL(ENABLE_AUDIO, \
-        test -r /usr/include/soundcard.h \
-                -o -r /usr/include/linux/soundcard.h \
-                -o -r /usr/include/machine/soundcard.h \
-                -o -r /usr/include/audio.h \
-                -o "x$ac_cv_header_windows_h" = "xyes" )
-
-AM_CONDITIONAL(ENABLE_IRIX_AUDIO, test -r /usr/include/audio.h)
-
-AM_CONDITIONAL(ENABLE_WIN32_AUDIO, test "x$ac_cv_header_windows_h" = "xyes")
-
-CFLAGS="$CFLAGS -Wall"
-CXXFLAGS="$CXXFLAGS -Wall"
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
@@ -124,15 +148,15 @@ AC_TRY_COMPILE([
 #include <sys/socket.h>
 socklen_t x;
 ],[],[
-AC_MSG_RESULT(yes)],[   
+AC_MSG_RESULT(yes)],[
 AC_TRY_COMPILE([
 #include <sys/types.h>
 #include <sys/socket.h>
 int accept (int, struct sockaddr *, size_t *);
 ],[],[
-AC_MSG_RESULT(size_t)  
+AC_MSG_RESULT(size_t)
 AC_DEFINE(socklen_t,size_t)], [
-AC_MSG_RESULT(int)   
+AC_MSG_RESULT(int)
 AC_DEFINE(socklen_t,int)])])
 
 AC_OUTPUT( \
@@ -153,8 +177,7 @@ AC_OUTPUT( \
 	src/fnt/Makefile \
 	src/net/Makefile \
 	src/net/client_server/Makefile \
-        src/net/http_get/Makefile \
-        src/net/net_echo/Makefile \
+	src/net/http_get/Makefile \
+	src/net/net_echo/Makefile \
 	src/util/Makefile )
-
 
