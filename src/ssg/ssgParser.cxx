@@ -96,6 +96,11 @@ int _ssgParser::openFile( const char* fname, const _ssgParserSpec* _spec )
 // returns TRUE on success
 {
   if ( !_spec ) _spec = &default_spec ;
+
+	if ( _spec->comment_string != NULL )
+	{ assert ( _spec->comment_string [0] != 0 );
+	}
+
   memset(this,0,sizeof(_ssgParser));
   memcpy( &spec, _spec, sizeof(spec) );
   ssgGetCurrentOptions () -> makeModelPath ( path, fname ) ;
