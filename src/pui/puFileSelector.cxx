@@ -1,21 +1,21 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
@@ -147,21 +147,17 @@ void puFileSelector::input_entered ( puObject* inp )
   if ( ulIsAbsolutePathName ( inp -> getStringValue () ) )
     file_selector -> setValue ( inp -> getStringValue () ) ;
   else
-  if ( strlen ( file_selector->__getStartDir() ) +
-       strlen ( inp->getStringValue() ) + 2 >= PUSTRING_MAX )
   {
-    ulSetError ( UL_WARNING,
-      "PUI:puFileSelector - path name is too long");
-    file_selector -> setValue ( file_selector -> __getStartDir () ) ;
-  }
-  else
-  {
-    //strcpy ( file_selector->getStringValue (), file_selector->__getStartDir());
-    //strcat ( file_selector->getStringValue (), SLASH    ) ;
-    //strcat ( file_selector->getStringValue (), input -> getStringValue () ) ;
+    char *s = new char [   strlen ( file_selector->__getStartDir() )
+                         + strlen ( SLASH )
+                         + strlen ( inp -> getStringValue () )
+                         + 1 ] ;
 
-    ulMakePath ( file_selector->getStringValue (),
-      file_selector->__getStartDir(), inp -> getStringValue () ) ;
+    ulMakePath ( s, file_selector -> __getStartDir(),
+                 inp -> getStringValue () ) ;
+    file_selector -> setValue ( s ) ;
+
+    delete [] s ;
   }
 
   /*
@@ -315,13 +311,15 @@ puFileSelector::puFileSelector ( int x, int y, const char* dir, const char *titl
 
 puFileSelector::~puFileSelector ()
 {
-  if ( files )
+  delete [] startDir ;
+
+  if ( files != NULL )
   {
     for ( int i=0; i<num_files; i++ )
       delete [] files[i];
 
-    delete[] files;
-    delete[] dflag;
+    delete [] files;
+    delete [] dflag;
   }
 }
 
@@ -337,23 +335,37 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
   num_files = 0 ;
 
   if ( ulIsAbsolutePathName ( dir ) )
+  {
+    /* Include space for trailing slash in case it is necessary */
+    startDir = new char [ strlen ( dir ) + strlen ( SLASH ) + 1 ] ;
+
     strcpy ( startDir, dir ) ;
+  }
   else
   {
-    if ( ulGetCWD ( startDir, PUSTRING_MAX ) == NULL ||
-       strlen ( startDir ) + 1 + strlen ( dir ) + 1 > PUSTRING_MAX )
+    if ( ulGetCWD ( startDir, PUSTRING_MAX ) == NULL )
     {
       ulSetError ( UL_WARNING,
-      "PUI:puFileSelector - can't find current directory or name is too long");
+                   "PUI: puFileSelector - can't find current directory" ) ;
       setValue ( "" ) ;
       invokeCallback () ;
       return ;
     }
 
-    if ( ! is_slash ( startDir[strlen(startDir)-1] ) )
-      strcat ( startDir, SLASH ) ;
+    /* Include space for slashes in case they are necessary */
+    char *s = new char [   strlen ( startDir )
+                         + 2 * strlen ( SLASH )
+                         + strlen ( dir ) + 1 ] ;
 
-    strcat ( startDir, dir ) ;
+    strcpy ( s, startDir ) ;
+
+    if ( ! is_slash ( startDir[strlen(startDir)-1] ) )
+      strcat ( s, SLASH ) ;
+
+    strcat ( s, dir ) ;
+
+    delete [] startDir ;
+    startDir = s ;
   }
 
   if ( ! is_slash ( startDir[strlen(startDir)-1] ) )
@@ -402,8 +414,8 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
   ok_button -> setUserData ( this ) ;
   ok_button -> setCallback ( puFileSelectorHandleOk ) ;
 
-  up_arrow = (puArrowButton *)NULL ;  down_arrow = (puArrowButton *)NULL ;
-  fastup_arrow = (puArrowButton *)NULL ;  fastdown_arrow = (puArrowButton *)NULL ;
+  up_arrow = down_arrow = NULL ;
+  fastup_arrow = fastdown_arrow = NULL ;
 
   if ( arrows > 0 )
   {

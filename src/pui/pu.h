@@ -1,21 +1,21 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
@@ -373,6 +373,9 @@ struct puBox
 
 #define PUSTRING_MAX 80
 
+/* With many memory managers, allocating powers of two is more efficient */
+#define PUSTRING_INITIAL 64
+
 extern puColour _puDefaultColourTable[] ;
 
 
@@ -424,18 +427,24 @@ protected:
   int   integer ;
   float floater ;
   char  *string ;
+  int   string_size ;
 
-  int   *res_integer ;
-  float *res_floater ;
-  char  *res_string  ;
+  int   *res_integer  ;
+  float *res_floater  ;
+  char  *res_string   ;
+  int   res_string_sz ;
 
   void re_eval    ( void ) ;
   void update_res ( void ) const ;
 
+  void copy_stringval ( const char *str ) ;
+
 public:
   puValue ()
   {
-    string = new char [ PUSTRING_MAX ] ;
+    string_size = PUSTRING_INITIAL ;
+    string = new char [ string_size ] ;
+
     type = PUCLASS_VALUE ;
     res_integer = NULL ;
     res_floater = NULL ;
@@ -453,58 +462,67 @@ public:
   {
     integer = pv -> integer ;
     floater = pv -> floater ;
-    strcpy ( string, pv -> string ) ;
+    copy_stringval ( pv -> string ) ;
     update_res () ;
     puPostRefresh () ;
   }
 
   void setValuator ( int   *i ) { res_integer = i    ; res_floater = NULL ; res_string = NULL ; re_eval () ; }
   void setValuator ( float *f ) { res_integer = NULL ; res_floater = f    ; res_string = NULL ; re_eval () ; }
-  void setValuator ( char  *s ) { res_integer = NULL ; res_floater = NULL ; res_string = s    ; re_eval () ; }
+
+  void setValuator ( char *s, int size )
+  {
+    res_integer = NULL ; res_floater = NULL ; res_string = s ;
+    res_string_sz = size ;
+
+    re_eval () ;
+  }
+
+  /* Obsolete ! */
+  void setValuator ( char *s ) { setValuator ( s, PUSTRING_MAX ) ; }
 
   void setValue ( int   i ) { integer = i ; floater = (float) i ; sprintf ( string, "%d", i ) ; update_res() ; puPostRefresh () ; }
   void setValue ( float f ) { integer = (int) f ; floater = f ; sprintf ( string, "%g", f ) ; update_res() ; puPostRefresh () ; }
-  void setValue ( const char *s ) { 
-                              if ( s == NULL || s[0] == '\0' )
-                              {
-                                integer = 0 ;
-                                floater = 0.0f ;
-                                string[0] = '\0';
-                              }
-                              else
-                              {
-                                integer = atoi(s) ;
-                                floater = (float)atof(s) ;
 
-                                if ( string != s )
-                                {
-                                  /* Work around ANSI strncpy's null-fill
-                                     behaviour; ensure that too large string
-                                     is correctly terminated. */
-                                  int s_len = strlen ( s ) ;
+  void setValue ( const char *s )
+  { 
+    if ( s == NULL || s[0] == '\0' )
+    {
+      integer = 0 ; floater = 0.0f ;
+      copy_stringval ( "" ) ;
+    }
+    else
+    {
+      integer = (int) strtol ( s, NULL, 0 ) ;
+      floater = (float) strtod ( s, NULL ) ;
+      copy_stringval ( s ) ;
+    }
 
-                                  if ( s_len >= PUSTRING_MAX )
-                                    s_len = PUSTRING_MAX - 1 ;
-
-                                  memcpy ( string, s, s_len ) ;
-                                  string[s_len] = '\0' ;
-                                }
-                              }
-                              update_res () ;
-                              puPostRefresh () ;
-                            }
+    update_res () ;
+    puPostRefresh () ;
+  }
 
   void getValue ( int   *i ) { re_eval () ; *i = integer ; }
   void getValue ( float *f ) { re_eval () ; *f = floater ; }
   void getValue ( char **s ) { re_eval () ; *s = string  ; }
-  void getValue ( char  *s ) { re_eval () ; strcpy ( s, string ) ; }
+  void getValue ( char  *s, int size )
+  {
+    re_eval () ;
+
+    /* Work around ANSI strncpy's null-fill behaviour */
+
+    s[0] = '\0' ;
+    strncat ( s, string, size-1 ) ;
+  }
+
+  void getValue ( char  *s ) { getValue ( s, PUSTRING_MAX ) ; } /* Obsolete ! */
 
   int  getValue ( void ) { re_eval () ; return integer ; } /* Obsolete ! */
 
-  int  getIntegerValue ( void ) { re_eval () ; return ( integer ) ; }
-  float getFloatValue ( void )  { re_eval () ; return ( floater ) ; }
-  char getCharValue ( void )    { re_eval () ; return ( string[0] ) ; }
-  char *getStringValue ( void ) { return res_string ? res_string : string ; }
+  int   getIntegerValue ( void ) { re_eval () ; return integer   ; }
+  float getFloatValue ( void )   { re_eval () ; return floater   ; }
+  char  getCharValue ( void )    { re_eval () ; return string[0] ; }
+  char *getStringValue ( void )  { re_eval () ; return string    ; }
 } ;
 
 typedef void (*puCallback)(class puObject *) ;
@@ -1343,30 +1361,35 @@ public:
   char *getValidData ( void ) const { return valid_data ; }
   void setValidData ( const char *data )
   {
-    if ( valid_data )
-    {
-      delete [] valid_data ;
-      valid_data = NULL ;
-    }
+    delete [] valid_data ;
 
-    if ( data )
+    if ( data != NULL )
     {
       valid_data = new char [ strlen ( data ) + 1 ] ;
       strcpy ( valid_data, data ) ;
     }
+    else
+      valid_data = NULL ;
   }
 
   void addValidData ( const char *data )
   {
-    int new_data_len = 1 ;
-    if ( valid_data ) new_data_len += strlen ( valid_data ) ;
-    if ( data )       new_data_len += strlen ( data ) ;
-    char *new_data = new char [ new_data_len ] ;
-    strcpy ( new_data, "\0" ) ;
-    if ( valid_data ) strcat ( new_data, valid_data ) ;
-    if ( data )       strcat ( new_data, data ) ;
-    delete [] valid_data ;
-    valid_data = new_data ;
+    if ( valid_data == NULL )
+      setValidData ( data ) ;
+    else
+    {
+      if ( data != NULL )
+      {
+        int valid_data_len = strlen ( valid_data ) ;
+        char *new_data = new char [ valid_data_len + strlen ( data ) + 1 ] ;
+
+        strcpy ( new_data, valid_data ) ;
+        strcpy ( new_data + valid_data_len, valid_data ) ;
+
+        delete [] valid_data ;
+        valid_data = new_data ;
+      }
+    }
   }
 
   int isValidCharacter ( char c ) const
@@ -1507,7 +1530,7 @@ protected:
   int num_files   ;
   int arrow_count ;
 
-  char startDir [ PUSTRING_MAX ] ;
+  char *startDir ;
 
   void find_files ( void ) ;
   static void handle_select ( puObject* ) ;
@@ -1626,30 +1649,35 @@ public:
   char *getValidData ( void ) const { return valid_data ; }
   void setValidData ( const char *data )
   {
-    if ( valid_data )
-    {
-      delete [] valid_data ;
-      valid_data = NULL ;
-    }
+    delete [] valid_data ;
 
-    if ( data )
+    if ( data != NULL )
     {
-      valid_data = new char[strlen(data)+1] ;
+      valid_data = new char [ strlen ( data ) + 1 ] ;
       strcpy ( valid_data, data ) ;
     }
+    else
+      valid_data = NULL ;
   }
 
   void addValidData ( const char *data )
   {
-    int new_data_len = 1 ;
-    if ( valid_data ) new_data_len += strlen ( valid_data ) ;
-    if ( data )       new_data_len += strlen ( data ) ;
-    char*new_data = new char[new_data_len] ;
-    strcpy ( new_data, "\0" ) ;
-    if ( valid_data ) strcat ( new_data, valid_data ) ;
-    if ( data )       strcat ( new_data, data ) ;
-    delete [] valid_data ;
-    valid_data = new_data ;
+    if ( valid_data == NULL )
+      setValidData ( data ) ;
+    else
+    {
+      if ( data != NULL )
+      {
+        int valid_data_len = strlen ( valid_data ) ;
+        char *new_data = new char [ valid_data_len + strlen ( data ) + 1 ] ;
+
+        strcpy ( new_data, valid_data ) ;
+        strcpy ( new_data + valid_data_len, valid_data ) ;
+
+        delete [] valid_data ;
+        valid_data = new_data ;
+      }
+    }
   }
 
   int isValidCharacter ( char c ) const

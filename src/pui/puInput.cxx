@@ -1,21 +1,21 @@
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 2001  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
@@ -26,9 +26,7 @@
 
 void puInput::normalize_cursors ( void )
 {
-  char val [ PUSTRING_MAX ] ;
-  getValue ( val ) ;
-  int sl = strlen ( val ) ;
+  int sl = strlen ( getStringValue () ) ;
 
   /* Clamp the positions to the limits of the text.  */
 
@@ -51,22 +49,21 @@ void puInput::normalize_cursors ( void )
 
 void puInput::removeSelectRegion ( void )
 {
-  char *p1 = getStringValue () + select_start_position ;
-  char *p2 = getStringValue () + select_end_position   ;
-
-  while ( *p1 != '\0' )
-    *p1++ = *p2++ ;
-
-  *p2 = '\0' ;
-
-  cursor_position = select_start_position ;
-  select_end_position = select_start_position ;
+  char *p = new char [   strlen ( getStringValue () )
+                       + select_start_position - select_end_position
+                       + 1 ] ;
+  strncpy ( p, getStringValue (), select_start_position ) ;
+  strcpy ( p + select_start_position,
+           getStringValue () + select_end_position ) ;
+  setValue ( p ) ;
+  
+  cursor_position = select_end_position = select_start_position ;
 }
 
 
 static char *chop_to_width ( puFont fnt, const char *s, int width, int *ncut )
 {
-  static char res [ PUSTRING_MAX ] ;
+  char *res = new char [ strlen ( s ) + 1 ] ;
   int n = 0 ;
   int w ;
 
@@ -131,6 +128,9 @@ void puInput::draw ( int dx, int dy )
                     cpos2, dy + abox.max[1] - 2 ) ;
         }
 
+        /* Required because "chop_to_width" allocates the string space */
+
+        delete [] s2 ;
       }
     }
 
@@ -179,6 +179,10 @@ void puInput::draw ( int dx, int dy )
         glEnd      () ;
       }
     }
+
+    /* Required because "chop_to_width" allocates the string space */
+
+    delete [] s2 ;
   }
 
   draw_label ( dx, dy ) ;
@@ -213,12 +217,15 @@ void puInput::doHit ( int button, int updown, int x, int y )
     length = legendFont.getStringWidth ( s2 ) + abox.min[0] ;
     prev_length = length ;
 
-    while ( ( x <= prev_length ) && ( i >= 0 ) )
+    while ( ( x <= prev_length ) && ( i > 0 ) )
     {
       prev_length = length ;
       s2[--i] = '\0' ;
       length = legendFont.getStringWidth ( s2 ) + abox.min[0] ;
     }
+
+    /* Required because "chop_to_width" allocates the string space */
+    delete [] s2 ;
 
     if ( ( x - length ) > ( prev_length - x ) )
       i++ ;   /* Mouse is closer to next character than previous character */
@@ -292,7 +299,7 @@ int puInput::checkKey ( int key, int /* updown */ )
 
   normalize_cursors () ;
 
-  char *p ;
+  char *p = NULL ;
 
   switch ( key )
   {
@@ -313,7 +320,9 @@ int puInput::checkKey ( int key, int /* updown */ )
       break ;
 
     case PU_KEY_HOME   : cursor_position = 0 ; break ;
-    case PU_KEY_END    : cursor_position = PUSTRING_MAX ; break ;
+    case PU_KEY_END    :
+      cursor_position = strlen ( getStringValue () ) ;
+      break ;
     case PU_KEY_LEFT   : cursor_position-- ; break ;
     case PU_KEY_RIGHT  : cursor_position++ ; break ;
   }
@@ -326,19 +335,30 @@ int puInput::checkKey ( int key, int /* updown */ )
         if ( select_start_position != select_end_position )
           removeSelectRegion () ;
         else if ( cursor_position > 0 ) 
-          for ( p = & (getStringValue() [ --cursor_position ]) ; *p != '\0' ; p++ )
-            *p = *(p+1) ;
+        {
+          p = new char [ strlen ( getStringValue () ) ] ;
+          strncpy ( p, getStringValue (), cursor_position - 1 ) ;
+          strcpy ( p + cursor_position - 1,
+                   getStringValue () + cursor_position ) ;
+          cursor_position-- ;
+        }
+
         break ;
 
       case 0x7F : /* DEL */
         if ( select_start_position != select_end_position )
           removeSelectRegion () ;
         else if ( cursor_position != (int)strlen ( getStringValue() ) )
-          for ( p = & (getStringValue() [ cursor_position ]) ; *p != '\0' ; p++ )
-            *p = *(p+1) ;
+        {
+          p = new char [ strlen ( getStringValue () ) ] ;
+          strncpy ( p, getStringValue (), cursor_position ) ;
+          strcpy ( p + cursor_position,
+                   getStringValue () + cursor_position + 1 ) ;
+        }
+
         break ;
 
-      case 0x15 /* ^U */ : (getStringValue() [ 0 ]) = '\0' ; break ;
+      case 0x15 /* ^U */ : setValue ( "\0" ) ; break ;
       case 0x03 /* ^C */ :
       case 0x18 /* ^X */ :  /* Cut or copy selected text */
         if ( select_start_position != select_end_position )
@@ -351,24 +371,28 @@ int puInput::checkKey ( int key, int /* updown */ )
 
           if ( key == 0x18 )  /* Cut, remove text from string */
             removeSelectRegion () ;
+
+          /*
+            So we don't set the widget to its value at the end of the
+            function
+           */
+
+          p = NULL ;
         }
 
         break ;
 
       case 0x16 /* ^V */ : /* Paste buffer into text */
-        if ( ( strlen ( getStringValue () ) + strlen ( puGetPasteBuffer () ) ) < PUSTRING_MAX - 1 )
-        {
-          if ( select_start_position != select_end_position )
-            removeSelectRegion () ;
+        if ( select_start_position != select_end_position )
+          removeSelectRegion () ;
 
-          p = new char [ PUSTRING_MAX ] ;
-          strcpy ( p, getStringValue() + cursor_position ) ;
-          *(getStringValue() + cursor_position) = '\0' ;
-          strcat ( getStringValue(), puGetPasteBuffer () ) ;
-          strcat ( getStringValue(), p ) ;
-          cursor_position += strlen ( puGetPasteBuffer () ) ;
-          delete [] p ;
-        }
+        p = new char [  strlen ( getStringValue () )
+                      + strlen ( puGetPasteBuffer () )
+                      + 1 ] ;
+        strncpy ( p, getStringValue (), cursor_position ) ;
+        strcpy ( p + cursor_position, puGetPasteBuffer () ) ;
+        strcat ( p, getStringValue () + cursor_position ) ;
+        cursor_position += strlen ( puGetPasteBuffer () ) ;
 
         break ;
 
@@ -382,19 +406,20 @@ int puInput::checkKey ( int key, int /* updown */ )
         if ( select_start_position != select_end_position ) // remove selected text
           removeSelectRegion () ;
 
-        if ( strlen ( getStringValue() ) >= PUSTRING_MAX - 1 )
-          return FALSE ;
+        p = new char [ strlen ( getStringValue () ) + 2 ] ;
+        strncpy ( p, getStringValue (), cursor_position ) ;
+        p[cursor_position] = key ;
+        strcpy ( p + cursor_position + 1,
+                 getStringValue () + cursor_position ) ;
 
-        for ( p = & (getStringValue() [ strlen(getStringValue()) ]) ;
-                 p != &(getStringValue()[cursor_position-1]) ; p-- )
-          *(p+1) = *p ;
-
-        *(p+1) = key ;
         cursor_position++ ;
         break ;
     }
 
-    setValue ( getStringValue () ) ;
+    if ( p != NULL )
+      setValue ( p ) ; /* Set the widget value to the new string */
+
+    delete [] p ;
   }
 
   normalize_cursors () ;
