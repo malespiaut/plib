@@ -188,6 +188,9 @@ static puObject *objects_to_delete = NULL;
 
 void puDeleteObject ( puObject *ob )
 {
+  if ( ob == NULL )
+    return ;
+
   puGroup *parent = ob->getParent () ;
 
   /* Add object to linked list to be deleted */
