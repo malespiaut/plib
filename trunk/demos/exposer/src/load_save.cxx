@@ -1,8 +1,10 @@
 #include "exposer.h"
 
-#define ARROWS_USED 1
+#define FILE_SELECTOR_ARGS  (640-320)/2,(480-270)/2,320,270,1
+
 
 puFileSelector *file_selector = NULL ;
+
 
 char lastModelFilePath [ PUSTRING_MAX ] ;
 char lastModelFileName [ PUSTRING_MAX ] ;
@@ -325,16 +327,13 @@ void pickfn ( puObject * )
 }
 
 
-
-void bnloadCB ( puObject * )
+void bnsaveCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
-			   ( 480 - 270 ) / 2,
-			   320, 270, ARROWS_USED, lastModelFilePath,
-                             "Load Bones from..." ) ;
-    file_selector -> setCallback ( bnpickfn ) ;
+    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+			            lastModelFilePath, "Save Bones As..." ) ;
+    file_selector -> setCallback ( bnsavepickfn ) ;
 
     char guess_fname [ PUSTRING_MAX ] ;
     strcpy ( guess_fname, lastModelFileName ) ;
@@ -349,19 +348,19 @@ void bnloadCB ( puObject * )
     strcat ( guess_fname, ".bones" ) ;
     file_selector -> setInitialValue ( guess_fname ) ;
   }
-
 }
 
 
-void bnsaveCB ( puObject * )
+
+void bnloadCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
-			  ( 480 - 270 ) / 2,
-			  320, 270, ARROWS_USED, lastModelFilePath,
-                            "Save Bones As..." ) ;
-    file_selector -> setCallback ( bnsavepickfn ) ;
+    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+			           lastModelFilePath, "Load Bones from..." ) ;
+    file_selector -> setCallback ( bnpickfn ) ;
+
+    /* Guess an initial filename from the model filename */
 
     char guess_fname [ PUSTRING_MAX ] ;
     strcpy ( guess_fname, lastModelFileName ) ;
@@ -384,9 +383,8 @@ void scloadCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
-                                 ( 480 - 270 ) / 2,
-                                 320, 270, ARROWS_USED, "", "Load Scenery from..." ) ;
+    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+                                         "", "Load Scenery from..." ) ;
     file_selector -> setCallback ( scpickfn ) ;
   }
 }
@@ -396,9 +394,8 @@ void loadCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
-                                 ( 480 - 270 ) / 2,
-                                 320, 270, ARROWS_USED, "", "Load from..." ) ;
+    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+                                         "", "Load Model from..." ) ;
     file_selector -> setCallback ( pickfn ) ;
   }
 }

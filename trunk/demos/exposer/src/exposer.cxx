@@ -9,7 +9,6 @@ ssgRoot * skinScene = NULL ;
 ssgRoot * boneScene = NULL ;
 ssgRoot *sceneScene = NULL ;
 
-puInput    *show_angle  ;
 puText     *message     ;
 puButton   *hideBones   ;
 puButton   *hideSkin    ;
@@ -22,6 +21,7 @@ puSlider   *rangeSlider ;
 puDial     *  panSlider ;
 puDial     * tiltSlider ;
 
+puInput    *show_angle  ;
 
 void setShowAngle ( float a )
 {
@@ -30,7 +30,7 @@ void setShowAngle ( float a )
 }
 
 
-void update_motion ()
+static void update_eye_motion ()
 {
   float r ; rangeSlider -> getValue ( & r ) ; r *=  30.0f ; r +=   2.0f ;
   float h ;   panSlider -> getValue ( & h ) ; h *= 360.0f ; h += 180.0f ;
@@ -49,7 +49,7 @@ void update_motion ()
 }
 
 
-void reshape ( int w, int h )
+static void reshape ( int w, int h )
 {
   glViewport ( 0, 0, w, h ) ;
   ssgSetFOV  ( 60.0f, 60.0f * (float) h / (float) w ) ;
@@ -91,14 +91,14 @@ static void mousefn ( int button, int updown, int x, int y )
 }
 
 
-void scrollerCB ( puObject *ob )
+static void scrollerCB ( puObject *ob )
 {
   scroll_controllers = (int)(((float)getNumBones()) * ob -> getFloatValue ()) ;
 }
 
 
 
-void exitCB ( puObject *ob )
+static void exitCB ( puObject *ob )
 {
   if ( ob -> getValue () )
     exit ( 1 ) ;
@@ -110,36 +110,36 @@ void exitCB ( puObject *ob )
   CALLBACK FUNCTIONS FOR GUI.
 */
  
-void deleteEventCB   ( puObject * ) { timebox -> deleteEvent   () ; }
-void addNewEventCB   ( puObject * ) { timebox -> addNewEvent   () ; }
-void reverseRegionCB ( puObject * ) { timebox -> reverseRegion () ; }
-void deleteAllCB     ( puObject * ) { timebox -> deleteAll     () ; }
-void deleteRegionCB  ( puObject * ) { timebox -> deleteRegion  () ; }
-void deleteRegionAndCompressCB ( puObject * )
+static void deleteEventCB   ( puObject * ) { timebox -> deleteEvent   () ; }
+static void addNewEventCB   ( puObject * ) { timebox -> addNewEvent   () ; }
+static void reverseRegionCB ( puObject * ) { timebox -> reverseRegion () ; }
+static void deleteAllCB     ( puObject * ) { timebox -> deleteAll     () ; }
+static void deleteRegionCB  ( puObject * ) { timebox -> deleteRegion  () ; }
+static void deleteRegionAndCompressCB ( puObject * )
                                     { timebox -> deleteRegionAndCompress () ; }
 
-void zoom_nrm_CB     ( puObject * ) { timebox -> setZoom ( 1.0f ) ; }
-void zoom_in_CB      ( puObject * ) { timebox -> setZoom (
+static void zoom_nrm_CB     ( puObject * ) { timebox -> setZoom ( 1.0f ) ; }
+static void zoom_in_CB      ( puObject * ) { timebox -> setZoom (
                                               timebox -> getZoom () * 1.5 ) ; }
-void zoom_out_CB     ( puObject * ) { float scale = timebox->getZoom() / 1.5 ;
+static void zoom_out_CB     ( puObject * ) { float scale = timebox->getZoom() / 1.5 ;
                     timebox -> setZoom ( ( scale <= 1.0f ) ? 1.0f : scale ) ; }
 
-void add_1_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+1.0f);}
-void add_2_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+2.0f);}
-void add_5_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+5.0f);}
+static void add_1_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+1.0f);}
+static void add_2_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+2.0f);}
+static void add_5_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+5.0f);}
 
 
 /*
   The GLUT redraw event
 */
 
-void redraw ()
+static void redraw ()
 {
   int i ;
 
   timebox->updateVCR () ;
 
-  update_motion () ;
+  update_eye_motion () ;
 
   glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
   glEnable ( GL_DEPTH_TEST ) ;
@@ -204,49 +204,51 @@ char      *file_submenu    [] = {  "Exit",
                                    "Save Bones As...",
                                    "Load Bones",
                                    "Load Scenery",
-                                   "Load Model",  NULL } ;
-puCallback file_submenu_cb [] = {  exitCB,
-                                   NULL,
-                                   bnsaveCB,
-                                   bnloadCB,
-                                   scloadCB,
-                                   loadCB,
+                                   "Load Model",
                                    NULL } ;
 
+puCallback file_submenu_cb [] = { exitCB,
+                                  NULL,
+                                  bnsaveCB,
+                                  bnloadCB,
+                                  scloadCB,
+                                  loadCB,
+                                  NULL } ;
 
-char      *view_submenu    [] = {  "Zoom Timeline In", 
-                                   "Zoom Timeline Out",
-                                   "Zoom Timeline 1:1",
-                                   NULL } ;
+char      *view_submenu    [] = { "Zoom Timeline In", 
+                                  "Zoom Timeline Out",
+                                  "Zoom Timeline 1:1",
+                                  NULL } ;
 
-puCallback view_submenu_cb [] = {  zoom_in_CB,
-				   zoom_out_CB,
-				   zoom_nrm_CB,
-                                   NULL } ;
+puCallback view_submenu_cb [] = { zoom_in_CB,
+				  zoom_out_CB,
+				  zoom_nrm_CB,
+                                  NULL } ;
 
-char      *time_submenu    [] = {  "Add 5 seconds", 
-                                   "Add 2 seconds",
-                                   "Add 1 second",
-                                   "------------", 
-                                   "Reverse region",
-                                   "Delete region & compress",
-                                   "Delete region",
-                                   "Delete selected event",
-                                   "Add new event",
-                                   NULL } ;
-puCallback time_submenu_cb [] = {  add_5_CB,
-                                   add_2_CB,
-                                   add_1_CB,
-                                   NULL,
-                                   reverseRegionCB,
-                                   deleteRegionAndCompressCB,
-                                   deleteRegionCB,
-                                   deleteEventCB,
-                                   addNewEventCB,
-                                   NULL } ;
+char      *time_submenu    [] = { "Add 5 seconds", 
+                                  "Add 2 seconds",
+                                  "Add 1 second",
+                                  "------------", 
+                                  "Reverse region",
+                                  "Delete region & compress",
+                                  "Delete region",
+                                  "Delete selected event",
+                                  "Add new event",
+                                  NULL } ;
+
+puCallback time_submenu_cb [] = { add_5_CB,
+                                  add_2_CB,
+                                  add_1_CB,
+                                  NULL,
+                                  reverseRegionCB,
+                                  deleteRegionAndCompressCB,
+                                  deleteRegionCB,
+                                  deleteEventCB,
+                                  addNewEventCB,
+                                  NULL } ;
 
 
-void init_graphics ()
+static void init_graphics ()
 {
   int   fake_argc = 1 ;
   char *fake_argv[3] ;
@@ -255,9 +257,7 @@ void init_graphics ()
   fake_argv[1] = "ExPoser - Skin and Bones animation for PLIB." ;
   fake_argv[2] = NULL ;
 
-  /*
-    Initialise GLUT
-  */
+  /* Initialise GLUT */
 
   glutInitWindowPosition ( 0, 0 ) ;
   glutInitWindowSize     ( 800, 600 ) ;
@@ -272,26 +272,16 @@ void init_graphics ()
   glutMotionFunc         ( motionfn  ) ;
   glutPassiveMotionFunc  ( passmotionfn  ) ;
  
-  /*
-    Initialise SSG
-  */
+  /* Initialise SSG & PUI */
 
   ssgInit () ;
   puInit  () ;
   puSetDefaultStyle ( PUSTYLE_SMALL_SHADED ) ;                           
   puSetDefaultFonts ( PUFONT_HELVETICA_10, PUFONT_HELVETICA_10 ) ;
 
-  /*
-    Some basic OpenGL setup
-  */
+  /* Some basic OpenGL setup */
 
   glClearColor ( 0.2f, 0.5f, 0.2f, 1.0f ) ;
-
-  /*
-    Set up the viewing parameters
-  */
-
-
   ssgSetFOV     ( 60.0f, 0.0f ) ;
   ssgSetNearFar ( 0.1f, 700.0f ) ;
 
@@ -359,14 +349,14 @@ void init_graphics ()
 }
 
 
-void init_database ()
+static void init_database ()
 {
   skinScene = new ssgRoot ;
   boneScene = new ssgRoot ;
 }
 
 
-void help ()
+static void help ()
 {
   fprintf ( stderr, "\n\n" ) ;
   fprintf ( stderr, "exposer: Usage -\n\n" ) ;
@@ -381,7 +371,9 @@ int main ( int argc, char **argv )
   init_database     () ;
   init_bones        () ;
   init_events       () ;
-  loadCB      ( NULL ) ;
+
+  loadCB ( NULL ) ;
+
   glutPostRedisplay () ;
   glutMainLoop      () ;
   return 0 ;
