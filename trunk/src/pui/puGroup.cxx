@@ -311,4 +311,75 @@ puGroup::~puGroup ()
 }
 
 
+void puGroup::setChildStyle ( int childs, int style, int recursive = FALSE )
+{
+  puObject *curr_obj ;
+
+  for ( curr_obj = getFirstChild () ;
+        curr_obj != NULL ;
+        curr_obj = curr_obj->getNextObject () )
+  {
+    if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
+      ((puGroup*)curr_obj)->setChildStyle ( childs, style ) ;
+    else
+    {
+      if ( curr_obj->getType () & childs )
+        curr_obj->setStyle ( style ) ;
+    }
+  }
+}
+
+void puGroup::setChildBorderThickness ( int childs, int t, int recursive = FALSE )
+{
+  puObject *curr_obj ;
+
+  for ( curr_obj = getFirstChild () ;
+        curr_obj != NULL ;
+        curr_obj = curr_obj->getNextObject () )
+  {
+    if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
+      ((puGroup*)curr_obj)->setChildBorderThickness ( childs, t ) ;
+    else
+    {
+      if ( curr_obj->getType () & childs )
+        curr_obj->setBorderThickness ( t ) ;
+    }
+  }
+}
+
+void puGroup::setChildColour ( int childs, int which, float r, float g, float b, float a = 1.0f, int recursive = FALSE )
+{
+  puObject *curr_obj ;
+
+  for ( curr_obj = getFirstChild () ;
+        curr_obj != NULL ;
+        curr_obj = curr_obj->getNextObject () )
+  {
+    if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
+      ((puGroup*)curr_obj)->setChildColour ( childs, which, r, g, b, a ) ;
+    else
+    {
+      if ( curr_obj->getType () & childs )
+        curr_obj->setColour ( which, r, g, b, a ) ;
+    }
+  }
+}
+
+void puGroup::setChildColourScheme ( int childs, float r, float g, float b, float a = 1.0f, int recursive = FALSE )
+{
+  puObject *curr_obj ;
+
+  for ( curr_obj = getFirstChild () ;
+        curr_obj != NULL ;
+        curr_obj = curr_obj->getNextObject () )
+  {
+    if ( ( recursive == TRUE ) && ( curr_obj->getType () & PUCLASS_GROUP ) )
+      ((puGroup*)curr_obj)->setChildColourScheme ( childs, r, g, b, a ) ;
+    else
+    {
+      if ( curr_obj->getType () & childs )
+        curr_obj->setColourScheme ( r, g, b, a ) ;
+    }
+  }
+}
 

@@ -794,6 +794,16 @@ public:
 
   void setFloating (short value) { floating = value; }
   short getFloating () { return floating; }
+
+  void setChildStyle ( int childs, int style, int recursive = FALSE ) ;
+  void setChildBorderThickness ( int childs, int t, int recursive = FALSE ) ;
+
+  void setChildColour ( int childs, int which,
+                        float r, float g, float b, float a = 1.0f,
+                        int recursive = FALSE ) ;
+  void setChildColourScheme ( int childs,
+                              float r, float g, float b, float a = 1.0f,
+                              int recursive = FALSE ) ;
 } ;
 
 
@@ -1356,11 +1366,6 @@ public:
   ~puFilePicker () ;
 
   void setSize ( int w, int h ) ;
-
-  void setChildStyle ( int childs, int style ) ;
-  void setChildColour ( int childs, int which,
-                        float r, float g, float b, float a = 1.0f ) ;
-  void setChildBorderThickness ( int childs, int t ) ;
 } ;
 
 
@@ -1411,11 +1416,6 @@ public:
 
   void setInitialValue ( char *fname ) ;
   void setSize ( int w, int h ) ;
-
-  void setChildStyle ( int childs, int style ) ;
-  void setChildColour ( int childs, int which,
-                        float r, float g, float b, float a = 1.0f ) ;
-  void setChildBorderThickness ( int childs, int t ) ;
 } ;
 
 
@@ -1533,11 +1533,6 @@ public:
   void  addText ( char *l ) ;
   void  appendText ( char *l ) ;
   void  removeText ( int start, int end ) ;
-
-  void setChildStyle ( int childs, int style ) ;
-  void setChildColour ( int childs, int which,
-                        float r, float g, float b, float a = 1.0f ) ;
-  void setChildBorderThickness ( int childs, int t ) ;
 } ;
 
 #endif
