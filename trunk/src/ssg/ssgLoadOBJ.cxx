@@ -288,10 +288,11 @@ static void load_materials ( const char* fname )
 
       char tfname[MAX_LINE_LEN];
       count = sscanf ( next, "%s%n", tfname, &width ) ;
- 
+      _ssgMakePath(path,_ssgTexturePath,tfname,0) ;
+
       if ( count == 1 && index >= 0 ) {
-        materials[ index ].tfname = strdup( tfname ) ;
-        materials[ index ].tex = new ssgTexture ( tfname ) ;
+        materials[ index ].tfname = strdup( path ) ;
+        materials[ index ].tex = new ssgTexture ( path ) ;
       }
     }
   }
