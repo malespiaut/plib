@@ -222,6 +222,14 @@ SOURCE=.\ssgLoadMDL.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadBGL.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgLoadMDL_BGLTexture.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadMDL.h
 # End Source File
 # Begin Source File
