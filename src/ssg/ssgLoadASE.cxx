@@ -1047,9 +1047,9 @@ static ssgLeaf* add_mesh( aseObject* obj, aseMesh* mesh, u32 sub_index )
   }
   
   //if ( extra_verts > 0 )
-  //   fprintf( stdout, "%d verts; %d added\n", num_verts-extra_verts, extra_verts );
+  //   ulSetError( UL_DEBUG, "%d verts; %d added", num_verts-extra_verts, extra_verts );
   //else
-  //   fprintf( stdout, "%d verts\n", num_verts );
+  //   ulSetError( UL_DEBUG, "%d verts", num_verts );
   
   //pass the data to ssg
   ssgSimpleState* st = get_state ( mat, ( mesh -> cverts != NULL ) ) ;
@@ -1354,9 +1354,9 @@ static int parse_object( aseObject::Type type )
   }
   
   //if ( obj->parent != NULL )
-  //  fprintf( stdout, "add_mesh: %s, parent=%s\n", obj->name, obj->parent ) ;
+  //  ulSetError( UL_DEBUG, "add_mesh: %s, parent=%s", obj->name, obj->parent ) ;
   //else
-  //  fprintf( stdout, "add_mesh: %s\n", obj->name ) ;
+  //  ulSetError( UL_DEBUG, "add_mesh: %s", obj->name ) ;
   
   ssgEntity* mesh_entity = NULL ;
   

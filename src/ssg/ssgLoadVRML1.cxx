@@ -148,14 +148,14 @@ static bool vrml1_parseSeparator( ssgBranch *parentBranch, _traversalState *pare
  	if( !strcmp( token, "DEF" ) )
 	  {
 	     token = vrmlParser.getNextToken( NULL );
-	     printf("DEF: Found an object definition %s.\n", token);
+	     ulSetError(UL_DEBUG, "DEF: Found an object definition %s.", token);
 	     childDefName = new char[50];
 	     strncpy( childDefName, token, 50);
 	  }
 	else if( !strcmp( token, "USE" ) )
 	  {
 	     token = vrmlParser.getNextToken( NULL );
-	     printf("USE: Found a use directive %s.\n", token);
+	     ulSetError(UL_DEBUG, "USE: Found a use directive %s.", token);
 	     if( !vrml1_parseUseDirective( currentBranch, currentData, token, childDefName ) )
 	       {
 		  delete( currentBranch );
@@ -233,7 +233,7 @@ static bool vrml1_parseSwitch( ssgBranch *parentBranch, _traversalState *parentD
  	if( !strcmp( token, "DEF" ) )
 	  {
 	     token = vrmlParser.getNextToken( NULL );
-	     printf("DEF: Found an object definition %s.\n", token);
+	     ulSetError(UL_DEBUG, "DEF: Found an object definition %s.", token);
 	     if( childDefName != NULL )
 	       delete [] childDefName;
 	     childDefName = new char[ strlen( token ) + 1];
@@ -242,7 +242,7 @@ static bool vrml1_parseSwitch( ssgBranch *parentBranch, _traversalState *parentD
 	else if( !strcmp( token, "USE" ) )
 	  {
 	     token = vrmlParser.getNextToken( NULL );
-	     printf("USE: Found a use directive %s.\n", token);
+	     ulSetError(UL_DEBUG, "USE: Found a use directive %s.", token);
 	     if( !vrml1_parseUseDirective( currentBranch, currentData, token, childDefName ) )
 	       {
 		  delete( currentBranch );
@@ -387,7 +387,7 @@ bool vrml1_parseCoordinate3( ssgBranch *parentBranch, _traversalState *currentDa
 	currentVertices->add( v );
      }
        
-   printf("Level: %i. Found %i vertices here.\n", vrmlParser.level, numVertices);
+   ulSetError(UL_DEBUG, "Level: %i. Found %i vertices here.", vrmlParser.level, numVertices);
 
    vrmlParser.expectNextToken("}");
    
@@ -442,7 +442,7 @@ bool vrml1_parseTextureCoordinate2( ssgBranch *parentBranch, _traversalState *cu
 	currentTextureCoordinates->add( v );
      }
        
-   printf("Level: %i. Found %i TexCoords here.\n", vrmlParser.level, numTextureCoordinates);
+   ulSetError(UL_DEBUG, "Level: %i. Found %i TexCoords here.", vrmlParser.level, numTextureCoordinates);
 
    vrmlParser.expectNextToken("}");
    
@@ -504,7 +504,7 @@ static bool vrml1_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState 
 	token = vrmlParser.peekAtNextToken( NULL );
      }
    
-   //printf("Level: %i. Found %i faces here.\n", vrmlParser.level, numFaces);
+   //ulSetError(UL_DEBUG, "Level: %i. Found %i faces here.", vrmlParser.level, numFaces);
 
    vrmlParser.expectNextToken( "}" );
    
@@ -685,7 +685,7 @@ bool vrml1_parseMatrixTransform( ssgBranch *parentBranch, _traversalState *curre
 
    applyTransform( currentTransform, currentData );
 
-   //printf("Found a Matrix Transform (%f, %f, %f %f), (%f, %f, %f %f), (%f, %f, %f %f), (%f, %f, %f %f)\n", xForm[0][0], xForm[1][0], xForm[2][0], xForm[3][0],
+   //ulSetError(UL_DEBUG, "Found a Matrix Transform (%f, %f, %f %f), (%f, %f, %f %f), (%f, %f, %f %f), (%f, %f, %f %f)", xForm[0][0], xForm[1][0], xForm[2][0], xForm[3][0],
    //	  xForm[0][1], xForm[1][1], xForm[2][1], xForm[3][1],
    //	  xForm[0][2], xForm[1][2], xForm[2][2], xForm[3][2],
    //	  xForm[0][3], xForm[1][3], xForm[2][3], xForm[3][3] );
@@ -710,7 +710,7 @@ bool vrml1_parseScale( ssgBranch *parentBranch, _traversalState *currentData, ch
    
    applyTransform( currentTransform, currentData );
    
-   printf("Found a scale transform: %f %f %f\n", scaleFactor[0], scaleFactor[1], scaleFactor[2] );
+   ulSetError(UL_DEBUG, "Found a scale transform: %f %f %f", scaleFactor[0], scaleFactor[1], scaleFactor[2] );
    
    return TRUE;
 }
@@ -737,7 +737,7 @@ bool vrml1_parseRotation( ssgBranch *parentBranch, _traversalState *currentData,
    
    applyTransform( currentTransform, currentData );
    
-   printf("Found a rotation: %f %f %f %f\n", axis[0], axis[1], axis[2], angle );
+   ulSetError(UL_DEBUG, "Found a rotation: %f %f %f %f", axis[0], axis[1], axis[2], angle );
    
    return TRUE;
 }
@@ -757,7 +757,7 @@ bool vrml1_parseTranslation( ssgBranch *parentBranch, _traversalState *currentDa
    
    applyTransform( currentTransform, currentData );
    
-   printf("Found a translation: %f %f %f\n", transform[0], transform[1], transform[2] );
+   ulSetError(UL_DEBUG, "Found a translation: %f %f %f", transform[0], transform[1], transform[2] );
    
    return TRUE;
 }
@@ -848,7 +848,7 @@ bool vrml1_parseCoordIndex( ssgLoaderWriterMesh *loaderMesh, _traversalState *cu
 		  return FALSE;
 	       }
 	     loaderMesh->addFace( (ssgIndexArray **) &currentFaceIndices );
-	     //printf("Level: %i. Added a face with %i vertices\n", vrmlParser.level, numVerticesInFace );
+	     //ulSetError(UL_DEBUG, "Level: %i. Added a face with %i vertices", vrmlParser.level, numVerticesInFace );
 	     numFaces++;
 	     
 	     token = vrmlParser.peekAtNextToken( NULL );
@@ -894,7 +894,7 @@ bool vrml1_parseTextureCoordIndex( ssgLoaderWriterMesh *loaderMesh, _traversalSt
 	     loaderMesh->addPerFaceAndVertexTextureCoordinate2( (ssgTexCoordArray **) &currentPerFaceAndVertexTextureCoordinateList );
 	     
 	     delete( currentTextureCoordinateIndices );
-	     //printf("Level: %i. Added a face with %i vertices\n", vrmlParser.level, numVerticesInFace );
+	     //ulSetError(UL_DEBUG, "Level: %i. Added a face with %i vertices", vrmlParser.level, numVerticesInFace );
 	     
 	     token = vrmlParser.peekAtNextToken( NULL );
 	  }
@@ -912,7 +912,7 @@ bool vrml1_parseTextureCoordIndex( ssgLoaderWriterMesh *loaderMesh, _traversalSt
 	loaderMesh->addPerFaceAndVertexTextureCoordinate2( (ssgTexCoordArray **) &currentPerFaceAndVertexTextureCoordinateList );
 	
 	delete( currentTextureCoordinateIndices );
-	//printf("Level: %i. Added a face with %i vertices\n", vrmlParser.level, numVerticesInFace );
+	//ulSetError(UL_DEBUG, "Level: %i. Added a face with %i vertices", vrmlParser.level, numVerticesInFace );
      }
    
    return TRUE;

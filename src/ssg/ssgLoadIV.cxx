@@ -265,7 +265,7 @@ static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *cu
 	token = vrmlParser.peekAtNextToken( NULL );
      }
    
-   //printf("Level: %i. Found %i faces here.\n", vrmlParser.level, numFaces);
+   //ulSetError(UL_DEBUG, "Level: %i. Found %i faces here.\n", vrmlParser.level, numFaces);
 
    vrmlParser.expectNextToken( "}" );
    

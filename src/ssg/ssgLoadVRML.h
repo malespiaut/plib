@@ -63,7 +63,7 @@ class _nodeIndex
 	     if( !strcmp( tempThing->getName(), thing->getName() ) )
 	       {
 		  nodeList->replace( thing, i );
-		  printf("Replaced element %i.\n", i);
+		  ulSetError(UL_DEBUG, "Replaced element %i.", i);
 		  return;
 	       }
 	  }

@@ -150,7 +150,7 @@ char* _ssgParser::getNextToken( const char* name )
 {
 	while(!( curtok < numtok ))
 	{	//int startLevel = level;
-	  //printf("Forcing!\n");
+	  //ulSetError(UL_DEBUG, "Forcing!");
 		if(getLine( -999 ) == NULL) // -999
 		{	if ( name )
 				error("missing %s",name) ;
@@ -170,7 +170,7 @@ char *_ssgParser::peekAtNextToken( const char* name )
 {
 	while(!( curtok < numtok ))
 	{	//int startLevel = level;
-	  //printf("Forcing!\n");
+	  //ulSetError(UL_DEBUG, "Forcing!");
 		if(getLine( -999 ) == NULL) // -999
 		{	if ( name )
 				error("missing %s",name) ;

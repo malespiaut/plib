@@ -229,7 +229,7 @@ void _ssgWriteString ( FILE *fd, const char *var )
   if ( var != NULL )
     fputs ( var, fd ) ;
 
-  fputc ( '\0', fd ) ;
+  putc ( '\0', fd ) ;
 }
 
 
