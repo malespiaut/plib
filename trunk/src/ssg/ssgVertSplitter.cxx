@@ -61,7 +61,7 @@ int* ssgVertSplitter::getTri(int t)
 
 void ssgVertSplitter::setSharpAngle(float deg)
 { 
-    _threshold = cos(deg*SG_DEGREES_TO_RADIANS);
+    _threshold = (float) cos(deg*SG_DEGREES_TO_RADIANS);
 }
 
 int ssgVertSplitter::findTriWithVert(int fidx, int vidx, int* tris, int ntris)
