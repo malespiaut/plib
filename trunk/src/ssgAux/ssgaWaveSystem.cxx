@@ -49,7 +49,7 @@ void ssgaWaveSystem::updateAnimation ( float tim )
 
   int num_trains = 0 ;
 
-  for ( int i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
+  for ( i = 0 ; i < SSGA_MAX_WAVETRAIN ; i++ )
     if ( train [ i ] != NULL )
     {
       adjSpeed   [num_trains] = train [ i ] -> getSpeed () * G *
@@ -64,7 +64,7 @@ void ssgaWaveSystem::updateAnimation ( float tim )
       num_trains++ ;
     }
 
-  for ( int i = 0 ; i <= nstrips ; i++ )
+  for ( i = 0 ; i <= nstrips ; i++ )
   {
     float fade_i = (i<2) ? 0.0f : (i<7) ? (float)(i-2)/5.0f :
 		   (i>nstrips-2) ? 0.0f :
