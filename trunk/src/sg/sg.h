@@ -2675,8 +2675,8 @@ public:
   float *getPos         () { return pos      ; }
   float *getVel         () { return vel      ; }
   float *getForce       () { return force    ; }
-  float *getOneOverMass () { return ooMass   ; }
-  float *getMass        () { return 1.0f / ooMass ; }
+  float  getOneOverMass () { return ooMass   ; }
+  float  getMass        () { return 1.0f / ooMass ; }
 
   void   setPos      ( sgVec3 p ) { sgCopyVec3 ( pos  , p ) ; }
   void   setVel      ( sgVec3 v ) { sgCopyVec3 ( vel  , v ) ; }
@@ -2693,7 +2693,7 @@ public:
 
   void zeroForce   ()           { sgZeroVec3   ( force ) ; }
   void addForce    ( sgVec3 f ) { sgAddVec3    ( force, f ) ; }
-  void gravityOnly ()           { sgScaleVec3  ( force, sgGetGravity (), ooMass ) ; }
+  void gravityOnly ()           { sgScaleVec3  ( force, sgGetGravityVec3 (), ooMass ) ; }
 
   void update ( float dt )
   {
