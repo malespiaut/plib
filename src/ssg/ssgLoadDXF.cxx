@@ -1,106 +1,64 @@
 //
 // DXF import for SSG/PLIB
 // Ported from IVCON by Dave McClurg (dpm@efn.org) in March-2000
+// dxf_read() by John Burkardt, 23 May 1999
 //
 
 #include "ssgLocal.h"
 
+
 #define MAX_LINE_LEN 1024
 #define MAX_VERT 100000
+
+enum Modes { MODE_NONE, MODE_LINE, MODE_FACE, MODE_POLYLINE };
 
 static ssgHookFunc      current_hookFunc = NULL ;
 static ssgBranch       *current_branch   = NULL ;
 
-/******************************************************************************/
+static int   num_line;
+static int   num_face;
+static int   num_linevert;
+static int   num_facevert;
+static sgVec3* linevert;
+static sgVec3* facevert;
+
+static int   mode;
+static int   num_vert;
+
+
+static void dxf_flush ( void )
+{
+  if ( num_vert > 0 ) {
+    if ( mode == MODE_LINE ) {
+      if ( num_vert >= 2 ) {
+        num_line ++;
+        num_linevert += 2;
+      }
+      num_vert = 0;
+    }
+    else if ( mode == MODE_FACE ) {
+      if ( num_vert >= 3 ) {
+        //quad?
+        if ( num_vert >= 4 && num_facevert + 6 < MAX_VERT ) {
+          sgCopyVec3( facevert[num_facevert + 4], facevert[num_facevert + 1] );
+          sgCopyVec3( facevert[num_facevert + 5], facevert[num_facevert + 2] );
+          sgCopyVec3( facevert[num_facevert + 2], facevert[num_facevert + 3] );
+          num_face += 2;
+          num_facevert += 6;
+        }
+        else {
+          //triangle
+          num_face += 1;
+          num_facevert += 3;
+        }
+      }
+      num_vert = 0;
+    }
+  }
+}
+
 
 static int dxf_read ( FILE *filein )
-
-/******************************************************************************/
-
-/*
-  Purpose:
-   
-    DXF_READ reads an AutoCAD DXF file.
-
-  Examples:
-
-      0
-    SECTION
-      2
-    HEADER
-    999
-    diamond.dxf created by IVREAD.
-    999
-    Original data in diamond.obj.
-      0
-    ENDSEC
-      0
-    SECTION
-      2
-    TABLES
-      0
-    ENDSEC
-      0
-    SECTION
-      2
-    BLOCKS
-      0
-    ENDSEC
-      0
-    SECTION
-      2
-    ENTITIES
-      0
-    LINE
-      8
-    0
-     10
-      0.00  (X coordinate of beginning of line.)
-     20
-      0.00  (Y coordinate of beginning of line.)
-     30
-      0.00  (Z coordinate of beginning of line.)
-     11
-      1.32  (X coordinate of end of line.)
-     21
-      1.73  (Y coordinate of end of line.)
-     31
-      2.25  (Z coordinate of end of line.)
-      0
-    3DFACE
-      8
-     Cube
-    10
-    -0.50  (X coordinate of vertex 1)
-    20
-     0.50  (Y coordinate of vertex 1)   
-    30
-      1.0  (Z coordinate of vertex 1)  
-    11
-     0.50  (X coordinate of vertex 2)  
-    21
-     0.50  (Y coordinate of vertex 2)
-    31
-      1.0  (Z coordinate of vertex 2)
-    12
-     0.50  (X coordinate of vertex 3) 
-    22
-     0.50  (Y coordinate of vertex 3)
-    32
-     0.00  (Z coordinate of vertex 3)
-      0
-    ENDSEC
-      0
-    EOF
-
-  Modified:
-
-    23 May 1999
-
-  Author:
- 
-    John Burkardt
-*/
 {
   int   code;
   int   count;
@@ -111,16 +69,7 @@ static int dxf_read ( FILE *filein )
   int   cpos;
   sgVec3 cvec;
 
-  int   linemode;
-  int   num_line;
-  int   num_face;
-  int   num_linevert;
-  int   num_facevert;
-  sgVec3* linevert;
-  sgVec3* facevert;
-  int   num_vert;
-
-  linemode = 0;
+  mode = MODE_NONE;
   num_line = 0;
   num_face = 0;
   num_linevert = 0;
@@ -156,39 +105,41 @@ static int dxf_read ( FILE *filein )
 
     if ( code == 0 ) {
 
-      //flush verts
-      if ( num_vert > 0 ) {
-        if ( linemode ) {
-          if ( num_vert >= 2 ) {
-            num_line ++;
-            num_linevert += 2;
-          }
-        }
-        else {
-          if ( num_vert >= 3 ) {
-            //quad?
-            if ( num_vert >= 4 && num_facevert + 6 < MAX_VERT ) {
-              sgCopyVec3( facevert[num_facevert + 4], facevert[num_facevert + 1] );
-              sgCopyVec3( facevert[num_facevert + 5], facevert[num_facevert + 2] );
-              sgCopyVec3( facevert[num_facevert + 2], facevert[num_facevert + 3] );
-              num_face += 2;
-              num_facevert += 6;
-            }
-            else {
-              //triangle
-              num_face += 1;
-              num_facevert += 3;
-            }
-          }
-        }
-        num_vert = 0;
-      }
+      dxf_flush () ;
       
       if ( strncmp( input2, "LINE", 4 ) == 0 ) {
-        linemode = 1;
+        mode = MODE_LINE ;
+        num_vert = 0 ;
       }
       else if ( strncmp( input2, "3DFACE", 6 ) == 0 ) {
-        linemode = 0;
+        mode = MODE_FACE ;
+        num_vert = 0 ;
+      }
+      else if ( strncmp( input2, "POLYLINE", 8 ) == 0 ) {
+        mode = MODE_POLYLINE ;
+        num_vert = 0 ;
+      }
+      else if ( strncmp( input2, "VERTEX", 6 ) == 0 ) {
+        if ( mode != MODE_POLYLINE ) {
+          mode = MODE_NONE;
+          num_vert = 0 ;
+        }
+      }
+      else if ( strncmp( input2, "SEQEND", 6 ) == 0 ) {
+        if ( mode == MODE_POLYLINE ) {
+          num_vert = ( num_vert / 2 ) * 2 ;  //make even
+          if ( num_vert > 1 ) {
+            num_line += ( num_vert / 2 ) ;
+            num_linevert += num_vert ;
+          }
+          num_vert = 0;
+        }
+        mode = MODE_NONE;
+        num_vert = 0;
+      }
+      else {
+        mode = MODE_NONE;
+        num_vert = 0;
       }
     }
     else {
@@ -213,18 +164,30 @@ static int dxf_read ( FILE *filein )
           case '3':
             cvec[2] = rval;
 
-            if ( linemode ) {
+            if ( mode == MODE_LINE ) {
               if ( num_linevert + num_vert < MAX_VERT ) {
                 sgCopyVec3( linevert[num_linevert + num_vert], cvec );
+                num_vert ++ ;
               }
             }
-            else {
+            else if ( mode == MODE_FACE ) {
               if ( num_facevert + num_vert < MAX_VERT ) {
                 sgCopyVec3( facevert[num_facevert + num_vert], cvec );
+                num_vert ++ ;
+              }
+            }
+            else if ( mode == MODE_POLYLINE ) {
+              if ( num_linevert + num_vert < MAX_VERT ) {
+                sgCopyVec3( linevert[num_linevert + num_vert], cvec );
+                num_vert ++ ;
+              }
+              if ( num_vert >= 2 && num_linevert + num_vert < MAX_VERT ) {
+                //duplicate vertex if not first
+                sgCopyVec3( linevert[num_linevert + num_vert], cvec );
+                num_vert ++ ;
               }
             }
 
-            num_vert = num_vert + 1;
             break;
         
           default:
@@ -234,22 +197,7 @@ static int dxf_read ( FILE *filein )
     }
   }
 
-  //flush verts
-  if ( num_vert > 0 ) {
-    if ( linemode ) {
-      if ( num_vert == 2 ) {
-        num_line ++;
-        num_linevert += 2;
-      }
-    }
-    else {
-      if ( num_vert == 3 ) {
-        num_face ++;
-        num_facevert += 3;
-      }
-    }
-    num_vert = 0;
-  }
+  dxf_flush () ;
 
   //create ssg nodes
   if ( num_face )
