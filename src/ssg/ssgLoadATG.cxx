@@ -178,6 +178,12 @@ static char* parser_getLine()
 	return token;
 }
 
+static int reduce_numbers; // some ATG files (from BTG converted ones?) have vertex coordinates that include gbs, for example
+									// 2713547.89986. Others have coordinates excluding gbs, for example 2961.50684
+// I need to reduce the big numbers beacuse float a,b; a-b is dangerous if a large and b small.
+// Therefore I reduce the numbers by gbs while I have vertex coords and gbs as double and add it back in using double in PPE
+
+
 static int parse()
 {
 	// ************* Init ************************
@@ -200,16 +206,33 @@ static int parse()
 		return FALSE;
 	}
 	// ****** read vertices ************
-
+	int first = TRUE;
 	while ( 0 == strcmp( token, "v") ) 
-	{ sgVec3 vert;
-		
-		if (! parser.parseFloat( vert[0], "vertex.x") )
+	{ 
+		double vx, vy, vz;
+		if (! parser.parseDouble( vx, "vertex.x") )
 	    return FALSE;
-		if (! parser.parseFloat( vert[1], "vertex.y") )
+		if (! parser.parseDouble( vy, "vertex.y") )
 	    return FALSE;
-		if (! parser.parseFloat( vert[2], "vertex.z") )
+		if (! parser.parseDouble( vz, "vertex.z") )
 	    return FALSE;
+		if (first)
+		{	first = FALSE;
+			
+#ifndef ABS
+#define ABS(x) (((x)>0)?(x):-(x))
+#endif
+		// Mega-kludge:
+			reduce_numbers = (ABS(vx)>50000);
+		}
+		if (reduce_numbers)
+		{ assert( _ssg_gbs_x != 0.0); // kludge
+			vx += _ssg_gbs_x;
+			vy += _ssg_gbs_y;
+			vz += _ssg_gbs_z;
+		}
+		sgVec3 vert;
+		sgSetVec3( vert, (float) vx, (float) vy, (float) vz);
 		_theMesh.addVertex(vert); // add to mesh
 		_ssgNoVertices++;
 		token = parser_getLine();
