@@ -72,23 +72,39 @@ ssgSimpleState::~ssgSimpleState (void)
 
 void ssgSimpleState::apply (void)
 {
-  if ( ~ dont_care & ( (1<<SSG_GL_COLOR_MATERIAL) |
-                       (1<<SSG_GL_DIFFUSE       ) |
+  int turn_off = ~dont_care & ~enables & _ssgCurrentContext->getState()->enables & 0x3F ;
+  (*(__ssgDisableTable[turn_off]))() ;
+  _ssgCurrentContext->getState()->enables &= ~turn_off ;
+
+  if ( ~ dont_care & ( (1<<SSG_GL_COLOR_MATERIAL_EN) |
+		       (1<<SSG_GL_COLOR_MATERIAL   ) ) )
+  {
+    int indeterminate = turn_off & (1<<SSG_GL_COLOR_MATERIAL_EN) ;
+
+    if ( ~ dont_care & (1<<SSG_GL_COLOR_MATERIAL ) &&
+	 _ssgCurrentContext->getState()->colour_material_mode != colour_material_mode )
+    {
+      glColorMaterial ( GL_FRONT_AND_BACK, (GLenum) colour_material_mode ) ;
+      _ssgCurrentContext->getState()->colour_material_mode = colour_material_mode ;
+      indeterminate |= _ssgCurrentContext->getState()->enables & (1<<SSG_GL_COLOR_MATERIAL_EN) ;
+    }
+
+    if ( indeterminate )
+    {
+      /* invalidate the material colours */
+      sgSetVec3 ( _ssgCurrentContext->getState()->specular_colour, -1.0f, -1.0f, -1.0f ) ;
+      sgSetVec3 ( _ssgCurrentContext->getState()->emission_colour, -1.0f, -1.0f, -1.0f ) ;
+      sgSetVec3 ( _ssgCurrentContext->getState()->ambient_colour, -1.0f, -1.0f, -1.0f ) ;
+      sgSetVec4 ( _ssgCurrentContext->getState()->diffuse_colour, -1.0f, -1.0f, -1.0f, -1.0f ) ;
+    }
+  }
+
+  if ( ~ dont_care & ( (1<<SSG_GL_DIFFUSE       ) |
                        (1<<SSG_GL_AMBIENT       ) |
                        (1<<SSG_GL_SPECULAR      ) |
                        (1<<SSG_GL_EMISSION      ) |
                        (1<<SSG_GL_SHININESS     ) ) )
   {
-    int switched_modes = FALSE ;
-
-    if ( ~ dont_care & (1<<SSG_GL_COLOR_MATERIAL ) &&
-      _ssgCurrentContext->getState()->colour_material_mode != colour_material_mode )
-    {
-      glColorMaterial ( GL_FRONT_AND_BACK, (GLenum) colour_material_mode ) ;
-      _ssgCurrentContext->getState()->colour_material_mode = colour_material_mode ;
-      switched_modes = TRUE ;
-    }
-
     if ( ( ~ dont_care & (1<<SSG_GL_SHININESS) ) &&
       _ssgCurrentContext->getState()->shininess != shininess )
     {
@@ -97,46 +113,33 @@ void ssgSimpleState::apply (void)
     }
 
     if ( ( ~ dont_care & (1<<SSG_GL_SPECULAR) ) &&
-      ( switched_modes ||
-        ! sgEqualVec3 ( _ssgCurrentContext->getState()->specular_colour, specular_colour ) ) )
+         ! sgEqualVec3 ( _ssgCurrentContext->getState()->specular_colour, specular_colour ) )
     {
       glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR, specular_colour ) ;
       sgCopyVec3 ( _ssgCurrentContext->getState()->specular_colour, specular_colour ) ;
     }
 
     if ( ( ~ dont_care & (1<<SSG_GL_EMISSION) ) &&
-      ( switched_modes ||
-      ! sgEqualVec3 ( _ssgCurrentContext->getState()->emission_colour, emission_colour ) ) )
+         ! sgEqualVec3 ( _ssgCurrentContext->getState()->emission_colour, emission_colour ) )
     {
       glMaterialfv ( GL_FRONT_AND_BACK, GL_EMISSION, emission_colour ) ;
       sgCopyVec3 ( _ssgCurrentContext->getState()->emission_colour, emission_colour ) ;
     }
 
     if ( ( ~ dont_care & (1<<SSG_GL_AMBIENT) ) &&
-      ( switched_modes ||
-      ! sgEqualVec3 ( _ssgCurrentContext->getState()->ambient_colour, ambient_colour ) ) )
+         ! sgEqualVec3 ( _ssgCurrentContext->getState()->ambient_colour, ambient_colour ) )
     {
       glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT, ambient_colour ) ;
       sgCopyVec3 ( _ssgCurrentContext->getState()->ambient_colour, ambient_colour ) ;
     }
 
     if ( ( ~ dont_care & (1<<SSG_GL_DIFFUSE) ) &&
-      ( switched_modes ||
-      ! sgEqualVec4 ( _ssgCurrentContext->getState()->diffuse_colour, diffuse_colour ) ) )
+         ! sgEqualVec4 ( _ssgCurrentContext->getState()->diffuse_colour, diffuse_colour ) )
     {
       glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse_colour ) ;
       sgCopyVec4 ( _ssgCurrentContext->getState()->diffuse_colour, diffuse_colour ) ;
     }
   }
-
-  int turn_on  = ~dont_care &  enables & ~_ssgCurrentContext->getState()->enables & 0x3F ;
-  int turn_off = ~dont_care & ~enables &  _ssgCurrentContext->getState()->enables & 0x3F ;
-
-  (*(__ssgEnableTable [turn_on ]))() ;
-  (*(__ssgDisableTable[turn_off]))() ;
-
-  _ssgCurrentContext->getState()->enables |=  turn_on  ;
-  _ssgCurrentContext->getState()->enables &= ~turn_off ;
 
   if ( ( ~ dont_care & (1<<SSG_GL_TEXTURE) ) && 
     _ssgCurrentContext->getState()->texture_handle != texture_handle )
@@ -164,22 +167,18 @@ void ssgSimpleState::apply (void)
     glAlphaFunc ( GL_GREATER, alpha_clamp ) ;
     _ssgCurrentContext->getState()->alpha_clamp = alpha_clamp ;
   }
+
+  int turn_on = ~dont_care & enables & ~_ssgCurrentContext->getState()->enables & 0x3F ;
+  (*(__ssgEnableTable [turn_on ]))() ;
+  _ssgCurrentContext->getState()->enables |= turn_on ;
 }
 
 void ssgSimpleState::force (void)
 {
-/*
-  glMaterialf ( GL_FRONT_AND_BACK, GL_SHININESS, shininess ) ;
-  _ssgCurrentContext->getState()->shininess = shininess ;
-  glMaterialfv ( GL_FRONT_AND_BACK, GL_SPECULAR, specular_colour ) ;
-  sgCopyVec3 ( _ssgCurrentContext->getState()->specular_colour, specular_colour ) ;
-  glMaterialfv ( GL_FRONT_AND_BACK, GL_EMISSION, emission_colour ) ;
-  sgCopyVec3 ( _ssgCurrentContext->getState()->emission_colour, emission_colour ) ;
-  glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT, ambient_colour ) ;
-  sgCopyVec3 ( _ssgCurrentContext->getState()->ambient_colour, ambient_colour ) ;
-  glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse_colour ) ;
-  sgCopyVec4 ( _ssgCurrentContext->getState()->diffuse_colour, diffuse_colour ) ;
-*/
+  int turn_off = ~dont_care & ~enables & 0x3F ;
+  (*(__ssgDisableTable[turn_off]))() ;
+  _ssgCurrentContext->getState()->enables &= ~turn_off ;
+
   if ( ~ dont_care & ( (1<<SSG_GL_COLOR_MATERIAL ) |
                        (1<<SSG_GL_DIFFUSE        ) |
                        (1<<SSG_GL_AMBIENT        ) |
@@ -224,15 +223,6 @@ void ssgSimpleState::force (void)
     }
   }
 
-  int turn_on  = ~dont_care &  enables & 0x3F ;
-  int turn_off = ~dont_care & ~enables & 0x3F ;
-
-  (*(__ssgEnableTable [turn_on ]))() ;
-  (*(__ssgDisableTable[turn_off]))() ;
-
-  _ssgCurrentContext->getState()->enables |=  turn_on  ;
-  _ssgCurrentContext->getState()->enables &= ~turn_off ;
-
   if ( ~ dont_care & (1<<SSG_GL_TEXTURE ) )
   {
     stats_bind_textures++ ;
@@ -256,6 +246,10 @@ void ssgSimpleState::force (void)
     glAlphaFunc ( GL_GREATER, alpha_clamp ) ;
     _ssgCurrentContext->getState()->alpha_clamp = alpha_clamp ;
   }
+
+  int turn_on = ~dont_care & enables & 0x3F ;
+  (*(__ssgEnableTable [turn_on ]))() ;
+  _ssgCurrentContext->getState()->enables |= turn_on ;
 }
 
 
