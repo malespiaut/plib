@@ -122,19 +122,19 @@ void ulCloseDir ( ulDir* dir )
   }
 }
 
-int ulFileExists ( char *fileName )
+bool ulFileExists ( const char *fileName )
 {
   struct stat buf ;
 
   if ( stat ( fileName, &buf ) < 0 )
-    return FALSE ;
+    return false ;
 
 // wk: _MSC_VER is predefined by Microsoft (Visual) C++
 // MSVC doesnt know S_ISREG
 #ifdef _MSC_VER
-  return ((S_IFREG & buf.st_mode ) !=0);
+  return ((S_IFREG & buf.st_mode ) !=0) ;
 #else
-  return S_ISREG ( buf.st_mode ) ;
+  return ((S_ISREG ( buf.st_mode )) != 0) ;
 #endif
 }
 
