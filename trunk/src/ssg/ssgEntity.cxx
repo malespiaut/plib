@@ -24,6 +24,7 @@ ssgEntity::ssgEntity (void)
   traversal_mask = 0xFFFFFFFF ;
   name  = NULL ;
   type |= SSG_TYPE_ENTITY ;
+  bsphere_is_invalid = TRUE ;
 }
 
 
@@ -178,9 +179,9 @@ ssgCullResult ssgEntity::isect_test ( sgSphere *s, sgMat4 m, int test_needed )
 
   sgSubVec3 ( center_vec, s->getCenter(), tmp.getCenter() ) ;
 
-  if ( center_vec[0] > sum_radii ||
-       center_vec[1] > sum_radii ||
-       center_vec[2] > sum_radii )
+  if ( sgAbs(center_vec[0]) > sum_radii ||
+       sgAbs(center_vec[1]) > sum_radii ||
+       sgAbs(center_vec[2]) > sum_radii )
     return SSG_OUTSIDE ;
 
   float separation_sqd = sgScalarProductVec3 ( center_vec, center_vec ) ;

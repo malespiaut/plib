@@ -178,7 +178,7 @@ void sgSphere::extend ( const sgVec3 v )
   if ( isEmpty () )
   {
     sgCopyVec3 ( center, v ) ;
-    radius = 0.0f ;
+    radius = SG_ZERO ;
     return ;
   }
 
@@ -187,7 +187,7 @@ void sgSphere::extend ( const sgVec3 v )
   if ( d <= radius )  /* Point is already inside sphere */
     return ;
 
-  SGfloat new_radius = (radius + d) / 2.0f ;  /* Grow radius */
+  SGfloat new_radius = (radius + d) / SG_TWO ;  /* Grow radius */
 
   SGfloat ratio = (new_radius - radius) / d ;
 
@@ -207,7 +207,7 @@ void sgSphere::extend ( const sgBox *b )
   if ( isEmpty() )
   {
     sgAddVec3   ( center, b->getMin(), b->getMax() ) ;
-    sgScaleVec3 ( center, 0.5f ) ;
+    sgScaleVec3 ( center, SG_HALF ) ;
     radius = sgDistanceVec3 ( center, b->getMax() ) ;
     return ;
   }
@@ -291,7 +291,7 @@ void sgSphere::extend ( const sgSphere *s )
     triangles
   */
 
-  SGfloat new_radius = (radius + d + s->getRadius() ) / 2.0f ;
+  SGfloat new_radius = (radius + d + s->getRadius() ) / SG_TWO ;
 
   SGfloat ratio = ( new_radius - radius ) / d ;
 
@@ -943,7 +943,7 @@ void sgHPRfromVec3 ( sgVec3 hpr, const sgVec3 src )
   hpr[1] = -(SGfloat) atan2 ( tmp [ 2 ], sqrt ( sgSquare ( tmp [ 0 ] ) +
                                                 sgSquare ( tmp [ 1 ] ) ) ) *
                                                 SG_RADIANS_TO_DEGREES ;
-  hpr[2] = 0.0f ;
+  hpr[2] = SG_ZERO ;
 }
 
 
@@ -952,12 +952,13 @@ void sgHPRfromVec3 ( sgVec3 hpr, const sgVec3 src )
   Quaternion routines are Copyright (C) 1999
   Kevin B. Thompson <kevinbthompson@yahoo.com>
   Modified by Sylvan W. Clebsch <sylvan@stanford.edu>
+  Largely rewritten by "Negative0" <negative0@earthlink.net>
 */
 
 
 void sgQuatToAngleAxis ( SGfloat *angle,
                          SGfloat *x, SGfloat *y, SGfloat *z,
-                         const sgQuat *src )
+                         const sgQuat src )
 {
   sgVec3 axis ;
 
@@ -969,9 +970,9 @@ void sgQuatToAngleAxis ( SGfloat *angle,
 }
 
 
-void sgQuatToAngleAxis ( SGfloat *angle, sgVec3 axis, const sgQuat *src )
+void sgQuatToAngleAxis ( SGfloat *angle, sgVec3 axis, const sgQuat src )
 {
-  SGfloat a = (SGfloat) acos ( src->w ) ;
+  SGfloat a = (SGfloat) acos ( src[SG_W] ) ;
   SGfloat s = (SGfloat) sin  ( a ) ;
 
   *angle = a * SG_RADIANS_TO_DEGREES * SG_TWO ;
@@ -980,43 +981,23 @@ void sgQuatToAngleAxis ( SGfloat *angle, sgVec3 axis, const sgQuat *src )
     sgSetVec3 ( axis, SG_ZERO, SG_ZERO, SG_ONE );
   else
   {
-    sgSetVec3   ( axis, src->x, src->y, src->z ) ;
+    sgSetVec3   ( axis, src[SG_X], src[SG_Y], src[SG_Z] ) ;
     sgScaleVec3 ( axis, SG_ONE / s ) ;
   }
 }
 
 
-void sgMakeQuat ( sgQuat *dst, const sgVec3 hpr )
-{
-  sgVec3 temp_hpr;
-
-  temp_hpr[0] = hpr[0] * SG_DEGREES_TO_RADIANS / SG_TWO ;
-  temp_hpr[1] = hpr[1] * SG_DEGREES_TO_RADIANS / SG_TWO ;
-  temp_hpr[2] = hpr[2] * SG_DEGREES_TO_RADIANS / SG_TWO ;
-
-  SGfloat sh = -(SGfloat) sin ( temp_hpr[0] ) ; SGfloat ch = (SGfloat) cos ( temp_hpr[0] ) ;
-  SGfloat sp = -(SGfloat) sin ( temp_hpr[1] ) ; SGfloat cp = (SGfloat) cos ( temp_hpr[1] ) ;
-  SGfloat sr = -(SGfloat) sin ( temp_hpr[2] ) ; SGfloat cr = (SGfloat) cos ( temp_hpr[2] ) ;
-
-  SGfloat cpch = cp * ch;
-  SGfloat spsh = sp * sh;
-
-  dst->w = cr * cpch + sr * spsh;
-  dst->x = sr * cpch - cr * spsh;
-  dst->y = cr * sp * ch + sr * cp * sh;
-  dst->z = cr * cp * sh - sr * sp * ch;
-}
-
-
-void sgMakeQuat ( sgQuat *dst, const SGfloat angle, const SGfloat x, const SGfloat y, const SGfloat z )
+void sgAngleAxisToQuat ( sgQuat dst,
+                         const SGfloat angle,
+                         const SGfloat x, const SGfloat y, const SGfloat z )
 {
   sgVec3 axis ; 
   sgSetVec3 ( axis, x, y, z ) ;
-  sgMakeQuat ( dst, angle, axis ) ;
+  sgAngleAxisToQuat ( dst, angle, axis ) ;
 }
 
 
-void sgMakeQuat ( sgQuat *dst, const SGfloat angle, const sgVec3 axis )
+void sgAngleAxisToQuat ( sgQuat dst, const SGfloat angle, const sgVec3 axis )
 {
   SGfloat temp_angle = angle * SG_DEGREES_TO_RADIANS / SG_TWO ;
 
@@ -1025,49 +1006,210 @@ void sgMakeQuat ( sgQuat *dst, const SGfloat angle, const sgVec3 axis )
 
   SGfloat s = - (SGfloat) sin ( temp_angle ) ;
 
-  dst->w = (SGfloat) cos ( temp_angle ) ;
-  dst->x = s * ax[0] ;
-  dst->y = s * ax[1] ;
-  dst->z = s * ax[2] ;
+  dst[SG_W] = (SGfloat) cos ( temp_angle ) ;
+  sgScaleVec3 ( dst, ax, s ) ;
 }
 
 
-void sgMultQuat ( sgQuat *dst, const sgQuat *a, const sgQuat *b )
+//from gamasutra.com
+//by nb
+
+void sgMatrixToQuat( sgQuat quat, sgMat4 m )
+{
+  SGfloat tr, s, q[4] ;
+  int   i, j, k ;
+
+  int nxt[3] = {1, 2, 0};
+
+  tr = m[0][0] + m[1][1] + m[2][2];
+
+  // check the diagonal
+  if (tr > SG_ZERO )
+  {
+    s = (SGfloat) sqrt (tr + SG_ONE);
+    quat[SG_W] = s / SG_TWO;
+    s = SG_HALF / s;
+    quat[SG_X] = (m[1][2] - m[2][1]) * s;
+    quat[SG_Y] = (m[2][0] - m[0][2]) * s;
+    quat[SG_Z] = (m[0][1] - m[1][0]) * s;
+  }
+  else
+  {		
+    // diagonal is negative
+   	i = 0;
+    if (m[1][1] > m[0][0]) i = 1;
+    if (m[2][2] > m[i][i]) i = 2;
+    j = nxt[i];
+    k = nxt[j];
+    s = sqrt ((m[i][i] - (m[j][j] + m[k][k])) + SG_ONE);
+    q[i] = s * SG_HALF;
+            
+    if (s != SG_ZERO) s = SG_HALF / s;
+
+    q[3] = (m[j][k] - m[k][j]) * s;
+    q[j] = (m[i][j] + m[j][i]) * s;
+    q[k] = (m[i][k] + m[k][i]) * s;
+
+    quat[SG_X] = q[0];
+    quat[SG_Y] = q[1];
+    quat[SG_Z] = q[2];
+    quat[SG_W] = q[3];
+  }
+}
+
+
+void sgMultQuat ( sgQuat dst, const sgQuat a, const sgQuat b )
 {
   /* [ ww' - v.v', vxv' + wv' + v'w ] */
 
   SGfloat t[8];
 
-  t[0] = (a->w + a->x) * (b->w + b->x);
-  t[1] = (a->z - a->y) * (b->y - b->z);
-  t[2] = (a->x - a->w) * (b->y + b->z);
-  t[3] = (a->y + a->z) * (b->x - b->w);
-  t[4] = (a->x + a->z) * (b->x + b->y);
-  t[5] = (a->x - a->z) * (b->x - b->y);
-  t[6] = (a->w + a->y) * (b->w - b->z);
-  t[7] = (a->w - a->y) * (b->w + b->z);
+  t[0] = (a[SG_W] + a[SG_X]) * (b[SG_W] + b[SG_X]);
+  t[1] = (a[SG_Z] - a[SG_Y]) * (b[SG_Y] - b[SG_Z]);
+  t[2] = (a[SG_X] - a[SG_W]) * (b[SG_Y] + b[SG_Z]);
+  t[3] = (a[SG_Y] + a[SG_Z]) * (b[SG_X] - b[SG_W]);
+  t[4] = (a[SG_X] + a[SG_Z]) * (b[SG_X] + b[SG_Y]);
+  t[5] = (a[SG_X] - a[SG_Z]) * (b[SG_X] - b[SG_Y]);
+  t[6] = (a[SG_W] + a[SG_Y]) * (b[SG_W] - b[SG_Z]);
+  t[7] = (a[SG_W] - a[SG_Y]) * (b[SG_W] + b[SG_Z]);
 
-  dst->w =  t[1] + ((-t[4] - t[5] + t[6] + t[7]) * 0.5f);
-  dst->x =  t[0] - (( t[4] + t[5] + t[6] + t[7]) * 0.5f);
-  dst->y = -t[2] + (( t[4] - t[5] + t[6] - t[7]) * 0.5f);
-  dst->z = -t[3] + (( t[4] - t[5] - t[6] + t[7]) * 0.5f);
+  dst[SG_W] =  t[1] + ((-t[4] - t[5] + t[6] + t[7]) * SG_HALF);
+  dst[SG_X] =  t[0] - (( t[4] + t[5] + t[6] + t[7]) * SG_HALF);
+  dst[SG_Y] = -t[2] + (( t[4] - t[5] + t[6] - t[7]) * SG_HALF);
+  dst[SG_Z] = -t[3] + (( t[4] - t[5] - t[6] + t[7]) * SG_HALF);
+}
+
+//from gamasutra.com
+//by nb@netcom.ca 
+
+void sgMultQuat2 ( sgQuat dst, const sgQuat a, const sgQuat b )
+{
+  SGfloat A, B, C, D, E, F, G, H;
+
+  A = (a[SG_W] + a[SG_X]) * (b[SG_W] + b[SG_X]) ;
+  B = (a[SG_Z] - a[SG_Y]) * (b[SG_Y] - b[SG_Z]) ;
+  C = (a[SG_X] - a[SG_W]) * (b[SG_Y] + b[SG_Z]) ;
+  D = (a[SG_Y] + a[SG_Z]) * (b[SG_X] - b[SG_W]) ;
+  E = (a[SG_X] + a[SG_Z]) * (b[SG_X] + b[SG_Y]) ;
+  F = (a[SG_X] - a[SG_Z]) * (b[SG_X] - b[SG_Y]) ;
+  G = (a[SG_W] + a[SG_Y]) * (b[SG_W] - b[SG_Z]) ;
+  H = (a[SG_W] - a[SG_Y]) * (b[SG_W] + b[SG_Z]) ;
+
+
+  dst[SG_W] =  B + (-E - F + G + H) / SG_TWO ;
+  dst[SG_X] =  A - ( E + F + G + H) / SG_TWO ; 
+  dst[SG_Y] = -C + ( E - F + G - H) / SG_TWO ;
+  dst[SG_Z] = -D + ( E - F - G + H) / SG_TWO ;
+}
+
+//from gamasutra.com
+//by nb@netcom.ca 
+
+void sgEulerToQuat(sgQuat quat, sgVec3 ypr )
+{
+  SGfloat cr, cp, cy, sr, sp, sy, cpcy, spsy;
+
+// calculate trig identities
+  cr = (SGfloat) cos(ypr[2]/SG_TWO);
+  cp = (SGfloat) cos(ypr[1]/SG_TWO);
+  cy = (SGfloat) cos(ypr[0]/SG_TWO);
+
+  sr = (SGfloat) sin(ypr[2]/SG_TWO);
+  sp = (SGfloat) sin(ypr[1]/SG_TWO);
+  sy = (SGfloat) sin(ypr[0]/SG_TWO);
+  
+  cpcy = cp * cy;
+  spsy = sp * sy;
+
+  quat[SG_W] = cr * cpcy + sr * spsy;
+  quat[SG_X] = sr * cpcy - cr * spsy;
+  quat[SG_Y] = cr * sp * cy + sr * cp * sy;
+  quat[SG_Z] = cr * cp * sy - sr * sp * cy;
+}
+
+//from darwin3d.com
+// jeffl@darwin3d.com
+
+void sgQuatToEuler( sgVec3 euler, const sgQuat quat )
+{
+  float matrix[3][3];
+  float cx,sx;
+  float cy,sy,yr;
+  float cz,sz;
+
+  // CONVERT QUATERNION TO MATRIX - I DON'T REALLY NEED ALL OF IT
+
+  matrix[0][0] = SG_ONE - (SG_TWO * quat[SG_Y] * quat[SG_Y])
+                        - (SG_TWO * quat[SG_Z] * quat[SG_Z]);
+//matrix[0][1] = (SG_TWO * quat->x * quat->y) - (SG_TWO * quat->w * quat->z);
+//matrix[0][2] = (SG_TWO * quat->x * quat->z) + (SG_TWO * quat->w * quat->y);
+
+  matrix[1][0] = (SG_TWO * quat[SG_X] * quat[SG_Y]) +
+                          (SG_TWO * quat[SG_W] * quat[SG_Z]);
+//matrix[1][1] = SG_ONE - (SG_TWO * quat->x * quat->x)
+//                      - (SG_TWO * quat->z * quat->z);
+//matrix[1][2] = (SG_TWO * quat->y * quat->z) - (SG_TWO * quat->w * quat->x);
+
+  matrix[2][0] = (SG_TWO * quat[SG_X] * quat[SG_Z]) -
+                 (SG_TWO * quat[SG_W] * quat[SG_Y]);
+  matrix[2][1] = (SG_TWO * quat[SG_Y] * quat[SG_Z]) +
+                 (SG_TWO * quat[SG_W] * quat[SG_X]);
+  matrix[2][2] = SG_ONE - (SG_TWO * quat[SG_X] * quat[SG_X])
+                        - (SG_TWO * quat[SG_Y] * quat[SG_Y]);
+
+  sy = -matrix[2][0];
+  cy = sqrt(SG_ONE - (sy * sy));
+  yr = (SGfloat)atan2(sy,cy);
+  euler[1] = yr * SG_RADIANS_TO_DEGREES ;
+
+  // AVOID DIVIDE BY ZERO ERROR ONLY WHERE Y= +-90 or +-270 
+  // NOT CHECKING cy BECAUSE OF PRECISION ERRORS
+  if (sy != SG_ONE && sy != -SG_ONE)	
+  {
+    cx = matrix[2][2] / cy;
+    sx = matrix[2][1] / cy;
+    euler[0] = ((SGfloat)atan2(sx,cx)) * SG_RADIANS_TO_DEGREES ;
+
+    cz = matrix[0][0] / cy;
+    sz = matrix[1][0] / cy;
+    euler[2] = ((SGfloat)atan2(sz,cz)) * SG_RADIANS_TO_DEGREES ;
+  }
+  else
+  {
+    // SINCE Cos(Y) IS 0, I AM SCREWED.  ADOPT THE STANDARD Z = 0
+    // I THINK THERE IS A WAY TO FIX THIS BUT I AM NOT SURE.  EULERS SUCK
+    // NEED SOME MORE OF THE MATRIX TERMS NOW
+
+    matrix[1][1] = SG_ONE - (SG_TWO * quat[SG_X] * quat[SG_X])
+                          - (SG_TWO * quat[SG_Z] * quat[SG_Z]);
+    matrix[1][2] = (SG_TWO * quat[SG_Y] * quat[SG_Z]) -
+                   (SG_TWO * quat[SG_W] * quat[SG_X]);
+
+    cx =  matrix[1][1];
+    sx = -matrix[1][2];
+    euler[0] = ((SGfloat)atan2(sx,cx)) * SG_RADIANS_TO_DEGREES ;
+
+    cz = SG_ONE ;
+    sz = SG_ZERO ;
+    euler[2] = ((SGfloat)atan2(sz,cz)) * SG_RADIANS_TO_DEGREES ;
+  }
 }
 
 
-void sgMakeRotMat4 ( sgMat4 dst, const sgQuat *q )
+void sgQuatToMatrix ( sgMat4 dst, sgQuat q )
 {
-  SGfloat two_xx = q->x * (q->x + q->x) ;
-  SGfloat two_xy = q->x * (q->y + q->y) ;
-  SGfloat two_xz = q->x * (q->z + q->z) ;
+  SGfloat two_xx = q[SG_X] * (q[SG_X] + q[SG_X]) ;
+  SGfloat two_xy = q[SG_X] * (q[SG_Y] + q[SG_Y]) ;
+  SGfloat two_xz = q[SG_X] * (q[SG_Z] + q[SG_Z]) ;
 
-  SGfloat two_wx = q->w * (q->x + q->x) ;
-  SGfloat two_wy = q->w * (q->y + q->y) ;
-  SGfloat two_wz = q->w * (q->z + q->z) ;
+  SGfloat two_wx = q[SG_W] * (q[SG_X] + q[SG_X]) ;
+  SGfloat two_wy = q[SG_W] * (q[SG_Y] + q[SG_Y]) ;
+  SGfloat two_wz = q[SG_W] * (q[SG_Z] + q[SG_Z]) ;
 
-  SGfloat two_yy = q->y * (q->y + q->y) ;
-  SGfloat two_yz = q->y * (q->z + q->z) ;
+  SGfloat two_yy = q[SG_Y] * (q[SG_Y] + q[SG_Y]) ;
+  SGfloat two_yz = q[SG_Y] * (q[SG_Z] + q[SG_Z]) ;
 
-  SGfloat two_zz = q->z * (q->z + q->z) ;
+  SGfloat two_zz = q[SG_Z] * (q[SG_Z] + q[SG_Z]) ;
 
   sgSetVec4 ( dst[0], SG_ONE-(two_yy+two_zz), two_xy-two_wz, two_xz+two_wy, SG_ZERO ) ;
   sgSetVec4 ( dst[1], two_xy+two_wz, SG_ONE-(two_xx+two_zz), two_yz-two_wx, SG_ZERO ) ;
@@ -1076,13 +1218,88 @@ void sgMakeRotMat4 ( sgMat4 dst, const sgQuat *q )
 }
 
 
-void sgSlerpQuat( sgQuat *dst, const sgQuat *from, const sgQuat *to, const SGfloat t )
+//from gamasutra.com
+//by nb@netcom.ca 
+void sgMakeRotMat42( sgMat4 m, sgQuat quat ){
+  float wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
+
+  // calculate coefficients
+  x2 = quat[SG_X] + quat[SG_X]; y2 = quat[SG_Y] + quat[SG_Y]; 
+  z2 = quat[SG_Z] + quat[SG_Z];
+  xx = quat[SG_X] * x2;   xy = quat[SG_X] * y2;   xz = quat[SG_X] * z2;
+  yy = quat[SG_Y] * y2;   yz = quat[SG_Y] * z2;   zz = quat[SG_Z] * z2;
+  wx = quat[SG_W] * x2;   wy = quat[SG_W] * y2;   wz = quat[SG_W] * z2;
+
+  m[0][0] = SG_ONE- (yy + zz); 	m[0][1] = xy - wz;
+  m[0][2] = xz + wy;		m[0][3] = SG_ZERO ;
+ 
+  m[1][0] = xy + wz;		m[1][1] = SG_ONE- (xx + zz);
+  m[1][2] = yz - wx;		m[1][3] = SG_ZERO ;
+
+  m[2][0] = xz - wy;		m[2][1] = yz + wx;
+  m[2][2] = SG_ONE- (xx + yy);		m[2][3] = SG_ZERO ;
+
+  m[3][0] = 0;			m[3][1] = 0;
+  m[3][2] = 0;			m[3][3] = 1;
+}
+
+
+
+//from gamasutra.com
+//by nb@netcom.ca 
+void sgSlerpQuat2( sgQuat dst, const sgQuat from, const sgQuat to, const float t )
+{
+	float           to1[4];
+	double        omega, cosom, sinom, scale0, scale1;
+
+        // calc cosine
+        cosom = from[SG_X] * to[SG_X] + from[SG_Y] * to[SG_Y] + from[SG_Z] * to[SG_Z]
+			       + from[SG_W] * to[SG_W];
+
+        // adjust signs (if necessary)
+        if ( cosom <SG_ZERO  ){ 
+			cosom = -cosom; 
+			to1[0] = - to[SG_X];
+		to1[1] = - to[SG_Y];
+		to1[2] = - to[SG_Z];
+		to1[3] = - to[SG_W];
+        } else  {
+		to1[0] = to[SG_X];
+		to1[1] = to[SG_Y];
+		to1[2] = to[SG_Z];
+		to1[3] = to[SG_W];
+        }
+
+        // calculate coefficients
+#define DELTA SG_ZERO 
+       if ( (SG_ONE- cosom) > DELTA ) {
+                // standard case (slerp)
+                omega = acos(cosom);
+                sinom = sin(omega);
+                scale0 = sin((SG_ONE- t) * omega) / sinom;
+                scale1 = sin(t * omega) / sinom;
+
+        } else {        
+    // "from" and "to" quaternions are very close 
+	    //  ... so we can do a linear interpolation
+                scale0 = SG_ONE- t;
+                scale1 = t;
+        }
+	// calculate final values
+	dst[SG_X] = scale0 * from[SG_X] + scale1 * to1[0];
+	dst[SG_Y] = scale0 * from[SG_Y] + scale1 * to1[1];
+	dst[SG_Z] = scale0 * from[SG_Z] + scale1 * to1[2];
+	dst[SG_W] = scale0 * from[SG_W] + scale1 * to1[3];
+}
+
+void sgSlerpQuat( sgQuat dst, const sgQuat from, const sgQuat to, const SGfloat t )
 {
   SGfloat sign, co, scale0, scale1;
 
   /* SWC - Interpolate between to quaternions */
 
-  co = from->x * to->x + from->y * to->y + from->z * to->z + from->w * to->w;
+  co = from[SG_X] * to[SG_X] + from[SG_Y] * to[SG_Y] + from[SG_X] * to[SG_Z] + 
+	  from[SG_W] * to[SG_W];
 
   if( co < SG_ZERO )
   {
@@ -1106,10 +1323,10 @@ void sgSlerpQuat( sgQuat *dst, const sgQuat *from, const sgQuat *to, const SGflo
     scale1 = t;
   }
 
-  dst->x = scale0 * from->x + scale1 * ((sign > SG_ZERO) ? to->x : -to->x);
-  dst->y = scale0 * from->y + scale1 * ((sign > SG_ZERO) ? to->y : -to->y);
-  dst->z = scale0 * from->z + scale1 * ((sign > SG_ZERO) ? to->z : -to->z);
-  dst->w = scale0 * from->w + scale1 * ((sign > SG_ZERO) ? to->w : -to->w);
+  dst[SG_X] = scale0 * from[SG_X] + scale1 * ((sign > SG_ZERO) ? to[SG_X] : -to[SG_X]);
+  dst[SG_Y] = scale0 * from[SG_Y] + scale1 * ((sign > SG_ZERO) ? to[SG_Y] : -to[SG_Y]);
+  dst[SG_Z] = scale0 * from[SG_Z] + scale1 * ((sign > SG_ZERO) ? to[SG_Z] : -to[SG_Z]);
+  dst[SG_W] = scale0 * from[SG_W] + scale1 * ((sign > SG_ZERO) ? to[SG_W] : -to[SG_W]);
 }
 
 
