@@ -4,10 +4,14 @@
 #if defined(WIN32)
  #if defined(__CYGWIN__)
   #include <unistd.h>
+  typedef int RECVFROM_LENGTH_TYPE ;
+ #else
+  typedef int RECVFROM_LENGTH_TYPE ;  /* Probably. */
  #endif
  #include <windows.h>
 #else
  #include <unistd.h>
+ typedef unsigned int RECVFROM_LENGTH_TYPE ;
 #endif
 
 #include <string.h>
@@ -200,7 +204,7 @@ int ulUDPConnection::recvMessage ( char *mesg, int length )
 #else
   unsigned int len = sizeof ( in_addr ) ;
 
-  int r = recvfrom ( sockfd, mesg, length, 0, (sockaddr *) in_addr, (int *)(&len) );
+  int r = recvfrom ( sockfd, mesg, length, 0, (sockaddr *) in_addr, (RECVFROM_LENGTH_TYPE *)(&len) );
 
   if ( r < 0 && errno != EAGAIN      &&
                 errno != EWOULDBLOCK &&
@@ -294,7 +298,7 @@ Ben
   for (;;)  /* FIXME: can someone change to a more elegant loop */
   {
 	int len = sizeof(sockaddr_in);
-      c_sockfd = accept( sockfd, (struct sockaddr *) out_addr, &len) ;
+      c_sockfd = accept( sockfd, (struct sockaddr *) out_addr, (RECVFROM_LENGTH_TYPE *) &len) ;
 	
 	if (c_sockfd == -1) /* don't ask me, i don't know */
 		continue;     /* does continue jump you out of loop */
