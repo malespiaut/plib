@@ -40,6 +40,7 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MT /W3 /GX /O2 /I "..\util" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -51,42 +52,10 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
-# Begin Custom Build - 'net' gets installed
-ProjDir=.
-InputPath=.\Release\net.lib
-SOURCE="$(InputPath)"
-
-BuildCmds= \
-	copy $(ProjDir)\netBuffer.h $(ProjDir)\..\..\netBuffer.h \
-	copy $(ProjDir)\netChannel.h $(ProjDir)\..\..\netChannel.h \
-	copy $(ProjDir)\netChat.h $(ProjDir)\..\..\netChat.h \
-	copy $(ProjDir)\netMessage.h $(ProjDir)\..\..\netMessage.h \
-	copy $(ProjDir)\netMonitor.h $(ProjDir)\..\..\netMonitor.h \
-	copy $(ProjDir)\netSocket.h $(ProjDir)\..\..\netSocket.h \
-	
-
-"$(ProjDir)\..\..\netBuffer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netChannel.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netChat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netMessage.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netMonitor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netSocket.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy net.h ..\..\net.h	copy netBuffer.h ..\..\netBuffer.h	copy netChannel.h ..\..\netChannel.h	copy netChat.h ..\..\netChat.h	copy netMessage.h ..\..\netMessage.h	copy netMonitor.h ..\..\netMonitor.h	copy netSocket.h ..\..\netSocket.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "net - Win32 Debug"
@@ -101,6 +70,7 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\util" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -112,42 +82,10 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"Debug\net_d.lib"
-# Begin Custom Build - 'net' gets installed
-ProjDir=.
-InputPath=.\Debug\net_d.lib
-SOURCE="$(InputPath)"
-
-BuildCmds= \
-	copy $(ProjDir)\netBuffer.h $(ProjDir)\..\..\netBuffer.h \
-	copy $(ProjDir)\netChannel.h $(ProjDir)\..\..\netChannel.h \
-	copy $(ProjDir)\netChat.h $(ProjDir)\..\..\netChat.h \
-	copy $(ProjDir)\netMessage.h $(ProjDir)\..\..\netMessage.h \
-	copy $(ProjDir)\netMonitor.h $(ProjDir)\..\..\netMonitor.h \
-	copy $(ProjDir)\netSocket.h $(ProjDir)\..\..\netSocket.h \
-	
-
-"$(ProjDir)\..\..\netBuffer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netChannel.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netChat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netMessage.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netMonitor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(ProjDir)\..\..\netSocket.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy net.h ..\..\net.h	copy netBuffer.h ..\..\netBuffer.h	copy netChannel.h ..\..\netChannel.h	copy netChat.h ..\..\netChat.h	copy netMessage.h ..\..\netMessage.h	copy netMonitor.h ..\..\netMonitor.h	copy netSocket.h ..\..\netSocket.h
 # End Special Build Tool
 
 !ENDIF 

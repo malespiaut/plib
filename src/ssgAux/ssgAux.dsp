@@ -40,6 +40,7 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\sg" /I "..\util" /I "..\ssg" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -54,7 +55,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaFire.h ..\..\ssgaFire.h	copy ssgaLensFlare.h ..\..\ssgaLensFlare.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h	copy ssgaSky.h ..\..\ssgaSky.h
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ssgaFire.h ..\..\ssgaFire.h	copy ssgaLensFlare.h ..\..\ssgaLensFlare.h	copy ssgaParticleSystem.h ..\..\ssgaParticleSystem.h	copy ssgaShapes.h ..\..\ssgaShapes.h	copy ssgaWaveSystem.h ..\..\ssgaWaveSystem.h	copy ssgaSky.h ..\..\ssgaSky.h	copy ssgaScreenDump.h ..\..\ssgaScreenDump.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ssgAux - Win32 Debug"
@@ -69,6 +70,7 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssgAux.h ..\..\ssgAux.h	copy ss
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\sg" /I "..\util" /I "..\ssg" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
