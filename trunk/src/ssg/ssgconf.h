@@ -39,8 +39,8 @@
 
 /*
   For optional use of PNG textures, download the glpng library from
-  http://www.wyatt100.freeserve.co.uk/download.htm and un-comment
-  the following line.
+  http://www.wyatt100.freeserve.co.uk/download.htm and 
+  change the #undef to a #define in the following line.
  */
 
 #undef  SSG_LOAD_PNG_SUPPORTED
