@@ -239,25 +239,32 @@ void puLargeInput::setSelectRegion ( int s, int e )
   select_end_position   = e ;
   char *lin_ptr = ( bottom_slider ? getText () : getWrappedText () ) ;
   char *text_start = lin_ptr ;
-  int line_count = 0 ;
-  while ( lin_ptr && ( lin_ptr <= text_start + select_start_position ) )  // Count the lines
-  {
-    line_count++ ;
-    lin_ptr = strchr ( lin_ptr+1, '\n' ) ;
-  }
 
   if ( num_lines > lines_in_window )
   {
-    if ( line_count < num_lines - lines_in_window )
+    int select_start_line = 0 ;
+    while ( lin_ptr && ( lin_ptr <= text_start + select_start_position ) )  // Count the lines
     {
-      top_line_in_window = line_count ;
-      right_slider->setValue ( 1.0f - (float)line_count / (float)( num_lines - lines_in_window ) ) ;
+      select_start_line++ ;
+      lin_ptr = strchr ( lin_ptr+1, '\n' ) ;
     }
-    else
+
+    int select_end_line = select_start_line ;
+    while ( lin_ptr && ( lin_ptr <= text_start + select_end_position ) )  // Count the lines
     {
-      top_line_in_window = num_lines - lines_in_window ;
-      right_slider->setValue ( 0.0f ) ;
+      select_end_line++ ;
+      lin_ptr = strchr ( lin_ptr+1, '\n' ) ;
     }
+
+    if ( select_end_line > top_line_in_window + lines_in_window )
+      top_line_in_window = select_end_line - lines_in_window - 1 ;
+
+    if ( select_start_line < top_line_in_window )
+      top_line_in_window = select_start_line - 1 ;
+
+    if ( top_line_in_window < 0 ) top_line_in_window = 0 ;
+
+    right_slider->setValue ( 1.0f - (float)top_line_in_window / (float)( num_lines - lines_in_window ) ) ;
   }
 
   puPostRefresh () ;
