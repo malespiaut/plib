@@ -772,7 +772,7 @@ void slDSP::stop ()
 #endif
 
 
-#if defined(macintosh) || defined(__APPLE__)
+#ifdef macintosh
 	
 
 // Print out debugging info when secondsUsed is called,
@@ -898,7 +898,7 @@ void slDSP::open ( const char *device, int _rate, int _stereo, int _bps )
   //initOptions += initChanRight;    // Right stereo channel
 
   // Define a call-back routine - invoked via callBackCmd
-  SndCallBackUPP callBackRoutine = NewSndCallBackUPP ( sndCallbackProc );
+  SndCallBackUPP callBackRoutine = NewSndCallBackProc ( sndCallbackProc );
 
   // Allocate a sound channel
   sndChannel = new SndChannel;
