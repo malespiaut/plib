@@ -36,14 +36,8 @@ ssgRangeSelector::~ssgRangeSelector (void)
 
 void ssgRangeSelector::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 {
-  if ( preTravCB != NULL )
-  {
-    int result = (*preTravCB)(this,SSGTRAV_CULL) ;
-    if ( !result )
-      return ;
-    if ( result == 2 )
-      test_needed = 0 ;
-  }
+  if ( ! preTravTests ( &test_needed, SSGTRAV_CULL ) )
+    return ;
 
   int cull_result = cull_test ( f, m, test_needed ) ;
 
@@ -85,13 +79,15 @@ void ssgRangeSelector::cull ( sgFrustum *f, sgMat4 m, int test_needed )
 
   select ( sel ) ;
 
-  if ( postTravCB != NULL )
-    (*postTravCB)(this,SSGTRAV_CULL) ;
+  postTravTests ( SSGTRAV_CULL ) ; 
 }
 
 
 void ssgRangeSelector::hot ( sgVec3 sp, sgMat4 m, int test_needed )
 {
+  if ( ! preTravTests ( &test_needed, SSGTRAV_HOT ) )
+    return ;
+
   if ( additive )
     ssgBranch::hot ( sp, m, test_needed ) ;
   else
@@ -107,11 +103,16 @@ void ssgRangeSelector::hot ( sgVec3 sp, sgMat4 m, int test_needed )
 
     _ssgPopPath () ;
   }
+
+  postTravTests ( SSGTRAV_HOT ) ; 
 }
 
 
 void ssgRangeSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 {
+  if ( ! preTravTests ( &test_needed, SSGTRAV_ISECT ) )
+    return ;
+
   if ( additive )
     ssgBranch::isect ( sp, m, test_needed ) ;
   else
@@ -127,6 +128,8 @@ void ssgRangeSelector::isect ( sgSphere *sp, sgMat4 m, int test_needed )
 
     _ssgPopPath () ;
   }
+
+  postTravTests ( SSGTRAV_ISECT ) ; 
 }
 
 
