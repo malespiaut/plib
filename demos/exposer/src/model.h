@@ -7,4 +7,5 @@ void       offsetChildBones ( int root, sgVec3 v ) ;
 
 float getLowestVertexZ () ;
 
+int getNumBones () ;                                                           
 

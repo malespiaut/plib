@@ -19,6 +19,8 @@
 #include "event.h"
 #include "model.h"
 #include "bones.h"
+#include "boneGUI.h"
+#include "vertices.h"
 #include "timebox.h"
 #include "floor.h"
 #include "load_save.h"
