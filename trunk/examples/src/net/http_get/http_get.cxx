@@ -23,9 +23,10 @@
 
 #include <plib/net.h>
 
-
 class HTTPClient : public netBufferChannel
 {
+  FILE *fpout ;
+
 public:
 
   HTTPClient ( const char* host, const char* path )
@@ -33,28 +34,42 @@ public:
     open () ;
     connect ( host, 80 ) ;
 
-    const char *s = netFormat ( "GET %s HTTP/1.0\r\n\r\n", path ) ;
-
+    const char* s = netFormat ( "GET %s HTTP/1.1\r\n", path ) ;
     bufferSend ( s, strlen(s) ) ;
+    const char* h = netFormat ( "host: %s\r\n", host ) ;
+    bufferSend ( h, strlen(h) ) ;
+    const char *c = netFormat ( "Connection: close\r\n\r\n" ) ;
+    bufferSend ( c, strlen(c) ) ;
   }
 
-  virtual void handleBufferRead ( netBuffer& buffer )
+  ~HTTPClient ()
   {
-    const char* s = buffer.getData () ;
-    while ( *s )
-      fputc ( *s++, stdout ) ;
+    if( fpout )
+      fclose( fpout );
+  }
 
-    buffer . remove () ;
+  virtual void handleBufferRead (netBuffer& buffer)
+  {
+    const char* s = buffer.getData();
+
+    while (*s)
+      fputc(*s++,stdout);
+
+    buffer.remove();
   }
 } ;
 
 
 int main ( int argc, char * argv[] )
 {
-  netInit () ;
+  netInit ( &argc, argv ) ;
 
-  new HTTPClient ( "www.opengl.org", "/index.html" ) ;
+  new HTTPClient ( "plib.sourceforge.net", "/index.html" ) ;
+
   netChannel::loop ( 0 ) ;
   return 0 ;
 }
+
+
+
 

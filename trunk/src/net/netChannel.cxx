@@ -48,8 +48,9 @@ netChannel::~netChannel ()
   close();
 
   netChannel* prev = NULL ;
+
   for ( netChannel* ch = channels; ch != NULL;
-    ch = ch -> next_channel )
+                    ch = ch -> next_channel )
   {
     if (ch == this)
     {
@@ -275,3 +276,4 @@ netChannel::loop (unsigned int timeout)
 {
   while ( poll (timeout) ) ;
 }
+

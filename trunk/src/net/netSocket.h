@@ -89,9 +89,9 @@ public:
   int   listen	    ( int backlog ) ;
   int   accept      ( netAddress* addr ) ;
   int   connect     ( const char* host, int port ) ;
-  int   send		    ( const void * buffer, int size, int flags = 0 ) ;
+  int   send	    ( const void * buffer, int size, int flags = 0 ) ;
   int   sendto      ( const void * buffer, int size, int flags, const netAddress* to ) ;
-  int   recv		    ( void * buffer, int size, int flags = 0 ) ;
+  int   recv	    ( void * buffer, int size, int flags = 0 ) ;
   int   recvfrom    ( void * buffer, int size, int flags, netAddress* from ) ;
 
   void setBlocking ( bool blocking ) ;
@@ -111,3 +111,4 @@ const char* netFormat ( const char* fmt, ... ) ;
 
 
 #endif // NET_SOCKET_H
+
