@@ -91,7 +91,18 @@ void twsavepickfn ( puObject * )
     return ;
   }
 
-  if ( ! ssgSave ( file_selector->getStringValue(), skinScene ) )
+  tweenScene = (ssgRoot *) makeTweenCopy ( skinScene ) ;
+
+  for ( int i = 0 ; i <= (int)( timebox->getMaxTime() * 10.0f ) ; i++ )
+  {
+    if ( i != 0 )
+      addTweenBank ( tweenScene ) ;
+
+    transformModel ( boneScene, (float) i / 10.0f ) ;
+    makeTweenCopy ( tweenScene, skinScene ) ;
+  }
+
+  if ( ! ssgSave ( file_selector->getStringValue(), tweenScene ) )
   {
     puDeleteObject ( file_selector ) ;
     file_selector = NULL ;
