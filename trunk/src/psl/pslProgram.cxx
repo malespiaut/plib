@@ -45,6 +45,11 @@ pslProgram::pslProgram ( const pslExtension *ext, const char *_prgnm )
 
   compiler-> init  () ;
   context -> reset () ;
+
+  char *force_trace_env = getenv ( "PSL_TRACE" ) ;
+
+  force_trace = ( force_trace_env != NULL &&
+                  ulStrEqual ( force_trace_env, "always" ) ) ;
 }
  
 
@@ -77,7 +82,9 @@ pslProgram::~pslProgram ()
 
 void       pslProgram::dump  () const {        compiler-> dump  () ; }
 void       pslProgram::reset ()       {        context -> reset () ; }
-pslResult  pslProgram::step  ()       { return context -> step  () ; }
+pslResult  pslProgram::step  ()       { return force_trace ?
+                                               context -> trace () :
+                                               context -> step  () ; }
 pslResult  pslProgram::trace ()       { return context -> trace () ; }
 
 

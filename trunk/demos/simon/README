@@ -22,6 +22,9 @@ INSTALLATION
 Right now, you build SIMON by running 'make' and install it by
 running 'make install' as root.  You must already have PLIB installed.
 
+Simon installs into /usr/local/simon/libsimon.a /usr/local/simon/simon.h
+and places an executable into /usr/local/bin/simon
+
 
 
 RUNNING SIMON

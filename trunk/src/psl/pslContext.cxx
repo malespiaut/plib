@@ -1,5 +1,4 @@
-/*
-     PLIB - A Suite of Portable Game Libraries
+/* PLIB - A Suite of Portable Game Libraries
      Copyright (C) 1998,2002  Steve Baker
 
      This library is free software; you can redistribute it and/or
@@ -442,6 +441,26 @@ pslResult pslContext::step ()
 
     case OPCODE_HALT :
       return PSL_PROGRAM_END ;   /* Note: PC is *NOT* incremented. */
+
+    case OPCODE_PEEK_JUMP_TRUE :
+      if ( peekInt () )
+        pc = code [ pc + 1 ] + ( code [ pc + 2 ] << 8 ) ;
+      else
+      {
+        sp-- ;
+        pc += 3 ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_PEEK_JUMP_FALSE :
+      if ( peekInt () )
+      {
+        sp-- ;
+        pc += 3 ;
+      }
+      else
+        pc = code [ pc + 1 ] + ( code [ pc + 2 ] << 8 ) ;
+      return PSL_PROGRAM_CONTINUE ;
 
     case OPCODE_JUMP_TRUE :
       if ( popInt () )

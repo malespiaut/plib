@@ -302,6 +302,28 @@ void pslCompiler::pushEqual        () { pushCodeByte ( OPCODE_EQUAL ) ; }
 
 void pslCompiler::pushStackDup () { pushCodeByte ( OPCODE_STACK_DUPLICATE ) ; } 
 
+int pslCompiler::pushPeekJumpIfTrue  ( int l )
+{
+  pushCodeByte ( OPCODE_PEEK_JUMP_TRUE ) ;
+
+  int res = next_code ;
+
+  pushCodeAddr ( l ) ;
+
+  return res ;
+}
+
+int pslCompiler::pushPeekJumpIfFalse  ( int l )
+{
+  pushCodeByte ( OPCODE_PEEK_JUMP_FALSE ) ;
+
+  int res = next_code ;
+
+  pushCodeAddr ( l ) ;
+
+  return res ;
+}
+
 int pslCompiler::pushJumpIfTrue  ( int l )
 {
   pushCodeByte ( OPCODE_JUMP_TRUE ) ;
