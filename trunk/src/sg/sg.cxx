@@ -1319,7 +1319,7 @@ void sgQuatToEuler( sgVec3 hpr, const sgQuat quat )
 }
 
 
-void sgQuatToMatrix ( sgMat4 dst, sgQuat q )
+void sgQuatToMatrix ( sgMat4 dst, const sgQuat q )
 {
   SGfloat two_xx = q[SG_X] * (q[SG_X] + q[SG_X]) ;
   SGfloat two_xy = q[SG_X] * (q[SG_Y] + q[SG_Y]) ;
