@@ -1765,11 +1765,13 @@ ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadASE  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 int        ssgSave     ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveAC   ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveASE  ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveSSG  ( char *fname, ssgEntity *ent ) ;
+int        ssgSaveDXF  ( char *fname, ssgEntity *ent ) ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;
