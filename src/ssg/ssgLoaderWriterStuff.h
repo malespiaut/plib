@@ -29,7 +29,8 @@ void ssgFindOptConvertTexture( char * filepath, char * tfname ) ;
 void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray* vertices,
 																ssgIndexArray*  indices, SGfloat epsilon, 
 																ssgSimpleStateArray* ssa = NULL,
-																ssgIndexArray*  materialIndices = NULL);
+																ssgIndexArray*  materialIndices = NULL,
+																ssgTexCoordArray *texCoordArray = NULL);
 
 /*
   ssgTriangulate -

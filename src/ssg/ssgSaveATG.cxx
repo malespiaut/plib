@@ -54,8 +54,11 @@ int ssgSaveATG( const char* fname, ssgEntity *ent ) {
   sgMakeIdentMat4( ident );
 	ssgSimpleStateArray ssa; // = new ssgSimpleStateArray();
 	ssgIndexArray*  materialIndices = new  ssgIndexArray();
+	ssgTexCoordArray * texCoordArray = new ssgTexCoordArray();
+
   ssgAccumVerticesAndFaces( ent, ident, vertices, indices, /* epsilon = */ -1, &ssa,
-		                  materialIndices);
+		                  materialIndices, texCoordArray);
+	assert ( vertices->getNum() == texCoordArray->getNum() );
   for (i = 0; i < vertices->getNum(); i++) {
     fprintf(fd, "v %f %f %f\n", vertices->get(i)[0],
 															vertices->get(i)[1],
@@ -63,24 +66,35 @@ int ssgSaveATG( const char* fname, ssgEntity *ent ) {
   }
   for (i = 0; i < vertices->getNum(); i++) 
     fprintf(fd, "vn     1.0000     1.0000     1.0000\n"); // Fixme: Hm, strange normal ...
-
-  fprintf(fd, "vt 0.0 0.0\n");
-  fprintf(fd, "vt 0.0 0.0\n");
-  int runningIndex=0;
+	for (i = 0; i < texCoordArray->getNum(); i++) 
+    fprintf(fd, "vt %f %f\n", texCoordArray->get(i)[0], texCoordArray->get(i)[1]);
+  
+	// output all faces
+	int runningIndex=0, lastIndex = -1;
   for (i = 0; i < indices->getNum(); i += 3) {
 
 		// output material
 		int matIndex = *(materialIndices->get(runningIndex++));
-		if ( matIndex >= 0 )
+		if (( matIndex >= 0 ) && ( lastIndex != matIndex ))
 		{	ssgSimpleState * ss = ssa.get( matIndex );
 		  if ( ss->getTextureFilename() != NULL)
 			{ // remove .rgb
 				char *s1, *s2, * s = new char [ strlen(ss->getTextureFilename()) +1 ];
 				assert ( s != NULL );
 			  strcpy(s, ss->getTextureFilename());
-				char *p = strchr(s, '.');
+				char *p = strrchr(s, '.');
 				if ( p != NULL ) 
-					*p = 0;
+				{ 
+					if (((p[2]='a') || (p[2]='A')) && ((p[2]='f') || (p[2]='F')))
+					// *.?af textures are special:
+					// the name before the ':' is not unique, you have to use the first character of the extension as
+					// well. The tool af2rgb, which converts *.?af into rgb-files, also appends this char to the filename.
+					{	p[0]=p[1];
+						p[1]=0;
+					}
+				  else
+					  *p = 0;
+				}
 				s2 = s;
 				s1 = strrchr(s, '/');
 				if ( s1 != NULL )
@@ -91,12 +105,12 @@ int ssgSaveATG( const char* fname, ssgEntity *ent ) {
 				fprintf(fd, "# usemtl %s\n", s2); 
 			  delete [] s;
 			}
- 
+			lastIndex = matIndex;
 		}
     // output face
-		fprintf(fd, "f %d/1 %d/1 %d/1\n", *indices->get(i    ) ,
-															  *indices->get(i + 1) ,
-															  *indices->get(i + 2) );
+		fprintf(fd, "f %d/%d %d/%d %d/%d\n", *indices->get(i), *indices->get(i),
+															  *indices->get(i + 1), *indices->get(i + 1),
+															  *indices->get(i + 2), *indices->get(i + 2) );
   }
 	assert ( runningIndex == materialIndices->getNum() );
 	delete materialIndices;
