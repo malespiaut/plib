@@ -242,6 +242,7 @@ public:
       invokeCallback () ;
     }
   }
+
   void setCurrentItem ( const char *item_ptr ) ;
 
   void setPosition ( int x, int y )
@@ -251,6 +252,8 @@ public:
     /* Ensure that popup menu will show up at the right place */
     newList ( list ) ;
   }
+
+  void setSize ( int w, int h ) ;
 
   void draw ( int dx, int dy ) ;
   int  checkHit ( int button, int updown, int x, int y ) ;
@@ -810,7 +813,7 @@ class puaChooser
 
 public:
 
-  ~puaChooser ()
+  virtual ~puaChooser ()
   {
     delete chooser_button ;
     delete popup_menu     ;
