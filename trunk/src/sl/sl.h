@@ -214,7 +214,7 @@ public:
   {
     if ( ref_count != 0 && __slPendingError == NULL )
       __slPendingError =
-        "slSample: FATAL ERROR - Application deleted a sample while it was playing.\n" ;
+        "slSample: FATAL ERROR - Application deleted a sample while it was playing." ;
 
     delete buffer ;
   }

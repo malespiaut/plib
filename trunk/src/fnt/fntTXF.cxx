@@ -80,8 +80,8 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
   if ( ! ((xsize & (xsize-1))==0) ||
        ! ((ysize & (ysize-1))==0) )
   {
-    fprintf ( stderr, "TXFloader: TXF Map is not a power-of-two in size!\n" ) ;
-    exit ( 1 ) ;
+    ulSetError ( UL_FATAL,
+      "TXFloader: TXF Map is not a power-of-two in size!" ) ;
   }
 
   glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 ) ;
@@ -114,9 +114,8 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
 
       if ( xsize < 64 && ysize < 64 )
       {
-        fprintf ( stderr,
-                "FNT: OpenGL will not accept a font texture?!?\n" ) ;
-        exit ( 1 ) ;
+        ulSetError ( UL_FATAL,
+          "FNT: OpenGL will not accept a font texture?!?" ) ;
       }
     }
   } while ( ww == 0 ) ;
@@ -148,17 +147,16 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 {
   if ( ! glIsValidContext () )
   {
-    fprintf ( stderr,
-    "FATAL: FNT font loader called without a valid OpenGL context.\n");
-    exit ( 1 ) ;
+    ulSetError ( UL_FATAL,
+      "FNT font loader called without a valid OpenGL context.");
   }
 
   FILE *fd ;
 
   if ( (fd = fopen ( fname, "rb" )) == NULL )
   {
-    fprintf ( stderr, "fntLoadTXF: Failed to open '%s' for reading.\n",
-                            fname ) ;
+    ulSetError ( UL_WARNING,
+      "fntLoadTXF: Failed to open '%s' for reading.", fname ) ;
     return FNT_FALSE ;
   }
 
@@ -168,14 +166,16 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 
   if ( (int)fread ( &magic, sizeof (unsigned int), 1, fd ) != 1 )
   {
-    fprintf ( stderr, "fntLoadTXF: '%s' an empty file!\n", fname ) ;
+    ulSetError ( UL_WARNING,
+      "fntLoadTXF: '%s' an empty file!", fname ) ;
     return FNT_FALSE ;
   }
 
   if ( magic [ 0 ] != 0xFF || magic [ 1 ] != 't' ||
        magic [ 2 ] != 'x'  || magic [ 3 ] != 'f' )
   {
-    fprintf ( stderr, "fntLoadTXF: '%s' is not a 'txf' font file.\n", fname ) ;
+    ulSetError ( UL_WARNING,
+      "fntLoadTXF: '%s' is not a 'txf' font file.", fname ) ;
     return FNT_FALSE ;
   }
 
@@ -248,7 +248,8 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 
         if ( (int)fread ( orig, 1, ntexels, fd ) != ntexels )
         {
-          fprintf ( stderr, "fntLoadTXF: Premature EOF in '%s'.\n", fname ) ;
+          ulSetError ( UL_WARNING,
+            "fntLoadTXF: Premature EOF in '%s'.", fname ) ;
           return FNT_FALSE ;
         }
 
@@ -256,8 +257,8 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 
         for ( i = 0 ; i < ntexels ; i++ )
         {
-	  teximage [ i*2     ] = orig [ i ] ;
-	  teximage [ i*2 + 1 ] = orig [ i ] ;
+          teximage [ i*2     ] = orig [ i ] ;
+          teximage [ i*2 + 1 ] = orig [ i ] ;
         }
 
         delete orig ;
@@ -273,9 +274,10 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
         if ( (int)fread ( texbitmap, 1, stride * h, fd ) != stride * h )
         {
           delete texbitmap ;
-          fprintf ( stderr, "fntLoadTXF: Premature EOF in '%s'.\n", fname ) ;
+          ulSetError ( UL_WARNING,
+            "fntLoadTXF: Premature EOF in '%s'.", fname ) ;
           return FNT_FALSE ;
-	}
+      	}
 
         teximage = new unsigned char [ 2 * ntexels ] ;
 
@@ -295,8 +297,8 @@ int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
       break ;
 
     default:
-      fprintf ( stderr, "fntLoadTXF: Unrecognised format type in '%s'.\n",
-                          fname ) ;
+      ulSetError ( UL_WARNING,
+        "fntLoadTXF: Unrecognised format type in '%s'.", fname ) ;
       return FNT_FALSE ;
   }
 

@@ -77,7 +77,7 @@ void puBox::draw ( int dx, int dy, int style, puColour colour[], int am_default 
       break ;
 
     default :
-      fprintf ( stderr, "PUI: Unrecognised 'style' %d\n", style ) ;
+      ulSetError ( UL_WARNING, "PUI: Unrecognised 'style' %d", style ) ;
       return ;
   }
 

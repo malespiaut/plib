@@ -616,7 +616,7 @@ public:
 	  break ;
 
 	default:
-          fprintf ( stderr, "PLIB_JS: Unrecognised /dev/js return!?!\n" ) ;
+          ulSetError ( UL_WARNING, "PLIB_JS: Unrecognised /dev/js return!?!" ) ;
 
 	  /* use the old values */
 

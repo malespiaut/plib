@@ -18,21 +18,21 @@ void slScheduler::init ()
 
   if ( notWorking () )
   {
-    fprintf ( stderr, "slScheduler: soundcard init failed.\n" ) ;
+    ulSetError ( UL_WARNING, "slScheduler: soundcard init failed." ) ;
     setError () ;
     return ;
   }
 
   if ( getBps() != 8 )
   {
-    fprintf ( stderr, "slScheduler: Needs a sound card that supports 8 bits per sample.\n" ) ;
+    ulSetError ( UL_WARNING, "slScheduler: Needs a sound card that supports 8 bits per sample." ) ;
     setError () ;
     return ;
   }
 
   if ( getStereo() )
   {
-    fprintf ( stderr, "slScheduler: Needs a sound card that supports monophonic replay.\n" ) ;
+    ulSetError ( UL_WARNING, "slScheduler: Needs a sound card that supports monophonic replay." ) ;
     setError () ;
     return ;
   }
@@ -128,8 +128,7 @@ void slScheduler::realUpdate ( int dump_first )
 
   if ( __slPendingError != NULL )
   {
-    fprintf ( stderr, "%s", __slPendingError ) ;
-    exit ( 1 ) ;
+    ulSetError ( UL_FATAL, "%s", __slPendingError ) ;
   }
 
   int i ;
@@ -220,7 +219,7 @@ void slScheduler::addCallBack ( slCallBack c, slSample *s, slEvent e, int m )
 
   if ( num_pending_callbacks >= SL_MAX_CALLBACKS )
   {
-    fprintf ( stderr, "slScheduler: Too many pending callback events!\n" ) ;
+    ulSetError ( UL_WARNING, "slScheduler: Too many pending callback events!" ) ;
     return ;
   }
 
@@ -387,7 +386,7 @@ int slScheduler::loopMusic ( char *fname, int pri,
 
   if ( music != NULL )
   {
-    fprintf ( stderr, "slScheduler: Can't play two music tracks at once.\n" ) ;
+    ulSetError ( UL_WARNING, "slScheduler: Can't play two music tracks at once." ) ;
     return -1 ;
   }      
 
@@ -411,7 +410,7 @@ int slScheduler::playMusic ( char *fname, int pri,
 
   if ( music != NULL )
   {
-    fprintf ( stderr, "slScheduler: Can't play two music tracks at once.\n" ) ;
+    ulSetError ( UL_WARNING, "slScheduler: Can't play two music tracks at once." ) ;
     return SL_FALSE ;
   }      
 

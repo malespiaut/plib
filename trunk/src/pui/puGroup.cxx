@@ -11,7 +11,7 @@ void puPushGroup ( puGroup *in )
   if ( currGroup < PUSTACK_MAX )
     groupStack [ ++currGroup ] = in ;
   else
-    fprintf ( stderr, "PUI: Too many puGroups open at once!\n" ) ;
+    ulSetError ( UL_WARNING, "PUI: Too many puGroups open at once!" ) ;
 }
 
 
@@ -20,7 +20,7 @@ void  puPopGroup ( void )
   if ( currGroup > 0 )
     --currGroup ;
   else 
-    fprintf ( stderr, "PUI: puGroup stack is empty!\n" ) ;
+    ulSetError ( UL_WARNING, "PUI: puGroup stack is empty!" ) ;
 }
 
 int  puNoGroup ( void )
@@ -33,7 +33,7 @@ puGroup *puGetCurrGroup ( void )
 {
   if ( currGroup < 0 )
   {
-    fprintf ( stderr, "PUI: No Group!\n" ) ;
+    ulSetError ( UL_WARNING, "PUI: No Group!" ) ;
     return NULL ;
   }
 
