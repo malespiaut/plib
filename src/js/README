@@ -21,3 +21,10 @@ were supported so now there is on standard interface header:
    jsBSD.cxx
    jsMacOS.cxx
 
+...for OS's (eg IRIX and SOLARIS) without standard joystick
+functionality, we add:
+
+   jsNone.cxx
+
+...which safely returns error status with no buttons or axes provided.
+
