@@ -125,6 +125,30 @@ int ssgSaveAC ( const char *filename, ssgEntity *ent )
   fprintf ( save_fd, "kids 1\n" ) ;
   fprintf ( save_fd, "OBJECT poly\n" ) ;
   fprintf ( save_fd, "name \"%s\"\n", ent->getPrintableName() ) ;
+	/* wk:
+	Currently, the AC writer saves all triangles in one big lump, without a hierarchie.
+	Therefore, there is no point in saving textures, since normally you have several
+	textures for one model.
+	Once the AC writer saves a hierarchie, the following lines should hopefully 
+	save texture names.
+
+  if ( ent -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
+  {
+    ssgVtxTable* vt = (ssgVtxTable *) ent ;
+    ssgState* st = vt -> getState () ;
+    if ( st && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+    {
+      ssgSimpleState* ss = (ssgSimpleState*) vt -> getState () ;
+			if ( ss -> isEnabled ( GL_TEXTURE_2D ) )
+			{
+				const char* tfname = ss -> getTextureFilename() ;
+				if ( tfname[0] != 0 )
+				  fprintf ( save_fd, "texture \"%s\"\n", tfname);
+			}
+      
+    }
+  }
+	*/
   fprintf ( save_fd, "numvert %d\n", num_verts ) ;
 
   int i ;
