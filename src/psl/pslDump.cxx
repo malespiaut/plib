@@ -77,6 +77,18 @@ static const OpcodeDecode opcodeDecode [] =
   { "MOD",             OPCODE_MOD         , 0 },
   { "NEG",             OPCODE_NEG         , 0 },
 
+  /* Bitwise operators */
+
+  { "NOT",             OPCODE_NOT         , 0 },
+  { "TWIDDLE",         OPCODE_TWIDDLE     , 0 },
+
+  { "OROR",            OPCODE_OROR        , 0 },
+  { "ANDAND",          OPCODE_ANDAND      , 0 },
+
+  { "OR",              OPCODE_OR          , 0 },
+  { "AND",             OPCODE_AND         , 0 },
+  { "XOR",             OPCODE_XOR         , 0 },
+
   /* Boolean operators */
 
   { "LESS",            OPCODE_LESS        , 0 },

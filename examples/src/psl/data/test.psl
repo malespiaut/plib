@@ -2,6 +2,7 @@
 void xxx ( int a, float b, string c )
 {
   printf ( "Hello", a, b, c, "\n" ) ;
+  printf ( " ",  2 * 2 | 1 ) ;
 }
 
 

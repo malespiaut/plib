@@ -83,6 +83,13 @@ class pslCompiler
   void pushMultiply     () ;
   void pushModulo       () ;
   void pushNegate       () ;
+  void pushNot          () ;
+  void pushTwiddle      () ;
+  void pushOrOr         () ;
+  void pushAndAnd       () ;
+  void pushOr           () ;
+  void pushAnd          () ;
+  void pushXor          () ;
   void pushLess         () ;
   void pushLessEqual    () ;
   void pushGreater      () ;
@@ -114,17 +121,17 @@ class pslCompiler
 
   /* Expression parsers & code generators.  */
 
-  int pushPrimitive      () ;
-  int pushMultExpression () ;
-  int pushAddExpression  () ;
-  int pushRelExpression  () ;
-  int pushExpression     () ;
+  int pushPrimitive            () ;
+  int pushBitwiseExpression    () ;
+  int pushMultExpression       () ;
+  int pushAddExpression        () ;
+  int pushRelExpression        () ;
+  int pushExpression           () ;
 
   /* Statement-level parsers & code generators. */
 
   int  pushBreakStatement      () ;
   int  pushContinueStatement   () ;
-
   int  pushReturnStatement     () ;
   int  pushPauseStatement      () ;
   int  pushSwitchStatement     () ;
