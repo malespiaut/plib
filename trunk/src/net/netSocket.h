@@ -22,9 +22,9 @@
 #include <errno.h>
 
 
-#if !defined (WIN32)
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
+#if defined (WIN32)
+#define strcasecmp stricmp 
+#define strncasecmp strnicmp 
 #endif
 
 

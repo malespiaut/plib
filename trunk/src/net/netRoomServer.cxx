@@ -114,7 +114,7 @@ void netRoomPlayerState::processLogin ( const netMessage &msg )
   {
     error = netRoom::ERROR_WRONG_GAME_GUID ;
   }
-  else if ( server -> password[0] != 0 && stricmp(password,server -> password) )
+  else if ( server -> password[0] != 0 && strcasecmp(password,server -> password) )
   {
     error = netRoom::ERROR_WRONG_SERVER_PASSWORD ;
   }
@@ -235,7 +235,7 @@ void netRoomPlayerState::processJoinGame( const netMessage& msg )
       if ( p != this && p->game_id == _game_id )
         count++;
 
-    if ( g->password[0] != 0 && stricmp(_password,g->password) )
+    if ( g->password[0] != 0 && strcasecmp(_password,g->password) )
     {
       error = netRoom::ERROR_WRONG_GAME_PASSWORD;
     }
@@ -534,7 +534,7 @@ void netRoomServer::makeUnique( char* name ) const
   for ( i=0; i<num_players; i++, p++ )
   {
     if ( p->name != name &&
-         (strnicmp(p->name, filtered_name, len) == 0) && 
+         (strncasecmp(p->name, filtered_name, len) == 0) && 
          (p->name[ len ] == '.' || len == strlen( p->name )) )
     {
       if ( len != strlen( p->name ) )
@@ -560,7 +560,7 @@ void netRoomServer::makeUnique( char* name ) const
   for ( i=0; i<num_games; i++, g++ )
   {
     if ( g->name != name && 
-         (strnicmp( g->name, filtered_name, len ) == 0) && 
+         (strncasecmp( g->name, filtered_name, len ) == 0) && 
          (g->name[ len ] == '.' || len == strlen( g->name )) )
     {
       if ( len != strlen( g->name ) )

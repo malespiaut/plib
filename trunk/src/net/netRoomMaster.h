@@ -40,7 +40,7 @@ class netRoomServerList
     netRoomServerInfo* p = list ;
     for ( u32 i = 0; i < num; i ++, p ++ )
     {
-      if ( stricmp ( p -> host, s -> host ) == 0 &&
+      if ( strcasecmp ( p -> host, s -> host ) == 0 &&
         p -> port == s -> port )
       {
         return p ;
