@@ -243,9 +243,7 @@ public:
   netMessageChannel () ;
 
   bool sendMessage ( const netMessage& msg ) ;
-  virtual void processMessage ( const netMessage& msg ) ;
-
-  void setCallback ( void (*callback)(const netMessage& msg) ) ;
+  virtual void handleMessage ( const netMessage& msg ) ;
 };
 </pre>
 <H2><code>class netMonitorServer</code></h2>
