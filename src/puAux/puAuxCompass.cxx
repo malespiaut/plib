@@ -23,7 +23,7 @@
 */
 
 
-#include "puAux.h"
+#include "puAuxLocal.h"
 
 #ifdef UL_MAC_OSX
 #  include <OpenGL/gl.h>

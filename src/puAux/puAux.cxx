@@ -23,7 +23,7 @@
 */
 
 
-#include "puAux.h"
+#include "puAuxLocal.h"
 
 void puaInit ()
 {
