@@ -187,15 +187,15 @@ nope - neither do I.  That's why these functions are useful.
 <TABLE>
 <TR>
 <TD>
-NOTE:
+NOTES:
 <ul>
+<li> lenA, lenB, lenC = The lengths of sides A, B and C.
+<li> angA, angB, angC = The angles opposite sides A, B and C.
 <li> SSS = Three sides.
 <li> SAS = Two sides and the angle between them.
 <li> ASA = Two angles and the side between them.
 <li> SAA = One side and two angles that don't include it.
 <li> ASS = Two sides and one angle that's not between them.
-<li> lenA, lenB, lenC = The lengths of sides A, B and C.
-<li> angA, angB, angC = The angles opposite sides A, B and C.
 </ul>
 </TD>
 <TD>
@@ -203,6 +203,15 @@ NOTE:
 </TD>
 </TR>
 </TABLE>
+A triangle can be specified completely using the 'SSS', 'SAS',
+'SSA' and 'ASA' methods - but if you only know two sides and an
+angle that's NOT between those two sides (the 'ASS' method) then
+there are often two possible triangles that fit that description.
+<p>
+Hence (in the ASS case), SG needs to know whether one of the
+unknown vertices is greater than 90 degrees (Obtuse) or less
+than 90 degrees (Acute).  Hence the two routines below that use
+ASS notation have to be told whether angA is Obtuse or not.
 <pre>
 
 void sgTriangleSolver_SSStoAAA ( SGfloat  lenA, SGfloat  lenB, SGfloat  lenC,
@@ -211,10 +220,11 @@ void sgTriangleSolver_SAStoASA ( SGfloat  lenA, SGfloat  angB, SGfloat  lenC,
                                  SGfloat *angA, SGfloat *lenB, SGfloat *angC ) ;
 void sgTriangleSolver_ASAtoSAS ( SGfloat  angA, SGfloat  lenB, SGfloat  angC,
                                  SGfloat *lenA, SGfloat *angB, SGfloat *lenC ) ;
-void sgTriangleSolver_ASStoSAA ( SGfloat  angB, SGfloat  lenA, SGfloat  lenB,
-                                 SGfloat *lenC, SGfloat *angA, SGfloat *angC ) ;
 void sgTriangleSolver_SAAtoASS ( SGfloat  lenA, SGfloat  angB, SGfloat  angA,
                                  SGfloat *angC, SGfloat *lenB, SGfloat *lenC ) ;
+void sgTriangleSolver_ASStoSAA ( SGfloat  angB, SGfloat  lenA, SGfloat  lenB,
+                                 bool angA_is_obtuse,
+                                 SGfloat *lenC, SGfloat *angA, SGfloat *angC ) ;
 
 </pre>
 These functions take three parameters which are a mixture of lengths and angles
@@ -234,8 +244,9 @@ little faster.
 SGfloat sgTriangleSolver_ASAtoArea ( SGfloat angA, SGfloat lenB, SGfloat angC ) ;
 SGfloat sgTriangleSolver_SAStoArea ( SGfloat lenA, SGfloat angB, SGfloat lenC ) ;
 SGfloat sgTriangleSolver_SSStoArea ( SGfloat lenA, SGfloat lenB, SGfloat lenC ) ;
-SGfloat sgTriangleSolver_ASStoArea ( SGfloat angB, SGfloat lenA, SGfloat lenB ) ;
 SGfloat sgTriangleSolver_SAAtoArea ( SGfloat lenA, SGfloat angB, SGfloat angA ) ;
+SGfloat sgTriangleSolver_ASStoArea ( SGfloat angB, SGfloat lenA, SGfloat lenB,
+                                     bool angA_is_obtuse ) ;
 
 </pre>
 These compute the area of a triangle from three parameters.  Impossible

@@ -2573,8 +2573,9 @@ bool sgdPointInTriangle       ( sgdVec3 point, sgdVec3 tri[3] );
 SGfloat sgTriangleSolver_ASAtoArea ( SGfloat angA, SGfloat lenB, SGfloat angC );
 SGfloat sgTriangleSolver_SAStoArea ( SGfloat lenA, SGfloat angB, SGfloat lenC );
 SGfloat sgTriangleSolver_SSStoArea ( SGfloat lenA, SGfloat lenB, SGfloat lenC );
-SGfloat sgTriangleSolver_ASStoArea ( SGfloat angB, SGfloat lenA, SGfloat lenB );
 SGfloat sgTriangleSolver_SAAtoArea ( SGfloat lenA, SGfloat angB, SGfloat angA );
+SGfloat sgTriangleSolver_ASStoArea ( SGfloat angB, SGfloat lenA, SGfloat lenB,
+                                     int angA_is_obtuse );
 
 void sgTriangleSolver_SSStoAAA ( SGfloat  lenA, SGfloat  lenB, SGfloat  lenC, 
                                  SGfloat *angA, SGfloat *angB, SGfloat *angC ) ;
@@ -2582,9 +2583,11 @@ void sgTriangleSolver_SAStoASA ( SGfloat  lenA, SGfloat  angB, SGfloat  lenC,
                                  SGfloat *angA, SGfloat *lenB, SGfloat *angC ) ;
 void sgTriangleSolver_ASAtoSAS ( SGfloat  angA, SGfloat  lenB, SGfloat  angC,
                                  SGfloat *lenA, SGfloat *angB, SGfloat *lenC ) ;
-void sgTriangleSolver_ASStoSAA ( SGfloat  angB, SGfloat  lenA, SGfloat  lenB,
-                                 SGfloat *lenC, SGfloat *angA, SGfloat *angC ) ;void sgTriangleSolver_SAAtoASS ( SGfloat  lenA, SGfloat  angB, SGfloat  angA,
+void sgTriangleSolver_SAAtoASS ( SGfloat  lenA, SGfloat  angB, SGfloat  angA,
                                  SGfloat *angC, SGfloat *lenB, SGfloat *lenC ) ;
+void sgTriangleSolver_ASStoSAA ( SGfloat  angB, SGfloat  lenA, SGfloat  lenB,
+                                 int angA_is_obtuse,
+                                 SGfloat *lenC, SGfloat *angA, SGfloat *angC ) ;
 
 
 SGDfloat sgdTriangleSolver_ASAtoArea(SGDfloat angA,SGDfloat lenB,SGDfloat angC);
