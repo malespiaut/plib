@@ -27,10 +27,10 @@ void puComboBox::handle_arrow ( puObject *arrow )
 {
   puComboBox *cbox = (puComboBox *) arrow -> getUserData () ;
 
-  if ( ! cbox -> popup_menu -> isVisible() )
-    cbox -> popup_menu -> reveal() ;
+  if ( ! cbox -> __getPopupMenu () -> isVisible () )
+    cbox -> __getPopupMenu () -> reveal () ;
   else
-    cbox -> popup_menu -> hide() ;
+    cbox -> __getPopupMenu () -> hide () ;
 
   /* arrow -> setStyle ( - arrow -> getStyle () ) ; */
 }
@@ -39,21 +39,19 @@ void puComboBox::handle_popup ( puObject *popupm )
 {
   puComboBox *cbox = (puComboBox *) popupm -> getUserData () ;
 
-  cbox -> setCurrentItem ( popupm->getLegend () );
+  cbox -> setCurrentItem ( popupm -> getLegend () ) ;
 }
 
 
 void puComboBox::update_widgets ( void )
 {
-  if ( curr_item >= 0 )
-  /* There are items */
+  if ( num_items > 0 )
   {
     setValue ( list[curr_item] ) ;
 
     arrow_btn -> activate () ;
   }
   else
-  /* There aren't any items */
   {
     setValue ( "" ) ;
 
@@ -95,14 +93,13 @@ void puComboBox::newList ( char ** _list )
 
     if ( (abox.min[1] - h) >= 0 )
     {
-      popup_menu -> setPosition ( 0, 0 - h ) ;
+      popup_menu -> setPosition ( abox.min[0], abox.min[1] - h ) ;
 
       arrow_btn  -> setArrowType ( PUARROW_DOWN ) ;
     }
     else
     {
-      input -> getSize ( &dummy, &h ) ;
-      popup_menu -> setPosition ( 0, h ) ;
+      popup_menu -> setPosition ( abox.min[0], abox.max[1] ) ;
 
       arrow_btn  -> setArrowType ( PUARROW_UP   ) ;
     }
@@ -185,10 +182,10 @@ puComboBox::puComboBox ( int minx, int miny, int maxx, int maxy,
   arrow_btn -> setUserData ( this ) ;
   arrow_btn -> setCallback ( handle_arrow ) ;
 
+  close () ;
+
   popup_menu = new puPopupMenu ( 0, 0 ) ;
 
   newList ( entries ) ;
-
-  close () ;
 }
 
