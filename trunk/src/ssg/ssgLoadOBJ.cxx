@@ -307,7 +307,8 @@ static void add_mesh ( int mat_index )
 {
   //count faces with same material
   int num = 0 ;
-  for ( int i=0; i<num_face; i++ )
+  int i ;
+  for ( i=0; i<num_face; i++ )
      if ( face[i].mat_index == mat_index )
         num ++ ;
   if ( num == 0 )

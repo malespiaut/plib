@@ -515,19 +515,20 @@ int do_refs     ( char *s )
 
   nrm -> add ( nm ) ;
 
-  GLenum gltype = 0 ; 
-  switch ( current_flags & 0x0F )
+  int type = ( current_flags & 0x0F ) ;
+  if ( type >= 0 && type <= 2 )
   {
-    case 0 : gltype = GL_TRIANGLE_FAN ;
-             break ;
-    case 1 : gltype = GL_LINE_LOOP ;
-             break ;
-    case 2 : gltype = GL_LINE_STRIP ;
-             break ;
-  }
+    GLenum gltype = GL_TRIANGLES ;
+    switch ( type )
+    {
+      case 0 : gltype = GL_TRIANGLE_FAN ;
+               break ;
+      case 1 : gltype = GL_LINE_LOOP ;
+               break ;
+      case 2 : gltype = GL_LINE_STRIP ;
+               break ;
+    }
 
-  if ( gltype != 0 )
-  {
     ssgCreateData *data = new ssgCreateData ;
     data->gltype = gltype ;
     data->vl = vlist ;
