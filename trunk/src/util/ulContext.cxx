@@ -1,6 +1,6 @@
 /*
      PLIB - A Suite of Portable Game Libraries
-     Copyright (C) 2001  Steve Baker
+     Copyright (C) 2002  Steve Baker
 
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
@@ -25,10 +25,12 @@
 #include "ul.h"
 
 #ifndef WIN32
-#  ifndef macintosh
-#    include <GL/glx.h>
-#  else
+#  if defined(macintosh)
 #    include <agl.h>
+#  elif defined(__APPLE__)
+#    include <OpenGL/CGLCurrent.h>
+#  else
+#    include <GL/glx.h>
 #  endif
 #endif
 
@@ -40,6 +42,8 @@ bool ulIsValidContext ( void )
   return ( wglGetCurrentContext () != NULL ) ;
 #elif defined(macintosh)
   return ( aglGetCurrentContext () != NULL ) ;
+#elif defined(__APPLE__)
+  return ( CGLGetCurrentContext () != NULL ) ;
 #else
   return ( glXGetCurrentContext () != NULL ) ;
 #endif
