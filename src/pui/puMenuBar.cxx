@@ -100,7 +100,19 @@ void puMenuBar::add_submenu ( const char *str, char *items[], puCallback _cb[] )
   int w, h ;
   getSize ( &w, &h ) ;
 
-  puOneShot    *b = new puOneShot ( w+10, 0, str ) ;
+  puOneShot *b ;
+
+  if ( bar_height > 0 )
+  {
+    b = new puOneShot ( w+10,
+                        0,
+                        w+10 + PUSTR_LGAP + puGetDefaultLegendFont().getStringWidth ( str ) + PUSTR_RGAP,
+                        bar_height ) ;
+    b -> setLegend ( str ) ;
+  }
+  else
+    b = new puOneShot ( w+10, 0, str ) ;
+
   b -> setStyle ( PUSTYLE_SPECIAL_UNDERLINED ) ;
   b -> setColourScheme ( colour[PUCOL_FOREGROUND][0],
                          colour[PUCOL_FOREGROUND][1],
