@@ -32,7 +32,7 @@ class ssgBase
   char *getName () ;
   const char *getPrintableName () ;
 
-  virtual void print ( FILE *fd = stderr ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save  ( FILE *fd = stderr ) ;
 
@@ -150,13 +150,37 @@ for debug routines:
 
 <H3>Printing</H3>
 It's sometimes useful during debug to print a section of the
-scene graph so you can examine it. <code>ssgBase::print(fd,indent)</code>
+scene graph so you can examine it. <code>ssgBase::print(fd, indent, how_much)</code>
 does that for you - it prints out the node itself - and anything
 connected beneath it in the scene graph. <code>fd</code> is the
 file descriptor to print to (defaults to stderr) and
 <code>indent</code> is a string that will prefix all output lines
 - and is used internally within SSG to make printout of tree
-structures more legible by indenting them.  It would be unwise
+structures more legible by indenting them.  
+<p>
+The values for the parameter <code>how_much</code> may be 0,1,2,3 or 4 
+and determine how much is printed, with 0 meaning little 
+and 4 meaning much.
+<BR>
+For how_much = 0, basic information of the branches is printed
+<BR>
+For 1, additionally there is: basic leaf info, state pointers
+<BR>
+For 2, additionally there is: states, user data, number of parents,
+bSphere
+<BR>
+For 3, additionally there is: Reference count
+<BR>
+For 4, additionally there is: contents of vertex-, normal-, colour-,
+texCoord- and index-arrays
+<BR>
+Experience tells that for <code>how_much = 0</code> you get very little
+out put, with 1, 2 and 3 a manageable amount and with 4 a huge amount, 
+up to 100 MB for a medium sized model.
+
+
+<p>
+It would be unwise
 to attempt to parse the output of <code>ssgBase::print</code> into another
 program since it is only intended for human consumption and the
 format may change dramatically between revisions of SSG.
