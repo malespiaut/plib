@@ -86,9 +86,9 @@ Each PSL script is represented by an object of class <code>pslProgram</code>.
   {
   public:
 
-    pslProgram ( pslExtension *extns, const char *name ) ;
+    pslProgram ( const pslExtension *extns, const char *name ) ;
 
-    pslProgram ( pslProgram    *prog, const char *name ) ;
+    pslProgram ( pslProgram         *prog,  const char *name ) ;
 
 
     void  setUserData ( void *data ) ;
