@@ -123,10 +123,14 @@ void ssgaFire::updateParticle ( int idx, ssgaParticle *p )
 
 static ssgSimpleState *fireState   = NULL ;
 static ssgTexture     *fireTexture = NULL ;                                   
-
+static bool            isfogged    = true ;
 static int preFireDraw ( ssgEntity * )
 {
-  glDisable ( GL_FOG ) ;
+  isfogged = glIsEnabled ( GL_FOG ) ;
+
+  if ( isfogged )
+    glDisable ( GL_FOG ) ;
+
   glBlendFunc ( GL_ONE, GL_ONE ) ;
   return TRUE ;
 }
@@ -135,7 +139,10 @@ static int preFireDraw ( ssgEntity * )
 static int postFireDraw ( ssgEntity * )
 {
   glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
-  glEnable ( GL_FOG ) ;
+
+  if ( isfogged )
+    glEnable ( GL_FOG ) ;
+
   return TRUE ;
 }                                                                              
 
@@ -186,6 +193,7 @@ ssgaFire::ssgaFire ( int num,
   setState    ( fireState ) ;
   setCallback ( SSG_CALLBACK_PREDRAW , preFireDraw  ) ;
   setCallback ( SSG_CALLBACK_POSTDRAW, postFireDraw ) ;
+  update ( 2.0f * max_ttl / (float)(getNumParticles()) ) ;
 }
 
 void ssgaFire::update ( float t )
