@@ -4,7 +4,7 @@ void wibble ()
   hello () ;
 }
 
-float x ;
+float x = 123.456 ;
 
 void main ()
 {
