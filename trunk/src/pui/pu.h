@@ -625,6 +625,7 @@ protected:
   int highlighted ;
   int am_default  ;
   int window ;        /* Which window does the object appear in? */
+  int v_status ;      /* 1 if the Object should lock in the top left corner, 0 if not */
 
   const char *label  ; puFont  labelFont ; int labelPlace ;
   const char *legend ; puFont legendFont ; int legendPlace ;
@@ -862,6 +863,9 @@ public:
   int  getDefaultIntegerValue ( void ) { return default_value.getIntegerValue () ; }
   float getDefaultFloatValue  ( void ) { return default_value.getFloatValue   () ; }
   char *getDefaultStringValue ( void ) { return default_value.getStringValue  () ; }
+
+  int getVStatus ( void ) const {  return v_status ;  } /* JCJ 6 Jun 2002 */
+  void setVStatus ( int vstat ) {  v_status = vstat ;  }
 } ;
 
 /*
@@ -1434,6 +1438,7 @@ public:
   {
     type |= PUCLASS_VERTMENU ;
     floating = TRUE ;
+    if ( y < 0 ) { setVStatus( TRUE ) ; } /* It is now supposed to stick to the top left - JCJ*/
   }
 
   void add_submenu ( const char *str, char *items[], puCallback _cb[] ) ;
