@@ -1,5 +1,10 @@
 #include  "ssgLocal.h"
 
+// ********************  small utility functions  ************************
+
+void ssgFindOptConvertTexture( char * filepath, char * tfname ) ;
+
+// ******************** class ssgLoaderWriterMesh ************************
 
 class ssgListOfLists : public ssgSimpleList
 // list of POINTERs to ssgSimpleLists
