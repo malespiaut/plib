@@ -70,8 +70,7 @@ void ssgSGIHeader::makeConsistant ()
 
   if ( bpp == 2 )
   {
-    fprintf ( stderr,
-       "ssgImageLoader: FATAL - Can't work with SGI images with %d bpp\n", bpp ) ;
+    ssgSetError ( "ssgImageLoader: FATAL - Can't work with SGI images with %d bpp", bpp ) ;
     exit ( 1 ) ;
   }
 
@@ -224,7 +223,7 @@ void ssgSGIHeader::readHeader ()
 
   if ( magic != SGI_IMG_MAGIC && magic != SGI_IMG_SWABBED_MAGIC )
   {
-    fprintf ( stderr, "%s: Unrecognised magic number 0x%04x\n",
+    ssgSetError ( "%s: Unrecognised magic number 0x%04x",
                                          curr_image_fname, magic ) ;
     exit ( 1 ) ;
   }
@@ -289,6 +288,14 @@ struct RGBA
 void ssgImageLoader::make_mip_maps ( GLubyte *image, int xsize,
                                                  int ysize, int zsize )
 {
+  if ( ! ((xsize & (xsize-1))==0) ||
+       ! ((ysize & (ysize-1))==0) )
+  {
+    ssgSetError ( "%s: Map is not a power-of-two in size!", curr_image_fname ) ;
+    loadDummyTexture () ;
+    return ;
+  }
+
   GLubyte *texels [ 20 ] ;   /* One element per level of MIPmap */
 
   for ( int l = 0 ; l < 20 ; l++ )
@@ -338,13 +345,6 @@ void ssgImageLoader::make_mip_maps ( GLubyte *image, int xsize,
 
   texels [ lev+1 ] = NULL ;
 
-  if ( ! ((xsize & (xsize-1))==0) ||
-       ! ((ysize & (ysize-1))==0) )
-  {
-    fprintf ( stderr, "%s: Map is not a power-of-two in size!\n", curr_image_fname ) ;
-    exit ( 1 ) ;
-  }
-
   glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 ) ;
 
   int map_level = 0 ;
@@ -375,9 +375,9 @@ void ssgImageLoader::make_mip_maps ( GLubyte *image, int xsize,
 
       if ( xsize < 64 && ysize < 64 )
       {
-        fprintf ( stderr,
-                "SSG: OpenGL will not accept a downsized version of '%s' ?!?\n",
-                curr_image_fname ) ;
+        ssgSetError (
+           "SSG: OpenGL will not accept a downsized version of '%s' ?!?",
+           curr_image_fname ) ;
         exit ( 1 ) ;
       }
     }
@@ -475,15 +475,14 @@ void ssgImageLoader::loadTexture ( char *fname )
          _ssgStrEqual ( p, ".bw"   ) ) { loadTextureSGI ( fname ) ; return ; }
   }
 
-  fprintf ( stderr, "ssgImageLoader: '%s' - unrecognised file extension.\n",
+  ssgSetError ( "ssgImageLoader: '%s' - unrecognised file extension.",
                                                     fname ) ;
   loadDummyTexture () ;
 }
 
 void ssgImageLoader::loadTexturePNG ( char *fname )
 {
-  fprintf ( stderr,
-        "ssgImageLoader: '%s' - PNG format images are not supported (yet)\n",
+  ssgSetError ( "ssgImageLoader: '%s' - PNG format images are not supported (yet)",
         fname ) ;
   loadDummyTexture () ;
 }
@@ -503,7 +502,7 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
   if ( ( curr_image_fd = fopen ( curr_image_fname, "rb" ) ) == NULL )
   {
     perror ( "ssgImageLoader" ) ;
-    fprintf ( stderr, "ssgImageLoader: Failed to open '%s' for reading.\n", curr_image_fname ) ;
+    ssgSetError ( "ssgImageLoader: Failed to open '%s' for reading.", curr_image_fname ) ;
     return ;
   }
 
@@ -521,7 +520,7 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
     isSwapped = TRUE  ;
   else
   {
-    fprintf ( stderr, "%s: Unrecognised magic number 0x%04x\n",
+    ssgSetError ( "%s: Unrecognised magic number 0x%04x",
                             curr_image_fname, bmphdr.FileType ) ;
     exit ( 1 ) ;
   }
