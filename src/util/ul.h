@@ -202,7 +202,13 @@ void ulCloseDir ( ulDir* dir ) ;
 
 // file handling
 
+char* ulMakePath( char* path, const char* dir, const char* fname );
+
 int ulFileExists ( char *fileName );
+
+void ulFindFile( char *filenameOutput, const char *path, 
+											  const char * tfnameInput, const char *sAPOM ) ;
+
 
 /*
   UDP Networking Class NetWork Libriary
