@@ -54,36 +54,43 @@
 class netGuid //Globally Unique IDentifier
 {
 public:
-  u8 data [ 16 ] ;
+  unsigned char data [ 16 ] ;
 
   netGuid () {}
 
-  netGuid ( u32 l, u16 w1, u16 w2,
-    u8 b1, u8 b2, u8 b3, u8 b4, u8 b5, u8 b6, u8 b7, u8 b8 )
+  netGuid ( unsigned int   l,
+            unsigned short w1, unsigned short w2,
+            unsigned char  b1, unsigned char  b2,
+            unsigned char  b3, unsigned char  b4,
+            unsigned char  b5, unsigned char  b6,
+            unsigned char  b7, unsigned char  b8 )
   {
     //store in network format (big-endian)
-    data[0] = u8(l>>24);
-    data[1] = u8(l>>16);
-    data[2] = u8(l>>8);
-    data[3] = u8(l);
-    data[4] = u8(w1>>8);
-    data[5] = u8(w1);
-    data[6] = u8(w2>>8);
-    data[7] = u8(w2);
-    data[8] = b1;
-    data[9] = b2;
-    data[10] = b3;
-    data[11] = b4;
-    data[12] = b5;
-    data[13] = b6;
-    data[14] = b7;
-    data[15] = b8;
+
+    data[ 0] = (unsigned char)(l>>24) ;
+    data[ 1] = (unsigned char)(l>>16) ;
+    data[ 2] = (unsigned char)(l>> 8) ;
+    data[ 3] = (unsigned char)(l    ) ;
+    data[ 4] = (unsigned char)(w1>>8) ;
+    data[ 5] = (unsigned char)(w1   ) ;
+    data[ 6] = (unsigned char)(w2>>8) ;
+    data[ 7] = (unsigned char)(w2   ) ;
+
+    data[ 8] = b1 ;
+    data[ 9] = b2 ;
+    data[10] = b3 ;
+    data[11] = b4 ;
+    data[12] = b5 ;
+    data[13] = b6 ;
+    data[14] = b7 ;
+    data[15] = b8 ;
   }
 
   bool operator ==( const netGuid& guid ) const
   { 
     return memcmp ( data, guid.data, sizeof(data) ) == 0 ;
   }
+
   bool operator !=( const netGuid& guid ) const
   { 
     return memcmp ( data, guid.data, sizeof(data) ) != 0 ;
@@ -99,12 +106,15 @@ class netMessage : public netBuffer
   {
     if ( new_pos < 0 )
       new_pos = 0 ;
-    else if ( new_pos > length )
+    else
+    if ( new_pos > length )
       new_pos = length ;
 
     //logical const-ness
+
     ((netMessage*)this) -> pos = new_pos ;
   }
+
   void skip ( int off ) const
   {
     seek(pos+off);
@@ -130,10 +140,10 @@ public:
     putbyte ( from_id ) ;
   }
 
-  int getType () const { return ( (u8*)data )[ 2 ] ; }
-  int getToID () const { return ( (u8*)data )[ 3 ] ; }
-  int getFromID () const { return ( (u8*)data )[ 4 ] ; }
-  void setFromID ( int from_id ) { ( (u8*)data )[ 4 ] = (u8)from_id; }
+  int getType () const { return ( (unsigned char*)data )[ 2 ] ; }
+  int getToID () const { return ( (unsigned char*)data )[ 3 ] ; }
+  int getFromID () const { return ( (unsigned char*)data )[ 4 ] ; }
+  void setFromID ( int from_id ) { ( (unsigned char*)data )[ 4 ] = (unsigned char)from_id; }
 
   void geta ( void* a, int n ) const
   {
@@ -148,84 +158,84 @@ public:
   {
     append((const char*)a,n);
     pos = length;
-    *((u16*)data) = u16(length); //update msg_len
+    *((unsigned short*)data) = (unsigned short)length ; //update msg_len
   }
 
   int getbyte () const
   {
-    u8 temp ;
+    unsigned char temp ;
     geta(&temp,sizeof(temp)) ;
     return temp ;
   }
   void putbyte ( int c )
   {
-    u8 temp = c ;
+    unsigned char temp = c ;
     puta(&temp,sizeof(temp)) ;
   }
 
   bool getb () const
   {
-    u8 temp ;
+    unsigned char temp ;
     geta(&temp,sizeof(temp)) ;
     return temp != 0 ;
   }
   void putb ( bool b )
   {
-    u8 temp = b? 1: 0 ;
+    unsigned char temp = b? 1: 0 ;
     puta(&temp,sizeof(temp)) ;
   }
 
   int getw () const
   {
-    u16 temp ;
+    unsigned short temp ;
     geta ( &temp, sizeof(temp) ) ;
     return int ( ntohs ( temp ) ) ;
   }
   void putw ( int i )
   {
-    u16 temp = htons ( u16(i) ) ;
+    unsigned short temp = htons ( (unsigned short) i ) ;
     puta ( &temp, sizeof(temp) ) ;
   }
 
   int geti () const
   {
-    u32 temp ;
+    unsigned int temp ;
     geta ( &temp, sizeof(temp) ) ;
     return int ( ntohl ( temp ) ) ;
   }
   void puti ( int i )
   {
-    u32 temp = htonl ( u32(i) ) ;
+    unsigned int temp = htonl ( (unsigned int) i ) ;
     puta ( &temp, sizeof(temp) ) ;
   }
 
-  void getfv ( f32* fv, int n ) const
+  void getfv ( float* fv, int n ) const
   {
-    u32* v = (u32*)fv;
+    unsigned int* v = (unsigned int*)fv;
     geta ( v, (n<<2) ) ;
     for ( int i=0; i<n; i++ )
       v[i] = ntohl ( v[i] ) ;
   }
-  void putfv ( const f32* fv, int n )
+  void putfv ( const float* fv, int n )
   {
-    const u32* v = (const u32*)fv;
+    const unsigned int* v = (const unsigned int*)fv;
     for ( int i=0; i<n; i++ )
     {
-      u32 temp = htonl ( v[i] ) ;
+      unsigned int temp = htonl ( v[i] ) ;
       puta ( &temp, sizeof(temp) ) ;
     }
   }
   
-  f32 getf () const
+  float getf () const
   {
-    u32 temp ;
+    unsigned int temp ;
     geta ( &temp, sizeof(temp) ) ;
     temp = ntohl ( temp ) ;
-    return *((f32*)&temp) ;
+    return *((float*)&temp) ;
   }
-  void putf ( f32 f )
+  void putf ( float f )
   {
-    u32 temp = *((u32*)&f) ;
+    unsigned int temp = *((unsigned int*)&f) ;
     temp = htonl ( temp ) ;
     puta ( &temp, sizeof(temp) ) ;
   }

@@ -87,7 +87,7 @@ enum { NET_MAX_NAME = 31 } ;
 //eg. char name [ NET_MAX_NAME+1 ] ;
 
 
-inline char* netCopyName ( char* dst, cchar* src )
+inline char* netCopyName ( char* dst, const char* src )
 {
   if ( src != NULL )
   {

@@ -30,7 +30,7 @@ netMessageChannel::handleBufferRead (netBuffer& in_buffer)
   int n = in_buffer.getLength () ;
   while ( n >= 2 )
   {
-    u16 msg_len = *( (u16*)in_buffer.getData() ) ;
+    unsigned short msg_len = *( (unsigned short*)in_buffer.getData() ) ;
     if ( n >= msg_len )
     {
       //we have a complete message; handle it

@@ -58,7 +58,7 @@ class netChannel : public netSocket
   bool closed, connected, accepting, write_blocked, should_delete ;
   netChannel* next_channel ;
   
-  friend bool netPoll (u32 timeout);
+  friend bool netPoll (unsigned int timeout);
 
 public:
 
@@ -77,7 +77,7 @@ public:
   bool  open    ( void ) ;
   void  close   ( void ) ;
   int   listen  ( int backlog ) ;
-  int   connect ( cchar* host, int port ) ;
+  int   connect ( const char* host, int port ) ;
   int   send    ( const void * buf, int size, int flags = 0 ) ;
   int   recv    ( void * buf, int size, int flags = 0 ) ;
 
@@ -109,8 +109,8 @@ public:
     ulSetError(UL_WARNING,"Network: %d: errno: %s(%d)",getHandle(),strerror(errno),errno);
   }
 
-  static bool poll (u32 timeout = 0 ) ;
-  static void loop (u32 timeout = 0 ) ;
+  static bool poll (unsigned int timeout = 0 ) ;
+  static void loop (unsigned int timeout = 0 ) ;
 };
 
 #endif // NET_CHANNEL_H

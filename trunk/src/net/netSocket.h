@@ -44,45 +44,25 @@
 #include "ul.h"
 #include <errno.h>
 
-
-/*
- * Define Basic types
- */
-
-typedef float f32;
-typedef double f64;
-
-typedef signed char s8;
-typedef signed short s16;
-typedef signed int s32;
-
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned int u32;
-
-typedef const char cchar;
-typedef const void cvoid;
-
-
 /*
  * Socket address, internet style.
  */
 class netAddress
 {
-  s16     sin_family;
-  u16     sin_port;
-  u32     sin_addr;
-  char    sin_zero[8];
+  short          sin_family     ;
+  unsigned short sin_port       ;
+  unsigned int   sin_addr       ;
+  char           sin_zero [ 8 ] ;
 
 public:
   netAddress () {}
-  netAddress ( cchar* host, int port ) ;
+  netAddress ( const char* host, int port ) ;
 
-  void set ( cchar* host, int port ) ;
-  cchar* getHost () const ;
+  void set ( const char* host, int port ) ;
+  const char* getHost () const ;
   int getPort() const ;
 
-  static cchar* getLocalHost () ;
+  static const char* getLocalHost () ;
 
   bool getBroadcast () const ;
 };
@@ -105,10 +85,10 @@ public:
   
   bool  open        ( bool stream=true ) ;
   void  close		    ( void ) ;
-  int   bind        ( cchar* host, int port ) ;
+  int   bind        ( const char* host, int port ) ;
   int   listen	    ( int backlog ) ;
   int   accept      ( netAddress* addr ) ;
-  int   connect     ( cchar* host, int port ) ;
+  int   connect     ( const char* host, int port ) ;
   int   send		    ( const void * buffer, int size, int flags = 0 ) ;
   int   sendto      ( const void * buffer, int size, int flags, const netAddress* to ) ;
   int   recv		    ( void * buffer, int size, int flags = 0 ) ;
@@ -127,7 +107,7 @@ int netInit ( int* argc, char** argv = NULL ) ;  /* Legacy */
 int netInit () ;
 
 
-cchar* netFormat ( cchar* fmt, ... ) ;
+const char* netFormat ( const char* fmt, ... ) ;
 
 
 #endif // NET_SOCKET_H

@@ -28,33 +28,34 @@ class HTTPClient : public netBufferChannel
 {
 public:
 
-  HTTPClient ( cchar* host, cchar* path )
+  HTTPClient ( const char* host, const char* path )
   {
-		open ();
-		connect (host, 80);
+    open () ;
+    connect ( host, 80 ) ;
 
-    cchar* s = netFormat ( "GET %s HTTP/1.0\r\n\r\n", path );
-    bufferSend( s, strlen(s) ) ;
+    const char *s = netFormat ( "GET %s HTTP/1.0\r\n\r\n", path ) ;
+
+    bufferSend ( s, strlen(s) ) ;
   }
 
-  virtual void handleBufferRead (netBuffer& buffer)
+  virtual void handleBufferRead ( netBuffer& buffer )
   {
-    const char* s = buffer.getData();
-    while (*s)
-      fputc(*s++,stdout);
+    const char* s = buffer.getData () ;
+    while ( *s )
+      fputc ( *s++, stdout ) ;
 
-    buffer.remove();
+    buffer . remove () ;
   }
 } ;
 
 
-int
-main (int argc, char * argv[])
+int main ( int argc, char * argv[] )
 {
-  netInit(&argc,argv);
+  netInit () ;
 
-  new HTTPClient( "www.opengl.org", "/index.html" );
+  new HTTPClient ( "plib.sf.net", "/index.html" ) ;
 
-  netChannel::loop(0);
-  return 0;
+  netChannel::loop ( 0 ) ;
+  return 0 ;
 }
+
