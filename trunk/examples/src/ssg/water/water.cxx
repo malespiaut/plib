@@ -12,18 +12,14 @@
 #include <plib/ssgAux.h>
 #include <GL/glut.h>
 
-ssgRoot        *scene     = NULL ;
-ssgTransform   *penguin   = NULL ;
-ssgTransform   *pedestal  = NULL ;
-ssgaWaveSystem *ocean     = NULL ;
-//ssgaCube *ocean     = NULL ;
-ssgSimpleState *sea_state = NULL ;
+ssgRoot            *scene     = NULL ;
+ssgTransform       *penguin   = NULL ;
+ssgTransform       *pedestal  = NULL ;
+ssgaWaveSystem     *ocean     = NULL ;
+ssgSimpleState     *sea_state = NULL ;
+ssgSimpleState     *splash_state = NULL ;
+ssgaParticleSystem *fountain  = NULL ;
 
-
-/*
-  Something to make some interesting motion
-  for both Tux and the camera.
-*/
 
 float getDepth ( float x, float y )
 {
@@ -36,9 +32,7 @@ void update_motion ( int frameno )
   sgCoord campos ;
   sgCoord tuxpos ;
 
-  /*
-    Spin Tux, make the camera pan sinusoidally left and right
-  */
+  /* Move the camera in some kind of interesting way */
 
   if ( frameno < 600 )
     sgSetCoord ( & campos, 0.0f, -20.0f, 8.0f,
@@ -54,16 +48,18 @@ void update_motion ( int frameno )
 
   ocean -> setWindDirn ( 25.0 * sin ( frameno / 100.0 ) ) ;
 
-  static float dt = 0.0f ;
+  static ulClock ck ; ck . update () ;
 
-  dt += 0.016 ;
+  float t  = ck . getAbsTime   () ;
+  float dt = ck . getDeltaTime () ;
 
 // sgVec3 center ;
 // sgSetVec3 ( center, ( frameno % 100 ) / 10.0f,
 //                     ( frameno % 200 ) / 20.0f, 0.0f ) ;
 // ocean -> setCenter ( center ) ;
 
-  ocean -> updateAnimation ( dt ) ;
+  ocean -> updateAnimation ( t ) ;
+  fountain -> update ( dt ) ;
 }
 
 
@@ -169,8 +165,32 @@ void init_graphics ()
 
 
 /*
-  Load a simple database
+  Particle system definitions for the fountain.
 */
+
+#define SPS ssgaParticleSystem  /* Too much typing! */                          
+
+static void droplet_create ( SPS *, int, ssgaParticle *p )
+{
+  float c = 0.6 + (float)(rand()%1000)/4000.0f ;
+
+  sgSetVec4 ( p -> col, c - 0.2f, c, 1, 0.5 ) ;
+  sgSetVec3 ( p -> pos, 0, 0, 0 ) ;
+  sgSetVec3 ( p -> vel, 
+              (float)(rand()%1000 - 500)/400.0f,
+              (float)(rand()%1000 - 500)/400.0f,
+              (float)(rand()%1000)/1000.0f + 8.0f ) ;
+  sgSetVec3 ( p -> acc, 0, 0, -9.8 ) ;
+  p -> time_to_live = 1 ;
+}
+
+
+static void droplet_update ( float dt, SPS *, int, ssgaParticle *p )
+{
+  sgAddScaledVec3 ( p->vel, p->acc, dt ) ;
+  sgAddScaledVec3 ( p->pos, p->vel, dt ) ;
+}
+
 
 void load_database ()
 {
@@ -190,8 +210,13 @@ void load_database ()
   scene     = new ssgRoot      ;
   pedestal  = new ssgTransform ;
   penguin   = new ssgTransform ;
+  fountain  = new ssgaParticleSystem ( 1000, 100, 500, TRUE,
+                                       0.2, 1000,
+                                       droplet_create,
+                                       droplet_update,
+                                       NULL ) ;
   ocean     = new ssgaWaveSystem ( 10000 ) ;
-//  ocean     = new ssgaCube ( 20000 ) ;
+
   sea_state = new ssgSimpleState () ;
   sea_state -> setTexture        ( "data/ocean.rgb" ) ;
   sea_state -> enable            ( GL_TEXTURE_2D ) ;
@@ -203,6 +228,19 @@ void load_database ()
   sea_state -> setMaterial       ( GL_EMISSION, 0, 0, 0, 1 ) ;
   sea_state -> setMaterial       ( GL_SPECULAR, 1, 1, 1, 1 ) ;
   sea_state -> setShininess      (  5 ) ;
+
+  splash_state = new ssgSimpleState () ;
+  splash_state -> setTexture        ( "data/droplet.rgb" ) ;
+  splash_state -> enable            ( GL_TEXTURE_2D ) ;
+  splash_state -> setShadeModel     ( GL_SMOOTH ) ;
+  splash_state -> enable            ( GL_CULL_FACE ) ;
+  splash_state -> enable            ( GL_BLEND ) ;
+  splash_state -> enable            ( GL_LIGHTING ) ;
+  splash_state -> setColourMaterial ( GL_EMISSION ) ;
+  splash_state -> setMaterial       ( GL_AMBIENT, 0, 0, 0, 1 ) ;
+  splash_state -> setMaterial       ( GL_DIFFUSE, 0, 0, 0, 1 ) ;
+  splash_state -> setMaterial       ( GL_SPECULAR, 0, 0, 0, 1 ) ;
+  splash_state -> setShininess      (  0 ) ;
 
   sgVec4 SEABLUE = { 1.0, 1.0, 1.0, 1.0 } ;
   sgVec3 pos = { 0, 0, 0 } ;
@@ -216,6 +254,8 @@ void load_database ()
   ocean -> setWaveHeight ( 0.3 ) ;
   ocean -> setWindSpeed  ( 10.0f ) ;
   ocean -> regenerate  () ;
+
+  fountain -> setState ( splash_state ) ;
 
   /*
     Load the models - optimise them a bit
@@ -236,6 +276,7 @@ void load_database ()
   scene    -> addKid ( ocean ) ;
   scene    -> addKid ( pedestal ) ;
   pedestal -> addKid ( penguin  ) ;
+  penguin  -> addKid ( fountain  ) ;
 }
 
 
