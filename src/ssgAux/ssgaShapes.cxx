@@ -20,7 +20,7 @@ void ssgaSphere  ::copy_from ( ssgaSphere   *src, int clone_flags ) { ssgaShape:
 void ssgaCylinder::copy_from ( ssgaCylinder *src, int clone_flags ) { ssgaShape::copy_from ( src, clone_flags ) ;}
 
 
-ssgBase *ssgaShape   ::clone ( int clone_flags = 0 )
+ssgBase *ssgaShape   ::clone ( int clone_flags )
 {
 /*
   ssgaShape *b = new ssgaShape ;
@@ -31,7 +31,7 @@ ssgBase *ssgaShape   ::clone ( int clone_flags = 0 )
 }
 
 
-ssgBase *ssgaCube    ::clone ( int clone_flags = 0 )
+ssgBase *ssgaCube    ::clone ( int clone_flags )
 {
   ssgaCube *b = new ssgaCube ;
   b -> copy_from ( this, clone_flags ) ;
@@ -39,7 +39,7 @@ ssgBase *ssgaCube    ::clone ( int clone_flags = 0 )
 }
 
 
-ssgBase *ssgaSphere  ::clone ( int clone_flags = 0 )
+ssgBase *ssgaSphere  ::clone ( int clone_flags )
 {
   ssgaSphere *b = new ssgaSphere ;
   b -> copy_from ( this, clone_flags ) ;
@@ -47,7 +47,7 @@ ssgBase *ssgaSphere  ::clone ( int clone_flags = 0 )
 }
 
 
-ssgBase *ssgaCylinder::clone ( int clone_flags = 0 )
+ssgBase *ssgaCylinder::clone ( int clone_flags )
 {
   ssgaCylinder *b = new ssgaCylinder ;
   b -> copy_from ( this, clone_flags ) ;
