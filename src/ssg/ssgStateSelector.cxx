@@ -82,7 +82,13 @@ void ssgStateSelector::setStep  (int i, ssgSimpleState *step)
 {
   if ( i < 0 || i >= nstates ) return ;
 
+  if ( statelist [ i ] != NULL )
+    ssgDeRefDelete ( statelist[i] ) ;
+
   statelist [ i ] = step ;
+
+  if ( step != NULL )
+    step -> ref () ;
 }
 
 

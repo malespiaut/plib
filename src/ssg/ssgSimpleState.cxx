@@ -127,10 +127,13 @@ void ssgSimpleState::apply (void)
       glMaterialfv ( GL_FRONT_AND_BACK, GL_EMISSION, emission_colour ) ;
       sgCopyVec3 ( _ssgCurrentContext->getState()->emission_colour, emission_colour ) ;
     }
-	else {
-	  glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, default_colour);
-	  sgCopyVec3 ( _ssgCurrentContext->getState()->emission_colour, default_colour );
-	}
+
+/* SJB: I'm suspicious of this:  */
+    else
+    {
+      glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, default_colour);
+      sgCopyVec3 ( _ssgCurrentContext->getState()->emission_colour, default_colour );
+    }
 
     if ( ( ~ dont_care & (1<<SSG_GL_AMBIENT) ) &&
       ( switched_modes ||
@@ -148,8 +151,6 @@ void ssgSimpleState::apply (void)
       sgCopyVec4 ( _ssgCurrentContext->getState()->diffuse_colour, diffuse_colour ) ;
     }
   }
-
-
 
   if ( ( ~ dont_care & (1<<SSG_GL_TEXTURE) ) && 
     _ssgCurrentContext->getState()->texture_handle != texture_handle )
@@ -269,11 +270,6 @@ void ssgSimpleState::force (void)
     glAlphaFunc ( GL_GREATER, alpha_clamp ) ;
     _ssgCurrentContext->getState()->alpha_clamp = alpha_clamp ;
   }
-}
-
-void ssgSimpleState::print ( FILE *fd, char *indent )
-{
-  ssgState::print ( fd, indent ) ;
 }
 
 
@@ -458,4 +454,57 @@ void ssgSimpleState::setTexture ( char *fname, int _wrapu, int _wrapv )
   delete tex ;
 }
 
+
+ 
+static void printStateString ( FILE *fd, unsigned int bits )
+{
+  if ( bits & (1<<SSG_GL_TEXTURE_EN) ) fprintf ( fd, "TEXTURE2D " ) ;
+  if ( bits & (1<<SSG_GL_CULL_FACE_EN) ) fprintf ( fd, "CULLFACE " ) ;
+  if ( bits & (1<<SSG_GL_COLOR_MATERIAL_EN) ) fprintf ( fd, "COLOR_MATERIAL ");
+  if ( bits & (1<<SSG_GL_BLEND_EN) ) fprintf ( fd, "BLEND " ) ;
+  if ( bits & (1<<SSG_GL_ALPHA_TEST_EN) ) fprintf ( fd, "ALPHA_TEST " ) ;
+  if ( bits & (1<<SSG_GL_LIGHTING_EN) ) fprintf ( fd, "LIGHTING " ) ;
+}
+
+ 
+void ssgSimpleState::print ( FILE *fd, char *indent )
+{
+  ssgState::print ( fd, indent ) ;
+ 
+  fprintf ( fd, "%s  Don't Care   = ", indent ) ;
+             printStateString ( fd, dont_care ) ;
+             fprintf ( fd, "\n" ) ;
+  fprintf ( fd, "%s  Enabled      = ", indent ) ;
+             printStateString ( fd, enables ) ;
+             fprintf ( fd, "\n" ) ;
+
+  fprintf ( fd, "%s  TexHandle    = %d\n", indent, texture_handle ) ;
+  fprintf ( fd, "%s  TexFilename  = '%s'\n", indent,
+                           (filename==NULL) ? "<none>" : filename ) ;
+  fprintf ( fd, "%s  TexWrap U/V  = %s/%s\n", indent,
+                          wrapu ? "True" : "False",
+                          wrapv ? "True" : "False" ) ;
+  fprintf ( fd, "%s  Shade Model  = %d\n", indent, shade_model ) ;
+  fprintf ( fd, "%s  Shininess    = %f\n", indent, shininess ) ;
+  fprintf ( fd, "%s  AlphaClamp   = %f\n", indent, alpha_clamp ) ;
+  fprintf ( fd, "%s  ColourMatMode= %s\n", indent,
+    (colour_material_mode == GL_AMBIENT) ? "GL_AMBIENT" :
+    (colour_material_mode == GL_DIFFUSE) ? "GL_DIFFUSE" :
+    (colour_material_mode == GL_AMBIENT_AND_DIFFUSE) ? "GL_AMBIENT_AND_DIFFUSE" :
+    (colour_material_mode == GL_SPECULAR) ? "GL_SPECULAR" :
+    (colour_material_mode == GL_EMISSION) ? "GL_EMISSION" : "?????" ) ;
+
+  fprintf ( fd, "%s  Ambient  : (%f,%f,%f,%f)\n", indent,
+                             ambient_colour[0],  ambient_colour[1],
+                             ambient_colour[2],  ambient_colour[3] ) ;
+  fprintf ( fd, "%s  Diffuse  : (%f,%f,%f,%f)\n", indent,
+                             diffuse_colour[0],  diffuse_colour[1],
+                             diffuse_colour[2],  diffuse_colour[3] ) ;
+  fprintf ( fd, "%s  Specular : (%f,%f,%f,%f)\n", indent,
+                            specular_colour[0], specular_colour[1],
+                            specular_colour[2], specular_colour[3] ) ;
+  fprintf ( fd, "%s  Emission : (%f,%f,%f,%f)\n", indent,
+                            emission_colour[0], emission_colour[1],
+                            emission_colour[2], emission_colour[3] ) ;
+}
 

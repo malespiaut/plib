@@ -46,6 +46,7 @@ class ssgEntity        ;
 class ssgLeaf          ;
 class ssgVTable        ;
 class ssgVtxTable      ;
+class ssgVtxArray      ;
 class ssgBranch        ;
 class ssgInvisible     ;
 class ssgBaseTransform ;
@@ -95,6 +96,7 @@ inline int ssgTypeEntity       () { return SSG_TYPE_ENTITY    | ssgTypeBase    (
 inline int ssgTypeLeaf         () { return SSG_TYPE_LEAF      | ssgTypeEntity  () ; }
 inline int ssgTypeVTable       () { return SSG_TYPE_VTABLE    | ssgTypeLeaf    () ; }
 inline int ssgTypeVtxTable     () { return SSG_TYPE_VTXTABLE  | ssgTypeLeaf    () ; }
+inline int ssgTypeVtxArray     () { return SSG_TYPE_VTXARRAY  | ssgTypeVtxTable() ; }
 inline int ssgTypeBranch       () { return SSG_TYPE_BRANCH    | ssgTypeEntity  () ; }
 inline int ssgTypeBaseTransform() { return SSG_TYPE_BASETRANSFORM | ssgTypeBranch  () ; }
 inline int ssgTypeTransform    () { return SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
@@ -327,6 +329,7 @@ public:
   int getSizeOf (void) { return size_of ; }
   int getNum (void) { return total ; }
 
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -340,6 +343,7 @@ public:
   ssgVertexArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
 } ;
 
 
@@ -351,6 +355,7 @@ public:
   ssgNormalArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec3), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec3   thing ) { raw_add ( (char *) thing ) ; } ;
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
 } ;
 
 
@@ -362,6 +367,7 @@ public:
   ssgTexCoordArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec2), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec2   thing ) { raw_add ( (char *) thing ) ; } ;
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
 } ;
 
 
@@ -373,6 +379,7 @@ public:
   ssgColourArray ( int init = 3 ) : ssgSimpleList ( sizeof(sgVec4), init ) {} 
   float *get ( unsigned int n ) { return (float *) raw_get ( n ) ; }
   void   add ( sgVec4   thing ) { raw_add ( (char *) thing ) ; } ;
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
 } ;
 
 
@@ -498,6 +505,8 @@ public:
   virtual void setOpaque      (void) { translucent = FALSE ; }
   virtual void force (void) = 0 ;
   virtual void apply (void) = 0 ;
+
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -674,7 +683,7 @@ public:
   ssgStateSelector ( int ns ) ;
 
   virtual ~ssgStateSelector (void) ;
-  virtual char *getTypeName (void) ;
+  virtual char *getTypeName(void) ;
 
   int             getNumSteps ( void ) { return nstates ; }
   void            selectStep ( unsigned int s ) ;
@@ -874,7 +883,18 @@ public:
   int       hasState () { return state != NULL ; }
 
   ssgState *getState () { return state ; }
-  void      setState ( ssgState *st ) { state = st ; }
+  void      setState ( ssgState *st )
+  {
+/*
+    if ( state != NULL )
+      ssgDeRefDelete ( state ) ;
+*/
+    state = st ;
+/*
+    if ( state != NULL )
+      state->ref() ;
+*/
+  }
 
   virtual int getNumVertices  () { return 0 ; }
   virtual int getNumNormals   () { return 0 ; }
