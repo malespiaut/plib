@@ -35,6 +35,7 @@ higher level classes on top of the basic SSG classes.
 <li><A HREF="#ssgaCylinder">ssgaCylinder - Makes a Cylinder.</A>
 <li><A HREF="#ssgaWaveSystem">ssgaWaveSystem - Simulates Water Waves</A>
 <li><A HREF="#ssgaParticleSystem">ssgaParticleSystem - Implements a spray of particles</A>
+<li><A HREF="#ssgaFire">ssgaFire - Simulates Fire</A>
 <li><A HREF="#ssgaLensFlare">ssgaLensFlare - Simulates Lens Flare for drawing bright lights.</A>
 </ul>
 </TD>
@@ -523,6 +524,54 @@ While debugging this, I got a bug which caused a picture of Tux to be
 applied instead of the droplet texture - it was absolutely hilarious
 to see 2000 tiny penguins shooting up in a fountain and falling gently
 to earth!
+<A NAME="ssgaFire"></A>
+<H1>ssgaFire</H1>
+This class is actually a highly specialised particle system.
+You have to construct it quite carefully in order to get a nice
+looking fire:
+<pre>
+
+  class ssgaFire : public ssgaParticleSystem
+  {
+    ssgaFire ( int num_tris,
+               float radius = 1.0f,
+               float height = 5.0f,
+               float speed  = 2.0f ) ;
+ 
+    virtual ~ssgaFire () ;
+ 
+    virtual void update ( float t ) ;
+ 
+    void setUpwardSpeed ( float spd )
+    void setHeight      ( float hgt )
+    void setRadius      ( float rad )
+    void setHotColour   ( sgVec4 col )
+  } ;
+
+</pre>
+In the constructor, you set the number of triangles you wish to
+generate, the radius and height of the approximately cylindrical
+fire and the speed at which the flames head up towards the sky.
+<p>
+The number of polygons you use tends to be rather critical - too
+many and your fire will look too 'smooth' and will be mostly
+white-hot.  Too few and it'll look like a number of detached
+reddish blobs floating upwards.  For the default radius, between
+100 and 200 triangles seems to look good - for a 10 meter patch
+of fire, you may need as many as 2000 triangles to make it look
+effective.  All three parameters (speed, height and radius) can
+be manipulated in realtime - but since the number of polygons
+is fixed, there is a limit to the amount of realtime tweaking
+you can do without making it look silly.
+<p>
+The 'setHotColour' function allows you to set the colour
+of the hottest flames (at the base of the fire).  Since many
+layers of polygons add up to form the colour, you'll tend to
+want to use a primary colour with about 10% of one or two of
+the other primaries.  The default colour is (1.0, 0.2, 0.1, 1.0)
+which produces red flames with yellow and white in the hotter
+regions.
+<p>
 <A NAME="ssgaLensFlare"></A>
 <H1>ssgaLensFlare</H1>
 When you view the sun (or some other very bright light source) through
