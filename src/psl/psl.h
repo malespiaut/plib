@@ -22,7 +22,7 @@
 */
 
 
-#include <stdio.h>
+#include "ul.h"
 
 enum pslResult
 {
@@ -133,8 +133,7 @@ public:
   virtual void set ( float       v ) { t = PSL_FLOAT  ; f = v ; }
   virtual void set ( const char *v ) { t = PSL_STRING ;
                                          delete [] s ;
-                                         s = new char [ strlen(v)+1 ] ;
-                                         strcpy ( s, v ) ; }
+                                         s = ulStrDup ( v ) ; }
 
   virtual void set ( const pslNumber *v )
   {
@@ -189,8 +188,7 @@ public:
       case PSL_INT    : i = atoi ( v ) ; return ;
       case PSL_FLOAT  : f = atof ( v ) ; return ;
       case PSL_STRING : delete [] s ;
-                        s = new char [ strlen(v)+1 ] ;
-                        strcpy ( s, v ) ;
+                        s = ulStrDup ( v ) ;
                         return ;
       case PSL_VOID   : return ;
     }
@@ -232,8 +230,8 @@ class pslProgram
 
 public:
 
-   pslProgram ( pslExtension *ext, char *_progName = NULL ) ;
-   pslProgram ( pslProgram   *src, char *_progName = NULL ) ;
+   pslProgram ( pslExtension *ext, const char *_progName = NULL ) ;
+   pslProgram ( pslProgram   *src, const char *_progName = NULL ) ;
 
   ~pslProgram () ;
 
@@ -247,12 +245,11 @@ public:
   void  setProgName ( const char *nm )
   {
     delete [] progName ;
-    progName = new char [ strlen ( nm ) + 1 ] ;
-    strcpy ( progName, nm ) ;
+    progName = ulStrDup ( nm ) ;
   }
 
   void      *getUserData () const     { return userData ; }
-  void       setUserData ( void *ud ) { userData = ud ; }
+  void       setUserData ( void *ud ) { userData = ud   ; }
 
   void       dump  () const ;
   int        compile ( const char *fname ) ;

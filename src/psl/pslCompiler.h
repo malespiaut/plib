@@ -48,7 +48,7 @@ class pslCompiler
 {
   int line_no ;
 
-  int getLineNo () { return line_no ; }
+  int getLineNo () const { return line_no ; }
 
   int getChar ( FILE *fd ) ;
   int unGetChar ( int c, FILE *fd ) ;
@@ -141,7 +141,7 @@ private:
 
   char *progName ;
 
-  const char *getProgName () { return progName ; }
+  const char *getProgName () const { return progName ; }
 
   void error   ( const char *fmt, ... ) ;
   void warning ( const char *fmt, ... ) ;
@@ -198,8 +198,7 @@ public:
 
   pslCompiler ( pslOpcode *_code, pslExtension *_extn, const char *_progName )
   {
-    progName = new char [ strlen ( _progName ) + 1 ] ;
-    strcpy ( progName, _progName ) ;
+    progName = ulStrDup ( _progName ) ;
 
     code       = _code ;
     extensions = _extn ;
