@@ -19,7 +19,7 @@
 
 #define DEF_SHININESS 50
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #include <iostream>
@@ -683,7 +683,7 @@ ssgEntity *ssgLoadMDL(const char *fname, const ssgLoaderOptions *options)
   else
     strcpy ( filename, fname ) ;
 
- FILE *fp = fopen(filename, "r");
+ FILE *fp = fopen(filename, "rb");
  if(!fp) 
     {
     ulSetError( UL_WARNING, "ssgLoadMDL: Couldn't open MDL file '%s'!", 
