@@ -857,10 +857,16 @@ static void parse_object()
     if ( mesh_parent )
     {
       ssgEntity* found = top_branch -> getByName ( mesh_parent ) ;
-      if ( !found )
+      if ( found != NULL )
+      {
+        assert ( found -> isAKindOf ( SSG_TYPE_BRANCH ) ) ;
+        parent_branch = (ssgBranch *) found ;
+      }
+      else
+      {
         parser.error("mesh %s: parent %s not seen",mesh_name,mesh_parent);
-      assert ( found -> isAKindOf ( SSG_TYPE_BRANCH ) ) ;
-      parent_branch = (ssgBranch *) found ;
+        parent_branch = top_branch ;
+      }
     }
     else
     {
