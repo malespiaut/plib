@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(CHANGES)
+AC_INIT(src/af2rgb/af2rgb.cxx)
 AM_INIT_AUTOMAKE(plib_tools, 1.0.0)
 
 dnl Checks for programs.
@@ -10,6 +10,17 @@ AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_INSTALL
 AC_PROG_RANLIB
+
+dnl Command line arguments.
+
+AC_ARG_WITH(gl,
+[  --with-gl=DIR         set the prefix directory where GL resides],
+GL_PREFIX=$withval, GL_PREFIX=auto)
+
+if test "x$GL_PREFIX" != "xauto"; then
+    LIBS="$LIBS -L$GL_PREFIX/lib"
+    CPPFLAGS="$CPPFLAGS -I$GL_PREFIX/include"
+fi
 
 dnl Checks for library functions.
 
@@ -129,5 +140,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 AC_OUTPUT( \
 	Makefile \
+	src/Makefile \
+	src/af2rgb/Makefile \
 	)
 
