@@ -469,4 +469,21 @@ int ulIsAbsolutePathName ( const char *pathname )
 }
 
 
+char *ulGetCWD ( char *result, int maxlength )
+{
+  /*
+    Return the current working directory into 'result' - which
+    has enough space for 'maxlength-1' characters and a '\0'.
+  */
+
+#if defined(WIN32)
+  /*
+    Dunno if Windoze has this but...
+  */
+  return getcwd ( result, maxlength ) ;
+#else
+  return getcwd ( result, maxlength ) ;
+#endif
+}
+
 
