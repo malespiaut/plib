@@ -546,15 +546,21 @@ void ssgImageLoader::loadTextureBMP ( char *fname )
 
   fseek ( curr_image_fd, bmphdr.OffBits, SEEK_SET ) ;
 
-  if ( bmphdr.SizeImage == 0 )
-    bmphdr.SizeImage = w * h * (bpp / 8) ;
-
+  bmphdr.SizeImage = w * h * (bpp / 8) ;
   GLubyte *data = new GLubyte [ bmphdr.SizeImage ] ;
 
-  if ( fread ( data, 1, bmphdr.SizeImage, curr_image_fd ) != bmphdr.SizeImage )
+  /* read and flip image */
   {
-    ulSetError ( UL_WARNING, "Premature EOF in '%s'", curr_image_fname ) ;
-    return ;
+    int row_size = w * (bpp / 8) ;
+    for ( int y = h-1 ; y >= 0 ; y-- )
+    {
+      GLubyte *row_ptr = &data [ y * row_size ] ;
+      if ( fread ( row_ptr, 1, row_size, curr_image_fd ) != (unsigned)row_size )
+      {
+        ulSetError ( UL_WARNING, "Premature EOF in '%s'", curr_image_fname ) ;
+        return ;
+      }
+    }
   }
 
   fclose ( curr_image_fd ) ;
