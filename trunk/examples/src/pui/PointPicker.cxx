@@ -152,8 +152,10 @@ static void motionfn ( int x, int y )
   glutPostRedisplay () ;
 }
 
+puObject *active_widget = (puObject *)NULL ;
 static void mousefn ( int button, int updown, int x, int y )
 {
+  if ( updown == PU_UP ) active_widget = puActiveWidget () ;
   if ( !puMouse ( button, updown, x, y ) )
   {
     // PUI didn't take the mouseclick, try the main window
@@ -163,8 +165,12 @@ static void mousefn ( int button, int updown, int x, int y )
 
     // Check for an active widget.  If there is one, call its active callback
 
-    if ( puActiveWidget () )
-      puActiveWidget () -> invokeActiveCallback () ;
+    if ( active_widget )
+    {
+      active_widget -> invokeActiveCallback () ;
+      // Make sure PUI keeps the active widget active
+      puSetActiveWidget ( active_widget, 0, 0 ) ;
+    }
   }
 
   glutPostRedisplay () ;
@@ -213,6 +219,10 @@ static void displayfn (void)
 void point_no_up_cb ( puObject *ob )
 {
   printf ( "Calling the up-callback with partial data: %d\n", picked_point ) ;
+  if ( input->inputDisabled () )
+    input->enableInput () ;
+  else
+    input->disableInput () ;
 }
 
 // Point Number Input Widget Active Callback
@@ -328,7 +338,7 @@ int main ( int argc, char **argv )
 
   tim = new fntTexFont ;
   tim -> load ( "../fnt/data/times_medium.txf" ) ;
-  puFont times_medium ( tim, 15 ) ;
+  puFont times_medium ( tim, 15, .5 ) ;
   puSetDefaultFonts        ( times_medium, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;
   puSetDefaultColourScheme ( 0.1, 0.8, 0.1, 1.0) ;
@@ -343,7 +353,7 @@ int main ( int argc, char **argv )
   point_no = new puInput ( 150, 60, 240, 80 ) ;
   point_no->setValuator ( &picked_point ) ;
   point_no->setLabel ( "Point Number" ) ;
-  point_no->setLabelPlace ( PUPLACE_LOWER_LEFT ) ;
+  point_no->setLabelPlace ( PUPLACE_LEFT_CENTER ) ;
   point_no->setCallback ( point_no_up_cb ) ;
   point_no->setActiveCallback ( point_no_active_cb ) ;
   point_no->setDownCallback ( point_no_down_cb ) ;
@@ -356,8 +366,12 @@ int main ( int argc, char **argv )
   exit_button = new puButton     ( 260, 10, 360, 50 ) ;
   exit_button->setLegend         ( "Exit"  ) ;
   exit_button->setCallback       ( exit_cb ) ;
+  exit_button->setStyle ( PUSTYLE_BOXED ) ;
+  exit_button->setLegendPlace ( PUPLACE_CENTERED_LEFT ) ;
 
-  input = new puLargeInput ( 440, 0, 200, 300, 1, 20 ) ;
+  input = new puLargeInput ( 440, 0, 200, 300, 1, 20, TRUE ) ;
+  input->setChildStyle ( PUCLASS_ARROW, PUSTYLE_BOXED ) ;
+  input->setChildBorderThickness ( PUCLASS_ARROW, 15 ) ;
   input->setText ( "This is a large input box\n"
                    "This is line two of a large input box\n"
                    "Line 3\n"
