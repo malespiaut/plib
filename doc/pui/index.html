@@ -853,38 +853,6 @@ inside the callback function and '0' at all other times.
 
 puOneShot's have no special API - everything they need is in the <a href="#puButton">puButton</a>
 API.
-<a NAME="puDial"></a>
-<h3>
-puDial</h3>
-<img SRC="puDial.png" ALT="view of puDial widget" height=127 width=188 align=RIGHT>The
-puDial class implements a square widget with a circle inscribed in it. 
-A radius of the circle is also drawn.  The value of the widget is
-proportional to the angle the radius makes with the vertical, in degrees,
-with vertical up being zero. The constructor takes three arguments: 
-the coordinates of the lower left-hand corner of the widget and the widget
-size:
-<pre>
-
-  puDial::puDial ( int minx, int miny, int sz ) ;
-
-</pre>
-You can specify the desired minimum and maximum values by calls to
-<pre>
-
-  void puDial::setMinimum ( float f ) ;
-  void puDial::setMaximum ( float f ) ;
-
-</pre>
-Default values are -180 and +180.  You can also retrieve what the
-current minimum and maximum values are:
-<pre>
-
-  float puDial::getMinimum ( void ) ;
-  float puDial::getMaximum ( void ) ;
-
-</pre>
-Everything defined in the <a href="#puObject">puObject</a> API can also
-be applied to puDial widgets.
 <a NAME="puSlider"></a>
 <h3>
 puSlider</h3>
@@ -952,6 +920,36 @@ The parameter is expressed as a fraction of the total slider width (ie
 
 </pre>
 This returns TRUE for Vertical sliders - FALSE for Horizontal ones.
+<a NAME="puDial"></a>
+<h3>
+puDial</h3>
+<img SRC="puDial.png" ALT="view of puDial widget" height=127 width=188 align=RIGHT>The
+puDial class is derived from puSlider and implements a square widget
+with a circle inscribed in it. 
+A radius of the circle is also drawn.  The value of the widget is
+proportional to the angle the radius makes with the vertical
+with straight down being zero - then winding it clockwise, straight up
+is 0.5 and straight down again being 1.0. The constructor takes three
+arguments: 
+the coordinates of the lower left-hand corner of the widget and the widget
+size:
+<pre>
+
+  puDial::puDial ( int minx, int miny, int sz ) ;
+
+</pre>
+By default, you can move the pointer directly from 0.0 to 1.0 or
+1.0 to 0.0 without winding it all the way around the dial.  This
+is called 'wrapping' the pointer.  If you need to change the wrap
+mode, you can call:
+<pre>
+
+  void puDial::setWrap ( int wrapmode ) ;
+  in   puDial::getWrap () ;
+
+</pre>
+Everything defined in the <a href="#puSlider">puSlider</a> API can also
+be applied to puDial widgets.
 <a NAME="puBiSlider"></a>
 <h3>
 puBiSlider</h3>
