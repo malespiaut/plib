@@ -207,7 +207,7 @@ static void read_frames(int offset)
 	fseek(loader_fd, offset, SEEK_SET);	
 		
 	frames = new t_frame[header.numFrames];
-	vertices = (t_vertex **)malloc(header.numFrames * sizeof(t_vertex *));
+	vertices = new t_vertex* [header.numFrames];
 
 	for(int i=0; i<header.numFrames; i++){
 		vertices[i] = new t_vertex[header.numVertices];
