@@ -1,6 +1,6 @@
 /*
      PLIB - A Suite of Portable Game Libraries
-     Copyright (C) 2001 William Lachance
+     Copyright (C) 2001, 2002 William Lachance, Steve Baker
  
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public

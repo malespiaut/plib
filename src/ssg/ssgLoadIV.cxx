@@ -1,6 +1,6 @@
 /*
      PLIB - A Suite of Portable Game Libraries
-     Copyright (C) 2001 William Lachance
+     Copyright (C) 2001, 2002 William Lachance, Steve Baker
  
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
@@ -318,7 +318,7 @@ static bool iv_parseIndexedFaceSet( ssgBranch *parentBranch, _traversalState *cu
    
    if( currentData->getTransform() != NULL ) 
      {
-	parentBranch->addKid( currentData->getTransform() ); // FIXME: in case we're reusing transforms, perhaps they should be reinstanced? (currently we don't allow this)
+	currentBranch->addKid( currentData->getTransform() ); // FIXME: in case we're reusing transforms, perhaps they should be reinstanced? (currently we don't allow this)
  	loaderMesh->addToSSG( ss, currentOptions, currentData->getTransform() );
      }
    else
