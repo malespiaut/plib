@@ -151,6 +151,10 @@ void DoAllFiles( char *sDirectoryP )
 						if ((dp->d_name[len-2] == 'a') || (dp->d_name[len-2] == 'A'))
 							if ((dp->d_name[len-4] == '.') || (dp->d_name[len-4] == '.'))
 							{ strcpy( newname, dp->d_name );
+								int i;
+								for (i=0; i<len;  i++)
+									newname [i] = tolower ( newname [i] );
+
 								newname[len-4] = newname[len-3];
 								newname[len-3] = '.';
 								newname[len-2] = 'r';

@@ -41,12 +41,18 @@ developers or users of PLIB-based applications. Currently, there is only one too
 <H1>The "af2rgb" texture converter.</H1>
 This portable utility converts textures, that is 2D bitmaps. It converts *.?af files as used with (old) Micro$oft
 Flightsimulator into .rgb files that are understood by all plib versions. New plib versions can handle
-*.?af textures, so this tool is only needed if you want to use the textures with an old (for example 1.2.0) version of plib.
+*.?af textures, so this tool is only needed if you want to use the textures 
+with an old (for example 1.2.0) version of plib.
 <BR><BR>
 The usage is very simple:<BR>
 Go into the path of the textures you want to convert and call af2rgb. 
+The program will handle all *.?af files in that path (and ignore all other files).
 As a parameter, give it the path where the new textures shall be placed. 
 If you don't give it a path, then they will be written into the current dir.
+The new filename is always lowercase, so that the case is defined for the Un*x crowd.
+The first letter of the extension is added to the filename, so that it is unique.
+For example, lets say you have navion.1af and Navion.2af in your path. Af2rgb will create files
+called navion1.rgb and navion2.rgb.
 
 <hr>
 <ADDRESS>
