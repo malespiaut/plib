@@ -293,7 +293,6 @@ static void load_materials ( const char* fname )
         materials[ index ].tfname = new char [ strlen( path )+1 ] ;
         strcpy ( materials[ index ].tfname, path ) ;
         materials[ index ].tex = new ssgTexture ( path ) ;
-				materials[ index ].tex->setFilenameFromModel ( tfname );
       }
     }
   }

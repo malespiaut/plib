@@ -10,7 +10,7 @@ void ssgTextureManager::make_mip_maps ( GLubyte *image, int xsize, int ysize, in
   if ( ! ((xsize & (xsize-1))==0) ||
        ! ((ysize & (ysize-1))==0) )
   {
-    ulSetError ( UL_WARNING, "%s: Map is not a power-of-two in size!", current_path ) ;
+    ulSetError ( UL_WARNING, "Map is not a power-of-two in size!" ) ;
     loadDummy () ;
     return ;
   }
@@ -95,8 +95,7 @@ void ssgTextureManager::make_mip_maps ( GLubyte *image, int xsize, int ysize, in
       if ( xsize < 64 && ysize < 64 )
       {
         ulSetError ( UL_FATAL,
-           "SSG: OpenGL will not accept a downsized version of '%s' ?!?",
-           current_path ) ;
+           "SSG: OpenGL will not accept a downsized version ?!?" ) ;
       }
     }
   } while ( ww == 0 ) ;
@@ -156,86 +155,12 @@ void ssgTextureManager::addFormat ( const char* extension,
 }
 
 
-void ssgTextureManager::swapShort ( unsigned short* x )
-{
-  if ( is_swapped )
-    *x = (( *x >>  8 ) & 0x00FF ) | 
-         (( *x <<  8 ) & 0xFF00 ) ;
-}
-
-
-void ssgTextureManager::swapIntArray ( int *x, int leng )
-{
-  if ( ! is_swapped )
-    return ;
-
-  for ( int i = 0 ; i < leng ; i++ )
-  {
-    *x = (( *x >> 24 ) & 0x000000FF ) | 
-         (( *x >>  8 ) & 0x0000FF00 ) | 
-         (( *x <<  8 ) & 0x00FF0000 ) | 
-         (( *x << 24 ) & 0xFF000000 ) ;
-    x++ ;
-  }
-}
-
-
-unsigned char ssgTextureManager::readByte ()
-{
-  unsigned char x ;
-  fread ( & x, sizeof(unsigned char), 1, current_fp ) ;
-  return x ;
-}
-
-unsigned short ssgTextureManager::readShort ()
-{
-  unsigned short x ;
-  fread ( & x, sizeof(unsigned short), 1, current_fp ) ;
-  if ( is_swapped )
-    x = (( x >>  8 ) & 0x00FF ) | 
-        (( x <<  8 ) & 0xFF00 ) ;
-  return x ;
-}
-
-unsigned int ssgTextureManager::readInt ()
-{
-  unsigned int x ;
-  fread ( & x, sizeof(unsigned int), 1, current_fp ) ;
-  if ( is_swapped )
-    x = (( x >> 24 ) & 0x000000FF ) | 
-        (( x >>  8 ) & 0x0000FF00 ) | 
-        (( x <<  8 ) & 0x00FF0000 ) | 
-        (( x << 24 ) & 0xFF000000 ) ;
-  return x ;
-}
-
-
-FILE* ssgTextureManager::openFile ( const char* fname, const char* mode )
-{
-  closeFile () ;
-  current_fp = fopen ( fname, mode ) ;
-  return current_fp ;
-}
-
-
-void ssgTextureManager::closeFile ()
-{
-  if ( current_fp )
-  {
-    fclose ( current_fp ) ;
-    current_fp = 0 ;
-  }
-}
-
-
 void ssgTextureManager::load ( const char *fname )
 {
-  setAlpha ( FALSE ) ;
+  setAlphaFlag ( FALSE ) ;
 
   if ( fname == NULL || *fname == '\0' )
     return ;
-
-  strcpy ( current_path, fname ) ;
 
   //find extension
   const char *extn = & ( fname [ strlen(fname) ] ) ;
@@ -253,10 +178,39 @@ void ssgTextureManager::load ( const char *fname )
          _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
     {
       f->loadfunc( fname ) ;
-      closeFile () ;
       return ;
     }
 
   ulSetError ( UL_WARNING, "ssgLoadTexture: Unrecognised file type '%s'", extn ) ;
   loadDummy () ;
+}
+
+
+void ssgTextureManager::clear ()
+{
+  for ( int i = 0; i < num_shared_textures; i++ )
+    ssgDeRefDelete ( shared_textures[i] ) ;
+  num_shared_textures = 0 ;
+}
+
+
+void ssgTextureManager::add ( ssgTexture* tex )
+{
+  if ( tex && num_shared_textures < MAX_SHARED_TEXTURES )
+  {
+    tex -> ref() ;
+    shared_textures [ num_shared_textures++ ] = tex ;
+  }
+}
+
+
+ssgTexture* ssgTextureManager::find ( const char* fname )
+{
+  for ( int i = 0 ; i < num_shared_textures ; i++ )
+  {
+    ssgTexture *tex = shared_textures [ i ] ;
+    if ( _ssgStrEqual ( fname, tex->getFilename() ) )
+	    return tex ;
+  }
+  return NULL ;
 }

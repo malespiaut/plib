@@ -1,8 +1,10 @@
 
 #include "ssgLocal.h"
 
+static FILE          *curr_image_fd ;
+static char           curr_image_fname [ 512 ] ;
+static int            isSwapped ;
 static unsigned char *rle_temp ;
-
 
 /* Some magic constants in the file header. */
 
@@ -75,21 +77,75 @@ void ssgSGIHeader::makeConsistant ()
 }
 
 
+static void swab_short ( unsigned short *x )
+{
+  if ( isSwapped )
+    *x = (( *x >>  8 ) & 0x00FF ) | 
+         (( *x <<  8 ) & 0xFF00 ) ;
+}
+
+static void swab_int ( unsigned int *x )
+{
+  if ( isSwapped )
+    *x = (( *x >> 24 ) & 0x000000FF ) | 
+         (( *x >>  8 ) & 0x0000FF00 ) | 
+         (( *x <<  8 ) & 0x00FF0000 ) | 
+         (( *x << 24 ) & 0xFF000000 ) ;
+}
+
+static void swab_int_array ( int *x, int leng )
+{
+  if ( ! isSwapped )
+    return ;
+
+  for ( int i = 0 ; i < leng ; i++ )
+  {
+    *x = (( *x >> 24 ) & 0x000000FF ) | 
+         (( *x >>  8 ) & 0x0000FF00 ) | 
+         (( *x <<  8 ) & 0x00FF0000 ) | 
+         (( *x << 24 ) & 0xFF000000 ) ;
+    x++ ;
+  }
+}
+
+
+static unsigned char readByte ()
+{
+  unsigned char x ;
+  fread ( & x, sizeof(unsigned char), 1, curr_image_fd ) ;
+  return x ;
+}
+
+static unsigned short readShort ()
+{
+  unsigned short x ;
+  fread ( & x, sizeof(unsigned short), 1, curr_image_fd ) ;
+  swab_short ( & x ) ;
+  return x ;
+}
+
+static unsigned int readInt ()
+{
+  unsigned int x ;
+  fread ( & x, sizeof(unsigned int), 1, curr_image_fd ) ;
+  swab_int ( & x ) ;
+  return x ;
+}
+
+
 void ssgSGIHeader::getRow ( unsigned char *buf, int y, int z )
 {
-  ssgTextureManager* tm = ssgTextureManager::get () ;
-
   if ( y >= ysize ) y = ysize - 1 ;
   if ( z >= zsize ) z = zsize - 1 ;
 
-  fseek ( tm -> getFilePtr (), start [ z * ysize + y ], SEEK_SET ) ;
+  fseek ( curr_image_fd, start [ z * ysize + y ], SEEK_SET ) ;
 
   if ( type == SGI_IMG_RLE )
   {
     unsigned char *tmpp = rle_temp ;
     unsigned char *bufp = buf ;
 
-    fread ( rle_temp, 1, leng [ z * ysize + y ], tm -> getFilePtr () ) ;
+    fread ( rle_temp, 1, leng [ z * ysize + y ], curr_image_fd ) ;
 
     unsigned char pixel, count ;
 
@@ -117,15 +173,13 @@ void ssgSGIHeader::getRow ( unsigned char *buf, int y, int z )
     }
   }
   else
-    fread ( buf, 1, xsize, tm -> getFilePtr () ) ;
+    fread ( buf, 1, xsize, curr_image_fd ) ;
 }
 
 
 void ssgSGIHeader::getPlane ( unsigned char *buf, int z )
 {
-  ssgTextureManager* tm = ssgTextureManager::get () ;
-
-  if ( tm -> getFilePtr () == NULL )
+  if ( curr_image_fd == NULL )
     return ;
 
   if ( z >= zsize ) z = zsize - 1 ;
@@ -138,9 +192,7 @@ void ssgSGIHeader::getPlane ( unsigned char *buf, int z )
 
 void ssgSGIHeader::getImage ( unsigned char *buf )
 {
-  ssgTextureManager* tm = ssgTextureManager::get () ;
-
-  if ( tm -> getFilePtr () == NULL )
+  if ( curr_image_fd == NULL )
     return ;
 
   for ( int y = 0 ; y < ysize ; y++ )
@@ -160,27 +212,25 @@ ssgSGIHeader::ssgSGIHeader ()
 
 void ssgSGIHeader::readHeader ()
 {
-  ssgTextureManager* tm = ssgTextureManager::get () ;
+  isSwapped = FALSE ;
 
-  tm -> setSwap ( FALSE ) ;
-
-  magic = tm -> readShort () ;
+  magic = readShort () ;
 
   if ( magic != SGI_IMG_MAGIC && magic != SGI_IMG_SWABBED_MAGIC )
   {
     ulSetError ( UL_FATAL, "%s: Unrecognised magic number 0x%04x",
-                                         tm -> getPath (), magic ) ;
+                                         curr_image_fname, magic ) ;
   }
 
   if ( magic == SGI_IMG_SWABBED_MAGIC )
   {
-    tm -> setSwap ( TRUE ) ;
-    tm -> swapShort ( & magic ) ;
+    isSwapped = TRUE ;
+    swab_short ( & magic ) ;
   }
 
-  type  = tm -> readByte  () ;
-  bpp   = tm -> readByte  () ;
-  dim   = tm -> readShort () ;
+  type  = readByte  () ;
+  bpp   = readByte  () ;
+  dim   = readShort () ;
 
   /*
     This is a backstop test - if for some reason the magic number isn't swabbed, this
@@ -190,28 +240,28 @@ void ssgSGIHeader::readHeader ()
 
   if ( dim > 255 )
   {
-    ulSetError ( UL_WARNING, "%s: Bad swabbing?!?", tm -> getPath () ) ;
-    tm -> setSwap ( ! tm -> getSwap () ) ;
-    tm -> swapShort ( & dim ) ;
+    ulSetError ( UL_WARNING, "%s: Bad swabbing?!?", curr_image_fname ) ;
+    isSwapped = ! isSwapped ;
+    swab_short ( & dim ) ;
     magic = SGI_IMG_MAGIC ;
   }
 
-  xsize = tm -> readShort () ;
-  ysize = tm -> readShort () ;
-  zsize = tm -> readShort () ;
-  min   = tm -> readInt   () ;  
-  max   = tm -> readInt   () ;  
-          tm -> readInt   () ;  /* Dummy field */
+  xsize = readShort () ;
+  ysize = readShort () ;
+  zsize = readShort () ;
+  min   = readInt   () ;  
+  max   = readInt   () ;  
+                 readInt   () ;  /* Dummy field */
 
   int i ;
 
   for ( i = 0 ; i < 80 ; i++ )
-    tm -> readByte () ;         /* Name field */
+    readByte () ;         /* Name field */
 
-  colormap = tm -> readInt () ;
+  colormap = readInt () ;
 
   for ( i = 0 ; i < 404 ; i++ )
-    tm -> readByte () ;         /* Dummy field */
+    readByte () ;         /* Dummy field */
 
   makeConsistant () ;
 
@@ -226,11 +276,13 @@ void ssgLoadSGI ( const char *fname )
   ssgTextureManager* tm = ssgTextureManager::get () ;
   ssgSGIHeader *sgihdr = new ssgSGIHeader () ;
 
-  FILE* fp = tm -> openFile ( tm -> getPath (), "rb" ) ;
-  if ( fp == NULL )
+  strcpy ( curr_image_fname, fname ) ;
+  curr_image_fd = fopen ( curr_image_fname, "rb" ) ;
+
+  if ( curr_image_fd == NULL )
   {
     perror ( "ssgLoadTexture" ) ;
-    ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", tm -> getPath () ) ;
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", curr_image_fname ) ;
     tm -> loadDummy () ;
     return ;
   }
@@ -239,10 +291,10 @@ void ssgLoadSGI ( const char *fname )
 
   if ( sgihdr -> type == SGI_IMG_RLE )
   {
-    fread ( sgihdr->start, sizeof (unsigned int), sgihdr->tablen, fp ) ;
-    fread ( sgihdr->leng , sizeof (int), sgihdr->tablen, fp ) ;
-    tm -> swapIntArray ( (int *) sgihdr->start, sgihdr->tablen ) ;
-    tm -> swapIntArray ( (int *) sgihdr->leng , sgihdr->tablen ) ;
+    fread ( sgihdr->start, sizeof (unsigned int), sgihdr->tablen, curr_image_fd ) ;
+    fread ( sgihdr->leng , sizeof (int), sgihdr->tablen, curr_image_fd ) ;
+    swab_int_array ( (int *) sgihdr->start, sgihdr->tablen ) ;
+    swab_int_array ( (int *) sgihdr->leng , sgihdr->tablen ) ;
 
     int maxlen = 0 ;
 
@@ -266,7 +318,7 @@ void ssgLoadSGI ( const char *fname )
 
   if ( sgihdr->zsize <= 0 || sgihdr->zsize > 4 )
   {
-    ulSetError ( UL_FATAL, "ssgLoadTexture: '%s' is corrupted.", tm -> getPath () ) ;
+    ulSetError ( UL_FATAL, "ssgLoadTexture: '%s' is corrupted.", curr_image_fname ) ;
   }
 
   GLubyte *image = new GLubyte [ sgihdr->xsize *
@@ -335,14 +387,14 @@ void ssgLoadSGI ( const char *fname )
     }
   }
 
-  tm -> closeFile () ;
+  fclose ( curr_image_fd ) ;
 
   delete rbuf   ;
   delete gbuf   ;
   delete bbuf   ;
   delete abuf   ;
 
-  tm -> setAlpha ( sgihdr->zsize == 4 ) ;
+  tm -> setAlphaFlag ( sgihdr->zsize == 4 ) ;
   tm -> make_mip_maps ( image, sgihdr->xsize, sgihdr->ysize, sgihdr->zsize ) ;
 
   delete sgihdr ;

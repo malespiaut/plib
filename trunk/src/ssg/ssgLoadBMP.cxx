@@ -3,6 +3,67 @@
 
 #include "ssgMSFSPalette.h"
 
+static FILE          *curr_image_fd ;
+static char           curr_image_fname [ 512 ] ;
+static int            isSwapped ;
+
+
+static void swab_short ( unsigned short *x )
+{
+  if ( isSwapped )
+    *x = (( *x >>  8 ) & 0x00FF ) | 
+         (( *x <<  8 ) & 0xFF00 ) ;
+}
+
+static void swab_int ( unsigned int *x )
+{
+  if ( isSwapped )
+    *x = (( *x >> 24 ) & 0x000000FF ) | 
+         (( *x >>  8 ) & 0x0000FF00 ) | 
+         (( *x <<  8 ) & 0x00FF0000 ) | 
+         (( *x << 24 ) & 0xFF000000 ) ;
+}
+
+static void swab_int_array ( int *x, int leng )
+{
+  if ( ! isSwapped )
+    return ;
+
+  for ( int i = 0 ; i < leng ; i++ )
+  {
+    *x = (( *x >> 24 ) & 0x000000FF ) | 
+         (( *x >>  8 ) & 0x0000FF00 ) | 
+         (( *x <<  8 ) & 0x00FF0000 ) | 
+         (( *x << 24 ) & 0xFF000000 ) ;
+    x++ ;
+  }
+}
+
+
+static unsigned char readByte ()
+{
+  unsigned char x ;
+  fread ( & x, sizeof(unsigned char), 1, curr_image_fd ) ;
+  return x ;
+}
+
+static unsigned short readShort ()
+{
+  unsigned short x ;
+  fread ( & x, sizeof(unsigned short), 1, curr_image_fd ) ;
+  swab_short ( & x ) ;
+  return x ;
+}
+
+static unsigned int readInt ()
+{
+  unsigned int x ;
+  fread ( & x, sizeof(unsigned int), 1, curr_image_fd ) ;
+  swab_int ( & x ) ;
+  return x ;
+}
+
+
 /*
   Original source for BMP loader kindly
   donated by "Sean L. Palmer" <spalmer@pobox.com>
@@ -43,14 +104,18 @@ void ssgLoadBMP ( const char *fname )
 
   BMPHeader bmphdr ;
 
+  /* Get texture manager */
+
   ssgTextureManager* tm = ssgTextureManager::get () ;
 
   /* Open file & get size */
-  FILE* fp ;
-  if ( ( fp = tm -> openFile ( fname, "rb" ) ) == NULL )
+
+  strcpy ( curr_image_fname, fname ) ;
+
+  if ( ( curr_image_fd = fopen ( curr_image_fname, "rb" ) ) == NULL )
   {
     perror ( "ssgLoadTexture" ) ;
-    ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", tm -> getPath () ) ;
+    ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to open '%s' for reading.", curr_image_fname ) ;
     return ;
   }
 
@@ -58,36 +123,36 @@ void ssgLoadBMP ( const char *fname )
     Load the BMP piecemeal to avoid struct packing issues
   */
 
-  tm -> setSwap ( FALSE ) ;
-  bmphdr.FileType = tm -> readShort () ;
+  isSwapped = FALSE ;
+  bmphdr.FileType = readShort () ;
 
   if ( bmphdr.FileType == ((int)'B' + ((int)'M'<<8)) )
-    tm -> setSwap ( FALSE ) ;
+    isSwapped = FALSE ;
   else
   if ( bmphdr.FileType == ((int)'M' + ((int)'B'<<8)) )
-    tm -> setSwap ( TRUE ) ;
+    isSwapped = TRUE  ;
   else
   {
     ulSetError ( UL_WARNING, "%s: Unrecognised magic number 0x%04x",
-                            tm -> getPath (), bmphdr.FileType ) ;
+                            curr_image_fname, bmphdr.FileType ) ;
     return ;
   }
 
-  bmphdr.FileSize      = tm -> readInt   () ;
-  bmphdr.Reserved1     = tm -> readShort () ;
-  bmphdr.Reserved2     = tm -> readShort () ;
-  bmphdr.OffBits       = tm -> readInt   () ;
-  bmphdr.Size          = tm -> readInt   () ;
-  bmphdr.Width         = tm -> readInt   () ;
-  bmphdr.Height        = tm -> readInt   () ;
-  bmphdr.Planes        = tm -> readShort () ;
-  bmphdr.BitCount      = tm -> readShort () ;
-  bmphdr.Compression   = tm -> readInt   () ;
-  bmphdr.SizeImage     = tm -> readInt   () ;
-  bmphdr.XPelsPerMeter = tm -> readInt   () ;
-  bmphdr.YPelsPerMeter = tm -> readInt   () ;
-  bmphdr.ClrUsed       = tm -> readInt   () ;
-  bmphdr.ClrImportant  = tm -> readInt   () ;
+  bmphdr.FileSize      = readInt   () ;
+  bmphdr.Reserved1     = readShort () ;
+  bmphdr.Reserved2     = readShort () ;
+  bmphdr.OffBits       = readInt   () ;
+  bmphdr.Size          = readInt   () ;
+  bmphdr.Width         = readInt   () ;
+  bmphdr.Height        = readInt   () ;
+  bmphdr.Planes        = readShort () ;
+  bmphdr.BitCount      = readShort () ;
+  bmphdr.Compression   = readInt   () ;
+  bmphdr.SizeImage     = readInt   () ;
+  bmphdr.XPelsPerMeter = readInt   () ;
+  bmphdr.YPelsPerMeter = readInt   () ;
+  bmphdr.ClrUsed       = readInt   () ;
+  bmphdr.ClrImportant  = readInt   () ;
  
   w   = bmphdr.Width  ;
   h   = bmphdr.Height ;
@@ -119,13 +184,13 @@ void ssgLoadBMP ( const char *fname )
   {
     for ( int i = 0 ; i < 256 ; i++ )
     {
-      pal[i].b = tm -> readByte () ;
-      pal[i].g = tm -> readByte () ;
-      pal[i].r = tm -> readByte () ;
+      pal[i].b = readByte () ;
+      pal[i].g = readByte () ;
+      pal[i].r = readByte () ;
 
       /* According to BMP specs, this fourth value is not really alpha value
 	 but just a filler byte, so it is ignored for now. */
-      pal[i].a = tm -> readByte () ;
+      pal[i].a = readByte () ;
       //if ( pal[i].a != 255 ) isOpaque = FALSE ;
 
       if ( pal[i].r != pal[i].g ||
@@ -133,7 +198,7 @@ void ssgLoadBMP ( const char *fname )
     }
   }
 
-  fseek ( fp, bmphdr.OffBits, SEEK_SET ) ;
+  fseek ( curr_image_fd, bmphdr.OffBits, SEEK_SET ) ;
 
   bmphdr.SizeImage = w * h * (bpp / 8) ;
   GLubyte *data = new GLubyte [ bmphdr.SizeImage ] ;
@@ -144,15 +209,15 @@ void ssgLoadBMP ( const char *fname )
     for ( int y = h-1 ; y >= 0 ; y-- )
     {
       GLubyte *row_ptr = &data [ y * row_size ] ;
-      if ( fread ( row_ptr, 1, row_size, fp ) != (unsigned)row_size )
+      if ( fread ( row_ptr, 1, row_size, curr_image_fd ) != (unsigned)row_size )
       {
-        ulSetError ( UL_WARNING, "Premature EOF in '%s'", tm -> getPath () ) ;
+        ulSetError ( UL_WARNING, "Premature EOF in '%s'", curr_image_fname ) ;
         return ;
       }
     }
   }
 
-  tm -> closeFile () ;
+  fclose ( curr_image_fd ) ;
 
   GLubyte *image ;
   int z ;
@@ -221,7 +286,7 @@ void ssgLoadBMP ( const char *fname )
     return ;
   }
 
-  tm -> setAlpha ( z == 4 ) ;
+  tm -> setAlphaFlag ( z == 4 ) ;
   tm -> make_mip_maps ( image, w, h, z ) ;
 }
 
@@ -230,17 +295,17 @@ void ssgLoadBMP ( const char *fname )
 void ssgLoadMDLTexture ( const char *fname )
 {
   ssgTextureManager* tm = ssgTextureManager::get () ;
-  
+
   FILE *tfile;
   if ( (tfile = fopen(fname, "rb")) == NULL) {
     ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname );
-    tm -> loadDummy();
+    tm -> loadDummy () ;
     return;
   }
-  
+
   fseek(tfile, 0, SEEK_END);
   unsigned long file_length = ftell(tfile);
-  
+
   if (file_length != 65536) {
     // this is not a MSFS-formatted texture, so it's probably a BMP
     fclose(tfile);
@@ -248,23 +313,23 @@ void ssgLoadMDLTexture ( const char *fname )
     return;
   } else {
     fseek(tfile, 0, SEEK_SET);
-    
+
     unsigned char *texels = new unsigned char[256 * 256 * 4];
     int c = 0;
     for (int y = 0; y < 256; y++) {
       for (int x = 0; x < 256; x++) {
-        unsigned char b;
-        fread(&b, 1, 1, tfile);
-        texels[c++] = fsTexPalette[b*4    ];
-        texels[c++] = fsTexPalette[b*4 + 1];
-        texels[c++] = fsTexPalette[b*4 + 2];
-        texels[c++] = fsTexPalette[b*4 + 3];
+	unsigned char b;
+	fread(&b, 1, 1, tfile);
+	texels[c++] = fsTexPalette[b*4    ];
+	texels[c++] = fsTexPalette[b*4 + 1];
+	texels[c++] = fsTexPalette[b*4 + 2];
+	texels[c++] = fsTexPalette[b*4 + 3];
       }
     }
-    
+
     fclose(tfile);
     
-    // _ssgAlphaFlag = true ; ??
+    // tm -> setAlphaFlag ( TRUE ) ; ??
     tm -> make_mip_maps ( texels, 256, 256, 4 ) ;
   }
 }

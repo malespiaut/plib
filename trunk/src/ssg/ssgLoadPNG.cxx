@@ -15,7 +15,7 @@ void ssgLoadPNG ( const char *fname )
     ulSetError ( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname ) ;
     return ;
   }
-  tm -> setAlpha ( info.Alpha > 0 ) ;
+  tm -> setAlphaFlag ( info.Alpha > 0 ) ;
 #else
   ulSetError ( UL_WARNING, "ssgLoadTexture: '%s' - you need glpng for PNG format support",
         fname ) ;
