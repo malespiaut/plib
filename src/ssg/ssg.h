@@ -652,7 +652,7 @@ public:
     alpha_clamp = clamp ;
   }
  
-  virtual void print ( FILE *fd, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -717,7 +717,7 @@ public:
   void   setShininess ( float sh ) ; 
   void   setShadeModel ( GLenum model ) ; 
   void   setAlphaClamp ( float clamp ) ; 
-  virtual void print ( FILE *fd, char *indent = "" ) ;
+  virtual void print ( FILE *fd = stderr, char *indent = "" ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
