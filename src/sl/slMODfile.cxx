@@ -100,7 +100,7 @@ static void convolute ( int mag, char *dp )
     int i,j;
 
     for (sp0 = sis.beg; sp0 < sis.end; sp0++) {
-	*dp++ = *sp0 ^ sis.xor;
+	*dp++ = *sp0 ^ sis.x_or;
 	for (i = 0; i < mag-1; i++,dp++) {
 	    int *hp = hn[mag-2][i];
 	    unsigned char *sp = sp0 - 3;
@@ -111,7 +111,7 @@ static void convolute ( int mag, char *dp )
 		    if (sis.loopBeg) sp = sis.loopBeg;
 		    else break;
 		}		
-		sum += *hp * (char)(*sp ^ sis.xor);
+		sum += *hp * (char)(*sp ^ sis.x_or);
 	    }
 	    sum /= 256;
 	    if (sum > 127) sum = 127;
@@ -142,7 +142,7 @@ static void perSampleWork(SampleInfo *sip, unsigned int c4req)
     sid.end = dp0 + len*mag ;
     convolute(mag, (char *)dp0);
     sid.loopBeg = sis.loopBeg? (sid.beg + (sis.loopBeg - sis.beg)*mag) : (unsigned char *)NULL;
-    sid.xor = 0;
+    sid.x_or = 0;
     sid.c4spd = sis.c4spd;
     sid.vol = sis.vol;
     sid.mag = sis.mag * mag;
@@ -451,7 +451,7 @@ void MODfile::makeSampleInfo( int smp15 )
       p->end = sp + len; /*sp+len*/
     }
 
-    p->xor   = 0 ;
+    p->x_or  = 0 ;
     p->mag   = 1 ;
     p->c4spd = freq[(*msp)[24]%16] ;
     p->vol   = (*msp)[25] > 64 ? 64 : (*msp)[25] ;
@@ -575,7 +575,7 @@ unsigned char *MODfile::read_whole_file ( char *fname, int *len )
   l = statbuf.st_size ;
 
   unsigned char *p = new unsigned char [ l ] ;
-  read  ( fd, p, l ) ;
+  read  ( fd, (char *)p, l ) ;
   close ( fd ) ;
 
   if ( len != NULL )

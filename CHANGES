@@ -2,8 +2,26 @@
 PLIB Change Log.
 ================
 
-PLIB v1.2.0 (Feb xx 2000)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PLIB v1.1.12 (June 24th 2000)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Fixed some compilation problems for Macintosh/Codewarrior
+    which treats 'xor' and 'or' as reserved words!! Yikes!
+    Thanks to Darrell Walisser for that piece of nasty news.
+
+  * Fixed some problems in slMODinst.cxx that were causing
+    compilation warnings under windoze (thanks to Bram Stolk)
+
+  * Changed SL to open audio devices with O_NONBLOCK -
+    thanks to Trent Gamblin for spotting this one.
+
+  * Added configure.in check for libdl to cover bug in ld.so
+    under Linux.  Application programs under Linux need to
+    link to libdl.so in order to work around this.
+    Ben Woodhead <zander@isn.net> added this.
+
+  * Added Borland project files, thanks to Dave Heil for
+    contributing these.
+
   * Swapped order of multiplication in sgMultMat4. Thanks to
     Lucas Ackerman for spotting this one.
 

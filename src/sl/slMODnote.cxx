@@ -370,16 +370,16 @@ static void setFrameLen ( void )
 }
 
 
-void _MOD_playNoteSetOutRate ( int or )
+void _MOD_playNoteSetOutRate ( int _or )
 {
-  if ( or > MAX_OUTRATE )
+  if ( _or > MAX_OUTRATE )
   {
     fprintf ( stderr, "Too high output sample rate.\n" ) ;
     exit ( 1 ) ;
   }
 
-  _MOD_instOutRate ( or ) ;
-  outRate = or ;
+  _MOD_instOutRate ( _or ) ;
+  outRate = _or ;
   setFrameLen () ;
 }
 
