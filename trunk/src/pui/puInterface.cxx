@@ -99,14 +99,21 @@ puInterface *puGetBaseLiveInterface ( void )
 
 puInterface::~puInterface ()
 {
-  puPopLiveInterface ( this ) ;
+  puObject *bo ;
 
-  for ( puObject *bo = dlist ; bo != NULL ; /* Nothing */ )
+  for ( bo = dlist ;
+        bo -> getNextObject() != NULL ;
+        bo = bo -> getNextObject() )
+    /* Find the last object in our list. */ ;
+
+  while ( bo != NULL )
   {
     dlist = bo    ;
-    bo = bo -> getNextObject() ;
+    bo = bo -> getPrevObject() ;
     delete dlist  ;
   }
+
+  puPopLiveInterface ( this ) ;
 
   if ( this == puActiveWidget () )
     puDeactivateWidget () ;
