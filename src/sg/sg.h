@@ -175,12 +175,14 @@ inline void sgFullXformPnt3 ( sgVec3 dst, const sgMat4 mat ) { sgFullXformPnt3 (
 inline void sgFullXformPnt4 ( sgVec4 dst, const sgMat4 mat ) { sgFullXformPnt4 ( dst, dst, mat ) ; }
 
 
-/* matrix properties */
+/* Bits returned by sgClassifyMat4 */
+
+#define SG_IDENTITY        0x00   // for clarity
 #define SG_ROTATION        0x01   // includes a rotational component
 #define SG_MIRROR          0x02   // changes handedness (det < 0)
 #define SG_UNIFORM_SCALE   0x04   // uniform scaling
 #define SG_GENERAL_SCALE   0x08   // x, y and z scaled differently
-#define SG_NONORTHO        0x10   // row vectors not orthogonal
+#define SG_NONORTHO        0x10   // 3x3 row vectors not orthogonal
 #define SG_TRANSLATION     0x20   // translates
 #define SG_PROJECTION      0x40   // forth column not 0,0,0,1
 
