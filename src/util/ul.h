@@ -269,11 +269,11 @@ class ulTCPConnection
 */
 
 
-#ifdef __WIN32__
+#ifdef WIN32
 
 class ulDynamicLibrary
 {
-  MMODULE handle ;
+  HMODULE handle ;
 
 public:
 
@@ -282,7 +282,7 @@ public:
     char dllname[1024];
     strcpy ( dllname, libname ) ;
     strcat ( dllname, ".dll"  ) ;
-    handle = (MMODULE) LoadLibrary ( dllname ) ;
+    handle = (HMODULE) LoadLibrary ( dllname ) ;
   }
 
   void *getFuncAddress ( const char *funcname )
