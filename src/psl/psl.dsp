@@ -102,6 +102,18 @@ SOURCE=.\pslCompiler.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\pslCompiler.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pslContext.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\pslContext.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\psl.cxx
 # End Source File
 # Begin Source File
@@ -126,7 +138,7 @@ SOURCE=.\pslProgram.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\pslRun.cxx
+SOURCE=.\pslSymbol.h
 # End Source File
 # Begin Source File
 
