@@ -60,6 +60,34 @@ int pslCompiler::pushPrimitive ()
     }
   }
 
+  if ( c [ 0 ] == '!' )  /* Unary NOT */
+  {
+    if ( pushPrimitive () )
+    {
+      pushNot () ;
+      return TRUE ;
+    }
+    else
+    {
+      ungetToken ( c ) ;
+      return FALSE ;
+    }
+  }
+
+  if ( c [ 0 ] == '~' )  /* Unary Twiddle */
+  {
+    if ( pushPrimitive () )
+    {
+      pushTwiddle () ;
+      return TRUE ;
+    }
+    else
+    {
+      ungetToken ( c ) ;
+      return FALSE ;
+    }
+  }
+
   if ( c [ 0 ] == '-' )  /* Unary minus */
   {
     if ( pushPrimitive () )
@@ -168,10 +196,42 @@ int pslCompiler::pushAddExpression ()
 
 
 
+int pslCompiler::pushBitwiseExpression ()
+{
+  if ( ! pushAddExpression () )
+    return FALSE ;
+
+  while ( TRUE )
+  {
+    char c [ MAX_TOKEN ] ;
+
+    getToken ( c ) ;
+
+    if ( c [ 0 ] != '|' && c [ 0 ] != '&' && c [ 0 ] != '^' )
+    {
+      ungetToken ( c ) ;
+      return TRUE ;
+    }
+
+    if ( ! pushAddExpression () )
+      return FALSE ;
+
+    if ( c [ 0 ] == '|' )
+      pushOr () ;
+    else
+    if ( c [ 0 ] == '&' )
+      pushAnd () ;
+    else
+      pushXor () ;
+  }
+}
+
+
+
 
 int pslCompiler::pushRelExpression ()
 {
-  if ( ! pushAddExpression () )
+  if ( ! pushBitwiseExpression () )
     return FALSE ;
 
   while ( TRUE )

@@ -167,6 +167,87 @@ pslResult pslContext::step ()
       }
       return PSL_PROGRAM_CONTINUE ;
 
+    case OPCODE_NOT :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+
+        v1 -> set ( ! v1 -> getInt () ) ;
+
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_TWIDDLE :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+
+        v1 -> set ( ~ v1 -> getInt () ) ;
+
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_OROR :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+        pslValue *v2 = & stack [ sp - 2 ] ;
+
+        v2 -> set ( v2 -> getInt () || v1 -> getInt () ) ;
+
+        popVoid () ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_ANDAND :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+        pslValue *v2 = & stack [ sp - 2 ] ;
+
+        v2 -> set ( v2 -> getInt () && v1 -> getInt () ) ;
+
+        popVoid () ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_OR :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+        pslValue *v2 = & stack [ sp - 2 ] ;
+
+        v2 -> set ( v2 -> getInt () | v1 -> getInt () ) ;
+
+        popVoid () ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_AND :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+        pslValue *v2 = & stack [ sp - 2 ] ;
+
+        v2 -> set ( v2 -> getInt () & v1 -> getInt () ) ;
+
+        popVoid () ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_XOR :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+        pslValue *v2 = & stack [ sp - 2 ] ;
+
+        v2 -> set ( v2 -> getInt () ^ v1 -> getInt  () ) ;
+
+        popVoid () ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
     case OPCODE_DIV :
       {
         pslValue *v1 = & stack [ sp - 1 ] ;

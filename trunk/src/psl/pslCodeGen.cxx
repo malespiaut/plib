@@ -175,6 +175,13 @@ void pslCompiler::pushDivide       () { pushCodeByte ( OPCODE_DIV   ) ; }
 void pslCompiler::pushMultiply     () { pushCodeByte ( OPCODE_MULT  ) ; } 
 void pslCompiler::pushModulo       () { pushCodeByte ( OPCODE_MOD   ) ; } 
 void pslCompiler::pushNegate       () { pushCodeByte ( OPCODE_NEG   ) ; } 
+void pslCompiler::pushNot          () { pushCodeByte ( OPCODE_NOT   ) ; } 
+void pslCompiler::pushTwiddle      () { pushCodeByte ( OPCODE_TWIDDLE); } 
+void pslCompiler::pushOrOr         () { pushCodeByte ( OPCODE_OROR  ) ; } 
+void pslCompiler::pushAndAnd       () { pushCodeByte ( OPCODE_ANDAND) ; } 
+void pslCompiler::pushOr           () { pushCodeByte ( OPCODE_OR    ) ; } 
+void pslCompiler::pushAnd          () { pushCodeByte ( OPCODE_AND   ) ; } 
+void pslCompiler::pushXor          () { pushCodeByte ( OPCODE_XOR   ) ; } 
 
 void pslCompiler::pushLess         () { pushCodeByte ( OPCODE_LESS ) ; } 
 void pslCompiler::pushLessEqual    () { pushCodeByte ( OPCODE_LESSEQUAL ) ; } 
