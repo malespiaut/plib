@@ -537,3 +537,50 @@ void ssgSimpleState::print ( FILE *fd, char *indent, int how_much )
                             emission_colour[2], emission_colour[3] ) ;
 }
 
+// ***********************************************************************
+// ******************** class CGlobalSimpleStateList *********************
+// ***********************************************************************
+ 
+
+int CGlobalSimpleStateList::find_state ( ssgState* st )
+{
+  for ( int i=0; i<num_states; i++ )
+    if ( states[ i ] == st )
+      return i ;
+  return -1 ;
+}
+
+
+void CGlobalSimpleStateList::get_states ( ssgEntity *e )
+{
+	if ( (states != NULL ) || ( num_states != 0 ) )
+    ulSetError( UL_WARNING, "There are already states!\n");
+	states = new ssgSimpleState*[ MAX_STATES ] ;
+	num_states = 0;
+
+	get_states_recursive (e);
+}
+
+void CGlobalSimpleStateList::get_states_recursive ( ssgEntity *e )
+{
+  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
+  {
+    ssgBranch *br = (ssgBranch *) e ;
+
+    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
+      get_states_recursive ( br -> getKid ( i ) ) ;
+  }
+  else
+  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
+  {
+    ssgVtxTable* vt = (ssgVtxTable *) e ;
+    ssgState* st = vt -> getState () ;
+    if ( st && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
+    {
+      ssgSimpleState* ss = (ssgSimpleState*) vt -> getState () ;
+      if ( find_state ( ss ) == -1 )
+        states[ num_states++ ] = ss ;
+    }
+  }
+}
+
