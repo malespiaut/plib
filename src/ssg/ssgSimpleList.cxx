@@ -1,6 +1,54 @@
 
 #include "ssgLocal.h"
 
+void ssgSimpleList::copy_from ( ssgSimpleList *src, int clone_flags )
+{
+  ssgBase::copy_from ( src, clone_flags ) ;
+
+  delete list ;
+  size_of = src -> getSizeOf () ;
+  total   = src -> getNum () ;
+  limit   = total ;
+  list    = new char [ limit * size_of ] ;
+  memcpy ( list, src->raw_get ( 0 ), limit * size_of ) ;
+}
+
+ssgSimpleList *ssgSimpleList::clone ( int clone_flags )
+{
+  ssgSimpleList *b = new ssgSimpleList () ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+ssgNormalArray *ssgNormalArray::clone ( int clone_flags )
+{
+  ssgNormalArray *b = new ssgNormalArray () ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+ssgVertexArray *ssgVertexArray::clone ( int clone_flags )
+{
+  ssgVertexArray *b = new ssgVertexArray () ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+ssgTexCoordArray *ssgTexCoordArray::clone ( int clone_flags )
+{
+  ssgTexCoordArray *b = new ssgTexCoordArray () ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+ssgColourArray *ssgColourArray::clone ( int clone_flags )
+{
+  ssgColourArray *b = new ssgColourArray () ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 int ssgSimpleList::load ( FILE *fd )
 {
   delete list ;

@@ -1,6 +1,38 @@
 
 #include "ssgLocal.h"
 
+void ssgSimpleState::copy_from ( ssgSimpleState *src, int clone_flags )
+{
+  ssgState::copy_from ( src, clone_flags ) ;
+
+  setTextureFilename ( src -> getTextureFilename () ) ;
+
+  dont_care      = src -> dont_care ;
+  enables        = src -> enables   ;
+  texture_handle = src -> texture_handle ;
+  wrapu          = src -> wrapu ;
+  wrapv          = src -> wrapv ;
+
+  colour_material_mode = src -> colour_material_mode ;
+
+  specular_colour = src -> specular_colour ;
+  emission_colour = src -> emission_colour ;
+   ambient_colour = src ->  ambient_colour ;
+   diffuse_colour = src ->  diffuse_colour ;
+
+  shade_model = src -> shade_model ;
+  shininess   = src -> shininess   ;
+  alpha_clamp = src -> alpha_clamp ;
+}
+
+ssgSimpleState *ssgSimpleState::clone ( int clone_flags )
+{
+  ssgSimpleState *b = new ssgSimpleState ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 void _ssgForceLineState ()
 {
   _ssgCurrentContext->getState()->enables &= ~((1<<SSG_GL_TEXTURE_EN) |

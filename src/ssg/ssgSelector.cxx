@@ -1,6 +1,22 @@
 
 #include "ssgLocal.h"
 
+void ssgSelector::copy_from ( ssgSelector *src, int clone_flags )
+{
+  ssgBranch::copy_from ( src, clone_flags ) ;
+
+  selection = src -> getSelect () ;
+}
+
+
+ssgSelector *ssgSelector::clone ( int clone_flags )
+{
+  ssgSelector *b = new ssgSelector ;
+  b -> copy_from ( this, clone_flags ) ;
+  return b ;
+}
+
+
 ssgSelector::ssgSelector (void)
 {
   type |= SSG_TYPE_SELECTOR ;
