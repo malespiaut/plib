@@ -368,7 +368,6 @@ void puFileSelector::puFileSelectorInit ( int x, int y, int w, int h,
   frame = new puFrame ( 0, 0, w, h );
 
   slider = new puSlider (w-30,40+20*arrows,h-70-40*arrows,TRUE,20);
-  slider->setDelta(0.1f);
   slider->setValue(1.0f);
   slider->setSliderFraction (0.2f) ;
   slider->setCBMode( PUSLIDER_DELTA );
@@ -594,12 +593,15 @@ void puFileSelector::find_files ( void )
   ulCloseDir ( dirp ) ;
 
   num_files = ifile ;
+  if ( num_files > 5 )
+    slider -> setDelta ( 0.5f / num_files ) ;
+  else
+    slider -> setDelta ( 0.1f ) ;
 
   if ( num_files == 0 )
   {
     ulSetError ( UL_WARNING,
 		   "PUI:puFileSelector - no entries in directory '%s'?!", dir ) ;
-    num_files = 0 ;
     return;
   }
 
