@@ -598,7 +598,7 @@ static int NoExternals = 0;
 static int NoClean = 0;
 
 #ifndef NO_LOADER_OPTIONS
-static const ssgLoaderOptions *LoaderOptions;
+static ssgLoaderOptions *LoaderOptions;
 #endif
 
 static struct snode *TexCache; /* filename --> fltTexture */

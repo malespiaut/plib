@@ -32,7 +32,7 @@
 #define DEBUGPRINT(x)
 #endif
 
-static const ssgLoaderOptions *current_options;
+static ssgLoaderOptions *current_options;
 
 // Temporary vertex arrays
 static ssgVertexArray 		*curr_vtx_;

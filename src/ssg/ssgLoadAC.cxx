@@ -14,7 +14,7 @@ struct _ssgMaterial
 static int num_materials = 0 ;
 static sgVec3 *vtab = NULL ;
 
-static const ssgLoaderOptions* current_options = NULL ;
+static ssgLoaderOptions* current_options = NULL ;
 static _ssgMaterial    *current_material = NULL ;
 static sgVec4          *current_colour   = NULL ;
 static ssgBranch       *current_branch   = NULL ;

@@ -284,7 +284,7 @@ static int double_sided;     // is there some double sided material?
 
 static ssgBranch *top_object, *current_branch;
 
-static const ssgLoaderOptions* current_options = NULL ;
+static ssgLoaderOptions* current_options = NULL ;
 
 static _3dsMat **materials, *current_material;
 

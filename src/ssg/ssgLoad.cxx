@@ -153,16 +153,14 @@ void ssgLoaderOptions::makeTexturePath ( char *path, const char *fname ) const
 
 
 ssgLeaf* ssgLoaderOptions::createLeaf ( ssgLeaf* leaf,
-                                        const char* parent_name ) const
+                                        const char* parent_name )
 {
-  /* cast away logical const */
-  ssgLoaderOptions* options = (ssgLoaderOptions*)this ;
-
+  
   /* is this just a sharing 'reset' */
   if ( leaf == NULL )
   {
-    options -> shared_textures.removeAll () ;
-    options -> shared_states.removeAll () ;
+    shared_textures.removeAll () ;
+    shared_states.removeAll () ;
     return NULL ;
   }
   
@@ -171,11 +169,11 @@ ssgLeaf* ssgLoaderOptions::createLeaf ( ssgLeaf* leaf,
   if ( st != NULL && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
   {
     ssgSimpleState *ss = (ssgSimpleState*) st ;
-    ssgSimpleState *match = options -> shared_states.findMatch ( ss ) ;
+    ssgSimpleState *match = shared_states.findMatch ( ss ) ;
     if ( match != NULL )
       leaf -> setState ( match ) ;
     else
-      options -> shared_states.add ( ss ) ;
+      shared_states.add ( ss ) ;
   }
 
   return leaf ;
@@ -184,21 +182,19 @@ ssgLeaf* ssgLoaderOptions::createLeaf ( ssgLeaf* leaf,
 ssgTexture* ssgLoaderOptions::createTexture ( char* tfname,
 						     int wrapu,
 						     int wrapv,
-						     int mipmap ) const
+						     int mipmap ) 
 {
-  /* cast away logical const */
-  ssgLoaderOptions* options = (ssgLoaderOptions*)this ;
-
+  
   char filename [ 1024 ] ;
   makeTexturePath ( filename, tfname ) ;
 
-  ssgTexture *tex = options -> shared_textures.findByFilename ( filename ) ;
+  ssgTexture *tex = shared_textures.findByFilename ( filename ) ;
   if ( tex )
     return tex ;
   
   tex = new ssgTexture ( filename, wrapu, wrapv, mipmap ) ;
   if ( tex )
-    options -> shared_textures.add ( tex ) ;
+    shared_textures.add ( tex ) ;
   return tex ;
 }
 
