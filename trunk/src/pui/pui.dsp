@@ -94,6 +94,10 @@ SOURCE=.\puArrowButton.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puBiSlider.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\puBox.cxx
 # End Source File
 # Begin Source File
@@ -103,6 +107,10 @@ SOURCE=.\puButton.cxx
 # Begin Source File
 
 SOURCE=.\puButtonBox.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puDial.cxx
 # End Source File
 # Begin Source File
 
@@ -167,6 +175,10 @@ SOURCE=.\puSlider.cxx
 # Begin Source File
 
 SOURCE=.\puText.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puTriSlider.cxx
 # End Source File
 # Begin Source File
 
