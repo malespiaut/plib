@@ -455,15 +455,15 @@ public:
     floater = pv -> floater ;
     strcpy ( string, pv -> string ) ;
     update_res () ;
-    puPostRefresh() ;
+    puPostRefresh () ;
   }
 
   void setValuator ( int   *i ) { res_integer = i    ; res_floater = NULL ; res_string = NULL ; re_eval () ; }
   void setValuator ( float *f ) { res_integer = NULL ; res_floater = f    ; res_string = NULL ; re_eval () ; }
   void setValuator ( char  *s ) { res_integer = NULL ; res_floater = NULL ; res_string = s    ; re_eval () ; }
 
-  void setValue ( int   i ) { integer = i ; floater = (float) i ; sprintf ( string, "%d", i ) ; update_res() ; puPostRefresh() ; }
-  void setValue ( float f ) { integer = (int) f ; floater = f ; sprintf ( string, "%g", f ) ; update_res() ; puPostRefresh() ; }
+  void setValue ( int   i ) { integer = i ; floater = (float) i ; sprintf ( string, "%d", i ) ; update_res() ; puPostRefresh () ; }
+  void setValue ( float f ) { integer = (int) f ; floater = f ; sprintf ( string, "%g", f ) ; update_res() ; puPostRefresh () ; }
   void setValue ( const char *s ) { 
                               if ( s == NULL || s[0] == '\0' )
                               {
@@ -491,7 +491,7 @@ public:
                                 }
                               }
                               update_res () ;
-                              puPostRefresh() ;
+                              puPostRefresh () ;
                             }
 
   void getValue ( int   *i ) { re_eval () ; *i = integer ; }
@@ -598,14 +598,14 @@ public:
       abox.min[0]  = x ;
       abox.min[1]  = y ;
     }
-    recalc_bbox() ; puPostRefresh() ;
+    recalc_bbox() ; puPostRefresh () ;
   }
 
   virtual void setSize ( int w, int h )
   {
     abox.max[0] = abox.min[0] + w ;
     abox.max[1] = abox.min[1] + h ;
-    recalc_bbox() ; puPostRefresh() ;
+    recalc_bbox() ; puPostRefresh () ;
   }
 
   void getPosition ( int *x, int *y )
@@ -666,46 +666,46 @@ public:
   void      *getRenderCallbackData ( void ) { return render_data ; }
   void       invokeRenderCallback ( int dx, int dy ) { if ( r_cb ) (*r_cb)(this, dx, dy, render_data) ; }
 
-  void setBorderThickness ( int t )  {  border_thickness = t ; puPostRefresh() ;  }
+  void setBorderThickness ( int t )  {  border_thickness = t ; puPostRefresh () ;  }
   int getBorderThickness ( void )  {  return border_thickness ;  }
 
-  void  makeReturnDefault ( int def ) { am_default = def ; puPostRefresh() ; }
+  void  makeReturnDefault ( int def ) { am_default = def ; puPostRefresh () ; }
   int   isReturnDefault   ( void )          { return am_default ; }
 
   int   getWindow () { return window ; }
-  void  setWindow ( int w ) { window = w ; puPostRefresh() ; }
+  void  setWindow ( int w ) { window = w ; puPostRefresh () ; }
 
   void  setActiveDirn ( int e ) { active_mouse_edge = e ; }
   int   getActiveDirn ( void ) { return active_mouse_edge ; }
 
-  void  setLegend ( const char *l ) { legend = l ; recalc_bbox() ; puPostRefresh() ; }
+  void  setLegend ( const char *l ) { legend = l ; recalc_bbox() ; puPostRefresh () ; }
   const char *getLegend ( void ) const { return legend ; }
 
-  void  setLegendFont ( puFont f ) { legendFont = f ; recalc_bbox() ; puPostRefresh() ; }
+  void  setLegendFont ( puFont f ) { legendFont = f ; recalc_bbox() ; puPostRefresh () ; }
   puFont getLegendFont ( void ) { return legendFont ; }
 
-  void  setLegendPlace ( int lp ) { legendPlace = lp ; recalc_bbox() ; puPostRefresh() ; }
+  void  setLegendPlace ( int lp ) { legendPlace = lp ; recalc_bbox() ; puPostRefresh () ; }
   int   getLegendPlace ( void ) { return legendPlace ; }
 
-  void  setLabel ( const char *l ) { label = l ; recalc_bbox() ; puPostRefresh() ; }
+  void  setLabel ( const char *l ) { label = l ; recalc_bbox() ; puPostRefresh () ; }
   const char *getLabel ( void ) const { return label ; }
 
-  void  setLabelFont ( puFont f ) { labelFont = f ; recalc_bbox() ; puPostRefresh() ; }
+  void  setLabelFont ( puFont f ) { labelFont = f ; recalc_bbox() ; puPostRefresh () ; }
   puFont getLabelFont ( void ) { return labelFont ; }
 
-  void  setLabelPlace ( int lp ) { labelPlace = lp ; recalc_bbox() ; puPostRefresh() ; }
+  void  setLabelPlace ( int lp ) { labelPlace = lp ; recalc_bbox() ; puPostRefresh () ; }
   int   getLabelPlace ( void ) { return labelPlace ; }
 
-  void activate   ( void ) { if ( ! active  ) { active  = TRUE  ; puPostRefresh() ; } }
-  void greyOut    ( void ) { if (   active  ) { active  = FALSE ; puPostRefresh() ; } }
+  void activate   ( void ) { if ( ! active  ) { active  = TRUE  ; puPostRefresh () ; } }
+  void greyOut    ( void ) { if (   active  ) { active  = FALSE ; puPostRefresh () ; } }
   int  isActive   ( void ) { return active ; }
 
-  void highlight  ( void ) { if ( ! highlighted ) { highlighted = TRUE  ; puPostRefresh() ; } }
-  void lowlight   ( void ) { if (   highlighted ) { highlighted = FALSE ; puPostRefresh() ; } }
+  void highlight  ( void ) { if ( ! highlighted ) { highlighted = TRUE  ; puPostRefresh () ; } }
+  void lowlight   ( void ) { if (   highlighted ) { highlighted = FALSE ; puPostRefresh () ; } }
   int isHighlighted( void ){ return highlighted ; }
 
-  void reveal     ( void ) { if ( ! visible ) { visible = TRUE  ; puPostRefresh() ; } }
-  void hide       ( void ) { if (   visible ) { visible = FALSE ; puPostRefresh() ; } }
+  void reveal     ( void ) { if ( ! visible ) { visible = TRUE  ; puPostRefresh () ; } }
+  void hide       ( void ) { if (   visible ) { visible = FALSE ; puPostRefresh () ; } }
   int  isVisible  ( void ) { return visible ; }
 
   void setStyle ( int which )
@@ -724,7 +724,7 @@ public:
       border_thickness = 5 ;
 
     recalc_bbox () ;
-    puPostRefresh() ;
+    puPostRefresh () ;
   }
 
   int  getStyle ( void ) { return style ; }
@@ -738,7 +738,7 @@ public:
   void setColour ( int which, float r, float g, float b, float a = 1.0f )
   {
     puSetColour ( colour [ which ], r, g, b, a ) ;
-    puPostRefresh() ;
+    puPostRefresh () ;
   }
   void setColor ( int which, float r, float g, float b, float a = 1.0f )
   {
@@ -953,8 +953,8 @@ public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
 
-  int  getButtonType ( void  )     { return button_type ;  }
-  void setButtonType ( int btype ) { button_type = btype ; }
+  int  getButtonType ( void  )     { return button_type ; }
+  void setButtonType ( int btype ) { button_type = btype ; puPostRefresh () ; }
 
   puButton   ( int minx, int miny, const char *l ) :
                  puObject ( minx, miny,
@@ -1005,7 +1005,7 @@ public:
   void draw  ( int dx, int dy ) ;
 
   int  getArrowType ( void  ) { return arrow_type ; }
-  void setArrowType ( int i ) { arrow_type = i ; puPostRefresh() ; }
+  void setArrowType ( int i ) { arrow_type = i ; puPostRefresh () ; }
 
   puArrowButton ( int minx, int miny, int maxx, int maxy, int ptype ) :
                  puOneShot ( minx, miny, maxx, maxy )
@@ -1074,7 +1074,7 @@ public:
   void setDelta ( float f ) { cb_delta = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; }
   float getDelta ( void ) { return cb_delta ; }
 
-  void setSliderFraction ( float f ) { slider_fraction = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; }
+  void setSliderFraction ( float f ) { slider_fraction = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; puPostRefresh () ; }
   float getSliderFraction ( void ) { return slider_fraction ; }
 } ;
 
@@ -1120,6 +1120,7 @@ public:
   {
     max_value = i ;
     slider_fraction = 1.0f / (float)( max_value-min_value+1 ) ;
+    puPostRefresh () ;
   }
 
   int getMaxValue ( void ) { return max_value ; }
@@ -1128,14 +1129,15 @@ public:
   {
     min_value = i ;
     slider_fraction = 1.0f / (float)( max_value-min_value+1 ) ;
+    puPostRefresh () ;
   }
 
   int getMinValue ( void ) { return min_value ; }
 
-  void setCurrentMax ( int i ) { current_max = i ; puPostRefresh() ; }
+  void setCurrentMax ( int i ) { current_max = i ; puPostRefresh () ; }
   int getCurrentMax ( void ) { return current_max ; }
 
-  void setCurrentMin ( int i ) { current_min = i ; puPostRefresh() ; }
+  void setCurrentMin ( int i ) { current_min = i ; puPostRefresh () ; }
   int getCurrentMin ( void ) { return current_min ; }
 
   void setActiveButton ( int i ) { active_button = i ; }
@@ -1169,7 +1171,7 @@ public:
   }
 
   int getFreezeEnds () {  return freeze_ends ;  }
-  void setFreezeEnds ( int val ) {  freeze_ends = val ; puPostRefresh();  }
+  void setFreezeEnds ( int val ) {  freeze_ends = val ; puPostRefresh () ;  }
 } ;
 
 
@@ -1303,13 +1305,14 @@ public:
   int  checkKey ( int key, int updown ) ;
 
   int  isAcceptingInput ( void ) { return accepting ; }
-  void rejectInput      ( void ) { accepting = FALSE ; }
+  void rejectInput      ( void ) { accepting = FALSE ; puPostRefresh () ; }
 
   void acceptInput ( void )
   {
     accepting = TRUE ;
     cursor_position = strlen ( getStringValue() ) ;
     select_start_position = select_end_position = -1 ;
+    puPostRefresh () ;
   }
 
   int  getCursor ( void )  { return cursor_position ; }
@@ -1319,6 +1322,7 @@ public:
   {
     select_start_position = s ;
     select_end_position   = e ;
+    puPostRefresh () ;
   }
 
   void getSelectRegion ( int *s, int *e )
@@ -1588,17 +1592,18 @@ public:
   void selectEntireLine ( void ) ;
 
   int  isAcceptingInput ( void ) { return accepting ; }
-  void rejectInput      ( void ) { accepting = FALSE ; }
+  void rejectInput      ( void ) { accepting = FALSE ; puPostRefresh () ; }
 
   void acceptInput ( void )
   {
     accepting = TRUE ;
     cursor_position = strlen ( getStringValue() ) ;
     select_start_position = select_end_position = -1 ;
+    puPostRefresh () ;
   }
 
   int  getCursor ( void )  { return cursor_position ; }
-  void setCursor ( int c ) { cursor_position = c ; }
+  void setCursor ( int c ) { cursor_position = c ; puPostRefresh () ; }
 
   void getSelectRegion ( int *s, int *e )
   {
