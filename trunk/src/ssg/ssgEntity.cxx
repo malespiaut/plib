@@ -127,6 +127,14 @@ ssgCallback ssgEntity::getCallback ( int cb_type )
     ssgLeaf* leaf = (ssgLeaf*) this ;
     return leaf -> getCallback ( cb_type ) ;
   }
+  else
+  {
+    /*
+     *  Because of transparency sorting, having a pre/post draw callback
+     *  doesn't make sense for anything but a leaf.
+     */
+    ulSetError ( UL_WARNING, "getCallback() ignored for non-leaf entity");
+  }
   return NULL ;
 }
 
@@ -137,6 +145,14 @@ void ssgEntity::setCallback ( int cb_type, ssgCallback cb )
   {
     ssgLeaf* leaf = (ssgLeaf*) this ;
     leaf -> setCallback ( cb_type, cb ) ;
+  }
+  else
+  {
+    /*
+     *  Because of transparency sorting, having a pre/post draw callback
+     *  doesn't make sense for anything but a leaf.
+     */
+    ulSetError ( UL_WARNING, "setCallback() ignored for non-leaf entity");
   }
 }
 

@@ -989,8 +989,8 @@ public:
   void postTravTests ( int which ) ;
 
   /* for backward compatibility */
-  ssgCallback getCallback ( int cb_type ) ;
-  void setCallback ( int cb_type, ssgCallback cb ) ;
+  virtual ssgCallback getCallback ( int cb_type ) ;
+  virtual void setCallback ( int cb_type, ssgCallback cb ) ;
 
   virtual ssgEntity* getByName  ( char *nm ) ;
   virtual ssgEntity* getByPath  ( char *path ) ;
@@ -1070,12 +1070,12 @@ public:
   ssgState *getState () { return state ; }
   void      setState ( ssgState *st ); //~~ T.G. Body extended & moved into CXX file
  
-  ssgCallback getCallback ( int cb_type )
+  virtual ssgCallback getCallback ( int cb_type )
   {
     return ( cb_type == SSG_CALLBACK_PREDRAW ) ? preDrawCB : postDrawCB ;
   }
 
-  void setCallback ( int cb_type, ssgCallback cb )
+  virtual void setCallback ( int cb_type, ssgCallback cb )
   {
     if ( cb_type == SSG_CALLBACK_PREDRAW )
       preDrawCB = cb ;
