@@ -146,6 +146,19 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
         case VK_HOME:   key = PW_KEY_HOME;      break;
         case VK_END:    key = PW_KEY_END;       break;
         case VK_INSERT: key = PW_KEY_INSERT;    break;
+				default:
+					// don't do this for WinCE
+          BYTE state[ 256 ];
+          WORD code[ 2 ];
+
+          BOOL b = GetKeyboardState( state );
+					assert(b);
+
+					code [ 0 ] = 0; // WK: I need to do this, or on my Win2k box, the upper bits remain unchanged.
+          if( ToAscii( key, 0, state, code, 0 ) == 1 )
+						if((0xFF00 & code[0]) == 0) // setting a high bit in key causes crashes later on (out of range array access)
+							key=code[ 0 ];
+
       }
       if ( key != -1 && kbCB )
         (*kbCB) ( key, updown, lastx, lasty ) ;
