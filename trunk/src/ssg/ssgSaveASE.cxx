@@ -4,19 +4,14 @@
 //
 
 #include "ssgLocal.h"
-
+#include "ssgLoaderWriterStuff.h"
 
 static FILE *save_fd ;
+static class CGlobalSimpleStateList gSSL;
 
-#define MAX_STATES 1000
-static ssgSimpleState** states ;
-static int num_states ;
-
-
-static void save_state ( int istate )
+static void save_state ( ssgSimpleState* st, int istate )
 {
-  ssgSimpleState* st = states[ istate ] ;
-
+  
   float* amb = st -> getMaterial ( GL_AMBIENT ) ;
   float* diff = st -> getMaterial ( GL_DIFFUSE ) ;
   float* spec = st -> getMaterial ( GL_SPECULAR ) ;
@@ -74,45 +69,12 @@ static void save_state ( int istate )
 static void save_states ()
 {
   fprintf ( save_fd, "*MATERIAL_LIST {\n" ) ;
-  fprintf ( save_fd, "  *MATERIAL_COUNT %d\n", num_states ) ;
+  fprintf ( save_fd, "  *MATERIAL_COUNT %d\n", gSSL.get_num_states() ) ;
   
-  for ( int i=0; i<num_states; i++ )
-    save_state ( i ) ;
+  for ( int i=0; i < gSSL.get_num_states(); i++ )
+    save_state ( gSSL.get_state(i) , i ) ;
   
   fprintf ( save_fd, "}\n" );
-}
-
-
-static int find_state ( ssgState* st )
-{
-  for ( int i=0; i<num_states; i++ )
-    if ( states[ i ] == st )
-      return i ;
-  return -1 ;
-}
-
-
-static void get_states ( ssgEntity *e )
-{
-  if ( e -> isAKindOf ( SSG_TYPE_BRANCH ) )
-  {
-    ssgBranch *br = (ssgBranch *) e ;
-
-    for ( int i = 0 ; i < br -> getNumKids () ; i++ )
-      get_states ( br -> getKid ( i ) ) ;
-  }
-  else
-  if ( e -> isAKindOf ( SSG_TYPE_VTXTABLE ) )
-  {
-    ssgVtxTable* vt = (ssgVtxTable *) e ;
-    ssgState* st = vt -> getState () ;
-    if ( st && st -> isAKindOf ( SSG_TYPE_SIMPLESTATE ) )
-    {
-      ssgSimpleState* ss = (ssgSimpleState*) vt -> getState () ;
-      if ( find_state ( ss ) == -1 )
-        states[ num_states++ ] = ss ;
-    }
-  }
 }
 
 
@@ -121,8 +83,8 @@ static void save_mesh ( ssgVtxTable *vt )
   const char* name = vt->getPrintableName() ;
   int j ;
 
-  int istate = find_state ( vt->getState () ) ;
-  ssgSimpleState* st = ( istate != -1 )? states[ istate ]: 0;
+  int istate = gSSL.find_state ( vt->getState () ) ;
+  ssgSimpleState* st = ( istate != -1 )? gSSL.get_state( istate ): 0;
 
 /*
   Begin the big geometry block.
@@ -260,7 +222,7 @@ static void save_mesh ( ssgVtxTable *vt )
   fprintf ( save_fd, "  *PROP_RECVSHADOW 1\n" );
   
   if ( st )
-    fprintf ( save_fd, "  *MATERIAL_REF %d\n", find_state ( st ) );
+    fprintf ( save_fd, "  *MATERIAL_REF %d\n", gSSL.find_state ( st ) );
 
 /*
   Close the GEOM object.
@@ -310,18 +272,13 @@ int ssgSaveASE ( FILE* fileout, ssgEntity *ent )
   fprintf ( save_fd, "  *SCENE_AMBIENT_STATIC 0.0431 0.0431 0.0431\n" );
   fprintf ( save_fd, "}\n" );
 
-  states = new ssgSimpleState*[ MAX_STATES ] ;
-  num_states = 0 ;
-
-  get_states ( ent ) ;
+  
+  gSSL.get_states ( ent ) ;
   save_states () ;
   save_geom ( ent ) ;  
-  
+	gSSL.dealloc();  
+
   fflush ( save_fd ) ;
-  
-  delete[] states ;
-  states = 0 ;
-  num_states = 0 ;
   
   return TRUE ;
 }

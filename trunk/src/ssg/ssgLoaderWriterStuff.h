@@ -4,6 +4,37 @@
 
 void ssgFindOptConvertTexture( char * filepath, char * tfname ) ;
 
+// ***************** class CGlobalSimpleStateList  *******************
+
+#define MAX_STATES 1000
+
+// This class is very nice if your file format has a material list at the start and the objects / polys come
+// afterwards and refence the list. Have a static global var of type CGlobalSimpleStateList,
+// at the beginning call get_states with the root node as parameter. This will create a list with the unique 
+// ssgSimpleStates. When writing the objects and polys, use find_state to get the index of the state
+// with -1 = not found. Use get_state to get the actual state.
+// At the end do a dealloc.
+
+class CGlobalSimpleStateList 
+{
+	ssgSimpleState** states ;
+	int num_states ;
+  void get_states_recursive ( ssgEntity *e );
+
+public:
+	CGlobalSimpleStateList () { states = NULL; }
+	void dealloc() {   delete[] states ;  states = 0 ;  num_states = 0 ; }
+	~CGlobalSimpleStateList () { dealloc(); }
+	
+
+	int get_num_states() { return num_states; }
+	ssgSimpleState* get_state(int i) { assert((i>=0) && (i<num_states)); return states[i]; }
+
+	int find_state ( ssgState* st );
+	void get_states ( ssgEntity *e );
+
+};
+
 // ******************** class ssgLoaderWriterMesh ************************
 
 class ssgListOfLists : public ssgSimpleList
