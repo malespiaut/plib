@@ -352,7 +352,6 @@ frameno++ ;
 
   glutPostRedisplay () ;
   glutSwapBuffers () ;
-  usleep ( 15000 ) ;
 }
 
 
