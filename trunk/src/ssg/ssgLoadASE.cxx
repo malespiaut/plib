@@ -1121,9 +1121,7 @@ static void parse_object()
     
     if ( obj->num_tkeys > 0 )
     {
-      ssgTransform* selector = new ssgTransform ;
       ssgTransformArray* ta = new ssgTransformArray ( obj->num_tkeys ) ;
-      selector -> setUserData ( ta ) ;
 
       /*
       Build the transforms
@@ -1171,8 +1169,10 @@ static void parse_object()
         ta -> add ( mat ) ;
       }
       
-      selector -> addKid ( mesh_entity ) ;
-      mesh_entity = selector ;
+      ssgTransform* tr = new ssgTransform ;
+      tr = current_options -> createTransform ( tr, ta ) ;
+      tr -> addKid ( mesh_entity ) ;
+      mesh_entity = tr ;
     }
 
     parent_branch -> addKid ( mesh_entity ) ;
