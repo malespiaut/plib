@@ -40,7 +40,7 @@ pslProgram::pslProgram ( pslExtension *ext, const char *_prgnm )
 
   setProgName ( _prgnm ) ;
 
-  compiler = new pslCompiler ( code, ext, getProgName () ) ;
+  compiler = new pslCompiler ( this, code, ext, getProgName () ) ;
   context  = new pslContext ( this ) ;
 
   compiler-> init  () ;

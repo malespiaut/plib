@@ -44,6 +44,9 @@ struct pslFwdRef
 
 
 
+class pslProgram ;
+
+
 class pslCompiler
 {
   /* File I/O and preprocessor */
@@ -89,6 +92,8 @@ class pslCompiler
   int  pushJumpIfFalse  ( int l ) ;
   int  pushJumpIfTrue   ( int l ) ;
   int  pushJump         ( int l ) ;
+
+  void pushGetParameter  ( pslAddress var, int argpos ) ;
 
   void makeIntVariable   ( const char *s ) ;
   void makeFloatVariable ( const char *s ) ;
@@ -253,11 +258,16 @@ class pslCompiler
   int next_code  ;
   pslOpcode    *code       ;
   pslContext   *context    ;
+  pslProgram   *program    ;
 
 public:
 
-  pslCompiler ( pslOpcode *_code, pslExtension *_extn, const char *_progName )
+  pslCompiler ( pslProgram   *prog,
+                pslOpcode    *_code,
+                pslExtension *_extn,
+                const char   *_progName )
   {
+    program  = prog ;
     progName = ulStrDup ( _progName ) ;
 
     code       = _code ;

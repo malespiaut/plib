@@ -67,6 +67,17 @@ pslResult pslContext::step ()
       }
       return PSL_PROGRAM_CONTINUE ;
 
+    case OPCODE_GET_PARAMETER :
+      {
+        int var = code [ ++pc ] ;
+        int nargs = stack [ sp - 2 ] . getInt () ;
+        int off = sp - ( nargs + 2 )  + code [ ++pc ] ;
+
+        variable [ var ] . set ( & stack [ off ] ) ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
     case OPCODE_POP :
       popVoid() ;
       pc++ ;

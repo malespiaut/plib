@@ -729,18 +729,64 @@ int pslCompiler::pushFunctionDeclaration ( const char *fn )
   if ( c[0] != '(' )
     return error ( "Missing '(' in declaration of '%s'", fn ) ;
 
-  getToken ( c ) ;
+  pushLocality () ;
+
+  int argpos = 0 ;
+
+  while ( 1 )
+  {
+    getToken ( c ) ;
+
+    if ( c [ 0 ] == ')' || c [ 0 ] == '\0' )
+      break ;
+
+    char s [ MAX_TOKEN ] ;
+
+    getToken ( s ) ;
+
+    pslAddress a = setVarSymbol ( s ) ;
+
+    if ( strcmp ( c, "int" ) == 0 ) makeIntVariable    ( s ) ; else
+    if ( strcmp ( c, "float" ) == 0 ) makeFloatVariable  ( s ) ; else
+    if ( strcmp ( c, "string" ) == 0 ) makeStringVariable ( s ) ; else
+    {
+      popLocality () ;
+      return error ( "Missing ')' in declaration of '%s'", fn ) ;
+    }
+ 
+    pushGetParameter ( a, argpos++ ) ;
+
+    getToken ( c ) ;
+
+    if ( c[0] == ',' )
+      continue ;
+
+    if ( c[0] == ')' )
+      break ;
+
+    popLocality () ;
+    return error ( "Missing ',' or ')' in declaration of '%s'", fn ) ;
+  }
 
   if ( c[0] != ')' )
+  {
+    popLocality () ;
     return error ( "Missing ')' in declaration of '%s'", fn ) ;
+  }
 
   getToken ( c ) ;
 
   if ( c [ 0 ] != '{' )
+  {
+    popLocality () ;
     return error ( "Missing '{' in function '%s'", fn ) ;
+  }
 
   if ( ! pushCompoundStatement () )
+  {
+    popLocality () ;
     return error ( "Missing '}' in function '%s'", fn ) ;
+  }
 
   getToken ( c ) ;
 
@@ -752,6 +798,7 @@ int pslCompiler::pushFunctionDeclaration ( const char *fn )
   code [  jump_target  ] =  next_code       & 0xFF ;
   code [ jump_target+1 ] = (next_code >> 8) & 0xFF ;
 
+  popLocality () ;
   return TRUE ;
 }
 

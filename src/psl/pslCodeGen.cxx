@@ -96,6 +96,13 @@ void pslCompiler::pushFloatConstant ( const char *c )
   pushCodeByte ( ff [ 3 ] ) ;
 }
 
+void pslCompiler::pushGetParameter ( pslAddress var, int argpos )
+{
+  pushCodeByte ( OPCODE_GET_PARAMETER ) ;
+  pushCodeByte ( var ) ;
+  pushCodeByte ( argpos ) ;
+}
+
 void pslCompiler::makeIntVariable ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
