@@ -95,7 +95,6 @@ void ssgList::removeAllEntities ()
 
 void ssgList::removeEntity ( unsigned int n )
 {
-entity_list[n]->deadBeefCheck();
   memmove ( &(entity_list[n]), &(entity_list[n+1]), sizeof(ssgEntity *) * (total-n-1) ) ;
   total-- ;
 

@@ -48,24 +48,26 @@ enum ssgCullResult
 #define SSGTRAV_ISECT  2
 #define SSGTRAV_HOT    4
 
-class ssgList          ;
-class ssgKidList       ;
-class ssgBase          ;
-class ssgEntity        ;
-class ssgLeaf          ;
-class ssgVTable        ;
-class ssgVtxTable      ;
-class ssgVtxArray      ;
-class ssgBranch        ;
-class ssgInvisible     ;
-class ssgBaseTransform ;
-class ssgTransform     ;
-class ssgTexTrans      ;
-class ssgCutout        ;
-class ssgSelector      ;
-class ssgRangeSelector ;
-class ssgTimedSelector ;
-class ssgRoot          ;
+class ssgList            ;
+class ssgKidList         ;
+class ssgBase            ;
+class ssgEntity          ;
+class ssgLeaf            ;
+class ssgVTable          ;
+class ssgVtxTable        ;
+class ssgVtxArray        ;
+class ssgTween           ;
+class ssgBranch          ;
+class ssgInvisible       ;
+class ssgBaseTransform   ;
+class ssgTransform       ;
+class ssgTexTrans        ;
+class ssgCutout          ;
+class ssgSelector        ;
+class ssgRangeSelector   ;
+class ssgTimedSelector   ;
+class ssgTweenController ;
+class ssgRoot            ;
 
 void  ssgDeRefDelete ( ssgBase *br ) ;
 
@@ -76,43 +78,45 @@ void  ssgDeRefDelete ( ssgBase *br ) ;
 
 #define _SSG_BACKWARDS_REFERENCE 0x0000000  /* For SSG format files */
 
-#define _SSG_TYPE_BASE          0x00000001
+#define _SSG_TYPE_BASE             0x00000001
 
 /* ssgEntities */
-#define _SSG_TYPE_ENTITY        0x00000002
-#define _SSG_TYPE_LEAF          0x00000020
-#define _SSG_TYPE_VTABLE        0x00000080
-#define _SSG_TYPE_VTXTABLE      0x00000100
-#define _SSG_TYPE_VTXARRAY      0x00000200
-#define _SSG_TYPE_BRANCH        0x00000040
-#define _SSG_TYPE_BASETRANSFORM 0x00000080
-#define _SSG_TYPE_TRANSFORM     0x00001000
-#define _SSG_TYPE_TEXTRANS      0x00002000
-#define _SSG_TYPE_AXISTRANSFORM 0x00004000
-#define _SSG_TYPE_SELECTOR      0x00000100
-#define _SSG_TYPE_RANGESELECTOR 0x00001000
-#define _SSG_TYPE_TIMEDSELECTOR 0x00002000
-#define _SSG_TYPE_ROOT          0x00000200
-#define _SSG_TYPE_CUTOUT        0x00000400
-#define _SSG_TYPE_INVISIBLE     0x00000800
+#define _SSG_TYPE_ENTITY           0x00000002
+#define _SSG_TYPE_LEAF             0x00000020
+#define _SSG_TYPE_VTABLE           0x00000080
+#define _SSG_TYPE_VTXTABLE         0x00000100
+#define _SSG_TYPE_VTXARRAY         0x00000200
+#define _SSG_TYPE_BRANCH           0x00000040
+#define _SSG_TYPE_BASETRANSFORM    0x00000080
+#define _SSG_TYPE_TRANSFORM        0x00001000
+#define _SSG_TYPE_TEXTRANS         0x00002000
+#define _SSG_TYPE_AXISTRANSFORM    0x00004000
+#define _SSG_TYPE_SELECTOR         0x00000100
+#define _SSG_TYPE_RANGESELECTOR    0x00001000
+#define _SSG_TYPE_TIMEDSELECTOR    0x00002000
+#define _SSG_TYPE_TWEEN            0x00004000
+#define _SSG_TYPE_TWEENCONTROLLER  0x00008000
+#define _SSG_TYPE_ROOT             0x00000200
+#define _SSG_TYPE_CUTOUT           0x00000400
+#define _SSG_TYPE_INVISIBLE        0x00000800
 
 /* ssgStates */
-#define _SSG_TYPE_STATE         0x00000004
-#define _SSG_TYPE_SIMPLESTATE   0x00000020
-#define _SSG_TYPE_STATESELECTOR 0x00000040
+#define _SSG_TYPE_STATE            0x00000004
+#define _SSG_TYPE_SIMPLESTATE      0x00000020
+#define _SSG_TYPE_STATESELECTOR    0x00000040
 
 /* ssgSimpleLists */
-#define _SSG_TYPE_SIMPLELIST    0x00000008
-#define _SSG_TYPE_VERTEXARRAY   0x00000020
-#define _SSG_TYPE_NORMALARRAY   0x00000040
-#define _SSG_TYPE_TEXCOORDARRAY 0x00000080
-#define _SSG_TYPE_COLOURARRAY   0x00000100
-#define _SSG_TYPE_INDEXARRAY    0x00000200
-#define _SSG_TYPE_TRANSFORMARRAY 0x0000400
-#define _SSG_TYPE_INTERLEAVEDARRAY 0x00800
+#define _SSG_TYPE_SIMPLELIST       0x00000008
+#define _SSG_TYPE_VERTEXARRAY      0x00000020
+#define _SSG_TYPE_NORMALARRAY      0x00000040
+#define _SSG_TYPE_TEXCOORDARRAY    0x00000080
+#define _SSG_TYPE_COLOURARRAY      0x00000100
+#define _SSG_TYPE_INDEXARRAY       0x00000200
+#define _SSG_TYPE_TRANSFORMARRAY   0x00000400
+#define _SSG_TYPE_INTERLEAVEDARRAY 0x00000800
 
 /* ssgTextures */
-#define _SSG_TYPE_TEXTURE       0x00000010
+#define _SSG_TYPE_TEXTURE          0x00000010
 
 #define SSG_FILE_VERSION       0x01
 #define SSG_FILE_MAGIC_NUMBER  (('S'<<24)+('S'<<16)+('G'<<8)+SSG_FILE_VERSION)
@@ -125,7 +129,9 @@ inline int ssgTypeLeaf         () { return _SSG_TYPE_LEAF      | ssgTypeEntity  
 inline int ssgTypeVTable       () { return _SSG_TYPE_VTABLE    | ssgTypeLeaf    () ; }
 inline int ssgTypeVtxTable     () { return _SSG_TYPE_VTXTABLE  | ssgTypeLeaf    () ; }
 inline int ssgTypeVtxArray     () { return _SSG_TYPE_VTXARRAY  | ssgTypeVtxTable() ; }
+inline int ssgTypeTween        () { return _SSG_TYPE_TWEEN     | ssgTypeVtxTable() ; }
 inline int ssgTypeBranch       () { return _SSG_TYPE_BRANCH    | ssgTypeEntity  () ; }
+inline int ssgTypeTweenController(){ return _SSG_TYPE_TWEENCONTROLLER | ssgTypeVtxTable() ; }
 inline int ssgTypeBaseTransform() { return _SSG_TYPE_BASETRANSFORM | ssgTypeBranch () ; }
 inline int ssgTypeTransform    () { return _SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
 inline int ssgTypeTexTrans     () { return _SSG_TYPE_TEXTRANS  | ssgTypeBaseTransform () ; }
@@ -1356,10 +1362,10 @@ public:
   virtual void pick ( int baseName ) ;
   virtual void transform ( const sgMat4 m ) ;
 
-  void setVertices  ( ssgVertexArray   *vl ) ;
-  void setNormals   ( ssgNormalArray   *nl ) ;
-  void setTexCoords ( ssgTexCoordArray *tl ) ;
-  void setColours   ( ssgColourArray   *cl ) ;
+  virtual void setVertices  ( ssgVertexArray   *vl ) ;
+  virtual void setNormals   ( ssgNormalArray   *nl ) ;
+  virtual void setTexCoords ( ssgTexCoordArray *tl ) ;
+  virtual void setColours   ( ssgColourArray   *cl ) ;
 
   int getNumVertices  () { return vertices  -> getNum () ; }
   int getNumNormals   () { return normals   -> getNum () ; }
@@ -1401,6 +1407,55 @@ public:
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
+} ;
+
+
+class ssgTween : public ssgVtxTable
+{
+  virtual void copy_from ( ssgTween *src, int clone_flags ) ;
+  void init () ;
+protected:
+_SSG_PUBLIC:
+
+  int curr_bank ;
+
+  ssgVertexArray   *render_vertices  ;
+  ssgNormalArray   *render_normals   ;
+  ssgTexCoordArray *render_texcoords ;
+  ssgColourArray   *render_colours   ;
+
+  ulList *banked_vertices  ;
+  ulList *banked_normals   ;
+  ulList *banked_texcoords ;
+  ulList *banked_colours   ;
+
+public:
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
+
+  ssgTween () ;
+  ssgTween ( GLenum ty ) ;
+
+  virtual void setVertices  ( ssgVertexArray   *vl ) ;
+  virtual void setNormals   ( ssgNormalArray   *nl ) ;
+  virtual void setTexCoords ( ssgTexCoordArray *tl ) ;
+  virtual void setColours   ( ssgColourArray   *cl ) ;
+
+  virtual void recalcBSphere () ;
+  virtual void draw () ;
+
+  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2);
+  virtual int load ( FILE *fd ) ;
+  virtual int save ( FILE *fd ) ;
+
+  int getNumBanks () { return banked_vertices -> getNumEntities () ; }
+
+  int  newBank ( ssgVertexArray   *vl, ssgNormalArray   *nl,
+                 ssgTexCoordArray *tl, ssgColourArray   *cl ) ;
+  int  newBank ( int newVertices , int newNormals,
+                 int newTexCoords, int newColours ) ;
+  void setBank ( int bank ) ;
+
+  virtual ~ssgTween (void) ;
 } ;
 
 
@@ -1494,6 +1549,31 @@ public:
   virtual int save ( FILE *fd ) ;
   virtual void recalcBSphere () ;
 } ;
+
+
+class ssgTweenController : public ssgBranch
+{
+  float curr_bank ;
+
+protected:
+
+  virtual void copy_from ( ssgTweenController *src, int clone_flags ) ;
+
+public:
+
+  virtual ssgBase *clone ( int clone_flags = 0 ) ;
+  ssgTweenController (void) ;
+  virtual ~ssgTweenController (void) ;
+
+  void  selectBank ( float f ) { curr_bank = f ; }
+  float getCurrBank () { return curr_bank ; }
+
+  virtual void cull ( sgFrustum *f, sgMat4 m, int test_needed ) ;
+  virtual int load ( FILE *fd ) ;
+  virtual int save ( FILE *fd ) ;
+} ;
+
+
 
 class ssgInvisible : public ssgBranch
 {

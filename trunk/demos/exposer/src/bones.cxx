@@ -222,26 +222,6 @@ float *Bone::getDialAngles ()
   return dst ;
 }
 
-void LerpAnglesVec3 ( sgVec3 dst, const sgVec3 a,
-                                           const sgVec3 b,
-                                           const SGfloat f )
-{
-  sgVec3 tmp ;
-
-  if ( b[0] - a[0] >  180.0f ) tmp[0] = a[0] + 360.0f ; else
-  if ( b[0] - a[0] < -180.0f ) tmp[0] = a[0] - 360.0f ; else tmp[0] = a[0] ;
-
-  if ( b[1] - a[1] >  180.0f ) tmp[1] = a[1] + 360.0f ; else
-  if ( b[1] - a[1] < -180.0f ) tmp[1] = a[1] - 360.0f ; else tmp[1] = a[1] ;
-
-  if ( b[2] - a[2] >  180.0f ) tmp[2] = a[2] + 360.0f ; else
-  if ( b[2] - a[2] < -180.0f ) tmp[2] = a[2] - 360.0f ; else tmp[2] = a[2] ;
-
-  dst[0] = tmp[0] + f * ( b[0] - tmp[0] ) ;
-  dst[1] = tmp[1] + f * ( b[1] - tmp[1] ) ;
-  dst[2] = tmp[2] + f * ( b[2] - tmp[2] ) ;
-}
-                                                                                
 
 sgCoord *Bone::getXForm ( Event *prev, Event *next, float lerptime )
 {
@@ -252,7 +232,7 @@ sgCoord *Bone::getXForm ( Event *prev, Event *next, float lerptime )
 
   sgCopyVec3 ( c.xyz, xlate ) ;
 
-  LerpAnglesVec3 ( c.hpr, coord0->hpr, coord1->hpr, lerptime ) ;
+  sgLerpAnglesVec3 ( c.hpr, coord0->hpr, coord1->hpr, lerptime ) ;
 
   sh -> setValue ( (c.hpr[0] + 180.0f) / 360.0f ) ;
   sp -> setValue ( (c.hpr[1] + 180.0f) / 360.0f ) ;
