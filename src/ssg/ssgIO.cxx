@@ -491,7 +491,7 @@ static _ssgFileFormat formats[] =
 #else
 //wk stop1
 
-void appendPath(char *a, char *b)
+static void appendPath(char *a, char *b)
 // appends b to a
 {
   if ( b[0] == '/' )

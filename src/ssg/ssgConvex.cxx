@@ -12,7 +12,7 @@ static ssgNormalArray     *curr_normals   = NULL;
 static ssgColourArray     *curr_colours   = NULL;
 static ssgTexCoordArray   *curr_texcoords = NULL;
 
-static void CALLBACK vertexCallback( GLvoid *vertex_data ) {
+static void vertexCallback( GLvoid *vertex_data ) {
   int index = *(short*)vertex_data;
 
   curr_vertices -> add( source -> getVertex(index) );
@@ -25,7 +25,7 @@ static void CALLBACK vertexCallback( GLvoid *vertex_data ) {
     curr_texcoords -> add ( source -> getTexCoord (index) );
 }
 
-static void CALLBACK beginCallback( GLenum type ) {
+static void beginCallback( GLenum type ) {
   curr_gltype    = type;
   curr_vertices  = new ssgVertexArray;
   curr_normals   = new ssgNormalArray;
@@ -38,7 +38,7 @@ static void CALLBACK beginCallback( GLenum type ) {
     curr_normals -> add ( source -> getNormal (0) );
 }
 
-static void CALLBACK endCallback( void ) {
+static void endCallback( void ) {
   ssgVtxTable *leaf = new ssgVtxTable( curr_gltype,
 				       curr_vertices,
 				       curr_normals,
@@ -67,11 +67,11 @@ ssgEntity *ssgVtxTable::makeConvex() {
   }
 
   gluTessCallback( tesselator, GLU_BEGIN , 
-		   (void (CALLBACK *)())beginCallback  );
+		   (void (*)())beginCallback  );
   gluTessCallback( tesselator, GLU_END   , 
-		   (void (CALLBACK *)())endCallback    );
+		   (void (*)())endCallback    );
   gluTessCallback( tesselator, GLU_VERTEX, 
-		   (void (CALLBACK *)())vertexCallback );
+		   (void (*)())vertexCallback );
 
   source      = this;
   poly_branch = new ssgBranch;

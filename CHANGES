@@ -4,6 +4,10 @@ PLIB Change Log.
 
 PLIB v1.3.2 (???? 2000)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+  * File loaders now require app to pass 'ssgLoaderOptions'
+    rather than other ad-hoc callback function hooks.
+
   * Added Active Widget Implementation (pui)
 
   * Added puFilePicker  
