@@ -188,16 +188,35 @@ void ssgVtxArray::pick ( int baseName )
 
 void ssgVtxArray::draw_geometry ()
 {
+  int num_colours   = getNumColours   () ;
+  int num_normals   = getNumNormals   () ;
+  int num_texcoords = getNumTexCoords () ;
+
+  sgVec3 *nm = (sgVec3 *) normals   -> get(0) ;
+  sgVec4 *cl = (sgVec4 *) colours   -> get(0) ;
+
+  if ( num_colours == 0 ) glColor4f   ( 1.0f, 1.0f, 1.0f, 1.0f ) ;
+  if ( num_colours == 1 ) glColor4fv  ( cl [ 0 ] ) ;
+  if ( num_normals == 1 ) glNormal3fv ( nm [ 0 ] ) ;
+  
   glPushClientAttrib ( GL_CLIENT_VERTEX_ARRAY_BIT ) ;
 
-  glEnableClientState ( GL_COLOR_ARRAY ) ;
-  glEnableClientState ( GL_NORMAL_ARRAY ) ;
-  glEnableClientState ( GL_TEXTURE_COORD_ARRAY ) ;
+  if ( num_colours > 1 )
+  {
+    glEnableClientState ( GL_COLOR_ARRAY ) ;
+    glColorPointer ( 4, GL_FLOAT, 0, colours->get(0) ) ;
+  }
+  if ( num_normals > 1 )
+  {
+    glEnableClientState ( GL_NORMAL_ARRAY ) ;
+    glNormalPointer ( GL_FLOAT, 0, normals->get(0) ) ;
+  }
+  if ( num_texcoords > 1 )
+  {
+    glEnableClientState ( GL_TEXTURE_COORD_ARRAY ) ;
+    glTexCoordPointer ( 2, GL_FLOAT, 0, texcoords->get(0) ) ;
+  }
   glEnableClientState ( GL_VERTEX_ARRAY ) ;
-
-  glColorPointer ( 4, GL_FLOAT, 0, colours->get(0) ) ;
-  glNormalPointer ( GL_FLOAT, 0, normals->get(0) ) ;
-  glTexCoordPointer ( 2, GL_FLOAT, 0, texcoords->get(0) ) ;
   glVertexPointer ( 3, GL_FLOAT, 0, vertices->get(0) ) ;
 
   int i = getNumIndices ();

@@ -10,6 +10,7 @@
 #define f32 float
 #define cchar const char
 
+
 struct aseFace
 {
    u32 v[3];
@@ -526,56 +527,91 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
   if ( num_faces == 0 )
     return NULL;
 
-  //allocate lists  
-  u32 vcount = num_faces * 3 ;
-  ssgVertexArray   *vlist = new ssgVertexArray ( vcount ) ;
-  ssgTexCoordArray *tlist = 0 ;
-  ssgColourArray   *clist = 0 ;
+  struct aseVertex
+  {
+    bool use_flag ;
+    int index ;
+    sgVec3 v ;
+    sgVec2 tv ;
+    sgVec3 cv ;
+  } ;
 
-  if ( mesh -> tverts )  
-    tlist = new ssgTexCoordArray ( vcount ) ;
-  if ( mesh -> cverts )
-    clist = new ssgColourArray ( vcount ) ;
+  u32 i ;
+
+  //allocate map_index array
+  int* map_index = new int [ mesh -> num_faces * 3 ] ;
+
+  //allocate the vertex list
+  u32 max_verts = mesh -> num_verts + mesh -> num_faces * 3 ;
+  aseVertex* vert_list = new aseVertex [ max_verts ] ;
   
+  //mark each vertex as *not* used
+  aseVertex* vert = vert_list ;
+  for ( i=0; i < max_verts; i++, vert++ )
+  {
+    vert -> use_flag = false ;
+  }
+
+  u32 extra_verts = 0 ;
+
+  //build the vertex list
   aseFace* face = mesh -> faces ;
-  for ( u32 i=0; i<mesh -> num_faces; i++, face++ )
+  for ( i=0; i<mesh -> num_faces; i++, face++ )
   {
     if ( mat->sub_flag && face->sub_index != mat->sub_index )
       continue ;
-
+    
     for ( u32 j=0; j<3; j++ )
     {
-      sgVec3 v ;
-      sgCopyVec3 ( v, mesh -> verts[ face->v[j] ] ) ;
-      vlist -> add ( v ) ;
+      int k = i*3+j;
 
+      map_index [k] = face->v[j] ;
+      vert = vert_list + map_index[k];
+
+      if ( vert -> use_flag )
+      {
+        //check for match
+        bool match = true ;
+        if ( mesh -> tverts &&
+          sgCompareVec2 ( vert -> tv, mesh -> tverts[ face->tv[j] ], 0.0f ) != 0 )
+          match = false ;
+        else if ( mesh -> cverts &&
+          sgCompareVec3 ( vert -> cv, mesh -> cverts[ face->cv[j] ], 0.0f ) != 0 )
+          match = false ;
+        if ( match )
+          continue ;  //texcoord and color matches other vertex
+
+        extra_verts ++ ;
+
+        map_index [k] = mesh -> num_verts + k ;
+        vert = vert_list + map_index[k];
+      }
+
+      //add the vertex
+      vert -> use_flag = true;
+      sgCopyVec3 ( vert -> v, mesh -> verts[ face->v[j] ] ) ;
       if ( mesh -> tverts )
-      {
-        sgVec2 tv ;
-        sgCopyVec2 ( tv, mesh -> tverts[ face->tv[j] ] ) ;
-
-        tv[1] = 1.0f - tv[1] ;
-
-        tv[0] *= mat->texrep[0] ;
-        tv[1] *= mat->texrep[1] ;
-        tv[0] += mat->texoff[0] ;
-        tv[1] += mat->texoff[1] ;
-
-        tlist -> add ( tv ) ;
-      }
-
+        sgCopyVec2 ( vert -> tv, mesh -> tverts[ face->tv[j] ] ) ;
       if ( mesh -> cverts )
-      {
-        sgVec4 c ;
-        sgCopyVec3 ( c, mesh -> cverts[ face->cv[j] ] ) ;
-
-        c[3] = 1.0f; //alpha is always one ??
-
-        clist -> add ( c ) ;
-      }
+        sgCopyVec3 ( vert -> cv, mesh -> cverts[ face->cv[j] ] ) ;
     }
   }
-  
+
+  //assign a unique index to each vertex
+  int num_verts = 0 ;
+  vert = vert_list;
+  for ( i=0; i < max_verts; i++, vert++ )
+  {
+    if ( vert -> use_flag )
+      vert -> index = num_verts ++;
+  }
+    
+  //if ( extra_verts > 0 )
+  //   fprintf( stdout, "%d verts; %d added\n", num_verts-extra_verts, extra_verts );
+  //else
+  //   fprintf( stdout, "%d verts\n", num_verts );
+
+  //pass the data to ssg
   ssgCreateData* data = new ssgCreateData ;
   if ( mesh_name != NULL )
   {
@@ -585,13 +621,72 @@ static ssgLeaf* add_mesh( cchar* mesh_name, aseMesh* mesh, u32 mat_index, u32 su
   else
     data->parentName = NULL ;
   data->gltype = GL_TRIANGLES ;
-  data->vl = vlist ;
-  data->nl = NULL ;
-  data->tl = tlist ;
-  data->cl = clist ;
   data->st = get_state ( mat ) ;
   data->tfname = mat -> tfname ;
   data->cull_face = TRUE ;
+  data->il = new ssgIndexArray ( num_faces * 3 ) ;
+  data->vl = new ssgVertexArray ( num_verts ) ;
+  if ( mesh -> tverts )  
+    data->tl = new ssgTexCoordArray ( num_verts ) ;
+  if ( mesh -> cverts )
+    data->cl = new ssgColourArray ( num_verts ) ;
+
+  //build the index list
+  face = mesh -> faces ;
+  for ( i=0; i<mesh -> num_faces; i++, face++ )
+  {
+    if ( mat->sub_flag && face->sub_index != mat->sub_index )
+      continue ;
+    
+    for ( u32 j=0; j<3; j++ )
+    {
+      int k = i*3+j;
+      vert = vert_list + map_index[k];
+
+      if ( ! vert -> use_flag )
+        ulSetError ( UL_FATAL, "internal error" ) ;
+
+      data-> il -> add ( vert -> index ) ;
+    }
+  }
+
+  //copy the vertex lists
+  vert = vert_list;
+  for ( i=0; i < max_verts; i++, vert++ )
+  {
+    if ( vert -> use_flag )
+    {
+      data -> vl -> add ( vert -> v ) ;
+
+      if ( mesh -> tverts )
+      {
+        sgVec2 tv ;
+        sgCopyVec2 ( tv, vert -> tv ) ;
+
+        tv[1] = 1.0f - tv[1] ;
+
+        tv[0] *= mat->texrep[0] ;
+        tv[1] *= mat->texrep[1] ;
+        tv[0] += mat->texoff[0] ;
+        tv[1] += mat->texoff[1] ;
+
+        data -> tl -> add ( tv ) ;
+      }
+
+      if ( mesh -> cverts )
+      {
+        sgVec4 c ;
+        sgCopyVec3 ( c, vert -> cv ) ;
+
+        c[3] = 1.0f; //alpha is always one ??
+
+        data -> cl -> add ( c ) ;
+      }
+    }
+  }
+
+  delete[] vert_list ;
+  delete[] map_index ;
 
   ssgLeaf* leaf = (*_ssgCreateFunc) ( data ) ;
   return leaf ;
