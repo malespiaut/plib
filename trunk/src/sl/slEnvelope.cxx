@@ -183,7 +183,7 @@ void slEnvelope::applyToLPFilter ( Uchar *dst, Uchar *src,
 
     register float c_v = (float) ((int)*(src++) - 0x80);
     register float f=_value;
-    p_v = p_v*(1.0-f)+ f*c_v;
+    p_v = p_v*(1.0f - f)+ f*c_v;
     register int res = (int)(p_v) + 0x80 ;
     _value += delta ;
 
