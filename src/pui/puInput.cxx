@@ -27,20 +27,32 @@
 UL_RTTI_DEF2(puInput,puInputBase,puObject)
 
 
-static char *chop_to_width ( puFont fnt, const char *s, int width, int *ncut )
+static char *chop_to_width ( puFont fnt, const char *s, int width, int cursor_position, int *ncut )
 {
-  char *res = new char [ strlen ( s ) + 1 ] ;
+  int new_len = strlen ( s ) ;
+  char *res = new char [ new_len + 1 ] ;
   int n = 0 ;
   int w ;
 
   do
   {
-    strcpy ( res, & s[n] ) ;
+    memcpy ( res, s + n, new_len + 1 ) ;
     n++ ;
+    new_len -- ;
     w = fnt.getStringWidth ( res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
-  } while ( w >= width ) ;
+  } while ( ( w >= width ) && ( n < cursor_position - 1 ) ) ;
 
-  if ( ncut != NULL ) *ncut = n-1 ;
+  if ( ncut != NULL ) *ncut = n - 1 ;
+
+  n = 0 ;
+
+  while ( w >= width )
+  {
+    res[new_len] = '\0' ;
+    n++ ;
+    new_len -- ;
+    w = fnt.getStringWidth ( res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
+  }
 
   return res ;
 }
@@ -74,7 +86,7 @@ void puInput::draw ( int dx, int dy )
       if ( select_end_position > 0 &&
            select_end_position != select_start_position )    
       {
-        s2 = chop_to_width ( legendFont, getStringValue(), abox.max[0]-abox.min[0], &ncut ) ;
+        s2 = chop_to_width ( legendFont, getStringValue(), abox.max[0]-abox.min[0], getCursor (), &ncut ) ;
 
         int sep = select_end_position   - ncut ;
         int ssp = select_start_position - ncut ;
@@ -115,7 +127,7 @@ void puInput::draw ( int dx, int dy )
                   colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transp */
 
     s2 = chop_to_width ( legendFont, getStringValue(),
-                         abox.max[0]-abox.min[0], &ncut ) ;
+                         abox.max[0]-abox.min[0], getCursor (), &ncut ) ;
 
     legendFont.drawString ( s2,
                   dx + abox.min[0] + xx,
@@ -178,7 +190,7 @@ void puInput::doHit ( int button, int updown, int x, int y )
 
     int ncut ;
     char *s2 = chop_to_width ( legendFont, getStringValue(),
-                         abox.max[0]-abox.min[0], &ncut ) ;
+                         abox.max[0]-abox.min[0], getCursor (), &ncut ) ;
     int i = strlen ( s2 ) ;
 
     int length, prev_length ;
