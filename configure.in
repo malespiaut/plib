@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/js/js.h)
-AM_INIT_AUTOMAKE(plib, 1.6.0)
+AM_INIT_AUTOMAKE(plib, 1.7.0)
 
 # This AC_PREFIX_DEFAULT will place the library files
 # into /usr/lib - but will put the include files into
