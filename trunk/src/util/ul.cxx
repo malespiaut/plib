@@ -58,7 +58,7 @@ ulDir* ulOpenDir ( const char* dirname )
       dir = NULL;
     }
 #else
-    dir->dirp = diropen(dirname) ;
+    dir->dirp = opendir(dirname) ;
 #endif
   }
   return dir;

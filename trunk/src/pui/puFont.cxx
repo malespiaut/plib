@@ -1,6 +1,8 @@
 
 #include "puLocal.h"
 
+#ifdef _PU_USE_GLUT_FONTS
+
 /*
   A set of puFont's to implement the GLUT BitMap set...
 */
@@ -13,6 +15,7 @@ puFont PUFONT_HELVETICA_10   ( GLUT_BITMAP_HELVETICA_10   ) ;
 puFont PUFONT_HELVETICA_12   ( GLUT_BITMAP_HELVETICA_12   ) ;
 puFont PUFONT_HELVETICA_18   ( GLUT_BITMAP_HELVETICA_18   ) ;
 
+#endif // #ifdef _PU_USE_GLUT_FONTS
 
 
 int puFont::getStringWidth ( const char *str )
@@ -20,6 +23,7 @@ int puFont::getStringWidth ( const char *str )
   if ( str == NULL )
     return 0 ;
 
+#ifdef _PU_USE_GLUT_FONTS
   if ( glut_font_handle != (GlutFont) 0 )
   {
     int res = 0 ;
@@ -32,6 +36,7 @@ int puFont::getStringWidth ( const char *str )
 
     return res ;
   }
+#endif // #ifdef _PU_USE_GLUT_FONTS
 
   if ( fnt_font_handle != NULL )
   {
@@ -44,6 +49,7 @@ int puFont::getStringWidth ( const char *str )
 }
 
 
+#ifdef _PU_USE_GLUT_FONTS
 static int getGLUTStringHeight ( GlutFont glut_font_handle )
 {
   if ( glut_font_handle == GLUT_BITMAP_8_BY_13        ) return  9 ;
@@ -55,11 +61,13 @@ static int getGLUTStringHeight ( GlutFont glut_font_handle )
   if ( glut_font_handle == GLUT_BITMAP_HELVETICA_18   ) return 14 ;
   return 0 ;
 }
+#endif // #ifdef _PU_USE_GLUT_FONTS
 
 int puFont::getStringHeight ( const char *s )
 {
   /* Height *excluding* descender */
    
+#ifdef _PU_USE_GLUT_FONTS
   if ( glut_font_handle != (GlutFont) 0 )
   {
     int i = getGLUTStringHeight ( glut_font_handle ) ;
@@ -71,6 +79,7 @@ int puFont::getStringHeight ( const char *s )
 
     return i * num_lines ;
   }
+#endif // #ifdef _PU_USE_GLUT_FONTS
 
   if ( fnt_font_handle != NULL )
   {
@@ -91,6 +100,7 @@ int puFont::getStringHeight ()
 
 int puFont::getStringDescender ()
 {
+#ifdef _PU_USE_GLUT_FONTS
   if ( glut_font_handle != (GlutFont) 0 )
   {
     if ( glut_font_handle == GLUT_BITMAP_8_BY_13        ) return 2 ;
@@ -102,6 +112,7 @@ int puFont::getStringDescender ()
     if ( glut_font_handle == GLUT_BITMAP_HELVETICA_18   ) return 4 ;
     return 0 ;
   }
+#endif // #ifdef _PU_USE_GLUT_FONTS
 
   if ( fnt_font_handle != NULL )
   {
@@ -119,6 +130,7 @@ void puFont::drawString ( const char *str, int x, int y )
   if ( str == NULL )
     return ;
 
+#ifdef _PU_USE_GLUT_FONTS
   if ( glut_font_handle != (GlutFont) 0 )
   {
     glRasterPos2f( (float)x, (float)y ) ; 
@@ -137,6 +149,7 @@ void puFont::drawString ( const char *str, int x, int y )
     }
     return ;
   }
+#endif // #ifdef _PU_USE_GLUT_FONTS
 
   if ( fnt_font_handle != NULL )
   {
@@ -146,7 +159,7 @@ void puFont::drawString ( const char *str, int x, int y )
     glPushAttrib( GL_COLOR_BUFFER_BIT ); // NHV
       glEnable    ( GL_ALPHA_TEST   ) ;
       glEnable    ( GL_BLEND        ) ;
-      glAlphaFunc ( GL_GREATER, 0.1 ) ;
+      glAlphaFunc ( GL_GREATER, 0.1f ) ;
       glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
 
       fnt_font_handle -> begin () ;

@@ -5,6 +5,16 @@
 #include "fnt.h"
 
 /*
+  Configuration
+*/
+
+#ifndef PU_NOT_USING_GLUT
+#define _PU_USE_GLUT   1
+#endif
+
+#define _PU_USE_GLUT_FONTS   1
+
+/*
   Include GLUT
  */
 
@@ -61,30 +71,40 @@ typedef void *puFont ;
 
 #else
 
+#ifdef _PU_USE_GLUT_FONTS
 typedef void *GlutFont ;
+#endif
 
 class puFont 
 {
+#ifdef _PU_USE_GLUT_FONTS
   GlutFont     glut_font_handle ;
+#endif
   fntTexFont * fnt_font_handle ; float pointsize ; float slant ;
 
 public:
 
   puFont ()
   {
+#ifdef _PU_USE_GLUT_FONTS
     glut_font_handle = GLUT_BITMAP_8_BY_13 ;
+#endif
     fnt_font_handle  = NULL ;
   }
 
+#ifdef _PU_USE_GLUT_FONTS
   puFont ( GlutFont gfh )
   {
     glut_font_handle = gfh  ;
     fnt_font_handle  = NULL ;
   }
+#endif
 
   puFont ( fntTexFont *tfh, float ps, float sl = 0 )
   {
+#ifdef _PU_USE_GLUT_FONTS
     glut_font_handle = (GlutFont) 0 ;
+#endif
     fnt_font_handle  = tfh  ;
     pointsize = ps ;
     slant = sl ;
