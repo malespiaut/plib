@@ -61,8 +61,8 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy sg.h ..\..\sg.h
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "sg___Win32_Debug"
-# PROP BASE Intermediate_Dir "sg___Win32_Debug"
+# PROP BASE Output_Dir "Debug"
+# PROP BASE Intermediate_Dir "Debug"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
