@@ -104,12 +104,12 @@ static int dxf_read ( FILE *filein )
 {
   int   code;
   int   count;
-  float cvec[3];
   char  input1[MAX_LINE_LEN];
   char  input2[MAX_LINE_LEN];
   float rval;
   int   width;
   int   cpos;
+  sgVec3 cvec;
 
   int   linemode;
   int   num_line;
@@ -166,8 +166,18 @@ static int dxf_read ( FILE *filein )
         }
         else {
           if ( num_vert >= 3 ) {
-            num_face ++;
-            num_facevert += 3;
+            //quad?
+            if ( num_vert >= 4 && num_facevert + 6 < MAX_VERT ) {
+              sgCopyVec3( facevert[num_facevert + 4], facevert[num_facevert + 0] );
+              sgCopyVec3( facevert[num_facevert + 5], facevert[num_facevert + 1] );
+              num_face += 2;
+              num_facevert += 6;
+            }
+            else {
+              //triangle
+              num_face += 1;
+              num_facevert += 3;
+            }
           }
         }
         num_vert = 0;
@@ -204,16 +214,12 @@ static int dxf_read ( FILE *filein )
 
             if ( linemode ) {
               if ( num_linevert + num_vert < MAX_VERT ) {
-                linevert[num_linevert + num_vert][0] = cvec[0];
-                linevert[num_linevert + num_vert][1] = cvec[1];
-                linevert[num_linevert + num_vert][2] = cvec[2];
+                sgCopyVec3( linevert[num_linevert + num_vert], cvec );
               }
             }
             else {
               if ( num_facevert + num_vert < MAX_VERT ) {
-                facevert[num_facevert + num_vert][0] = cvec[0];
-                facevert[num_facevert + num_vert][1] = cvec[1];
-                facevert[num_facevert + num_vert][2] = cvec[2];
+                sgCopyVec3( facevert[num_facevert + num_vert], cvec );
               }
             }
 
