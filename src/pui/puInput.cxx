@@ -114,6 +114,8 @@ void puInput::draw ( int dx, int dy )
         int ssp = select_start_position - ncut ;
 
         if ( sep < 0 ) sep = 0 ;
+        if ( ssp < 0 ) ssp = 0 ;
+
         if ( ssp < sep )
         {
           s2 [ sep ] = '\0' ;
