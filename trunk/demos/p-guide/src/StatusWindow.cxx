@@ -22,8 +22,6 @@
 
 // Status Window
 
-#include <plib/pu.h>
-
 #include "WidgetList.h"
 
 // From the Main Window:

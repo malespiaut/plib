@@ -24,8 +24,6 @@
 
 #include <stdio.h>
 
-#include <plib/pu.h>
-
 #include "WidgetList.h"
 
 #ifdef WIN32
