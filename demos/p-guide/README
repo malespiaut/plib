@@ -1,0 +1,34 @@
+
+PUI-based Graphical User Interface Designer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                           by John F. Fay
+
+REQUIREMENTS:
+
+   OpenGL (or Mesa)
+   GLUT (the GL Utility Toolkit)
+   PLIB
+
+
+INSTALLATION:
+
+Installation instructions are pretty basic:
+
+ ./configure
+ make
+ make install
+
+
+LICENSE:
+
+This software is released under the provisions of
+the GNU General Public License (GPL) which can be
+found in the file 'COPYING' in the current directory.
+
+
+DIRECTORY STRUCTURE:
+
+src     -- Where the source code lives.
+
+doc     -- Documentation - in HTML
+

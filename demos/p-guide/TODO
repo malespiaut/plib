@@ -1,0 +1,16 @@
+Planned Bug Fixes or Upgrades to P-GUIDE:
+
+Bug Fixes:
+
+1.  When the user has selected CTRL-widget, have the button value set back to zero when the selected_widget_type (or whatever it is) gets deselected or changed (eg when he presses on another widget button in the Widget window or presses another widget anywhere else), not just when he presses Escape.
+
+2.  Make the Active widget's black line go all the way around it.
+
+3.  Make the widget creations type-specific.
+
+Upgrades:
+
+1.  Allow the user to click a corner of a widget in the main window to extend its size in two directions at once.
+
+2.  
+
