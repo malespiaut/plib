@@ -108,15 +108,18 @@ class netMessage : public netBuffer
 
 public:
 
+  // incoming message; header is already there
   netMessage ( const char* s, int n ) : netBuffer(n)
   {
     assert ( n >= 5 ) ;
     append(s,n);
-    pos = 5 ;
+    pos = 5 ; // seek past header
   }
 
+  // outgoing message
   netMessage ( int type, int to_id, int from_id=0, int n=256 ) : netBuffer(n)
   {
+    // output header
     putw ( 0 ) ;  //msg_len
     putbyte ( type ) ;
     putbyte ( to_id ) ;
