@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy pu.h ..\..\pu.h
+PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy pu.h ..\..\pu.h	copy puGLUT.h "..\..\"	copy puFLTK.h "..\..\"	copy puSDL.h "..\..\"	copy puNative.h "..\..\"
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "pui - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy pu.h ..\..\pu.h
+PostBuild_Cmds=copy debug\*.lib ..\..\*.*	copy pu.h ..\..\pu.h	copy puGLUT.h "..\..\"	copy puFLTK.h "..\..\"	copy puSDL.h "..\..\"	copy puNative.h "..\..\"
 # End Special Build Tool
 
 !ENDIF 
