@@ -630,9 +630,9 @@ static void smooth_normals( int use_smooth_list )
   int i, j;
 
   for (i = 0; i < num_faces; i++) {
-    int v1 = i * 3,
-      v2 = i * 3 + 1,
-      v3 = i * 3 + 2;
+    int v1 = i * 3     ;
+    int v2 = i * 3 + 1 ;
+    int v3 = i * 3 + 2 ;
 
     sgZeroVec3( vertex_normals[v1] );
     sgZeroVec3( vertex_normals[v2] );
@@ -642,11 +642,10 @@ static void smooth_normals( int use_smooth_list )
       int should_smooth;
 
       if (use_smooth_list) {
-        should_smooth = (smooth_list[i] & smooth_list[j]) && 
-          (sgScalarProductVec3( face_normals[i], face_normals[j] ) >= -0.5f);
+        should_smooth = (smooth_list[i] & smooth_list[j]);
       } else {
-        should_smooth = (sgScalarProductVec3( face_normals[i], face_normals[j] ) > 
-                         _ssg_smooth_threshold);
+	float scalar = sgScalarProductVec3( face_normals[i], face_normals[j] );
+        should_smooth = ( scalar > _ssg_smooth_threshold );
       }
 
       if (should_smooth) {
@@ -751,7 +750,7 @@ static int parse_map_list( unsigned int length ) {
 
   for (int i = 0; i < num_v; i++) {
     texcrd_list[i][0] = get_float();
-    texcrd_list[i][1] = get_float();
+    texcrd_list[i][1] = 1.0f - get_float();
   }
 
   return PARSE_OK;
@@ -767,18 +766,20 @@ static int parse_tra_matrix( unsigned int length ) {
   /* Strange things seems to be going on with the
      local coordinate system in 3ds - I have commented
      this out, but things seems to work better without
-     it (which is odd). */
+     it (which is odd).
   
-  int i, j;
-  
-  for (i = 0; i < 4; i++) {
-    for (j = 0; j < 3; j++) {
-      m[j][i] = get_float();
-    }
-  }
-
-  m[3][3] = 1.0f;
-  sgTransposeNegateMat4( m );
+     int i, j;
+     
+     for (i = 0; i < 4; i++) {
+     for (j = 0; j < 3; j++) {
+     m[j][i] = get_float();
+     }
+     }
+     
+     m[3][3] = 1.0f;
+     sgTransposeNegateMat4( m );
+     
+  */
   
 #ifdef DEBUG
   for (int a = 0; a < 4; a++) {
