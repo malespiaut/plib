@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "fnt"=".\src\fnt\fnt.dsp" - Package Owner=<4>
+Project: "fnt"=.\src\fnt\fnt.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "js"=".\src\js\js.dsp" - Package Owner=<4>
+Project: "js"=.\src\js\js.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "net"=".\src\net\net.dsp" - Package Owner=<4>
+Project: "net"=.\src\net\net.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -39,7 +39,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "plib"=".\plib.dsp" - Package Owner=<4>
+Project: "plib"=.\plib.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -81,7 +81,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "psl"=".\src\psl\psl.dsp" - Package Owner=<4>
+Project: "psl"=.\src\psl\psl.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -93,7 +93,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "pui"=".\src\pui\pui.dsp" - Package Owner=<4>
+Project: "puAux"=.\src\puAux\puAux.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -105,7 +105,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "pw"=".\src\pw\pw.dsp" - Package Owner=<4>
+Project: "pui"=.\src\pui\pui.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -117,7 +117,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sg"=".\src\sg\sg.dsp" - Package Owner=<4>
+Project: "pw"=.\src\pw\pw.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -129,7 +129,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sl"=".\src\sl\sl.dsp" - Package Owner=<4>
+Project: "sg"=.\src\sg\sg.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -141,7 +141,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ssg"=".\src\ssg\ssg.dsp" - Package Owner=<4>
+Project: "sl"=.\src\sl\sl.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -153,7 +153,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ssgAux"=".\src\ssgAux\ssgAux.dsp" - Package Owner=<4>
+Project: "ssg"=.\src\ssg\ssg.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -165,7 +165,19 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ul"=".\src\util\ul.dsp" - Package Owner=<4>
+Project: "ssgAux"=.\src\ssgAux\ssgAux.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ul"=.\src\util\ul.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

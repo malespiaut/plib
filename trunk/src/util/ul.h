@@ -151,8 +151,8 @@
 /* PLIB version macros */
 
 #define PLIB_MAJOR_VERSION 1
-#define PLIB_MINOR_VERSION 7
-#define PLIB_TINY_VERSION 0
+#define PLIB_MINOR_VERSION 8
+#define PLIB_TINY_VERSION  2
 
 #define PLIB_VERSION (PLIB_MAJOR_VERSION*100 \
                      +PLIB_MINOR_VERSION*10 \
