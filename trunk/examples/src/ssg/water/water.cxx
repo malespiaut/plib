@@ -17,8 +17,6 @@
 #define VIEW_GUI_BASE 20
 #define FONT_COLOUR   1,1,1,1
 
-ulClock     *clock ;
-
 puSlider    *trainLengthSlider  = (puSlider    *) NULL ;
 puSlider    *trainSpeedSlider   = (puSlider    *) NULL ;
 puSlider    *trainLambdaSlider  = (puSlider    *) NULL ;
@@ -427,35 +425,30 @@ void depthSelectBox_cb ( puObject *ob )
 
 
 
-void update_motion ( int frameno )
+void update_motion ()
 {
-  sgCoord tptpos ;
+  static ulClock ck ;
+  static char s [ 128 ] ;
 
-  sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, -frameno, 0.0f, 0.0f ) ;
+  ck . update () ;
 
-  ssgSetCamera ( & campos ) ;
-  teapot  -> setTransform ( & tptpos ) ;
-
-  ocean -> setWindDirn ( 25.0 * sin ( frameno / 100.0 ) ) ;
-
-  static ulClock ck ; ck . update () ;
-
-  float t  = ck . getAbsTime   () ;
+  double t = ck . getAbsTime   () ;
   float dt = ck . getDeltaTime () ;
 
-// sgVec3 center ;
-// sgSetVec3 ( center, ( frameno % 100 ) / 10.0f,
-//                     ( frameno % 200 ) / 20.0f, 0.0f ) ;
-// ocean -> setCenter ( center ) ;
-
-  clock->update () ;
+  ocean -> setWindDirn ( 25.0 * sin ( t / 100.0 ) ) ;
   ocean -> updateAnimation ( t ) ;
-  clock->update () ;
-  double tim = clock->getDeltaTime () ;
-  static char s [ 128 ] ;
-  sprintf ( s, "CalcTime=%1.1fms", tim * 1000.0 ) ;
-  timeText->setLabel ( s ) ;
+
   fountain -> update ( dt ) ;
+
+  dt = ck . getDeltaTime () ;
+
+  sprintf ( s, "CalcTime=%1.1fms", dt * 1000.0 ) ;
+  timeText->setLabel ( s ) ;
+  sgCoord tptpos ;
+
+  sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, t * 60, 0.0f, 0.0f ) ;
+  ssgSetCamera ( & campos ) ;
+  teapot  -> setTransform ( & tptpos ) ;
 }
 
 
@@ -518,10 +511,7 @@ static void mousefn ( int button, int updown, int x, int y )
 
 void redraw ()
 {
-static int frameno = 0 ;
-frameno++ ;
-
-  update_motion ( frameno % 2000 ) ;
+  update_motion () ;
 
   glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
@@ -645,10 +635,11 @@ void init_states ()
 
   sea_state = new ssgSimpleState () ;
   sea_state -> setTexture        ( "data/ocean.rgb" ) ;
+  sea_state -> setTranslucent    () ;
   sea_state -> enable            ( GL_TEXTURE_2D ) ;
   sea_state -> setShadeModel     ( GL_SMOOTH ) ;
   sea_state -> enable            ( GL_CULL_FACE ) ;
-  sea_state -> disable           ( GL_BLEND ) ;
+  sea_state -> enable            ( GL_BLEND ) ;
   sea_state -> enable            ( GL_LIGHTING ) ;
   sea_state -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
   sea_state -> setMaterial       ( GL_EMISSION, 0, 0, 0, 1 ) ;
@@ -657,6 +648,7 @@ void init_states ()
 
   splash_state = new ssgSimpleState () ;
   splash_state -> setTexture        ( "data/droplet.rgb" ) ;
+  splash_state -> setTranslucent    () ;
   splash_state -> enable            ( GL_TEXTURE_2D ) ;
   splash_state -> setShadeModel     ( GL_SMOOTH ) ;
   splash_state -> enable            ( GL_CULL_FACE ) ;
@@ -683,7 +675,7 @@ void load_database ()
 
   init_states () ;
 
-  sgVec4  WHITE  = { 1.0, 1.0, 1.0, 1.0 } ;
+  sgVec4  TRANSLUCENT_WHITE  = { 1.0, 1.0, 1.0, 0.8 } ;
   sgVec3  pos    = { 0, 0, 0 } ;
   sgCoord pedpos = { { 0, 0, -1.5 }, { 0, 0, 0 } } ;
 
@@ -715,7 +707,7 @@ void load_database ()
   trains[2] . setWaveHeight (  0.1f ) ;
 
   ocean   =  new ssgaWaveSystem ( 10000 ) ;
-  ocean   -> setColour        ( WHITE ) ;
+  ocean   -> setColour        ( TRANSLUCENT_WHITE ) ;
   ocean   -> setSize          ( 100 ) ;
   ocean   -> setTexScale      ( 3, 3 ) ;
   ocean   -> setCenter        ( pos ) ;
@@ -757,8 +749,6 @@ void init_gui ()
 {
   static puFont     *sorority ;
   static fntTexFont *fnt      ;
-
-  clock = new ulClock () ;
 
   fnt      = new fntTexFont () ;
   fnt     -> load ( "data/sorority.txf" ) ;
