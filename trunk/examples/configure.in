@@ -101,7 +101,7 @@ case "${host}" in
     LIBS="$LIBS -lwinmm"
 
     dnl OpenGL libraries
-    OGL_LIBS="-lglu32 -lopengl32"
+    OGL_LIBS="-lglu32 -lopengl32 -lgdi32"
     GLUT_LIBS="-lglut32"
 	;;
 *-*-mingw32*)
@@ -112,7 +112,7 @@ case "${host}" in
 
 
     dnl OpenGL libraries
-    OGL_LIBS="-lglu32 -lopengl32"
+    OGL_LIBS="-lglu32 -lopengl32 -lgdi32"
     GLUT_LIBS="-lglut32"
 	;;
 *-apple-darwin*)
