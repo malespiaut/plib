@@ -66,7 +66,7 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
 																ssgIndexArray*  indices, SGfloat epsilon, ssgSimpleStateArray* ssa,
 																ssgIndexArray*  materialIndices, ssgTexCoordArray *texCoordArray) 
 // Accumulates all vertices and Faces (indexes of vertices making up faces)
-// from node and any nodfe below.
+// from node and any node below.
 // Calls itself recursively.
 // If indices is NULL, no face info is accumulated
 // if epsilon is < 0.0, it is ignored. Else vertices are only accumulated if 
@@ -131,8 +131,10 @@ void ssgAccumVerticesAndFaces( ssgEntity* node, sgMat4 transform, ssgVertexArray
 							( new_vertex[2] - oldvertex[2] > -epsilon) &&
 							( new_vertex[2] - oldvertex[2] < epsilon))
 					{ float *f;
-					  if ( texCoordArray )
+					  if ( useTexture )
+						{	assert( texCoordArray ); // if texCoordArray would be NULL, useTexture would not be set.
 							f = texCoordArray -> get(j);
+						}
 						if ( !useTexture || ((l_node->getTexCoord(i)[0] == f[0]) &&
 							         (l_node->getTexCoord(i)[1] == f[1])))
 						{
