@@ -21,8 +21,6 @@
      $Id$
 */
 
-// $Id
-
 /* 
  * ssgaBillboards
  *
