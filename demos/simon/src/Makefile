@@ -1,17 +1,17 @@
 
 SIMON = libsimon.a   simon
-LIBS  = -L/usr/X11R6/lib -lplibpsl -lplibssg -lplibsg -lplibul -lglut -lGLU -lGL -lpthread -lX11 -lm
+LIBS  = -lplibpsl -lplibssg -lplibsg -lplibul -lglut -lGLU -lGL -lpthread -L/usr/X11/lib -lX11 -lm
 
 all: ${SIMON}
 
-simon : libsimon.a simon.o
+simon : libsimon.a simon.o /usr/lib/libplibpsl.a
 	g++ -o simon simon.o libsimon.a ${LIBS}
 
 simon.o : simon.cxx simon.h
-	g++ -I/usr/X11R6/include -I. -o simon.o -c simon.cxx
+	g++ -I. -o simon.o -c simon.cxx
 
 simon_api.o : simon_api.cxx simon.h
-	g++ -I/usr/X11R6/include -o simon_api.o -c simon_api.cxx
+	g++ -o simon_api.o -c simon_api.cxx
 
 libsimon.a : simon_api.o
 	ar cru libsimon.a simon_api.o
