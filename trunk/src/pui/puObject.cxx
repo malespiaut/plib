@@ -117,7 +117,7 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   user_data   = NULL ;
   next = prev = NULL ;
   label       = NULL ;
-  labelPlace  = PUPLACE_DEFAULT   ;
+  labelPlace  = PUPLACE_LOWER_RIGHT ;
   labelFont   = defaultLabelFont  ;
   legend      = NULL ;
   legendFont  = defaultLegendFont ;
