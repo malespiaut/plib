@@ -356,6 +356,11 @@ static void createTriangIndices(ssgIndexArray *ixarr,
 {
   sgVec3 v1, v2, cross;
 
+  if ( numverts > ixarr->getNum() ) {
+    ulSetError( UL_WARNING, "ssgLoadMDL: Index array with too few entries." );
+    return;
+  }
+
   // triangulate polygons
   if(numverts == 1)
     {
@@ -493,7 +498,14 @@ static bool readTexIndices(int numverts, const sgVec3 s_norm, bool flip_y)
       sgSetVec2(tc, double(tx_int)/255.0, double(ty_int)/255.0);
 
       sgVec2 curr_tc;
-      sgCopyVec2(curr_tc, tex_coords_->get(tex_idx));
+      
+      if ( tex_idx >= 0 && tex_idx < tex_coords_->getNum() ) {
+	sgCopyVec2(curr_tc, tex_coords_->get(tex_idx));
+      } else {
+	ulSetError( UL_WARNING, "ssgLoadMDL: Texture coord out of range (%d).",
+		    tex_idx );
+	continue;
+      }
 
       double dist = sgDistanceVec2(curr_tc, tc);
     
@@ -814,10 +826,14 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	
 	case 0x10:	// CNTRES: Continue line definition
 	  {
-	    unsigned short idx;
-	    idx = ulEndianReadLittle16(model_file_);
-	    //DEBUGPRINT( "Cont. line: idx = " << idx << std::endl);
-	    curr_part_->idx->add(idx - start_idx_ + last_idx_);
+	      unsigned short idx;
+	      idx = ulEndianReadLittle16(model_file_);
+	      if (curr_part_ != NULL) {
+		curr_part_->idx->add(idx - start_idx_ + last_idx_);
+	      } else {
+		ulSetError( UL_WARNING, "BGL_CNTRES encountered without " \
+			    "preceeding BGL_STRRES." );
+	      }
 	  }
 	  break;
 
@@ -874,6 +890,71 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 		curr_vtx_ ->add(p);
 		curr_norm_->add(null_normal);
 	      }
+	  }
+	  break;
+
+	case 0x20:
+	case 0x7a: 	// Goraud shaded Texture-mapped ABCD Facet
+	  {
+	    if(vtx_dirty_)
+	      {
+		last_idx_ = vertex_array_->getNum();
+		for(int i = 0; i < curr_vtx_->getNum(); i++)
+		  {
+		    vertex_array_->add(curr_vtx_ ->get(i));
+		    normal_array_->add(curr_norm_->get(i));
+		  }
+		vtx_dirty_ = false;
+	      }
+	  
+	    curr_part_ = new _MDLPart;
+	    curr_part_->type = GL_TRIANGLE_FAN;
+	    curr_part_->vtx = vertex_array_;
+	    curr_part_->nrm = normal_array_;
+	    curr_part_->crd = tex_coords_;
+	    curr_part_->idx  = new ssgIndexArray;
+
+	    unsigned short numverts;
+	    numverts = ulEndianReadLittle16(model_file_);
+	    //DEBUGPRINT( "New part: (goraud/texture), num indices = " << 
+	    //	numverts << std::endl);
+
+	    // Unused data
+	    sgVec3 v;
+	    readVector(model_file_, v);
+	    //	  v *= -1.0;
+	    curr_cull_face_ = ulEndianReadLittle32(model_file_) >= 0;
+
+	    // Read vertex inidices and texture coordinates
+	    char *texture_extension = 
+	      curr_tex_name_ + strlen(curr_tex_name_) - 3;
+	    bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
+	    readTexIndices(numverts, v, flip_y);
+
+	    if(!has_normals_)
+	      {
+		for(int i = 0; i < curr_part_->idx->getNum(); i++)
+		  sgCopyVec3(normal_array_->get(*curr_part_->idx->get(i)),
+			     v);
+		recalcNormals(curr_part_);
+	      }
+	    
+	    curr_part_->removeUnnecessaryVertices();
+	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
+						  curr_part_->vtx,
+						  curr_part_->nrm,
+						  curr_part_->crd,
+						  NULL,
+						  curr_part_->idx ) ;
+	    
+	    ssgSimpleState* st = createTextureState(curr_tex_name_) ;
+	    
+	    vtab -> setCullFace ( curr_cull_face_ ) ;
+	    vtab -> setState ( st ) ;
+	    
+	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
+	    leaf -> setName( curr_tex_name_ );
+	    curr_branch_->addKid(leaf);
 	  }
 	  break;
 
@@ -1036,70 +1117,6 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	  }
 	  break;
 
-	case 0x7a: 	// Goraud shaded Texture-mapped ABCD Facet
-	  {
-	    if(vtx_dirty_)
-	      {
-		last_idx_ = vertex_array_->getNum();
-		for(int i = 0; i < curr_vtx_->getNum(); i++)
-		  {
-		    vertex_array_->add(curr_vtx_ ->get(i));
-		    normal_array_->add(curr_norm_->get(i));
-		  }
-		vtx_dirty_ = false;
-	      }
-	  
-	    curr_part_ = new _MDLPart;
-	    curr_part_->type = GL_TRIANGLE_FAN;
-	    curr_part_->vtx = vertex_array_;
-	    curr_part_->nrm = normal_array_;
-	    curr_part_->crd = tex_coords_;
-	    curr_part_->idx  = new ssgIndexArray;
-
-	    unsigned short numverts;
-	    numverts = ulEndianReadLittle16(model_file_);
-	    //DEBUGPRINT( "New part: (goraud/texture), num indices = " << 
-	    //	numverts << std::endl);
-
-	    // Unused data
-	    sgVec3 v;
-	    readVector(model_file_, v);
-	    //	  v *= -1.0;
-	    curr_cull_face_ = ulEndianReadLittle32(model_file_) >= 0;
-
-	    // Read vertex inidices and texture coordinates
-	    char *texture_extension = 
-	      curr_tex_name_ + strlen(curr_tex_name_) - 3;
-	    bool flip_y = _ssgStrEqual( texture_extension, "BMP" );
-	    readTexIndices(numverts, v, flip_y);
-
-	    if(!has_normals_)
-	      {
-		for(int i = 0; i < curr_part_->idx->getNum(); i++)
-		  sgCopyVec3(normal_array_->get(*curr_part_->idx->get(i)),
-			     v);
-		recalcNormals(curr_part_);
-	      }
-	    
-	    curr_part_->removeUnnecessaryVertices();
-	    ssgVtxArray* vtab = new ssgVtxArray ( curr_part_->type,
-						  curr_part_->vtx,
-						  curr_part_->nrm,
-						  curr_part_->crd,
-						  NULL,
-						  curr_part_->idx ) ;
-	    
-	    ssgSimpleState* st = createTextureState(curr_tex_name_) ;
-	    
-	    vtab -> setCullFace ( curr_cull_face_ ) ;
-	    vtab -> setState ( st ) ;
-	    
-	    ssgLeaf* leaf = current_options -> createLeaf ( vtab, NULL ) ;
-	    leaf -> setName( curr_tex_name_ );
-	    curr_branch_->addKid(leaf);
-	  }
-	  break;
-
 	case 0x8F:
 	  {
 	    int value  = ulEndianReadLittle32( model_file_ );
@@ -1125,22 +1142,43 @@ ssgEntity *ssgLoadMDL( const char* fname, const ssgLoaderOptions* options )
 	  }
 	  break;
 
+	case 0x1d:       // BGL_FACE
+	  {
+	    DEBUGPRINT( "BGL_FACE ignored\n" );
+	    unsigned short number_points = ulEndianReadLittle16(model_file_);
+	    skip_offset = 14 + 2 * number_points;	    
+	  }
+	  break;
+
+	case 0x38:       // BGL_CONCAVE
+	  skip_offset = 0;
+	  break;
+
+	case 0x39:       // BGL_IFMSK
+	  skip_offset = 6;
+	  break;
+
+	case 0x7D:       // BGL_PERSPECTIVE
+	  skip_offset = 0;
+	  break;
+
 	default: // Unknown opcode
 	  {
 	    if (opcode < 256) {
 	      if ( opcodes[opcode].size != -1) {
-		DEBUGPRINT( opcodes[opcode].name << " (size " <<
-			    opcodes[opcode].size << ")" << std::endl );
 		skip_offset = opcodes[opcode].size - 2; // opcode already read
+		ulSetError( UL_WARNING, "ssgLoadMDL: Unhandled op-code %s " \
+			    "(%X), skipping %d bytes.", 
+			    opcodes[opcode].name, opcode, skip_offset );
 	      } else {
-		DEBUGPRINT( "Unhandled opcode " << opcodes[opcode].name
-			    << " (" << std::hex << opcode << std::dec << ")" <<
-			    std::endl );
+		ulSetError( UL_WARNING, "ssgLoadMDL: Unhandled op-code %s " \
+			    "(%X), trying to skip to next part.", 
+			    opcodes[opcode].name, opcode, skip_offset );
 		findPart(model_file_);
 	      }
 	    } else {
-	      DEBUGPRINT( "Op-code out of range: " << std::hex << opcode <<
-			  std::dec << std::endl );
+	      ulSetError( UL_WARNING, "ssgLoadMDL: Op-code out of range " \
+			  "(%X), trying to skip to next part.", opcode );
 	      findPart(model_file_);
 	    }
 	  }
