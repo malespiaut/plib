@@ -1197,6 +1197,7 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
    fltTriangle tri;
    StateInfo info;
    int subface = 0;
+   char long_id[256] = {0};
 
    state->temp = &tri;
    memset(&tri, 0, sizeof(tri));
@@ -1573,6 +1574,15 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
          ptr += len;
          break;
 
+      case 33: /* Long ID */
+         if (long_id[0] == 0) {
+            int n = CLAMP(len - 4, 0, 255);
+            memcpy(long_id, ptr + 4, n);
+            long_id[n] = 0;
+         }
+         ptr += len;
+         break;
+
       case 31: /* Text Comment */
       case 50: /* Vector (for light points) */
       case 21: /* Push Extension */
@@ -1603,7 +1613,10 @@ static int GeomChunks(ubyte *ptr0, ubyte *end, fltState *state, ssgEntity **node
    } while (!done);
    
    *nodep = Build(state);
-   
+
+   if (long_id[0] != 0 && *nodep != NULL)
+     (*nodep)->setName(long_id);
+
    return ptr - ptr0;
 }
 
@@ -1721,6 +1734,9 @@ static void MergeLODs(ssgBranch *grp)
 static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
 {
 
+  if (node && attr && attr->name)
+    node->setName(attr->name);
+
 #if 1
    /* remove empty or redundant groups */
    while (!NoClean && node && node->isA(ssgTypeBranch())) {
@@ -1773,10 +1789,6 @@ static ssgEntity *PostClean(ssgEntity *node, fltNodeAttr *attr)
 
    /* apply node attributes */
    if (node && attr) {
-
-      if (attr->name) {
-	 node->setName(attr->name);
-      }
 
       if (attr->transform) {
 
@@ -2105,7 +2117,7 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
 
       case 5: /* Face */
          /* polygons are not allowed to be outside objects, but this rule is not always respected */
-         ulSetError(UL_DEBUG, "[flt] Implicit object.");
+	 //ulSetError(UL_DEBUG, "[flt] Implicit object.");
          PostLink(stack + sp - 1, attr + sp - 1);
          ptr += GeomChunks(ptr, end, state, &stack[sp], 0, 0);
          break;
@@ -2182,7 +2194,7 @@ static ssgEntity *HierChunks(ubyte *ptr, ubyte *end, fltState *state)
             char *file = (char *)ptr + 4, *p;
 	    if ((p = strrchr(file, '/')))
 		file = p + 1;
-//	    stack[sp] = LoadFLT(file);
+	    //stack[sp] = LoadFLT(file);
 	    stack[sp] = ssgLoad (file);
          }
          ptr += len;
@@ -2535,7 +2547,7 @@ static int CheckHeader(ubyte *ptr, ubyte *end, fltState *state)
    return len;
 }
 
-#if 1
+#if 0
 struct snode *refs;
 static int nrefs;
 
@@ -2991,51 +3003,65 @@ ssgEntity *ssgLoadFLT(const char *filename,
 #endif
 		      )
 {
+   static int depth = 0;
    ssgEntity *node;
 
-   Init();
+   if (depth == 0) {
 
-   ObsoleteFlag = 0;
-   NotImplementedFlag = 0;
+      Init();
+     
+      ObsoleteFlag = 0;
+      NotImplementedFlag = 0;
+      
+      TexCache = 0;
+      StateCache = 0;
+      FltCache = 0;
 
 #ifndef NO_LOADER_OPTIONS
-   ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
-   LoaderOptions = ssgGetCurrentOptions () ;
+      ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
+      LoaderOptions = ssgGetCurrentOptions () ;
 #endif
+
+   }
+
+   // no longjmp()'s please! (or this recursion test will fail)
+
+   depth++;
 
    node = LoadFLT(filename);
 
-   sfree(TexCache, S_KEY | S_DATA);
-   TexCache = 0;
+   depth--;
 
-   sfree(StateCache, S_KEY);
-   StateCache = 0;
+   if (depth == 0) {
+     
+     sfree(TexCache, S_KEY | S_DATA);
+     sfree(StateCache, S_KEY);
 
-   /* is it wise to free the flt cache? might be safer. */
-   if (node) node->ref(); /* prevent this node from beeing deleted! */
-   sfree(FltCache, S_KEY | S_TREE);
-   FltCache = 0;
-   if (node) node->deRef();
+     if (node) node->ref(); // prevent this node from being deleted!
+     sfree(FltCache, S_KEY | S_TREE);
+     if (node) node->deRef();
+
+   }
 
 #if 0
    if (node && !NoClean) {
+      Flattened = 0;
       node = Flatten(node, 0);
       sfree(Flattened, 0);
-      Flattened = 0;
    }
 #endif
 
-#if 1 /* debug */
+#if 0 /* debug */
    if (node && getenv("FLTDUMP")) {
       const char *file = "/tmp/tree.txt";
       FILE *f = fopen(file, "w");
       if (f == 0)
 	 perror(file);
       else {
-	 ptree(node, f, 0);
-	 sfree(refs, 0);
 	 refs = 0;
 	 nrefs = 0;
+	 ptree(node, f, 0);
+	 sfree(refs, 0);
 	 fclose(f);
 	 ulSetError(UL_DEBUG, "wrote %s", file);
       }
