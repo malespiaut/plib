@@ -149,11 +149,12 @@ void WavingFlag::animate( float time, float windVelocity )
 			float *n = normals->get( i );
 			n[0] = cos(d);
 			n[1] = v[1];
-			d *= 1.002;
+			//d *= 1.002;
 		}
 		k *= 0.9;
 	}
 	if ( d > SG_PI/2.0 ) printf ("Problems\n");
+	branch -> dirtyBSphere () ; 
 }
 
 ssgEntity *WavingFlag::getObject()
