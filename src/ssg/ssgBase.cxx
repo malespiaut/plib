@@ -100,7 +100,8 @@ int ssgBase::load ( FILE *fd )
 { 
   delete name ;
   name = NULL ;
-  _ssgAddToList ( getSpare(), this ) ;
+  setSpare ( _ssgGetNextInstanceKey () ) ;
+	_ssgAddToList ( getSpare(), this ) ;
   _ssgReadString ( fd, &name ) ;
   return ! _ssgReadError () ;
 }
