@@ -2707,6 +2707,15 @@ public:
   void subForce    ( sgVec3 f ) { sgSubVec3    ( force, f ) ; }
   void gravityOnly ()           { sgScaleVec3  ( force, sgGetGravityVec3 (), ooMass ) ; }
 
+  void bounce ( sgVec3 normal, float coefRestitution )
+  {
+    sgVec3 vn, vt ;
+    sgScaleVec3 ( vn, normal,
+                   sgScalarProductVec3 ( normal, vel ) ) ;
+    sgSubVec3 ( vt, vel, vn ) ;
+    sgAddScaledVec3 ( vel, vt, vn, -coefRestitution ) ;
+  }
+
   void update ( float dt )
   {
     sgAddScaledVec3 ( vel, force, dt * ooMass ) ;

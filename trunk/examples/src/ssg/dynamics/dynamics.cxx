@@ -15,6 +15,8 @@
 #define GUI_BASE      80
 #define VIEW_GUI_BASE 20
 #define FONT_COLOUR   1,1,1,1
+#define DEEPEST_HELL  -10000.0
+#define HOT_TOLERANCE  1.0
 
 ssgRoot            *scene        = NULL ;
 ssgaWaveSystem     *ocean        = NULL ;
@@ -33,11 +35,11 @@ void resetSMD ()
 {
   particle [ 0 ] -> setPos ( 2.0f, -4.0f, 0.0f ) ;
   particle [ 1 ] -> setPos ( 2.4f,  0.0f, 6.0f ) ;
-  particle [ 2 ] -> setPos ( 2.0f,  4.0f, 0.0f ) ;
-  particle [ 3 ] -> setPos ( 4.0f, -4.0f, 0.0f ) ;
-  particle [ 4 ] -> setPos ( 0.0f, -4.0f, 0.0f ) ;
-  particle [ 5 ] -> setPos ( 4.0f,  4.0f, 0.0f ) ;
-  particle [ 6 ] -> setPos ( 0.0f,  4.0f, 0.0f ) ;
+  particle [ 2 ] -> setPos ( 2.1f,  4.0f, 0.0f ) ;
+  particle [ 3 ] -> setPos ( 4.1f, -4.0f, 4.0f ) ;
+  particle [ 4 ] -> setPos ( 0.0f, -4.0f, 4.0f ) ;
+  particle [ 5 ] -> setPos ( 4.0f,  4.0f, 4.0f ) ;
+  particle [ 6 ] -> setPos ( 0.0f,  4.0f, 4.0f ) ;
 
   particle [ 0 ] -> setVel ( 0, 0, 0 ) ;
   particle [ 1 ] -> setVel ( 0, 0, 30 ) ;
@@ -91,10 +93,58 @@ void initSMD ()
 
     cube [ i ] = new ssgTransform () ;
     cube [ i ] -> addKid ( cb ) ;
+    cube [ i ] -> clrTraversalMaskBits ( SSGTRAV_ISECT | SSGTRAV_HOT ) ;
 
     scene -> addKid ( cube[i] ) ;
   }
 }
+
+
+ 
+float getHeightAndNormal ( sgVec3 my_position, sgVec3 normal )
+{
+  /* Look for the nearest polygon *beneath* my_position */
+ 
+  ssgHit *results ;
+  int num_hits ;
+ 
+  float hot ;        /* H.O.T == Height Of Terrain */
+  sgVec3 HOTvec ;
+ 
+  sgMat4 invmat ;
+  sgMakeIdentMat4 ( invmat ) ;
+  invmat[3][0] = - my_position [0] ;
+  invmat[3][1] = - my_position [1] ;
+  invmat[3][2] = 0.0 ;
+ 
+  sgSetVec3 ( HOTvec, 0.0f, 0.0f, my_position [ 2 ]+HOT_TOLERANCE ) ;
+ 
+  num_hits = ssgHOT ( scene, HOTvec, invmat, &results ) ;
+ 
+  hot = DEEPEST_HELL ;
+ 
+  for ( int i = 0 ; i < num_hits ; i++ )
+  {
+    ssgHit *h = &results [ i ] ;
+ 
+    float hgt = - h->plane[3] / h->plane[2] ;
+ 
+    if ( hgt >= hot )
+    {
+      hot = hgt ;
+ 
+      if ( normal != NULL )
+        sgCopyVec3 ( normal, h->plane ) ;
+    }
+  }
+ 
+  return hot ;
+}                                                                               
+
+
+
+#define RESTITUTION 0.9
+
 
 void updateSMD ( float dt )
 {
@@ -104,11 +154,7 @@ void updateSMD ( float dt )
 
     sgScaleVec3 ( friction, particle[i]->getVel (), 0.1 ) ;
 
-    if ( particle [ i ] -> getPos()[2] <= 0.0f )
-      particle [ i ] -> zeroForce () ;
-    else
-      particle [ i ] -> gravityOnly () ;
-
+    particle [ i ] -> gravityOnly () ;
     particle [ i ] -> subForce ( friction ) ;
   }
 
@@ -117,18 +163,17 @@ void updateSMD ( float dt )
 
   for ( int i = 0 ; i < num_particles ; i++ )
   {
-    if ( particle [ i ] -> getPos()[2] <= 0.0f )
-    {
-      particle [ i ] -> getPos  ()[2] = 0.0f ;
-
-      if ( particle [ i ] -> getVel  ()[2] < 0.0f )
-        particle [ i ] -> getVel  ()[2] = 0.0f ;
-
-      if ( particle [ i ] -> getForce ()[2] < 0.0f )
-        particle [ i ] -> getForce ()[2] = 0.0f ;
-    }
-
     particle [ i ] -> update ( dt ) ;
+
+    sgVec3 normal ;
+
+    float hot = getHeightAndNormal ( particle [ i ] -> getPos(), normal ) ;
+
+    if ( particle [ i ] -> getPos ()[2] <= hot )
+    {
+      particle [ i ] -> bounce ( normal, RESTITUTION ) ;
+      particle [ i ] -> getPos ()[2] = hot ;
+    }
   }
 
   for ( int i = 0 ; i < num_particles ; i++ )
