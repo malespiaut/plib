@@ -6,10 +6,22 @@ class Event
   int nbones ;
   sgCoord *bone_angles ;
 
+  sgVec3 translate ;
+
 public:
 
   void read  ( FILE *fd ) ;
   void write ( FILE *fd ) ;
+
+  void setTranslate ( sgVec3 tra )
+  {
+    sgCopyVec3 ( translate, tra ) ;
+  }
+
+  void getTranslate ( sgVec3 tra )
+  {
+    sgCopyVec3 ( tra, translate ) ;
+  }
 
   void setBoneAngles ( int n, sgVec3 angles )
   {

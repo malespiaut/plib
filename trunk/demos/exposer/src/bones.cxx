@@ -1,5 +1,7 @@
 #include "exposer.h"
 
+sgVec3 curr_translate = { 0.0f, 0.0f, 0.0f } ;
+
 ssgSimpleState *boneState = NULL ;
 
 int rootBone = -1  ;
@@ -7,6 +9,13 @@ int nextBone =  0  ;
 Bone *bone = NULL ;
 
 int nextVertex = 0 ;
+
+puSlider *XtranslateSlider ;
+puSlider *YtranslateSlider ;
+puSlider *ZtranslateSlider ;
+puInput  *XtranslateInput  ;
+puInput  *YtranslateInput  ;
+puInput  *ZtranslateInput  ;
 
 struct Vertex
 {
@@ -232,7 +241,7 @@ void LerpAnglesVec3 ( sgVec3 dst, const sgVec3 a,
 }
                                                                                 
 
-sgCoord *Bone::getXForm ( Event *prev, Event *next, float time )
+sgCoord *Bone::getXForm ( Event *prev, Event *next, float lerptime )
 {
   static sgCoord c ;
 
@@ -241,15 +250,7 @@ sgCoord *Bone::getXForm ( Event *prev, Event *next, float time )
 
   sgCopyVec3 ( c.xyz, xlate ) ;
 
-  if ( next->getTime() - prev->getTime() < 0.01 )
-    time = 0.0f ;
-  else 
-  {
-    time -= prev->getTime() ;
-    time /= (next->getTime() - prev->getTime()) ;
-  }
-
-  LerpAnglesVec3 ( c.hpr, coord0->hpr, coord1->hpr, time ) ;
+  LerpAnglesVec3 ( c.hpr, coord0->hpr, coord1->hpr, lerptime ) ;
 
   sh -> setValue ( (c.hpr[0] + 180.0f) / 360.0f ) ;
   sp -> setValue ( (c.hpr[1] + 180.0f) / 360.0f ) ;
@@ -283,6 +284,7 @@ void Bone::computeTransform ( Event *prev, Event *next, float t )
 void Bone::transform ( sgVec3 dst, sgVec3 src )
 {
   sgXformPnt3 ( dst, src, netMatrix ) ;
+  sgAddVec3 ( dst, curr_translate ) ;
 }
 
 
@@ -681,8 +683,6 @@ ssgBranch *extractBones ( ssgBranch *root )
 
   ssgBranch *res = getBone ( rootBone ) -> generateGeometry ( rootBone ) ;
 
-  printBones () ;
-
   return res ;
 }
 
@@ -855,8 +855,32 @@ void transformModel ( ssgRoot *boneRoot, float tim )
     }
   }
 
+  float lerptime = 0.0f ;
+
+  if ( next->getTime() - prev->getTime() >= 0.01 )
+  {
+    lerptime =  tim - prev->getTime() ;
+    lerptime /= (next->getTime() - prev->getTime()) ;
+  }
+
+  sgVec3 ptra ; prev->getTranslate(ptra) ;
+  sgVec3 ntra ; next->getTranslate(ntra) ;
+
+  sgLerpVec3 ( curr_translate, ptra, ntra, lerptime ) ;
+
+  XtranslateSlider -> setValue ( curr_translate [ 0 ] / 5.0f + 0.5f ) ;
+  YtranslateSlider -> setValue ( curr_translate [ 1 ] / 5.0f + 0.5f ) ;
+  ZtranslateSlider -> setValue ( curr_translate [ 2 ] / 5.0f + 0.5f ) ;
+
+  if ( ! XtranslateInput -> isAcceptingInput () )
+    XtranslateInput  -> setValue ( curr_translate [ 0 ] ) ;
+  if ( ! YtranslateInput -> isAcceptingInput () )
+    YtranslateInput  -> setValue ( curr_translate [ 1 ] ) ;
+  if ( ! ZtranslateInput -> isAcceptingInput () )
+    ZtranslateInput  -> setValue ( curr_translate [ 2 ] ) ;
+
   for ( int i = 0 ; i < getNumBones () ; i++ )
-    getBone ( i ) -> computeTransform ( prev, next, tim ) ;
+    getBone ( i ) -> computeTransform ( prev, next, lerptime ) ;
 
   ssgBranch *b = boneRoot ;
 
@@ -871,5 +895,140 @@ void transformModel ( ssgRoot *boneRoot, float tim )
                                                 vertex[i].rel_vx ) ;
 }
 
+
+
+float *getCurrTranslate ()
+{
+  return curr_translate ;
+}                                                                               
+
+
+
+void currTranslateTxtXCB ( puObject *sl )
+{
+  float v = sl -> getFloatValue () ;
+
+  if ( curr_event == NULL ) return ;
+
+  sgVec3 xyz ;
+
+  curr_event -> getTranslate ( xyz ) ;
+  xyz [ 0 ] = v ;
+  curr_event -> setTranslate ( xyz ) ;
+}
+
+
+
+void currTranslateTxtYCB ( puObject *sl )
+{
+  float v = sl -> getFloatValue () ;
+
+  if ( curr_event == NULL ) return ;
+
+  sgVec3 xyz ;
+
+  curr_event -> getTranslate ( xyz ) ;
+  xyz [ 1 ] = v ;
+  curr_event -> setTranslate ( xyz ) ;
+}
+
+
+
+void currTranslateTxtZCB ( puObject *sl )
+{
+  float v = sl -> getFloatValue () ;
+
+  if ( curr_event == NULL ) return ;
+
+  sgVec3 xyz ;
+
+  curr_event -> getTranslate ( xyz ) ;
+  xyz [ 2 ] = v ;
+  curr_event -> setTranslate ( xyz ) ;
+}
+
+
+
+
+void currTranslateXCB ( puObject *sl )
+{
+  float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
+
+  if ( curr_event == NULL ) return ;
+
+  sgVec3 xyz ;
+
+  curr_event -> getTranslate ( xyz ) ;
+  xyz [ 0 ] = v ;
+  curr_event -> setTranslate ( xyz ) ;
+}
+
+
+
+void currTranslateYCB ( puObject *sl )
+{
+  float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
+
+  if ( curr_event == NULL ) return ;
+
+  sgVec3 xyz ;
+
+  curr_event -> getTranslate ( xyz ) ;
+  xyz [ 1 ] = v ;
+  curr_event -> setTranslate ( xyz ) ;
+}
+
+
+
+void currTranslateZCB ( puObject *sl )
+{
+  float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
+
+  if ( curr_event == NULL ) return ;
+
+  sgVec3 xyz ;
+
+  curr_event -> getTranslate ( xyz ) ;
+  xyz [ 2 ] = v ;
+  curr_event -> setTranslate ( xyz ) ;
+}
+
+
+void init_bones ()
+{
+  sgZeroVec3 ( curr_translate ) ;
+
+  puText   *message ;
+
+  XtranslateInput  =  new puInput ( 5, 485, 80, 505 ) ;
+  XtranslateInput  -> setLegendFont ( PUFONT_HELVETICA_10 ) ;
+  XtranslateInput  -> setCallback ( currTranslateTxtXCB ) ;
+
+  XtranslateSlider = new puSlider ( 80, 485, 120, FALSE ) ;
+  XtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
+  XtranslateSlider -> setDelta    ( 0.01    ) ;
+  XtranslateSlider -> setCallback ( currTranslateXCB ) ;
+  message = new puText ( 205,485 ) ; message->setLabel ( "X" ) ; 
+
+  YtranslateInput  =  new puInput ( 5, 505, 80, 525 ) ;
+  YtranslateInput  -> setLegendFont ( PUFONT_HELVETICA_10 ) ;
+  YtranslateInput  -> setCallback ( currTranslateTxtYCB ) ;
+
+  YtranslateSlider = new puSlider ( 80, 505, 120, FALSE ) ;
+  YtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
+  YtranslateSlider -> setDelta    ( 0.01    ) ;
+  YtranslateSlider -> setCallback ( currTranslateYCB ) ;
+  message = new puText ( 205,505 ) ; message->setLabel ( "Y" ) ; 
+
+  ZtranslateInput  =  new puInput ( 5, 525, 80, 545 ) ;
+  ZtranslateInput  -> setLegendFont ( PUFONT_HELVETICA_10 ) ;
+  ZtranslateInput  -> setCallback ( currTranslateTxtZCB ) ;
+
+  ZtranslateSlider = new puSlider ( 80, 525, 120, FALSE ) ;
+  ZtranslateSlider -> setCBMode   ( PUSLIDER_DELTA ) ;
+  ZtranslateSlider -> setDelta    ( 0.01    ) ;
+  ZtranslateSlider -> setCallback ( currTranslateZCB ) ;
+  message = new puText ( 205,525 ) ; message->setLabel ( "Z" ) ; 
+}
 
 
