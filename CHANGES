@@ -2,8 +2,12 @@
 PLIB Change Log.
 ================
 
-PLIB v1.1.10 (Jan 30th 2000)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PLIB v1.1.10 (Feb 9th 2000)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Added ssgLoad and ssgSave that look at the
+    filename extension and call the appropriate
+    lower level load/save routine.
+
   * Added a 'clone' function for all SSG classes.
 
   * PLIB now managed under CVS at SourceForge.

@@ -104,17 +104,8 @@ int ssgLeaf::preDraw ()
 {
   if ( preDrawCB != NULL && ! (*preDrawCB)(this) )
     return FALSE ;
-    
-  if ( cull_face != _ssgCurrentContext->cullfaceIsEnabled() &&
-        ! _ssgCurrentContext->cullfaceIsEnabled() )
-  {
-    _ssgCurrentContext->setCullface ( cull_face ) ;
 
-    if ( cull_face )
-      glEnable ( GL_CULL_FACE ) ;
-    else
-      glDisable ( GL_CULL_FACE ) ;
-  }
+  _ssgCurrentContext->setCullface ( getCullFace() ) ;
 
   return TRUE ;
 }

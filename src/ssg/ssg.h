@@ -57,6 +57,8 @@ class ssgRangeSelector ;
 class ssgTimedSelector ;
 class ssgRoot          ;
 
+void  ssgDeRefDelete ( ssgBase *br ) ;
+
 #define SSG_BACKWARDS_REFERENCE 0x0000000  /* For SSG format files */
 
 #define SSG_TYPE_BASE          0x00000001
@@ -139,9 +141,6 @@ inline int ssgTypeStateSelector() { return SSG_TYPE_STATESELECTOR | ssgTypeSimpl
 
 int ssgGetFrameCounter () ;
 
-void ssgDeRefDelete ( ssgBase *s ) ;
-
-
 class ssgList
 {
 protected:
@@ -208,7 +207,14 @@ protected :
 
   virtual void copy_from ( ssgBase *src, int clone_flags ) ;
 
+_SSG_PUBLIC:
+
+  void deadBeefCheck () { assert ( type != (int) 0xDeadBeef ) ; }
+
 public:
+  void *operator new  ( size_t size ) ;
+  void  operator delete ( void *ptr ) ;
+
   virtual void zeroSpareRecursive ();
   virtual void zeroSpare ()         ;
   virtual void incSpare  ()         ;
@@ -751,6 +757,7 @@ public:
   void setUserData ( ssgBase *s )
   {
     ssgDeRefDelete ( user_data ) ;
+
     user_data = s ;
     if ( s != NULL )
       s -> ref () ;
@@ -1582,20 +1589,31 @@ class ssgContext
 
 public:
 
-  ssgContext() ;
+   ssgContext () ;
   ~ssgContext () ;
 
-  void forceBasicState () { basicState -> force () ; }
+  void forceBasicState () ;
 
   void makeCurrent () ;
-  int  isCurrent () ;
+  int    isCurrent () ;
 
   void overrideTexture   ( int on_off ) ;
   void overrideCullface  ( int on_off ) ;
+
+  void setCullface       ( int on_off )
+  {
+    if ( cullFace == on_off || ovCullface )
+      return ;
+
+    cullFace = on_off ;
+
+    if ( cullFace ) glEnable  ( GL_CULL_FACE ) ;
+               else glDisable ( GL_CULL_FACE ) ;
+  }
+
   int  textureOverridden  () { return ovTexture  ; }
   int  cullfaceOverridden () { return ovCullface ; }
-  void setCullface ( int on_off ) { cullFace = on_off ; }
-  int  cullfaceIsEnabled () { return cullFace ; }
+  int  cullfaceIsEnabled  () { return cullFace   ; }
 
   sgFrustum *getFrustum () { return frustum ; }
 
