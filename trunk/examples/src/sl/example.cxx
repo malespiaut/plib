@@ -47,7 +47,7 @@ int main ( int, char ** )
   slSample *s1 = new slSample ( "scream.ub", & sched ) ;
   slSample *s2 = new slSample ( "zzap.wav" , & sched ) ;
   slSample *s3 = new slSample ( "cuckoo.au", & sched ) ;
-  slSample *s4 = new slSample ( "originaldedodedo.wav", & sched ) ;
+  slSample *s4 = new slSample ( "wheeee.ub", & sched ) ;
 
   /* Mess about with some of the samples... */
 

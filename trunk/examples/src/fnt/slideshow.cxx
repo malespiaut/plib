@@ -7,6 +7,8 @@
 #  ifdef __CYGWIN32__
 #    include <sys/stat.h>
 #    include <unistd.h>
+#  else
+#    include <sys/stat.h>
 #  endif
 #else
 #  include <sys/stat.h>
@@ -137,8 +139,14 @@ int main ( int argc, char **argv )
 {
 
   struct stat buf ;
+  char* fname = NULL ;
 
-  FILE *fd = fopen ( argv[1], "r" ) ;
+  if ( argc > 1 )
+     fname = argv[1] ;
+  else
+     fname = "data/test_slideshow.txt" ;
+
+  FILE *fd = fopen ( fname, "r" ) ;
 
   if ( fd == NULL )
     exit ( 1 ) ;
@@ -185,7 +193,7 @@ int main ( int argc, char **argv )
   glutKeyboardFunc    ( keyfn     ) ;
   
   text = new fntRenderer () ;
-  font = new fntTexFont ( "/u/plib/examples/fnt/data/lucida.txf" ) ;
+  font = new fntTexFont ( "data/lucida.txf" ) ;
 
   glutMainLoop () ;
   return 0 ;
