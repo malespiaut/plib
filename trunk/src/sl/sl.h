@@ -73,15 +73,15 @@ private:
   int error ;
   int fd ;
 
-#ifdef UL_BSD
+#if defined(SL_USING_OSS_AUDIO)
+  audio_buf_info buff_info ;
+#elif defined(UL_BSD)
   audio_info_t    ainfo;        // ioctl structure
   audio_offset_t  audio_offset; // offset in audiostream
   long            counter;      // counter-written packets
 #elif defined(UL_SOLARIS)
   audio_info_t	  ainfo;
   long            counter;
-#elif defined(SL_USING_OSS_AUDIO)
-  audio_buf_info buff_info ;
 #elif defined(UL_IRIX)
   ALconfig        config;       // configuration stuff
   ALport          port;         // .. we are here 
@@ -645,6 +645,7 @@ class slScheduler : public slDSP
   float safety_margin ;
 
   int mixer_buffer_size, mixer_gain ;
+  float seconds_per_buffer;
 
   Uchar *mixer_buffer  ;
   Uchar *mixer_inputs [ SL_MAX_MIXERINPUTS + 1 ] ;

@@ -36,7 +36,7 @@ void slScheduler::init ()
   mixer_buffer  = NULL ;
   /* Note there is a required null element on the end of array */
   for ( mi=0; mi <= SL_MAX_MIXERINPUTS; mi++ )
-	mixer_inputs[mi] = NULL ;
+    mixer_inputs[mi] = NULL ;
 
   current = this ;
   mixer_gain = 0x100 ; /* When we have to make sound quieter */
@@ -84,6 +84,10 @@ void slScheduler::initBuffers ()
   setMaxConcurrent ( 0 );
 
   mixer_buffer_size = getDriverBufferSize () ;
+  int div = 1;
+  if ( getStereo() )     div *= 2 ;
+  if ( getBps() == 16 )  div *= 2 ;
+  seconds_per_buffer = (float)mixer_buffer_size / ( div * getRate() ) ;
 
   mixer_buffer = new Uchar [ mixer_buffer_size ] ;
   memset ( mixer_buffer, 0x80, mixer_buffer_size ) ;
@@ -132,7 +136,7 @@ void slScheduler::realUpdate ( int dump_first )
   
   int i ;
 
-  while ( secondsUsed() <= safety_margin )
+  while ( ( secondsUsed() <= safety_margin ) && ( secondsRemaining() >= seconds_per_buffer ) )
   {
     slPlayer *psp [ SL_MAX_MIXERINPUTS ] ;
     int       pri [ SL_MAX_MIXERINPUTS ] ;
@@ -146,7 +150,7 @@ void slScheduler::realUpdate ( int dump_first )
       /* Ignore non-existent channels */
 
       if ( player [ i ] == NULL )
-	continue ;
+        continue ;
 
       /* Clean up dead sample players */
 
@@ -155,15 +159,15 @@ void slScheduler::realUpdate ( int dump_first )
         if ( player [ i ] == music )
           music = NULL ;
 
-	delete player [ i ] ;
-	player [ i ] = NULL ;
-	continue ;
+        delete player [ i ] ;
+        player [ i ] = NULL ;
+        continue ;
       }
 
       /* Skip paused players, but leave them alone */
 
       if ( player [ i ] -> isPaused () )
-	continue ;
+        continue ;
 
       /* This one is viable, make sure we have room */
 
@@ -174,9 +178,11 @@ void slScheduler::realUpdate ( int dump_first )
            ( mypri > pri[lowest] )
          )
       { /* Not enough room; get rid of someone */
-        player[lowest] -> preempt ( mixer_buffer_size ) ;
-	psp[lowest] = player[i] ;
-	pri[lowest] = mypri ;
+        if ( player[lowest] != NULL )
+          player[lowest] -> preempt ( mixer_buffer_size ) ;
+
+        psp[lowest] = player[i] ;
+        pri[lowest] = mypri ;
         int j;
         for ( j = 0; j < inputsused; j++ )
           if ( pri[lowest] < pri[j] )
@@ -186,7 +192,7 @@ void slScheduler::realUpdate ( int dump_first )
       { /* Ok, we've got room, presumably, for another item */
         psp[inputsused] = player[i];
         pri[inputsused] = mypri;
-	if ( ( ( inputsused ++ ) == 0 ) ||
+        if ( ( ( inputsused ++ ) == 0 ) ||
              ( pri[lowest] > mypri ) )
           lowest = inputsused;
       }
@@ -258,7 +264,7 @@ void slScheduler::realUpdate ( int dump_first )
         /* We compute one value in here, in the loop below */
         register int t ;
         /* We need to determine the maximum range of values */
-	int tmax = 0x80, tmin = 0x80;
+        int tmax = 0x80, tmin = 0x80;
         /* A pointer to the element about to be added to "t" */
         register Uchar **p ;
         /* Sound cards use offset binary, so do zero adjustment */
