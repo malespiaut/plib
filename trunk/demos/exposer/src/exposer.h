@@ -20,3 +20,5 @@
 
 void createJoint ( sgVec4 colour, Bone *b ) ;
 
+void setShowAngle ( float a ) ;
+
