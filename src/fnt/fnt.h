@@ -214,7 +214,7 @@ public:
                       vtx_left, vtx_right, vtx_bot, vtx_top ) ;
   }
 
-  int hasGlyph ( char c ) const { return exists[ c ] ; }
+  int hasGlyph ( char c ) const { return exists[ (GLubyte) c ] ; }
 
   void getBBox ( const char *s, float pointsize, float italic,
                  float *left, float *right,
@@ -242,6 +242,69 @@ public:
   }
 
 } ;
+
+
+
+class fntBitmapFont : public fntFont
+{
+ protected:
+    
+    const GLubyte **data;
+    int first;
+    int count;
+    int height;
+    float xorig, yorig;
+    int fix;
+    float wid, gap;
+
+ public:
+
+    // data is a null-terminated list of glyph images:
+    //   data[i][0]    - image width
+    //   data[i][1..n] - packed bitmap
+
+    fntBitmapFont ( const GLubyte **data, int first, int height, 
+		    float xorig, float yorig ) ;
+
+    virtual ~fntBitmapFont () ;
+
+    virtual void getBBox ( const char *s, float pointsize, float italic,
+			   float *left, float *right,
+			   float *bot , float *top ) ;
+
+    virtual void putch ( sgVec3 curpos, float pointsize, float italic, char c ) ;
+    virtual void puts ( sgVec3 curpos, float pointsize, float italic, const char *s ) ;
+
+    virtual void begin () ;
+    virtual void end () ;
+    
+    virtual int load ( const char *fname, GLenum mag, GLenum min ) { return -1; }
+    
+    virtual void setFixedPitch ( int f )    { fix = f;    }
+    virtual int   isFixedPitch () const     { return fix; }
+    
+    virtual void  setWidth     ( float w )  { wid = w;    }
+    virtual void  setGap       ( float g )  { gap = g;    }
+    
+    virtual float getWidth     () const     { return wid; }
+    virtual float getGap       () const     { return gap; }
+    
+    virtual int hasGlyph ( char c ) const ;
+};
+
+
+/* Builtin Bitmap Fonts */
+
+#define FNT_BITMAP_8_BY_13         0
+#define FNT_BITMAP_9_BY_15         1
+#define FNT_BITMAP_HELVETICA_10    2
+#define FNT_BITMAP_HELVETICA_12    3
+#define FNT_BITMAP_HELVETICA_18    4
+#define FNT_BITMAP_TIMES_ROMAN_10  5
+#define FNT_BITMAP_TIMES_ROMAN_24  6
+
+fntBitmapFont *fntGetBitmapFont(int id);
+
 
 
 class fntRenderer
