@@ -12,13 +12,18 @@
 #include <plib/ssgAux.h>
 #include <GL/glut.h>
 
-ssgRoot            *scene     = NULL ;
-ssgTransform       *penguin   = NULL ;
-ssgTransform       *pedestal  = NULL ;
-ssgaWaveSystem     *ocean     = NULL ;
-ssgSimpleState     *sea_state = NULL ;
+ssgRoot            *scene        = NULL ;
+ssgTransform       *teapot       = NULL ;
+ssgTransform       *pedestal     = NULL ;
+ssgaWaveSystem     *ocean        = NULL ;
+ssgaParticleSystem *fountain     = NULL ;
+ssgaCube           *ped_obj      = NULL ;
+ssgaTeapot         *tpt_obj      = NULL ;
+
+ssgSimpleState     *sea_state    = NULL ;
 ssgSimpleState     *splash_state = NULL ;
-ssgaParticleSystem *fountain  = NULL ;
+ssgSimpleState     *teapot_state = NULL ;
+ssgSimpleState     *plinth_state = NULL ;
 
 
 float getDepth ( float x, float y )
@@ -30,7 +35,7 @@ float getDepth ( float x, float y )
 void update_motion ( int frameno )
 {
   sgCoord campos ;
-  sgCoord tuxpos ;
+  sgCoord tptpos ;
 
   /* Move the camera in some kind of interesting way */
 
@@ -41,10 +46,10 @@ void update_motion ( int frameno )
     sgSetCoord ( & campos, 0.0f, 0.0f, 2.0f,
                          frameno, -10.0f, 0.0f ) ;
 
-  sgSetCoord ( & tuxpos, 0.0f,  0.0f, 0.6f, frameno, 0.0f, 0.0f ) ;
+  sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, frameno, 0.0f, 0.0f ) ;
 
   ssgSetCamera ( & campos ) ;
-  penguin -> setTransform ( & tuxpos ) ;
+  teapot  -> setTransform ( & tptpos ) ;
 
   ocean -> setWindDirn ( 25.0 * sin ( frameno / 100.0 ) ) ;
 
@@ -175,11 +180,12 @@ static void droplet_create ( SPS *, int, ssgaParticle *p )
   float c = 0.6 + (float)(rand()%1000)/4000.0f ;
 
   sgSetVec4 ( p -> col, c - 0.2f, c, 1, 0.5 ) ;
-  sgSetVec3 ( p -> pos, 0, 0, 0 ) ;
+  sgSetVec3 ( p -> pos, -2.5, 0, 2 ) ;
   sgSetVec3 ( p -> vel, 
+             -(float)(rand()%1000)/200.0f,
               (float)(rand()%1000 - 500)/400.0f,
-              (float)(rand()%1000 - 500)/400.0f,
-              (float)(rand()%1000)/1000.0f + 8.0f ) ;
+              (float)(rand()%1000)/1000.0f + 3.0f ) ;
+  sgAddScaledVec3 ( p -> pos, p -> vel, (float)(rand()%1000)/20000.0f ) ;
   sgSetVec3 ( p -> acc, 0, 0, -9.8 ) ;
   p -> time_to_live = 1 ;
 }
@@ -192,30 +198,31 @@ static void droplet_update ( float dt, SPS *, int, ssgaParticle *p )
 }
 
 
-void load_database ()
+void init_states ()
 {
-  /*
-    Set up the path to the data files
-  */
+  plinth_state = new ssgSimpleState () ;
+  plinth_state -> setTexture        ( "data/pavement.rgb" ) ;
+  plinth_state -> enable            ( GL_TEXTURE_2D ) ;
+  plinth_state -> setShadeModel     ( GL_SMOOTH ) ;
+  plinth_state -> enable            ( GL_CULL_FACE ) ;
+  plinth_state -> enable            ( GL_BLEND ) ;
+  plinth_state -> enable            ( GL_LIGHTING ) ;
+  plinth_state -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
+  plinth_state -> setMaterial       ( GL_EMISSION, 0, 0, 0, 1 ) ;
+  plinth_state -> setMaterial       ( GL_SPECULAR, 1, 1, 1, 1 ) ;
+  plinth_state -> setShininess      ( 2 ) ;
 
-  ssgModelPath   ( "data" ) ;
-  ssgTexturePath ( "data" ) ;
-
-  /*
-    Create a root node - and a transform to position
-    the pedestal - and another to position the penguin
-    beneath that (in the tree that is).
-  */
-
-  scene     = new ssgRoot      ;
-  pedestal  = new ssgTransform ;
-  penguin   = new ssgTransform ;
-  fountain  = new ssgaParticleSystem ( 1000, 100, 500, TRUE,
-                                       0.2, 1000,
-                                       droplet_create,
-                                       droplet_update,
-                                       NULL ) ;
-  ocean     = new ssgaWaveSystem ( 10000 ) ;
+  teapot_state = new ssgSimpleState () ;
+  teapot_state -> setTexture        ( "data/pattern.rgb" ) ;
+  teapot_state -> enable            ( GL_TEXTURE_2D ) ;
+  teapot_state -> setShadeModel     ( GL_SMOOTH ) ;
+  teapot_state -> enable            ( GL_CULL_FACE ) ;
+  teapot_state -> enable            ( GL_BLEND ) ;
+  teapot_state -> enable            ( GL_LIGHTING ) ;
+  teapot_state -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
+  teapot_state -> setMaterial       ( GL_EMISSION, 0, 0, 0, 1 ) ;
+  teapot_state -> setMaterial       ( GL_SPECULAR, 1, 1, 1, 1 ) ;
+  teapot_state -> setShininess      ( 2 ) ;
 
   sea_state = new ssgSimpleState () ;
   sea_state -> setTexture        ( "data/ocean.rgb" ) ;
@@ -241,42 +248,68 @@ void load_database ()
   splash_state -> setMaterial       ( GL_DIFFUSE, 0, 0, 0, 1 ) ;
   splash_state -> setMaterial       ( GL_SPECULAR, 0, 0, 0, 1 ) ;
   splash_state -> setShininess      (  0 ) ;
+}
 
-  sgVec4 SEABLUE = { 1.0, 1.0, 1.0, 1.0 } ;
-  sgVec3 pos = { 0, 0, 0 } ;
 
-  ocean -> setColour   ( SEABLUE ) ;
-  ocean -> setSize     ( 50 ) ;
-  ocean -> setTexScale ( 6, 6 ) ;
-  ocean -> setCenter   ( pos ) ;
-  ocean -> setDepthCallback ( getDepth ) ;
-  ocean -> setKidState ( sea_state ) ;
-  ocean -> setWaveHeight ( 0.3 ) ;
-  ocean -> setWindSpeed  ( 10.0f ) ;
-  ocean -> regenerate  () ;
 
+void load_database ()
+{
+  /* Set up the path to the data files */
+
+  ssgModelPath   ( "data" ) ;
+  ssgTexturePath ( "data" ) ;
+
+  /* Load the states */
+
+  init_states () ;
+
+  sgVec4  WHITE  = { 1.0, 1.0, 1.0, 1.0 } ;
+  sgVec3  pos    = { 0, 0, 0 } ;
+  sgCoord pedpos = { { 0, 0, -1.5 }, { 0, 0, 0 } } ;
+
+  /* Create a the scene content.  */
+
+  fountain = new ssgaParticleSystem ( 1000, 100, 500, TRUE,
+                                      0.2, 1000,
+                                      droplet_create,
+                                      droplet_update, NULL ) ;
   fountain -> setState ( splash_state ) ;
 
-  /*
-    Load the models - optimise them a bit
-    and then add them into the scene.
-  */
+  ocean   =  new ssgaWaveSystem ( 10000 ) ;
+  ocean   -> setColour        ( WHITE ) ;
+  ocean   -> setSize          ( 50 ) ;
+  ocean   -> setTexScale      ( 6, 6 ) ;
+  ocean   -> setCenter        ( pos ) ;
+  ocean   -> setDepthCallback ( getDepth ) ;
+  ocean   -> setKidState      ( sea_state ) ;
+  ocean   -> setWaveHeight    ( 0.3 ) ;
+  ocean   -> setWindSpeed     ( 10.0f ) ;
+  ocean   -> regenerate       () ;
 
-  ssgEntity *ped_obj = ssgLoadAC ( "pedestal.ac" ) ;
-  ssgEntity *tux_obj = ssgLoadAC ( "tuxedo.ac"   ) ;
+  ped_obj =  new ssgaCube     () ;
+  ped_obj -> setSize          ( 4 ) ;
+  ped_obj -> setKidState      ( plinth_state ) ;
+  ped_obj -> regenerate       () ;
 
-  penguin  -> addKid ( tux_obj  ) ;
-  pedestal -> addKid ( ped_obj  ) ;
+  tpt_obj =  new ssgaTeapot   ( 1000 ) ;
+  tpt_obj -> setSize          ( 2 ) ;
+  tpt_obj -> setKidState      ( teapot_state ) ;
+  tpt_obj -> regenerate       () ;
 
-  ssgFlatten         ( tux_obj  ) ;
-  ssgFlatten         ( ped_obj  ) ;
-  ssgStripify        ( penguin  ) ;
-  ssgStripify        ( pedestal ) ;
+  /* Build the scene graph */
 
-  scene    -> addKid ( ocean ) ;
-  scene    -> addKid ( pedestal ) ;
-  pedestal -> addKid ( penguin  ) ;
-  penguin  -> addKid ( fountain  ) ;
+  teapot   =  new ssgTransform ;
+  teapot   -> addKid          ( tpt_obj  ) ;
+  teapot   -> addKid          ( fountain ) ;
+
+  pedestal =  new ssgTransform ;
+  pedestal -> setTransform    ( & pedpos ) ;
+  pedestal -> addKid          ( ped_obj  ) ;
+
+  scene    =  new ssgRoot ;
+  scene    -> addKid          ( ocean    ) ;
+  scene    -> addKid          ( pedestal ) ;
+  scene    -> addKid          ( teapot   ) ;
 }
 
 
