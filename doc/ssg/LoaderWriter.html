@@ -8,6 +8,8 @@
 <BODY bgcolor="#005000" background="../marble.png">
 <H2>How to write plib-loaders and writers</H2>
 
+<H2>1.1 Introduction</H2>
+
 If you just use plib (including loaders and writers), you don't 
 really need to read this page. In some parts, this page was written for newbies.
 
@@ -44,6 +46,61 @@ For these reasons, it is easier to write a writer than a loader.
 For both ssgVtxTable and ssgVtxArray you need to choose a
 GL-type. I have to admit I was lazy and used <code>GL_TRIANGLES</code>.
 
+
+<H2>1.2The class ssgLoaderWriterMesh</H2>
+
+
+
+The two main parts of writing 
+a loader are writing the actual parser (coding 
+the syntax of the format) and transferring the contents
+to ssg. The second task is fairly trivial if your contents
+obeys the restrictions of ssg (which come from OpenGL).
+<BR><BR>
+These are:
+<BR><BR>
+
+1. Each ssg-node can currently have only one texture.
+<BR>
+2. Only one polygon or strip or fan per node. So you can't have a 3-, a 4- and a 5-sided
+poly inside one node (without subdividing the polys into triangles)
+<BR>
+3. Currently, only one texture coordinate per vertex.
+<BR>
+4. Only one normal per vertex.
+<BR><BR>
+To modularize the two steps parsing the format and transfering it to ssg
+and to reduce redundant work, there is a intermediatory structure, the class
+ssgLoaderWriterMesh. For example, this has a member function
+<pre>
+void ssgLoaderWriterMesh::AddFaceFromCArray(int nNoOfVerticesForThisFace, int *aiVertices);
+</pre>
+With this, you can add several n-sided polys to one mesh ("one node").
+When you are done constructing the mesh from the file, you call
+<pre>
+void ssgLoaderWriterMesh::add2SSG(
+		class ssgSimpleState *currentState,// Pfusch 
+		class ssgLoaderOptions* current_options,
+		class ssgBranch *curr_branch_)
+</pre>
+and the class adds the information into the scene graph. It handles ssg's restrictions,
+so, for example, if the polys of the mesh use 5 textures then at least 5 nodes will be 
+added to the scene graph.
+Unfortunately the class isn't completely implemented yet, I (Wolfram Kuss, w_kuss@rz-online.de)
+have just implemented those parts I needed for the .X-file loader.
+But I urge everyone and am willing to help everyone writing a new loader for a file format that doesnt hold 
+all ssg-restrictions to use this class. Then the loaders will become more consistent 
+and therefore easier to maintain and read. Also, there are a lot of optimizations that can be done
+(for example, if the state is different, but not the texture, do we need several nodes? 
+When we have multitexturing, can we use that? Is there an optimal strip length?
+How do I subdivide polyss into triangles so that the stripifier will work well? etc).
+It will be easier to do them once in the ssgLoaderWriterMesh than in all the 
+loaders seperately. BTW, most loaders written before ssgLoaderWriterMesh have some
+sort of intermediatory mesh structure.
+<p>
+In the future, ssgLoaderWriterMesh should also be used for writers, doing the opposite 
+job: It takes the information from ssg with the restrictions and then looks whether
+it can optimise (for example merging nodes) by relaxing the restrictions.
 
 <H2>2.Loaders</H2>
 
