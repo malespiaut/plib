@@ -62,6 +62,7 @@ static _ssgParserSpec parser_spec =
 {
    "\r\n\t ",  // delim_chars_skipable
    ",;",       // delim_chars_non_skipable
+   NULL,      // pre_processor
    "",          // open_brace_chars
    "",          // close_brace_chars
    '"',        // quote_char. not used for OFF
