@@ -92,21 +92,23 @@ Non-class functions:</h3>
   <li>  <a href="#puFrame">puFrame</a>  </li> 
   <li>  <a href="#puText">puText</a>  </li> 
   <li>  <a href="#puInput">puInput</a>  </li>
+  <li> <a href="#puLargeInput">puLargeInput</a></li>
 </ul>
 </td>
 
 <td>
 <ul>
-  <li> <a href="#puLargeInput">puLargeInput</a></li> 
   <li>  <a href="#puGroup">puGroup</a>  </li> 
   <li>  <a href="#puInterface">puInterface</a>  </li> 
-  <li>  <a href="#puButtonBox">puButtonBox</a>  </li> 
   <li>  <a href="#puPopup">puPopup</a>  </li> 
   <li>  <a href="#puDialogBox">puDialogBox</a>  </li> 
   <li>  <a href="#puPopupMenu">puPopupMenu</a>  </li> 
   <li>  <a href="#puMenuBar">puMenuBar</a>  </li> 
   <li> <a href="#puVerticalMenu">puVerticalMenu</a></li> 
   <li> <a href="#puListBox">puListBox</a></li> 
+  <li>  <a href="#puButtonBox">puButtonBox</a>  </li>
+  <li>  <a href="#puComboBox">puComboBox</a>  </li>
+  <li>  <a href="#puSelectBox">puSelectBox</a>  </li>
   <li>  <a href="#puFileSelector">puFileSelector</a>  </li>
   <li>  <a href="#puFilePicker">puFilePicker</a>  </li>
 </ul>
@@ -1328,6 +1330,19 @@ you use the following functions:
 This will avoid, for example, the user typing his name into an input box
 that is supposed to accept his birthdate.
 <p>
+Additionally, you can let a puLargeInput widget reject all input that
+would modify the text in the puInput box (everything except the
+Home, End, Left and Right keys):
+<pre>
+
+  void puLargeInput::enableInput () ;
+  void puLargeInput::disableInput () ;
+  int  puLargeInput::inputDisabled () ;
+
+  where:
+    inputDisabled() returns FALSE if the text can be modified and TRUE if it can not.
+
+</pre>
 If the text is too long to fit in the widget, only the rightmost
 characters will be displayed. One space is always left to the right
 of the text to give the user the impression that there is still room
@@ -1373,6 +1388,10 @@ in the puLargeInput widget:
   char *puLargeInput::getValidData () ;              /* Returns pointer to list of valid characters */
   int   puLargeInput::isValidCharacter ( char c ) ;  /* Returns 1 if character is valid and 0 if not */
 
+  void puLargeInput::enableInput  () ;
+  void puLargeInput::disableInput () ;
+  int  puLargeInput::inputDisabled () ;  /* Returns FALSE if the text can be modified and TRUE if it can't */
+
 </pre>
 Besides the obvious methods of typing or erasing, you can add text to and
 remove text from the widget using the following calls:
@@ -1397,17 +1416,6 @@ handy:
   int  puLargeInput::getNumLines () ;  /* Returns the number of lines in the text */
   void puLargeInput::selectEntireLine ( void ) ;  /* Expands the select region to include full lines */
   void puLargeInput::setTopLineInWindow ( int val ) ;  /* Sets the top line to be displayed in the widget window */
-
-</pre>
-Additionally, you can let a puLargeInput widget reject all input, which is useful if you want to display some large amount of text without allowing the user to edit it:
-<pre>
-
-  void puLargeInput::enableInput () ;
-  void puLargeInput::disableInput () ;
-  int  puLargeInput::inputDisabled () ;
-
-  where:
-    inputDisabled() returns FALSE if the text can be modified and TRUE if it can not.
 
 </pre>
 puLargeInput widgets do not have a legend.
@@ -1546,46 +1554,6 @@ which group a number of
 The PUI system itself maintains a private global puInterface which is
 used to group together all of the <a href="#puObject">puObjects</a> that
 the application generates that are not grouped into other puInterfaces.
-<a NAME="puButtonBox"></a>
-<h3>
-puButtonBox</h3>
-<img SRC="puButtonBox.png" ALT="view of puButtonBox widget" height=127 width=188 align=RIGHT>The
-puButtonBox class is derived from <a href="#puObject">puObject</a>.
-It automatically generates a number of 'radio' buttons in it's draw
-function and has single callback function. It can optionally manage the
-problem of ensuring that exactly one of the buttons is depressed at all
-times, or it can allow multiple buttons to be active at the same time.
-<pre>
-
-  puButtonBox::puButtonBox ( int minx, int miny, int maxx, int maxy,
-                             char **labels, int one_button ) ;
-
-</pre>
-The 'labels' parameter is a NULL-terminated array of pointers-to-strings
-containing the labels for each of the radio-buttons. These are drawn in
-order from top to bottom of the Button Box.
-<p>
-Like most other <a href="#puObject">puObjects</a>, puButtonBox has a 'value' that can be set
-using puObject::<a href="#getValue">setValue</a>(int i) and read using puObject::<a href="#getValue">getValue</a>(). If
-'one_button' is set TRUE then the puButtonBox will use its value as the
-index of the radio-button that is currently pressed. If 'one_button' is
-FALSE then the puButtonBox will limit the number of buttons to 32 and use
-its value as a mask indicating which buttons are set ('1'==button pressed,
-'0'==button not pressed).
-<pre>
-
-  int puButtonBox::isOneButton () ;
-
-</pre>
-This function returns TRUE for a one_button box, FALSE otherwise.
-<p>
-By default, if one_button==TRUE then the first button is highlighted
-since the 'value' of the puButtonBox is zero. If one_button==FALSE then
-none of the buttons are pressed by default since the value is 0x00000000
-and that indicates no buttons pushed.
-<p>
-In the one_button==TRUE case, setting the value to something out of
-range will result in none of the radio buttons being highlighted.
 <p>
 The puButtonBox widget does not have a legend.
 <p>
@@ -1824,6 +1792,197 @@ If the text is too wide for the box, it'll be truncated with "..." displayed
 to the right of it to show the user that there is some missing text.
 <p>
 A puListBox widget does not have a legend.
+<a NAME="puButtonBox"></a>
+<h3>
+puButtonBox</h3>
+<img SRC="puButtonBox.png" ALT="view of puButtonBox widget" height=127 width=188 align=RIGHT>The
+puButtonBox class is derived from <a href="#puObject">puObject</a>.
+It automatically generates a number of 'radio' buttons in it's draw
+function and has single callback function. It can optionally manage the
+problem of ensuring that exactly one of the buttons is depressed at all
+times, or it can allow multiple buttons to be active at the same time.
+<pre>
+
+  puButtonBox::puButtonBox ( int minx, int miny, int maxx, int maxy,
+                             char **labels, int one_button ) ;
+
+</pre>
+The 'labels' parameter is a NULL-terminated array of pointers-to-strings
+containing the labels for each of the radio-buttons. These are drawn in
+order from top to bottom of the Button Box.
+<p>
+As with the <a href="#puListBox">puListBox</a> widget, you can change the
+list of labels in mid-run or retrieve the number of buttons:
+<pre>
+
+  void puButtonBox::newList ( char **list ) ;
+  int  puButtonBox::getNumItems () ;
+
+</pre>
+Like most other <a href="#puObject">puObjects</a>, puButtonBox has a 'value' that can be set
+using puObject::<a href="#getValue">setValue</a>(int i) and read using puObject::<a href="#getValue">getValue</a>(). If
+'one_button' is set TRUE then the puButtonBox will use its value as the
+index of the radio-button that is currently pressed. If 'one_button' is
+FALSE then the puButtonBox will limit the number of buttons to 32 and use
+its value as a mask indicating which buttons are set ('1'==button pressed,
+'0'==button not pressed).
+<pre>
+
+  int puButtonBox::isOneButton () ;
+
+</pre>
+This function returns TRUE for a one_button box, FALSE otherwise.
+<p>
+By default, if one_button==TRUE then the first button is highlighted
+since the 'value' of the puButtonBox is zero. If one_button==FALSE then
+none of the buttons are pressed by default since the value is 0x00000000
+and that indicates no buttons pushed.
+<p>
+In the one_button==TRUE case, setting the value to something out of
+range will result in none of the radio buttons being highlighted.
+<p>
+The puButtonBox widget does not have a legend.
+<a NAME="puComboBox"></a>
+<h3>
+puComboBox</h3>
+<img SRC="puComboBox.png" ALT="view of puComboBox widget" height=170 width=295 align=RIGHT>The
+puComboBox class is derived from <a href="#puGroup">puGroup</a>. It
+implements yet another widget that allows the user to select one option
+of an amount of possible ones. 
+<p>
+The widget contains a <a href="#puInput">puInput</a> widget that displays
+the currently selected item and even allows the user to type in an
+arbitrary string if you allow him to do so (see below). There is also a
+<a href="#puPopupMenu">puPopupMenu</a> that contains all the entries -
+it is invisible until the user clicks on the <a href="#puArrowButton">puArrowButton</a>
+on the right of the combo box, and it is hidden again after the user
+selects an item from it or if he clicks somewhere else on the screen.
+<p>
+You create a a puComboBox with the following call:
+<pre>
+
+  puComboBox::puComboBox ( int minx, int miny, int maxx, int maxy,
+                           char **list, int editable = TRUE ) ;
+
+</pre>
+Like the constructors of the previously described widgets, the
+puComboBox constructor takes a NULL-terminated array of strings specifying
+the items that should go into the widget as it's fourth parameter. If
+'editable' is TRUE (default), the input box is made editable for allowing
+the user to enter a string in addition to selecting one of the entries
+from the popup menu.
+<p>
+Depending on the position of the puComboBox inside the window, the widget
+automatically determines whether the popup menu should be shown above
+or below the widget when the user clicks on the arrow. The <a href="#puArrowButton">puArrowButton</a>
+is either pointing in up or down direction to indicate where the menu will
+pop up.
+<p>
+Regardless of whether you passed TRUE or FALSE to the 'editable' parameter
+when constructing the widget, the user can click inside the input box
+and use the Up and Down keys to browse through the items. The Home and
+End keys switch to the first or last item as you would expect, and the
+PgUp / PgDown can be used to toggle the popup menu.
+<p>
+Just like all other classes which store a pointer to an array of strings
+that indicates the widget's elements, the puComboBox class provides
+a routine that allows you to change the list of elements in mid-run -
+and you can also retrieve the number of items:
+<pre>
+
+  void puComboBox::newList ( char **list ) ;
+  int  puComboBox::getNumItems () ;
+
+</pre>
+The puComboBox stores the currently selected item or the text that was
+typed in by the user (if the combo box is 'editable' - see above) as
+the widget's string value which can be retrieved using
+puObject::<a href="#getValue">getValue</a>(char *s), puObject::<a href="#getValue">getValue</a>(char **s)
+or puObject::<a href="#getValue">getStringValue</a>().
+<p>
+There is also a function that allows you to retrieve the number of
+the currently selected item:
+<pre>
+
+  int puComboBox::getCurrentItem () ;
+
+</pre>
+If the combo box is 'editable' and if the user typed in some text into the
+input box instead of selecting an item from the popup menu or using the
+appropriate keys, the function automatically compares the entered string
+against each element in the list of items. If there is a match, the number
+of the corresponding item is returned just as if it had been selected through
+one of the more common methods. If there is no match, a negative number
+is returned - it's up to the programmer to decide what the application
+should do then (for example, show up a message box saying that an invalid
+value was typed in).
+<p>
+Last but not least, the number of the current item can also be set:
+<pre>
+
+  void puComboBox::setCurrentItem ( int number ) ;
+
+</pre>
+Whenever the current item is changed through the user or through the
+programmer using one of the methods described above, the widget
+invokes its callback.
+<p>
+A puComboBox widget does not have a legend.
+<a NAME="puSelectBox"></a>
+<h3>
+puSelectBox</h3>
+<img SRC="puSelectBox.png" ALT="view of puSelectBox widget" height=45 width=295 align=RIGHT>The
+puSelectBox class is derived from <a href="#puGroup">puGroup</a>. It
+is one more widget that is designed for the purpose of allowing the user
+to select one element from a list of items.
+<p>
+The widget contains a <a href="#puInput">puInput</a> widget that displays
+the currently selected item. Unlike in the <a href="#puComboBox">puComboBox</a>
+class, it can not be made editable. There are two <a href="#puArrowButton">puArrowButtons</a>
+that allow the user to select an item. If the currently selected item is
+the first item, the 'down' arrow is automatically disabled and greyed out
+- if the currently selected item is the last item, the same thing happens
+to the 'up' arrow.
+<p>
+You create a a puSelectBox with the following call:
+<pre>
+
+  puSelectBox::puSelectBox ( int minx, int miny, int maxx, int maxy,
+                             char **list ) ;
+
+</pre>
+Again, 'list' is a NULL-terminated array of strings specifying the items
+that should appear in the widget.
+<p>
+The remainder of the puSelectBox API is the same as the API of the <a href="#puComboBox">puComboBox</a>
+class described above - you change the item list that in mid-run, retrieve
+the number of items and set or retrieve the currently selected item:
+<pre>
+
+  void puSelectBox::newList ( char ** list ) ;
+
+  int  puSelectBox::getNumItems () ;
+
+  int  puSelectBox::getCurrentItem () ;
+  void puSelectBox::setCurrentItem ( int number ) ;
+
+</pre>
+Like the <a href="#puComboBox">puComboBox</a> widget, a puSelectBox
+additionally stores the currently selected item as the widget's string
+value.
+<p>
+The puSelectBox widget allows the user to select an item using the
+Up, Down, PgUp, PgDown, Home and End keys after clicking into the input
+box just as a <a href="#puComboBox">puComboBox</a> does. The only
+difference is that the PgUp and PgDown keys don't toggle a popup menu
+(a puSelectBox has none). Instead, they have the same meaning as the
+Up and Down keys.
+<p>
+Whenever the current item is changed by the user (through clicking upon
+one of the arrow buttons or using the appropriate keys) or by the programmer,
+the widget invokes it's callback.
+<p>
+A puSelectBox widget does not have a legend.
 <a NAME="puFilePicker"></a>
 <h3>
 puFilePicker</h3>
