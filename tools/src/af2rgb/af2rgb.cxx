@@ -134,10 +134,10 @@ int loadMDLIntoTexels ( const char *fname )
 				unsigned char b;
 				if ( fread(&b, 1, 1, tfile) != 1)
 					return false;
-				texelsR[c] = fsTexPalette[b*4    ];
-				texelsG[c] = fsTexPalette[b*4 + 1];
-				texelsB[c] = fsTexPalette[b*4 + 2];
-				texelsA[c] = fsTexPalette[b*4 + 3];
+				texelsR[c] = ssgFsTexPalette[b*4    ];
+				texelsG[c] = ssgFsTexPalette[b*4 + 1];
+				texelsB[c] = ssgFsTexPalette[b*4 + 2];
+				texelsA[c] = ssgFsTexPalette[b*4 + 3];
 				c++;
       }
     }
