@@ -142,6 +142,10 @@ SOURCE=.\puInterface.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\puLargeInput.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\puListBox.cxx
 # End Source File
 # Begin Source File
