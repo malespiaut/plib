@@ -224,7 +224,7 @@ void ssgVtxArray::removeUnusedVertices()
 	for(i=0; i<indices->getNum(); i++)
 	{ oldIndex = *indices->get(i);
 		if (oldIndex2NewIndex[ oldIndex ] != -1)
-	    indices->set(oldIndex2NewIndex[ oldIndex ], i);
+	    indices->set((short)oldIndex2NewIndex[ oldIndex ], i);
 		else
 		{ newIndex = newVL->getNum();
 	    indices->set(newIndex , i);
