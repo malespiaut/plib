@@ -259,7 +259,7 @@ static class ssgLoaderWriterMesh currentMesh;
 static ssgSimpleState *currentState;
 
 // we only need one of these, since obviously the texture name is the only materialproperty in asc:
-static ssgSimpleState untexturedState; 
+static ssgSimpleState *untexturedState = NULL; 
 
 extern sgVec4 currentDiffuse;
 
@@ -497,7 +497,7 @@ static int HandleTriMesh()
   MeshStatus.materialed_but_not_mapped = FALSE;
   MeshStatus.hidden = FALSE; // unused
   noOfAscmaterials=0;
-  currentState = &untexturedState; 
+  currentState = untexturedState; 
 
   
 	currentMesh.reInit ();
@@ -572,6 +572,7 @@ int SetOrGetMaterial(char *sMatName)
 	currentState->setShininess(50);
   // set texture
   currentState -> setTexture( current_options -> createTexture( s ) );
+  currentState -> setName(s);
   currentState -> enable( GL_TEXTURE_2D );
   currentMesh.addMaterial(&currentState);
   return noOfAscmaterials-1;
@@ -661,7 +662,7 @@ static int HandleFace()
   }
   else
   {
-    int iFace, A, B, C, AB, _BC, CA;
+    int iFace, AB, _BC, CA;
     int aiVertices[3];
 	  if (!parser.getNextInt(iFace, "Face index")) return FALSE;
     assert(MeshStatus.isvalid);
@@ -976,21 +977,22 @@ ssgEntity *ssgLoadASC ( const char *fname, const ssgLoaderOptions* options )
   MeshStatus.sName = NULL;
 
 
-	untexturedState.setOpaque();
-	untexturedState.disable(GL_BLEND);
-	untexturedState.disable(GL_ALPHA_TEST);
-	untexturedState.disable(GL_TEXTURE_2D);
-	untexturedState.enable(GL_COLOR_MATERIAL);
-	untexturedState.enable(GL_LIGHTING);
-	untexturedState.setShadeModel(GL_SMOOTH);
-	untexturedState.setMaterial(GL_AMBIENT , 0.7f, 0.7f, 0.7f, 1.0f);
-	untexturedState.setMaterial(GL_DIFFUSE , 0.7f, 0.7f, 0.7f, 1.0f);
-	untexturedState.setMaterial(GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
-	untexturedState.setMaterial(GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
-	untexturedState.setShininess(50);
-  untexturedState.ref();
+  untexturedState = new ssgSimpleState;
+	untexturedState->setOpaque();
+	untexturedState->disable(GL_BLEND);
+	untexturedState->disable(GL_ALPHA_TEST);
+	untexturedState->disable(GL_TEXTURE_2D);
+	untexturedState->enable(GL_COLOR_MATERIAL);
+	untexturedState->enable(GL_LIGHTING);
+	untexturedState->setShadeModel(GL_SMOOTH);
+	untexturedState->setMaterial(GL_AMBIENT , 0.7f, 0.7f, 0.7f, 1.0f);
+	untexturedState->setMaterial(GL_DIFFUSE , 0.7f, 0.7f, 0.7f, 1.0f);
+	untexturedState->setMaterial(GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
+	untexturedState->setMaterial(GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
+	untexturedState->setShininess(50);
+  untexturedState->ref();
 
-  currentState = &untexturedState; 
+  currentState = untexturedState; 
   top_branch = new ssgBranch ;
 	curr_branch_ = top_branch;
 	if ( !parser.openFile( fname, &parser_spec ))
@@ -1006,5 +1008,8 @@ ssgEntity *ssgLoadASC ( const char *fname, const ssgLoaderOptions* options )
 //  parse_free();
   parser.closeFile();
 
+  untexturedState->deRef();
+  if(untexturedState->getRef()==0)
+    delete untexturedState;
   return top_branch ;
 }
