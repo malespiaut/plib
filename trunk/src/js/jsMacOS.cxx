@@ -23,11 +23,11 @@
 
 #include "js.h"
 
-#ifdef UL_MACINTOSH
+#if defined (UL_MACINTOSH)
 
 #include <InputSprocket.h>
 
-//#define _JS_MAX_AXES_MAC 9  // not used
+//#define _JS_MAX_AXES_MAC 9
 #define  isp_num_axis   9
 #define  isp_num_needs  41
 
@@ -208,4 +208,3 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
 void jsInit() {}
 
 #endif
-

@@ -22,12 +22,9 @@
 
 #include "js.h"
 
-#if defined(UL_IRIX) || defined(UL_SOLARIS) || defined(UL_HPUX)
+#if defined(UL_IRIX) || defined(UL_SOLARIS) || defined (UL_HPUX)
 
-/*
-struct os_specific_s {
-}
-*/
+struct os_specific_s ;
 
 
 void jsJoystick::open ()
@@ -39,7 +36,7 @@ void jsJoystick::open ()
 
 void jsJoystick::close ()
 {
-  // if (os) delete os;
+  error = TRUE ;
 }
 
 
@@ -55,6 +52,8 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
 {
   if ( buttons != NULL ) *buttons = 0 ;
 }
+
+void jsInit ()  {}
 
 #endif
 

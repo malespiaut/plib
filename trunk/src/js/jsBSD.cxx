@@ -38,7 +38,7 @@
 
 #include "js.h"
 
-#if defined(UL_BSD)
+#if defined (UL_BSD)
 
 #if defined(__NetBSD__) || defined(__FreeBSD__)
 #define HAVE_USB_JS	1

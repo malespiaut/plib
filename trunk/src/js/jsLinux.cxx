@@ -23,8 +23,9 @@
 
 #include "js.h"
 
-#if defined(UL_LINUX) && defined(JS_NEW)
+#if defined (UL_LINUX) && defined (JS_NEW)
 
+#include <linux/joystick.h>
 #include <sys/param.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -38,9 +39,6 @@ struct os_specific_s {
 };
 
 void jsInit () {}
-
-
-/* check the joystick driver version */
 
 void jsJoystick::open ()
 {
@@ -182,4 +180,3 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
 }
 
 #endif
-

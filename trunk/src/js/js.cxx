@@ -22,9 +22,6 @@
 
 #include "js.h"
 
-
-/// void jsInit () {}
-
 float jsJoystick::fudge_axis ( float value, int axis ) const
 {
   if ( value < center[axis] )
@@ -84,5 +81,6 @@ void jsJoystick::read ( int *buttons, float *axes )
     for ( int i = 0 ; i < num_axes ; i++ )
       axes[i] = fudge_axis ( raw_axes[i], i ) ;
 }
+
 
 

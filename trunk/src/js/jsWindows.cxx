@@ -23,10 +23,8 @@
 
 #include "js.h"
 
-#ifdef UL_WIN32
+#if defined (UL_WIN32)
 
-// Since we use  joyGetPosEx to request the joystick values, 
-// we have never more than 8 axes to worry about:
 #define _JS_MAX_AXES_WIN 8  /* X,Y,Z,R,U,V,POV_X,POV_Y */
 
 struct os_specific_s {
@@ -128,7 +126,7 @@ void jsJoystick::open ()
     // X,Y,Z,R,U,V,POV - not necessarily the first n of these.
     if ( os->jsCaps.wCaps & JOYCAPS_HASPOV )
     {
-      num_axes = _JS_MAX_AXES_WIN ;
+      num_axes = _JS_MAX_AXES ;
       min [ 7 ] = -1.0 ; max [ 7 ] = 1.0 ;  // POV Y
       min [ 6 ] = -1.0 ; max [ 6 ] = 1.0 ;  // POV X
     }
@@ -258,4 +256,3 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
 void jsInit() {}
 
 #endif
-
