@@ -73,8 +73,13 @@ void ssgVtxArray::drawHighlight ( sgVec4 colour )
   _ssgForceLineState () ;
 
   glPushClientAttrib ( GL_CLIENT_VERTEX_ARRAY_BIT ) ;
+
+  glDisableClientState ( GL_COLOR_ARRAY ) ;
+  glDisableClientState ( GL_NORMAL_ARRAY ) ;
+  glDisableClientState ( GL_TEXTURE_COORD_ARRAY ) ;
   glEnableClientState ( GL_VERTEX_ARRAY ) ;
-  glVertexPointer ( 3, GL_FLOAT, 0, vertices ) ;
+
+  glVertexPointer ( 3, GL_FLOAT, 0, vertices->get(0) ) ;
 
   glPushAttrib ( GL_POLYGON_BIT ) ;
   glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE ) ;
@@ -111,11 +116,14 @@ void ssgVtxArray::drawHighlight ( sgVec4 colour, int i )
   sgSetVec3 ( t[5], x,y,z+HL_DELTA ) ;
 
   glPushClientAttrib ( GL_CLIENT_VERTEX_ARRAY_BIT ) ;
+  glDisableClientState ( GL_COLOR_ARRAY ) ;
+  glDisableClientState ( GL_NORMAL_ARRAY ) ;
+  glDisableClientState ( GL_TEXTURE_COORD_ARRAY ) ;
   glEnableClientState ( GL_VERTEX_ARRAY ) ;
-  glVertexPointer ( 3, GL_FLOAT, 0, vertices ) ;
+  glVertexPointer ( 3, GL_FLOAT, 0, t ) ;
   glColor4fv ( colour ) ;
   glLineWidth ( 4.0f ) ;
-  glDrawElements ( GL_LINES, 6, GL_UNSIGNED_INT, t ) ;
+  glDrawArrays ( GL_LINES, 0, 6 ) ;
   glLineWidth ( 1.0f ) ;
   glPopClientAttrib ( ) ;
   glEnable ( GL_DEPTH_TEST ) ;
@@ -149,7 +157,7 @@ void ssgVtxArray::pick ( int baseName )
 
   glPushClientAttrib ( GL_CLIENT_VERTEX_ARRAY_BIT ) ;
   glEnableClientState ( GL_VERTEX_ARRAY ) ;
-  glVertexPointer ( 3, GL_FLOAT, 0, vertices ) ;
+  glVertexPointer ( 3, GL_FLOAT, 0, vertices->get(0) ) ;
 
   /* Test the entire primitive. */
 
@@ -297,10 +305,10 @@ void ssgVtxArray::hot_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
     float ep2 = vv2[0] * vv3[1] - vv2[1] * vv3[0] ;
     float ep3 = vv3[0] * vv1[1] - vv3[1] * vv1[0] ;
 
-    float ap = (float)( fabs ( ep1 + ep2 + ep3 ) ) ;
-    float ai = (float)( fabs ( e1 + ep1 - e2 ) +
+    float ap = fabs ( ep1 + ep2 + ep3 ) ;
+    float ai = fabs ( e1 + ep1 - e2 ) +
                fabs ( e2 + ep2 - e3 ) +
-               fabs ( e3 + ep3 - e1 ) ) ;
+               fabs ( e3 + ep3 - e1 ) ;
 
     if ( ai > ap * 1.01 )
       continue ;
@@ -341,7 +349,7 @@ void ssgVtxArray::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
       continue ;
     }
 
-    float dp = (float)( fabs ( sgDistToPlaneVec3 ( plane, s->getCenter() ) ) ) ;
+    float dp = fabs ( sgDistToPlaneVec3 ( plane, s->getCenter() ) ) ;
 
     if ( dp > s->getRadius() )
       continue ;
