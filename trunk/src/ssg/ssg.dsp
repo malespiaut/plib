@@ -426,6 +426,14 @@ SOURCE=.\ssgTweenController.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgVertSplitter.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgVertSplitter.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgVTable.cxx
 # End Source File
 # Begin Source File
