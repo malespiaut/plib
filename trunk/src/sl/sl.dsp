@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /Zi /O2 /I "..\util" /I ".." /I "..\..\..\glut\include" /D "NDEBUG" /D "_LIB" /D "GLUT_IS_PRESENT" /D "NEEDNAMESPACESTD" /D "HAVE_CONFIG_H" /D "HAVE_WINDOWS_H" /D "WIN32" /D "_MBCS" /FD /c
+# ADD CPP /nologo /MT /W3 /Zi /O2 /I "..\util" /I ".." /I "..\..\..\glut\include" /D "NDEBUG" /D "_LIB" /D "NEEDNAMESPACESTD" /D "HAVE_CONFIG_H" /D "HAVE_WINDOWS_H" /D "WIN32" /D "_MBCS" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -70,7 +70,7 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy sl.h ..\..\sl.h  	copy slPortab
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\util" /I ".." /I "..\..\..\glut\include" /D "_DEBUG" /D "_LIB" /D "GLUT_IS_PRESENT" /D "NEEDNAMESPACESTD" /D "HAVE_CONFIG_H" /D "HAVE_WINDOWS_H" /D "WIN32" /D "_MBCS" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\util" /I ".." /I "..\..\..\glut\include" /D "_DEBUG" /D "_LIB" /D "NEEDNAMESPACESTD" /D "HAVE_CONFIG_H" /D "HAVE_WINDOWS_H" /D "WIN32" /D "_MBCS" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
