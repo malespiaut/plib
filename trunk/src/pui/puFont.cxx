@@ -113,7 +113,10 @@ static int getGLUTStringHeight ( GlutFont glut_font_handle )
 int puFont::getStringHeight ( const char *s ) const
 {
   /* Height *excluding* descender */
-   
+
+  if ( s == NULL )
+    return 0 ;
+
 #ifdef _PU_USE_GLUT_FONTS
   if ( glut_font_handle != (GlutFont) 0 )
   {
