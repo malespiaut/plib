@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -19,4 +20,12 @@
 #include "model.h"
 #include "bones.h"
 #include "timebox.h"
+#include "floor.h"
+#include "load_save.h"
+
+extern TimeBox *   timebox ;
+extern Floor   *    ground ;
+extern ssgRoot * skinScene ;
+extern ssgRoot * boneScene ;
+extern ssgRoot *sceneScene ;
 

@@ -1,29 +1,13 @@
 #include "exposer.h"
 
-#define ARROWS_USED 1
-
-int   curr_button = 0 ;
-
+int curr_button = 0 ;
 int scroll_controllers = 0 ;
 
-unsigned int floor_texhandle =  0 ;
-       float floor_z_coord   = -1 ;
-
-TimeBox *timebox = NULL ;
-puFileSelector *file_selector = NULL ;
-puButton *dialog_button  = NULL ;
-
+TimeBox *   timebox = NULL ;
+Floor   *    ground = NULL ;
 ssgRoot * skinScene = NULL ;
 ssgRoot * boneScene = NULL ;
 ssgRoot *sceneScene = NULL ;
-
-
-char lastModelFilePath [ PUSTRING_MAX ] ;
-char lastModelFileName [ PUSTRING_MAX ] ;
-
-void loadCB ( puObject * ) ;
-void scloadCB ( puObject * ) ;
-void bnloadCB ( puObject * ) ;
 
 puInput    *show_angle  ;
 puText     *message     ;
@@ -37,39 +21,6 @@ puMenuBar  *menuBar     ;
 puSlider   *rangeSlider ;
 puDial     *  panSlider ;
 puDial     * tiltSlider ;
-
-
-unsigned char floorTexture0 [] =
-{
-  0, 0, 0, 0, 255, 255, 255, 255,
-  0, 0, 0, 0, 255, 255, 255, 255,
-  0, 0, 0, 0, 255, 255, 255, 255,
-  0, 0, 0, 0, 255, 255, 255, 255,
-  255, 255, 255, 255, 0, 0, 0, 0,
-  255, 255, 255, 255, 0, 0, 0, 0,
-  255, 255, 255, 255, 0, 0, 0, 0,
-  255, 255, 255, 255, 0, 0, 0, 0
-} ;
-
-unsigned char floorTexture1 [] =
-{
-  0, 0, 255, 255,
-  0, 0, 255, 255,
-  255, 255, 0, 0,
-  255, 255, 0, 0
-} ;
-
-unsigned char floorTexture2 [] =
-{
-  0, 255,
-  255, 0
-} ;
-
-unsigned char floorTexture3 [] =
-{
-  127
-} ;
-
 
 
 void setShowAngle ( float a )
@@ -140,384 +91,11 @@ static void mousefn ( int button, int updown, int x, int y )
 }
 
 
-
-void dismissDialogCB ( puObject * )
-{
-  dialog_button  -> hide () ;
-}
-
-void dialog ( char *msg, float r, float g, float b )
-{
-  dialog_button -> setLegend ( msg ) ;
-  dialog_button -> setColorScheme ( r, g, b, 1 ) ;
-  dialog_button -> reveal () ;
-}
-
-void bnsavepickfn ( puObject * )
-{
-  char path  [ PUSTRING_MAX ] ;
-  char fname [ PUSTRING_MAX ] ;
-
-  file_selector -> getValue ( path ) ;
-
-  if ( path [ 0 ] == '\0' )
-  {
-    puDeleteObject ( file_selector ) ;
-    file_selector = NULL ;
-
-    dialog ( "FAILED TO SAVE BONES!", 1, 0, 0 ) ;
-    return ;
-  }
-
-  char *p = NULL ;
-  int i ;
-
-  for ( i = strlen(path) ; i >= 0 ; i-- )
-    if ( path[i] == '/' || path[i] == '\\' )
-    {
-      p = & ( path[i+1] ) ;
-      path[i] = '\0' ;
-      break ;
-    }
-
-  if ( p == NULL )
-  {
-    ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
-    strcpy ( fname, path ) ;
-  }
-  else
-  {
-    ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
-    strcpy ( fname, p ) ;
-  }
-
-  /* SAVE THE BONES */
-
-  if ( file_selector->getStringValue()[0] == '\0' )
-  {
-    puDeleteObject ( file_selector ) ;
-    file_selector = NULL ;
-    dialog ( "FAILED TO SAVE BONES!", 1, 0, 0 ) ;
-    return ;
-  }
-
-  FILE *fd = fopen ( file_selector->getStringValue(), "wa" ) ;
-
-  puDeleteObject ( file_selector ) ;
-  file_selector = NULL ;
-
-  if ( fd == NULL )
-  {
-    dialog ( "FAILED TO SAVE BONES!", 1, 0, 0 ) ;
-    return ;
-  }
-
-  fprintf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
-                        getNumBones(), getNumEvents(), timebox->getMaxTime (),
-                        -floor_z_coord, timebox->getVCRGroundSpeed() ) ;
-
-  for ( i = 0 ; i < getNumBones () ; i++ )
-    getBone ( i ) -> write ( fd ) ;
-
-  for ( i = 0 ; i < getNumEvents () ; i++ )
-    getEvent ( i ) -> write ( fd ) ;
-
-  fclose ( fd ) ;
-  dialog ( "BONES WERE SAVED OK.", 1, 1, 0 ) ;
-}
-
-
-
-void bnpickfn ( puObject * )
-{
-  char path  [ PUSTRING_MAX ] ;
-  char fname [ PUSTRING_MAX ] ;
-
-  file_selector -> getValue ( path ) ;
- 
-  if ( path [ 0 ] == '\0' )
-  {
-    puDeleteObject ( file_selector ) ;
-    file_selector = NULL ;
-    return ;
-  }
-
-  char *p = NULL ;
-  int i ;
-
-  for ( i = strlen(path) ; i >= 0 ; i-- )
-    if ( path[i] == '/' || path[i] == '\\' )
-    {
-      p = & ( path[i+1] ) ;
-      path[i] = '\0' ;
-      break ;
-    }
-
-  if ( p == NULL )
-  {
-    ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
-    strcpy ( fname, path ) ;
-  }
-  else
-  {
-    ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
-    strcpy ( fname, p ) ;
-  }
-
-  /* LOAD THE BONES */
-
-  if ( file_selector->getStringValue()[0] == '\0' )
-  {
-    puDeleteObject ( file_selector ) ;
-    file_selector = NULL ;
-    return ;
-  }
-
-  FILE *fd = fopen ( file_selector->getStringValue(), "ra" ) ;
-
-  if ( fd == NULL )
-  {
-    puDeleteObject ( file_selector ) ;
-    file_selector = NULL ;
-    return ;
-  }
-
-  timebox->deleteAll () ;
-
-  int numbones, numevents ;
-  float tmp_floor_z_coord, maxtime, new_ground_speed ;
-
-  /* Don't use the floor_z_coord from the file. */
-
-  fscanf ( fd, "NUMBONES=%d NUMEVENTS=%d MAXTIME=%f Z_OFFSET=%f SPEED=%f\n",
-                &numbones, &numevents,
-                &maxtime, &tmp_floor_z_coord, &new_ground_speed ) ;
-
-  timebox->setMaxTime ( maxtime ) ;
-  timebox->setVCRGroundSpeed ( new_ground_speed ) ;
-
-  if ( numbones != getNumBones () )
-  {
-    fprintf ( stderr,
-      "Number of bones in model doesn't agree with number in bones file!\n" ) ;
-    exit ( 1 ) ;
-  }
-
-  for ( i = 0 ; i < getNumBones () ; i++ )
-    getBone ( i ) -> read ( fd ) ;
-
-  for ( i = 0 ; i < numevents ; i++ )
-  {
-    Event *e = new Event ( numbones, (float) i ) ;
-    e -> read ( fd ) ;
-    addEvent ( e ) ;
-  }
-
-  fclose ( fd ) ;
-  puDeleteObject ( file_selector ) ;
-  file_selector = NULL ;
-}
-
-
-
-void scpickfn ( puObject * )
-{
-  char path  [ PUSTRING_MAX ] ;
-  char fname [ PUSTRING_MAX ] ;
-
-  file_selector -> getValue ( path ) ;
- 
-  puDeleteObject ( file_selector ) ;
-  file_selector = NULL ;
-
-  if ( path [ 0 ] == '\0' )
-    return ;
-
-  if ( strlen ( path ) >= 6 && strcmp(&path[strlen(path)-6], ".bones" ) == 0 )
-  {
-    fprintf ( stderr, "I think you tried to load a BONES file as 3D model.\n");
-    fprintf ( stderr, "Try again!\n");
-    scloadCB ( NULL ) ;
-    return ;
-  }
-
-  char *p = NULL ;
-
-  for ( int i = strlen(path) ; i >= 0 ; i-- )
-    if ( path[i] == '/' || path[i] == '\\' )
-    {
-      p = & ( path[i+1] ) ;
-      path[i] = '\0' ;
-      break ;
-    }
-
-  if ( p == NULL )
-  {
-    ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
-    strcpy ( fname, path ) ;
-  }
-  else
-  {
-    ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
-    strcpy ( fname, p ) ;
-  }
-
-  delete sceneScene ;
-  sceneScene = new ssgRoot ;
-  sceneScene -> addKid ( ssgLoad ( fname, NULL ) ) ;
-}
-
-
-void pickfn ( puObject * )
-{
-  char path  [ PUSTRING_MAX ] ;
-  char fname [ PUSTRING_MAX ] ;
-
-  file_selector -> getValue ( path ) ;
- 
-  puDeleteObject ( file_selector ) ;
-  file_selector = NULL ;
-
-  if ( path [ 0 ] == '\0' )
-    return ;
-
-  if ( strlen ( path ) >= 6 && strcmp(&path[strlen(path)-6], ".bones" ) == 0 )
-  {
-    fprintf ( stderr, "I think you tried to load a BONES file as 3D model.\n");
-    fprintf ( stderr, "Try again!\n");
-    loadCB ( NULL ) ;
-    return ;
-  }
-
-  char *p = NULL ;
-
-  for ( int i = strlen(path) ; i >= 0 ; i-- )
-    if ( path[i] == '/' || path[i] == '\\' )
-    {
-      p = & ( path[i+1] ) ;
-      path[i] = '\0' ;
-      break ;
-    }
-
-  if ( p == NULL )
-  {
-    ssgModelPath   ( "." ) ;
-    ssgTexturePath ( "." ) ;
-    strcpy ( fname, path ) ;
-  }
-  else
-  {
-    ssgModelPath   ( path ) ;
-    ssgTexturePath ( path ) ;
-    strcpy ( fname, p ) ;
-  }
-
-  strcpy ( lastModelFilePath, path ) ;
-  strcpy ( lastModelFileName, fname ) ;
-
-  skinScene -> addKid ( ssgLoad ( fname, NULL ) ) ;
-  boneScene -> addKid ( extractBones ( skinScene ) ) ;
-
-  extractVertices ( skinScene ) ;
-  timebox->deleteAll () ;
-
-  Event *e = new Event ( getNumBones(), 0.0f ) ;
-  addEvent ( e ) ;
-  setCurrentEvent ( e ) ;
-
-  floor_z_coord = getLowestVertexZ () ;
-}
-
-
-
 void scrollerCB ( puObject *ob )
 {
   scroll_controllers = (int)(((float)getNumBones()) * ob -> getFloatValue ()) ;
 }
 
-
-void bnloadCB ( puObject * )
-{
-  if ( file_selector == NULL )
-  {
-    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
-			   ( 480 - 270 ) / 2,
-			   320, 270, ARROWS_USED, lastModelFilePath,
-                             "Load Bones from..." ) ;
-    file_selector -> setCallback ( bnpickfn ) ;
-
-    char guess_fname [ PUSTRING_MAX ] ;
-    strcpy ( guess_fname, lastModelFileName ) ;
-
-    for ( int i = strlen ( guess_fname ) ; i >= 0 ; i-- )
-      if ( guess_fname [ i ] == '.' )
-      {
-        guess_fname[i] = '\0' ;
-        break ;
-      }
-
-    strcat ( guess_fname, ".bones" ) ;
-    file_selector -> setInitialValue ( guess_fname ) ;
-  }
-
-}
-
-
-void bnsaveCB ( puObject * )
-{
-  if ( file_selector == NULL )
-  {
-    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
-			  ( 480 - 270 ) / 2,
-			  320, 270, ARROWS_USED, lastModelFilePath,
-                            "Save Bones As..." ) ;
-    file_selector -> setCallback ( bnsavepickfn ) ;
-
-    char guess_fname [ PUSTRING_MAX ] ;
-    strcpy ( guess_fname, lastModelFileName ) ;
-
-    for ( int i = strlen ( guess_fname ) ; i >= 0 ; i-- )
-      if ( guess_fname [ i ] == '.' )
-      {
-        guess_fname[i] = '\0' ;
-        break ;
-      }
-
-    strcat ( guess_fname, ".bones" ) ;
-    file_selector -> setInitialValue ( guess_fname ) ;
-  }
-}
-
-
-
-void scloadCB ( puObject * )
-{
-  if ( file_selector == NULL )
-  {
-    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
-                                 ( 480 - 270 ) / 2,
-                                 320, 270, ARROWS_USED, "", "Load Scenery from..." ) ;
-    file_selector -> setCallback ( scpickfn ) ;
-  }
-}
-
-
-void loadCB ( puObject * )
-{
-  if ( file_selector == NULL )
-  {
-    file_selector = new puFileSelector ( ( 640 - 320 ) / 2,
-                                 ( 480 - 270 ) / 2,
-                                 320, 270, ARROWS_USED, "", "Load from..." ) ;
-    file_selector -> setCallback ( pickfn ) ;
-  }
-}
 
 
 void exitCB ( puObject *ob )
@@ -532,45 +110,23 @@ void exitCB ( puObject *ob )
   CALLBACK FUNCTIONS FOR GUI.
 */
  
-void reverseRegionCB (puObject *) { timebox -> reverseRegion () ; }
-void deleteAllCB ( puObject * ) { timebox -> deleteAll () ; }
-void deleteRegionCB (puObject *) { timebox -> deleteRegion () ; }
-void deleteRegionAndCompressCB ( puObject * ) { timebox -> deleteRegionAndCompress () ; }
-void zoom_nrm_CB ( puObject * ) { timebox -> setZoom ( 1.0f ) ; }
-void zoom_in_CB  ( puObject * ) { timebox -> setZoom ( timebox -> getZoom () * 1.5 ) ; }
-void zoom_out_CB ( puObject * ) { float scale = timebox -> getZoom () / 1.5 ; timebox -> setZoom ( ( scale <= 1.0f ) ? 1.0f : scale ) ; }
-void add_1_CB ( puObject * ) { timebox -> setMaxTime ( timebox -> getMaxTime () + 1.0f ) ; }
-void add_2_CB ( puObject * ) { timebox -> setMaxTime ( timebox -> getMaxTime () + 2.0f ) ; }
-void add_5_CB ( puObject * ) { timebox -> setMaxTime ( timebox -> getMaxTime () + 5.0f ) ; }
-void deleteEventCB (puObject *) { timebox -> deleteEvent () ; }
-void addNewEventCB (puObject *) { timebox -> addNewEvent () ; }
+void deleteEventCB   ( puObject * ) { timebox -> deleteEvent   () ; }
+void addNewEventCB   ( puObject * ) { timebox -> addNewEvent   () ; }
+void reverseRegionCB ( puObject * ) { timebox -> reverseRegion () ; }
+void deleteAllCB     ( puObject * ) { timebox -> deleteAll     () ; }
+void deleteRegionCB  ( puObject * ) { timebox -> deleteRegion  () ; }
+void deleteRegionAndCompressCB ( puObject * )
+                                    { timebox -> deleteRegionAndCompress () ; }
 
+void zoom_nrm_CB     ( puObject * ) { timebox -> setZoom ( 1.0f ) ; }
+void zoom_in_CB      ( puObject * ) { timebox -> setZoom (
+                                              timebox -> getZoom () * 1.5 ) ; }
+void zoom_out_CB     ( puObject * ) { float scale = timebox->getZoom() / 1.5 ;
+                    timebox -> setZoom ( ( scale <= 1.0f ) ? 1.0f : scale ) ; }
 
-void drawFloor ()
-{
-  glMatrixMode ( GL_PROJECTION ) ;
-  _ssgCurrentContext->loadProjectionMatrix () ;
-  glMatrixMode ( GL_MODELVIEW ) ;
-  _ssgCurrentContext->loadModelviewMatrix () ;
-
-  glDisable ( GL_LIGHTING   ) ;
-  glEnable  ( GL_TEXTURE_2D ) ;
-  glEnable  ( GL_CULL_FACE  ) ;
-  glBindTexture ( GL_TEXTURE_2D, floor_texhandle ) ;
-  glColor4f ( 1, 1, 1, 1 ) ;
-  glBegin ( GL_QUADS ) ;
-  glTexCoord2f ( -30, timebox->getVCRGroundPosition() - 30 ) ;
-  glVertex3f ( -30, -30, floor_z_coord ) ;
-  glTexCoord2f (  30, timebox->getVCRGroundPosition() - 30 ) ;
-  glVertex3f (  30, -30, floor_z_coord ) ;
-  glTexCoord2f (  30, timebox->getVCRGroundPosition() + 30 ) ;
-  glVertex3f (  30,  30, floor_z_coord ) ;
-  glTexCoord2f ( -30, timebox->getVCRGroundPosition() + 30 ) ;
-  glVertex3f ( -30,  30, floor_z_coord ) ;
-  glEnd () ;
-  glDisable ( GL_TEXTURE_2D ) ;
-  glEnable  ( GL_LIGHTING   ) ;
-}
+void add_1_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+1.0f);}
+void add_2_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+2.0f);}
+void add_5_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+5.0f);}
 
 
 /*
@@ -582,18 +138,17 @@ void redraw ()
   int i ;
 
   timebox->updateVCR () ;
+
   update_motion () ;
 
   glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
   glEnable ( GL_DEPTH_TEST ) ;
 
   if ( ! hideScene -> getValue () && sceneScene != NULL )
-  {
     ssgCullAndDraw ( sceneScene ) ;
-  }
-  else
+
   if ( ! hideGround -> getValue () )
-    drawFloor () ;
+    ground -> draw () ;
 
   if ( ! hideSkin -> getValue () )
   {
@@ -605,8 +160,7 @@ void redraw ()
 
   if ( ! hideBones -> getValue () )
   {
-    glClear  ( GL_DEPTH_BUFFER_BIT ) ;
-
+    glClear ( GL_DEPTH_BUFFER_BIT ) ;
     ssgCullAndDraw ( boneScene ) ;
   }
 
@@ -636,7 +190,7 @@ void redraw ()
 
   puDisplay () ;
 
-  timebox->draw () ;
+  timebox -> draw () ;
 
   glutPostRedisplay () ;
   glutSwapBuffers   () ;
@@ -739,7 +293,7 @@ void init_graphics ()
 
 
   ssgSetFOV     ( 60.0f, 0.0f ) ;
-  ssgSetNearFar ( 1.0f, 700.0f ) ;
+  ssgSetNearFar ( 0.1f, 700.0f ) ;
 
   /* Set up the Sun. */
 
@@ -750,6 +304,7 @@ void init_graphics ()
   /* GUI setup. */
 
   timebox = new TimeBox () ;
+  ground  = new Floor   () ;
 
   menuBar = new puMenuBar () ;
   {
@@ -801,43 +356,14 @@ void init_graphics ()
   message      =  new puText    ( 80, 40 ) ;
   message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
   message      -> setLabel      ( "Zoom"  ) ;
-
-  glGenTextures   ( 1, & floor_texhandle ) ;
-  glBindTexture   ( GL_TEXTURE_2D, floor_texhandle ) ;
-  glTexEnvi       ( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ) ;
-  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST ) ;
-  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                                            GL_LINEAR_MIPMAP_LINEAR ) ;
-  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT ) ;
-  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT ) ;
-  glTexImage2D  ( GL_TEXTURE_2D, 0, 1, 8, 8,
-                  FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                  floorTexture0 ) ;
-  glTexImage2D  ( GL_TEXTURE_2D, 1, 1, 4, 4,
-                  FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                  floorTexture1 ) ;
-  glTexImage2D  ( GL_TEXTURE_2D, 2, 1, 2, 2,
-                  FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                  floorTexture2 ) ;
-  glTexImage2D  ( GL_TEXTURE_2D, 3, 1, 1, 1,
-                  FALSE /* Border */, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                  floorTexture3 ) ;
-  glBindTexture ( GL_TEXTURE_2D, 0 ) ;
-
-  dialog_button = new puButton    ( 300, 240, "" ) ;
-  dialog_button -> setSize ( 300, 40 ) ;
-  dialog_button -> setLegendFont  ( PUFONT_TIMES_ROMAN_24 ) ;
-  dialog_button -> setCallback    ( dismissDialogCB ) ;
-  dialog_button -> setColorScheme ( 1, 1, 0, 1 ) ;
-  dialog_button -> hide () ;
 }
+
 
 void init_database ()
 {
   skinScene = new ssgRoot ;
   boneScene = new ssgRoot ;
 }
-
 
 
 void help ()
@@ -847,7 +373,6 @@ void help ()
   fprintf ( stderr, "    exposer\n" ) ;
   fprintf ( stderr, "\n\n" ) ;
 }
-
 
 
 int main ( int argc, char **argv )

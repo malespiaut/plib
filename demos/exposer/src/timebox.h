@@ -3,26 +3,27 @@
 class TimeBox
 {
   int   event_mode ;
-  float timebox_maxtime ;
-  float timebox_scale   ;
-  float timebox_start   ;
+
+  float maxtime ;
+  float scale   ;
+  float start   ;
   float lcursor ;
   float rcursor ;
  
   puSlider *timescroller ;
-  puInput  *ground_speed ;
+  puInput  *ground_speed_input ;
  
-  float vcr_replay_speed    ;
-  float vcr_ground_speed    ;
-  float vcr_ground_position ;
+  float replay_speed    ;
+  float ground_speed    ;
+  float ground_position ;
 
   void init () ;
   
 public:
 
-  void setVCRReplaySpeed ( float spd )
+  void setReplaySpeed ( float spd )
   {
-    vcr_replay_speed = spd ;
+    replay_speed = spd ;
     setCurrentEvent ( NULL ) ;
   }
 
@@ -37,33 +38,33 @@ public:
  
   float getCursorTime () { return lcursor ; }
 
-  void  setMaxTime ( float t ) { timebox_maxtime = t ; }
-  float getMaxTime () { return timebox_maxtime ; }
+  void  setMaxTime ( float t ) { maxtime = t ; }
+  float getMaxTime () { return maxtime ; }
 
 
-  void  setVCRGroundSpeed ( float t )
+  void  setGroundSpeed ( float t )
   {
-    vcr_ground_speed = t ;
-    ground_speed -> setValue ( vcr_ground_speed ) ;
+    ground_speed = t ;
+    ground_speed_input -> setValue ( ground_speed ) ;
   }
-  float getVCRGroundSpeed () { return vcr_ground_speed ; }
+  float getGroundSpeed () { return ground_speed ; }
    
-  void  setVCRGroundPosition ( float t ) { vcr_ground_position = t ; }
-  float getVCRGroundPosition () { return vcr_ground_position ; }
+  void  setGroundPosition ( float t ) { ground_position = t ; }
+  float getGroundPosition () { return ground_position ; }
 
-  void  setScroll ( float z ) { timebox_start = z ; }
-  float getScroll () { return timebox_start ; }
+  void  setScroll ( float z ) { start = z ; }
+  float getScroll () { return start ; }
 
   void setZoom ( float z )
   {
-    timebox_scale = z ;
+    scale = z ;
 
-    if ( timebox_scale == 1.0f )
+    if ( scale == 1.0f )
       timescroller -> hide () ;
     else
       timescroller -> reveal () ;
   }
-  float getZoom () { return timebox_scale ; }
+  float getZoom () { return scale ; }
 
   void reverseRegion () ;
   void deleteAll     () ;
