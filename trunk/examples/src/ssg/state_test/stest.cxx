@@ -169,8 +169,8 @@ ssgEntity *make_herring ()
   st0 -> enable         ( GL_ALPHA_TEST ) ;
   st1 -> enable         ( GL_ALPHA_TEST ) ;
 
-  st0 -> setAlphaClamp  ( 0.9           ) ;
-  st1 -> setAlphaClamp  ( 0.9           ) ;
+  st0 -> setAlphaClamp  ( 0.9f           ) ;
+  st1 -> setAlphaClamp  ( 0.9f           ) ;
 
   st0 -> enable         ( GL_BLEND      ) ;
   st1 -> enable         ( GL_BLEND      ) ;

@@ -76,7 +76,7 @@ static void setOpenGLState ( void )
   glDisable      ( GL_CULL_FACE  ) ;
   glEnable       ( GL_ALPHA_TEST ) ;
   glEnable       ( GL_BLEND ) ;
-  glAlphaFunc    ( GL_GREATER, 0.1 ) ;
+  glAlphaFunc    ( GL_GREATER, 0.1f ) ;
   glBlendFunc    ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
  
   glViewport     ( 0, 0, w, h ) ;
@@ -103,7 +103,7 @@ static void restoreOpenGLState ( void )
 void displayfn (void)
 {
   setOpenGLState () ;
-  glClearColor ( 0.1, 0.4, 0.1, 1.0 ) ;
+  glClearColor ( 0.1f, 0.4f, 0.1f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT ) ;
 
   text -> setFont      ( font_list [ 0 ] ) ;

@@ -27,7 +27,7 @@ void mousefn ( int button, int updown, int x, int y )
 
 void displayfn (void)
 {
-  glClearColor ( 0.1, 0.4, 0.1, 1.0 ) ;
+  glClearColor ( 0.1f, 0.4f, 0.1f, 1.0f ) ;
   glClear      ( GL_COLOR_BUFFER_BIT ) ;
 
   puDisplay () ;
