@@ -1,5 +1,4 @@
-Known bugs and limitations in PLIB version 1.3.5
-
+Known bugs and limitations in PLIB version 1.6.0
 
 More in depth stuff can be found in TODO_AFTER135.
 
@@ -20,7 +19,6 @@ More in depth stuff can be found in TODO_AFTER135.
     sgSphere::orthoXform. It is currently disabled because that extra
     calculation would degrade performance on non-scaled matrices.
     Scaling really makes a mess of SSG bounding sphere tests
-
 
   * .ssg files should not be used for long term storage. It will probably
     change in incompatible ways.

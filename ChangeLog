@@ -2,6 +2,38 @@
 PLIB Change Log.
 ================
 
+PLIB v1.6.0 (Sept 2nd 2002)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's been over a year since the last PLIB release
+and we have been somewhat lax about maintaining a
+list of changes.
+
+Some highlights are:
+
+  * Significant improvements and cleanup throughout PLIB,
+    especially in PUI.
+
+  * ssgAux library added - includes handy classes for
+    more sophisticated effects layered on top of SSG.
+
+      + Standard shapes like cubes, spheres,
+        cylinders and teapots.
+
+      + Water waves.
+
+      + Fire.
+
+      + Particle Systems
+
+      + Lens Flare.
+
+  * More example programs.
+
+  * P-Guide GUI builder for PUI.
+
+  * JS promoted to a full library.
+
 PLIB v1.5.1 (July 21st 2001)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
