@@ -25,7 +25,7 @@
 #ifndef _SSGASHAPES_H_
 #define _SSGASHAPES_H_  1
 
-#include <plib/ssg.h>
+#include "ssg.h"
 
 typedef float sgVec9 [ 9 ] ;  /* Needed for ssgaPatch */
 
