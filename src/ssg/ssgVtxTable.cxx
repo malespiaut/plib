@@ -620,7 +620,7 @@ void ssgVtxTable::los_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
 
     SGfloat edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
     SGfloat det,inv_det;
-    SGfloat t,u,v;
+    SGfloat /*t,*/u,v;
 
     getTriangle ( i, &v1, &v2, &v3 ) ;
 
@@ -645,7 +645,7 @@ void ssgVtxTable::los_triangles ( sgVec3 s, sgMat4 m, int /* test_needed */ )
       det = sgScalarProductVec3(edge1, pvec);
 
       if (det > -0.0000001 && det < 0.0000001) continue;
-      inv_det = 1.0 / det;
+      inv_det = (float)1.0 / det;
 
       /* calculate distance from vert0 to ray origin */
       sgSubVec3(tvec, cam, vv1);
