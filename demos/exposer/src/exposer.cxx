@@ -32,8 +32,10 @@ unsigned int floor_texhandle =  0 ;
 puFileSelector *file_selector = NULL ;
 puButton *dialog_button  = NULL ;
 
-ssgRoot        *skinScene  = NULL ;
-ssgRoot        *boneScene  = NULL ;
+ssgRoot * skinScene = NULL ;
+ssgRoot * boneScene = NULL ;
+ssgRoot *sceneScene = NULL ;
+
 
 char lastModelFilePath [ PUSTRING_MAX ] ;
 char lastModelFileName [ PUSTRING_MAX ] ;
@@ -45,6 +47,7 @@ puText     *message     ;
 puButton   *hideBones   ;
 puButton   *hideSkin    ;
 puButton   *hideGround  ;
+puButton   *hideScene   ;
 puSlider   *scroller    ;
 puSlider   *timescroller;
 puGroup    *vcr         ;
@@ -800,6 +803,11 @@ void redraw ()
   glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
   glEnable ( GL_DEPTH_TEST ) ;
 
+  if ( ! hideScene -> getValue () && sceneScene != NULL )
+  {
+    ssgCullAndDraw ( sceneScene ) ;
+  }
+  else
   if ( ! hideGround -> getValue () )
     drawFloor () ;
 
@@ -1120,35 +1128,37 @@ void init_graphics ()
   scroller     -> setDelta      ( 0.01             ) ;
   scroller     -> setCallback   ( scrollerCB       ) ;
 
-  hideBones    =  new puButton  ( 7, 0, "Bones" ) ;
-  hideBones    -> setValue      ( TRUE ) ;
-  hideSkin     =  new puButton  ( 46, 0, "Skin" ) ;
-  hideSkin     -> setValue      ( FALSE ) ;
-  hideGround   =  new puButton  ( 76, 0, "Floor" ) ;
-  hideGround   -> setValue      ( FALSE ) ;
-
-  rangeSlider  =  new puSlider  ( 10, 20, 100, FALSE ) ;
-  rangeSlider  -> setCBMode     ( PUSLIDER_DELTA ) ;
-  rangeSlider  -> setDelta      ( 0.01    ) ;
-  message      =  new puText    ( 10, 40 ) ;
-  message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
-  message      -> setLabel      ( "Zoom"  ) ;
-
-    panSlider  =  new puDial    ( 110, 0, 40 ) ;
+    panSlider  =  new puDial    ( 0, 0, 40 ) ;
     panSlider  -> setCBMode     ( PUSLIDER_DELTA ) ;
     panSlider  -> setDelta      ( 0.01f   ) ;
     panSlider  -> setValue      ( 0.5f    ) ;
-  message      =  new puText    ( 110, 40 ) ;
+  message      =  new puText    ( 0, 40 ) ;
   message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
   message      -> setLabel      ( "Pan"  ) ;
 
-   tiltSlider  =  new puDial    ( 150, 0, 40 ) ;
+   tiltSlider  =  new puDial    ( 40, 0, 40 ) ;
    tiltSlider  -> setCBMode     ( PUSLIDER_DELTA ) ;
    tiltSlider  -> setDelta      ( 0.01f   ) ;
    tiltSlider  -> setValue      ( 0.5f    ) ;
-  message      =  new puText    ( 150, 40 ) ;
+  message      =  new puText    ( 40, 40 ) ;
   message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
   message      -> setLabel      ( "Tilt"  ) ;
+
+  hideBones    =  new puButton  ( 80, 0, "Bones" ) ;
+  hideBones    -> setValue      ( TRUE ) ;
+  hideSkin     =  new puButton  ( 119, 0, "Skin" ) ;
+  hideSkin     -> setValue      ( FALSE ) ;
+  hideGround   =  new puButton  ( 149, 0, "Floor" ) ;
+  hideGround   -> setValue      ( FALSE ) ;
+  hideScene    =  new puButton  ( 183, 0, "Scene" ) ;
+  hideScene    -> setValue      ( FALSE ) ;
+
+  rangeSlider  =  new puSlider  ( 80, 20, 141, FALSE ) ;
+  rangeSlider  -> setCBMode     ( PUSLIDER_DELTA ) ;
+  rangeSlider  -> setDelta      ( 0.01    ) ;
+  message      =  new puText    ( 80, 40 ) ;
+  message      -> setColour     ( PUCOL_LABEL, 0.7f,0.65f,0.26f,1 ) ;
+  message      -> setLabel      ( "Zoom"  ) ;
 
   vcr = new puGroup ( 579, TIMEBOX_TOP + 5 ) ;
 
