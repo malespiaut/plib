@@ -435,6 +435,7 @@ public:
 #define SL_MAX_SAMPLES   16
 #define SL_MAX_CALLBACKS (SL_MAX_SAMPLES * 2)
 #define SL_MAX_ENVELOPES 4
+#define SL_MAX_MIXERINPUTS 10
 
 enum slEnvelopeType
 {
@@ -640,12 +641,10 @@ class slScheduler : public slDSP
 
   float safety_margin ;
 
-  int mixer_buffer_size ;
+  int mixer_buffer_size, mixer_gain ;
 
   Uchar *mixer_buffer  ;
-  Uchar *spare_buffer0 ;
-  Uchar *spare_buffer1 ;
-  Uchar *spare_buffer2 ;
+  Uchar *mixer_inputs [ SL_MAX_MIXERINPUTS + 1 ] ;
   
   Uchar *mixer ;
   int amount_left ;
@@ -654,24 +653,6 @@ class slScheduler : public slDSP
   slPlayer *music ;
 
   void init () ;
-
-  void mixBuffer ( slPlayer *a, slPlayer *b ) ;
-
-  void mixBuffer ( slPlayer *a, slPlayer *b, slPlayer *c ) ;
-
-  Uchar mix ( Uchar a, Uchar b )
-  {
-    register int r = a + b - 0x80 ;
-    return ( r > 255 ) ? 255 :
-           ( r <  0  ) ?  0  : r ;
-  }
-
-  Uchar mix ( Uchar a, Uchar b, Uchar c )
-  {
-    register int r = a + b + c - 0x80 - 0x80 ;
-    return ( r > 255 ) ? 255 :
-           ( r <  0  ) ?  0  : r ;
-  }
 
   void realUpdate ( int dump_first = SL_FALSE ) ;
 
@@ -693,8 +674,8 @@ public:
   int   getTimeNow     () { return now ; }
   float getElapsedTime ( int then ) { return (float)(now-then)/(float)getRate() ; }
 
-  void setMaxConcurrent ( int mc ) { /* Stubbed out until PLIB 1.5.0 */ }
-  int  getMaxConcurrent () { return 3 ; /* Stubbed out until PLIB 1.5.0 */ }
+  void setMaxConcurrent ( int mc );
+  int  getMaxConcurrent ();
 
   void flushCallBacks () ;
   void addCallBack    ( slCallBack c, slSample *s, slEvent e, int m ) ;
