@@ -3,6 +3,8 @@
 
 static int  read_error = FALSE ;
 static int write_error = FALSE ;
+static char _ssgAPOM[1024]=""; // APOM = actual path of model (!=ModelPath)
+
 
 int _ssgReadError  (void) { return  read_error ; }
 int _ssgWriteError (void) { return write_error ; }
@@ -349,13 +351,82 @@ ssgLeaf* ssgLoaderOptions::defaultCreateLeaf ( ssgLeaf* leaf,
   return leaf ;
 }
 
+static void parseAndMakePath ( char *filename, /*_ssgTexturePath, */ char * tfname ) 
+// *** warning: not yet tested ****
+
+// handles special chars in _ssgTexturePath:
+// ";;" is replaced by ";"
+// "$$" is replaced by "$"
+// "$(APOM)" is replaced by _ssgAPOM
+// If there are ";" in _ssgTexturePath, the path is interpreted as several paths,
+// delimited by ";"
+{
+  
+	char temp_texture_path[1024], *s_ptr, *s_ptr1, *current_path;
+	
+	strncpy(temp_texture_path, _ssgTexturePath, 1024);
+	current_path = temp_texture_path;
+	s_ptr = temp_texture_path;
+	while ( *s_ptr != 0 )
+	{ if ( *s_ptr == ';' )
+		{ if ( s_ptr [ 1 ] == ';' )
+			{ // replace ";;" with ";"
+		    s_ptr1 = ++s_ptr; // both pointers on second ";"
+				while ( *s_ptr1 != 0)
+				{	s_ptr1 [ 0 ] = s_ptr1 [ 1 ];
+				  s_ptr1++;
+				}
+			}
+			else
+			{ // found a single ';'. This delimits paths
+				*s_ptr++ = 0;
+				_ssgMakePath ( filename, current_path, tfname ) ;
+				if ( ulFileExists ( filename ) )
+					return; // success!
+				// this path doesnt hold the texture. Try next one
+				current_path = s_ptr;
+			}
+		}
+		else if ( *s_ptr == '$' )
+		{ 
+			if ( s_ptr [ 1 ] == '$' )
+			{ // replace "$$" with "$"
+		    s_ptr1 = ++s_ptr; // both pointers on second "$"
+				while ( *s_ptr1 != 0)
+				{	s_ptr1 [ 0 ] = s_ptr1 [ 1 ];
+				  s_ptr1++;
+				}
+			}
+			else if ( 0 == strcmp( s_ptr, "$(APOM)" ) )
+			{ // replace "$(APOM)" by _ssgAPOM
+				char temp_buffer[1024];
+				* s_ptr = 0;
+				s_ptr += strlen ( "$(APOM)" );
+				strcpy ( temp_buffer, s_ptr );
+				strcat ( current_path, _ssgAPOM);
+				s_ptr = & current_path [ strlen(current_path) ] ; // onto the 0
+				strcat ( current_path, temp_buffer );
+			}
+			else
+				s_ptr++;
+		}
+		else // neither ';' nor '$'
+			s_ptr++;
+	}
+  // not found
+	_ssgMakePath ( filename, current_path, tfname ) ; // pfusch? kludge?
+
+}
+
 ssgTexture* ssgLoaderOptions::defaultCreateTexture ( char* tfname,
 						     int wrapu,
 						     int wrapv,
 						     int mipmap ) const
 {
   char filename [ 1024 ] ;
-  _ssgMakePath ( filename, _ssgTexturePath, tfname ) ;
+
+	_ssgMakePath ( filename, _ssgTexturePath, tfname ) ;
+	//parseAndMakePath ( filename, /*_ssgTexturePath, */tfname ) ;
 
   for ( int i = 0 ; i < num_shared_textures ; i++ )
   {
@@ -423,7 +494,8 @@ static _ssgFileFormat formats[] =
   { ".wrl", ssgLoadVRML, NULL       },
   { ".md2", ssgLoadMD2 , NULL       },
   { ".mdl", ssgLoadMDL , NULL       },
-  { NULL  , NULL       , NULL       }
+	{ ".x"	, ssgLoadX	 , ssgSaveX   },
+	{ NULL  , NULL       , NULL       }
 } ;
 
   
@@ -432,8 +504,18 @@ ssgEntity *ssgLoad ( const char *fname, const ssgLoaderOptions* options )
   if ( fname == NULL || *fname == '\0' )
     return NULL ;
 
-  const char *extn = file_extension ( fname ) ;
 
+	// save path in _ssgAPOM (actual path of model)
+	strncpy( _ssgAPOM, fname, 1024);
+	char *s_ptr;
+	s_ptr = &(_ssgAPOM[strlen(_ssgAPOM)-1]);
+	while ((s_ptr > _ssgAPOM) && (*s_ptr != '/') && (*s_ptr != '\\')) 
+		s_ptr--;
+	if ( s_ptr > _ssgAPOM ) *s_ptr = 0;
+
+
+  // find appropiate loader and call its loadfunc
+  const char *extn = file_extension ( fname ) ;
   if ( *extn != '.' )
   {
     ulSetError ( UL_WARNING, "ssgLoad: Cannot determine file type for '%s'", fname );
