@@ -174,6 +174,18 @@ static void dxf_flush ( void )
 }
 
 
+static void AddTriangle ( sgVec3* p, sgVec3* q, sgVec3* r )
+{
+  if ( num_facevert + 3 < MAX_VERT ) {
+    sgCopyVec3( facevert[num_facevert], *p ) ;
+    sgCopyVec3( facevert[num_facevert+1], *q ) ;
+    sgCopyVec3( facevert[num_facevert+2], *r ) ;
+    num_face ++;
+    num_facevert += 3;
+  }
+}
+
+
 static int dxf_read ( FILE *filein )
 {
 /*
@@ -238,13 +250,24 @@ initialize lists
         mode = MODE_VERTEX;
       else if ( strncmp( input2, "SEQEND", 6 ) == 0 ) {
 
-        if ( (meshflags & 8) != 0 ) {
+#define PL_CLOSED_IN_M 		0x01
+#define PL_CURVE_FIT_ADDED 	0x02
+#define PL_SPLINE_FIT_ADDED 	0x04
+#define PL_3D_POLYLINE 		0x08
+#define PL_3D_MESH 		0x10
+#define PL_CLOSED_IN_N 		0x20
+#define PL_POLYFACE_MESH 	0x40
+#define PL_USE_LINETYPE 	0x80
+
+        int polyline_flags = meshflags ;
+
+        if ( (polyline_flags & PL_3D_POLYLINE) != 0 ) {
 
           //This is a 3D Polyline
           int last = 0;
           int i = 1;
 
-          if ( (meshflags & 33) != 0 ) {
+          if ( (polyline_flags & (PL_CLOSED_IN_M|PL_CLOSED_IN_N)) != 0 ) {
 
             //Polyline is closed
             last = num_meshvert - 1;
@@ -262,80 +285,53 @@ initialize lists
             }
           }
         }
-        else if ( (meshflags & 16) != 0 ) {
+        else if ( (polyline_flags & PL_3D_MESH) != 0 ) {
 
           //This is a 3D polygon MxN mesh. (uniform grid)
           if ( num_meshvert >= ( meshsize[0] * meshsize[1] ) ) {
 
-            for ( int i=1; i<meshsize[0]; i++ )
-            for ( int j=1; j<meshsize[1]; j++ ) {
+            int mesh_m = meshsize[0];
+            int mesh_n = meshsize[1];
 
-              if ( num_facevert + 3 < MAX_VERT ) {
-                sgCopyVec3( facevert[num_facevert], meshvert[(i-1)+(j-1)*meshsize[0]] );
-                sgCopyVec3( facevert[num_facevert+1], meshvert[i+(j-1)*meshsize[0]] );
-                sgCopyVec3( facevert[num_facevert+2], meshvert[i+j*meshsize[0]] );
-                num_face ++;
-                num_facevert += 3;
-              }
+            sgVec3 *buff[2];
+            buff[0] = &meshvert[0];
+            buff[1] = &meshvert[mesh_n];
 
-              if ( num_facevert + 3 < MAX_VERT ) {
-                sgCopyVec3( facevert[num_facevert], meshvert[(i-1)+(j-1)*meshsize[0]] );
-                sgCopyVec3( facevert[num_facevert+1], meshvert[i+j*meshsize[0]] );
-                sgCopyVec3( facevert[num_facevert+2], meshvert[(i-1)+j*meshsize[0]] );
-                num_face ++;
-                num_facevert += 3;
+            /* create triangles */
+            int i,j;
+            for (i=1;i<mesh_m;i++) {
+              buff[1] = &meshvert[ mesh_n*i ] ;
+              sgVec3* p = &buff[0][0];
+              sgVec3* q = &buff[0][1];
+              for (j=1;j<mesh_n;j++) {
+                sgVec3* r = &buff[1][j-1];
+                AddTriangle ( p, q, r ) ;
+                p = q;
+                q = &buff[1][j];
+                AddTriangle ( p, q, r ) ;
+                q = &buff[0][j+1];
               }
+              if (polyline_flags & PL_CLOSED_IN_N) {
+                sgVec3* p = &buff[0][mesh_n-1];
+                sgVec3* q = &buff[0][0];
+                sgVec3* r = &buff[1][mesh_n-1];
+                AddTriangle ( p, q, r ) ;
+                p = q;
+                q = &buff[1][0];
+                AddTriangle ( p, q, r ) ;
+              }
+              buff[0] = buff[1];
             }
-
-            if ( (meshflags & 1) != 0 ) {
-
-              //The polygon mesh is closed in the M direction
-              for ( int j=1; j<meshsize[1]; j++ ) {
-  
-                int i1 = meshsize[0]-1;
-                int i2 = 0;
-
-                if ( num_facevert + 3 < MAX_VERT ) {
-                  sgCopyVec3( facevert[num_facevert], meshvert[i1+(j-1)*meshsize[0]] );
-                  sgCopyVec3( facevert[num_facevert+1], meshvert[i2+(j-1)*meshsize[0]] );
-                  sgCopyVec3( facevert[num_facevert+2], meshvert[i2+j*meshsize[0]] );
-                  num_face ++;
-                  num_facevert += 3;
-                }
-   
-                if ( num_facevert + 3 < MAX_VERT ) {
-                  sgCopyVec3( facevert[num_facevert], meshvert[i1+(j-1)*meshsize[0]] );
-                  sgCopyVec3( facevert[num_facevert+1], meshvert[i2+j*meshsize[0]] );
-                  sgCopyVec3( facevert[num_facevert+2], meshvert[i1+j*meshsize[0]] );
-                  num_face ++;
-                  num_facevert += 3;
-                }
-              }
-            }
-
-            if ( (meshflags & 32) != 0 ) {
-
-              //The polygon mesh is closed in the N direction
-              for ( int i=1; i<meshsize[0]; i++ ) {
-
-                int j1 = meshsize[1]-1;
-                int j2 = 0;
-
-                if ( num_facevert + 3 < MAX_VERT ) {
-                  sgCopyVec3( facevert[num_facevert], meshvert[(i-1)+j1*meshsize[0]] );
-                  sgCopyVec3( facevert[num_facevert+1], meshvert[i+j1*meshsize[0]] );
-                  sgCopyVec3( facevert[num_facevert+2], meshvert[i+j2*meshsize[0]] );
-                  num_face ++;
-                  num_facevert += 3;
-                }
-
-                if ( num_facevert + 3 < MAX_VERT ) {
-                  sgCopyVec3( facevert[num_facevert], meshvert[(i-1)+j1*meshsize[0]] );
-                  sgCopyVec3( facevert[num_facevert+1], meshvert[i+j2*meshsize[0]] );
-                  sgCopyVec3( facevert[num_facevert+2], meshvert[(i-1)+j2*meshsize[0]] );
-                  num_face ++;
-                  num_facevert += 3;
-                }
+            if (polyline_flags & PL_CLOSED_IN_M) {
+              sgVec3* p = &buff[0][0];
+              sgVec3* q = &buff[0][1];
+              for (j=1;j<mesh_n;j++) {
+                sgVec3* r = &meshvert[j-1];
+                AddTriangle ( p, q, r ) ;
+                p = q;
+                q = &meshvert[j];
+                AddTriangle ( p, q, r ) ;
+                q = &buff[0][j+1];
               }
             }
           }
