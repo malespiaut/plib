@@ -794,8 +794,21 @@ static void parse_object()
 
   if ( mesh_count > 1 )
   {
-    ssgTimedSelector* selector = new ssgTimedSelector ;
-    for ( int i=0; i<MAX_FRAMES; i++ )
+    //how many frames?
+    int num_frames = 0 ;
+    int i ;
+    for ( i=0; i<MAX_FRAMES; i++ )
+    {
+      aseMesh* mesh = mesh_list [ i ] ;
+      if ( mesh == NULL )
+        num_frames ++ ;
+    }
+
+    //allocate selector
+    ssgTimedSelector* selector = new ssgTimedSelector ( num_frames ) ;
+
+    //init
+    for ( i=0; i<MAX_FRAMES; i++ )
     {
       aseMesh* mesh = mesh_list [ i ] ;
       if ( mesh == NULL )
