@@ -35,7 +35,7 @@ static size_t writeShort (unsigned short x )
 
   if (ulIsLittleEndian) // this is the other way round compared to normally.
 		                    // obviously, this is because the .rgb format comes from SGI.
-    _ulEndianSwap(&x);
+    ulEndianSwap(&x);
 
 
   return fwrite( & x, sizeof(unsigned short), 1, fd ) ;
@@ -45,7 +45,7 @@ static size_t writeInt (unsigned int x)
 {
  if (ulIsLittleEndian) // this is the other way round compared to normally.
 		                    // obviously, this is because the .rgb format comes from SGI.
-    _ulEndianSwap(&x);
+    ulEndianSwap(&x);
 
   return fwrite( & x, sizeof(unsigned int), 1, fd ) ;
 }
