@@ -1759,16 +1759,6 @@ int  ssgLOS         ( ssgRoot *root, sgVec3    s, sgMat4 m, ssgHit **results ) ;
 
 typedef ssgBranch *(*ssgHookFunc)(char *) ;
 
-ssgEntity *ssgLoad     ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadASE  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadTRI  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-ssgEntity *ssgLoadOBJ  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-
 int        ssgSave     ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveAC   ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveASE  ( char *fname, ssgEntity *ent ) ;
@@ -1776,6 +1766,20 @@ int        ssgSaveSSG  ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveDXF  ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveTRI  ( char *fname, ssgEntity *ent ) ;
 int        ssgSaveOBJ  ( char *fname, ssgEntity *ent ) ;
+
+ssgEntity *ssgLoad     ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoad3ds  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadSSG  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadASE  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadDXF  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadTRI  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadOBJ  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+
+/* For backwards compatibility */
+
+ssgEntity *ssgLoadAC   ( char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;

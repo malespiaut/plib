@@ -634,6 +634,25 @@ int do_kids ( char *s )
 }
 
 
+ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc )
+{
+  ssgEntity *obj = ssgLoadAC ( fname, hookfunc ) ;
+
+  if ( obj == NULL )
+    return NULL ;
+
+  /* Do some simple optimisations */
+
+  ssgBranch *model = new ssgBranch () ;
+  model -> addKid ( obj ) ;
+  ssgFlatten      ( obj ) ;
+  ssgStripify   ( model ) ;
+  return model ;
+}
+
+/*
+  Original function for backwards compatibility...
+*/
 
 ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc )
 {
