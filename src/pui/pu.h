@@ -541,21 +541,7 @@ public:
     puPostRefresh () ;
   }
 
-  void setValue ( const char *s )
-  { 
-    if ( s == NULL )
-      s = "" ;
-
-    copy_stringval ( s ) ;
-
-    if ( convert == TRUE )
-    {
-      *getIntegerp () = (int) strtol ( s, NULL, 0 ) ;
-      *getFloaterp () = (float) strtod ( s, NULL ) ;
-    }
-
-    puPostRefresh () ;
-  }
+  void setValue ( const char *s ) ;
 
   void getValue ( int   *i ) { re_eval () ; *i = *getIntegerp () ; }
   void getValue ( float *f ) { re_eval () ; *f = *getFloaterp () ; }
