@@ -187,21 +187,21 @@ missing
 <li> ssgLoadOBJ - Wavefront, works well
 <li> ssgLoadTRI - simple Tri format from "Andy Colbournes Editor".
 <li> ssgLoadX - Microsofts DirectX-Format. Most features work.
-<li> ssgLoadOFF - ???
+<li> ssgLoadOFF - Geomview's OFF
 <li> ssgLoadM - ???
-<li> ssgLoadATG - ???
-<li> ssgLoadStrip - ???
+<li> ssgLoadATG - Ascii TerraGear. Used by Flight Gear Flight Sim.
+<li> ssgLoadStrip - The format of a stripifier.
 </ul>
 
 <pre>
 
   typedef ssgBranch *(*ssgHookFunc)(char *) ;
 
-  ssgEntity *ssgLoad    ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-
-  ssgEntity *ssgLoadSSG ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-  ssgEntity *ssgLoadAC  ( char *fname, ssgHookFunc hookfunc = NULL ) ;
-  ssgEntity *ssgLoad3ds ( char *fname, ssgHookFunc hookfunc = NULL ) ;
+  ssgEntity *ssgLoad    ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+  
+  ssgEntity *ssgLoadSSG ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+  ssgEntity *ssgLoadAC  ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
+  ssgEntity *ssgLoad3ds ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
   ...etc...
 
 </pre>
@@ -241,6 +241,19 @@ to all model or texture file names.
 </pre>
 You can only supply one path. If you need additional features, use the
 function <code>ulFindFile</code> (for more see util-library-doc). 
+
+The last three functions simply set values in the _ssgCurrentOptions
+(type ssgLoaderOptions), for example:
+
+<pre>
+inline void ssgModelPath   ( const char *path )
+{
+  _ssgCurrentOptions -> setModelDir ( path ) ;
+}
+</pre>
+
+For more on ssgLoaderOptions see also the next page of this doc.
+
 <p>
 
 Some loaders for file formats that use texture formats not 
