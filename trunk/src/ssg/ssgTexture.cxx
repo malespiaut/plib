@@ -226,7 +226,7 @@ ssgTexture* ssgTextureArray::findByFilename ( const char* fname )
   for ( int i = 0; i < getNum (); i++ )
   {
     ssgTexture *tex = get (i) ;
-    if ( _ssgStrEqual ( fname, tex->getFilename() ) )
+    if ( ulStrEqual ( fname, tex->getFilename() ) )
 	    return tex ;
   }
   return NULL ;

@@ -239,7 +239,7 @@ bool ssgLoadTexture ( const char * filename_from_model, ssgTextureInfo* info )
   for ( int i=0; i<num_formats; i++, f++ )
   {
     if ( f->loadfunc != NULL &&
-         _ssgStrNEqual ( extn, f->extension, strlen(f->extension) ) )
+         ulStrNEqual ( extn, f->extension, strlen(f->extension) ) )
     {
       if ( f->loadfunc( filename, info ) )
         return true ;
