@@ -195,9 +195,7 @@ short OptVertexList::add ( sgVec3 v1, sgVec2 t1, sgVec4 c1,
 	      ( (((ssgSimpleState *)state)->getWrapU()) &&
           (((ssgSimpleState *)state)->getWrapV()) );
 	*/
-  fprintf(stdout, "bWrapsInBothDirections=%s\n",
-                		bWrapsInBothDirections? "TRUE": "FALSE" );
-	if (!bWrapsInBothDirections)
+  if (!bWrapsInBothDirections)
 	{
 		/* Find which (if any) of the vertices are a match for one in the list */
   
