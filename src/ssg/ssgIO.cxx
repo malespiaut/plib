@@ -404,17 +404,14 @@ static ssgLeaf* default_createfunc ( ssgCreateData* data )
       }
       else
         data -> st -> disable ( GL_TEXTURE_2D ) ;
- 
-/*
-This allows the code to run...but
-screws up the 'sharing' code.
-Dunno what's wrong with it.
-*/
 
-      /* Replaced this... */
-      /* st = _ssgShareState ( data -> st ) ; */
-      /* With this... */
+      // DaveM 10-Sept-2000: re-enabled state sharing
+      // let me know if it breaks any applications
+#if 1
+      st = _ssgShareState ( data -> st ) ;
+#else
       st = data -> st ;
+#endif
     }
 
     vtab -> setState ( st ) ;
