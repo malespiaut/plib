@@ -23,8 +23,8 @@ CFG=puAux - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
+# PROP Scc_ProjName "puAux"
+# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 
@@ -40,8 +40,9 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\fnt" /I "..\sg" /I "..\util" /I ".." /I "..\pui" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "PU_USE_NONE" /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -50,6 +51,11 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy  release\*.lib  ..\..\*.* 	copy  puAux.h  ..\..\puAux.h 
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "puAux - Win32 Debug"
 
@@ -63,8 +69,9 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
+LINK32=link.exe -lib
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\fnt" /I "..\sg" /I "..\util" /I ".." /I "..\pui" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "PU_USE_NONE" /FR /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -72,7 +79,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"Debug\puAux_d.lib"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Copy Library to plib directory
+PostBuild_Cmds=copy  debug\*.lib  ..\..\*.* 	copy  puAux.h  ..\..\puAux.h 
+# End Special Build Tool
 
 !ENDIF 
 
@@ -80,13 +92,65 @@ LIB32=link.exe -lib
 
 # Name "puAux - Win32 Release"
 # Name "puAux - Win32 Debug"
-# Begin Group "Source Files"
+# Begin Source File
 
-# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-# End Group
-# Begin Group "Header Files"
+SOURCE=.\puAux.cxx
+# End Source File
+# Begin Source File
 
-# PROP Default_Filter "h;hpp;hxx;hm;inl"
-# End Group
+SOURCE=.\puAux.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxBiSlider.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxBiSliderWithEnds.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxComboBox.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxCompass.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxFileSelector.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxLargeInput.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxLocal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxScrollBar.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxSelectBox.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxSliderWithInput.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxSpinBox.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxTriSlider.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxVerticalMenu.cxx
+# End Source File
 # End Target
 # End Project

@@ -40,6 +40,7 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\sg" /I "..\util" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "PROXY_TEXTURES_ARE_NOT_BROKEN" /FD /c
 # SUBTRACT CPP /YX
@@ -69,6 +70,7 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*	copy ssg.h ..\..\ssg.h	copy ssgconf.
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\sg" /I "..\util" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "PROXY_TEXTURES_ARE_NOT_BROKEN" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -399,6 +401,10 @@ SOURCE=.\ssgStateSelector.cxx
 # Begin Source File
 
 SOURCE=.\ssgStateTables.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssgStatistics.cxx
 # End Source File
 # Begin Source File
 
