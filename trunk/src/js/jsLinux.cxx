@@ -23,9 +23,12 @@
 
 #include "js.h"
 
-#if defined (UL_LINUX) && defined (JS_NEW)
+#if defined (UL_LINUX)
 
 #include <linux/joystick.h>
+
+#if defined(JS_VERSION) && JS_VERSION >= 0x010000
+
 #include <sys/param.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -74,6 +77,19 @@ void jsJoystick::open ()
 
   if ( num_axes > _JS_MAX_AXES )
     num_axes = _JS_MAX_AXES ;
+
+  // Remove any deadband value already done in the kernel.
+  // Since we have our own deadband management this is save to do so.
+  struct js_corr corr [ _JS_MAX_AXES ] ;
+  ioctl ( os->fd, JSIOCGCORR, corr );
+  for ( int i = 0; i < num_axes ; ++i ) {
+    if ( corr[ i ] . type == JS_CORR_BROKEN ) {
+      int nodeadband = ( corr[ i ] . coef[ 0 ] + corr[ i ] . coef[ 1 ] ) / 2 ;
+      corr[ i ] . coef[ 0 ] = nodeadband ;
+      corr[ i ] . coef[ 1 ] = nodeadband ;
+    }
+  }
+  ioctl ( os->fd, JSIOCSCORR, corr );
 
   for ( int i = 0 ; i < _JS_MAX_AXES ; i++ )
   {
@@ -179,4 +195,5 @@ void jsJoystick::rawRead ( int *buttons, float *axes )
   }
 }
 
+#endif
 #endif

@@ -23,6 +23,7 @@
 
 #ifndef __INCLUDED_JS_H__
 #define __INCLUDED_JS_H__ 1
+#define JS_NEW
 
 #include "ul.h"
 
