@@ -488,13 +488,13 @@ void puObject::doHit ( int button, int updown, int x, int y )
 
 int puObject::checkHit ( int button, int updown, int x, int y )
 {
-  if ( isHit( x, y ) )
+  if ( ( ( puGetPressedButton () || updown == PU_UP ) ) && isHit( x, y ) )
   {
     doHit ( button, updown, x, y ) ;
     return TRUE ;
   }
 
-  lowlight () ;
   return FALSE ;
 }
+
 

@@ -222,12 +222,14 @@ void puDeleteObject ( puObject *ob )
 
 static void puCleanUpJunk ( void )
 {
+  puObject * local_objects_to_delete = objects_to_delete ;
+  objects_to_delete = NULL ;
   /* Step through the linked list of objects to delete, removing them. */
-  while ( objects_to_delete != NULL )
+  while ( local_objects_to_delete != NULL )
   {
-    puObject *next_ob = objects_to_delete -> getNextObject() ;
-    delete objects_to_delete ;
-    objects_to_delete = next_ob ;
+    puObject *next_ob = local_objects_to_delete -> getNextObject() ;
+    delete local_objects_to_delete ;
+    local_objects_to_delete = next_ob ;
   }
 }
 
@@ -349,6 +351,12 @@ static int pu_mouse_y = 0 ;
 static int pu_mouse_offset_x = 0 ;
 static int pu_mouse_offset_y = 0 ;
 
+int puGetPressedButton ()
+{
+  return last_buttons ;
+}
+
+
 int puMouse ( int button, int updown, int x, int y )
 {
   puCursor ( x, y ) ;
@@ -392,13 +400,10 @@ int puMouse ( int x, int y )
 {
   puCursor ( x, y ) ;
 
-  if ( last_buttons == 0 )
-    return FALSE ;
-
   int button =
     (last_buttons & (1<<PU_LEFT_BUTTON  )) ?  PU_LEFT_BUTTON   :
     (last_buttons & (1<<PU_MIDDLE_BUTTON)) ?  PU_MIDDLE_BUTTON :
-    (last_buttons & (1<<PU_RIGHT_BUTTON )) ?  PU_RIGHT_BUTTON  : 0 ;
+    (last_buttons & (1<<PU_RIGHT_BUTTON )) ?  PU_RIGHT_BUTTON  : PU_NOBUTTON ;
 
   int h = puGetWindowHeight () ;
 
