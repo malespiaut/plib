@@ -47,8 +47,6 @@ void puSlider::draw_slider_box ( int dx, int dy, float val, char *box_label )
 
   if ( box_label )
   {
-    glColor4fv ( colour [ PUCOL_LEGEND ] ) ;
-
     int xx ;
     int yy ;
     if ( isVertical () )  // Vertical slider, text goes to the right of it
