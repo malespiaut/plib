@@ -60,7 +60,7 @@ static void initPermTable ()
   though -cos(x * PI) * 0.5 + 0.5 would work too
 */
 
-inline SGfloat easeCurve ( SGfloat t ) { return t * t * (3.0 - 2.0 * t) ; } 
+inline SGfloat easeCurve ( SGfloat t ) { return (SGfloat) (t * t * (3.0 - 2.0 * t)) ; } 
 
 inline SGfloat dot2 ( SGfloat rx,  SGfloat ry, sgVec2 q )
 {
@@ -91,7 +91,7 @@ inline void setupValues ( int axis, int *g0, int *g1,
   *g0 = it & SG_PERLIN_NOISE_MOD_MASK ;
   *g1 = (*g0 + 1) & SG_PERLIN_NOISE_MOD_MASK ;
   *d0 = t - it ;
-  *d1 = *d0 - 1.0 ;
+  *d1 = *d0 - 1.0f ;
 }
 
 

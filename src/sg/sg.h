@@ -2788,7 +2788,7 @@ public:
     sgVec3 dP ; sgSubVec3 ( dP, p0->getPos(), p1->getPos() ) ;
     sgVec3 dV ; sgSubVec3 ( dV, p0->getVel(), p1->getVel() ) ;
 
-    float  L = sgLengthVec3 ( dP ) ; if ( L == 0.0f ) L = 0.0000001 ;
+    float  L = sgLengthVec3 ( dP ) ; if ( L == 0.0f ) L = 0.0000001f ;
     float  H = ( L - restLength ) * stiffness ;
     float  D = sgScalarProductVec3 ( dV, dP ) * damping / L ;
 
