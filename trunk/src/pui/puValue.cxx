@@ -162,6 +162,8 @@ const char *puValue::getTypeString ( void ) const
 {
   int i = getType () ;
 
+  if ( i & PUCLASS_SCROLLBAR    ) return "puScrollBar" ;
+  if ( i & PUCLASS_SPINBOX      ) return "puSpinBox" ;
   if ( i & PUCLASS_SELECTBOX    ) return "puSelectBox" ;
   if ( i & PUCLASS_COMBOBOX     ) return "puComboBox" ;
   if ( i & PUCLASS_LARGEINPUT   ) return "puLargeInput" ;

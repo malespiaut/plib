@@ -49,7 +49,7 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
 #ifndef PU_NOT_USING_GLUT
     puGroup *parent = p -> getParent () ;
 
-    if ( ( parent != parent -> getParent () ) && parent -> getFloating () )
+    if ( ( parent != parent -> getParent () ) && parent -> getFloating () )  // DEPRECATED! -- we need to replace this code.
     {
       int temp_window = puGetWindow () ;
       glutSetWindow ( parent -> getWindow () ) ;

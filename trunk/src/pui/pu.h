@@ -842,7 +842,7 @@ protected:
 
   void doHit       ( int button, int updown, int x, int y ) ;
 
-  int floating;   // Flag telling whether the interface floats in the window or stays put
+  int floating;   // DEPRECATED! -- Flag telling whether the interface floats in the window or stays put
 
 public:
 
@@ -854,7 +854,7 @@ public:
     mouse_x = 0 ;
     mouse_y = 0 ;
     mouse_active = FALSE ;
-    floating = FALSE ;
+    floating = FALSE ;   // DEPRECATED!
     puPushGroup ( this ) ;
   }
 
@@ -892,8 +892,8 @@ public:
       puPopGroup () ;
   }
 
-  void setFloating ( int value ) { floating = value ; }
-  int getFloating ( void ) const { return floating ; }
+  void setFloating ( int value ) { floating = value ; }   // DEPRECATED!
+  int getFloating ( void ) const { return floating ; }    // DEPRECATED!
 
   void setChildStyle ( int childs, int which, int recursive = FALSE ) ;
   void setChildBorderThickness ( int childs, int t, int recursive = FALSE ) ;
@@ -1120,7 +1120,7 @@ public:
       
     return step ;
   }
-  
+
   void setCBMode ( int m ) { cb_mode = m ; }
   int getCBMode ( void ) const { return cb_mode ; }
 
@@ -1463,7 +1463,7 @@ public:
                      + PUSTR_TGAP + PUSTR_BGAP ) : y)
   {
     type |= PUCLASS_VERTMENU ;
-    floating = TRUE ;
+    floating = TRUE ;  // DEPRECATED! -- we need to replace this code.
     if ( y < 0 ) { setVStatus( TRUE ) ; } /* It is now supposed to stick to the top left - JCJ*/
   }
 
@@ -1524,6 +1524,7 @@ public:
     delete [] valid_data ;
     valid_data = ( data != NULL ) ? ulStrDup ( data ) : NULL ;
   }
+
   void addValidData ( const char *data ) ;
 
   int isValidCharacter ( char c ) const
@@ -1550,8 +1551,8 @@ public:
 
     input_disabled = FALSE ;
   }
-  virtual ~puInputBase () { delete [] valid_data ; }
 
+  virtual ~puInputBase () { delete [] valid_data ; }
 } ;
 
 
@@ -1572,7 +1573,7 @@ public:
   }
 
   puInput ( int minx, int miny, int maxx, int maxy ) :
-     puInputBase (), puObject ( minx, miny, maxx, maxy )
+             puInputBase (), puObject ( minx, miny, maxx, maxy )
   {
     type |= PUCLASS_INPUT ;
 
@@ -1600,12 +1601,32 @@ public :
   /* Offered as a proportion of the input box height. Default = 0.5 */
   void setArrowHeight ( float height )
   {
-    puBox *ibox = input_box->getABox() ;
-    int size = int(height * ( ibox->max[1] - ibox->min[1] )) ;
+    puBox ibox = *(input_box->getABox()) ;
+    int size = int(height * ( ibox.max[1] - ibox.min[1] )) ;
     up_arrow->setSize ( size, size ) ;
     down_arrow->setSize ( size, size ) ;
-    int xpos = getArrowPosition () ? ibox->max[0] : ibox->min[0] - size ;
-    int ymid = ( ibox->max[1] + ibox->min[1] ) / 2 ;
+    int xpos = getArrowPosition () ? ibox.max[0] : ibox.min[0] - size ;
+    int ymid = ( ibox.max[1] + ibox.min[1] ) / 2 ;
+    if ( getArrowPosition () == 0 )  /* Arrows are on the left, adjust the x-position of the input box */
+    {
+      ibox.min[0] -= xpos ;
+      input_box->setPosition ( ibox.min[0], ibox.min[1] ) ;
+      abox.min[0] += xpos ;
+      xpos = 0 ;
+    }
+
+    if ( height > 0.5f )  /* Adjust the input box to be up from the bottom */
+    {
+      input_box->setPosition ( ibox.min[0], ibox.min[1] + size - ymid ) ;
+      abox.min[1] += ymid - size ;
+      ymid = size ;
+    }
+    else  /* Input box is at the bottom of the group area */
+    {
+      input_box->setPosition ( ibox.min[0], 0 ) ;
+      abox.min[1] += ibox.min[1] ;
+    }
+
     up_arrow->setPosition ( xpos, ymid ) ;
     down_arrow->setPosition ( xpos, ymid - size ) ;
     recalc_bbox() ;

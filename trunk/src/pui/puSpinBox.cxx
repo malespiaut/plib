@@ -31,6 +31,7 @@ puSpinBox::puSpinBox ( int minx, int miny, int maxx, int maxy, int arrow_pos ) :
                        puRange ( 1.0f, 10.0f, 1.0f ), puGroup ( minx, miny )
 {
   extern void puSpinBox_handle_input ( puObject* ob ) ;
+  extern void puSpinBox_handle_input_active ( puObject* ob ) ;
   extern void puSpinBox_handle_arrow ( puObject* ob ) ;
   type |= PUCLASS_SPINBOX ;
   arrow_position = arrow_pos ;
@@ -41,6 +42,7 @@ puSpinBox::puSpinBox ( int minx, int miny, int maxx, int maxy, int arrow_pos ) :
     input_box = new puInput ( arrow_size, 0, maxx - minx, maxy - miny ) ;
 
   input_box->setCallback ( puSpinBox_handle_input ) ;
+  input_box->setActiveCallback ( puSpinBox_handle_input_active ) ;
   input_box->setDownCallback ( puSpinBox_handle_input ) ;
   input_box->setUserData ( this ) ;
 
@@ -80,5 +82,15 @@ void puSpinBox_handle_input ( puObject *ob )
   if ( val < master->getMinValue () ) val = master->getMinValue () ;
   master->setValue ( val ) ;
   master->invokeCallback () ;
+}
+
+void puSpinBox_handle_input_active ( puObject *ob ) 
+{
+  puSpinBox *master = (puSpinBox *)(ob->getUserData ()) ;
+  float val = ob->getFloatValue () ;
+  if ( val > master->getMaxValue () ) val = master->getMaxValue () ;
+  if ( val < master->getMinValue () ) val = master->getMinValue () ;
+  master->setValue ( val ) ;
+  master->invokeActiveCallback () ;
 }
 

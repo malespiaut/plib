@@ -220,7 +220,7 @@ int puGroup::checkHit ( int button, int updown, int x, int y )
   */
 
   if ( mouse_active || ( isHit ( x+abox.min[0], y+abox.min[1]) &&
-       floating && ( button == PU_RIGHT_BUTTON ) ) )
+       floating && ( button == PU_RIGHT_BUTTON ) ) )  // DEPRECATED! -- we need to replace this code.
   {
     puMoveToLast ( this );
 
@@ -313,6 +313,8 @@ void puGroup::draw ( int dx, int dy )
 
     bo -> draw ( xdraw, ydraw ) ;
   }
+
+  if ( getWindow () == puGetWindow () ) draw_label ( dx, dy ) ;
 }
 
 
