@@ -4,7 +4,7 @@
 
 void puButton::draw ( int dx, int dy )
 {
-  if ( !visible ) return ;
+  if ( !visible || ( window != puGetWindow () ) ) return ;
 
   /* If button is pushed or highlighted - use inverse style for button itself */
 

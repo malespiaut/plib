@@ -15,6 +15,7 @@ static int puWindowHeight = 400 ;
 
 #ifdef PU_NOT_USING_GLUT
 
+int puGetWindow       () { return 0              ; }
 int puGetWindowHeight () { return puWindowHeight ; }
 int puGetWindowWidth  () { return puWindowWidth  ; }
 
@@ -33,6 +34,12 @@ static bool openGLSize = false;
 
 void puSetResizeMode ( bool mode ) {
   openGLSize = mode ;
+}
+
+
+int puGetWindow ()
+{
+  return glutGetWindow () ;
 }
 
 
@@ -268,6 +275,34 @@ void  puDisplay ( void )
 
   puSetOpenGLState () ;
   puGetUltimateLiveInterface () -> draw ( 0, 0 ) ;
+
+  int h = puGetWindowHeight () ;
+
+  if ( _puCursor_enable )
+    puDrawCursor ( _puCursor_x,
+                   h - _puCursor_y ) ;
+
+  puRestoreOpenGLState () ;
+}
+
+
+void  puDisplay ( int window_number )  /* Redraw only the current window */
+{
+  puCleanUpJunk () ;
+
+  puSetOpenGLState () ;
+  puInterface *base_interface = puGetUltimateLiveInterface () ;
+  puObject *ob = base_interface -> getFirstChild () ;
+  while ( ob )
+  {
+    if ( ob -> getWindow () == window_number )
+    {
+      ob -> draw ( 0, 0 ) ;
+      break ;
+    }
+
+    ob = ob -> getNextObject () ;
+  }
 
   int h = puGetWindowHeight () ;
 

@@ -30,7 +30,7 @@ void puInput::draw ( int dx, int dy )
 {
   normalize_cursors () ;
 
-  if ( !visible ) return ;
+  if ( !visible || ( window != puGetWindow () ) ) return ;
 
   /* 3D Input boxes look nicest if they are always in inverse style. */
 
@@ -149,7 +149,7 @@ void puInput::doHit ( int button, int updown, int x, int /* y */ )
 
 int puInput::checkKey ( int key, int /* updown */ )
 {
-  if ( ! isAcceptingInput() || ! isActive () || ! isVisible () )
+  if ( ! isAcceptingInput() || ! isActive () || ! isVisible () || ( window != puGetWindow () ) )
     return FALSE ;
 
   normalize_cursors () ;

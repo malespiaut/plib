@@ -10,7 +10,7 @@
 #endif
 #include <math.h>
 #include <GL/glut.h>
-#include <plib/pu.h>
+#include "plib/pu.h"
 
 //#define VOODOO 1
 
@@ -26,8 +26,11 @@ puDialogBox *dialog_box ;
 puText      *dialog_box_message ;
 puOneShot   *dialog_box_ok_button ;
 puText      *timer_text ;
-puSlider    *rspeedSlider;
-puFilePicker* file_picker = 0 ;
+
+int          slider_window ;
+puSlider    *rspeedSlider ;
+puSlider    *directSlider ;
+puFilePicker* file_picker ;
 
 
 /***********************************\
@@ -162,8 +165,9 @@ static void displayfn (void)
   /* Draw the tumbling cube */
 
   float val ; rspeedSlider->getValue ( &val ) ;
+  float dir ; directSlider->getValue ( &dir ) ;
 
-  glRotatef( 4*val, 15.0, 10.0 , 5.0 );
+  glRotatef( 4*val, 3.0 * ( 2.0 * dir - 1.0 ) , 2.0 * ( 1.0 - 2.0 * dir ) , 1.0 );
 
   drawCube  () ;
 
@@ -175,6 +179,27 @@ static void displayfn (void)
   /* Make PUI redraw */
 
   puDisplay () ;
+  
+  /* Off we go again... */
+
+  glutSwapBuffers   () ;
+  glutPostRedisplay () ;
+}
+
+static void sliderdisplayfn (void)
+{
+  /*
+    Function to display only the slider window
+  */
+
+  /* Clear the screen */
+
+  glClearColor ( 0.4, 0.1, 0.1, 1.0 ) ;
+  glClear      ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
+
+  /* Make PUI redraw the slider window */
+
+  puDisplay ( slider_window ) ;
   
   /* Off we go again... */
 
@@ -305,7 +330,7 @@ int main ( int argc, char **argv )
 {
   firsttime = TRUE;
 
-  glutInitWindowPosition(   0,   0 ) ;
+  glutInitWindowPosition( 100,   0 ) ;
   glutInitWindowSize    ( 640, 480 ) ;
   glutInit              ( &argc, argv ) ;
   glutInitDisplayMode   ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
@@ -355,11 +380,37 @@ int main ( int argc, char **argv )
   }
   main_menu_bar -> close () ; 
 
-  rspeedSlider = new puSlider (20,80,150,TRUE);
+  slider_window = glutCreateWindow      ( "Slider Window"  ) ;
+  glutPositionWindow    (  20, 100 ) ;
+  glutReshapeWindow     ( 150,  200 ) ;
+  glutDisplayFunc       ( sliderdisplayfn ) ;
+  glutKeyboardFunc      ( keyfn     ) ;
+  glutSpecialFunc       ( specialfn ) ;
+  glutMouseFunc         ( mousefn   ) ;
+  glutMotionFunc        ( motionfn  ) ;
+  glutPassiveMotionFunc ( motionfn  ) ;
+  glutIdleFunc          ( sliderdisplayfn ) ;
+
+  puGroup *slider_group = new puGroup ( 0, 0 ) ;  // Necessary so that "sliderdisplayfn" will draw all widgets
+
+  rspeedSlider = new puSlider (10,30,150,TRUE);
   rspeedSlider->setDelta(0.1);
   rspeedSlider->setCBMode( PUSLIDER_DELTA );
   rspeedSlider->setCallback(sliderCB);
+  rspeedSlider->setLabel ( "Speed" ) ;
+  rspeedSlider->setLabelPlace ( PUPLACE_BELOW ) ;
+
+  directSlider = new puSlider (80,30,150,TRUE);
+  directSlider->setDelta(0.1);
+  directSlider->setCBMode( PUSLIDER_DELTA );
+  directSlider->setCallback(sliderCB);
+  directSlider->setLabel ( "Direction" ) ;
+  directSlider->setLabelPlace ( PUPLACE_BELOW ) ;
+
+  slider_group -> close () ;
 
   glutMainLoop () ;
   return 0 ;
 }
+
+
