@@ -1382,18 +1382,22 @@ the puGroup. Doing a puObject::greyout() on a puGroup prevents anything
 inside that group from being clicked.
 <p>
 Colours, styles, etc are NOT propagated from puGroup to its children,
-although there are four functions which allow you to change the
+although there are six functions which allow you to change the
 appearances of the child widgets on a per-child-class basis:
 <pre>
 
   void puGroup::setChildStyle ( int childs, int style, int recursive = FALSE ) ;
   void puGroup::setChildBorderThickness ( int childs, int t, int recursive = FALSE ) ;
+
   void puGroup::setChildColour ( int childs, int which,
                                  float r, float g, float b, float a = 1.0f,
                                  int recursive = FALSE ) ;
   void puGroup::setChildColourScheme ( int childs,
                                        float r, float g, float b, float a = 1.0f,
                                        int recursive = FALSE ) ;
+
+  void puGroup::setChildLegendFont ( int childs, puFont f, int recursive = FALSE ) ;
+  void puGroup::setChildLabelFont ( int childs, puFont f, int recursive = FALSE ) ;
 
 </pre>
 These routines all take a bitmask specifying which childs to apply
