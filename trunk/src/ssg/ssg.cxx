@@ -163,6 +163,10 @@ void ssgInit ()
   ssgAddTextureFormat ( ".png" ,   ssgLoadPNG ) ;
 #endif
 
+#ifdef SSG_LOAD_PCX_SUPPORTED
+  ssgAddTextureFormat ( ".pcx" ,   ssgLoadPCX ) ;
+#endif
+
 #ifdef SSG_LOAD_SGI_SUPPORTED
   ssgAddTextureFormat ( ".rgb" ,   ssgLoadSGI ) ;
   ssgAddTextureFormat ( ".rgba" ,  ssgLoadSGI ) ;
