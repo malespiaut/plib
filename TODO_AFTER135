@@ -63,10 +63,7 @@ Bugs:
   *new remark*: About the diffuse values: I think it has to do with
   colour material, a loader (.ASE?) loading colours into a colour
     list and writing colours from the ssgSimpleState where they are
-    undefined. I think the same bug is in .AC Since I have uncommitted 
-  .AC stuff on my private computer, please don't start major changes 
-  to .AC loading/saving. But if someone wants to search for the bug 
-  and fix it in .ASE, you are very welcome.
+    undefined. I think the same bug is in .AC 
 
 - WK: I have a crash in ssgFlatten if I load .ac files with 
   unused materials (not reproducable?)
