@@ -380,19 +380,40 @@ ssgCullResult ssgEntity::los_test ( sgVec3 s, sgMat4 m, int test_needed )
 
   sgSetVec3 ( p1, 0.0, 0.0, 0.0 ) ; /* Eye point always at origin */
         
-  /* Get the center of the sphere  */
-  sgFloat const *center = tmp.getCenter () ; 
+  /* Get the center and square the radius of the sphere  */
+  sgFloat const *center = tmp.getCenter () ;
+  sgFloat radius2 = sgSquare ( tmp.getRadius () ) ;
 
   /* Calculate the distance from the line to the center of the sphere  */
   sgVec3 oc ; 
   sgSubVec3 ( oc, p1, center ) ; 
 
-  float dmin2 = sgSquare ( oc[0] ) + sgSquare ( oc[1] ) + sgSquare ( oc[2] ) 
-                - sgSquare ( oc[0] * s[0] + oc[1] * s[1] + oc[2] * s[2] ) / 
-                    ( sgSquare ( s[0] ) + sgSquare ( s[1] ) + sgSquare ( s[2] ) ) ; 
+  /* Check whether the eyepoint is within the sphere */
+  sgFloat eye_to_center_squared = sgSquare ( oc[0] ) + sgSquare ( oc[1] ) + sgSquare ( oc[2] ) ;
+  if ( eye_to_center_squared < radius2 )
+  {
+    stats_los_straddle++ ;
+    return SSG_STRADDLE ;
+  }
+
+  /* Calculate the dot product of the vector from the center to the eyepoint and the
+   * line of sight vector.  If this dot product is positive or zero, then the point of
+   * closest approach to the sphere is behind the eyepoint or at the eyepoint.  Since the
+   * eyepoint is outside the sphere, this means that the line of sight forward from the
+   * eyepoint will not intersect the sphere.
+   */
+  sgFloat oc_dot_s = oc[0] * s[0] + oc[1] * s[1] + oc[2] * s[2] ;
+  if ( oc_dot_s >= 0.0 )
+  {
+    stats_los_radius_reject++ ;
+    return SSG_OUTSIDE ;
+  }
+
+  float dmin2 = eye_to_center_squared - sgSquare ( oc_dot_s ) / 
+                                ( sgSquare ( s[0] ) + sgSquare ( s[1] ) + sgSquare ( s[2] ) ) ; 
 
   /* Compare minimum distance squared with sphere radius squared */
-  if ( dmin2 > sgSquare ( tmp.getRadius () ) ) 
+  if ( dmin2 > radius2 ) 
   { 
     stats_los_radius_reject++; 
     return SSG_OUTSIDE; 
