@@ -287,6 +287,11 @@ If the user will be able to reshape the window, include a window reshape
 function that adjusts the positions and sizes of the widgets.  If
 the user should not resize the window then the window reshape function
 should reset the window to its original size.</li>
+
+<li>
+Note that you can let the <a href="#puDisplay">puDisplay</a> function
+only redraw the widgets in a particular window, which is especially
+useful if you use the same display callback for multiple windows.</li>
 </ul>
  
 <table>
@@ -582,6 +587,11 @@ PUSTYLE_SMALL_SHADED - Same as for PUSTYLE_SHADED but with a smaller border.</li
 PUSTYLE_BOXED - A simple rectangle with a line around the outside.</li>
 
 <li>
+PUSTYLE_SPECIAL_UNDERLINED - A simple rectangle drawn with a thin line
+at the bottom, giving an "underlined" effect like you can see in the
+<a href="#puMenuBar">puMenuBar</a> and <a href="#puVerticalMenu">puVerticalMenu</a> widgets.</li>
+
+<li>
 PUSTYLE_DROPSHADOW - A simple rectangle - but drawn with a shadow below
 and to the right to make it look like it has been raised off of the page.</li>
 
@@ -591,7 +601,9 @@ at all - the widget is drawn as a small diamond shape which is filled in
 when the object has a non-zero value. This is only useful for puButton
 widgets.</li>
 </ul>
-In case of PUSTYLE_BOXED, you can alter the thickness of the border around the widgets or retrieve the current border thickness:
+In case of PUSTYLE_BOXED and PUSTYLE_SPECIAL_UNDERLINED, you can alter
+the thickness of the border around the widget / the width of the line
+at the bottom of the widget or retrieve the current value:
 <pre>
 
   void puObject::setBorderThickness ( int t ) ;
@@ -599,6 +611,13 @@ In case of PUSTYLE_BOXED, you can alter the thickness of the border around the w
 
 </pre>
 By default, a border thickness of two pixels is used in PUSTYLE_BOXED.
+For PUSTYLE_SPECIAL_UNDERLINED, a one pixel wide line is drawn.
+<p>
+But please ensure only to call the setBorderThickness routine <b>after</b>
+specifying the widget's style, because the setStyle function sets the
+border thickness automatically according to the (different) default
+values for PUSTYLE_BOXED and PUSTYLE_SPECIAL_UNDERLINED. Thus, the border
+width which you have set would be overridden.
 <p>
 In addition, you can use the negation of the style to swap the appearance
 of the selected and deselected versions of an object. Hence, using a style
