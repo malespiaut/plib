@@ -81,11 +81,38 @@ void ssgaShape::init ()
 ssgaCube    ::ssgaCube     ( void ) : ssgaShape ()     { type |= SSGA_TYPE_CUBE     ; regenerate () ; } 
 ssgaCube    ::ssgaCube     (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_CUBE     ; regenerate () ; } 
 
-ssgaSphere  ::ssgaSphere   ( void ) : ssgaShape ()     { type |= SSGA_TYPE_SPHERE   ; regenerate () ; } 
-ssgaSphere  ::ssgaSphere   (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_SPHERE   ; regenerate () ; } 
 
-ssgaCylinder::ssgaCylinder ( void ) : ssgaShape ()     { type |= SSGA_TYPE_CYLINDER ; regenerate () ; }
-ssgaCylinder::ssgaCylinder (int nt) : ssgaShape ( nt ) { type |= SSGA_TYPE_CYLINDER ; regenerate () ; }
+ssgaSphere  ::ssgaSphere   ( void ) : ssgaShape ()
+{
+ type |= SSGA_TYPE_SPHERE   ;
+ latlong_style = TRUE ;
+ regenerate () ;
+} 
+
+
+ssgaSphere  ::ssgaSphere   (int nt) : ssgaShape ( nt )
+{
+ type |= SSGA_TYPE_SPHERE   ;
+ latlong_style = TRUE ;
+ regenerate () ;
+} 
+
+
+ssgaCylinder::ssgaCylinder ( void ) : ssgaShape ()
+{
+ type |= SSGA_TYPE_CYLINDER ;
+ capped = TRUE ;
+ regenerate () ;
+}
+
+
+ssgaCylinder::ssgaCylinder (int nt) : ssgaShape ( nt )
+{
+ type |= SSGA_TYPE_CYLINDER ;
+ capped = TRUE ;
+ regenerate () ;
+}
+
 
 ssgaShape   ::~ssgaShape    (void) {}
 ssgaCube    ::~ssgaCube     (void) {}
@@ -224,8 +251,205 @@ void ssgaCube    ::regenerate ()
 
 
 
+/*
+  This code is 'inspired' by the function 'sphere' written by
+  David Blythe for GLUT 3.5 and uses his values for the coordinates
+  of the initial Icosahedron.
+*/
+ 
+#define CZ 0.89442719099991f   /* 2/sqrt(5) */
+#define SZ 0.44721359549995f   /* 1/sqrt(5) */
+#define C1 0.951056516f        /* cos(18) */
+#define S1 0.309016994f        /* sin(18) */
+#define C2 0.587785252f        /* cos(54) */
+#define S2 0.809016994f        /* sin(54) */
+#define X1 (C1*CZ)
+#define Y1 (S1*CZ)
+#define X2 (C2*CZ)
+#define Y2 (S2*CZ)
+ 
+#define P0 {   0,   0,   1 }
+#define P1 { -X2, -Y2,  SZ }
+#define P2 {  X2, -Y2,  SZ }
+#define P3 {  X1,  Y1,  SZ }
+#define P4 {   0,  CZ,  SZ }
+#define P5 { -X1,  Y1,  SZ }
+#define P6 { -X1, -Y1, -SZ }
+#define P7 {   0, -CZ, -SZ }
+#define P8 {  X1, -Y1, -SZ }
+#define P9 {  X2,  Y2, -SZ }
+#define PA { -X2,  Y2, -SZ }
+#define PB {   0,   0,  -1 }
 
-void ssgaSphere::regenerate ()
+struct Triangle
+{
+  sgVec3 v0, v1, v2 ;
+} ;
+ 
+ 
+static Triangle icosahedron [ 20 ] =
+{
+  { P0, P1, P2 }, { P0, P5, P1 }, { P0, P4, P5 }, { P0, P3, P4 }, { P0, P2, P3 },
+  { P1, P6, P7 }, { P6, P1, P5 }, { P5, PA, P6 }, { PA, P5, P4 }, { P4, P9, PA },
+  { P9, P4, P3 }, { P3, P8, P9 }, { P8, P3, P2 }, { P2, P7, P8 }, { P7, P2, P1 },
+  { P9, P8, PB }, { PA, P9, PB }, { P6, PA, PB }, { P7, P6, PB }, { P8, P7, PB }
+} ;
+
+
+
+void ssgaSphere::regenerateTessellatedIcosahedron ()
+{
+  removeAllKids () ;
+
+  int tris_per_strip = 1 ;
+  int nstrips = 1 ;
+  int nt = 20 ;
+ 
+  while ( nt < ntriangles )
+  {
+    nstrips++ ;
+    tris_per_strip += 2 ;
+    nt += tris_per_strip * 20 ;
+  }
+ 
+  /* 20 sides of an Icosahedron */
+ 
+  for ( int s = 0 ; s < 20 ; s++ )
+  {
+    Triangle *tri = & icosahedron [ s ] ;
+ 
+    for ( int i = 0 ; i < nstrips ; i++ )
+    {
+      /*
+        Create a tri-strip for each row
+        The number of triangles in each strip is two greater
+        than the last one.
+      */
+ 
+      sgVec3 v0, v1, v2, v3, va, vb ;
+ 
+      /*
+                          t->v[0]
+                             /\
+                            /  \
+                           /____\v1
+                          /\    /\
+                         /  \  /  \
+                        /____\/vb__\v0
+                       /\    /\    /\
+                      /  \  /  \  /  \
+                     /____\/____\/va__\
+                    /\    /\    /\    /\
+                   /  \  /  \  /  \  /  \
+          t->v[2] /____\/____\/____\/____\ t->v[1]
+                       v3     v2
+      */
+ 
+      /*
+        This should be a spherical interpolation - but that's slow and
+        nobody can tell the difference anyway
+      */
+
+      ssgVtxTable      *vt = new ssgVtxTable ;
+      ssgVertexArray   *vv = new ssgVertexArray   ( i + 3 ) ;
+      ssgNormalArray   *nn = new ssgNormalArray   ( i + 3 ) ;
+      ssgColourArray   *cc = new ssgColourArray   ( i + 3 ) ;
+      ssgTexCoordArray *tt = new ssgTexCoordArray ( i + 3 ) ;
+
+      addKid ( vt ) ;
+
+      vt -> setState    ( getKidState () ) ;
+      vt -> setCallback ( SSG_CALLBACK_PREDRAW , getKidPreDrawCB  () ) ;
+      vt -> setCallback ( SSG_CALLBACK_POSTDRAW, getKidPostDrawCB () ) ;
+
+      sgVec3 v ; sgVec3 n ; sgVec2 t ; sgVec4 c ;
+
+      sgSetVec4 ( c, 1, 1, 1, 1 ) ;
+
+      vt -> setPrimitiveType ( GL_TRIANGLE_STRIP ) ;
+
+      sgLerpVec3 ( v0, tri->v1, tri->v0, (float)(i+1) / (float) nstrips ) ;
+      sgLerpVec3 ( v1, tri->v1, tri->v0, (float)  i   / (float) nstrips ) ;
+      sgLerpVec3 ( v2, tri->v1, tri->v2, (float)(i+1) / (float) nstrips ) ;
+      sgLerpVec3 ( v3, tri->v1, tri->v2, (float)  i   / (float) nstrips ) ;
+
+      sgNormalizeVec3 ( v0 ) ;
+      sgNormalizeVec3 ( v1 ) ;
+      sgNormalizeVec3 ( v2 ) ;
+      sgNormalizeVec3 ( v3 ) ;
+
+      sgSetVec3 ( v, center[0]+size[0]*v0[0],
+                     center[1]+size[1]*v0[1],
+                     center[2]+size[2]*v0[2] ) ;
+      sgSetVec3 ( n, size[0]*v0[0],
+                     size[1]*v0[1],
+                     size[2]*v0[2] ) ;
+      sgNormalizeVec3 ( n ) ;
+      sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v0[2]/2.0f ) ;
+      vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
+    
+      sgSetVec3 ( v, center[0]+size[0]*v1[0],
+                     center[1]+size[1]*v1[1],
+                     center[2]+size[2]*v1[2] ) ;
+      sgSetVec3 ( n, size[0]*v1[0],
+                     size[1]*v1[1],
+                     size[2]*v1[2] ) ;
+      sgNormalizeVec3 ( n ) ;
+      sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v1[2]/2.0f ) ;
+      vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
+
+      for ( int j = 0 ; j < i ; j++ )
+      {
+        sgLerpVec3 ( va, v0, v2, (float)(j+1) / (float) (i+1) ) ;
+        sgLerpVec3 ( vb, v1, v3, (float)(j+1) / (float)   i   ) ;
+        sgNormalizeVec3 ( va ) ;
+        sgNormalizeVec3 ( vb ) ;
+ 
+	sgSetVec3 ( v, center[0]+size[0]*va[0],
+		       center[1]+size[1]*va[1],
+		       center[2]+size[2]*va[2] ) ;
+	sgSetVec3 ( n, size[0]*va[0],
+		       size[1]*va[1],
+		       size[2]*va[2] ) ;
+	sgNormalizeVec3 ( n ) ;
+        sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+va[2]/2.0f ) ;
+	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
+
+	sgSetVec3 ( v, center[0]+size[0]*vb[0],
+		       center[1]+size[1]*vb[1],
+		       center[2]+size[2]*vb[2] ) ;
+	sgSetVec3 ( n, size[0]*vb[0],
+		       size[1]*vb[1],
+		       size[2]*vb[2] ) ;
+	sgNormalizeVec3 ( n ) ;
+        sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+vb[2]/2.0f ) ;
+	vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
+      }
+ 
+      sgSetVec3 ( v, center[0]+size[0]*v2[0],
+                     center[1]+size[1]*v2[1],
+                     center[2]+size[2]*v2[2] ) ;
+      sgSetVec3 ( n, size[0]*v2[0],
+                     size[1]*v2[1],
+                     size[2]*v2[2] ) ;
+      sgNormalizeVec3 ( n ) ;
+      sgSetVec2 ( t, atan2(n[0],n[1])/(SG_PI*2.0f)+0.5f, 0.5f+v2[2]/2.0f ) ;
+      vv->add(v) ; nn->add(n) ; cc->add(c) ; tt->add(t) ;
+
+      vt -> setVertices  ( vv ) ;
+      vt -> setNormals   ( nn ) ;
+      vt -> setColours   ( cc ) ;
+      vt -> setTexCoords ( tt ) ;
+
+      vt -> recalcBSphere () ;
+    }
+  }
+
+  recalcBSphere () ;
+}
+
+
+void ssgaSphere::regenerateLatLong ()
 {
   int stacks = (int) sqrt ( (double) ntriangles / 2.0f ) ;
   int slices = ntriangles / stacks ;
@@ -353,6 +577,14 @@ void ssgaSphere::regenerate ()
 }
 
 
+void ssgaSphere::regenerate ()
+{
+  if ( latlong_style )
+    regenerateLatLong () ;
+  else
+    regenerateTessellatedIcosahedron () ;
+}
+
 
 
 void ssgaCylinder::regenerate ()
@@ -407,8 +639,71 @@ void ssgaCylinder::regenerate ()
   vt -> setNormals   ( nn ) ;
   vt -> setColours   ( cc ) ;
   vt -> setTexCoords ( tt ) ;
-
   vt -> recalcBSphere () ;
+
+  if ( capped )
+  {
+    ssgVtxTable      *vt0 = new ssgVtxTable ;
+    ssgVtxTable      *vt1 = new ssgVtxTable ;
+
+    ssgVertexArray   *vv0 = new ssgVertexArray   ( slices ) ;
+    ssgNormalArray   *nn0 = new ssgNormalArray   ( slices ) ;
+    ssgColourArray   *cc0 = new ssgColourArray   ( slices ) ;
+    ssgTexCoordArray *tt0 = new ssgTexCoordArray ( slices ) ;
+
+    ssgVertexArray   *vv1 = new ssgVertexArray   ( slices ) ;
+    ssgNormalArray   *nn1 = new ssgNormalArray   ( slices ) ;
+    ssgColourArray   *cc1 = new ssgColourArray   ( slices ) ;
+    ssgTexCoordArray *tt1 = new ssgTexCoordArray ( slices ) ;
+
+    addKid ( vt0 ) ;
+    addKid ( vt1 ) ;
+
+    vt0 -> setState    ( getKidState () ) ;
+    vt0 -> setCallback ( SSG_CALLBACK_PREDRAW , getKidPreDrawCB  () ) ;
+    vt0 -> setCallback ( SSG_CALLBACK_POSTDRAW, getKidPostDrawCB () ) ;
+
+    vt1 -> setState    ( getKidState () ) ;
+    vt1 -> setCallback ( SSG_CALLBACK_PREDRAW , getKidPreDrawCB  () ) ;
+    vt1 -> setCallback ( SSG_CALLBACK_POSTDRAW, getKidPostDrawCB () ) ;
+
+    sgVec3 v ; sgVec3 n ; sgVec2 t ; sgVec4 c ;
+
+    sgSetVec4 ( c, 1, 1, 1, 1 ) ;
+
+    vt0 -> setPrimitiveType ( GL_TRIANGLE_FAN ) ;
+    vt1 -> setPrimitiveType ( GL_TRIANGLE_FAN ) ;
+
+    for ( int j = 0 ; j < slices ; j++ )
+    {
+      float a0 = (float)(1+slices-j) * SG_PI * 2.0f / (float) slices ;
+      float a1 = (float)      j      * SG_PI * 2.0f / (float) slices ;
+
+      /* Top */
+
+      sgSetVec3 ( v, center[0] + size[0]*sin(a0)/2.0f,
+		     center[1] + size[1]*cos(a0)/2.0f,
+		     center[2] + size[2] / 2.0f ) ;
+      sgSetVec3 ( n, 0, 0, 1 ) ;
+      sgSetVec2 ( t, 0.5 + sin(a0)/2.0f, 0.5 + cos(a0)/2.0f ) ;
+      vv0->add(v) ; nn0->add(n) ; cc0->add(c) ; tt0->add(t) ;
+
+      /* Bottom */
+
+      sgSetVec3 ( v, center[0] + size[0]*sin(a1)/2.0f,
+		     center[1] + size[1]*cos(a1)/2.0f,
+		     center[2] - size[2] / 2.0f ) ;
+      sgSetVec3 ( n, 0, 0, -1 ) ;
+      sgSetVec2 ( t, 0.5 + sin(a1)/2.0f, 0.5 + cos(a1)/2.0f ) ;
+      vv1->add(v) ; nn1->add(n) ; cc1->add(c) ; tt1->add(t) ;
+    }
+
+    vt0 -> setVertices  ( vv0 ) ; vt1 -> setVertices  ( vv1 ) ;
+    vt0 -> setNormals   ( nn0 ) ; vt1 -> setNormals   ( nn1 ) ;
+    vt0 -> setColours   ( cc0 ) ; vt1 -> setColours   ( cc1 ) ;
+    vt0 -> setTexCoords ( tt0 ) ; vt1 -> setTexCoords ( tt1 ) ;
+    vt0 -> recalcBSphere  ()    ; vt1 -> recalcBSphere  () ;
+  }
 
   recalcBSphere () ;
 }

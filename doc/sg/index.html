@@ -370,6 +370,7 @@ The following functions exist:
 <li>  ScalarProduct - scalar (dot) product.
 <li>  VectorProduct - vector (cross) product (3-element vectors ONLY!).
 <li>  Normalise/Normalize - make vector be one unit long.
+<li>  Lerp      - linear interpolate between a and b by fraction 'f'.
 </ul>
 Here are all the function prototypes - as you can see, the names
 are 100% consistent and the paramter order is easy to remember.
@@ -438,7 +439,11 @@ are 100% consistent and the paramter order is easy to remember.
   SGfloat sgScalarProductVec3 ( sgVec3 a, sgVec3 b )
   SGfloat sgScalarProductVec4 ( sgVec4 a, sgVec4 b )
 
-  void sgVectorProductVec3 ( sgVec3 dst, sgVec3 a, sgVec3 b ) ;
+  void sgVectorProductVec3 ( sgVec3 dst, sgVec3 a, sgVec3 b )
+
+  void sgLerp2 ( sgVec2 dst, sgVec2 a, sgVec2 b, SGfloat f )
+  void sgLerp3 ( sgVec3 dst, sgVec3 a, sgVec3 b, SGfloat f )
+  void sgLerp4 ( sgVec4 dst, sgVec4 a, sgVec4 b, SGfloat f )
 
   SGfloat sgDistanceSquaredVec2 ( sgVec2 a, sgVec2 b )
   SGfloat sgDistanceSquaredVec3 ( sgVec3 a, sgVec3 b )

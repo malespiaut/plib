@@ -87,6 +87,10 @@ public:
 
 class ssgaSphere : public ssgaShape
 {
+  int latlong_style ;
+
+  void regenerateLatLong () ;
+  void regenerateTessellatedIcosahedron () ;
 protected:
   virtual void copy_from ( ssgaSphere *src, int clone_flags ) ;
 public:
@@ -96,12 +100,17 @@ public:
   virtual ~ssgaSphere (void) ;
   virtual char *getTypeName(void) ;
   virtual void regenerate () ;
+
+  void setLatLongStyle ( int ll ) { latlong_style = ll ; regenerate () ; }
+  int  isLatLongStyle  ()         { return latlong_style ; }
 } ;
 
 
 
 class ssgaCylinder : public ssgaShape
 {
+  int capped ;
+
 protected:
   virtual void copy_from ( ssgaCylinder *src, int clone_flags ) ;
 public:
@@ -111,6 +120,9 @@ public:
   virtual ~ssgaCylinder (void) ;
   virtual char *getTypeName(void) ;
   virtual void regenerate () ;
+
+  void makeCapped ( int c ) { capped = c ; regenerate () ; }
+  int  isCapped   ()        { return capped ; }
 } ;
 
 #endif

@@ -515,6 +515,26 @@ inline SGfloat sgScalarProductVec4 ( const sgVec4 a, const sgVec4 b )
 
 extern void sgVectorProductVec3 ( sgVec3 dst, const sgVec3 a, const sgVec3 b ) ;
 
+inline void sgLerpVec4 ( sgVec4 dst, const sgVec4 a, const sgVec4 b, const SGfloat f )
+{
+  dst[0] = a[0] + f * ( b[0] - a[0] ) ;
+  dst[1] = a[1] + f * ( b[1] - a[1] ) ;
+  dst[2] = a[2] + f * ( b[2] - a[2] ) ;
+  dst[3] = a[3] + f * ( b[3] - a[3] ) ;
+}
+
+inline void sgLerpVec3 ( sgVec3 dst, const sgVec3 a, const sgVec3 b, const SGfloat f )
+{
+  dst[0] = a[0] + f * ( b[0] - a[0] ) ;
+  dst[1] = a[1] + f * ( b[1] - a[1] ) ;
+  dst[2] = a[2] + f * ( b[2] - a[2] ) ;
+}
+
+inline void sgLerpVec2 ( sgVec2 dst, const sgVec2 a, const sgVec2 b, const SGfloat f )
+{
+  dst[0] = a[0] + f * ( b[0] - a[0] ) ;
+  dst[1] = a[1] + f * ( b[1] - a[1] ) ;
+}
 
 inline SGfloat sgDistanceSquaredVec2 ( const sgVec2 a, const sgVec2 b )
 {
@@ -884,7 +904,9 @@ public:
     update () ;
   }
 
-  void setFrustum ( const SGfloat l, const SGfloat r, const SGfloat b, const SGfloat t, const SGfloat n, const SGfloat f )
+  void setFrustum ( const SGfloat l, const SGfloat r,
+                    const SGfloat b, const SGfloat t,
+                    const SGfloat n, const SGfloat f )
   {
     left  = l ; right = r ;
     top   = t ; bot   = b ;
@@ -1294,6 +1316,7 @@ inline void sgdFullXformPnt4 ( sgdVec4 dst, const sgdMat4 mat ) { sgdFullXformPn
   ScalarProduct - scalar (dot) product.
   VectorProduct - vector (cross) product (3-element vectors ONLY!).
   Normalise/Normalize - make vector be one unit long.
+  Lerp      - linear interpolation by a fraction 'f'.
 */
 
 inline void sgdZeroVec2 ( sgdVec2 dst ) { dst[0]=dst[1]=SGD_ZERO ; }
@@ -1637,6 +1660,29 @@ inline SGDfloat sgdScalarProductVec4 ( const sgdVec4 a, const sgdVec4 b )
 
 
 extern void sgdVectorProductVec3 ( sgdVec3 dst, const sgdVec3 a, const sgdVec3 b ) ;
+
+
+inline void sgdLerpVec4 ( sgdVec4 dst, const sgdVec4 a, const sgdVec4 b, const SGDfloat f )
+{
+  dst[0] = a[0] + f * ( b[0] - a[0] ) ;
+  dst[1] = a[1] + f * ( b[1] - a[1] ) ;
+  dst[2] = a[2] + f * ( b[2] - a[2] ) ;
+  dst[3] = a[3] + f * ( b[3] - a[3] ) ;
+}
+
+inline void sgdLerpVec3 ( sgdVec3 dst, const sgdVec3 a, const sgdVec3 b, const SGDfloat f )
+{
+  dst[0] = a[0] + f * ( b[0] - a[0] ) ;
+  dst[1] = a[1] + f * ( b[1] - a[1] ) ;
+  dst[2] = a[2] + f * ( b[2] - a[2] ) ;
+}
+
+inline void sgdLerpVec2 ( sgdVec2 dst, const sgdVec2 a, const sgdVec2 b, const SGDfloat f )
+{
+  dst[0] = a[0] + f * ( b[0] - a[0] ) ;
+  dst[1] = a[1] + f * ( b[1] - a[1] ) ;
+}
+
 
 inline SGDfloat sgdDistanceSquaredVec2 ( const sgdVec2 a, const sgdVec2 b )
 {
@@ -2003,7 +2049,9 @@ public:
     update () ;
   }
 
-  void setFrustum ( const SGDfloat l, const SGDfloat r, const SGDfloat b, const SGDfloat t, const SGDfloat n, const SGDfloat f )
+  void setFrustum ( const SGDfloat l, const SGDfloat r,
+                    const SGDfloat b, const SGDfloat t,
+                    const SGDfloat n, const SGDfloat f )
   {
     left  = l ; right = r ;
     top   = t ; bot   = b ;
