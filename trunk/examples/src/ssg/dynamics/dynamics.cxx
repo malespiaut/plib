@@ -143,25 +143,26 @@ float getHeightAndNormal ( sgVec3 my_position, sgVec3 normal )
 
 
 
-#define RESTITUTION 0.9
+#define RESTITUTION 0.9f
 
 
 void updateSMD ( float dt )
 {
-  for ( int i = 0 ; i < num_particles ; i++ )
+	int i;
+  for ( i = 0 ; i < num_particles ; i++ )
   {
     sgVec3 friction ;
 
-    sgScaleVec3 ( friction, particle[i]->getVel (), 0.1 ) ;
+    sgScaleVec3 ( friction, particle[i]->getVel (), 0.1f ) ;
 
     particle [ i ] -> gravityOnly () ;
     particle [ i ] -> subForce ( friction ) ;
   }
 
-  for ( int i = 0 ; i < num_springs ; i++ )
+  for ( i = 0 ; i < num_springs ; i++ )
     spring [ i ] -> update () ;
 
-  for ( int i = 0 ; i < num_particles ; i++ )
+  for ( i = 0 ; i < num_particles ; i++ )
   {
     particle [ i ] -> update ( dt ) ;
 
@@ -176,7 +177,7 @@ void updateSMD ( float dt )
     }
   }
 
-  for ( int i = 0 ; i < num_particles ; i++ )
+  for ( i = 0 ; i < num_particles ; i++ )
     cube [ i ] -> setTransform ( particle[i] -> getPos () ) ;
 }
 
