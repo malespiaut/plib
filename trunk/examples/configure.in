@@ -78,9 +78,8 @@ case "${host}" in
 *-*-cygwin* | *-*-mingw32*)
     dnl CygWin under Windoze.
 
-    dnl Multimedia libraries
-    SND_LIBS="-lwinmm"
-    JS_LIBS="-lwinmm"
+    dnl Sound / joystick stuff, mmtimer (ulClock !)
+    LIBS="$LIBS -lwinmm"
 
     dnl OpenGL libraries
     OGL_LIBS="-lglu32 -lopengl32"
@@ -149,22 +148,13 @@ dnl =========================================================
     fi
 
     dnl Check SGI audio library
-    AC_CHECK_LIB(audio, ALopenport)
-
-    if test "x$ac_cv_lib_audio_ALopenport" = "xyes" ; then
-    dnl this is an SGI machine...
-        SND_LIBS="-laudio"
-    fi
-
-    CPPFLAGS="$CPPFLAGS -I/usr/local/include"
-    LDFLAGS="$LDFLAGS -L/usr/local/lib"
+    AC_CHECK_LIB(audio, ALopenport, SND_LIBS="-laudio")
 	;;
 esac
 
 AC_SUBST(OGL_LIBS)
 AC_SUBST(GLUT_LIBS)
 AC_SUBST(SND_LIBS)
-AC_SUBST(JS_LIBS)
 
 
 dnl Check PLIB library
