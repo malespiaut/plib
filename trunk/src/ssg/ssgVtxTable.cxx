@@ -567,6 +567,10 @@ void ssgVtxTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
 void ssgVtxTable::print ( FILE *fd, char *indent, int how_much )
 {
 	char in [ 100 ] ;
+
+	if ( how_much == 0 ) 
+		return; // dont print anything
+  
   sprintf ( in, "%s  ", indent );
 	
   ssgLeaf  ::print ( fd, indent, how_much ) ;

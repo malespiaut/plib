@@ -213,6 +213,10 @@ int ssgVtxArray::getNumTriangles ()
 void ssgVtxArray::print ( FILE *fd, char *indent, int how_much )
 {
 	char in [ 100 ] ;
+
+	if ( how_much == 0 ) 
+		return; // dont print anything
+  
   sprintf ( in, "%s  ", indent );
 	
 	// wk: Why were these 2 lines commented out?:
