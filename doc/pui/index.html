@@ -678,9 +678,11 @@ PUI to use his rendering callback instead of the usual drawing function
 by invoking the following function:
 <pre>  void puObject::setRenderCallback ( puRenderCallback *c, void *d = NULL ) ;</pre>
 The two arguments are the name of the render callback and an optional pointer
-to the user-defined render data.  At the start of every widget's draw
-function, it checks for the existence of a render callback and, if it exists,
-it calls it instead of executing the code in the draw function.
+to the user-defined render data. If a render callback exists, the widget's
+draw function renders only the activity box (unless PUSTYLE_NONE is used)
+and the label (if you specifed one) and calls the render callback
+afterwards instead of executing the code which would normally be used
+to draw the widget.
 <p>
 PUI also has functions to allow the user to retrieve and invoke the
 render callback:
