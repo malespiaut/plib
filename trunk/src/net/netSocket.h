@@ -49,6 +49,7 @@
  */
 class netAddress
 {
+  /* DANGER!!!  This MUST match 'struct sockaddr_in' exactly! */
   short          sin_family     ;
   unsigned short sin_port       ;
   unsigned int   sin_addr       ;

@@ -76,35 +76,23 @@ void netAddress::set ( const char* host, int port )
 
   if (host[0] == '\0')
     sin_addr = INADDR_ANY;
-
+  else
   if (host[0] == '<' && strcmp(host, "<broadcast>") == 0)
     sin_addr = INADDR_BROADCAST;
   else
   {
-#if 0
-  	int d1, d2, d3, d4;
-  	char ch;
-  	if (sscanf(host, "%d.%d.%d.%d%c", &d1, &d2, &d3, &d4, &ch) == 4 &&
-  	    0 <= d1 && d1 <= 255 && 0 <= d2 && d2 <= 255 &&
-  	    0 <= d3 && d3 <= 255 && 0 <= d4 && d4 <= 255) {
-  		sin_addr = htonl(
-  			((long) d1 << 24) | ((long) d2 << 16) |
-  			((long) d3 << 8) | ((long) d4 << 0));
-  	}
-    else  //let's try gethostbyname()
-#else
-    sin_addr = inet_addr(host);
+    sin_addr = inet_addr ( host ) ;
+
     if ( sin_addr == INADDR_NONE )
-#endif
     {
-    	struct hostent *hp = gethostbyname(host);
-    	if (hp != NULL)
+      struct hostent *hp = gethostbyname ( host ) ;
+
+      if ( hp != NULL )
+      	memcpy ( (char *) &sin_addr, hp->h_addr, hp->h_length ) ;
+      else
       {
-      	memcpy((char *) &sin_addr, hp->h_addr, hp->h_length);
-      }
-      else  //failure
-      {
-        sin_addr = INADDR_ANY;
+        perror ( "netAddress::set" ) ;
+        sin_addr = INADDR_ANY ;
       }
     }
   }
@@ -135,6 +123,7 @@ int netAddress::getPort() const
   return ntohs(sin_port);
 }
 
+
 const char* netAddress::getLocalHost ()
 {
   //gethostbyname(gethostname())
@@ -157,19 +146,23 @@ const char* netAddress::getLocalHost ()
 }
 
 
-bool netAddress::getBroadcast () const {
-    return sin_addr == INADDR_BROADCAST;
+bool netAddress::getBroadcast () const
+{
+  return sin_addr == INADDR_BROADCAST;
 }
+
 
 netSocket::netSocket ()
 {
   handle = -1 ;
 }
 
+
 netSocket::~netSocket ()
 {
   close () ;
 }
+
 
 void netSocket::setHandle (int _handle)
 {
@@ -177,26 +170,28 @@ void netSocket::setHandle (int _handle)
   handle = _handle ;
 }
 
-bool
-netSocket::open ( bool stream )
+
+bool netSocket::open ( bool stream )
 {
   close () ;
   handle = ::socket ( AF_INET, (stream? SOCK_STREAM: SOCK_DGRAM), 0 ) ;
   return (handle != -1);
 }
 
-void
-netSocket::setBlocking ( bool blocking )
+
+void netSocket::setBlocking ( bool blocking )
 {
   assert ( handle != -1 ) ;
 
 #if defined(UL_CYGWIN) || !defined (UL_WIN32)
 
-	int delay_flag = ::fcntl (handle, F_GETFL, 0);
-	if (blocking)
-		delay_flag &= (~O_NDELAY);
-	else
-		delay_flag |= O_NDELAY;
+  int delay_flag = ::fcntl (handle, F_GETFL, 0);
+
+  if (blocking)
+    delay_flag &= (~O_NDELAY);
+  else
+    delay_flag |= O_NDELAY;
+
   ::fcntl (handle, F_SETFL, delay_flag);
 
 #else
@@ -207,8 +202,8 @@ netSocket::setBlocking ( bool blocking )
 #endif
 }
 
-void
-netSocket::setBroadcast ( bool broadcast )
+
+void netSocket::setBroadcast ( bool broadcast )
 {
   assert ( handle != -1 ) ;
   int result;
@@ -228,31 +223,31 @@ netSocket::setBroadcast ( bool broadcast )
   assert ( result != -1 );
 }
 
-int
-netSocket::bind ( const char* host, int port )
+
+int netSocket::bind ( const char* host, int port )
 {
   assert ( handle != -1 ) ;
   netAddress addr ( host, port ) ;
   return ::bind(handle,(const sockaddr*)&addr,sizeof(netAddress));
 }
 
-int
-netSocket::listen ( int backlog )
+
+int netSocket::listen ( int backlog )
 {
   assert ( handle != -1 ) ;
   return ::listen(handle,backlog);
 }
 
-int
-netSocket::accept ( netAddress* addr )
+
+int netSocket::accept ( netAddress* addr )
 {
   assert ( handle != -1 ) ;
   socklen_t addr_len = (socklen_t) sizeof(netAddress) ;
   return ::accept(handle,(sockaddr*)addr,&addr_len);
 }
 
-int
-netSocket::connect ( const char* host, int port )
+
+int netSocket::connect ( const char* host, int port )
 {
   assert ( handle != -1 ) ;
   netAddress addr ( host, port ) ;
@@ -262,37 +257,40 @@ netSocket::connect ( const char* host, int port )
   return ::connect(handle,(const sockaddr*)&addr,sizeof(netAddress));
 }
 
-int
-netSocket::send (const void * buffer, int size, int flags)
+
+int netSocket::send (const void * buffer, int size, int flags)
 {
   assert ( handle != -1 ) ;
   return ::send (handle, (const char*)buffer, size, flags);
 }
 
-int
-netSocket::sendto ( const void * buffer, int size, int flags, const netAddress* to )
+
+int netSocket::sendto ( const void * buffer, int size,
+                        int flags, const netAddress* to )
 {
   assert ( handle != -1 ) ;
-  return ::sendto(handle,(const char*)buffer,size,flags,(const sockaddr*)to,sizeof(netAddress));
+  return ::sendto(handle,(const char*)buffer,size,flags,
+                         (const sockaddr*)to,sizeof(netAddress));
 }
 
-int
-netSocket::recv (void * buffer, int size, int flags)
+
+int netSocket::recv (void * buffer, int size, int flags)
 {
   assert ( handle != -1 ) ;
   return ::recv (handle, (char*)buffer, size, flags);
 }
 
-int
-netSocket::recvfrom ( void * buffer, int size, int flags, netAddress* from )
+
+int netSocket::recvfrom ( void * buffer, int size,
+                          int flags, netAddress* from )
 {
   assert ( handle != -1 ) ;
   socklen_t fromlen = (socklen_t) sizeof(netAddress) ;
   return ::recvfrom(handle,(char*)buffer,size,flags,(sockaddr*)from,&fromlen);
 }
 
-void
-netSocket::close (void)
+
+void netSocket::close (void)
 {
   if ( handle != -1 )
   {
@@ -305,8 +303,8 @@ netSocket::close (void)
   }
 }
 
-bool
-netSocket::isNonBlockingError ()
+
+bool netSocket::isNonBlockingError ()
 {
 #if defined(UL_CYGWIN) || !defined (UL_WIN32)
   switch (errno) {
@@ -333,8 +331,8 @@ netSocket::isNonBlockingError ()
 #endif
 }
 
-int
-netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
+
+int netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
 {
   fd_set r,w;
   
@@ -404,7 +402,9 @@ netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
   return num ;
 }
 
+
 /* Init/Exit functions */
+
 static void netExit ( void )
 {
 #if defined(UL_CYGWIN) || !defined (UL_WIN32)
@@ -419,12 +419,14 @@ static void netExit ( void )
 #endif
 }
 
+
 int netInit ( int* argc, char** argv )
 {
   /* Legacy */
 
   return netInit () ;
 }
+
 
 int netInit ()
 {
@@ -445,6 +447,7 @@ int netInit ()
   atexit( netExit ) ;
 	return(0);
 }
+
 
 const char* netFormat ( const char* format, ... )
 {
