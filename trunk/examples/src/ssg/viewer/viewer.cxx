@@ -75,6 +75,7 @@ Defines what type of arrows to uses with puFileSelector
 scene graph
 */
 static ssgRoot *scene = NULL ;
+static ssgContext *context = NULL ;
 static ssgEntity* camera_object = NULL ;
 
 /*
@@ -99,7 +100,7 @@ static const int speed_tab [] =
 { 0, 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60 };
 
 static int speed_index = 1 ;
-static int anim_frame ;
+//static int anim_frame ;
 static int num_anim_frames ;
 
 /*
@@ -143,8 +144,9 @@ static GLfloat Ex     = 0.0f;
 static GLfloat Ey     = 0.0f;
 static GLfloat Ez     = 0.0f;
 
-//#define FOV 60.0f
-#define FOV 45.0f
+#define FOVY 45.0f
+#define NEAR 2.0f
+#define FAR  10000.0f
 
 static int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
 static int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
@@ -381,11 +383,19 @@ static void follow_camera ( sgMat4 mat )
 
 /*
   The GLUT window reshape event
+  Fixed to properly maintain aspect ratio.
 */
 
 static void reshape ( int w, int h )
 {
   glViewport ( 0, 0, w, h ) ;
+
+  float aspect = w / (float)h;
+  float angle = 0.5 * FOVY * M_PI / 180.0;
+  float y = NEAR * tan(angle);
+  float x = aspect * y;
+
+  context->setFrustum(-x,x,-y,y,NEAR,FAR);
 }
 
 
@@ -402,7 +412,8 @@ static void display(void)
   sgMat4 mat ;
   make_matrix ( mat ) ;
   follow_camera ( mat ) ;
-  ssgSetCamera ( mat );
+
+  context->setCamera ( mat );
   
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
@@ -660,7 +671,7 @@ static void pick_cb ( puObject * )
   wire_update ( scene, wire_flag ) ;
   
   SGfloat radius = scene->getBSphere()->getRadius();
-  EyeDist = float( radius * 1.5f / tan( float( FOV/2 * SG_DEGREES_TO_RADIANS ) ) );
+  EyeDist = float( radius * 1.5f / tan( float( FOVY/2 * SG_DEGREES_TO_RADIANS ) ) );
   
   sgSphere sp = *( scene -> getBSphere() ) ;
   if ( sp.isEmpty() )
@@ -793,13 +804,6 @@ static void init_graphics ()
   puInit () ;
   
   /*
-  Set up the viewing parameters
-  */
-  
-  ssgSetFOV     ( FOV, 0.0f ) ;
-  ssgSetNearFar ( 2.0f, 10000.0f ) ;
-  
-  /*
     Set up the Sun.
   */
 
@@ -821,6 +825,9 @@ static void init_graphics ()
   */
   
   scene = new ssgRoot      ;
+  context = new ssgContext ;
+  context->setCullface( true ) ;
+  context->makeCurrent ( ) ;
   
   /*
   ** Set up PU
