@@ -42,6 +42,8 @@ puSlider    *waveSizeSlider     = (puSlider    *) NULL ;
 puSlider    *wavePolycountSlider= (puSlider    *) NULL ;
 
 ssgRoot            *scene        = NULL ;
+ssgaLensFlare      *sun_obj      = NULL ;
+ssgTransform       *sun          = NULL ;
 ssgTransform       *teapot       = NULL ;
 ssgTransform       *pedestal     = NULL ;
 ssgaWaveSystem     *ocean        = NULL ;
@@ -72,6 +74,7 @@ int   displayGUI = TRUE  ;
 float cam_range  = 25.0f ;
 
 sgCoord campos = { { 0, -20, 8 }, { 0, -30, 0 } } ;
+sgVec3  sunpos = { 400, 300, 50 } ;
 
 int enableTexGen ( ssgEntity * )
 {
@@ -579,9 +582,7 @@ void init_graphics ()
     Set up the Sun.
   */
 
-  sgVec3 sunposn ;
-  sgSetVec3 ( sunposn, 0.1f, -1.0f, 0.1f ) ;
-  ssgGetLight ( 0 ) -> setPosition ( sunposn ) ;
+  ssgGetLight ( 0 ) -> setPosition ( sunpos ) ;
 }
 
 
@@ -738,10 +739,17 @@ void load_database ()
   pedestal -> setTransform    ( & pedpos ) ;
   pedestal -> addKid          ( ped_obj  ) ;
 
+  sun_obj  = new ssgaLensFlare () ;
+
+  sun      = new ssgTransform ;
+  sun      -> setTransform    ( sunpos ) ;
+  sun      -> addKid          ( sun_obj  ) ;
+
   scene    =  new ssgRoot ;
   scene    -> addKid          ( ocean    ) ;
   scene    -> addKid          ( pedestal ) ;
   scene    -> addKid          ( teapot   ) ;
+  scene    -> addKid          ( sun      ) ;
 }
 
 

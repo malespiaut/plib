@@ -30,6 +30,7 @@
 #include "ssgaShapes.h"
 #include "ssgaParticleSystem.h"
 #include "ssgaWaveSystem.h"
+#include "ssgaLensFlare.h"
 
 
 #define _SSGA_TYPE_SHAPE          0x00008000
@@ -40,6 +41,7 @@
 #define _SSGA_TYPE_TEAPOT         0x00020000
 #define _SSGA_TYPE_PARTICLESYSTEM 0x00040000
 #define _SSGA_TYPE_WAVESYSTEM     0x00080000
+#define _SSGA_TYPE_LENSFLARE      0x00100000
 
 inline int ssgaTypeShape   () { return _SSGA_TYPE_SHAPE    | ssgTypeBranch ();}
 inline int ssgaTypeCube    () { return _SSGA_TYPE_CUBE     | ssgaTypeShape ();}
@@ -51,6 +53,8 @@ inline int ssgaTypeParticleSystem ()
                         { return _SSGA_TYPE_PARTICLESYSTEM | ssgaTypeShape ();}
 inline int ssgaTypeWaveSystem ()
                         { return _SSGA_TYPE_WAVESYSTEM | ssgaTypeShape ();}
+inline int ssgaTypeLensFlare ()
+                        { return _SSGA_TYPE_LENSFLARE | ssgaTypeShape ();}
 
 void ssgaInit () ;
 
