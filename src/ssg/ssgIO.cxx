@@ -482,6 +482,7 @@ static _ssgFileFormat formats[] =
   { ".ssg", ssgLoadSSG , ssgSaveSSG },
   { ".tri", ssgLoadTRI , ssgSaveTRI },
   { ".wrl", ssgLoadVRML, NULL       },
+  { ".md2", ssgLoadMD2 , NULL       },
   { NULL  , NULL       , NULL       }
 } ;
 

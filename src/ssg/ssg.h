@@ -1864,6 +1864,30 @@ char* _ssgMakePath( char* path, const char* dir, const char* fname ) ;
 
 /* Load/Save functions */
 
+enum {
+	SSG_MD2_STAND,
+	SSG_MD2_RUN,
+	SSG_MD2_ATTACK,
+	SSG_MD2_PAIN_1,
+	SSG_MD2_PAIN_2,
+	SSG_MD2_PAIN_3,
+	SSG_MD2_JUMP,
+	SSG_MD2_FLIPOFF,
+	SSG_MD2_SALUTE,
+	SSG_MD2_TAUNT,
+	SSG_MD2_WAVE,
+	SSG_MD2_POINT,
+	SSG_MD2_CROUCH_STAND,
+	SSG_MD2_CROUCH_WALK,
+	SSG_MD2_CROUCH_PAIN,
+	SSG_MD2_CROUCH_DEATH,
+	SSG_MD2_DEATH_1,
+	SSG_MD2_DEATH_2,
+	SSG_MD2_DEATH_3,
+	SSG_MD2_ALL,
+	SSG_MD2_POSE
+};
+
 class ssgCreateData
 { 
 public: 
@@ -1903,6 +1927,7 @@ ssgEntity *ssgLoadASE  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadDXF  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadTRI  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadOBJ  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadMD2  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 /* For backwards compatibility */
 
@@ -1910,6 +1935,7 @@ ssgEntity *ssgLoadAC   ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 void ssgFlatten  ( ssgEntity *ent ) ;
 void ssgStripify ( ssgEntity *ent ) ;
+void ssgArrayTool ( ssgEntity *ent, float* _vtol = 0, bool _make_normals = false ) ;
 
 void ssgModelPath   ( const char *path ) ;
 void ssgTexturePath ( const char *path ) ;

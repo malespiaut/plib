@@ -1099,25 +1099,52 @@ inline void sgPreMultQuat ( sgQuat dst, const sgQuat q )
 /* Rotate a quaternion by a given angle and axis (convenience function) */
 
 
-inline void sgRotQuat ( sgQuat dst, const SGfloat angle, const sgVec3 axis )
+inline void sgPreRotQuat ( sgQuat dst, const SGfloat angle, const sgVec3 axis )
 {
   sgQuat q ;
+  sgAngleAxisToQuat ( q, angle, axis ) ;
+  sgPreMultQuat ( dst, q ) ;
+  sgNormaliseQuat ( dst ) ;
+}
 
+
+inline void sgPostRotQuat ( sgQuat dst, const SGfloat angle, const sgVec3 axis )
+{
+  sgQuat q ;
   sgAngleAxisToQuat ( q, angle, axis ) ;
   sgPostMultQuat ( dst, q ) ;
   sgNormaliseQuat ( dst ) ;
 }
 
 
-inline void sgRotQuat ( sgQuat dst,
+inline void sgPreRotQuat ( sgQuat dst,
                         const SGfloat angle,
                         const SGfloat x, const SGfloat y, const SGfloat z )
 {
   sgVec3 axis ;
 
   sgSetVec3 ( axis, x, y, z ) ;
-  sgRotQuat ( dst, angle, axis ) ;
+  sgPreRotQuat ( dst, angle, axis ) ;
 }
+
+inline void sgPostRotQuat ( sgQuat dst,
+                        const SGfloat angle,
+                        const SGfloat x, const SGfloat y, const SGfloat z )
+{
+  sgVec3 axis ;
+
+  sgSetVec3 ( axis, x, y, z ) ;
+  sgPostRotQuat ( dst, angle, axis ) ;
+}
+
+
+/* more meaningful names */
+#define sgWorldRotQuat  sgPostRotQuat
+#define sgLocalRotQuat  sgPreRotQuat
+
+/* for backwards compatibility */
+#define sgRotQuat       sgPostRotQuat
+
 
 /* SWC - Interpolate between to quaternions */
 

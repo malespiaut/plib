@@ -166,6 +166,10 @@ SOURCE=.\ssgLoadDXF.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=.\ssgLoadmd2.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=.\ssgLoadOBJ.cxx
 # End Source File
 # Begin Source File
