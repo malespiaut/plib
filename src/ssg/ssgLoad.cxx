@@ -3,7 +3,8 @@
 
 
 static ssgLoaderOptions default_options ;
-extern ssgLoaderOptions *_ssgCurrentOptions = &default_options ;
+
+ssgLoaderOptions *_ssgCurrentOptions = &default_options ;
 
 
 #ifdef FOR_PPE
