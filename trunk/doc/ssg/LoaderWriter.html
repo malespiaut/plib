@@ -47,7 +47,7 @@ For both ssgVtxTable and ssgVtxArray you need to choose a
 GL-type. I have to admit I was lazy and used <code>GL_TRIANGLES</code>.
 
 
-<H2>1.2The class ssgLoaderWriterMesh</H2>
+<H2>1.2The class ssgLoaderWriterMesh - an Overview</H2>
 
 
 
@@ -70,7 +70,7 @@ poly inside one node (without subdividing the polys into triangles)
 4. Only one normal per vertex.
 <BR><BR>
 To modularize the two steps parsing the format and transfering it to ssg
-and to reduce redundant work, there is a intermediatory structure, the class
+and to reduce redundant work, there is an intermediatory structure, the class
 ssgLoaderWriterMesh. For example, this has a member function
 <pre>
 void ssgLoaderWriterMesh::AddFaceFromCArray(int nNoOfVerticesForThisFace, int *aiVertices);
@@ -87,13 +87,13 @@ and the class adds the information into the scene graph. It handles ssg's restri
 so, for example, if the polys of the mesh use 5 textures then at least 5 nodes will be 
 added to the scene graph.
 Unfortunately the class isn't completely implemented yet, I (Wolfram Kuss, w_kuss@rz-online.de)
-have just implemented those parts I needed for the .X-file loader.
+have just implemented those parts I needed for the ."my" loaders.
 But I urge everyone and am willing to help everyone writing a new loader for a file format that doesnt hold 
 all ssg-restrictions to use this class. Then the loaders will become more consistent 
 and therefore easier to maintain and read. Also, there are a lot of optimizations that can be done
 (for example, if the state is different, but not the texture, do we need several nodes? 
 When we have multitexturing, can we use that? Is there an optimal strip length?
-How do I subdivide polyss into triangles so that the stripifier will work well? etc).
+How do I subdivide polys into triangles so that the stripifier will work well? etc).
 It will be easier to do them once in the ssgLoaderWriterMesh than in all the 
 loaders seperately. BTW, most loaders written before ssgLoaderWriterMesh have some
 sort of intermediatory mesh structure.
@@ -101,6 +101,47 @@ sort of intermediatory mesh structure.
 In the future, ssgLoaderWriterMesh should also be used for writers, doing the opposite 
 job: It takes the information from ssg with the restrictions and then looks whether
 it can optimise (for example merging nodes) by relaxing the restrictions.
+
+<H2>1.3The class ssgLoaderWriterMesh - a deeper Look</H2>
+At the start of your loader, you create a new <code>ssgLoaderWriterMesh</code>
+or do a <code>ReInit()</code>. To insert the data into the <code>ssgLoaderWriterMesh</code>,
+you have to add vertices, faces, materials, materialindexes (saying what face uses what material)
+and, if applicable texture coordinates. For all of these, you <B>can</B> say in advance how many you have.
+If you know that you have 3712 vertices, call <code>ThereAreNVertices(3712)</code> and everything is allocated
+at once and the <code>addVertex</code> works very fast. Vertices are simply sgVec3s. Faces are simply
+lists/arrays of vertex indexes.
+For adding faces, use <code>addFace</code> if you already have a <code>ssgIndexArray</code> or use
+<code>AddFaceFromCArray</code> if you have the vertex indexes in a C(++) array.
+You need to add at least one material (<code>ssgSimpleState</code>). For each face, you tell
+ssg which material to use via <code>addMaterialIndex</code>. Here is code from ssgLoadOFF, which tells
+ssg to use the <code>ssgSimpleState</code> ss for all faces:
+
+
+
+
+
+<BR>
+<code>
+	theMesh.ThereAreNMaterials( 1 );
+	theMesh.addMaterial( &ss );
+	theMesh.ThereAreNMaterialIndexes( _ssgNoFacesToRead ) ;
+	for(i=0;i<_ssgNoFacesToRead ;i++)
+	   theMesh.addMaterialIndex ( 0 ) ;
+</code>
+<BR>
+If the file format has texture coordinates, you have to find out whether it has them 
+per vertex or per vertex and face. If you look at a "straight forward" cube,
+having texture coordinates per vertex means you can have 8, but if you have
+texture coordinates per vertex and face, you can have 24 (each vertex is part of 3 faces).
+
+
+
+	void ThereAreNTCPFAV( int n = 3 ) ;
+	void addTCPFAV ( ssgTexCoordArray **tca ) ;
+
+	void ThereAreNTCPV( int n = 3 ) ;
+	void addTCPV ( sgVec2 tc ) ;
+
 
 <H2>2.Loaders</H2>
 
@@ -121,7 +162,7 @@ Regarding the reason for the callbacks in ssgLoaderOptions, Steve
 wrote:
 <BR>
 <BR>
-Whenever a branch node is created.  The deal is that most file formats
+"Whenever a branch node is created.  The deal is that most file formats
 are
 missing important features at the Branch level - but many support
 comment
@@ -148,7 +189,7 @@ set
 the transition range to 100m and return the application back to the
 loader.
 
-Check the TuxKart sources to see this in action.
+Check the TuxKart sources to see this in action."
 <BR>
 <BR>
 So much for the quote from Steve.
@@ -161,8 +202,7 @@ into my own.
 <H2>2.2 Ascii file formats</H2>
 A lexical analyzer for ascii-files is available in ssgParser.cxx and 
 ssgParser.h. It converts the file into a stream of tokens and 
-handles comments. Since this is quite new, only two formats (.ase 
-and .x) currently use it. 
+handles comments. 
 
 In a way, it has two APIs.
 One hides the line structure from the loader. The loader just has 
@@ -171,6 +211,8 @@ The other means you have to know the exact line structure.
 You do a getLine which reads all the tokens of that line into a 
 buffer and then you do a parseToken to get each token.
 
+The formats which currently use the parser are .X (uses the line-independant API) and 
+.ase, .scenery and .off, which use the line-by-line-API.
 Some members can be used for both APIs, for example
 
 <pre>
