@@ -296,10 +296,7 @@ void  puDisplay ( int window_number )  /* Redraw only the current window */
   while ( ob )
   {
     if ( ob -> getWindow () == window_number )
-    {
       ob -> draw ( 0, 0 ) ;
-      break ;
-    }
 
     ob = ob -> getNextObject () ;
   }
