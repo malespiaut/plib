@@ -320,7 +320,7 @@ void OptVertexList::makeNormals()
   }
 
   for ( i = 0 ; i < vnum ; i++ )
-    if ( sgScalarProductVec2 ( vlist[i]->normal, vlist[i]->normal ) < 0.001 )
+    if ( sgLengthVec3 ( vlist[i]->normal ) < 0.001 )
       sgSetVec3 ( vlist[i]->normal, 0.0f, 0.0f, 1.0f ) ;
     else
       sgNormaliseVec3 ( vlist [ i ] -> normal ) ;
