@@ -36,7 +36,7 @@ pslProgram::pslProgram ( const pslExtension *ext, const char *_prgnm )
 
   progName = NULL ;
 
-  if ( _prgnm == NULL ) _prgnm = "PSLptogram" ;
+  if ( _prgnm == NULL ) _prgnm = "PSLprogram" ;
 
   setProgName ( _prgnm ) ;
 
@@ -67,6 +67,9 @@ pslProgram::pslProgram ( pslProgram *src, const char *_prgnm )
 
   setProgName ( _prgnm ) ;
 
+  /* This will fail if this pslProgram is ever deleted */
+  /* We need ref-counting on code/compiler */
+
   code       = src -> getCode       () ;
   compiler   = src -> getCompiler   () ;
   extensions = src -> getExtensions () ;
@@ -79,6 +82,9 @@ pslProgram::pslProgram ( pslProgram *src, const char *_prgnm )
 
 pslProgram::~pslProgram ()
 {
+  /* This will fail if this pslProgram was copy-constructed */
+  /* We need ref-counting on code/compiler */
+  /* DEBUG-ME! */
   delete [] progName ;
   delete    compiler ;
   delete    context  ;
