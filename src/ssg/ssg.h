@@ -1902,6 +1902,7 @@ ssgEntity *ssgLoadDXF  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadTRI  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadOBJ  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 ssgEntity *ssgLoadMD2  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
+ssgEntity *ssgLoadMDL  ( const char *fname, ssgHookFunc hookfunc = NULL ) ;
 
 /* For backwards compatibility */
 
