@@ -187,7 +187,7 @@ typedef struct
 
 static int is_little_endian;
 
-static const ssgLoaderOptions* current_options = NULL ;
+static ssgLoaderOptions* current_options = NULL ;
 static FILE *loader_fd;
 
 static t_tcoord *uvs;
@@ -284,10 +284,11 @@ ssgEntity * convert_to_ssg()
 		stated = true;
 
 		ssgFindOptConvertTexture( filepath, skins[i] ) ;
-		
+
 		ssgSimpleState *state = new ssgSimpleState();
 		state ->  enable ( GL_TEXTURE_2D );
-		state ->  setTexture( filepath );
+		//state ->  setTexture( filepath ) ;
+		state ->  setTexture( current_options -> createTexture ( filepath ) );
 		states -> setStep ( i, state );	
 	}
 	

@@ -611,7 +611,8 @@ static bool vrml1_parseTexture2( ssgBranch *parentBranch, _traversalState *curre
    if( fileName == NULL )
      return FALSE;
    
-   ssgTexture *currentTexture = new ssgTexture( fileName, wrapU, wrapV );
+   //ssgTexture *currentTexture = new ssgTexture( fileName, wrapU, wrapV );
+   ssgTexture *currentTexture = currentOptions -> createTexture ( fileName, wrapU, wrapV );
    currentData->setTexture( currentTexture );
    vrmlParser.expectNextToken("}");
 
