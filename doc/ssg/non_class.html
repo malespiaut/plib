@@ -331,6 +331,8 @@ And here are the features with some explanaitions:
 
 <ul>
 <li>Filled polys - Planar polygons. In the ssg-lib, this is the only primitive you can use to make "solid" looking models. This is a 2D primitive; it has no volume but an area.
+<li># sides - No of sides per poly. This is of course equal to number of vertices per poly. Some formats support only triangles, some
+also quads and some support n-sided polys, that is they have no restrictions.
 <li>Lines - for example used for high voltage lines in a flight simulator.
 This is a 1D primitive; it has no area but a length.
 <li>Points - for example used for small lights.
@@ -410,6 +412,28 @@ Normaly, you would switch one set on and the other off.
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>&nbsp;E</td>
+  </tr>
+  <tr>
+    <td>&nbsp;# sides</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;3,4(4)</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;3?</td>
+    <td>&nbsp;3?</td>
+    <td>&nbsp;n</td>
   </tr>
   <tr>
     <td>&nbsp;Lines</td>
@@ -774,6 +798,9 @@ footnotes:
 I only implemented the ascii-one and probably wont implement the 
 binary one. There is a free (as in beer) converter by Microsoft 
 running under Windo$. 
+<BR>
+(4) It is possible to have polys with an arbitrary number of vertices in ssg.
+But then you may only use one poly per node. Also, you can not mix 3 and 4 sided polys in one node.
 <BR><BR>
 Additional info on some formats:
 
