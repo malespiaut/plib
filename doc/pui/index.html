@@ -1728,10 +1728,12 @@ GLUT window setup but before glutMainLoop().
 <a NAME="puDisplay"></a>
 <h3>
 puDisplay</h3>
-Causes PUI to redraw all of the currently created widgets.
+Causes PUI to redraw all of the currently created widgets (in a particular
+window in case of second one).
 <pre>
 
    void puDisplay () ;
+   void puDisplay ( int window_number ) ;
 
 </pre>
 It sets up the GL transforms as follows:
