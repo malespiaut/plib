@@ -1,21 +1,22 @@
+
 /*
      PLIB - A Suite of Portable Game Libraries
      Copyright (C) 1998,2002  Steve Baker
- 
+
      This library is free software; you can redistribute it and/or
      modify it under the terms of the GNU Library General Public
      License as published by the Free Software Foundation; either
      version 2 of the License, or (at your option) any later version.
- 
+
      This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
      Library General Public License for more details.
- 
+
      You should have received a copy of the GNU Library General Public
      License along with this library; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- 
+
      For further information visit http://plib.sourceforge.net
 
      $Id$
@@ -23,7 +24,7 @@
 
 /*******************************************************
  **  ssgSaveFLT.cxx
- **  
+ **
  **  Written by Steve Baker
  **  Last updated: 2002-10-15
  **
@@ -53,10 +54,19 @@ struct FLT_vertex
 static ulList *texList = NULL ;
 static ulList *vtxList = NULL ;
 static FILE   *save_fd = NULL ;
+static int max_bank = 1 ;
+static int curr_bank = 0 ;
 
 static int addToTexturePool ( char *tex )
 {
   int max =  texList -> getNumEntities () ;
+
+  for ( int p = strlen(tex) ; p >= 0 ; p-- )
+    if ( tex[p] == '/' )
+    {
+      tex = & tex[p+1] ;
+      break ;
+    }
 
   for ( int i = 0 ; i < max ; i++ )
   {
@@ -191,78 +201,83 @@ static void writeHeader ()
   len += writeShort ( 2+2+8+4+4+32+2+2+2+2+2+1+1+4+4+
                       4+4+4+4+4+4+4+4+4+4+4+4+4+2+2+
                       4+8+8+8+8+2+2+4+4+2+2+2+2+4+8+
-                      8+8+8+8+8+8+8+2+2+2+2+2+2+2+2+4 ) ;
-  len += writeString( "1234567", 8 ) ;
-  len += writeInt   ( 1550 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeString( "1234567890123456789012345678901", 32 ) ;
-  len += writeShort ( 3 ) ;
-  len += writeShort ( 2 ) ;
-  len += writeShort ( 2 ) ;
-  len += writeShort ( 14 ) ;
-  len += writeShort ( 1 ) ;
-  len += writeChar  ( 0 ) ;  /* Meters */
-  len += writeChar  ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
+                      8+8+8+8+8+8+8+2+2+2+2+2+2+2+2+
+                      4+2+2+2+8+8+2+2 ) ;
 
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
+  len += writeString( "       ", 8 ) ;  /* ID */
+  len += writeInt   ( 1570 ) ;  /* Format Rev level 15.70 */
+  len += writeInt   ( 0 ) ;  /* Edit rev level */
+  len += writeString( "Unknown Date.                  ", 32 ) ; /* Date/Time */
+  len += writeShort ( 0 ) ; /* Next Group Node */
+  len += writeShort ( 0 ) ; /* Next LOD Node */
+  len += writeShort ( 0 ) ; /* Next Object Node */
+  len += writeShort ( 0 ) ; /* Next Face node */
+  len += writeShort ( 1 ) ; /* Unit multiplier */
+  len += writeChar  ( 0 ) ;  /* Unit type Meters */
+  len += writeChar  ( 0 ) ;  /* TexWhite */
+  len += writeInt   ( 0 ) ;  /* Flags */
 
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
-  len += writeInt   ( 0 ) ;
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Projection Type */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
+  len += writeInt   ( 0 ) ;  /* Reserved */
 
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
+  len += writeShort ( 0 ) ;  /* Next DOF node */
+  len += writeShort ( 1 ) ;  /* Vertex storage type (DOUBLE!) */
+  len += writeInt   ( 100 ) ;  /* Database Origin */
 
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
+  len += writeDouble( 0 ) ; /* SW DB X */
+  len += writeDouble( 0 ) ; /* SW DB Y */
+  len += writeDouble( 0 ) ; /* Delta X */
+  len += writeDouble( 0 ) ; /* Delta Y */
 
-  len += writeInt   ( 0 ) ;
-  len += writeInt   ( 0 ) ;
+  len += writeShort ( 0 ) ; /* Next Sound node */
+  len += writeShort ( 0 ) ; /* Next Path node */
 
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
+  len += writeInt   ( 0 ) ; /* Reserved */
+  len += writeInt   ( 0 ) ; /* Reserved */
 
-  len += writeInt   ( 0 ) ;
+  len += writeShort ( 0 ) ; /* Next Clip node */
+  len += writeShort ( 0 ) ; /* Next Text node */
+  len += writeShort ( 0 ) ; /* Next BSP node */
+  len += writeShort ( 0 ) ; /* Next Switch node */
 
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeDouble( 0 ) ;
-  len += writeShort ( 0 ) ;
+  len += writeInt   ( 0 ) ; /* Reserved */
 
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
-
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
-  len += writeShort ( 0 ) ;
-  len += writeInt   ( 0 ) ;
-
-  writeShort ( len ) ;
+  len += writeDouble( 0 ) ; /* SW Corner lat */
+  len += writeDouble( 0 ) ; /* SW Corner lon */
+  len += writeDouble( 0 ) ; /* NE Corner lat */
+  len += writeDouble( 0 ) ; /* NE Corner lon */
+  len += writeDouble( 0 ) ; /* Org Lat */
+  len += writeDouble( 0 ) ; /* Org Lon */
+  len += writeDouble( 0 ) ; /* Lambert upper lat */
+  len += writeDouble( 0 ) ; /* Lambert upper lon */
+  len += writeShort ( 0 ) ; /* Next Light source */
+  len += writeShort ( 0 ) ; /* Next Light Point */
+  len += writeShort ( 0 ) ; /* Next Road */
+  len += writeShort ( 0 ) ; /* Next CAT */
+  len += writeShort ( 0 ) ; /* Reserved */
+  len += writeShort ( 0 ) ; /* Reserved */
+  len += writeShort ( 0 ) ; /* Reserved */
+  len += writeShort ( 0 ) ; /* Reserved */
+  len += writeInt   ( 0 ) ; /* Earth Ellipsoidal model (==WGS84) */
+  len += writeShort ( 0 ) ; /* Next Adaptive node */
+  len += writeShort ( 0 ) ; /* Next Curve node */
+  len += writeShort ( 0 ) ; /* Reserved */
+  len += writeDouble( 0 ) ; /* Delta Z to place */
+  len += writeDouble( 0 ) ; /* Radius Z to place */
+  len += writeShort ( 0 ) ; /* Next Mesh node */
+  len += writeShort ( 0 ) ; /* Reserved */
 }
 
 
@@ -273,27 +288,35 @@ static void writeObject ()
 {
   writeShort ( 4 ) ;
   writeShort ( 2+2+8+4+2+2+2+2+2+2 ) ;
-  writeString ( "1234567", 8 ) ;  /* Name */
+
+  static int next_name = 0 ;
+  char name [ 8 ] ;
+  sprintf ( name, "O%d", next_name++ ) ;
+  writeString ( name, 8 ) ;  /* Name */
   writeInt   ( 0x00000000 ) ;     /* Flags */
   writeShort ( 0 ) ;     /* Relative Priority */
   writeShort ( 0 ) ;     /* Transparency (1-Alpha) */
   writeShort ( 0 ) ;    /* Special ID 1 */
-  writeShort ( 100 ) ;  /* Special ID 2 */
+  writeShort ( 0 ) ;    /* Special ID 2 */
   writeShort ( 0 ) ;    /* Significance */
   writeShort ( 0 ) ;    /* Layer */
 }
 
 
 
-static void writeFace ( ssgLeaf *leaf )
+static void writeFace ( ssgLeaf *leaf, int isLine )
 {
   writeShort ( 5 ) ;
   writeShort ( 2+2+8+4+2+1+1+2+2+1+1+2+2+2+2+2+4+2+1+1+
                4+1+1+2+4+4+4+2+2+4+4+2+2 ) ;
-  writeString ( "1234567", 8 ) ;  /* Name */
+
+  static int next_name = 0 ;
+  char name [ 8 ] ;
+  sprintf ( name, "F%d", next_name++ ) ;
+  writeString ( name, 8 ) ;  /* Name */
   writeInt   ( 0 ) ;    /* IR color code */
   writeShort ( 0 ) ;    /* Relative Priority */
-  writeChar  ( 0 ) ;    /* Draw Type */
+  writeChar  ( isLine ? 2 : 0 ) ;    /* Draw Type */
   writeChar  ( 0 ) ;    /* Texture-White */
   writeShort ( 0 ) ;    /* Color name index */
   writeShort ( 0 ) ;    /* Alternate Color name index */
@@ -315,15 +338,14 @@ static void writeFace ( ssgLeaf *leaf )
   writeShort ( 0 ) ;    /* Transparent */
   writeChar  ( 0 ) ;    /* LOD generation control */
   writeChar  ( 0 ) ;    /* Line Style */
-  /* SJB: I think this means "get colour from the vertex" */
-  writeInt   ( 1<<1 ) ; /* Flags == No Colour */
+  writeInt   ( 0x60000000 ) ; /* Flags == No Colour */
   writeChar  ( 3 ) ;    /* Light mode == Use Vertex colour & Normal */
   writeChar  ( 0 ) ;
   writeShort ( 0 ) ;
   writeInt   ( 0 ) ;
   writeInt   ( 0xFFFFFFFF ) ;  /* Packed Color */
   writeInt   ( 0xFFFFFFFF ) ;  /* Packed Alt Color */
-  writeShort ( 0 ) ;/* XXXX */ /* Texture mapping index */
+  writeShort ( 0 ) ;   /* Texture mapping index */
   writeShort ( 0 ) ;
   writeInt   ( 0 ) ;   /* Primary Color Index */
   writeInt   ( 0 ) ;   /* Secondary Color Index */
@@ -336,26 +358,97 @@ static void writeLeaf ( ssgLeaf *leaf )
   writeObject () ;
   writePush   () ;
 
+  for ( int i = 0 ; i < leaf -> getNumLines () ; i++ )
+  {
+    writeFace ( leaf, TRUE ) ;
+
+    writePush  () ;
+    writeShort ( 72 ) ;  /* Vertex List */
+    writeShort ( 2+2+4*2 ) ;
+
+    short vv [ 2 ] ;
+
+    leaf -> getLine ( i, &vv[0], &vv[1] ) ;
+
+    for ( int j = 0 ; j < 2 ; j++ )
+    {
+      FLT_vertex vert ;
+      sgCopyVec3 ( vert.vert, leaf -> getVertex   ( vv[j] ) ) ;
+      sgCopyVec3 ( vert.norm, leaf -> getNormal   ( vv[j] ) ) ;
+      sgCopyVec4 ( vert.col , leaf -> getColour   ( vv[j] ) ) ;
+      sgCopyVec2 ( vert.tex , leaf -> getTexCoord ( vv[j] ) ) ;
+
+      writeInt ( addToVertexPool ( & vert ) * 60 + 8 ) ;
+    }
+
+    writePop  () ;
+  }
+
   for ( int i = 0 ; i < leaf -> getNumTriangles () ; i++ )
   {
-    writeFace ( leaf ) ;
+    writeFace ( leaf, FALSE ) ;
 
-    for ( int i = 0 ; i < leaf -> getNumVertices () ; i++ )
+    writePush  () ;
+    writeShort ( 72 ) ;  /* Vertex List */
+    writeShort ( 2+2+4*3 ) ;
+
+    short vv [ 3 ] ;
+
+    leaf -> getTriangle ( i, &vv[0], &vv[1], &vv[2] ) ;
+
+    for ( int j = 0 ; j < 3 ; j++ )
     {
-      writeShort ( 72 ) ;  /* Vertex List */
-      writeShort ( 2+2+4 ) ;
-
       FLT_vertex vert ;
-      sgCopyVec3 ( vert.vert, leaf -> getVertex   ( i ) ) ;
-      sgCopyVec3 ( vert.norm, leaf -> getNormal   ( i ) ) ;
-      sgCopyVec4 ( vert.col , leaf -> getColour   ( i ) ) ;
-      sgCopyVec2 ( vert.tex , leaf -> getTexCoord ( i ) ) ;
+      sgCopyVec3 ( vert.vert, leaf -> getVertex   ( vv[j] ) ) ;
+      sgCopyVec3 ( vert.norm, leaf -> getNormal   ( vv[j] ) ) ;
+      sgCopyVec4 ( vert.col , leaf -> getColour   ( vv[j] ) ) ;
+      sgCopyVec2 ( vert.tex , leaf -> getTexCoord ( vv[j] ) ) ;
 
-      writeInt ( addToVertexPool ( & vert ) ) ;
+      writeInt ( addToVertexPool ( & vert ) * 60 + 8 ) ;
     }
+
+    writePop  () ;
   }
 
   writePop    () ;
+}
+
+
+static void writeAnimationGroup ()
+{
+  writeShort ( 2 ) ;
+  writeShort ( 2+2+8+2+2+4+2+2+2+1+1+4 ) ;
+  writeString ( "Animate", 8 ) ;  /* Name */
+  writeShort ( 0 ) ;              /* Relative Priority */
+  writeShort ( 0 ) ;
+  writeInt   ( 0x40000000 ) ; /* Flags = Animate forwards */
+  writeShort ( 100 ) ;/* Special ID 1 */
+  writeShort ( 0 ) ;  /* Special ID 2 */
+  writeShort ( 0 ) ;  /* Significance */
+  writeChar  ( 0 ) ;  /* Layer */
+  writeChar  ( 0 ) ;
+  writeInt   ( 0 ) ;
+}
+
+
+static void writeVanillaGroup ()
+{
+  writeShort ( 2 ) ;
+  writeShort ( 2+2+8+2+2+4+2+2+2+1+1+4 ) ;
+
+  static int next_name = 0 ;
+  char name [ 8 ] ;
+  sprintf ( name, "Q%d", next_name++ ) ;
+  writeString ( name, 8 ) ;  /* Name */
+  writeShort ( 0 ) ;              /* Relative Priority */
+  writeShort ( 0 ) ;
+  writeInt   ( 0 ) ;  /* Flags */
+  writeShort ( 0 ) ;  /* Special ID 1 */
+  writeShort ( 0 ) ;  /* Special ID 2 */
+  writeShort ( 0 ) ;  /* Significance */
+  writeChar  ( 0 ) ;  /* Layer */
+  writeChar  ( 0 ) ;
+  writeInt   ( 0 ) ;
 }
 
 
@@ -363,14 +456,18 @@ static void writeGroup ( ssgBranch *bra )
 {
   writeShort ( 2 ) ;
   writeShort ( 2+2+8+2+2+4+2+2+2+1+1+4 ) ;
-  writeString ( "1234567", 8 ) ;  /* Name */
+
+  static int next_name = 0 ;
+  char name [ 8 ] ;
+  sprintf ( name, "G%d", next_name++ ) ;
+  writeString ( name, 8 ) ;  /* Name */
   writeShort ( 0 ) ;              /* Relative Priority */
   writeShort ( 0 ) ;
-  writeInt   ( 0x00000003 ) ;     /* Flags */
-  writeShort ( 0 ) ;    /* Special ID 1 */
-  writeShort ( 100 ) ;  /* Special ID 2 */
-  writeShort ( 0 ) ;    /* Significance */
-  writeChar  ( 0 ) ;    /* Layer */
+  writeInt   ( 0 ) ;  /* Flags */
+  writeShort ( 0 ) ;  /* Special ID 1 */
+  writeShort ( 0 ) ;  /* Special ID 2 */
+  writeShort ( 0 ) ;  /* Significance */
+  writeChar  ( 0 ) ;  /* Layer */
   writeChar  ( 0 ) ;
   writeInt   ( 0 ) ;
 }
@@ -383,28 +480,60 @@ static void writeEntity ( ssgEntity *ent )
 
   if ( ! ent -> isAKindOf ( ssgTypeBranch () ) )
   {
+    if ( ent -> isAKindOf ( ssgTypeTween () ) )
+      ((ssgTween *)ent) -> setBank ( curr_bank ) ;
+
     writeLeaf ( (ssgLeaf *)ent ) ;
+
+    if ( ent -> isAKindOf ( ssgTypeTween () ) )
+      ((ssgTween *)ent) -> setBank ( 0 ) ;
+
     return ;
-  }  
+  }
+
+  if ( ((ssgBranch *)ent) -> getNumKids() == 0 )
+    return ;
 
   writeGroup ( (ssgBranch *)ent ) ;
-
   writePush () ;
 
   for ( int i = 0 ; i < ((ssgBranch *)ent) -> getNumKids() ; i++ )
     writeEntity ( ((ssgBranch *)ent) -> getKid ( i ) ) ;
 
   writePop () ;
-  return ;
 }
 
 
-static void collectPalettesFromLeaf ( ssgLeaf *leaf ) 
+static void collectPalettesFromLeaf ( ssgLeaf *leaf )
 {
   ssgSimpleState *s = (ssgSimpleState *)( leaf -> getState () ) ;
 
   if ( s != NULL && s -> getTextureFilename () != NULL )
-    texList -> addEntity ( s -> getTextureFilename () ) ;
+    addToTexturePool ( s -> getTextureFilename () ) ;
+
+  if ( leaf -> isAKindOf ( ssgTypeTween () ) )
+  {
+    ssgTween *t = (ssgTween *) leaf ;
+
+    if ( t -> getNumBanks () > max_bank ) max_bank = t -> getNumBanks () ;
+
+    for ( int i = 0 ; i < t->getNumBanks() ; i++ )
+    {
+      t -> setBank ( i ) ;
+
+      for ( int i = 0 ; i < t -> getNumVertices () ; i++ )
+      {
+        FLT_vertex vert ;
+        sgCopyVec3 ( vert.vert, t -> getVertex   ( i ) ) ;
+        sgCopyVec3 ( vert.norm, t -> getNormal   ( i ) ) ;
+        sgCopyVec4 ( vert.col , t -> getColour   ( i ) ) ;
+        sgCopyVec2 ( vert.tex , t -> getTexCoord ( i ) ) ;
+        addToVertexPool ( & vert ) ;
+      }
+    }
+
+    t -> setBank ( 0 ) ;
+  }
 
   for ( int i = 0 ; i < leaf -> getNumVertices () ; i++ )
   {
@@ -426,7 +555,7 @@ static void collectPalettes ( ssgEntity *ent )
   {
     collectPalettesFromLeaf ( (ssgLeaf *)ent ) ;
     return ;
-  }  
+  }
 
   for ( int i = 0 ; i < ((ssgBranch *)ent) -> getNumKids() ; i++ )
     collectPalettes ( ((ssgBranch *)ent) -> getKid ( i ) ) ;
@@ -435,6 +564,8 @@ static void collectPalettes ( ssgEntity *ent )
 static void writePalettes ( ssgEntity *root )
 {
   int i ;
+
+  max_bank = 1 ;
 
   collectPalettes ( root ) ;
 
@@ -450,7 +581,7 @@ static void writePalettes ( ssgEntity *root )
 
   writeShort  ( 67 ) ;  /* Vertex Palette header. */
   writeShort  ( 2+2+4 ) ;
-  writeShort  ( 2+2+4 + 
+  writeInt    ( 2+2+4 +
                 ( 2+2+2+2+8+8+8+4*3+4*2+4+4 ) * vtxList -> getNumEntities () ) ;
 
   for ( i = 0 ; i < vtxList -> getNumEntities () ; i++ )
@@ -460,7 +591,7 @@ static void writePalettes ( ssgEntity *root )
     writeShort  ( 70 ) ;  /* Vertex Palette with Normal and Texture */
     writeShort  ( 2+2+2+2+8+8+8+4*3+4*2+4+4 ) ;
     writeShort  ( 0 ) ;  /* Colour name index */
-    writeShort  ( 1<<3 ) ;  /* Flags == Use Packed Colour */
+    writeShort  ( 0x1000 ) ;  /* Flags == Use Packed Colour */
     writeDouble ( vv -> vert [ 0 ] ) ;
     writeDouble ( vv -> vert [ 1 ] ) ;
     writeDouble ( vv -> vert [ 2 ] ) ;
@@ -493,26 +624,55 @@ int ssgSaveFLT ( const char *fname, ssgEntity *root )
   if ( vtxList == NULL )  vtxList = new ulList ( 200 ) ;
 
   writePalettes ( root ) ;
-  writeEntity   ( root ) ;
+
+  writePush () ;
+  writeVanillaGroup () ;
+  writePush () ;
+
+  if ( max_bank > 1 )
+  {
+    writeAnimationGroup () ;
+    writePush () ;
+  }
+
+  for ( int i = 0 ; i < max_bank ; i++ )
+  {
+    curr_bank = i ;
+    writeEntity ( root ) ;
+  }
+
+  if ( max_bank > 1 )
+    writePop () ;
+
+  writePop () ;
+  writePop () ;
 
   fclose ( save_fd ) ;
 
   /* Cleanup */
 
+// This block is commented out because it
+// seems to screw things up elsewhere.
+// However, it needs to be there to avoid
+// a memory leak.
+// !! DEBUG ME!!
+#ifdef PREVENT_MEMORY_LEAK
   int max, i ;
 
   max = texList -> getNumEntities () ;
 
   for ( i = 0 ; i < max ; i++ )
-    delete (FLT_texture *) texList -> getEntity ( i ) ; 
+    delete (FLT_texture *) texList -> getEntity ( i ) ;
   delete texList ;
 
   max = vtxList -> getNumEntities () ;
 
   for ( i = 0 ; i < max ; i++ )
-    delete (FLT_vertex *) vtxList -> getEntity ( i ) ; 
+    delete (FLT_vertex *) vtxList -> getEntity ( i ) ;
   delete vtxList ;
+#endif
 
   return TRUE ;
 }
+
 
