@@ -24,26 +24,6 @@
 
 #include "puLocal.h"
 
-static int count_lines( const char *str )
-{
-  int k;                              // counts lines
-  
-  if ( str == NULL )
-    k = 0;
-  else if ( strlen( str ) == 0 )
-    k = 0;
-  else
-  {
-    k = 1;                          // there's at least one line here
-    while ( *str != '\0' )
-    {
-      if ( *str == '\n' ) k++;    // add 1 for each EOL
-      str++;
-    }
-  }
-  return( k );
-}
-
 inline float clamp01 ( float x )
 {
   return (x >= 1.0f) ? 1.0f : x ;
@@ -342,10 +322,9 @@ void puObject::draw_legend ( int dx, int dy )
   case PUPLACE_LOWER_LEFT        : /* Backwards compatibility to PUPLACE_LEFT */
   case PUPLACE_LOWER_RIGHT       : /* Backwards compatibility to PUPLACE_RIGHT */
   default :
-    //yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2 ;
     yy = ( abox.max[1] - abox.min[1] +
-      count_lines( legend ) * legendFont.getStringHeight () ) / 2 -
-      legendFont.getStringHeight() ;
+      legendFont.getStringHeight ( legend ) ) / 2 -
+      legendFont.getStringHeight () ;
     break ;
 
   case PUPLACE_BOTTOM_LEFT     :
@@ -433,10 +412,9 @@ void puObject::draw_label ( int dx, int dy )
   case PUPLACE_CENTERED_LEFT  :
   case PUPLACE_CENTERED_RIGHT :
   default :
-    //yy = ( bbox.max[1] - bbox.min[1] - labelFont.getStringHeight () ) / 2 ;
     yy = ( bbox.max[1] - bbox.min[1] +
-      count_lines( label ) * labelFont.getStringHeight () ) / 2 -
-      labelFont.getStringHeight() ;
+      labelFont.getStringHeight ( label ) ) / 2 -
+      labelFont.getStringHeight () ;
     break ;
 
   case PUPLACE_LOWER_LEFT  :
