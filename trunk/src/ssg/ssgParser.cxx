@@ -243,7 +243,6 @@ char* _ssgParser::getLine( int startLevel )
 		if ( *ptr != 0 )
 			if ( ptr == tokptr [ numtok-1 ] )
 			{ // we dont want tokens of length zero
-				char *a=mystrchr(spec.delim_chars_skipable,*ptr);
 				assert(NULL==mystrchr(spec.delim_chars_skipable,*ptr));
 				// ptr is non-skipable, return it as token of length one
 				numtok--;                  // remove zero-length token
