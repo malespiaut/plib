@@ -41,7 +41,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /I "..\sg" /I "..\util" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "PROXY_TEXTURES_ARE_NOT_BROKEN" /YX /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /I "..\sg" /I "..\util" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "PROXY_TEXTURES_ARE_NOT_BROKEN" /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -109,7 +110,8 @@ PostBuild_Cmds=copy release\*.lib ..\..\*.*
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /GX /ZI /Od /I "..\sg" /I "..\util" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "PROXY_TEXTURES_ARE_NOT_BROKEN" /YX /FD /GZ /c
+# ADD CPP /nologo /W3 /GX /ZI /Od /I "..\sg" /I "..\util" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "PROXY_TEXTURES_ARE_NOT_BROKEN" /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
