@@ -115,7 +115,7 @@ void puDial::doHit ( int button, int updown, int x, int y )
   if ( updown != PU_DRAG )
     puMoveToLast ( this );
 
-  if ( button == PU_LEFT_BUTTON )
+  if ( button == PU_LEFT_BUTTON && updown != PU_UP )
   {
     int x_cen = ( abox.max [0] + abox.min [0] ) / 2 ;
     int y_cen = ( abox.max [1] + abox.min [1] ) / 2 ;
@@ -132,6 +132,7 @@ void puDial::doHit ( int button, int updown, int x, int y )
 
     setValue ( angle ) ;
 
+    puSetActiveWidget ( this ) ;
     invokeCallback () ;
   }
 }

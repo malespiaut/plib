@@ -404,7 +404,19 @@ int puMouse ( int x, int y )
     (last_buttons & (1<<PU_RIGHT_BUTTON )) ?  PU_RIGHT_BUTTON  : 0 ;
   
   int h = puGetWindowHeight () ;
-  
+
+  /*
+    When you drag over an ACTIVE widget, you don't
+    affect any other widgets until you release the
+    mouse button.
+  */
+
+  if ( puActiveWidget () )
+  {
+    puActiveWidget()->doHit(button, PU_DRAG, x, h-y) ;
+    return TRUE ;
+  }
+
   int return_value = puGetBaseLiveInterface () -> checkHit ( button,
     PU_DRAG, x, h - y ) ;
   
