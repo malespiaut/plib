@@ -56,6 +56,19 @@ static int Ascii2Int(int &retVal, const char *token, const char* name )
 	}
 }
 
+static int Ascii2UInt(unsigned int &retVal, const char *token, const char* name )
+// returns TRUE on success
+{
+  char *endptr;
+  retVal = (unsigned int)(strtol( token, &endptr, 10));
+	if ( (endptr == NULL) || (*endptr == 0))
+    return TRUE;
+	else
+	{ parser.error("The field %s should contain an integer number but contains %s",name, token) ;
+		return FALSE;
+	}
+}
+
 static int Ascii2Float(SGfloat &retVal, const char *token, const char* name )
 // returns TRUE on success
 {
@@ -224,6 +237,7 @@ int HandleTextureFileName(const char *sName, const char *firstToken)
    } #TextureFilename
  */
   char *filename_ptr, *filename = new char [ strlen(firstToken)+1 ] ;
+	assert(filename!=NULL);
   strcpy ( filename, firstToken ) ;
 	filename_ptr = filename ;
 	
@@ -236,7 +250,7 @@ int HandleTextureFileName(const char *sName, const char *firstToken)
 
 	parser.expectNextToken(";");
 	parser.expectNextToken("}");
-	delete filename;
+	delete [] filename;
 	return TRUE;
 }
 
@@ -331,16 +345,16 @@ int HandleMaterial(const char *sName, const char *firstToken)
 			return FALSE;
 		bFoundTextureFileName = TRUE;
 	}
-	return TRUE;
+	return TRUE; //lint !e527
 }
 
 int HandleTextureCoords(const char *sName, const char *firstToken)
 {
-	int nNoOfVertices, i;
+	u32 nNoOfVertices, i;
 
 	sName; // keep the compiler quiet
 	  
-	if (! Ascii2Int(nNoOfVertices, firstToken, "nNoOfVertices"))
+	if (! Ascii2UInt(nNoOfVertices, firstToken, "nNoOfVertices"))
 		return FALSE;
 
 	if ( nNoOfVertices != currentMesh.getNumVertices())
@@ -378,17 +392,16 @@ int HandleTextureCoords(const char *sName, const char *firstToken)
 
 int HandleMeshMaterialList(const char *sName, const char *firstToken)
 {
-	u32 i, nMaterialsRead = 0;
-	int nMaterials, nFaceIndexes;
+	u32 i, nFaceIndexes, nMaterialsRead = 0, nMaterials;
 
 	sName; // keep the compiler quiet
 	  
-	if (! Ascii2Int(nMaterials, firstToken, "nMaterials"))
+	if (! Ascii2UInt(nMaterials, firstToken, "nMaterials"))
 		return FALSE;
 
 	parser.expectNextToken(";");
 	currentMesh.ThereAreNMaterials( nMaterials );
-	if (!parser.getNextInt(nFaceIndexes, "number of Face Indexes"))
+	if (!parser.getNextUInt(nFaceIndexes, "number of Face Indexes"))
 		return FALSE;
 	currentMesh.ThereAreNMaterialIndexes( nFaceIndexes ) ;
 	parser.expectNextToken(";");
@@ -441,20 +454,20 @@ int HandleMeshMaterialList(const char *sName, const char *firstToken)
 			return FALSE;
 		nMaterialsRead++;
 	}
-	return TRUE;
+	return TRUE; //lint !e527
 }
 
 
 int HandleMesh(const char *sName, const char *firstToken)
-{ u32 i, j;
-	int nNoOfVertices, nNoOfVerticesForThisFace, iVertex, nNoOfFaces, index=0, aiVertices[MAX_NO_VERTICES_PER_FACE];
+{ u32 i, j, nNoOfVertices, nNoOfVerticesForThisFace, nNoOfFaces;
+	int iVertex, aiVertices[MAX_NO_VERTICES_PER_FACE];
 	
 	
 	sName; // keep the compiler quiet
 	  
 	//char *sMeshName = parser.getNextToken("Mesh name");
 	//parser.expectNextToken("{");
-	if (! Ascii2Int(nNoOfVertices, firstToken, "nNoOfVertices"))
+	if (! Ascii2UInt(nNoOfVertices, firstToken, "nNoOfVertices"))
 		return FALSE;
 
 	//parser.getNextInt("number of vertices");
@@ -484,7 +497,7 @@ int HandleMesh(const char *sName, const char *firstToken)
 
 		currentMesh.addVertex(vert);
 	}
-	if (!parser.getNextInt(nNoOfFaces, "number of faces"))
+	if (!parser.getNextUInt(nNoOfFaces, "number of faces"))
 		 return FALSE;
 	currentMesh.ThereAreNFaces ( nNoOfFaces );
 
@@ -492,7 +505,7 @@ int HandleMesh(const char *sName, const char *firstToken)
   
 	parser.expectNextToken(";");
 	for(i=0;i<nNoOfFaces;i++)
-	{ if (!parser.getNextInt(nNoOfVerticesForThisFace , "number of vertices for this face"))
+	{ if (!parser.getNextUInt(nNoOfVerticesForThisFace , "number of vertices for this face"))
 	    return FALSE;
 		assert(nNoOfVerticesForThisFace<MAX_NO_VERTICES_PER_FACE);
 	
@@ -596,7 +609,7 @@ static int parse()
 {
   int firsttime = TRUE;
   char* token;
-  int startLevel = parser.level;
+  //int startLevel = parser.level;
 	token = parser.getNextToken(0);
   while (! parser.eof )
 	{ if (firsttime)
@@ -606,8 +619,7 @@ static int parse()
 			firsttime = FALSE;
 		}
 		else 
-		{ int i=0;
-			if (!ParseEntity(token))
+		{ if (!ParseEntity(token))
 				return FALSE;
 		}
 		token = parser.getNextToken(0);

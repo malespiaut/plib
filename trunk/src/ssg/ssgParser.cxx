@@ -163,6 +163,18 @@ int _ssgParser::getNextInt( int & retVal, const char* name )
 	}
 }
 
+int _ssgParser::getNextUInt( unsigned int & retVal, const char* name )
+// returns TRUE on success
+{ char *endptr, *token = getNextToken(name);
+  retVal = (unsigned int)(strtol( token, &endptr, 10));
+	if ( (endptr == NULL) || (*endptr == 0))
+    return TRUE;
+	else
+	{ error("The field %s should contain an integer number but contains %s",name, token) ;
+		return FALSE;
+	}
+}
+
 
 void _ssgParser::expectNextToken( const char* name )
 // Swallows the next token. If it is not name, then there is an error message

@@ -78,6 +78,7 @@ public :
   // These return TRUE on success:
   int getNextFloat( SGfloat &retVal, const char* name ); 
   int getNextInt( int & retVal, const char* name ); 
+	int getNextUInt( unsigned int & retVal, const char* name ); 
 	void expectNextToken( const char* name );
  } ;
 
