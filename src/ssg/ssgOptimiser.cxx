@@ -1,19 +1,25 @@
 
 #include "ssgLocal.h"
 
-static float default_vtol [3] =
+static float optimise_vtol [3] =
 {
   0.01f,   /* DISTANCE_SLOP = One centimeter */
   0.04f,   /* COLOUR_SLOP = Four percent */
   0.004f,  /* TEXCOORD_SLOP = One texel on a 256 map */
 } ;
 
-static float* vtol = 0 ;
-static bool make_normals = false ;
+static float zero_vtol [3] =
+{
+  0.0f,   /* DISTANCE_SLOP */
+  0.0f,   /* COLOUR_SLOP */
+  0.0f,   /* TEXCOORD_SLOP */
+} ;
 
-#define DISTANCE_SLOP   vtol[0]
-#define COLOUR_SLOP     vtol[1]
-#define TEXCOORD_SLOP   vtol[2]
+static float* current_vtol = 0 ;
+
+#define DISTANCE_SLOP   current_vtol[0]
+#define COLOUR_SLOP     current_vtol[1]
+#define TEXCOORD_SLOP   current_vtol[2]
 
 inline float frac ( float x )
 {
@@ -402,23 +408,82 @@ void OptVertexList::follow ( int tri, int v1, int v2, int backwards, int *len,
 
 /**********************/
 
-static void array_tool ( ssgEntity *ent )
+static ssgLeaf** build_leaf_list ( ssgEntity *ent, ssgLeaf** leaf_list=0 )
 {
+  enum { MAX_LEAF_COUNT = 10000 } ;
+  static int leaf_count ;
+
+  if ( leaf_list == NULL )
+  {
+    leaf_list = new ssgLeaf* [ MAX_LEAF_COUNT+1 ] ;
+    leaf_count = 0 ;
+    leaf_list [ leaf_count ] = NULL ;
+  }
+
   if ( ent -> isAKindOf ( ssgTypeBranch () ) )
   {
     ssgBranch *b_ent = (ssgBranch *) ent ;
-    
-    /*
-    Recurse through kid entities
-    */
-    
     for ( ssgEntity *k = b_ent -> getKid ( 0 ) ; k != NULL ;
-    k = b_ent -> getNextKid () )
-      array_tool ( k ) ;
+      k = b_ent -> getNextKid () )
+    {
+      build_leaf_list ( k, leaf_list ) ;
+    }
   }
   else if ( ent -> isAKindOf ( ssgTypeLeaf () ) )
   {
     ssgLeaf  *l = (ssgLeaf *) ent ;
+
+    bool found = false ;
+    for ( int i = 0 ; leaf_list [ i ] != NULL ; i ++ )
+    {
+      if ( leaf_list [ i ] == l )
+      {
+        found = true ;
+        break ;
+      }
+    }
+
+    if ( !found && leaf_count < MAX_LEAF_COUNT )
+    {
+      leaf_list [ leaf_count ++ ] = l ;
+      leaf_list [ leaf_count ] = NULL ;
+    }
+  }
+
+  return leaf_list ;
+}
+
+/*
+* NAME
+*   ssgCleanTool
+*
+* DESCRIPTION
+*   Clean up a graph by removing removing redundant v's, vc's, vt's.
+*   Convert all leaf entities into vertex arrays and throw away normals.
+*
+* NOTES
+*   With vertex arrays, each vertex is described by a single index
+*   (instead of different indices into the v, vc, vt-arrays). This
+*   may introduce new redundant vertex data into the data set,
+*   which may seem silly. However, when rendering through OpenGL,
+*   it is in most cases the optimal solution to use indexed vertex
+*   arrays, which only have ONE index for all the vertex data.
+*
+* INPUTS
+*   ent   -- the entity to process
+*   vtol  -- an optional array of 3 floats used to specify tolerances
+*     vtol[0] -- tolerance value for vertices
+*     vtol[1] -- tolerance for colours
+*     vtol[2] -- tolerance for texture coordinates
+*/
+void ssgCleanTool ( ssgEntity *ent, float* vtol )
+{
+  current_vtol = vtol? vtol: optimise_vtol ;
+
+  ssgLeaf** leaf_list = build_leaf_list ( ent ) ;
+  for ( int i = 0 ; leaf_list [ i ] != NULL ; i ++ )
+  {
+    ssgLeaf  *l = leaf_list [ i ] ;
     ssgState *s = l -> getState() ;
     int       cf = l -> getCullFace() ;
     
@@ -433,11 +498,162 @@ static void array_tool ( ssgEntity *ent )
       ssgColourArray   *new_colours   = new ssgColourArray   ( list . vnum ) ;
       ssgNormalArray   *new_normals   = 0 ;
 
-      if ( make_normals )
+      for ( int t = 0 ; t < list . tnum ; t++ )
       {
-        list . makeNormals () ;
-        new_normals = new ssgNormalArray ( list . vnum ) ;
+        new_index -> add ( list . tlist [ t*3+ 0 ] ) ;
+        new_index -> add ( list . tlist [ t*3+ 1 ] ) ;
+        new_index -> add ( list . tlist [ t*3+ 2 ] ) ;
       }
+
+      for ( int v = 0 ; v < list . vnum ; v++ )
+      {
+        new_coords   -> add ( list . vlist[ v ]->vertex   ) ;
+        new_texcoords-> add ( list . vlist[ v ]->texcoord ) ;
+        new_colours  -> add ( list . vlist[ v ]->colour   ) ;
+      }
+      
+      ssgVtxArray *new_varray = new ssgVtxArray ( GL_TRIANGLES,
+        new_coords, NULL, new_texcoords, new_colours, new_index ) ;
+      new_varray -> setState ( list.state ) ;
+      new_varray -> setCullFace ( list.cullface ) ;
+      
+      ssgBranch *p ;
+
+      /*
+      Add the new leaf
+      */
+      for ( p = l -> getParent ( 0 ) ; p != NULL ;
+        p = l -> getNextParent () )
+        p -> addKid ( new_varray ) ;
+
+      /*
+      Remove the old leaf
+      */
+      for ( p = new_varray -> getParent ( 0 ) ; p != NULL ;
+        p = new_varray -> getNextParent () )
+        p -> removeKid ( l ) ;
+    }
+  }
+  delete[] leaf_list ;
+  
+  ent -> recalcBSphere () ;
+}
+
+/*
+* NAME
+*   ssgTransTool
+*
+* DESCRIPTION
+*   Apply a transform (translate, rotate, scale) to all verticies of a graph.
+*   Convert all leaf entities into vertex arrays and throw away normals.
+*   Use ssgSmoothTool to generate new normals if needed.
+*
+* INPUTS
+*   ent   -- the entity to process
+*   trans -- the entity to process
+*/
+void ssgTransTool ( ssgEntity *ent, const sgMat4 trans )
+{
+  current_vtol = zero_vtol ;
+
+  ssgLeaf** leaf_list = build_leaf_list ( ent ) ;
+  for ( int i = 0 ; leaf_list [ i ] != NULL ; i ++ )
+  {
+    ssgLeaf  *l = leaf_list [ i ] ;
+    ssgState *s = l -> getState() ;
+    int       cf = l -> getCullFace() ;
+    
+    OptVertexList list ( s, cf ) ;
+    list . add ( l ) ;
+    
+    if ( list . tnum > 0 )  /* If all the triangles are degenerate maybe */
+    {
+      ssgIndexArray    *new_index     = new ssgIndexArray    ( list . tnum * 3 ) ;
+      ssgVertexArray   *new_coords    = new ssgVertexArray   ( list . vnum ) ;
+      ssgTexCoordArray *new_texcoords = new ssgTexCoordArray ( list . vnum ) ;
+      ssgColourArray   *new_colours   = new ssgColourArray   ( list . vnum ) ;
+
+      for ( int t = 0 ; t < list . tnum ; t++ )
+      {
+        new_index -> add ( list . tlist [ t*3+ 0 ] ) ;
+        new_index -> add ( list . tlist [ t*3+ 1 ] ) ;
+        new_index -> add ( list . tlist [ t*3+ 2 ] ) ;
+      }
+
+      for ( int v = 0 ; v < list . vnum ; v++ )
+      {
+        sgVec3 vertex ;
+        sgXformPnt3( vertex, list . vlist[ v ]->vertex, trans ) ;
+
+        new_coords   -> add ( vertex ) ;
+        new_texcoords-> add ( list . vlist[ v ]->texcoord ) ;
+        new_colours  -> add ( list . vlist[ v ]->colour   ) ;
+      }
+      
+      ssgVtxArray *new_varray = new ssgVtxArray ( GL_TRIANGLES,
+        new_coords, NULL, new_texcoords, new_colours, new_index ) ;
+      new_varray -> setState ( list.state ) ;
+      new_varray -> setCullFace ( list.cullface ) ;
+      
+      ssgBranch *p ;
+
+      /*
+      Add the new leaf
+      */
+      for ( p = l -> getParent ( 0 ) ; p != NULL ;
+        p = l -> getNextParent () )
+        p -> addKid ( new_varray ) ;
+
+      /*
+      Remove the old leaf
+      */
+      for ( p = new_varray -> getParent ( 0 ) ; p != NULL ;
+        p = new_varray -> getNextParent () )
+        p -> removeKid ( l ) ;
+    }
+  }
+  delete[] leaf_list ;
+
+  ent -> recalcBSphere () ;
+}
+
+/*
+* NAME
+*   ssgSmoothTool
+*
+* DESCRIPTION
+*   Throw away the normals in the graph and generates new normals.
+*   Can generate "soft" and "hard" edges based on a threshold angle.
+*   Convert all leaf entities into vertex arrays.
+*
+* INPUTS
+*   ent     -- the entity to process
+*   angle   -- all edges with a greater angle will be 'hard' 
+*/
+void ssgSmoothTool ( ssgEntity *ent, float angle )
+{
+  current_vtol = zero_vtol ;
+
+  ssgLeaf** leaf_list = build_leaf_list ( ent ) ;
+  for ( int i = 0 ; leaf_list [ i ] != NULL ; i ++ )
+  {
+    ssgLeaf  *l = leaf_list [ i ] ;
+    ssgState *s = l -> getState() ;
+    int       cf = l -> getCullFace() ;
+    
+    OptVertexList list ( s, cf ) ;
+    list . add ( l ) ;
+    
+    if ( list . tnum > 0 )  /* If all the triangles are degenerate maybe */
+    {
+      ssgIndexArray    *new_index     = new ssgIndexArray    ( list . tnum * 3 ) ;
+      ssgVertexArray   *new_coords    = new ssgVertexArray   ( list . vnum ) ;
+      ssgTexCoordArray *new_texcoords = new ssgTexCoordArray ( list . vnum ) ;
+      ssgColourArray   *new_colours   = new ssgColourArray   ( list . vnum ) ;
+      ssgNormalArray   *new_normals   = 0 ;
+
+      list . makeNormals () ;
+      new_normals = new ssgNormalArray ( list . vnum ) ;
       
       for ( int t = 0 ; t < list . tnum ; t++ )
       {
@@ -451,8 +667,7 @@ static void array_tool ( ssgEntity *ent )
         new_coords   -> add ( list . vlist[ v ]->vertex   ) ;
         new_texcoords-> add ( list . vlist[ v ]->texcoord ) ;
         new_colours  -> add ( list . vlist[ v ]->colour   ) ;
-        if ( make_normals )
-          new_normals  -> add ( list . vlist[ v ]->normal ) ;
+        new_normals  -> add ( list . vlist[ v ]->normal ) ;
       }
       
       ssgVtxArray *new_varray = new ssgVtxArray ( GL_TRIANGLES,
@@ -474,44 +689,11 @@ static void array_tool ( ssgEntity *ent )
       */
       for ( p = new_varray -> getParent ( 0 ) ; p != NULL ;
         p = new_varray -> getNextParent () )
-        p -> removeKid ( new_varray ) ;
+        p -> removeKid ( l ) ;
     }
   }
-}
+  delete[] leaf_list ;
 
-
-/*
-* NAME
-*   ssgArrayTool
-*
-* DESCRIPTION
-*   Process the graph and convert all leaf entities into vertex arrays.
-*
-*   Each vertex is described by a single index (instead of different
-*   indices into the v, vc, vt-arrays). This may introduce new redundant
-*   vertex data into the data set, which may seem silly. However, when
-*   rendering through OpenGL, it is in most cases the optimal solution
-*   to use indexed vertex arrays, which only have ONE index for all
-*   the vertex data.
-*
-* INPUTS
-*
-* ent - the entity to process
-*
-* vtol - an array of 3 floats used to specify tolerances
-*   vtol[0] - tolerance value for vertices
-*   vtol[1] - tolerance for colours
-*   vtol[2] - tolerance for texture coordinates
-*
-* make_normals - if true then averaged vertex normals are computed
-*/
-void ssgArrayTool ( ssgEntity *ent, float* _vtol, bool _make_normals )
-{
-  vtol = _vtol? _vtol: default_vtol ;
-  make_normals = _make_normals ;
-
-  array_tool ( ent ) ;
-  
   ent -> recalcBSphere () ;
 }
 
@@ -629,8 +811,7 @@ static void flatten ( ssgEntity *ent, sgMat4 m )
 
 void ssgStripify ( ssgEntity *ent )
 {
-  vtol = default_vtol ;
-  make_normals = true ;
+  current_vtol = optimise_vtol ;
 
   /*
     Walk down until we find a leaf node, then
@@ -798,8 +979,7 @@ void ssgStripify ( ssgEntity *ent )
 
 void ssgFlatten ( ssgEntity *ent )
 {
-  vtol = default_vtol ;
-  make_normals = true ;
+  current_vtol = optimise_vtol ;
 
   sgMat4 m ;
 
