@@ -63,6 +63,22 @@ class ssgRoot : public ssgBranch
 
 </pre>
 
+<H2><code>class ssgTweenController</code> - A morph controller,</H2>
+This is essentially identical to an ssgBranch - but adds API to
+set the current 'bank' settings of all ssgTween leaf nodes beneath it.
+<p>
+An ssgTween is a leaf node that can hold multiple geometric
+representations that it smoothly interpolates between.
+<pre>
+
+  ssgTweenController::selectBank ( float b ) ;
+  float ssgTweenController::getCurrBank () ;
+
+</pre>
+This allows you to set which of the banks of it's daughter ssgTweens
+will be rendered.  That's a "float" quantity - so if you selectBank(2.4)
+then the ssgTweens will render their vertices in a position (colour, etc)
+that's 40% of the way between the bank 2 and bank 3.
 <H2><code>class ssgSelector</code> - A switch point,</H2>
 Most ssgBranch nodes represent a collection of objects that
 are all present in the scene at the same time. ssgSelector
