@@ -7,7 +7,8 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgDList.cxx ssgEntity.cxx ssgIsect.cxx ssgLeaf.cxx ssgList.cxx \
 	ssgLoadAC.cxx ssgLocal.h ssgOptimiser.cxx ssgRoot.cxx ssgSaveAC.cxx \
 	ssgSelector.cxx ssgSimpleState.cxx ssgState.cxx ssgStateTables.cxx \
-	ssgStats.cxx  ssgTexTrans.cxx ssgTexture.cxx ssgTransform.cxx \
+	ssgStats.cxx  ssgTween.cxx ssgTweenController.cxx \
+        ssgTexTrans.cxx ssgTexture.cxx ssgTransform.cxx \
 	ssgStateSelector.cxx ssgRangeSelector.cxx ssgLoadTexture.cxx \
 	ssgLoadBMP.cxx ssgLoadSGI.cxx ssgLoadPNG.cxx ssgLoadTGA.cxx \
 	ssgInvisible.cxx ssgLoadSSG.cxx ssgVTable.cxx \

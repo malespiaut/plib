@@ -103,6 +103,8 @@ void _ssgWriteMat4   ( FILE *fd, const sgMat4 var ) ;
 int _ssgReadError    ( void ) ;
 int _ssgWriteError   ( void ) ;
 
+float _ssgGetCurrentTweenState () ;
+void  _ssgSetCurrentTweenState ( float tweenstate ) ;
 
 /*
   Routines for storing arbitrary ssgBase derived objects within SSG files. 
