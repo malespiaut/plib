@@ -3,14 +3,10 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "fnt"=.\src\fnt\fnt.dsp - Package Owner=<4>
+Project: "fnt"=".\src\fnt\fnt.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    fnt
-    .\src\fnt
-    end source code control
 }}}
 
 Package=<4>
@@ -19,14 +15,10 @@ Package=<4>
 
 ###############################################################################
 
-Project: "js"=.\src\js\js.dsp - Package Owner=<4>
+Project: "js"=".\src\js\js.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    js
-    .\src\js
-    end source code control
 }}}
 
 Package=<4>
@@ -35,14 +27,10 @@ Package=<4>
 
 ###############################################################################
 
-Project: "plib"=.\plib.dsp - Package Owner=<4>
+Project: "plib"=".\plib.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    plib
-    .
-    end source code control
 }}}
 
 Package=<4>
@@ -68,18 +56,17 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ul
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ssgAux
+    End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "pui"=.\src\pui\pui.dsp - Package Owner=<4>
+Project: "pui"=".\src\pui\pui.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    pui
-    .\src\pui
-    end source code control
 }}}
 
 Package=<4>
@@ -91,14 +78,10 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sg"=.\src\sg\sg.dsp - Package Owner=<4>
+Project: "sg"=".\src\sg\sg.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    sg
-    .\src\sg
-    end source code control
 }}}
 
 Package=<4>
@@ -107,14 +90,10 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sl"=.\src\sl\sl.dsp - Package Owner=<4>
+Project: "sl"=".\src\sl\sl.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    sl
-    .\src\sl
-    end source code control
 }}}
 
 Package=<4>
@@ -123,14 +102,10 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ssg"=.\src\ssg\ssg.dsp - Package Owner=<4>
+Project: "ssg"=".\src\ssg\ssg.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    ssg
-    .\src\ssg
-    end source code control
 }}}
 
 Package=<4>
@@ -139,14 +114,22 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ul"=.\src\util\ul.dsp - Package Owner=<4>
+Project: "ssgAux"=".\src\ssgAux\ssgAux.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    ul
-    .\src\util
-    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ul"=".\src\util\ul.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
 }}}
 
 Package=<4>
