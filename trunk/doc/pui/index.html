@@ -2378,12 +2378,9 @@ were improved and verified to work under other operating systems as well.
 However, this is certainly not the intended way to use PUI - even under
 WIN32 - but it's interesting to know that it <b>is</b> possible.
 <p>
-All you have to do is to compile the PUI sources with:
-<pre>
-
-      -DPU_NOT_USING_GLUT
-
-</pre>
+All you have to do is to define <b>PU_NOT_USING_GLUT</b> both when compiling
+PUI and previous to including "pu.h" from your application.
+<p>
 Since there is no longer any way for PUI to glutGet() the screen dimensions,
 your application must now tell PUI every time it changes the screen dimensions.
 <pre>
