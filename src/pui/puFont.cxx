@@ -15,7 +15,7 @@ puFont PUFONT_HELVETICA_18   ( GLUT_BITMAP_HELVETICA_18   ) ;
 
 
 
-int puFont::getStringWidth ( char *str )
+int puFont::getStringWidth ( const char *str )
 {
   if ( str == NULL )
     return 0 ;
@@ -56,7 +56,7 @@ static int getGLUTStringHeight ( GlutFont glut_font_handle )
   return 0 ;
 }
 
-int puFont::getStringHeight ( char *s )
+int puFont::getStringHeight ( const char *s )
 {
   /* Height *excluding* descender */
    
@@ -65,7 +65,7 @@ int puFont::getStringHeight ( char *s )
     int i = getGLUTStringHeight ( glut_font_handle ) ;
     int num_lines = 1 ;
 
-    for ( char *p = s ; *p != '\0' ; p++ )
+    for ( const char *p = s ; *p != '\0' ; p++ )
       if ( *p == '\n' )
         num_lines++ ;
 
@@ -114,7 +114,7 @@ int puFont::getStringDescender ()
 }
 
 
-void puFont::drawString ( char *str, int x, int y )
+void puFont::drawString ( const char *str, int x, int y )
 {
   if ( str == NULL )
     return ;

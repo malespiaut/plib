@@ -116,7 +116,7 @@ class ulClock
   double last_time ;
   double max_delta ;
 
-  double getRawTime () ;
+  double getRawTime () const ;
 
 public:
 
@@ -132,11 +132,11 @@ public:
   }
 
   void   setMaxDelta  ( double maxDelta ) { max_delta = maxDelta ; }
-  double getMaxDelta  () { return max_delta ; }
+  double getMaxDelta  () const { return max_delta ; }
   void   update       () ;
-  double getAbsTime   () { return now   ; }
-  double getDeltaTime () { return delta ; }
-  double getFrameRate () { return 1.0 / delta ; }
+  double getAbsTime   () const { return now   ; }
+  double getDeltaTime () const { return delta ; }
+  double getFrameRate () const { return 1.0 / delta ; }
 } ;
 
 

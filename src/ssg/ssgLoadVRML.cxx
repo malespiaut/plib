@@ -1152,7 +1152,7 @@ int VRMLdo_description  ( char *s )
 
 
 
-ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadVRML ( const char *fname, ssgHookFunc hookfunc )
 // int &leafCount, vTableList &vTableList; )
 {
   current_hookFunc = hookfunc ;
@@ -1425,7 +1425,7 @@ ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc )
 
 #else
 
-ssgEntity *ssgLoadVRML ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadVRML ( const char *fname, ssgHookFunc hookfunc )
 {
    return NULL ;
 }

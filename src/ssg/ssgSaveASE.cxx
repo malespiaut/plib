@@ -327,7 +327,7 @@ int ssgSaveASE ( FILE* fileout, ssgEntity *ent )
 }
 
 
-int ssgSaveASE ( char *filename, ssgEntity *ent )
+int ssgSaveASE ( const char *filename, ssgEntity *ent )
 {
   save_fd = fopen ( filename, "wa" ) ;
 

@@ -949,7 +949,7 @@ static void parse_free()
 }
 
 
-ssgEntity *ssgLoadASE ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadASE ( const char *fname, ssgHookFunc hookfunc )
 {
   (*_ssgCreateFunc) ( 0 ) ;  //reset
 

@@ -123,7 +123,7 @@ static void tex_make_mip_maps ( GLubyte *image, int xsize,
 
 
 
-int fntTexFont::loadTXF ( char *fname, GLenum mag, GLenum min )
+int fntTexFont::loadTXF ( const char *fname, GLenum mag, GLenum min )
 {
   if ( glGetCurrentContext () == NULL )
   {

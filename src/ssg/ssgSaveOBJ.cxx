@@ -113,7 +113,7 @@ static void save_entities ( ssgEntity *e )
 
 /******************************************************************************/
 
-int ssgSaveOBJ ( char *filename, ssgEntity *ent )
+int ssgSaveOBJ ( const char *filename, ssgEntity *ent )
 
 /******************************************************************************/
 

@@ -573,7 +573,7 @@ int do_kids ( char *s )
 }
 
 
-ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadAC3D ( const char *fname, ssgHookFunc hookfunc )
 {
   ssgEntity *obj = ssgLoadAC ( fname, hookfunc ) ;
 
@@ -593,7 +593,7 @@ ssgEntity *ssgLoadAC3D ( char *fname, ssgHookFunc hookfunc )
   Original function for backwards compatibility...
 */
 
-ssgEntity *ssgLoadAC ( char *fname, ssgHookFunc hookfunc )
+ssgEntity *ssgLoadAC ( const char *fname, ssgHookFunc hookfunc )
 {
   current_hookFunc = hookfunc ;
   (*_ssgCreateFunc) ( 0 ) ;  //reset

@@ -92,10 +92,10 @@ public:
 
   int getStringDescender () ;
   int getStringHeight    () ;
-  int getStringHeight( char *str ) ;
-  int getStringWidth ( char *str ) ;
+  int getStringHeight( const char *str ) ;
+  int getStringWidth ( const char *str ) ;
 
-  void drawString ( char *str, int x, int y ) ;
+  void drawString ( const char *str, int x, int y ) ;
 } ;
 
 
@@ -316,17 +316,17 @@ inline int puGetStringHeight ( puFont fnt )
   return fnt . getStringHeight () ;
 }
 
-inline int puGetStringHeight ( puFont fnt, char *str )
+inline int puGetStringHeight ( puFont fnt, const char *str )
 {
   return fnt . getStringHeight ( str ) ;
 }
 
-inline int puGetStringWidth ( puFont fnt, char *str )
+inline int puGetStringWidth ( puFont fnt, const char *str )
 {
   return fnt . getStringWidth ( str ) ;
 }
 
-inline void puDrawString ( puFont fnt, char *str, int x, int y )
+inline void puDrawString ( puFont fnt, const char *str, int x, int y )
 {
   fnt . drawString ( str, x, y ) ;
 }
@@ -439,8 +439,8 @@ protected:
   int highlighted ;
   int am_default  ;
 
-  char *label  ; puFont  labelFont ; int labelPlace ;
-  char *legend ; puFont legendFont ;
+  const char *label  ; puFont  labelFont ; int labelPlace ;
+  const char *legend ; puFont legendFont ;
 
   void *user_data ;
   puCallback cb ;
@@ -542,14 +542,14 @@ public:
   void  setActiveDirn ( int e ) { active_mouse_edge = e ; }
   int   getActiveDirn ( void ) { return active_mouse_edge ; }
 
-  void  setLegend ( char *l ) { legend = l ; recalc_bbox() ; puRefresh = TRUE ; }
-  char *getLegend ( void ) { return legend ; }
+  void  setLegend ( const char *l ) { legend = l ; recalc_bbox() ; puRefresh = TRUE ; }
+  const char *getLegend ( void ) const { return legend ; }
 
   void  setLegendFont ( puFont f ) { legendFont = f ; recalc_bbox() ; puRefresh = TRUE ; }
   puFont getLegendFont ( void ) { return legendFont ; }
 
-  void  setLabel ( char *l ) { label = l ; recalc_bbox() ; puRefresh = TRUE ; }
-  char *getLabel ( void ) { return label ; }
+  void  setLabel ( const char *l ) { label = l ; recalc_bbox() ; puRefresh = TRUE ; }
+  const char *getLabel ( void ) const { return label ; }
 
   void  setLabelFont ( puFont f ) { labelFont = f ; recalc_bbox() ; puRefresh = TRUE ; }
   puFont getLabelFont ( void ) { return labelFont ; }
@@ -717,7 +717,7 @@ protected:
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
-  puButton   ( int minx, int miny, char *l ) :
+  puButton   ( int minx, int miny, const char *l ) :
                  puObject ( minx, miny,
                             minx + puGetStringWidth  ( puGetDefaultLegendFont(), l ) + PUSTR_LGAP + PUSTR_RGAP,
                             miny + puGetStringHeight ( puGetDefaultLegendFont() ) + puGetStringDescender ( puGetDefaultLegendFont() ) + PUSTR_TGAP + PUSTR_BGAP )
@@ -807,7 +807,7 @@ protected:
 public:
   void doHit ( int button, int updown, int x, int y ) ;
 
-  puOneShot ( int minx, int miny, char *l ) : puButton   ( minx, miny, l )
+  puOneShot ( int minx, int miny, const char *l ) : puButton   ( minx, miny, l )
   {
     type |= PUCLASS_ONESHOT ;
   }
@@ -841,7 +841,7 @@ public:
     type |= PUCLASS_POPUPMENU ;
   }
 
-  puObject *add_item ( char *str, puCallback cb ) ;
+  puObject *add_item ( const char *str, puCallback cb ) ;
   int  checkHit ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key   , int updown ) ;
   void close ( void ) ;
@@ -858,7 +858,7 @@ public:
     type |= PUCLASS_MENUBAR ;
   }
 
-  void add_submenu ( char *str, char *items[], puCallback cb[] ) ;
+  void add_submenu ( const char *str, char *items[], puCallback cb[] ) ;
   void close ( void ) ;
 } ;
 

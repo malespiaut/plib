@@ -421,7 +421,7 @@ void ssgSGIHeader::readHeader ()
 }
 
 
-static void loadTextureSGI ( char *fname )
+static void loadTextureSGI ( const char *fname )
 {
   ssgSGIHeader *sgihdr = new ssgSGIHeader () ;
 
@@ -582,7 +582,7 @@ struct RGBA
 } ;
 
 
-static void loadTextureBMP ( char *fname )
+static void loadTextureBMP ( const char *fname )
 {
   int w, h, bpp ;
   RGBA pal [ 256 ] ;
@@ -768,7 +768,7 @@ static void loadTextureBMP ( char *fname )
 }
 
 
-void loadTexturePNG ( char *fname )
+void loadTexturePNG ( const char *fname )
 {
 #ifdef _SSG_USE_GLPNG
   pngInfo info;
@@ -787,7 +787,7 @@ void loadTexturePNG ( char *fname )
 struct _ssgTextureFormat
 {
   char *extension ;
-  void (*loadfunc) ( char * ) ;
+  void (*loadfunc) ( const char * ) ;
 } ;
 
 
@@ -804,13 +804,13 @@ static _ssgTextureFormat formats[] =
 } ;
 
 
-void ssgLoadTexture ( char *fname )
+void ssgLoadTexture ( const char *fname )
 {
   if ( fname == NULL || *fname == '\0' )
     return ;
 
   //find extension
-  char *extn = & ( fname [ strlen(fname) ] ) ;
+  const char *extn = & ( fname [ strlen(fname) ] ) ;
   while ( extn != fname && *extn != '/' && *extn != '.' )
     extn-- ;
 

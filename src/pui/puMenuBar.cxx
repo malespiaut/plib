@@ -18,7 +18,7 @@ static void drop_down_the_menu ( puObject *b )
   }
 }
 
-void puMenuBar::add_submenu ( char *str, char *items[], puCallback cb[] )
+void puMenuBar::add_submenu ( const char *str, char *items[], puCallback cb[] )
 {
   int w, h ;
   getSize ( &w, &h ) ;
