@@ -124,7 +124,12 @@ FILE *wkfp;
 
 #define PRINT_STRUCTURE(a, b) fprintf(wkfp, a, b);
 #define PRINT_STRUCTURE1(a ) fprintf(wkfp, a);
-    
+
+#else
+
+#define PRINT_STRUCTURE(a, b) 
+#define PRINT_STRUCTURE1(a ) 
+
 #endif
 
 //===========================================================================
