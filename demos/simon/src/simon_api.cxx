@@ -20,7 +20,7 @@ protected:
 
 public:
 
-  siEntity ( char *_fname )
+  siEntity ( const char *_fname )
   {
     siModels [ siNextModel ] = this ;
 
@@ -32,20 +32,19 @@ public:
       exit ( 1 ) ;
     }
 
-    name = new char [ strlen(_fname)+1 ] ;
-    strcpy ( name, _fname ) ;
+    name = ulStrDup ( _fname ) ;
     sgZeroCoord ( & pos ) ;
     sgZeroCoord ( & vel ) ;
   }
 
-  int getHandle () { return handle ; }
+  int getHandle () const { return handle ; }
 
-  float getPositionX () { return pos.xyz[0] ; }
-  float getPositionY () { return pos.xyz[1] ; }
-  float getPositionZ () { return pos.xyz[2] ; }
-  float getPositionH () { return pos.hpr[0] ; }
-  float getPositionP () { return pos.hpr[1] ; }
-  float getPositionR () { return pos.hpr[2] ; }
+  float getPositionX () const { return pos.xyz[0] ; }
+  float getPositionY () const { return pos.xyz[1] ; }
+  float getPositionZ () const { return pos.xyz[2] ; }
+  float getPositionH () const { return pos.hpr[0] ; }
+  float getPositionP () const { return pos.hpr[1] ; }
+  float getPositionR () const { return pos.hpr[2] ; }
 
   void setSpeedAndDirection ( float s, float h, float p ) 
   {
@@ -103,7 +102,7 @@ class siModel : public siEntity
 
 public:
 
-  siModel ( char *_fname ) : siEntity ( _fname )
+  siModel ( const char *_fname ) : siEntity ( _fname )
   {
     tra = new ssgTransform ;
     ent = ssgLoad ( name ) ;
@@ -123,7 +122,7 @@ public:
 } ;
 
 
-siEntity *getModel ( int i )
+static siEntity *getModel ( int i )
 {
   if ( i < 0 || i >= SI_MAX_MODELS ||
        siModels [ i ] == NULL )
@@ -184,12 +183,12 @@ static void siKeyboard ( unsigned char k, int, int )
 
 
 
-jsJoystick js (0) ;
+static jsJoystick js (0) ;
 
-bool A, B, C, D, L, R ;
+static bool A, B, C, D, L, R ;
 
-float leftright ;
-float updown    ;
+static float leftright ;
+static float updown    ;
  
 static void read_joystick ()
 {
@@ -320,7 +319,7 @@ void siInit ()
 
 /* Load a simple model */
 
-int siLoad ( char *filename )
+int siLoad ( const char *filename )
 {
   if ( ! siInitialised )
     siInit () ;
