@@ -45,23 +45,23 @@ look the same to application code.
      jsJoystick ( int id = 0 ) ;
     ~jsJoystick () ;
 
-     int  getNumAxes () ;
-     int  notWorking () ;
+     int  getNumAxes () const ;
+     int  notWorking () const ;
      void setError   () ;
 
-     float getDeadBand ( int axis )           ;
+     float getDeadBand ( int axis ) const     ;
      void  setDeadBand ( int axis, float db ) ;
 
-     float getSaturation ( int axis )           ;
+     float getSaturation ( int axis ) const     ;
      void  setSaturation ( int axis, float st ) ;
 
      void setMinRange ( float *axes ) ;
      void setMaxRange ( float *axes ) ;
      void setCenter   ( float *axes ) ;
 
-     void getMinRange ( float *axes ) ;
-     void getMaxRange ( float *axes ) ;
-     void getCenter   ( float *axes ) ;
+     void getMinRange ( float *axes ) const ;
+     void getMaxRange ( float *axes ) const ;
+     void getCenter   ( float *axes ) const ;
 
      void read    ( int *buttons, float *axes ) ;
      void rawRead ( int *buttons, float *axes ) ;
