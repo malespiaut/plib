@@ -90,6 +90,8 @@ class pslCompiler
   void pushOr           () ;
   void pushAnd          () ;
   void pushXor          () ;
+  void pushShiftLeft    () ;
+  void pushShiftRight   () ;
   void pushLess         () ;
   void pushLessEqual    () ;
   void pushGreater      () ;
@@ -126,6 +128,7 @@ class pslCompiler
   int pushMultExpression       () ;
   int pushAddExpression        () ;
   int pushRelExpression        () ;
+  int pushShiftExpression      () ;
   int pushExpression           () ;
 
   /* Statement-level parsers & code generators. */

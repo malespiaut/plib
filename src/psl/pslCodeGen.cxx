@@ -182,6 +182,8 @@ void pslCompiler::pushAndAnd       () { pushCodeByte ( OPCODE_ANDAND) ; }
 void pslCompiler::pushOr           () { pushCodeByte ( OPCODE_OR    ) ; } 
 void pslCompiler::pushAnd          () { pushCodeByte ( OPCODE_AND   ) ; } 
 void pslCompiler::pushXor          () { pushCodeByte ( OPCODE_XOR   ) ; } 
+void pslCompiler::pushShiftLeft    () { pushCodeByte ( OPCODE_SHIFTLEFT  ) ; } 
+void pslCompiler::pushShiftRight   () { pushCodeByte ( OPCODE_SHIFTRIGHT ) ; } 
 
 void pslCompiler::pushLess         () { pushCodeByte ( OPCODE_LESS ) ; } 
 void pslCompiler::pushLessEqual    () { pushCodeByte ( OPCODE_LESSEQUAL ) ; } 

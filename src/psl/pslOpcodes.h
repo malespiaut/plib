@@ -39,32 +39,33 @@
 #define OPCODE_TWIDDLE               0x0C
 #define OPCODE_OROR                  0x0D
 #define OPCODE_ANDAND                0x0E
-#define OPCODE_XORXOR                0x0F     /* Unused! */
+#define OPCODE_SHIFTLEFT             0x0F
 
-#define OPCODE_OR                    0x10
-#define OPCODE_AND                   0x11
-#define OPCODE_XOR                   0x12
-#define OPCODE_LESS                  0x13
-#define OPCODE_LESSEQUAL             0x14
-#define OPCODE_GREATER               0x15
-#define OPCODE_GREATEREQUAL          0x16
-#define OPCODE_NOTEQUAL              0x17
-#define OPCODE_EQUAL                 0x18
-#define OPCODE_JUMP_FALSE            0x19
-#define OPCODE_JUMP_TRUE             0x1A
-#define OPCODE_JUMP                  0x1B
-#define OPCODE_POP                   0x1C
-#define OPCODE_HALT                  0x1D
-#define OPCODE_CALLEXT               0x1E
-#define OPCODE_PAUSE                 0x1F
+#define OPCODE_SHIFTRIGHT            0x10
+#define OPCODE_OR                    0x11
+#define OPCODE_AND                   0x12
+#define OPCODE_XOR                   0x13
+#define OPCODE_LESS                  0x14
+#define OPCODE_LESSEQUAL             0x15
+#define OPCODE_GREATER               0x16
+#define OPCODE_GREATEREQUAL          0x17
+#define OPCODE_NOTEQUAL              0x18
+#define OPCODE_EQUAL                 0x19
+#define OPCODE_JUMP_FALSE            0x1A
+#define OPCODE_JUMP_TRUE             0x1B
+#define OPCODE_JUMP                  0x1C
+#define OPCODE_POP                   0x1D
+#define OPCODE_HALT                  0x1E
+#define OPCODE_CALLEXT               0x1F
 
-#define OPCODE_RETURN                0x20
-#define OPCODE_PUSH_VARIABLE         0x21
-#define OPCODE_POP_VARIABLE          0x22
-#define OPCODE_SET_INT_VARIABLE      0x23
-#define OPCODE_SET_FLOAT_VARIABLE    0x24
-#define OPCODE_SET_STRING_VARIABLE   0x25
-#define OPCODE_STACK_DUPLICATE       0x26
-#define OPCODE_GET_PARAMETER         0x27
+#define OPCODE_PAUSE                 0x20
+#define OPCODE_RETURN                0x21
+#define OPCODE_PUSH_VARIABLE         0x22
+#define OPCODE_POP_VARIABLE          0x23
+#define OPCODE_SET_INT_VARIABLE      0x24
+#define OPCODE_SET_FLOAT_VARIABLE    0x25
+#define OPCODE_SET_STRING_VARIABLE   0x26
+#define OPCODE_STACK_DUPLICATE       0x27
+#define OPCODE_GET_PARAMETER         0x28
 
 

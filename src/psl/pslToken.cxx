@@ -464,29 +464,70 @@ void pslCompiler::getToken ( char *res, int define_sub )
     return ;
   }
 
-  while ( isalnum ( c ) || c == '.' || c == '_' )
+  if ( isalnum ( c ) || c == '.' || c == '_' )  /* variables and numbers */
+  {
+    while ( isalnum ( c ) || c == '.' || c == '_' )
+    {
+      res [ tp++ ] = c ;
+      c = getChar () ;
+
+      if ( tp >= MAX_TOKEN - 1 )
+      {
+        error ( "Input string is bigger than %d characters!",
+                                                     MAX_TOKEN - 1 ) ;
+        tp-- ;
+      }
+    }
+
+    _pslUnGetChar ( c ) ;
+  }
+  else
+
+  /* Deal with:
+       <<, >>, <<=, >>=,
+       /=, +=, -=, *=, %=, &=, |=,
+       <=, >=, ==, !=, ++, --
+  */
+
+  if ( c == '*' || c == '/' || c == '%' ||
+       c == '<' || c == '>' || c == '=' ||
+       c == '!' || c == '&' || c == '|' ||
+       c == '+' || c == '-' )
   {
     res [ tp++ ] = c ;
-    c = getChar () ;
 
-    if ( tp >= MAX_TOKEN - 1 )
+    int c2 = getChar () ;
+
+    if ( c2 == '=' || ( c == '>' && c2 == '>' ) ||
+                      ( c == '<' && c2 == '<' ) ||
+                      ( c == '&' && c2 == '&' ) ||
+                      ( c == '|' && c2 == '|' ) ||
+                      ( c == '+' && c2 == '+' ) ||
+                      ( c == '-' && c2 == '-' ) )
     {
-      error ( "Input string is bigger than %d characters!",
-                                                     MAX_TOKEN - 1 ) ;
-      tp-- ;
-    }
-  }
+      res [ tp++ ] = c2 ;
 
-  if ( tp > 0 )
-  {
-    _pslUnGetChar ( c ) ;
-    res [ tp ] = '\0' ;
+      if ( ( c == '<' && c2 == '<' ) ||
+           ( c == '>' && c2 == '>' ) )
+      {
+        int c3 = getChar () ;
+
+        if ( c3 == '=' )
+          res [ tp++ ] = c3 ;
+        else
+          _pslUnGetChar ( c3 ) ;
+      }
+    }
+    else
+      _pslUnGetChar ( c2 ) ;
   }
   else
   {
     res [ 0 ] = c ;
-    res [ 1 ] = '\0' ;
+    tp = 1 ;
   }
+
+  res [ tp ] = '\0' ;
 
   /*
     Don't do define substituting if told not to

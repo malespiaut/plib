@@ -152,6 +152,30 @@ pslResult pslContext::step ()
       }
       return PSL_PROGRAM_CONTINUE ;
 
+    case OPCODE_SHIFTLEFT :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+        pslValue *v2 = & stack [ sp - 2 ] ;
+
+        v2 -> set ( v2 -> getInt () << v1 -> getInt () ) ;
+
+        popVoid () ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+    case OPCODE_SHIFTRIGHT :
+      {
+        pslValue *v1 = & stack [ sp - 1 ] ;
+        pslValue *v2 = & stack [ sp - 2 ] ;
+
+        v2 -> set ( v2 -> getInt () >> v1 -> getInt () ) ;
+
+        popVoid () ;
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
     case OPCODE_ADD :
       {
         pslValue *v1 = & stack [ sp - 1 ] ;
