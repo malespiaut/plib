@@ -663,7 +663,7 @@ public:
  
   void *getEntity ( unsigned int n )
   {
-    next = n ;
+    next = n + 1 ;
     return ( n >= total ) ? (void *) NULL : entity_list [ n ] ;
   }
  
@@ -685,7 +685,7 @@ public:
     replaceEntity ( searchForEntity ( old_entity ), new_entity ) ;
   }
  
-  void *getNextEntity   (void) { return getEntity ( next+1 ) ; }
+  void *getNextEntity   (void) { return getEntity ( next ) ; }
 
   int   getNumEntities  (void) const { return total ; }
   int   searchForEntity ( void *entity ) const ;
