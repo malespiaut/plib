@@ -2680,6 +2680,7 @@ int        ssgSaveOFF  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveQHI  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveATG  ( const char *fname, ssgEntity *ent ) ;
 int        ssgSaveVRML1( const char *fname, ssgEntity *ent ) ;
+int        ssgSaveASC  ( const char *fname, ssgEntity *ent ) ;
 
 
 ssgEntity *ssgLoad     ( const char *fname, const ssgLoaderOptions *options = NULL ) ;
