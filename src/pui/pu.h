@@ -470,7 +470,19 @@ public:
                                 integer = atoi(s) ;
                                 floater = (float)atof(s) ;
 
-                                if ( string != s ) strcpy ( string, s ) ;
+                                if ( string != s )
+                                {
+                                  /* Work around ANSI strncpy's null-fill
+                                     behaviour; ensure that too large string
+                                     is correctly terminated. */
+                                  int s_len = strlen ( s ) ;
+
+                                  if ( s_len > PUSTRING_MAX )
+                                    s_len = PUSTRING_MAX - 1 ;
+
+                                  memcpy ( string, s, s_len ) ;
+                                  string[s_len] = '\0' ;
+                                }
                               }
                               update_res () ;
                               puPostRefresh() ;
