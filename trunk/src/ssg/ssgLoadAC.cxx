@@ -30,7 +30,7 @@ struct _ssgMaterial
 {
   sgVec4 spec ;
   sgVec4 emis ;
-  sgVec4 rgb  ;
+  sgVec4 rgb  ; // Should be named rgba instead - Bram
   float  shi  ;
 } ;
 
@@ -204,6 +204,7 @@ static ssgState *get_state ( _ssgMaterial *mat )
 
   ssgSimpleState *st = new ssgSimpleState () ;
 
+  st -> setMaterial ( GL_DIFFUSE,  mat -> rgb ) ;
   st -> setMaterial ( GL_SPECULAR, mat -> spec ) ;
   st -> setMaterial ( GL_EMISSION, mat -> emis ) ;
   st -> setShininess ( mat -> shi ) ;
