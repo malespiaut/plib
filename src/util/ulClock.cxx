@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #if defined(WIN32)
 #include <windows.h>
+#include <mmsystem.h>
  #ifdef __CYGWIN__
   typedef long long _int64;
   #define LARGEINTEGER _int64
