@@ -302,13 +302,14 @@ int ssgEntity::bindEntities ( ssgEntityBinding *bind )
 
 ssgCullResult ssgEntity::hot_test ( sgVec3 s, sgMat4 m, int test_needed )
 {
+  /* Height-Off-Terrain Test */
   stats_hot_test++ ;
 
   if ( !test_needed )
-{
-stats_hot_triv_accept++ ;
+  {
+    stats_hot_triv_accept++ ;
     return SSG_INSIDE ;
-}
+  }
 
   sgSphere tmp = *(getBSphere()) ;
 
@@ -321,12 +322,12 @@ stats_hot_triv_accept++ ;
             sgSquare ( s[1] - tmp.getCenter()[1] ) ;
 
   if ( d > sgSquare ( tmp.getRadius() ) )
-{
-stats_hot_radius_reject++ ;
+  {
+    stats_hot_radius_reject++ ;
     return SSG_OUTSIDE ;
-}
+  }
 
-stats_hot_straddle++ ;
+  stats_hot_straddle++ ;
   return SSG_STRADDLE ;
 }
 
@@ -334,31 +335,70 @@ stats_hot_straddle++ ;
 
 ssgCullResult ssgEntity::los_test ( sgVec3 s, sgMat4 m, int test_needed )
 {
+  /* Line of Sight Test
+   * Determine whether a line of sight that starts at the origin and proceeds along the
+   *  vector "s" intersects the B-sphere of this entity (I think that's right)
+   * Algorithm:  (please bear with the vector calculus)
+   *  Define the line of sight to be L = O + u S
+   *    where "O" is the origin of the line of sight (always (0.0.0) for this application)
+   *          "u" is a parametric coordinate which measures distance along the line of sight
+   *          "S" is the direction vector, given by the variable "s" in this function
+   *  Define the B-sphere as a sphere of radius "r" centered at a point "C".
+   *  The vector from the center of the sphere to a point on the line is given by
+   *     V = O + u S - C = ( O - C ) + u S
+   *  The line of sight intersects the sphere if the shortest length of this vector is less
+   *  than the radius of the sphere.  We will work with the square of the length as it is
+   *  easier and gives the same result.  This distance-squared from the point on the line to
+   *  the center of the sphere is given by the dot product of "V" with itself:
+   *     d2 = V dot V = ( O - C ) dot ( O - C ) + 2 u * ( O - C ) dot S + u^2 * S dot S
+   *  To get the shortest distance, differentiate "d2" with respect to "u" and set the
+   *  derivative to zero:
+   *     2 ( O - C ) dot S + 2 u * S dot S = 0
+   *     u = - [ ( O - C ) dot S ] / [ S dot S ]
+   *  For this value of "u", the distance squared becomes
+   *     d2 = ( O - C ) dot ( O - C ) - [ ( O - C ) dot S ] ^2 / [ S dot S ]
+   *  If d2 < radius of sphere squared, then the line of sight intersects the sphere.
+   */
+
   stats_los_test++ ;
 
   if ( !test_needed )
-{
-stats_los_triv_accept++ ;
+  {
+    stats_los_triv_accept++ ;
     return SSG_INSIDE ;
-}
+  }
 
   sgSphere tmp = *(getBSphere()) ;
 
+  /* If there is no B-sphere, the LOS is outside of it by definition */
   if ( tmp.isEmpty () )
     return SSG_OUTSIDE ;
 
   tmp . orthoXform ( m ) ;
 
-  float d = sgSquare ( s[0] - tmp.getCenter()[0] ) +
-            sgSquare ( s[1] - tmp.getCenter()[1] ) ;
+  sgVec3 p1 ; /* End point at eye of Line-Of-Sight */
 
-  if ( d > sgSquare ( tmp.getRadius() ) )
-{
-stats_los_radius_reject++ ;
-    return SSG_OUTSIDE ;
-}
+  sgSetVec3 ( p1, 0.0, 0.0, 0.0 ) ; /* Eye point always at origin */
+        
+  /* Get the center of the sphere  */
+  sgFloat const *center = tmp.getCenter () ; 
 
-stats_los_straddle++ ;
+  /* Calculate the distance from the line to the center of the sphere  */
+  sgVec3 oc ; 
+  sgSubVec3 ( oc, p1, center ) ; 
+
+  float dmin2 = sgSquare ( oc[0] ) + sgSquare ( oc[1] ) + sgSquare ( oc[2] ) 
+                - sgSquare ( oc[0] * s[0] + oc[1] * s[1] + oc[2] * s[2] ) / 
+                    ( sgSquare ( s[0] ) + sgSquare ( s[1] ) + sgSquare ( s[2] ) ) ; 
+
+  /* Compare minimum distance squared with sphere radius squared */
+  if ( dmin2 > sgSquare ( tmp.getRadius () ) ) 
+  { 
+    stats_los_radius_reject++; 
+    return SSG_OUTSIDE; 
+  } 
+
+  stats_los_straddle++ ;
   return SSG_STRADDLE ;
 }
 
