@@ -1,7 +1,13 @@
 //
 // File parser for SSG/PLIB
 // Written by Dave McClurg (dpm@efn.org) in Feb-2000
-//
+// extended by Wolfram Kuss (w_kuss@rz-online.de) in Nov-2000
+
+// This is mainly an lexical analyzer that extracts tokens from ascii-files
+
+// Be sure to read the ssg-documentation, especially the chapter
+// on loaders/writers
+
 
 #define AM_IN_SSGPARSER_CXX 1
 
@@ -21,6 +27,7 @@ static _ssgParserSpec default_spec =
 } ;
 
 
+// Output an error
 void _ssgParser::error( const char *format, ... )
 {
   char msgbuff[ 255 ];
@@ -41,6 +48,7 @@ void _ssgParser::error( const char *format, ... )
 }
 
 
+// Output a message
 void _ssgParser::message( const char *format, ... )
 {
   char msgbuff[ 255 ];
@@ -60,15 +68,21 @@ void _ssgParser::message( const char *format, ... )
   ulSetError ( UL_DEBUG, "%s", msgbuff ) ;
 }
 
-
-void _ssgParser::openFile( const char* fname, const _ssgParserSpec* _spec )
+// Opens the file and does a few internal calculations based on the spec.
+int _ssgParser::openFile( const char* fname, const _ssgParserSpec* _spec )
+// returns TRUE on success
 {
   if ( !_spec ) _spec = &default_spec ;
   memset(this,0,sizeof(_ssgParser));
   memcpy( &spec, _spec, sizeof(spec) );
   fileptr = fopen( _ssgMakePath(path,_ssgModelPath,fname), "rb" );
   if ( ! fileptr )
+	{
     error("cannot open file: %s",path);
+		return FALSE;
+	}
+	eof = FALSE;
+	// Calculate anyDelimiter and return.
 	anyDelimiter[0] = 0;
 	int length = 0;
 	if ( spec.delim_chars_skipable != NULL )
@@ -88,6 +102,7 @@ void _ssgParser::openFile( const char* fname, const _ssgParserSpec* _spec )
 	  strcat ( anyDelimiter, spec.close_brace_chars ) ;
 	}
 	assert ( length < MAX_DELIMITER_CHARS );
+	return TRUE;
 }
 
 
@@ -96,10 +111,13 @@ void _ssgParser::closeFile()
   fclose( fileptr ) ;
   fileptr = 0 ;
 }
-// wk start
 
+static char *EOF_string = "EOF reached";
+static char *EOL_string = "EOL reached";
 
 char* _ssgParser::getNextToken( const char* name )
+// Fetches next token, even if it has to read over some empty or commant-only lines to get to it.
+// Never returns NULL. Returns EOF_string on EOF.
 {
 	while(!( curtok < numtok ))
 	{	//int startLevel = level;
@@ -107,7 +125,7 @@ char* _ssgParser::getNextToken( const char* name )
 		if(getLine( -999 ) == NULL) // -999
 		{	if ( name )
 				error("missing %s",name) ;
-			return NULL;
+			return EOF_string;
 		}
 		assert(curtok==1);
 		curtok=0; // redo the get one token that getLine does
@@ -118,28 +136,44 @@ char* _ssgParser::getNextToken( const char* name )
 	return(token) ;
 }
 
-SGfloat _ssgParser::getNextFloat( const char* name )
+
+int _ssgParser::getNextFloat( SGfloat &retVal, const char* name )
+// returns TRUE on success
 {
-  char* token = getNextToken(name);
-  SGfloat value = SGfloat(atof(token));
-  return( value );
+  char *endptr, *token = getNextToken(name);
+  retVal = SGfloat(strtod( token, &endptr));
+	if ( (endptr == NULL) || (*endptr == 0))
+    return TRUE;
+	else
+	{ error("The field %s should contain a floating point number but contains %s",name, token) ;
+		return FALSE;
+	}
 }
 
-int _ssgParser::getNextInt( const char* name )
+int _ssgParser::getNextInt( int & retVal, const char* name )
+// returns TRUE on success
 {
-  char* token = getNextToken(name);
-  int value = int(atoi(token));
-  return( value );
+  char *endptr, *token = getNextToken(name);
+  retVal = int(strtol( token, &endptr, 10));
+	if ( (endptr == NULL) || (*endptr == 0))
+    return TRUE;
+	else
+	{ error("The field %s should contain an integer number but contains %s",name, token) ;
+		return FALSE;
+	}
 }
 
 
 void _ssgParser::expectNextToken( const char* name )
+// Swallows the next token. If it is not name, then there is an error message
 {
   char* token = getNextToken(name);
   if (strcmp(token,name))
     error("missing %s",name) ;
 }
 
+// internal function. A token consisting of a single char has been found.
+// This is copied to a new buffer, so that I have the space to add the 0.
 void _ssgParser::addOneCharToken ( char *ptr ) 
 {
 	assert( (long)onechartokenbuf_ptr- (long)onechartokenbuf < 4096 ) ; // Buffer overflow
@@ -159,14 +193,16 @@ char *mystrchr( const char *string, int c )
 		return strchr( string, c );
 }
 
-
-// wk stop
+// wk: This works and is IMHO robust.
+// However, I feel it could be smaller, more elegant and readable.
 char* _ssgParser::getLine( int startLevel )
+// return NULL on eof or if (level < startLevel)
 {
 	// throw away old tokens
   tokbuf [ 0 ] = 0 ;
   numtok = 0 ;
   curtok = 0 ;
+	eol = FALSE;
 	onechartokenbuf_ptr = onechartokenbuf ;
 	
   //get the next line with something on it
@@ -175,8 +211,10 @@ char* _ssgParser::getLine( int startLevel )
   {
 		linenum++ ;
 		if ( fgets ( linebuf, sizeof(linebuf), fileptr ) == NULL )
-		 return(0) ;
-
+		{ eol = TRUE;
+			eof = TRUE;
+			return(0) ;
+		}
 		memcpy( tokbuf, linebuf, sizeof(linebuf) ) ;
 		ptr = tokbuf ;
 
@@ -191,9 +229,6 @@ char* _ssgParser::getLine( int startLevel )
 				*tptr = 0;
 		}
 
-
-
- 
 		//skip delim_chars
 		if ( spec.delim_chars_skipable != NULL )
 			while ( *ptr && strchr(spec.delim_chars_skipable,*ptr) )
@@ -272,20 +307,35 @@ char* _ssgParser::getLine( int startLevel )
 
 
 char* _ssgParser::parseToken( const char* name )
+// returns the next token from the current line.
+// Never returns NULL, but may return EOL_string
 {
-  char* token = 0 ;
+  char* token = EOL_string ;
   if ( curtok < numtok )
     token = tokptr [ curtok++ ] ;
-  else if ( name )
-    error("missing %s",name) ;
+  else 
+	{ eol = TRUE;
+		if ( name )
+			error("missing %s",name) ;
+	}
   return(token) ;
 }
 
 
-char* _ssgParser::parseString( const char* name )
+int _ssgParser::parseString(char *&retVal, const char* name ) // returns TRUE on success
+// wk: This is only for strings where we know they are inside spec.quote_chars, correct?
 {
-  char* token = 0 ;
-  if ( numtok > 0 && spec.quote_char && *tokptr [ curtok ] == spec.quote_char )
+  char* token = EOL_string ;
+	retVal = EOL_string ;
+
+  if ( curtok >= numtok )
+  { eol = TRUE;
+		if ( name )
+	    error("missing %s",name) ;
+		return FALSE;
+	}
+  
+	if ( numtok > 0 && spec.quote_char && *tokptr [ curtok ] == spec.quote_char )
   {
     token = tokptr [ curtok++ ] ;
 
@@ -295,29 +345,62 @@ char* _ssgParser::parseString( const char* name )
     if (len > 0 && token[len-1] == spec.quote_char)
        token[len-1] = 0 ;
   }
-  else if ( name )
-    error("missing %s",name) ;
-  return(token) ;
+  else 
+  { if ( name )
+	    error("missing %s",name) ;
+		return FALSE;
+	}
+	retVal = token;
+  return TRUE;
 }
 
 
-SGfloat _ssgParser::parseFloat( const char* name )
+int _ssgParser::parseFloat( SGfloat &retVal, const char* name )
+// returns TRUE on success
 {
-  char* token = parseToken(name);
-  SGfloat value = SGfloat(atof(token));
-  return( value );
+  char *endptr, *token = parseToken(name);
+  retVal = SGfloat(strtod( token, &endptr));
+	if ( (endptr == NULL) || (*endptr == 0))
+    return TRUE;
+	else
+	{ error("The field %s should contain a floating point number but contains %s",name, token) ;
+		return FALSE;
+	}
 }
 
-
-int _ssgParser::parseInt( const char* name )
+int _ssgParser::parseInt(int &retVal, const char* name )
+// returns TRUE on success
 {
-  char* token = parseToken(name);
-  int value = int(atoi(token));
-  return( value );
+  char *endptr, *token = parseToken(name);
+  retVal = int(strtol( token, &endptr, 10));
+	if ( (endptr == NULL) || (*endptr == 0))
+    return TRUE;
+	else
+	{ error("The field %s should contain an integer number but contains %s",name, token) ;
+		return FALSE;
+	}
 }
+
+int _ssgParser::parseUInt(unsigned int &retVal, const char* name )
+// returns TRUE on success
+{
+  char *endptr, *token = parseToken(name);
+	long l = strtol( token, &endptr, 10);
+	if (l<0)
+		message("The field %s should contain an UNSIGNED integer number but contains %s",name, token) ;
+  retVal = unsigned int(l);
+	if ( (endptr == NULL) || (*endptr == 0))
+    return TRUE;
+	else
+	{ error("The field %s should contain an integer number but contains %s",name, token) ;
+		return FALSE;
+	}
+}
+
 
 
 void _ssgParser::expect( const char* name )
+// Swallows the next token. If it is not name, then there is an error message
 {
   char* token = parseToken(name);
   if (strcmp(token,name))
