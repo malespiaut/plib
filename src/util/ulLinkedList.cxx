@@ -73,7 +73,7 @@ int ulLinkedList::getNodePosition ( void *data ) const
     curr = curr -> getNext () ;
   }
 
-  ulSetError ( UL_WARNING, "ulLInkedList::getNodePosition: No such node" ) ;
+  ulSetError ( UL_WARNING, "ulLinkedList::getNodePosition: No such node" ) ;
   return 0 ;
 }
 
@@ -101,13 +101,12 @@ void ulLinkedList::insertNode ( void *data, int pos )
 
     if ( tail == NULL )
       tail = head ;
-
-    if ( ++nnodes > 1 )
-      sorted = false ;
   }
   else
   {
-    if ( isValidPosition ( pos ) )
+    if ( ! isValidPosition ( pos ) )
+      return ;
+    else
     {
       ulListNode *prev = head ;
 
@@ -115,11 +114,11 @@ void ulLinkedList::insertNode ( void *data, int pos )
         prev = prev -> getNext () ;
 
       prev -> setNext ( new ulListNode ( data, prev -> getNext () ) ) ;
-
-      if ( ++nnodes > 1 )
-        sorted = false ;
     }
   }
+
+  if ( ++nnodes > 1 )
+    sorted = false ;
 }
 
 
@@ -190,7 +189,7 @@ void ulLinkedList::removeNode ( void *data )
     curr = curr -> getNext () ;
   }
 
-  ulSetError ( UL_WARNING, "ulHashTable::removeNode: No such node" ) ;
+  ulSetError ( UL_WARNING, "ulLinkedList::removeNode: No such node" ) ;
 }
 
 void * ulLinkedList::removeNode ( int pos )
@@ -198,19 +197,19 @@ void * ulLinkedList::removeNode ( int pos )
   if ( ! isValidPosition ( pos ) )
     return NULL ;
 
-  ulListNode *node = head, *prev = NULL ;
+  ulListNode *curr = head, *prev = NULL ;
 
   while ( pos-- > 0 )
   {
-    prev = node ;
-    node = node -> getNext () ;
+    prev = curr ;
+    curr = curr -> getNext () ;
   }
 
-  unlinkNode ( prev, node ) ;
+  unlinkNode ( prev, curr ) ;
 
-  void *datap = node -> getData () ;
+  void *datap = curr -> getData () ;
 
-  delete node ;
+  delete curr ;
 
   if ( --nnodes <= 1 )
     sorted = true ;
@@ -242,11 +241,11 @@ void * ulLinkedList::getNodeData ( int pos ) const
 
 void ulLinkedList::forEach ( ulIterateFunc fn ) const
 {
-  ulListNode *node ;
+  ulListNode *curr ;
 
-  for ( node = head ; node != NULL ; node = node -> getNext () )
+  for ( curr = head ; curr != NULL ; curr = curr -> getNext () )
   {
-    if ( (*fn)( node -> getData () ) == false )
+    if ( (*fn)( curr -> getData () ) == false )
       break ;
   }
 }
@@ -254,18 +253,18 @@ void ulLinkedList::forEach ( ulIterateFunc fn ) const
 
 void ulLinkedList::empty ( ulIterateFunc destroyfn )
 {
-  ulListNode *node = head ;
+  ulListNode *curr = head ;
 
-  while ( node != NULL )
+  while ( curr != NULL )
   {
-    ulListNode *next = node -> getNext () ;
+    ulListNode *next = curr -> getNext () ;
 
     if ( destroyfn != NULL )
-      (*destroyfn) ( node -> getData () ) ;
+      (*destroyfn) ( curr -> getData () ) ;
 
-    delete node ;
+    delete curr ;
 
-    node = next ;
+    curr = next ;
   }
 
   head = tail = NULL ;
