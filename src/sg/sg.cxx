@@ -667,32 +667,22 @@ void sgFrustum::update ()
    * and (A,B,C,D) is the same plane expressed in eye coordinates.
    */
 
-  sgVec4 pln[6] = {
-    {   SG_ONE,  SG_ZERO,  SG_ZERO,  SG_ONE  },  // left
-    {  -SG_ONE,  SG_ZERO,  SG_ZERO,  SG_ONE  },  // right
-    {  SG_ZERO,   SG_ONE,  SG_ZERO,  SG_ONE  },  // bottom
-    {  SG_ZERO,  -SG_ONE,  SG_ZERO,  SG_ONE  },  // top
-    {  SG_ZERO,  SG_ZERO,   SG_ONE,  SG_ONE  },  // near
-    {  SG_ZERO,  SG_ZERO,  -SG_ONE,  SG_ONE  },  // far
-  };
+  sgSetVec4( plane[ SG_LEFT_PLANE  ],   SG_ONE,  SG_ZERO,  SG_ZERO,  SG_ONE );
+  sgSetVec4( plane[ SG_RIGHT_PLANE ],  -SG_ONE,  SG_ZERO,  SG_ZERO,  SG_ONE );
+  sgSetVec4( plane[ SG_BOT_PLANE   ],  SG_ZERO,   SG_ONE,  SG_ZERO,  SG_ONE );
+  sgSetVec4( plane[ SG_TOP_PLANE   ],  SG_ZERO,  -SG_ONE,  SG_ZERO,  SG_ONE );
+  sgSetVec4( plane[ SG_NEAR_PLANE  ],  SG_ZERO,  SG_ZERO,   SG_ONE,  SG_ONE );
+  sgSetVec4( plane[ SG_FAR_PLANE   ],  SG_ZERO,  SG_ZERO,  -SG_ONE,  SG_ONE );
 
   for ( int i = 0 ; i < 6 ; i++ )
   {
     sgVec4 tmp ;
 
     for ( int j = 0 ; j < 4 ; j++ )
-      tmp[j] = sgScalarProductVec4 ( pln[i], mat[j] ) ;
+      tmp[j] = sgScalarProductVec4 ( plane[i], mat[j] ) ;
 
-    sgScaleVec4 ( pln[i], tmp, SG_ONE / sgLengthVec3 ( tmp ) ) ;
+    sgScaleVec4 ( plane[i], tmp, SG_ONE / sgLengthVec3 ( tmp ) ) ;
   }
-
-  sgCopyVec4 (  left_plane, pln[0] ) ;
-  sgCopyVec4 ( right_plane, pln[1] ) ;
-  sgCopyVec4 (   bot_plane, pln[2] ) ;
-  sgCopyVec4 (   top_plane, pln[3] ) ;
-  sgCopyVec4 (  near_plane, pln[4] ) ;
-  sgCopyVec4 (   far_plane, pln[5] ) ;
-
 }
 
 
@@ -724,7 +714,7 @@ int sgFrustum::getOutcode ( const sgVec3 pt ) const
   /*
     No need to divide by the 'w' component since we are only checking for
     results in the range 0..1
-  */
+  */  
 
   return (( tmp[0] <=  tmp[3] ) << OC_RIGHT_SHIFT ) |
          (( tmp[0] >= -tmp[3] ) << OC_LEFT_SHIFT  ) |
@@ -782,10 +772,10 @@ int sgFrustum::contains ( const sgSphere *s ) const
       bottom:  (  0,  1,  0,  x  )
       top:     (  0, -1,  0,  x  )
     */
-    sp1 =  left_plane[3] + center[0] ;
-    sp2 = right_plane[3] - center[0] ;
-    sp3 =   bot_plane[3] + center[1] ;
-    sp4 =   top_plane[3] - center[1] ;
+    sp1 = plane[ SG_LEFT_PLANE  ][3] + center[0] ;
+    sp2 = plane[ SG_RIGHT_PLANE ][3] - center[0] ;
+    sp3 = plane[ SG_BOT_PLANE   ][3] + center[1] ;
+    sp4 = plane[ SG_TOP_PLANE   ][3] - center[1] ;
   }
   else
   {
@@ -795,10 +785,10 @@ int sgFrustum::contains ( const sgSphere *s ) const
       bottom:  (  0,  x,  x,  0  )
       top:     (  0,  x,  x,  0  )
     */
-    sp1 =  left_plane[0] * center[0] +  left_plane[2] * center[2] ;
-    sp2 = right_plane[0] * center[0] + right_plane[2] * center[2] ;
-    sp3 =   bot_plane[1] * center[1] +   bot_plane[2] * center[2] ;
-    sp4 =   top_plane[1] * center[1] +   top_plane[2] * center[2] ;
+    sp1 = plane[ SG_LEFT_PLANE  ][0] * center[0] + plane[ SG_LEFT_PLANE  ][2] * center[2] ;
+    sp2 = plane[ SG_RIGHT_PLANE ][0] * center[0] + plane[ SG_RIGHT_PLANE ][2] * center[2] ;
+    sp3 = plane[ SG_BOT_PLANE   ][1] * center[1] + plane[ SG_BOT_PLANE   ][2] * center[2] ;
+    sp4 = plane[ SG_TOP_PLANE   ][1] * center[1] + plane[ SG_TOP_PLANE   ][2] * center[2] ;
   }
 
   /* 
@@ -824,6 +814,33 @@ int sgFrustum::contains ( const sgSphere *s ) const
     return SG_INSIDE ;
 
   return SG_STRADDLE ;
+}
+
+
+int sgFrustum::contains ( const sgBox *b ) const 
+{
+  sgVec3 p[8] = {
+    { b->getMin()[0], b->getMin()[1], b->getMin()[2] },
+    { b->getMax()[0], b->getMin()[1], b->getMin()[2] },
+    { b->getMin()[0], b->getMax()[1], b->getMin()[2] },
+    { b->getMax()[0], b->getMax()[1], b->getMin()[2] },
+    { b->getMin()[0], b->getMin()[1], b->getMax()[2] },
+    { b->getMax()[0], b->getMin()[1], b->getMax()[2] },
+    { b->getMin()[0], b->getMax()[1], b->getMax()[2] },
+    { b->getMax()[0], b->getMax()[1], b->getMax()[2] },
+  } ;
+
+  int all = -1 ;
+  int one =  0 ;
+  
+  for (int i = 0 ; i < 8 ; i++ ) 
+  {
+    int tmp = ~ getOutcode ( p[i] ) ;
+    all &= tmp ;
+    one |= tmp ;
+  }
+  
+  return ( all ? SG_OUTSIDE : one ? SG_STRADDLE : SG_INSIDE ) ;
 }
 
 
