@@ -1429,7 +1429,8 @@ public:
     type |= PUCLASS_POPUPMENU ;
   }
 
-  puObject *add_item ( const char *str, puCallback _cb ) ;
+  puObject *add_item ( const char *str, puCallback _cb,
+                       void *_user_data = NULL ) ;
   int  checkHit ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key   , int updown ) ;
   void close ( void ) ;
@@ -1451,7 +1452,8 @@ public:
     bar_height = h ;
   }
 
-  void add_submenu ( const char *str, char *items[], puCallback _cb[] ) ;
+  void add_submenu ( const char *str, char *items[], puCallback _cb[],
+                     void *_user_data[] = NULL ) ;
   void close ( void ) ;
 } ;
 
@@ -1477,7 +1479,8 @@ public:
     if ( y < 0 ) { setVStatus( TRUE ) ; } /* It is now supposed to stick to the top left - JCJ*/
   }
 
-  void add_submenu ( const char *str, char *items[], puCallback _cb[] ) ;
+  void add_submenu ( const char *str, char *items[], puCallback _cb[],
+                     void *_user_data[] = NULL ) ;
   void close ( void ) ;
 } ;
 
