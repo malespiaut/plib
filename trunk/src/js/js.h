@@ -128,23 +128,21 @@ class jsJoystick
     error = ( joyGetDevCaps( js_id, &jsCaps, sizeof(jsCaps) )
                  != JOYERR_NOERROR ) ;
 
-    num_axes = ( jsCaps.wNumAxes < _JS_MAX_AXES ) ?
-                     jsCaps.wNumAxes : _JS_MAX_AXES ;
-
-    /* WARNING - Fall through case clauses!! */
-
-    switch ( num_axes )
+    if ( jsCaps.wNumAxes == 0 )
     {
-      case 6 : min[5] = (float)jsCaps.wVmin ; max[5] = (float)jsCaps.wVmax ;
-      case 5 : min[4] = (float)jsCaps.wUmin ; max[4] = (float)jsCaps.wUmax ;
-      case 4 : min[3] = (float)jsCaps.wRmin ; max[3] = (float)jsCaps.wRmax ;
-      case 3 : min[2] = (float)jsCaps.wZmin ; max[2] = (float)jsCaps.wZmax ;
-      case 2 : min[1] = (float)jsCaps.wYmin ; max[1] = (float)jsCaps.wYmax ;
-      case 1 : min[0] = (float)jsCaps.wXmin ; max[0] = (float)jsCaps.wXmax ;
-               break ;
-      default :
-               setError () ;
-               break ;
+      num_axes = 0 ;
+      setError () ;
+    }
+    else
+    {
+      /* accept all the axis */
+      num_axes = _JS_MAX_AXES ;
+      min[5] = (float)jsCaps.wVmin ; max[5] = (float)jsCaps.wVmax ;
+      min[4] = (float)jsCaps.wUmin ; max[4] = (float)jsCaps.wUmax ;
+      min[3] = (float)jsCaps.wRmin ; max[3] = (float)jsCaps.wRmax ;
+      min[2] = (float)jsCaps.wZmin ; max[2] = (float)jsCaps.wZmax ;
+      min[1] = (float)jsCaps.wYmin ; max[1] = (float)jsCaps.wYmax ;
+      min[0] = (float)jsCaps.wXmin ; max[0] = (float)jsCaps.wXmax ;
     }
 
     for ( int i = 0 ; i < num_axes ; i++ )
