@@ -660,16 +660,17 @@ SGfloat sgDistSquaredToLineSegmentVec3 ( const sgLineSegment3 line,
 {
   sgLine3 l ; sgLineSegment3ToLine3 ( & l, line ) ;
  
+sgVec3 v ; sgSubVec3 ( v, line.b, line.a ) ;
   sgVec3 r1 ; sgSubVec3 ( r1, pnt, line.a ) ;
  
-  SGfloat r1_dot_v = sgScalarProductVec3 ( r1, l.direction_vector ) ;
+  SGfloat r1_dot_v = sgScalarProductVec3 ( r1, v /*l.direction_vector*/ ) ;
  
   if ( r1_dot_v <= 0 )  /* Off the "A" end  */
     return sgScalarProductVec3 ( r1, r1 ) ;
  
   sgVec3 r2 ; sgSubVec3 ( r2, pnt, line.b ) ;
 
-  SGfloat r2_dot_v = sgScalarProductVec3 ( r2, l.direction_vector ) ;
+  SGfloat r2_dot_v = sgScalarProductVec3 ( r2, v /*l.direction_vector*/ ) ;
  
   if ( r2_dot_v >= 0 )  /* Off the "B" end */
     return sgScalarProductVec3 ( r2, r2 ) ;
