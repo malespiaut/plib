@@ -36,6 +36,8 @@
 #define SG_TWO   2.0f
 #define SG_THREE 3.0f
 #define SG_45    45.0f
+#define SG_60    60.0f
+#define SG_90    90.0f
 #define SG_180   180.0f
 #define SG_MAX   FLT_MAX
 
@@ -1310,8 +1312,11 @@ bool sgPointInTriangle      ( sgVec3 point, sgVec3 tri[3] );
 #define SGD_TWO   2.0
 #define SGD_THREE 3.0
 #define SGD_45    45.0
+#define SGD_60    60.0
+#define SGD_90    90.0
 #define SGD_180   180.0
 #define SGD_MAX   DBL_MAX
+
 
 #define SGD_X	0
 #define SGD_Y	1
@@ -2541,18 +2546,47 @@ inline void sgdSetQuat ( sgdQuat dst, sgQuat src )
 */
 
 int sgdIsectPlanePlane        ( sgdVec3 point, sgdVec3 dir,
-							    sgdVec4 plane1, sgdVec4 plane2 ) ;
+				    sgdVec4 plane1, sgdVec4 plane2 ) ;
 int sgdIsectInfLinePlane      ( sgdVec3 dst,
-							    sgdVec3 l_org, sgdVec3 l_vec,
-							    sgdVec4 plane ) ;
+				    sgdVec3 l_org, sgdVec3 l_vec,
+				    sgdVec4 plane ) ;
 int sgdIsectInfLineInfLine    ( sgdVec3 dst,
-							    sgdVec3 l1_org, sgdVec3 l1_vec,
-							    sgdVec3 l2_org, sgdVec3 l2_vec ) ;
+				    sgdVec3 l1_org, sgdVec3 l1_vec,
+				    sgdVec3 l2_org, sgdVec3 l2_vec ) ;
 SGDfloat sgdIsectLinesegPlane ( sgdVec3 dst,
-							    sgdVec3 v1, sgdVec3 v2,
-							    sgdVec4 plane ) ;
+				    sgdVec3 v1, sgdVec3 v2,
+				    sgdVec4 plane ) ;
 bool sgdPointInTriangle       ( sgdVec3 point, sgdVec3 tri[3] );
 
+
+/*
+  TRIANGLE SOLVERS - These work for any triangle.
+
+  SSS  == Side-lengths for all three sides.
+  SAS  == Side-lengths for two sides - plus the angle between them.
+  ASA  == Two angles plus the length of the Side between them.
+  Area == The area of the triangle.
+*/
+
+SGfloat sgTriangleSolver_ASAtoArea ( SGfloat angA, SGfloat lenB, SGfloat angC );
+SGfloat sgTriangleSolver_SAStoArea ( SGfloat lenA, SGfloat angB, SGfloat lenC );
+SGfloat sgTriangleSolver_SSStoArea ( SGfloat lenA, SGfloat lenB, SGfloat lenC );
+void sgTriangleSolver_SSStoAAA ( SGfloat  lenA, SGfloat  lenB, SGfloat  lenC, 
+                                 SGfloat *angA, SGfloat *angB, SGfloat *angC ) ;
+void sgTriangleSolver_SAStoASA ( SGfloat  lenA, SGfloat  angB, SGfloat  lenC,
+                                 SGfloat *angA, SGfloat *lenB, SGfloat *angC ) ;
+void sgTriangleSolver_ASAtoSAS ( SGfloat  angA, SGfloat  lenB, SGfloat  angC,
+                                 SGfloat *lenA, SGfloat *angB, SGfloat *lenC ) ;
+
+SGDfloat sgdTriangleSolver_ASAtoArea(SGDfloat angA,SGDfloat lenB,SGDfloat angC);
+SGDfloat sgdTriangleSolver_SAStoArea(SGDfloat lenA,SGDfloat angB,SGDfloat lenC);
+SGDfloat sgdTriangleSolver_SSStoArea(SGDfloat lenA,SGDfloat lenB,SGDfloat lenC);
+void sgdTriangleSolver_SSStoAAA(SGDfloat  lenA,SGDfloat  lenB, SGDfloat  lenC, 
+                                SGDfloat *angA,SGDfloat *angB,SGDfloat *angC ) ;
+void sgdTriangleSolver_SAStoASA(SGDfloat  lenA,SGDfloat  angB,SGDfloat  lenC,
+                                SGDfloat *angA,SGDfloat *lenB,SGDfloat *angC ) ;
+void sgdTriangleSolver_ASAtoSAS(SGDfloat  angA,SGDfloat  lenB,SGDfloat  angC,
+                                SGDfloat *lenA,SGDfloat *angB,SGDfloat *lenC ) ;
 
 #endif
 

@@ -179,6 +179,48 @@ of four sgVec4's. This is convenient for quite a few reasons.
 For example, you can extract the sgVec3 that represents the
 translation part of an sgMat4 by just using mat[3] anywhere
 where an sgMat3 would be appropriate.
+<H3>sgTriangleSolver functions</H3>
+Remember all those high-school trig problems (eg "Given two
+sides and included angle, find length of remaining side")...
+nope - neither do I.  That's why these functions are useful.
+<p>
+NOTE:
+<ul>
+<li> SSS = Three sides.
+<li> SAS = Two sides and the angle between them.
+<li> ASA = Two angles and the side between them.
+</ul>
+<pre>
+
+void sgTriangleSolver_SSStoAAA ( SGfloat  lenA, SGfloat  lenB, SGfloat  lenC,
+                                 SGfloat *angA, SGfloat *angB, SGfloat *angC ) ;
+void sgTriangleSolver_SAStoASA ( SGfloat  lenA, SGfloat  angB, SGfloat  lenC,
+                                 SGfloat *angA, SGfloat *lenB, SGfloat *angC ) ;
+void sgTriangleSolver_ASAtoSAS ( SGfloat  angA, SGfloat  lenB, SGfloat  angC,
+                                 SGfloat *lenA, SGfloat *angB, SGfloat *lenC ) ;
+
+</pre>
+Imagine an arbitary triangle with sides of length 'lenA', 'lenB', 'lenC'
+and angles 'angA', 'angB' and 'angC' where angA is opposite the side of
+length lenA - and so on.
+<p>
+These functions take three parameters which are a mixture of lengths and angles
+for an arbitary triangle.  They return the missing three lengths
+or angles.  In all cases of 'funny' triangles
+(zero angles, zero lengths, impossible triangles), the package comes
+up with one plausible result - or all zeroes.  If one or more of the
+results are not needed, pass a NULL pointer for the result and the
+package can avoid doing the unnecessary trig.
+<pre>
+
+SGfloat sgTriangleSolver_ASAtoArea ( SGfloat angA, SGfloat lenB, SGfloat angC ) ;
+SGfloat sgTriangleSolver_SAStoArea ( SGfloat lenA, SGfloat angB, SGfloat lenC ) ;
+SGfloat sgTriangleSolver_SSStoArea ( SGfloat lenA, SGfloat lenB, SGfloat lenC ) ;
+
+</pre>
+These compute the area of a triangle from three sides, two angles and
+included side or two sides and included angle - impossible triangles
+return areas of zero.
 <H3>sgCoord</H3>
 This simple structure contains two members - each of type
 'sgVec3' - the first is 'xyz', the second 'hpr' - and together,
