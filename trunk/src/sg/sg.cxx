@@ -96,8 +96,8 @@ void sgMakeLookAtMat4 ( sgMat4 dst, const sgVec3 eye, const sgVec3 center, const
 #undef M
 }
 
-
-static float sgTriArea( sgVec3 p0, sgVec3 p1, sgVec3 p2 )
+// -dw- inconsistent linkage!
+float sgTriArea( sgVec3 p0, sgVec3 p1, sgVec3 p2 )
 {
   /* 
     From comp.graph.algorithms FAQ
