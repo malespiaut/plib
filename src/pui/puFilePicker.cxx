@@ -58,10 +58,10 @@ puFilePicker::puFilePicker ( int x, int y, const char* dir ) : puDialogBox ( x, 
   list_box -> setLabel ( "Pick a file" );
   list_box -> setLabelPlace ( PUPLACE_ABOVE ) ;
   list_box -> setStyle ( -PUSTYLE_SMALL_SHADED ) ;
-  list_box -> setValue ( 0 ) ;
-
   list_box -> setUserData ( this ) ;
   list_box -> setCallback ( handle_select ) ;
+  list_box -> setValue ( 0 ) ;
+  handle_select ( list_box ) ;
   
   slider -> setUserData ( list_box ) ;
   slider -> setCallback ( handle_slider ) ;

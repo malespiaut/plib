@@ -144,9 +144,14 @@ void puDeleteObject ( puObject *ob )
 {
   puGroup *parent = ob->getParent () ;
   
-  if ( parent != ob && parent != NULL )   // Remove from parent interface
+  // Remove from parent interface
+  if ( parent != ob && parent != NULL )
     parent -> remove ( ob ) ;
-  
+
+  // Pop live interface
+  if ( ob -> getType () & PUCLASS_INTERFACE )
+    puPopLiveInterface ( (puInterface*)ob ) ;
+
   ob -> prev = NULL ;                       // Add to linked list to be deleted
   ob -> next = objects_to_delete ;
   objects_to_delete = ob ;

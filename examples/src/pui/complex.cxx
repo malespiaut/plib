@@ -241,15 +241,16 @@ void pick_cb ( puObject * )
   char* filename ;
   file_picker -> getValue ( &filename ) ;
 
-#if 0
+  //NOTE: interface creation/deletion must be nested
+  //the old interface must be deleted *before* a new one is created
+  //otherwise the interface stack will be messed up
+  puDeleteObject ( file_picker ) ;
+  file_picker = 0 ;
+
   if ( filename[0] != 0 )
     mk_dialog ( "Saving File:\n%s", filename ) ;
   else
     mk_dialog ( "Save canceled" ) ;
-#endif
-
-  puDeleteObject ( file_picker ) ;
-  file_picker = 0 ;
 }
 
 void save_cb ( puObject * )
