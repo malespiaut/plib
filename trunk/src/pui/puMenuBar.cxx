@@ -64,11 +64,7 @@ void puMenuBar_drop_down_the_menu ( puObject *b )
       if ( x_siz < (x_max - x_min) ) x_siz = x_max - x_min ;    // Adjust the present size
       if ( y_siz < (y_max - y_min) ) y_siz = y_max - y_min ;
 
-      //int x_pos = glutGet ( (GLenum)GLUT_WINDOW_X ) ;
-      //int y_pos = glutGet ( (GLenum)GLUT_WINDOW_Y ) ;
-
       glutReshapeWindow ( x_siz, y_siz ) ;
-      //glutPositionWindow ( x_pos + x_min, y_pos ) ; // Unneccessary - JCJ 6 Jun 2002
 
       x_min = par_box->min[0] - x_min ;
       y_min = y_siz - ( par_box->max[1] - par_box->min[1] ) ;
