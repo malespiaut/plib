@@ -1474,15 +1474,21 @@ that widget's entire API.  You create a puListBox by invoking the
 contructor method:
 <pre>
 
-  puListBox::puListBox  ( int minx, int miny, int maxx, int maxy, char** list ) ;
+  puListBox::puListBox  ( int minx, int miny, int maxx, int maxy,
+                          char** list = NULL) ;
 
 </pre>
 In this case "list" is a null-terminated array of character strings that
 contain the items that go into the list box.  You are responsible
 for supplying this array and for making sure that it is still around the
 entire time the puListBox widget is using it.  The widget does <u>not</u>
-make its own copy of the array.
-<p>
+make its own copy of the array.  You can change which array the listbox
+operates on by calling:
+<pre>
+
+  puListBox::newList ( char **list ) ;
+
+</pre>
 The puListBox widget supports three additional function calls in its
 API.  They are as follows:
 <pre>
@@ -1524,8 +1530,12 @@ for none, 1 for single arrows, 2 for single and double arrows) next to
 the list box.  The third and fourth constructors allow you to also
 select the size of the dialog box as well.  The "dir" argument is
 a character string which is the name of the directory whose files are to
-be listed, and "title" is a title that is displayed in the puFilePicker
-widget.
+be listed as a starting point, and "title" is a title that is displayed
+in the puFilePicker widget.
+<p>
+When a file has been picked by the user, the string value of the widget will
+be set to the pathname of the file <b>relative to 'dir'</b> - beware, this
+can be a little confusing.
 <pre>
 
   puFilePicker::setSize ( int w, int h) ;
