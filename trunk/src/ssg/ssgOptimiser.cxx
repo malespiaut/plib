@@ -115,7 +115,7 @@ public:
   ~OptVertexList ()
   {
     for ( int i = 0 ; i < vnum ; i++ )
-      delete [] vlist [ i ] ;
+      delete vlist [ i ] ;
     
     delete [] vlist ;
     delete [] tlist ;
