@@ -337,7 +337,7 @@ int main ( int argc, char **argv )
   // Set up the font
 
   tim = new fntTexFont ;
-  tim -> load ( "../fnt/data/times_medium.txf" ) ;
+  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
   puFont times_medium ( tim, 15, 0.3f ) ;
   puSetDefaultFonts        ( times_medium, times_medium ) ;
   puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;

@@ -461,8 +461,8 @@ int main ( int argc, char **argv )
 
   hel = new fntTexFont ;
   tim = new fntTexFont ;
-  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
-  tim -> load ( "../fnt/data/times_medium.txf" ) ;
+  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
   puFont helvetica ( hel, 15 ) ;
   puFont times_medium ( tim, 13 ) ;
   puSetDefaultFonts        ( helvetica, times_medium ) ;
@@ -508,8 +508,8 @@ int main ( int argc, char **argv )
   glutIdleFunc          ( sliderdisplayfn ) ;
 
   //load the texture for the 2nd window
-  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
-  tim -> load ( "../fnt/data/times_medium.txf" ) ;
+  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
 
   puGroup *slider_group = new puGroup ( 0, 0 ) ;  // Necessary so that "sliderdisplayfn" will draw all widgets
 
@@ -542,8 +542,8 @@ int main ( int argc, char **argv )
   glutHideWindow        () ;
 
   //load the texture for the save window
-  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
-  tim -> load ( "../fnt/data/times_medium.txf" ) ;
+  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
 
   // Coordinate Selection Window
 
@@ -560,8 +560,8 @@ int main ( int argc, char **argv )
   glutReshapeFunc       ( coordreshapefn ) ;
 
   //load the texture for the 2nd window
-  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
-  tim -> load ( "../fnt/data/times_medium.txf" ) ;
+  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
 
   puGroup *coordinate_group = new puGroup ( 0, 0 ) ;  // Necessary so that "groupdisplayfn" will draw all widgets
 
@@ -591,8 +591,8 @@ int main ( int argc, char **argv )
 
   coordinate_group -> close () ;
 
-//  hel -> load ( "../fnt/data/helvetica_medium.txf" ) ;
-//  tim -> load ( "../fnt/data/times_medium.txf" ) ;
+//  hel -> load ( "../fnt/data/old/helvetica_medium.txf" ) ;
+//  tim -> load ( "../fnt/data/old/times_medium.txf" ) ;
 
   glutMainLoop () ;
   return 0 ;

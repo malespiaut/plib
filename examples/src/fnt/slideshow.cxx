@@ -193,7 +193,7 @@ int main ( int argc, char **argv )
   glutKeyboardFunc    ( keyfn     ) ;
   
   text = new fntRenderer () ;
-  font = new fntTexFont ( "data/lucida.txf" ) ;
+  font = new fntTexFont ( "data/old/lucida.txf" ) ;
 
   glutMainLoop () ;
   return 0 ;
