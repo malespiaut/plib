@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/af2rgb/af2rgb.cxx)
-AM_INIT_AUTOMAKE(plib_tools, 1.6.0)
+AM_INIT_AUTOMAKE(plib_tools, 1.7.0)
 
 dnl Checks for programs.
 AC_PROG_CC
