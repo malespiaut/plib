@@ -121,7 +121,7 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   labelFont   = defaultLabelFont  ;
   legend      = NULL ;
   legendFont  = defaultLegendFont ;
-  legendPlace = PUPLACE_CENTERED  ;
+  legendPlace = PUPLACE_CENTERED_CENTERED  ;
 
   for ( int i = 0 ; i < PUCOL_MAX ; i++ )
     puSetColour ( colour[i], _puDefaultColourTable[i] ) ;
@@ -150,42 +150,47 @@ void puObject::recalc_bbox ( void )
   bbox = abox ;
 
   if ( label != NULL )
-    switch ( labelPlace )
+  {
+    switch ( labelPlace )  // Extend the bounding box left and right
     {
-      case PUPLACE_ABOVE         : bbox.max[1] += 
-              labelFont.getStringHeight ( getLabel () ) +
-              labelFont.getStringDescender () +
-              PUSTR_TGAP + PUSTR_BGAP ; break ;
-      case PUPLACE_TOP_CENTER    :  bbox.min[0] -=
-            ( labelFont.getStringWidth (  label ) - abox.max[0] + abox.min[0] ) / 2 ;
-                                    bbox.max[0] +=
-            ( labelFont.getStringWidth (  label ) - abox.max[0] + abox.min[0] ) / 2 ;
-                                    bbox.max[1] +=
-              labelFont.getStringHeight ( getLabel () ) +
-              labelFont.getStringDescender () +
-              PUSTR_TGAP + PUSTR_BGAP ; break ;
-      case PUPLACE_BELOW         : bbox.min[1] -=
-              labelFont.getStringHeight () +
-              labelFont.getStringDescender () +
-              PUSTR_TGAP + PUSTR_BGAP ; break ;
-      default                    :
-      case PUPLACE_BOTTOM_CENTER :  bbox.min[0] -=
-            ( labelFont.getStringWidth (  label ) - abox.max[0] + abox.min[0] ) / 2 ;
-                                    bbox.max[0] +=
-            ( labelFont.getStringWidth (  label ) - abox.max[0] + abox.min[0] ) / 2 ;
-                                    bbox.min[1] -=
-              labelFont.getStringHeight () +
-              labelFont.getStringDescender() +
-              PUSTR_TGAP + PUSTR_BGAP ; break ;
-      case PUPLACE_LEFT_CENTER   :
-      case PUPLACE_LEFT          : bbox.min[0] -=
-              labelFont.getStringWidth (  label ) +
-              PUSTR_LGAP + PUSTR_RGAP ; break ;
-      case PUPLACE_RIGHT_CENTER  :
-      case PUPLACE_RIGHT         : bbox.max[0] +=
-              labelFont.getStringWidth (  label ) +
-              PUSTR_LGAP + PUSTR_RGAP ; break ;
+    case PUPLACE_ABOVE_LEFT    :
+    case PUPLACE_UPPER_LEFT    :
+    case PUPLACE_CENTERED_LEFT :
+    case PUPLACE_LOWER_LEFT    :
+    case PUPLACE_BELOW_LEFT    :
+      bbox.min[0] -= labelFont.getStringWidth ( label ) + PUSTR_LGAP ;
+      break ;
+
+    case PUPLACE_ABOVE_RIGHT    :
+    case PUPLACE_UPPER_RIGHT    :
+    case PUPLACE_CENTERED_RIGHT :
+    case PUPLACE_LOWER_RIGHT    :
+    case PUPLACE_BELOW_RIGHT    :
+      bbox.max[0] += labelFont.getStringWidth ( label ) + PUSTR_RGAP ;
+      break ;
     }
+
+    switch ( labelPlace )  // Extend the bounding box up and down
+    {
+    case PUPLACE_ABOVE_LEFT   :
+    case PUPLACE_TOP_LEFT     :
+    case PUPLACE_TOP_CENTERED :
+    case PUPLACE_TOP_RIGHT    :
+    case PUPLACE_ABOVE_RIGHT  :
+      bbox.max[1] += labelFont.getStringHeight ( label ) + labelFont.getStringDescender () +
+                     PUSTR_TGAP ;
+      break ;
+
+    case PUPLACE_BELOW_LEFT      :
+    case PUPLACE_BOTTOM_LEFT     :
+    case PUPLACE_BOTTOM_CENTERED :
+    case PUPLACE_BOTTOM_RIGHT    :
+    case PUPLACE_BELOW_RIGHT     :
+      bbox.min[1] -= labelFont.getStringHeight () + labelFont.getStringDescender () +
+                     PUSTR_BGAP ;
+      break ;
+    }
+  }
 
   if ( parent != NULL )
     parent -> recalc_bbox () ;
@@ -195,36 +200,81 @@ void puObject::draw_legend ( int dx, int dy )
 {
   int lgap = PUSTR_LGAP ;
   int rgap = PUSTR_RGAP ;
+  int tgap = PUSTR_TGAP ;
+  int bgap = PUSTR_BGAP ;
   if ( getStyle () == PUSTYLE_BOXED )
   {
     lgap += getBorderThickness () ;
     rgap += getBorderThickness () ;
+    tgap += getBorderThickness () ;
+    bgap += getBorderThickness () ;
   }
 
   int xx, yy ;
   switch ( getLegendPlace() )
   {
-  case PUPLACE_LEFT :
+  case PUPLACE_TOP_LEFT     :
+  case PUPLACE_ABOVE_LEFT    :
+  case PUPLACE_UPPER_LEFT    :
+  case PUPLACE_CENTERED_LEFT :
+  case PUPLACE_LOWER_LEFT    :
+  case PUPLACE_BELOW_LEFT    :
+  case PUPLACE_BOTTOM_LEFT     :
     xx = lgap ;
     break ;
 
-  case PUPLACE_RIGHT :
-    xx = abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) - rgap ;
+  case PUPLACE_TOP_CENTERED :
+  case PUPLACE_CENTERED_CENTERED :
+  case PUPLACE_BOTTOM_CENTERED :
+  default :
+    xx = ( abox.max[0] - abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
     break ;
 
-  case PUPLACE_CENTERED :
-  default :
-    xx = ( abox.max[0] -
-             abox.min[0] - legendFont.getStringWidth (legend) ) / 2 ;
+  case PUPLACE_TOP_RIGHT    :
+  case PUPLACE_ABOVE_RIGHT    :
+  case PUPLACE_UPPER_RIGHT    :
+  case PUPLACE_CENTERED_RIGHT :
+  case PUPLACE_LOWER_RIGHT    :
+  case PUPLACE_BELOW_RIGHT    :
+  case PUPLACE_BOTTOM_RIGHT    :
+    xx = abox.max[0] - abox.min[0] - legendFont.getStringWidth ( legend ) - rgap ;
     break ;
   }
 
-    yy = ( abox.max[1] -
-             abox.min[1] - legendFont.getStringHeight () ) / 2 ;
+  switch ( getLegendPlace() )
+  {
+  case PUPLACE_UPPER_LEFT    :
+  case PUPLACE_ABOVE_LEFT    :
+  case PUPLACE_TOP_LEFT     :
+  case PUPLACE_TOP_CENTERED :
+  case PUPLACE_TOP_RIGHT    :
+  case PUPLACE_ABOVE_RIGHT    :
+  case PUPLACE_UPPER_RIGHT    :
+    yy = abox.max[1] - abox.min[1] - legendFont.getStringHeight ( legend ) -
+         legendFont.getStringDescender () - tgap ;
+    break ;
 
-  legendFont.drawString ( legend,
-                dx + abox.min[0] + xx,
-                dy + abox.min[1] + yy ) ;
+  case PUPLACE_CENTERED_LEFT :
+  case PUPLACE_CENTERED_CENTERED :
+  case PUPLACE_CENTERED_RIGHT :
+  default :
+    yy = ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () -
+           legendFont.getStringDescender () ) / 2 ;
+    break ;
+
+  case PUPLACE_LOWER_LEFT    :
+  case PUPLACE_BELOW_LEFT    :
+  case PUPLACE_BOTTOM_LEFT     :
+  case PUPLACE_BOTTOM_CENTERED :
+  case PUPLACE_BOTTOM_RIGHT    :
+  case PUPLACE_BELOW_RIGHT    :
+  case PUPLACE_LOWER_RIGHT    :
+    yy = bgap ;
+    break ;
+  }
+
+  legendFont.drawString ( legend, dx + abox.min[0] + xx,
+                                  dy + abox.min[1] + yy ) ;
 }
 
 void puObject::draw_label ( int dx, int dy )
@@ -241,18 +291,84 @@ void puObject::draw_label ( int dx, int dy )
                 colour [ PUCOL_LABEL ][2],
                 colour [ PUCOL_LABEL ][3] / 2.0f ) ; /* 50% more transparent */
 
-  switch ( labelPlace )
+  int xx, yy ;
+  switch ( getLabelPlace() )
   {
-    case PUPLACE_ABOVE         : labelFont.drawString ( label, dx + abox.min[0] + PUSTR_LGAP, dy + abox.max[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
-    default                    :
-    case PUPLACE_BELOW         : labelFont.drawString ( label, dx + abox.min[0] + PUSTR_LGAP, dy + bbox.min[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
-    case PUPLACE_LEFT          : labelFont.drawString ( label, dx + bbox.min[0] + PUSTR_LGAP, dy + abox.min[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
-    case PUPLACE_RIGHT         : labelFont.drawString ( label, dx + abox.max[0] + PUSTR_LGAP, dy + abox.min[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
-    case PUPLACE_TOP_CENTER    : labelFont.drawString ( label, dx + bbox.min[0] + PUSTR_LGAP, dy + abox.max[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
-    case PUPLACE_BOTTOM_CENTER : labelFont.drawString ( label, dx + bbox.min[0] + PUSTR_LGAP, dy + bbox.min[1] + labelFont.getStringDescender() + PUSTR_BGAP ) ; break ;
-    case PUPLACE_LEFT_CENTER   : labelFont.drawString ( label, dx + bbox.min[0] + PUSTR_LGAP, dy + ( abox.max[1] + abox.min[1] - labelFont.getStringHeight() ) / 2 ) ; break ;
-    case PUPLACE_RIGHT_CENTER  : labelFont.drawString ( label, dx + abox.max[0] + PUSTR_LGAP, dy + ( abox.max[1] + abox.min[1] - labelFont.getStringHeight() ) / 2 ) ; break ;
+  case PUPLACE_ABOVE_LEFT    :
+  case PUPLACE_UPPER_LEFT    :
+  case PUPLACE_CENTERED_LEFT :
+  case PUPLACE_LOWER_LEFT    :
+  case PUPLACE_BELOW_LEFT    :
+    xx = 0 ;
+    break ;
+
+  case PUPLACE_TOP_LEFT     :
+  case PUPLACE_BOTTOM_LEFT     :
+    xx = abox.min[0] - bbox.min[0] + PUSTR_LGAP ;
+    break ;
+
+  case PUPLACE_TOP_CENTERED :
+  case PUPLACE_CENTERED_CENTERED :
+  case PUPLACE_BOTTOM_CENTERED :
+  default :
+    xx = ( bbox.max[0] - bbox.min[0] - labelFont.getStringWidth ( label ) ) / 2 ;
+    break ;
+
+  case PUPLACE_TOP_RIGHT    :
+  case PUPLACE_BOTTOM_RIGHT    :
+    xx = abox.max[0] - bbox.min[0] - labelFont.getStringWidth ( label ) - PUSTR_RGAP ;
+    break ;
+
+  case PUPLACE_ABOVE_RIGHT    :
+  case PUPLACE_UPPER_RIGHT    :
+  case PUPLACE_CENTERED_RIGHT :
+  case PUPLACE_LOWER_RIGHT    :
+  case PUPLACE_BELOW_RIGHT    :
+    xx = bbox.max[0] - bbox.min[0] - labelFont.getStringWidth ( label ) ;
+    break ;
   }
+
+  switch ( getLabelPlace() )
+  {
+  case PUPLACE_ABOVE_LEFT    :
+  case PUPLACE_TOP_LEFT     :
+  case PUPLACE_TOP_CENTERED :
+  case PUPLACE_TOP_RIGHT    :
+  case PUPLACE_ABOVE_RIGHT    :
+    yy = bbox.max[1] - bbox.min[1] - labelFont.getStringHeight ( label ) -
+         labelFont.getStringDescender () ;
+    break ;
+
+  case PUPLACE_UPPER_LEFT    :
+  case PUPLACE_UPPER_RIGHT    :
+    yy = abox.max[1] - bbox.min[1] - labelFont.getStringHeight ( label ) - PUSTR_TGAP ;
+    break ;
+
+  case PUPLACE_CENTERED_LEFT :
+  case PUPLACE_CENTERED_CENTERED :
+  case PUPLACE_CENTERED_RIGHT :
+  default :
+    yy = ( bbox.max[1] - bbox.min[1] - labelFont.getStringHeight () -
+           labelFont.getStringDescender () ) / 2 ;
+    break ;
+
+  case PUPLACE_LOWER_LEFT    :
+  case PUPLACE_LOWER_RIGHT    :
+    yy = abox.min[1] - bbox.min[1] + labelFont.getStringDescender () + PUSTR_BGAP ;
+    break ;
+
+  case PUPLACE_BELOW_LEFT    :
+  case PUPLACE_BOTTOM_LEFT     :
+  case PUPLACE_BOTTOM_CENTERED :
+  case PUPLACE_BOTTOM_RIGHT    :
+  case PUPLACE_BELOW_RIGHT    :
+    yy = labelFont.getStringDescender () ;
+    break ;
+  }
+
+
+  labelFont.drawString ( label, dx + bbox.min[0] + xx,
+                                dy + bbox.min[1] + yy ) ;
 }
 
 
