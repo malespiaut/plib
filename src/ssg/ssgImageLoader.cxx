@@ -968,6 +968,11 @@ static _ssgTextureFormat formats[] =
   { ".daf" ,   loadTextureMDL },
   { ".eaf" ,   loadTextureMDL },
   { ".faf" ,   loadTextureMDL },
+  { ".gaf" ,   loadTextureMDL },
+  { ".haf" ,   loadTextureMDL },
+  { ".iaf" ,   loadTextureMDL },
+  { ".jaf" ,   loadTextureMDL },
+  { ".kaf" ,   loadTextureMDL },
   { NULL ,     NULL           }
 } ;
 
