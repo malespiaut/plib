@@ -34,9 +34,11 @@
 
 #define MAX_LINE_LEN 1024
 
-struct dxfVert {
+class dxfVert {
+public:
   sgVec3 pos ;
   int color_index ;
+	int isEqual ( class dxfVert * other );
 } ;
 
 class dxfVertArray : public ssgSimpleList
@@ -347,6 +349,15 @@ static float dxf_colors [256][3] =
   { 1.0000f, 1.0000f, 1.0000f },
 };
 
+int dxfVert::isEqual ( class dxfVert * other )
+// compares strictly (without epsilon)
+{
+	if ( color_index != other->color_index ) 
+		return FALSE;
+  return sgCompareVec3 ( pos, other->pos, 0.0 );
+
+}
+
 static void copy_vert ( dxfVert& dst, const dxfVert& src )
 {
   dst.color_index = src.color_index ;
@@ -364,6 +375,12 @@ static void add_tri ( const dxfVert* p, const dxfVert* q, const dxfVert* r )
 static void add_face ( void )
 {
   int num_vert = tempvert.getNum() ;
+	
+	if ( num_vert >= 4 ) //quad?
+	  if ( tempvert.get(3)->isEqual ( tempvert.get(2) ) )
+			// pseudo quad.
+			num_vert=3;
+
   if ( num_vert >= 3 )
   {
     if ( num_vert >= 4 ) //quad?

@@ -81,9 +81,9 @@ static void save_vtx_table ( ssgVtxTable *vt )
       fprintf ( fileout, "8\n" );
       fprintf ( fileout, "Cube\n" );
     
+      sgVec3 vert;
       for ( int ivert = 0; ivert < 3; ivert++ ) {
 
-        sgVec3 vert;
         sgCopyVec3 ( vert, vt->getVertex ( face[ivert] ) ) ;
    
         fprintf ( fileout, "1%d\n", ivert );
@@ -93,6 +93,12 @@ static void save_vtx_table ( ssgVtxTable *vt )
         fprintf ( fileout, "3%d\n", ivert );
         fprintf ( fileout, "%f\n", vert[2] );
       }
+      fprintf ( fileout, "13\n");
+      fprintf ( fileout, "%f\n", vert[0] );
+      fprintf ( fileout, "23\n");
+      fprintf ( fileout, "%f\n", vert[1] );
+      fprintf ( fileout, "33\n");
+      fprintf ( fileout, "%f\n", vert[2] );
     }
   }
 	else
