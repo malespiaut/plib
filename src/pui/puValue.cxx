@@ -24,10 +24,15 @@
 
 #include "puLocal.h"
 
+inline void skip_whitespace ( const char **str )
+{
+  while ( isspace ( **str ) != 0 )
+    (*str)++ ;
+}
+
 static int strtoint ( const char *str )
 {
-  while ( isspace ( *str ) != 0 )
-    str++ ;
+  skip_whitespace ( &str ) ;
 
   if ( *str == '\0')
     return 0 ;
@@ -37,10 +42,15 @@ static int strtoint ( const char *str )
   if ( *str == '-' )
   {
     result = -1 ;
-    str++ ;
+    skip_whitespace ( &(++str) ) ;
   }
   else
+  {
     result = 1 ;
+
+    if ( *str == '+' )
+      skip_whitespace ( &(++str) ) ;
+  }
 
   if ( ulStrNEqual ( str, "0x", 2 ) == TRUE )
     result *= (int) strtol ( str + 2, NULL, 16 ) ; /* try hexadecimal */
