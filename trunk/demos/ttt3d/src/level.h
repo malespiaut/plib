@@ -1,6 +1,6 @@
 
 
-struct Level
+class Level
 {
   int   number ;
   char *intro ;
