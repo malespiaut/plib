@@ -135,7 +135,7 @@ inline int ssgTypeTweenController(){ return _SSG_TYPE_TWEENCONTROLLER | ssgTypeB
 inline int ssgTypeBaseTransform() { return _SSG_TYPE_BASETRANSFORM | ssgTypeBranch () ; }
 inline int ssgTypeTransform    () { return _SSG_TYPE_TRANSFORM | ssgTypeBaseTransform () ; }
 inline int ssgTypeTexTrans     () { return _SSG_TYPE_TEXTRANS  | ssgTypeBaseTransform () ; }
-inline int ssgTypeAxisTransform() { return _SSG_TYPE_AXISTRANSFORM  | ssgTypeBaseTransform () ; }
+inline int ssgTypeAxisTransform() { return _SSG_TYPE_AXISTRANSFORM  | ssgTypeTransform () ; }
 inline int ssgTypeSelector     () { return _SSG_TYPE_SELECTOR  | ssgTypeBranch  () ; }
 inline int ssgTypeRangeSelector() { return _SSG_TYPE_RANGESELECTOR | ssgTypeSelector () ; }
 inline int ssgTypeTimedSelector() { return _SSG_TYPE_TIMEDSELECTOR | ssgTypeSelector () ; }
@@ -1440,6 +1440,7 @@ public:
 
   virtual void recalcBSphere () ;
   virtual void draw () ;
+  virtual void transform ( const sgMat4 m ) ;
 
   virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2);
   virtual int load ( FILE *fd ) ;
