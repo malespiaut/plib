@@ -31,6 +31,10 @@ AC_ARG_ENABLE(js,
 [  --enable-js             build JS examples                       default: yes],,
 enable_js=yes)
 
+AC_ARG_ENABLE(pw,
+[  --enable-pw             build PW examples                       default: yes],,
+enable_pw=yes)
+
 AC_ARG_ENABLE(net,
 [  --enable-net            build NET examples                      default: yes],,
 enable_net=yes)
@@ -68,6 +72,7 @@ if test "x$enable_ssgaux" = "xyes"; then need_opengl=yes; fi
 
 AM_CONDITIONAL(BUILD_FNT, test "x$enable_fnt" = "xyes")
 AM_CONDITIONAL(BUILD_JS, test "x$enable_js" = "xyes")
+AM_CONDITIONAL(BUILD_PW, test "x$enable_pw" = "xyes")
 AM_CONDITIONAL(BUILD_NET, test "x$enable_net" = "xyes")
 AM_CONDITIONAL(BUILD_PUI, test "x$enable_pui" = "xyes")
 AM_CONDITIONAL(BUILD_SG, test "x$enable_sg" = "xyes")
@@ -253,6 +258,7 @@ AC_OUTPUT( \
 	Makefile \
 	src/Makefile \
 	src/js/Makefile \
+	src/pw/Makefile \
 	src/pui/Makefile \
 	src/sg/Makefile \
 	src/sl/Makefile \
@@ -290,6 +296,7 @@ AC_MSG_RESULT(
 
   Building FNT examples:         $enable_fnt
   Building JS examples:          $enable_js
+  Building PW examples:          $enable_pw
   Building NET examples:         $enable_net
   Building PUI examples:         $enable_pui
   Building SG examples:          $enable_sg

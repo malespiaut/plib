@@ -37,55 +37,21 @@ int puRefresh = TRUE ;
 
 static int puWindowWidth  = 400 ;
 static int puWindowHeight = 400 ;
+static int openGLSize     =   0 ;
 
-static int openGLSize = 0 ;
+void puSetResizeMode ( int mode ) { openGLSize = mode ; }
+
 
 #ifdef PU_NOT_USING_GLUT
 
-int puGetWindow       ( void ) { return 0              ; }
-void puSetWindow ( int w ) {}
-int puGetWindowHeight ( void ) { return puWindowHeight ; }
-int puGetWindowWidth  ( void ) { return puWindowWidth  ; }
-
-void puSetWindowSize ( int width, int height )
-{
-  puWindowWidth  = width  ;
-  puWindowHeight = height ;
-}
+int  puGetWindow     ( void  ) { return 0 ; }
+void puSetWindow     ( int w ) {}
+void puSetWindowSize ( int width, int height ) {}
 
 #else
 
-
-void puSetResizeMode ( int mode ) {
-  openGLSize = mode ;
-}
-
-
-int puGetWindow ( void )
-{
-  return glutGetWindow () ;
-}
-
-
-void puSetWindow ( int w ) {  glutSetWindow ( w ) ;  }
-
-int puGetWindowHeight ( void )
-{
-  if ( ! openGLSize )
-        return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ;
-  else
-        return puWindowHeight ;
-}
-
-
-int puGetWindowWidth ( void )
-{
-  if ( ! openGLSize )
-        return glutGet ( (GLenum) GLUT_WINDOW_WIDTH ) ;
-  else
-        return puWindowWidth ;
-}
-
+int  puGetWindow ( void  ) { return glutGetWindow () ; }
+void puSetWindow ( int w ) { glutSetWindow ( w ) ;  }
 
 void puSetWindowSize ( int width, int height )
 {
@@ -104,18 +70,19 @@ void puSetWindowSize ( int width, int height )
 
 static bool glIsValidContext ( void )
 {
-#if defined(CONSOLE)
-  return true ;
-#elif defined(UL_WIN32)
+#if defined(UL_WGL)
   return ( wglGetCurrentContext () != NULL ) ;
-#elif defined(UL_MACINTOSH)
+#elif defined(UL_AGL)
   return ( aglGetCurrentContext () != NULL ) ;
-#elif defined(UL_MAC_OSX)
+#elif defined(UL_CGL)
   return ( CGLGetCurrentContext () != NULL ) ;
-#else
+#elif defined(UL_GLX)
   return ( glXGetCurrentContext () != NULL ) ;
+#else
+  return true ;
 #endif
 }
+
 
 static int _puCursor_enable = FALSE ;
 static int _puCursor_x      = 0 ;
@@ -340,6 +307,12 @@ void  puDisplay ( int window_number )  /* Deprecated */
 }
 
 
+int puKeyboard ( int key, int updown, int, int )
+{
+  puKeyboard ( key, updown ) ;
+}
+
+
 int puKeyboard ( int key, int updown )
 {
   int return_value = puGetBaseLiveInterface () -> checkKey ( key, updown ) ;
@@ -479,4 +452,67 @@ char *puGetPasteBuffer ( void )  {  return input_paste_buffer ;  }
 int  puNeedRefresh ( void )  {  return puRefresh ;  }
 void puPostRefresh ( void )  {  puRefresh = TRUE ;  }
 
+
+#ifdef UL_GLX
+
+int puGetWindowWidth ( void )
+{
+  if ( openGLSize )
+    return puWindowWidth ;
+
+  unsigned int width, height ;
+  Window w ;
+  int x, y ;
+  unsigned int bw, dr ;
+
+  XGetGeometry ( glXGetCurrentDisplay  (),
+                 glXGetCurrentDrawable (),
+                 &w, &x, &y, &width, &height, &bw, &dr ) ;
+
+  return width ;
+}
+
+
+
+int puGetWindowHeight ( void )
+{
+  if ( openGLSize )
+    return puWindowHeight ;
+
+  unsigned int width, height ;
+  Window w ;
+  int x, y ;
+  unsigned int bw, dr ;
+
+  XGetGeometry ( glXGetCurrentDisplay  (),
+                 glXGetCurrentDrawable (),
+                 &w, &x, &y, &width, &height, &bw, &dr ) ;
+
+  return height ;
+}
+
+#else
+
+//
+// Please contribute WGL, CGL and AGL code for this section!
+//
+
+int puGetWindowHeight ( void )
+{
+  if ( openGLSize )
+    return puWindowHeight ;
+
+  return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ;
+}
+
+
+int puGetWindowWidth ( void )
+{
+  if ( openGLSize )
+    return puWindowWidth ;
+
+  return glutGet ( (GLenum) GLUT_WINDOW_WIDTH ) ;
+}
+
+#endif
 

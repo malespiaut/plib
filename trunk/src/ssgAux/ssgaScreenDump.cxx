@@ -48,7 +48,7 @@ static void writeInt ( FILE *fd, unsigned int x )
 }
 
 
-void ssgaScreenDump ( char *filename, int xsize, int ysize )
+void ssgaScreenDump ( char *filename, int xsize, int ysize, int frontBuffer )
 {
   FILE *fd = fopen ( filename, "wb" ) ;
 
@@ -59,13 +59,8 @@ void ssgaScreenDump ( char *filename, int xsize, int ysize )
     return ;
   }
 
-  unsigned char *buffer = new unsigned char [ xsize * ysize * 3 ] ;
   unsigned char *row    = new unsigned char [ xsize ] ;
-
-  glReadBuffer ( GL_FRONT ) ;
-  glReadPixels( 0, 0, xsize, ysize, GL_RGB, GL_UNSIGNED_BYTE,
-                                                       (void *) buffer ) ;
-  glReadBuffer ( GL_BACK ) ;
+  unsigned char *buffer = ssgaScreenDump ( xsize, ysize, frontBuffer ) ;
 
   char  type  =   0 /* RGB_IMG_VERBATIM */ ;
   short dim   =   3 ;
@@ -110,6 +105,22 @@ void ssgaScreenDump ( char *filename, int xsize, int ysize )
 
   delete row ;
   delete buffer ;
+}
+
+
+unsigned char *ssgaScreenDump ( int xsize, int ysize, int frontBuffer )
+{
+  unsigned char *buffer = new unsigned char [ xsize * ysize * 3 ] ;
+
+  if ( frontBuffer )
+    glReadBuffer ( GL_FRONT ) ;
+
+  glReadPixels( 0, 0, xsize, ysize, GL_RGB, GL_UNSIGNED_BYTE,
+                                                       (void *) buffer ) ;
+  if ( frontBuffer )
+    glReadBuffer ( GL_BACK ) ;
+
+  return buffer ;
 }
 
 
