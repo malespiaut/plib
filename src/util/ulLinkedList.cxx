@@ -125,46 +125,50 @@ void ulLinkedList::insertNode ( void *data, int pos )
 
 int ulLinkedList::insertSorted ( void *data, ulCompareFunc comparefn )
 {
-  if ( !sorted )
+  if ( comparefn != NULL )
   {
-    ulSetError ( UL_WARNING,
-                 "ulLinkedList::insertSorted: This is not a sorted list !" ) ;
-    return -1 ;
-  }
-
-  int pos = 0 ;
-
-  if ( head == NULL )
-    head = tail = new ulListNode ( data, NULL ) ;
-  else
-  {
-    ulListNode *curr = head, *prev = NULL ;
-
-    while ( (*comparefn)( curr -> getData (), data ) < 0 )
+    if ( sorted )
     {
-      prev = curr ;
-      curr = curr -> getNext () ;
+      int pos = 0 ;
 
-      pos++ ;
-
-      if ( curr == NULL )
+      if ( head == NULL )
+        head = tail = new ulListNode ( data, NULL ) ;
+      else
       {
-        tail = new ulListNode ( data, curr ) ;
-        prev -> setNext ( tail ) ;
+        ulListNode *curr = head, *prev = NULL ;
 
-        nnodes++ ;
-        return pos ;
+        while ( (*comparefn)( curr -> getData (), data ) < 0 )
+        {
+          prev = curr ;
+          curr = curr -> getNext () ;
+
+          pos++ ;
+
+          if ( curr == NULL )
+          {
+            tail = new ulListNode ( data, curr ) ;
+            prev -> setNext ( tail ) ;
+
+            nnodes++ ;
+            return pos ;
+          }
+        }
+
+        if ( prev == NULL )
+          head = new ulListNode ( data, head ) ;
+        else
+          prev -> setNext ( new ulListNode ( data, curr ) ) ;
       }
-    }
 
-    if ( prev == NULL )
-      head = new ulListNode ( data, head ) ;
+      nnodes++ ;
+      return pos ;
+    }
     else
-      prev -> setNext ( new ulListNode ( data, curr ) ) ;
+      ulSetError ( UL_WARNING,
+                   "ulLinkedList::insertSorted: This is not a sorted list !" ) ;
   }
 
-  nnodes++ ;
-  return pos ;
+  return -1 ;
 }
 
 
@@ -240,34 +244,48 @@ void * ulLinkedList::getNodeData ( int pos ) const
 }
 
 
-void * ulLinkedList::forEach ( ulIterateFunc fn ) const
+void * ulLinkedList::forEach ( ulIterateFunc fn, void *user_data ) const
 {
-  ulListNode *curr ;
-
-  for ( curr = head ; curr != NULL ; curr = curr -> getNext () )
+  if ( fn != NULL )
   {
-    if ( (*fn)( curr -> getData () ) == false )
-      return curr -> getData () ;
+    ulListNode *curr ;
+
+    for ( curr = head ; curr != NULL ; curr = curr -> getNext () )
+    {
+      if ( (*fn)( curr -> getData (), user_data ) == false )
+        return curr -> getData () ;
+    }
   }
 
   return NULL ;
 }
 
 
-void ulLinkedList::empty ( ulIterateFunc destroyfn )
+void ulLinkedList::empty ( ulIterateFunc destroyfn, void *user_data )
 {
   ulListNode *curr = head ;
 
-  while ( curr != NULL )
+  if ( destroyfn != NULL )
   {
-    ulListNode *next = curr -> getNext () ;
+    while ( curr != NULL )
+    {
+      ulListNode *next = curr -> getNext () ;
 
-    if ( destroyfn != NULL )
-      (*destroyfn) ( curr -> getData () ) ;
+      (*destroyfn) ( curr -> getData (), user_data ) ;
 
-    delete curr ;
+      delete curr ;
+      curr = next ;
+    }
+  }
+  else
+  {
+    while ( curr != NULL )
+    {
+      ulListNode *next = curr -> getNext () ;
 
-    curr = next ;
+      delete curr ;
+      curr = next ;
+    }
   }
 
   head = tail = NULL ;
