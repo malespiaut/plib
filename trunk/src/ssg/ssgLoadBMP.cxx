@@ -25,6 +25,7 @@
 #include "ssgLocal.h"
 
 #ifdef SSG_LOAD_BMP_SUPPORTED
+//#define PRINT_BMP_HEADER_DEBUG
 
 static FILE          *curr_image_fd ;
 static char           curr_image_fname [ 512 ] ;
