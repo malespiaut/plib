@@ -1808,10 +1808,10 @@ _SSG_PUBLIC:
   ssgAnimEnum      running ;
   ssgAnimDirection mode    ;
 
-  float start_time    ;
-  float pause_time    ;
-  float loop_time     ;
-  float* times  ;
+  double  start_time ;
+  double  pause_time ;
+  double  loop_time  ;
+  float  *times      ;
   int   curr  ;
   int   start ;
   int   end   ;
@@ -1830,7 +1830,7 @@ _SSG_PUBLIC:
 protected:
   virtual void copy_from ( ssgTimedSelector *src, int clone_flags ) ;
 
-  float get_time() const
+  double get_time() const
   {
     if (time_mode == SSG_ANIM_FRAME)
       return static_cast<float>( ssgGetFrameCounter() );
