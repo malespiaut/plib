@@ -121,6 +121,7 @@ class pslCompiler
   void pushAddAssignment ( const char *s ) ;
   void pushSubAssignment ( const char *s ) ;
   void pushMulAssignment ( const char *s ) ;
+  void pushModAssignment ( const char *s ) ;
   void pushDivAssignment ( const char *s ) ;
   void pushAndAssignment ( const char *s ) ;
   void pushOrAssignment  ( const char *s ) ;

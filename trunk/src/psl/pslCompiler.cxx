@@ -491,15 +491,11 @@ int pslCompiler::pushAssignmentStatement ( const char *var )
 
   getToken ( c ) ;
 
-  if ( strcmp ( c, "="   ) != 0 && 
-       strcmp ( c, "+="  ) != 0 && 
-       strcmp ( c, "-="  ) != 0 && 
-       strcmp ( c, "/="  ) != 0 && 
-       strcmp ( c, "*="  ) != 0 && 
-       strcmp ( c, "&="  ) != 0 && 
-       strcmp ( c, "|="  ) != 0 && 
-       strcmp ( c, "^="  ) != 0 && 
-       strcmp ( c, "<<=" ) != 0 && 
+  if ( strcmp ( c, "="   ) != 0 && strcmp ( c, "+="  ) != 0 && 
+       strcmp ( c, "-="  ) != 0 && strcmp ( c, "/="  ) != 0 && 
+       strcmp ( c, "*="  ) != 0 && strcmp ( c, "%="  ) != 0 && 
+       strcmp ( c, "&="  ) != 0 && strcmp ( c, "|="  ) != 0 && 
+       strcmp ( c, "^="  ) != 0 && strcmp ( c, "<<=" ) != 0 && 
        strcmp ( c, ">>=" ) != 0 )
   {
     ungetToken ( c ) ;
@@ -514,6 +510,7 @@ int pslCompiler::pushAssignmentStatement ( const char *var )
     if ( strcmp ( c, "+="  ) == 0 ) pushAddAssignment ( var ) ; else
     if ( strcmp ( c, "-="  ) == 0 ) pushSubAssignment ( var ) ; else
     if ( strcmp ( c, "*="  ) == 0 ) pushMulAssignment ( var ) ; else
+    if ( strcmp ( c, "%="  ) == 0 ) pushModAssignment ( var ) ; else
     if ( strcmp ( c, "/="  ) == 0 ) pushDivAssignment ( var ) ; else
     if ( strcmp ( c, "&="  ) == 0 ) pushAndAssignment ( var ) ; else
     if ( strcmp ( c, "|="  ) == 0 ) pushOrAssignment  ( var ) ; else

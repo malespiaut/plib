@@ -506,14 +506,46 @@ pslResult pslContext::step ()
       return PSL_PROGRAM_CONTINUE ;
 
 
+    case OPCODE_POP_MOD_VARIABLE :
+      {
+        pslVariable *v = & ( variable [ code[++pc] ] ) ;
+        pslValue   *vv = & stack[--sp] ;
+
+        if ( v -> getType () == PSL_INT )
+        {
+          if ( vv -> getInt () != 0 )
+            v -> set ( v -> getInt() % vv->getInt()) ;
+          else
+            warning ( "Integer Modulo by Zero!" ) ;
+        }
+        else
+          warning ( "Floating Point Modulo!" ) ;
+
+        pc++ ;
+      }
+      return PSL_PROGRAM_CONTINUE ;
+
+
+
     case OPCODE_POP_DIV_VARIABLE :
       {
         pslVariable *v = & ( variable [ code[++pc] ] ) ;
+        pslValue   *vv = & stack[--sp] ;
 
         if ( v -> getType () == PSL_INT )
-          v -> set ( v -> getInt() / stack[--sp].getInt()) ;
+        {
+          if ( vv -> getInt () != 0 )
+            v -> set ( v -> getInt() / vv->getInt()) ;
+          else
+            warning ( "Integer Divide by Zero!" ) ;
+        }
         else
-          v -> set ( v -> getFloat() / stack[--sp].getFloat()) ;
+        {
+          if ( vv -> getFloat () != 0.0f )
+            v -> set ( v -> getFloat() / vv->getFloat()) ;
+          else
+            warning ( "Floating Point Divide by Zero!" ) ;
+        }
         pc++ ;
       }
       return PSL_PROGRAM_CONTINUE ;

@@ -170,6 +170,15 @@ void pslCompiler::pushMulAssignment ( const char *c )
 } 
 
 
+void pslCompiler::pushModAssignment ( const char *c )
+{
+  int a = getVarSymbol ( c ) ;
+
+  pushCodeByte ( OPCODE_POP_MOD_VARIABLE ) ;
+  pushCodeByte ( a ) ;
+} 
+
+
 void pslCompiler::pushDivAssignment ( const char *c )
 {
   int a = getVarSymbol ( c ) ;
