@@ -164,12 +164,14 @@ puSelectBox::puSelectBox ( int minx, int miny, int maxx, int maxy,
   down_arrow = new puArrowButton ( maxx-minx - arrow_size, 0,
                                    maxx-minx, arrow_size,
                                    PUARROW_DOWN ) ;
+  down_arrow -> setStyle ( PUSTYLE_SMALL_SHADED ) ;
   down_arrow -> setUserData ( this ) ;
   down_arrow -> setCallback ( handle_arrow ) ;
 
   up_arrow   = new puArrowButton ( maxx-minx - arrow_size, arrow_size,
                                    maxx-minx, maxy-miny,
                                    PUARROW_UP ) ;
+  up_arrow   -> setStyle ( PUSTYLE_SMALL_SHADED ) ;
   up_arrow   -> setUserData ( this ) ;
   up_arrow   -> setCallback ( handle_arrow ) ;
 
