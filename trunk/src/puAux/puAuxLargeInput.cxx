@@ -31,7 +31,7 @@ UL_RTTI_DEF2(puaLargeInput,puInputBase,puGroup)
 
 static void puaLargeInputHandleRightSlider ( puObject *slider )
 {
-  float val = ((puScrollBar *)slider)->getMaxValue () - slider->getFloatValue () ;
+  float val = ((puaScrollBar *)slider)->getMaxValue () - slider->getFloatValue () ;
 
   puaLargeInput* text = (puaLargeInput*) slider->getUserData () ;
   //int lines_in_window = text->getLinesInWindow () ; 
@@ -97,8 +97,8 @@ puaLargeInput::puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_wi
 //    bottom_slider->setCBMode( PUSLIDER_DELTA );
   }
 
-  right_slider = new puScrollBar ( w - slider_width, (bottom_slider?slider_width:0),
-                                   h - (bottom_slider?slider_width:0), arrows, TRUE, slider_width ) ,
+  right_slider = new puaScrollBar ( w - slider_width, (bottom_slider?slider_width:0),
+                                    h - (bottom_slider?slider_width:0), arrows, TRUE, slider_width ) ,
   right_slider->setValue ( 1.0f ) ;    // All the way to the top
 //  right_slider->setDelta(0.1f);
   right_slider->setSliderFraction (1.0f) ;
@@ -182,6 +182,9 @@ void  puaLargeInput::selectEntireLine ( void )
    
   if ( select_start_position < 0 )
       select_start_position = 0 ;
+
+  if ( *(temp_text + select_start_position + 1) != '\n' )
+    select_start_position ++ ;
 
   while ( ( select_start_position > 0 ) && ( *(temp_text + select_start_position) != '\n' ) )
     select_start_position -- ;

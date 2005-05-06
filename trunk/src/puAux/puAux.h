@@ -147,7 +147,7 @@ protected:
   puFrame *frame ;
 
   puSlider *bottom_slider ;    // Horizontal slider at bottom of window
-  puScrollBar *right_slider ;  // Vertical slider at right of window
+  puaScrollBar *right_slider ;  // Vertical slider at right of window
 
   char *wrapped_text ;         // Pointer to word-wrapped text in the box
 
