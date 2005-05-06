@@ -140,20 +140,20 @@ class puaLargeInput : public puInputBase, public puGroup
   UL_TYPE_DATA
 
 protected:
-  int num_lines ;              // Number of lines of text in the box
-  int lines_in_window ;        // Number of lines showing in the window
-  int top_line_in_window ;     // Number of the first line in the window
-  float max_width ;            // Width of longest line of text in box, in pixels
+  int num_lines ;               // Number of lines of text in the box
+  int lines_in_window ;         // Number of lines showing in the window
+  int top_line_in_window ;      // Number of the first line in the window
+  float max_width ;             // Width of longest line of text in box, in pixels
   int slider_width ;
 
   puFrame *frame ;
 
-  puSlider *bottom_slider ;    // Horizontal slider at bottom of window
+  puSlider *bottom_slider ;     // Horizontal slider at bottom of window
   puaScrollBar *right_slider ;  // Vertical slider at right of window
 
-  char *wrapped_text ;         // Pointer to word-wrapped text in the box
+  char *wrapped_text ;          // Pointer to word-wrapped text in the box
 
-  int arrow_count ;          // Number of up/down arrows above and below the right slider
+  int arrow_count ;             // Number of up/down arrows above and below the right slider
 
   void normalizeCursors ( void ) ;
   void removeSelectRegion ( void ) ;
@@ -206,6 +206,12 @@ public:
 
 
 // A box that contains a set of alternatives that drop down when the user clicks on the down-arrow
+// Defined constants telling how the callback got triggered.  This is needed for
+// cases in which the user has deleted the entry in the input box and wants that
+// entry deleted from the list of items.
+#define PUACOMBOBOX_CALLBACK_NONE      0
+#define PUACOMBOBOX_CALLBACK_INPUT     1
+#define PUACOMBOBOX_CALLBACK_ARROW     2
 class puaComboBox : public puGroup
 {
   UL_TYPE_DATA
@@ -220,11 +226,17 @@ protected:
   puArrowButton *arrow_btn ;
   puPopupMenu *popup_menu  ;
 
+  int callback_source ;
+
+  static void input_cb ( puObject *inp   ) ;
+  static void input_active_cb ( puObject *inp   ) ;
   static void input_down_cb ( puObject *inp   ) ;
   static void handle_arrow ( puObject *arrow  ) ;
   static void handle_popup ( puObject *popupm ) ;
 
   void update_widgets ( void ) ;
+  void update_current_item ( void ) ;
+  void setCallbackSource ( int s )  {  callback_source = s ;  }
 
 public:
   /* Not for application use ! */
@@ -232,6 +244,7 @@ public:
 
   void newList ( char ** _list ) ;
   int  getNumItems ( void ) const { return num_items ; }
+  char *getNewEntry ( void ) const { return input->getStringValue () ; }
 
   int  getCurrentItem ( void ) ;
   void setCurrentItem ( int item )
@@ -241,6 +254,7 @@ public:
       curr_item = item ;
       update_widgets () ;
 
+      callback_source = PUACOMBOBOX_CALLBACK_ARROW ;
       invokeCallback () ;
     }
   }
@@ -261,8 +275,19 @@ public:
   int  checkHit ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key, int updown ) ;
 
+  int  getCallbackSource ( void ) const  {  return callback_source ;  }
+
   puaComboBox ( int minx, int miny, int maxx, int maxy,
                 char **list, int editable = TRUE ) ;
+
+  ~puaComboBox ()
+  {
+    int i ;
+    for ( i = 0; i < num_items; i++ )
+      delete [] list[i] ;
+
+    delete [] list ;
+  }
 } ;
 
 
@@ -836,6 +861,7 @@ public:
   static void menuCleanup  ( puObject * ) ;
 } ;
 
+
 /**
  * A scrolling list for PUI.
  *
@@ -865,7 +891,6 @@ public:
   virtual char * getListStringValue ();
   virtual int getListIntegerValue();
 };
-
 
 #endif
 

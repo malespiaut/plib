@@ -27,10 +27,33 @@
 UL_RTTI_DEF1(puaComboBox,puGroup)
 
 
+void puaComboBox::input_cb ( puObject *inp )
+{
+  puaComboBox *cbox = (puaComboBox *) inp -> getUserData () ;
+
+  if ( strcmp ( inp->getStringValue (), cbox->getStringValue () ) )
+  {
+    cbox->update_current_item () ;
+    cbox->setCallbackSource ( PUACOMBOBOX_CALLBACK_INPUT ) ;
+    cbox -> invokeCallback () ;
+  }
+}
+
+void puaComboBox::input_active_cb ( puObject *inp )
+{
+  puaComboBox *cbox = (puaComboBox *) inp -> getUserData () ;
+
+  cbox->update_current_item () ;
+  cbox->setCallbackSource ( PUACOMBOBOX_CALLBACK_INPUT ) ;
+  cbox -> invokeActiveCallback () ;
+}
+
 void puaComboBox::input_down_cb ( puObject *inp )
 {
   puaComboBox *cbox = (puaComboBox *) inp -> getUserData () ;
 
+  cbox->update_current_item () ;
+  cbox->setCallbackSource ( PUACOMBOBOX_CALLBACK_INPUT ) ;
   cbox -> invokeCallback () ;
 }
 
@@ -70,27 +93,91 @@ void puaComboBox::update_widgets ( void )
 
     arrow_btn -> greyOut () ;
   }
+
+  input->setValue ( getStringValue () ) ;
+}
+
+
+void puaComboBox::update_current_item ( void )
+{
+  if ( strcmp ( getStringValue (), input->getStringValue () ) )
+  {
+    /* User has typed in an arbitrary string; see if it is in the list */
+    int i ;
+    for ( i = 0 ; i < num_items ; i++ )
+    {
+      if ( !strcmp ( list[i], input->getStringValue () ) )
+      {
+        /* ... yes, it is ! */
+        curr_item = i ;
+        break ;
+      }
+    }
+
+    if ( ( i == num_items ) || ( num_items == 0 ) )
+    {
+      /* Didn't find it in the list--or the list is empty */
+      char **old_list = list ;
+      list = new char * [ num_items + 2 ] ;
+      for ( i = 0; i < num_items; i++ )  /* Copy over the old list */
+        list[i] = old_list[i] ;
+
+      delete old_list ;
+
+      num_items++ ;
+      int len = strlen ( input->getStringValue () ) + 1 ;
+      curr_item = num_items - 1 ;
+      list[curr_item] = new char [ len ] ;
+      memcpy ( list[curr_item], input->getStringValue (), len ) ;
+      list[num_items] = NULL ;
+      newList ( list ) ;
+      update_widgets () ;
+    }
+
+    setValue ( input->getStringValue () ) ;
+  }
 }
 
 
 void puaComboBox::newList ( char ** _list )
 {
-  list = _list ;
+  // Delete the existing list--if it has not been passed in as the argument
+  int i ;
+  if ( list && ( list != _list ) )
+  {
+    for ( i = 0; i < num_items; i++ )
+      delete list[i] ;
+
+    delete list ;
+    list = NULL ;
+  }
 
   popup_menu -> empty () ;
 
-  if ( list == NULL )
+  if ( _list == NULL )
     num_items = 0 ;
   else
   {
-    for ( num_items = 0 ; list[num_items] != NULL ; num_items++ )
+    for ( num_items = 0 ; _list[num_items] != NULL ; num_items++ )
       /* Count number of items */ ;
 
     if ( num_items > 0 )
     {
+      if ( list != _list )
+      {
+        list = new char * [ num_items + 1 ] ;  /* '+ 1' to capture the trailing NULL */
+        for ( i = 0; i < num_items; i++ )
+        {
+          int len = strlen ( _list[i] ) + 1 ;  /* "+ 1" to capture the \0 */
+          list[i] = new char [ len ] ;
+          memcpy ( list[i], _list[i], len * sizeof(char) ) ;
+        }
+
+        list[num_items] = NULL ;
+      }
+
       int dummy, h ;
       int old_height = abox.max[1] - abox.min[1] ;
-      int i ;
 
       puPushGroup ( popup_menu ) ;
 
@@ -124,31 +211,16 @@ void puaComboBox::newList ( char ** _list )
     }
   }
 
-  curr_item = ( num_items > 0 ? 0 : - 1 ) ;
-  update_widgets () ;
+  if ( ( curr_item >= num_items ) || ( curr_item < 0 ) )
+  {
+    curr_item = ( num_items > 0 ? 0 : - 1 ) ;
+    update_widgets () ;
+  }
 }
 
 int puaComboBox::getCurrentItem ( void )
 {
-  if ( num_items > 0 )
-  {
-    if ( strcmp ( list[curr_item], getStringValue() ) )
-    /* The user typed in an arbitrary string.
-       Let's see if it is one of our entries ... */
-    {
-      int i ;
-
-      for ( i = 0 ; i < num_items ; i++ )
-      {
-        if ( !strcmp ( list[i], getStringValue() ) )
-          /* ... yes, it its ! */
-          return i ;
-      }
-
-      /* ... no, it isn't. */
-      return -1 ;
-    }
-  }
+  update_current_item () ;
 
   return curr_item ;
 }
@@ -183,6 +255,7 @@ int puaComboBox::checkHit ( int button, int updown, int x, int y )
   if ( input -> checkHit ( button, updown, x-abox.min[0], y-abox.min[1] ) )
   {
     popup_menu -> hide () ;
+    puSetActiveWidget ( this, x, y ) ;
 
     return TRUE ;
   }
@@ -243,6 +316,8 @@ puaComboBox::puaComboBox ( int minx, int miny, int maxx, int maxy,
 
   input = new puInput ( 0, 0, maxx-minx - arrow_width, maxy-miny ) ;
   input -> setUserData ( this ) ;
+  input -> setCallback ( input_cb ) ;
+  input -> setActiveCallback ( input_active_cb ) ;
   input -> setDownCallback ( input_down_cb ) ;
 
   input -> setStyle ( PUSTYLE_SMALL_SHADED ) ;
@@ -252,7 +327,7 @@ puaComboBox::puaComboBox ( int minx, int miny, int maxx, int maxy,
 
   /* Share 'string' value with input box */
   input -> getValue ( &stringval ) ;
-  setValuator ( stringval ) ;
+//  setValuator ( stringval ) ;
 
   arrow_btn = new puArrowButton ( maxx-minx - arrow_width, 0,
                                   maxx-minx, maxy-miny,
@@ -266,7 +341,12 @@ puaComboBox::puaComboBox ( int minx, int miny, int maxx, int maxy,
 
   close () ;
 
+  list = NULL ;
+  curr_item = 0 ;
+  num_items = 0 ;
+  callback_source = PUACOMBOBOX_CALLBACK_NONE ;
   newList ( entries ) ;
+  update_widgets () ;
 }
 
 void puaComboBox::setSize ( int w, int h )
