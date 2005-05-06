@@ -148,6 +148,7 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   bbox.max[1] = abox.max[1] = maxy ;
 
   active_mouse_edge = PU_UP ;
+  active_mouse_button = PU_LEFT_BUTTON ;
   style      = defaultStyle ;
   visible = active  = TRUE  ;
   highlighted       = FALSE ;
@@ -464,10 +465,10 @@ int puObject::checkKey ( int key, int updown )
       puDeactivateWidget () ;
     }
 
-    checkHit ( PU_LEFT_BUTTON, PU_DOWN, (abox.min[0]+abox.max[0])/2,
-                                        (abox.min[1]+abox.max[1])/2 ) ;
-    checkHit ( PU_LEFT_BUTTON, PU_UP  , (abox.min[0]+abox.max[0])/2,
-                                        (abox.min[1]+abox.max[1])/2 ) ;
+    checkHit ( active_mouse_button, PU_DOWN, (abox.min[0]+abox.max[0])/2,
+                                             (abox.min[1]+abox.max[1])/2 ) ;
+    checkHit ( active_mouse_button, PU_UP  , (abox.min[0]+abox.max[0])/2,
+                                             (abox.min[1]+abox.max[1])/2 ) ;
     return TRUE ;
   }
 
@@ -486,9 +487,9 @@ void puObject::doHit ( int button, int updown, int x, int y )
   if ( updown != PU_DRAG )
     puMoveToLast ( this );
 
-  if ( button == PU_LEFT_BUTTON )
+  if ( button == active_mouse_button )
   {
-    if ( updown == active_mouse_edge || active_mouse_edge == PU_UP_AND_DOWN )
+    if ( ( updown == active_mouse_edge ) || ( active_mouse_edge == PU_UP_AND_DOWN ) )
     {
       lowlight () ;
       puSetActiveWidget ( this, x, y ) ;
