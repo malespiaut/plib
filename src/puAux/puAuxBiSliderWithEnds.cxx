@@ -31,7 +31,6 @@ void puaBiSliderWithEnds::handle_slider ( puObject *obj )
   puaBiSliderWithEnds *bisl = (puaBiSliderWithEnds *)obj->getUserData () ;
   bisl->__setMax ( ((puBiSlider *)obj)->getCurrentMax () ) ;
   bisl->__setMin ( ((puBiSlider *)obj)->getCurrentMin () ) ;
-
   bisl->invokeCallback () ;
 }
 
@@ -53,7 +52,7 @@ puaBiSliderWithEnds::puaBiSliderWithEnds ( int minx, int miny, int maxx, int max
                                  puGroup ( minx, miny )
 {
   type |= PUCLASS_BISLIDERWITHENDS ;
-  slider = new puaBiSlider ( (maxx - minx)/2-10, 20, maxy-miny-40, TRUE ) ;
+  slider = new puaBiSlider ( (maxx - minx)/2-10, 22, maxy-miny-44, TRUE ) ;
   min_box = new puInput ( 0, 0, maxx-minx, 20 ) ;
   max_box = new puInput ( 0, maxy-miny-20, maxx-minx, maxy-miny ) ;
   min_box->setValue ( 0 ) ;
@@ -70,8 +69,8 @@ puaBiSliderWithEnds::puaBiSliderWithEnds ( int minx, int miny, int maxx, int max
 
 void puaBiSliderWithEnds::setSize ( int w, int h )
 {
-  slider->setSize ( 20, h-40 ) ;
-  slider->setPosition ( w/2-10, 20 ) ;
+  slider->setSize ( 20, h-44 ) ;
+  slider->setPosition ( w/2-10, 22 ) ;
 
   min_box->setSize ( w, 20 ) ;
 
