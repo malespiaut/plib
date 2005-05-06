@@ -23,6 +23,8 @@ CFG=puAux - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
 CPP=cl.exe
 RSC=rc.exe
 
@@ -52,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy  release\*.lib  ..\..\*.* 	copy  puAux.h  ..\..\puAux.h 
+PostBuild_Cmds=copy  release\*.lib  ..\..\*.* 	copy  puAux.h  ..\..\puAux.h
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "puAux - Win32 Debug"
@@ -81,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy  debug\*.lib  ..\..\*.* 	copy  puAux.h  ..\..\puAux.h 
+PostBuild_Cmds=copy  debug\*.lib  ..\..\*.* 	copy  puAux.h  ..\..\puAux.h
 # End Special Build Tool
 
 !ENDIF 
@@ -121,6 +123,10 @@ SOURCE=.\puAuxFileSelector.cxx
 # Begin Source File
 
 SOURCE=.\puAuxLargeInput.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\puAuxList.cxx
 # End Source File
 # Begin Source File
 
