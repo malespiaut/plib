@@ -171,6 +171,8 @@ puObject::puObject ( int minx, int miny, int maxx, int maxy ) : puValue ()
   legendFont  = defaultLegendFont ;
   legendPlace = PUPLACE_LEGEND_DEFAULT ;
 
+  when_to_deactivate = PUDEACTIVATE_ON_MOUSE_CLICK ;
+
   for ( int i = 0 ; i < PUCOL_MAX ; i++ )
     puSetColour ( colour[i], _puDefaultColourTable[i] ) ;
 
@@ -504,7 +506,8 @@ void puObject::doHit ( int button, int updown, int x, int y )
 
 int puObject::checkHit ( int button, int updown, int x, int y )
 {
-  if ( ( ( puGetPressedButton () || updown == PU_UP ) ) && isHit( x, y ) )
+  if ( ( puGetPressedButton () || ( updown == PU_UP ) ) && isHit( x, y ) ||
+       puGetPressedButton () && ( isHit( x, y ) || ( puActiveWidget () == this ) ) )
   {
     doHit ( button, updown, x, y ) ;
     return TRUE ;
