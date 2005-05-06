@@ -215,6 +215,10 @@ extern puFont PUFONT_HELVETICA_18   ;
 
 #define PU_RADIO_BUTTON_SIZE 16
 
+/* When to deactivate a widget and call its down callback */
+#define PUDEACTIVATE_ON_MOUSE_CLICK                0
+#define PUDEACTIVATE_ON_NEXT_WIDGET_ACTIVATION     1
+
 extern int puRefresh ; /* Should not be used directly by applications any
                           longer. Instead, use puPostRefresh () and
                           puNeedRefresh (). */
@@ -600,6 +604,8 @@ protected:
   void *render_data ;
   int border_thickness ;
 
+  short when_to_deactivate ;  /* On next mouseclick or on next widget activation */
+
   virtual void draw_legend ( int dx, int dy ) ;
   virtual void draw_label  ( int dx, int dy ) ;
   
@@ -721,6 +727,9 @@ public:
 
   void  setActiveButton ( int b ) { active_mouse_button = b ; }
   int   getActiveButton ( void ) const { return active_mouse_button ; }
+
+  void  setWhenToDeactivate ( short d )  { when_to_deactivate = d ;  }
+  short getWhenToDeactivate ( void ) const  { return when_to_deactivate ;  }
 
   void  setLegend ( const char *l ) { legend = l ; recalc_bbox() ; puPostRefresh () ; }
   const char *getLegend ( void ) const { return legend ; }
