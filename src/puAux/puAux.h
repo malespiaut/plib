@@ -758,7 +758,7 @@ public :
     point_size = 10.0f ;
 
     button_state = PU_UP ;
-    trigger_button = PU_LEFT_BUTTON ;
+    trigger_button = active_mouse_button ;
     mouse_x = mouse_y = mouse_z = 0.0f ;
     translation_sensitivity = 1.0f ;
 

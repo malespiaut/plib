@@ -54,6 +54,7 @@ void puaVerticalMenu::add_submenu ( const char *str, char *items[],
     b -> setActiveDirn ( PU_UP_AND_DOWN ) ;
 
     puPopupMenu *p = new puPopupMenu ( w+10, 0 ) ;      
+    p->setActiveButton ( active_mouse_button ) ;
 
     b -> setUserData ( p ) ;
 
