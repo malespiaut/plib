@@ -580,6 +580,7 @@ protected:
   puGroup *parent ;
 
   int active_mouse_edge ; /* is it PU_UP or PU_DOWN (or both) that activates this? */
+  int active_mouse_button ;  /* which mouse button or buttons activate this */
   int style       ;
   int visible     ;
   int active      ;
@@ -717,6 +718,9 @@ public:
 
   void  setActiveDirn ( int e ) { active_mouse_edge = e ; }
   int   getActiveDirn ( void ) const { return active_mouse_edge ; }
+
+  void  setActiveButton ( int b ) { active_mouse_button = b ; }
+  int   getActiveButton ( void ) const { return active_mouse_button ; }
 
   void  setLegend ( const char *l ) { legend = l ; recalc_bbox() ; puPostRefresh () ; }
   const char *getLegend ( void ) const { return legend ; }

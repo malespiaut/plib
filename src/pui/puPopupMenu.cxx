@@ -41,6 +41,8 @@ puObject *puPopupMenu::add_item ( const char *str, puCallback _cb,
   b->setCallback     ( _cb ) ;
   b->setLegendPlace  ( PUPLACE_LOWER_LEFT ) ;
   b->setUserData     ( _user_data ) ;
+  b->setActiveButton ( active_mouse_button ) ;
+  b->setWindow ( getWindow () ) ;
   recalc_bbox () ;
   return b ;
 }

@@ -191,7 +191,7 @@ void puInput::doHit ( int button, int updown, int x, int y )
   if ( updown != PU_DRAG )
     puMoveToLast ( this );
 
-  if ( button == PU_LEFT_BUTTON )
+  if ( button == active_mouse_button )
   {
     /* Most GUI's activate a button on button-UP not button-DOWN. */
 
