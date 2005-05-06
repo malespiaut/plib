@@ -42,6 +42,7 @@
 #define PUCLASS_SLIDERWITHINPUT     0x04000000
 #define PUCLASS_COMPASS             0x08000000
 #define PUCLASS_CHOOSER             0x10000000
+#define PUCLASS_LIST                0x20000000
 
 
 // Widget Declarations
@@ -58,6 +59,7 @@ class puaBiSliderWithEnds ;
 class puaCompass          ;
 class puaSliderWithInput  ;
 class puaChooser          ;
+class puaList             ;
 
 
 // A File selector widget
@@ -833,6 +835,36 @@ public:
 
   static void menuCleanup  ( puObject * ) ;
 } ;
+
+/**
+ * A scrolling list for PUI.
+ *
+ * Believe it or not, PUI does not have one of these.
+ */
+class puaList : public puGroup
+{
+  UL_TYPE_DATA
+
+  char ** _contents;
+  puFrame * _frame;
+  puListBox * _list_box;
+  puSlider * _slider;
+  puArrowButton * _up_arrow;
+  puArrowButton * _down_arrow;
+
+protected:
+  virtual void init (int w, int h);
+
+public:
+  puaList (int x, int y, int w, int h);
+  puaList (int x, int y, int w, int h, char ** contents);
+  virtual ~puaList ();
+
+  virtual void newList (char ** contents);
+  // TODO: other string value funcs
+  virtual char * getListStringValue ();
+  virtual int getListIntegerValue();
+};
 
 
 #endif
