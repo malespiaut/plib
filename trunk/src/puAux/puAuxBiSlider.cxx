@@ -87,14 +87,14 @@ void puaBiSlider::doHit ( int button, int updown, int x, int y )
   if ( updown != PU_DRAG )
     puMoveToLast ( this );
 
-  if ( button == PU_LEFT_BUTTON && updown == PU_UP )
+  if ( ( button == active_mouse_button ) && ( updown == PU_UP ) )
   {
     setActiveButton ( 0 ) ;
     puDeactivateWidget () ;
     return ;
   }                                                                             
 
-  if ( button == PU_LEFT_BUTTON )
+  if ( button == active_mouse_button )
   {
     int sd = isVertical() ;
     int sz = abox.max [sd] - abox.min [sd] ;
