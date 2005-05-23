@@ -362,14 +362,10 @@ int puMouse ( int button, int updown, int x, int y )
 
   pu_mouse_x = x ;
   pu_mouse_y = h - y ;
-  int return_value =  puGetBaseLiveInterface () -> checkHit ( button,
-    updown, pu_mouse_x, pu_mouse_y ) ;
-
-  puCleanUpJunk () ;
 
   puObject *active = puActiveWidget () ;
 
-  if ( ( last_buttons == 0 ) && ( active != NULL ) )
+  if ( ( last_buttons != 0 ) && ( active != NULL ) )
   {
     int x_offset, y_offset ;
     active -> getAbsolutePosition ( &x_offset, &y_offset ) ;
@@ -384,6 +380,11 @@ int puMouse ( int button, int updown, int x, int y )
       puDeactivateWidget () ;
     }
   }
+
+  int return_value =  puGetBaseLiveInterface () -> checkHit ( button,
+    updown, pu_mouse_x, pu_mouse_y ) ;
+
+  puCleanUpJunk () ;
 
   return return_value ;
 }
