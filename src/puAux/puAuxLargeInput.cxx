@@ -183,7 +183,8 @@ void  puaLargeInput::selectEntireLine ( void )
   if ( select_start_position < 0 )
       select_start_position = 0 ;
 
-  if ( *(temp_text + select_start_position + 1) != '\n' )
+  if ( ( *(temp_text + select_start_position + 1) != '\n' ) &&
+       ( *(temp_text + select_start_position) != '\0' ) )
     select_start_position ++ ;
 
   while ( ( select_start_position > 0 ) && ( *(temp_text + select_start_position) != '\n' ) )
