@@ -84,7 +84,8 @@ void fntBitmapFont::putch ( sgVec3 curpos, float pointsize, float italic, char c
 void fntBitmapFont::puts ( sgVec3 curpos, float pointsize, float italic, const char *s ) 
 {
     float x0 = curpos[0];
-    glRasterPos3fv(curpos);    
+    glRasterPos2i(0,0); // beware - coordinate may be negative
+    glBitmap(0, 0, 0, 0, curpos[0], curpos[1], NULL);
     for (int i = 0; s[i] != '\0'; i++) {
 	if (s[i] == '\n') {
 	    curpos[0] = x0;
