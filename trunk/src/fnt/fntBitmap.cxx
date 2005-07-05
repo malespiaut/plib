@@ -71,7 +71,8 @@ void fntBitmapFont::putch ( sgVec3 curpos, float pointsize, float italic, char c
     if (c == '\n') {
 	curpos[1] -= height;
     } else {
-	glRasterPos3fv(curpos);
+        glRasterPos2i(0,0); // beware - coordinate may be negative
+        glBitmap(0, 0, 0, 0, curpos[0], curpos[1], NULL);
 	int i = (GLubyte) c - first;
 	if (i >= 0 && i < count) {
 	    glBitmap(data[i][0], height, xorig, yorig, (float) data[i][0], 0, data[i] + 1);
@@ -90,7 +91,8 @@ void fntBitmapFont::puts ( sgVec3 curpos, float pointsize, float italic, const c
 	if (s[i] == '\n') {
 	    curpos[0] = x0;
 	    curpos[1] -= height;
-	    glRasterPos3fv(curpos);
+            glRasterPos2i(0,0); // beware - coordinate may be negative
+            glBitmap(0, 0, 0, 0, curpos[0], curpos[1], NULL);
 	} else {
 	    int j = (GLubyte) s[i] - first;
 	    if (j >= 0 && j < count) {
