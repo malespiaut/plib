@@ -214,6 +214,13 @@ static void displayfn (void)
     text -> puts ( "0123456789!@#$%^&*()+-={}[]:\"'<>?,./`~_" ) ;
   text -> end () ;
 
+  text -> setPointSize ( 9.0f ) ;
+  text -> begin () ;
+    glColor3f ( 0, 0, 0 ) ;
+    text -> start2f ( -50.0f, 265.0f ) ;
+    text -> puts ( "This is a very long line, in fact, this line is so long, that it starts left of viewport. We are curious to see wether this line is still visible in plib." ) ;
+  text -> end () ;
+
   glDisable ( GL_TEXTURE_2D ) ;
   glBegin ( GL_LINE_LOOP ) ;
   glColor3f ( 1.0f, 0.0f, 1.0f ) ;
