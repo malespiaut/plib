@@ -224,10 +224,10 @@ public:
     initPerformanceTimer () ;
 #endif
     start     = getRawTime () ;
-    now       = start ;
+    now       = 0.0 ;
     max_delta = 0.2 ; 
     delta     = 1.0 / 30.0 ;  /* Faked so stoopid programs won't div0 */
-    last_time = now - delta ;
+    last_time = 0.0 ;
   }
 
   void   setMaxDelta  ( double maxDelta ) { max_delta = maxDelta ; }
