@@ -793,7 +793,7 @@ void puaLargeInput::doHit ( int button, int updown, int x, int y )
       int length, prev_length = 0 ;
       while ( x <= (length = legendFont.getStringWidth ( start_of_line )
                     + abox.min[0] + beg_pos) &&
-              i >= 0 )
+              i > 0 )
       {
         prev_length = length ;
         tmpval[--i] = '\0' ;
