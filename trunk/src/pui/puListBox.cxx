@@ -114,9 +114,15 @@ void puListBox::draw ( int dx, int dy )
     for ( int i = top ; i < num && i < top + num_vis ; i++ )
     {
       if ( i == selected )
-        glColor4f ( 1.0f, 1.0f, 1.0f, 1.0f ) ;
+        glColor4f ( (colour [ PUCOL_BACKGROUND ][0] + colour [ PUCOL_LABEL ][0]) / 2.0f,
+                    (colour [ PUCOL_BACKGROUND ][1] + colour [ PUCOL_LABEL ][1]) / 2.0f,
+                    (colour [ PUCOL_BACKGROUND ][2] + colour [ PUCOL_LABEL ][2]) / 2.0f,
+                    (colour [ PUCOL_BACKGROUND ][3] + colour [ PUCOL_LABEL ][3]) / 2.0f );
       else
-        glColor4f ( 0.0f, 0.0f, 0.0f, 1.0f ) ;
+        glColor4f ( colour [ PUCOL_LABEL ][0],
+                    colour [ PUCOL_LABEL ][1],
+                    colour [ PUCOL_LABEL ][2],
+                    colour [ PUCOL_LABEL ][3] ) ;
 
       int x = PUSTR_LGAP ;
       int y = yinc * ((i-top)+1) ;
