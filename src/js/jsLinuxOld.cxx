@@ -27,7 +27,7 @@
 
 #include <linux/joystick.h>
 
-#if !defined(JS_VERSION) || JS_VERSION >= 0x010000
+#if !defined(JS_VERSION) || JS_VERSION < 0x010000
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
