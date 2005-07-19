@@ -226,7 +226,7 @@ public:
     start     = getRawTime () ;
     now       = 0.0 ;
     max_delta = 0.2 ; 
-    delta     = 1.0 / 30.0 ;  /* Faked so stoopid programs won't div0 */
+    delta     = 0.0000001 ;  /* Faked so stoopid programs won't div0 */
     last_time = 0.0 ;
   }
 
