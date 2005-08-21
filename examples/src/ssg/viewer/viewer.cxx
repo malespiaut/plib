@@ -145,7 +145,7 @@ static GLfloat Ey     = 0.0f;
 static GLfloat Ez     = 0.0f;
 
 #define FOVY 45.0f
-#define NEAR 2.0f
+#define NEAR 0.1f
 #define FAR  10000.0f
 
 static int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
@@ -672,6 +672,8 @@ static void pick_cb ( puObject * )
   
   SGfloat radius = scene->getBSphere()->getRadius();
   EyeDist = float( radius * 1.5f / tan( float( FOVY/2 * SG_DEGREES_TO_RADIANS ) ) );
+  if (EyeDist < NEAR*2)
+    EyeDist = NEAR*2;
   
   sgSphere sp = *( scene -> getBSphere() ) ;
   if ( sp.isEmpty() )
