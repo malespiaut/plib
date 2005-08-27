@@ -21,6 +21,11 @@
      $Id$
 */
 
+#define PU_USE_PW
+
+#ifndef GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,19 +37,10 @@
 #  include <unistd.h>
 #endif
 #include <math.h>
+#include <plib/pw.h>
 #include <plib/ssg.h>
 #include <plib/ssgAux.h>
 #include <plib/pu.h>
-
-#ifdef FREEGLUT_IS_PRESENT
-#  include <GL/freeglut.h>
-#else
-#  ifdef __APPLE__
-#    include <GLUT/glut.h>
-#  else
-#    include <GL/glut.h>
-#  endif
-#endif
 
 #ifndef GL_VERSION_1_3
 // ARB_multitexture
@@ -53,8 +49,8 @@
 #define glActiveTexture  glActiveTextureARB
 #endif
 
-#define GUI_BASE      80
-#define VIEW_GUI_BASE 20
+#define GUI_BASE      90
+#define VIEW_GUI_BASE 30
 #define FONT_COLOUR   1,1,1,1
 
 static puSlider    *trainLengthSlider  = (puSlider    *) NULL ;
@@ -98,6 +94,8 @@ static ssgSimpleState     *splash_state = NULL ;
 static ssgSimpleState     *teapot_state = NULL ;
 static ssgSimpleState     *plinth_state = NULL ;
 
+static ssgContext         *context      = NULL ;
+
 static ssgaWaveTrain trains [ 16 ] ;
 
 static char *trainNameList[] =
@@ -108,6 +106,8 @@ static char *trainNameList[] =
   "Train 15",
   NULL
 } ;
+
+static int   quit = FALSE;
 
 static int   curr_train = 0 ;
 static int   curr_depthfunc = 0 ;
@@ -425,8 +425,8 @@ static float stepFunction ( float x, float y )
 
 static float twoBeaches ( float x, float y )
 {
-  return fabs ( sin(       x / ocean->getSize()[0]) *
-                sin(2.0f * y / ocean->getSize()[1]) * 1.5 + 0.5 ) ;
+  return (float) fabs ( sin(       x / ocean->getSize()[0]) *
+                        sin(2.0f * y / ocean->getSize()[1]) * 1.5 + 0.5 ) ;
 }
 
 static const ssgaWSDepthCallback depthFuncs [] =
@@ -478,22 +478,23 @@ static void update_motion ()
   ck . update () ;
 
   double t = ck . getAbsTime   () ;
-  float dt = ck . getDeltaTime () ;
+  float dt = (float) ck . getDeltaTime () ;
 
-  ocean -> setWindDirn ( 25.0 * sin ( t / 100.0 ) ) ;
-  ocean -> updateAnimation ( t ) ;
+  ocean -> setWindDirn ( (float)( 25.0 * sin ( t / 100.0 ) ) ) ;
+  ocean -> updateAnimation ( (float) t ) ;
 
   fountain -> update ( dt ) ;
   fire_obj -> update ( dt ) ;
 
-  dt = ck . getDeltaTime () ;
+  dt = (float) ck . getDeltaTime () ;
 
   sprintf ( s, "CalcTime=%1.1fms", dt * 1000.0 ) ;
   timeText->setLabel ( s ) ;
   sgCoord tptpos ;
 
-  sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, t * 60, 0.0f, 0.0f ) ;
-  ssgSetCamera ( & campos ) ;
+  context -> setCamera ( & campos ) ;
+
+  sgSetCoord ( & tptpos, 0.0f,  0.0f, 0.6f, (float)(t * 60), 0.0f, 0.0f ) ;
   teapot  -> setTransform ( & tptpos ) ;
   sgSetCoord ( & tptpos, 0.0f,  0.0f, 3.0f, 0.0f, 0.0f, 0.0f ) ;
   fire    -> setTransform ( & tptpos ) ;
@@ -502,7 +503,7 @@ static void update_motion ()
 
 
 /*
-  The GLUT window reshape event
+  The PW window reshape event
 */
 
 static void reshape ( int w, int h )
@@ -513,31 +514,27 @@ static void reshape ( int w, int h )
 
 
 /*
-  The GLUT keyboard/mouse events
+  The PW keyboard/mouse events
 */
 
-
-static void keyboard ( unsigned char key, int, int )
+static void keyboard ( int key, int updown, int, int )
 {
-  if ( ! puKeyboard ( key, PU_DOWN ) )
+  if ( ! puKeyboard ( key, updown ) && ( updown == PU_DOWN ) )
   {
     switch ( key )
     {
-      case ' ' : displayGUI = ! displayGUI ; break ;
+      case 0x03 :
+      case 0x1B :
+      case 'q'  :
+        exit ( 0 ) ;
 
-      case 0x03 : exit ( 0 ) ;
-
-      default : displayGUI = ! displayGUI ; break ;
+      case ' ' :
+      default  : 
+        displayGUI = ! displayGUI ; 
+        break ;
     }
   }
 }
-
-
-static void specialfn ( int key, int x, int y )
-{
-  puKeyboard ( key + PU_KEY_GLUT_SPECIAL_OFFSET, PU_DOWN ) ;
-}
-
 
 static void motionfn ( int x, int y )
 {
@@ -554,57 +551,44 @@ static void mousefn ( int button, int updown, int x, int y )
 
 
 /*
-  The GLUT redraw event
+  The redraw function
 */
 
-static void redraw ()
+static void main_loop ()
 {
-  update_motion () ;
-
-  glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
-
-  if ( wireframe )
-    glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE ) ;
-  else
+  while ( !quit )
+  {
+    update_motion () ;
+  
+    glClear  ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
+  
+    if ( wireframe )
+      glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE ) ;
+    else
+      glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL ) ;
+  
+    ssgCullAndDraw ( scene ) ;
+  
     glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL ) ;
-
-  ssgCullAndDraw ( scene ) ;
-
-  glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL ) ;
-
-  if ( displayGUI )
-    puDisplay () ;
-
-  glutPostRedisplay () ;
-  glutSwapBuffers () ;
+  
+    if ( displayGUI )
+      puDisplay () ;
+    
+    pwSwapBuffers () ;
+  }
+  
+  pwCleanup () ;
 }
 
 
 
 static void init_graphics ()
 {
-  int   fake_argc = 1 ;
-  char *fake_argv[3] ;
-  fake_argv[0] = "ssgExample" ;
-  fake_argv[1] = "Simple Scene Graph : Example Program." ;
-  fake_argv[2] = NULL ;
-
   /*
-    Initialise GLUT
+    Initialise PW
   */
-
-  glutInitWindowPosition ( 0, 0 ) ;
-  glutInitWindowSize     ( 640, 480 ) ;
-  glutInit               ( &fake_argc, fake_argv ) ;
-  glutInitDisplayMode    ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH ) ;
-  glutCreateWindow       ( fake_argv[1] ) ;
-  glutDisplayFunc        ( redraw   ) ;
-  glutReshapeFunc        ( reshape  ) ;
-  glutKeyboardFunc       ( keyboard ) ;
-  glutSpecialFunc        ( specialfn ) ;
-  glutMouseFunc          ( mousefn   ) ;
-  glutMotionFunc         ( motionfn  ) ;
-  glutPassiveMotionFunc  ( motionfn  ) ;
+  pwInit ( 50, 50, 640, 480, FALSE, "Simple Scene Graph : Water Example Program.", TRUE, 0) ;
+  pwSetCallbacks ( keyboard, mousefn, motionfn, reshape ) ;
 
   puInit  () ;
   ssgInit () ;
@@ -619,9 +603,10 @@ static void init_graphics ()
   /*
     Set up the viewing parameters
   */
-
-  ssgSetFOV     ( 60.0f, 0.0f ) ;
-  ssgSetNearFar ( 1.0f, 700.0f ) ;
+  context = new ssgContext () ;
+  context -> setFOV     ( 60.0f, 0.0f   ) ;
+  context -> setNearFar (  1.0f, 700.0f ) ;
+  context -> makeCurrent () ;
 
   /*
     Set up the Sun.
@@ -866,7 +851,7 @@ static void init_gui ()
   trainEnableButton->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   trainEnableButton->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
-  trainDisableButton = new puOneShot( 450, GUI_BASE+109,
+  trainDisableButton = new puOneShot( 450, GUI_BASE+120,
                                                 "Disable All WaveTrains" ) ;
   trainDisableButton->setCallback  ( trainDisableButton_cb ) ;
   
@@ -986,7 +971,7 @@ static void init_gui ()
   
   timeText = new puText ( 500, VIEW_GUI_BASE+80 ) ;
   timeText->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
-
+  
   window_group->close () ;
 }
 
@@ -999,7 +984,7 @@ int main ( int, char ** )
   init_graphics () ;
   load_database () ;
   init_gui      () ;
-  glutMainLoop  () ;
+  main_loop     () ;
   return 0 ;
 }
 
