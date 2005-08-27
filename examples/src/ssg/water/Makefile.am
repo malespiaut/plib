@@ -4,7 +4,7 @@ noinst_PROGRAMS = water
 
 water_SOURCES = water.cxx
 
-water_LDADD = -lplibpu -lplibfnt -lplibssgaux -lplibssg -lplibsg -lplibul $(GLUT_LIBS) $(OGL_LIBS)
+water_LDADD = -lplibpw -lplibpu -lplibfnt -lplibssgaux -lplibssg -lplibsg -lplibul $(OGL_LIBS)
 
 endif
 
