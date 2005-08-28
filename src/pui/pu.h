@@ -1131,6 +1131,10 @@ public:
     puRange_init ( minval, maxval, step ) ;
   }
 
+  virtual ~puRange()
+  {
+  }
+
   float getMaxValue ( void ) const     { return maximum_value ; }
   virtual void setMaxValue ( float f ) { maximum_value = f    ; }
 
