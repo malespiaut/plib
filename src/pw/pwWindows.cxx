@@ -40,6 +40,7 @@ static int             origin [2]   = {   0,   0 } ;
 static int             size   [2]   = { 640, 480 } ;
 
 static bool            autoRepeat   = false ;
+static DWORD           style        = 0 ;
 
 static pwResizeCB     *resizeCB     = NULL ;
 static pwExitCB       *exitCB       = NULL ;
@@ -69,6 +70,17 @@ static void refreshModifiers ()
   if( ( GetKeyState ( VK_MENU )    & 0x8000 ) != 0 ) modifiers |= PW_ALT   ;
 }
 
+inline void clientSizeToWindowSize ( int& w, int& h, DWORD dwStyle )
+{
+  RECT rect;
+  rect.left   = 0 ;
+  rect.right  = w ;
+  rect.top    = 0 ;
+  rect.bottom = h ;
+  AdjustWindowRect( &rect, dwStyle, false ) ;
+  w = rect.right - rect.left ;
+  h = rect.bottom - rect.top ;
+}
 
 LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
@@ -173,18 +185,18 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
         case VK_END:    key = PW_KEY_END;       break;
         case VK_INSERT: key = PW_KEY_INSERT;    break;
 
-				default:
-					// don't do this for WinCE
+        default:
+          // don't do this for WinCE
           BYTE state[ 256 ];
           WORD code[ 2 ];
 
           BOOL b = GetKeyboardState( state );
-					assert(b);
+          assert(b);
 
-					code [ 0 ] = 0; // WK: I need to do this, or on my Win2k box, the upper bits remain unchanged.
+          code [ 0 ] = 0; // WK: I need to do this, or on my Win2k box, the upper bits remain unchanged.
           if( ToAscii( key, 0, state, code, 0 ) == 1 )
-						if((0xFF00 & code[0]) == 0) // setting a high bit in key causes crashes later on (out of range array access)
-							key=code[ 0 ];
+            if((0xFF00 & code[0]) == 0) // setting a high bit in key causes crashes later on (out of range array access)
+              key=code[ 0 ];
 
       }
       if ( key != -1 && kbCB )
@@ -280,14 +292,13 @@ void pwInit ( int x, int y, int w, int h, int multisample,
   rect.right  = rect.left + w ;
   rect.bottom = rect.top + h ;
 
-  DWORD style = 0 ;
   if ( !fullscn )
     style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS ;
   else
     style = WS_POPUP ;
 
   AdjustWindowRect( &rect, style, false ) ;
-
+  
   // The origin is really where the upper left of the window should be. 
   // rect is the setting for the window if the origin is for the client area.
   // Adjust the window rect so that it will be located at the origin (x,y).
@@ -299,7 +310,6 @@ void pwInit ( int x, int y, int w, int h, int multisample,
   rect.right  += deltaX ;
   rect.top    += deltaY ;
   rect.bottom += deltaY ;
-
 
   /* Create the window */
   currWnd = CreateWindow(
@@ -423,9 +433,9 @@ void pwSetCursor ( int c )
   SetCursor( LoadCursor ( NULL, cursor ) ) ;
 }
 
-
 void pwSetSize ( int w, int h )
 {
+  clientSizeToWindowSize ( w, h, style ) ;
   SetWindowPos ( currWnd, HWND_TOP, 0, 0, w, h, SWP_NOMOVE ) ;
 }
 
@@ -438,6 +448,7 @@ void pwSetOrigin ( int x, int y )
 
 void pwSetSizeOrigin ( int x, int y, int w, int h )
 {
+  clientSizeToWindowSize ( w, h, style ) ;
   SetWindowPos ( currWnd, HWND_TOP, x, y, w, h, 0 ) ;
 }
 
