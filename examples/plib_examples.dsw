@@ -269,11 +269,25 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name stest
     End Project Dependency
+    Project_Dep_Name pview
+    End Project Dependency
 }}}
 
 ###############################################################################
 
 Project: "psl_demo"=".\src\psl\psl_demo.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "pview"=".\src\ssg\viewer\pview.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
