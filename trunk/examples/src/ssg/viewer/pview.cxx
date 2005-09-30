@@ -34,6 +34,10 @@
 
 #include <plib/ssg.h>
 
+#ifndef M_PI
+#define M_PI  3.14159265358979323846264338327950f
+#endif
+
 static float aspectratio=1.0;
 static int winw, winh;
 static ssgRoot *scene=0;
@@ -91,14 +95,14 @@ static void motion(int x, int y)
   if (prevbutton==1)
   {
     float curdist = sgLengthVec3(camtrf[3]);
-    sgAddScaledVec3(camtrf[3], camtrf[2],  dy*curdist/200.0);
-    sgAddScaledVec3(camtrf[3], camtrf[0], -dx*curdist/200.0);
+    sgAddScaledVec3(camtrf[3], camtrf[2],  dy*curdist/200.0f);
+    sgAddScaledVec3(camtrf[3], camtrf[0], -dx*curdist/200.0f);
     return;
   }
   if (prevbutton==2)
   {
     float curdist = sgLengthVec3(camtrf[3]);
-    sgAddScaledVec3(camtrf[3], camtrf[1], -dy*curdist/80.0);
+    sgAddScaledVec3(camtrf[3], camtrf[1], -dy*curdist/80.0f);
     return;
   }
 }
@@ -110,10 +114,10 @@ static void reshape(int w, int h)
 
   aspectratio = w / (float) h;
   winw=w; winh=h;
-  float fovy = 60.0 * M_PI / 180.0;
-  float nearPlaneDistance = 0.4;
+  float fovy = 60.0f * M_PI / 180.0f;
+  float nearPlaneDistance = 0.4f;
   float farPlaneDistance  = 2500.0;
-  float y = tan(0.5 * fovy) * nearPlaneDistance;
+  float y = (float)tan(0.5 * fovy) * nearPlaneDistance;
   float x = aspectratio * y;
   context->setFrustum(-x,x,-y,y,nearPlaneDistance,farPlaneDistance);
 }
@@ -148,12 +152,12 @@ int main(int argc, char *argv[])
 
   ssgInit();
 
-  glClearColor(0.3,0.3,0.55,1);
+  glClearColor(0.3f,0.3f,0.55f,1.0f);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   scene = new ssgRoot();
 
-  float amb[4]={0.2, 0.2, 0.2, 1};
+  float amb[4]={0.2f, 0.2f, 0.2f, 1.0f};
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
 
   ssgTransform *trf = new ssgTransform();
@@ -171,7 +175,7 @@ int main(int argc, char *argv[])
 
   trf->setTransform(off);
   SGfloat radius = scene->getBSphere()->getRadius();
-  float d = 1.8*radius;
+  float d = 1.8f*radius;
   if (d<0.5) d=0.5; // avoid placing near-plane beyond model
   sgMakeTransMat4(camtrf, 0, -d, 0);
 
@@ -181,5 +185,7 @@ int main(int argc, char *argv[])
   light->on();
 
   glutMainLoop();
+
+  return 0;
 }
 
