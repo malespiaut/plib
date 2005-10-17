@@ -36,6 +36,8 @@ ssgVertSplitter::ssgVertSplitter(int nVerts, int nTris)
     _tris = new Tri[3*_nTris];
     _triNorms = new float[3*_nTris];
     _geomVerts = new int[_nVerts];
+
+    _newVertMap = 0;
 }
 
 ssgVertSplitter::~ssgVertSplitter()
@@ -44,6 +46,8 @@ ssgVertSplitter::~ssgVertSplitter()
     delete[] _norms;
     delete[] _tris;
     delete[] _triNorms;
+    delete[] _newVertMap;
+    delete[] _geomVerts;
 }
 
 void ssgVertSplitter::setTri(int tidx, int va, int vb, int vc)
