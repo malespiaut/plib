@@ -148,6 +148,24 @@ int puaSelectBox::checkKey ( int key, int updown )
   return TRUE ;
 }
 
+void puaSelectBox::setColourScheme ( float r, float g, float b, float a )
+{
+  puObject::setColourScheme ( r, g, b, a ) ;
+  setChildColourScheme( PUCLASS_INPUT,
+      colour [ PUCOL_EDITFIELD ][0],
+      colour [ PUCOL_EDITFIELD ][1],
+      colour [ PUCOL_EDITFIELD ][2],
+      colour [ PUCOL_EDITFIELD ][3] ) ;
+}
+
+void puaSelectBox::setColour ( int which, float r, float g, float b, float a )
+{
+  if (which == PUCOL_EDITFIELD)
+    input->setColourScheme ( r, g, b, a ) ;
+  else
+    puObject::setColour ( which, r, g, b, a ) ;
+}
+
 
 puaSelectBox::puaSelectBox ( int minx, int miny, int maxx, int maxy,
                              char **entries ) :
