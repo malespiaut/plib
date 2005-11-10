@@ -185,7 +185,8 @@ extern puFont PUFONT_HELVETICA_18   ;
 #define PUCOL_LABEL      3
 #define PUCOL_LEGEND     4
 #define PUCOL_MISC       5
-#define PUCOL_MAX        6
+#define PUCOL_EDITFIELD  6
+#define PUCOL_MAX        7
 
 #define PUSLIDER_CLICK   0
 #define PUSLIDER_ALWAYS  1
@@ -301,7 +302,7 @@ struct puBox
   int  isEmpty ( void ) const { return min[0]>max[0] || min[1]>max[1] ; }
 } ;
 
-#define PUSTRING_MAX 80
+#define PUSTRING_MAX 256
 
 /* With many memory managers, allocating powers of two is more efficient */
 #define PUSTRING_INITIAL 64
@@ -790,13 +791,13 @@ public:
 
   int  getStyle ( void ) const { return style ; }
 
-  void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
+  virtual void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
   void setColorScheme ( float r, float g, float b, float a = 1.0f )
   {
     setColourScheme ( r, g, b, a ) ;
   }
 
-  void setColour ( int which, float r, float g, float b, float a = 1.0f )
+  virtual void setColour ( int which, float r, float g, float b, float a = 1.0f )
   {
     puSetColour ( colour [ which ], r, g, b, a ) ;
     puPostRefresh () ;
@@ -1638,7 +1639,10 @@ public:
   {
     type |= PUCLASS_INPUT ;
 
-    setColourScheme ( 0.8f, 0.7f, 0.7f ) ; /* Yeukky Pink */
+    setColourScheme ( colour [ PUCOL_EDITFIELD ][0],
+                      colour [ PUCOL_EDITFIELD ][1],
+                      colour [ PUCOL_EDITFIELD ][2],
+                      colour [ PUCOL_EDITFIELD ][3] ) ;
     setColour ( PUCOL_MISC, 0.1f, 0.1f, 1.0f ) ; /* Colour of 'I' bar cursor */
 
     widget = this ;
@@ -2035,6 +2039,9 @@ public:
   int  checkHit ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key, int updown ) ;
 
+  virtual void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
+  virtual void setColour ( int which, float r, float g, float b, float a = 1.0f ) ;
+
   puComboBox ( int minx, int miny, int maxx, int maxy,
                char **list, int editable = TRUE ) ;
 } ;
@@ -2083,6 +2090,9 @@ public:
   void setSize ( int w, int h ) ;
   void draw ( int dx, int dy ) ;
   int  checkKey ( int key, int updown ) ;
+
+  virtual void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
+  virtual void setColour ( int which, float r, float g, float b, float a = 1.0f ) ;
 
   puSelectBox ( int minx, int miny, int maxx, int maxy,
                 char **list ) ;
