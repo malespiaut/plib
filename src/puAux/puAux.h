@@ -277,6 +277,9 @@ public:
 
   int  getCallbackSource ( void ) const  {  return callback_source ;  }
 
+  virtual void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
+  virtual void setColour ( int which, float r, float g, float b, float a = 1.0f ) ;
+
   puaComboBox ( int minx, int miny, int maxx, int maxy,
                 char **list, int editable = TRUE ) ;
 
@@ -357,6 +360,9 @@ public:
   void setSize ( int w, int h ) ;
   void draw ( int dx, int dy ) ;
   int  checkKey ( int key, int updown ) ;
+
+  virtual void setColourScheme ( float r, float g, float b, float a = 1.0f ) ;
+  virtual void setColour ( int which, float r, float g, float b, float a = 1.0f ) ;
 
   puaSelectBox ( int minx, int miny, int maxx, int maxy,
                  char **list ) ;
@@ -866,6 +872,14 @@ public:
  * A scrolling list for PUI.
  *
  * Believe it or not, PUI does not have one of these.
+ *
+ *  This widget consists of a puListBox, a slider and two
+ *  arrow buttons. This makes the ListBox scrollable,
+ *  very handy if the box is too small to show all items
+ *  at once.
+ *
+ *  (Original code taken from FlightGear 0.9.6 sources,
+ *   modified by Jan Reucker)
  */
 class puaList : public puGroup
 {
@@ -877,19 +891,32 @@ class puaList : public puGroup
   puSlider * _slider;
   puArrowButton * _up_arrow;
   puArrowButton * _down_arrow;
+  int _style;
 
 protected:
-  virtual void init (int w, int h);
+  virtual void init (int w, int h, short transparent);
 
 public:
   puaList (int x, int y, int w, int h);
   puaList (int x, int y, int w, int h, char ** contents);
+  puaList (int x, int y, int w, int h, short transparent);
+  puaList (int x, int y, int w, int h, short transparent, char ** contents);
   virtual ~puaList ();
 
   virtual void newList (char ** contents);
-  // TODO: other string value funcs
   virtual char * getListStringValue ();
   virtual int getListIntegerValue();
+
+  virtual char * getStringValue ();
+  virtual int    getIntegerValue ();
+  virtual void   getValue (char **ps);
+  virtual void   getValue (int  *i);
+
+  virtual void   setStyle (int style);
+
+  int  getNumItems ( void ) const ;
+  int  getTopItem  ( void ) const ;
+  void setTopItem  ( int item_index );
 };
 
 #endif
