@@ -117,12 +117,20 @@ const char* netAddress::getHost () const
   return buf;
 }
 
+unsigned int netAddress::getIP () const 
+{ 
+	return sin_addr; 
+}
 
-int netAddress::getPort() const
+unsigned int netAddress::getPort() const
 {
   return ntohs(sin_port);
 }
 
+unsigned int netAddress::getFamily () const 
+{ 
+	return sin_family; 
+}
 
 const char* netAddress::getLocalHost ()
 {
@@ -340,9 +348,15 @@ bool netSocket::isNonBlockingError ()
 }
 
 
+//////////////////////////////////////////////////////////////////////
+//
+//	modified version by os
+//
+//////////////////////////////////////////////////////////////////////
 int netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
 {
   fd_set r,w;
+  int	retval;
   
   FD_ZERO (&r);
   FD_ZERO (&w);
@@ -350,18 +364,24 @@ int netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
   int i, k ;
   int num = 0 ;
 
-  for ( i=0; reads[i]; i++ )
+  if ( reads )
   {
-    int fd = reads[i]->getHandle();
-    FD_SET (fd, &r);
-    num++;
+    for ( i=0; reads[i]; i++ )
+    {
+      int fd = reads[i]->getHandle();
+      FD_SET (fd, &r);
+      num++;
+    }
   }
 
-  for ( i=0; writes[i]; i++ )
+  if ( writes )
   {
-    int fd = writes[i]->getHandle();
-    FD_SET (fd, &w);
-    num++;
+    for ( i=0; writes[i]; i++ )
+    {
+      int fd = writes[i]->getHandle();
+      FD_SET (fd, &w);
+      num++;
+    }
   }
 
   if (!num)
@@ -381,31 +401,43 @@ int netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
   // thing I have ever seen it used for is to detect urgent data -
   // which is an unportable feature anyway.
 
-  ::select (FD_SETSIZE, &r, &w, 0, &tv);
+  retval = ::select (FD_SETSIZE, &r, &w, 0, &tv);
+  if (retval == 0) // timeout
+    return (-2);
+  if (retval == -1)// error
+    return (-1);
 
   //remove sockets that had no activity
 
   num = 0 ;
 
-  for ( k=i=0; reads[i]; i++ )
+  if ( reads )
   {
-    int fd = reads[i]->getHandle();
-    if (FD_ISSET (fd, &r)) {
-      reads[k++] = reads[i];
-      num++;
+    for ( k=i=0; reads[i]; i++ )
+    {
+      int fd = reads[i]->getHandle();
+      if ( FD_ISSET (fd, &r) )
+      {
+        reads[k++] = reads[i];
+        num++;
+      }
     }
+    reads[k] = NULL ;
   }
-  reads[k] = NULL ;
 
-  for ( k=i=0; writes[i]; i++ )
+  if ( writes )
   {
-    int fd = writes[i]->getHandle();
-    if (FD_ISSET (fd, &w)) {
-      writes[k++] = writes[i];
-      num++;
+    for ( k=i=0; writes[i]; i++ )
+    {
+      int fd = writes[i]->getHandle();
+      if ( FD_ISSET (fd, &w) )
+      {
+        writes[k++] = writes[i];
+        num++;
+      }
     }
+    writes[k] = NULL ;
   }
-  writes[k] = NULL ;
 
   return num ;
 }
