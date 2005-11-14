@@ -351,7 +351,7 @@ static void init_scene()
 
     // now load the shrubs
 
-    ssgTexture *tex = new ssgTexture("data/deciduous-tree.rgb");
+    ssgTexture *tex = new ssgTexture("data/deciduous-tree.rgb", FALSE, FALSE);
 
     ssgaBillboards::initTexAlpha(tex);
 
