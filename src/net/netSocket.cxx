@@ -402,10 +402,6 @@ int netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
   // which is an unportable feature anyway.
 
   retval = ::select (FD_SETSIZE, &r, &w, 0, &tv);
-  if (retval == 0) // timeout
-    return (-2);
-  if (retval == -1)// error
-    return (-1);
 
   //remove sockets that had no activity
 
@@ -438,6 +434,11 @@ int netSocket::select ( netSocket** reads, netSocket** writes, int timeout )
     }
     writes[k] = NULL ;
   }
+
+  if (retval == 0) // timeout
+    return (-2);
+  if (retval == -1)// error
+    return (-1);
 
   return num ;
 }
