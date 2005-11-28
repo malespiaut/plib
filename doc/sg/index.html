@@ -444,6 +444,10 @@ There are two ways to use an sgFrustum:
 The constructor for an sgFrustum produces a simple
 45 degree by 45 degree frustum with the near clip
 at one unit and the far clip at one million units.
+When using setFOV, the application programmer should be
+aware that aspect ratios are not enforced, thus these
+ratios can deviate from the window aspect ratio.
+If this happens, a sphere will look like an ellipse.
 <pre>
 
   int  contains ( sgVec3    p ) ;
