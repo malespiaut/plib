@@ -444,7 +444,8 @@ public:
 
   void removeAll ()
   {
-    delete [] list ;
+    if ( own_mem )
+      delete [] list ;
     list = NULL ;
     limit = total = 0 ;
   }
