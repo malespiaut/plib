@@ -895,7 +895,7 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
   sgSetVec2 ( texrep, 1.0, 1.0 ) ;
   sgSetVec2 ( texoff, 0.0, 0.0 ) ;
 
-  loader_fd = fopen ( filename, "ra" ) ;
+  loader_fd = fopen ( filename, "r" ) ;
 
   if ( loader_fd == NULL )
   {
