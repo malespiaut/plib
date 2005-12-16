@@ -11,6 +11,7 @@ libplibpuaux_a_SOURCES = puAux.cxx                  \
                          puAuxCompass.cxx           \
                          puAuxFileSelector.cxx      \
                          puAuxLargeInput.cxx        \
+                         puAuxList.cxx              \
                          puAuxScrollBar.cxx         \
                          puAuxSelectBox.cxx         \
                          puAuxSliderWithInput.cxx   \
