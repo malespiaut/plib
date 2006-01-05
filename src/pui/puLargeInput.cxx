@@ -172,7 +172,7 @@ void puLargeInput::setSelectRegion ( int s, int e )
 
     if ( top_line_in_window < 0 ) top_line_in_window = 0 ;
 
-    right_slider->setValue ( 1.0f - float(top_line_in_window) / float(num_lines - lines_in_window) ) ;
+    right_slider->setValue ( num_lines - lines_in_window - top_line_in_window ) ;
   }
 }
 
