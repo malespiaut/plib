@@ -419,8 +419,11 @@ static int HandleTextureCoords(const char * /* sName */, const char *firstToken)
 		parser.expectNextToken(";");
 		if(i==nNoOfVertices-1)
 			parser.expectNextToken(";");
-		else
-			parser.expectNextToken(",");
+    // Commented out by J. Reucker 2005-12-16
+    // Some .x export plugins forget to add the ",", but the
+    // parser will work with and without "," if it doesn't expect it
+		//~ else
+			//~ parser.expectNextToken(",");
 
 		currentMesh.addPerVertexTextureCoordinate2( tv ) ;
 	}
