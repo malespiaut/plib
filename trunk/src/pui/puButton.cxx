@@ -39,7 +39,8 @@ void puButton::draw ( int dx, int dy )
     {
       if ( parent && ( ( parent->getType() & PUCLASS_POPUPMENU ) ||
                        ( parent->getType() & PUCLASS_MENUBAR   ) ) )
-        abox.draw ( dx, dy, PUSTYLE_SMALL_SHADED, colour, isReturnDefault(), 2 ) ;
+        abox.draw ( dx, dy, active ? PUSTYLE_SMALL_SHADED : PUSTYLE_PLAIN, colour,
+                    isReturnDefault(), active ? 2 : 0 ) ;
       else
         abox.draw ( dx, dy, -style, colour, isReturnDefault(), border_thickness ) ;
     }
