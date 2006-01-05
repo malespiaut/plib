@@ -475,11 +475,16 @@ static int HandleMeshMaterialList(const char * /* sName */, const char *firstTok
 		}
 	}
 	while(TRUE)
-	{ char *nextToken =parser.getNextToken(0);
+	{
+      char *nextToken =parser.getNextToken(0);
 	  if (0==strcmp("}", nextToken))
 		{ if ( nMaterialsRead < nMaterials )
 		    parser.error("Too few Materials!\n");
 			//else	parser.error("Success! MeshMaterialList!\n");
+            for (int i = 0; i < globalMaterialList->getNum(); i++)
+            {
+              currentMesh.addMaterial(globalMaterialList->get(i));
+            }
 			return TRUE; // Mesh is finished. success
 		}
 		if(ulStrEqual ("{", nextToken) )
