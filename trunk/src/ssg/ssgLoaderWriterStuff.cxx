@@ -657,7 +657,9 @@ void ssgLoaderWriterMesh::addOneNodeToSSGFromPerVertexTextureCoordinates2( class
 	if ( colours == NULL )
 	  {
 	     colours = new ssgColourArray ( 1 ) ;
-	     colours -> add ( currentDiffuse ) ;
+         sgVec4 currentDiffuseColour;
+         sgCopyVec4(currentDiffuseColour, currentState->getMaterial(GL_DIFFUSE));
+         colours -> add ( currentDiffuseColour ) ;
 	  }
      }
    ssgVtxArray* leaf = new ssgVtxArray ( GL_TRIANGLES, theVertices, normalList, theTextureCoordinates2, colours, indexList ) ;
