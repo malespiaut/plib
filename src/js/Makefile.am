@@ -1,10 +1,5 @@
 if BUILD_JS
 
-# FIXME set the UL_BSD conditional using AM_CONDITIONAL in configure.ac
-if UL_BSD
-bin_PROGRAMS = plib-jscal
-plib_jscal_SOURCES = jsBSDCal.c
-endif
 lib_LIBRARIES = libplibjs.a
 
 include_HEADERS = js.h
