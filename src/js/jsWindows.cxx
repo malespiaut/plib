@@ -105,6 +105,7 @@ void jsJoystick::open ()
 
   error = ( joyGetDevCaps( os->js_id, &(os->jsCaps), sizeof(os->jsCaps) )
                  != JOYERR_NOERROR ) ;
+  num_buttons = os->jsCaps.wNumButtons ;
   if ( os->jsCaps.wNumAxes == 0 )
   {
     num_axes = 0 ;
