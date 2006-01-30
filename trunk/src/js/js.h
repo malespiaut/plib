@@ -68,6 +68,7 @@ public:
 
   const char* getName () const { return name ;     }
   int   getNumAxes    () const { return num_axes ; }
+  int   getNumButtons () const { return num_buttons; }
   int   notWorking    () const { return error ;    }
   void  setError      () { error = JS_TRUE ; }
 
