@@ -107,7 +107,6 @@ puaLargeInput::puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_wi
   right_slider->setUserData ( this ) ;
   right_slider->setCallback ( puaLargeInputHandleRightSlider ) ;
 
-  wrapped_text = NULL ;
   setValue ( "\n" ) ;
 
   close  () ;
@@ -145,7 +144,7 @@ void puaLargeInput::setSelectRegion ( int s, int e )
 {
   select_start_position = s ;
   select_end_position   = e ;
-  char *lin_ptr = ( bottom_slider ? getStringValue () : getWrappedText () ) ;
+  char *lin_ptr = ( bottom_slider ? getStringValue () : getDisplayedText () ) ;
   char *text_start = lin_ptr ;
 
   if ( num_lines > lines_in_window )
@@ -178,7 +177,7 @@ void puaLargeInput::setSelectRegion ( int s, int e )
 
 void  puaLargeInput::selectEntireLine ( void )
 {
-  char *temp_text = ( bottom_slider ? getStringValue () : getWrappedText () ) ;
+  char *temp_text = ( bottom_slider ? getStringValue () : getDisplayedText () ) ;
    
   if ( select_start_position < 0 )
       select_start_position = 0 ;
@@ -327,7 +326,7 @@ void  puaLargeInput::setValue ( const char *s )
 
   float line_width = 0.0f ;       // Width of current line
   if ( !bottom_slider ) wrapText () ;
-  char *this_char = ( bottom_slider ? getStringValue () : getWrappedText () ) ;   // Pointer to character in text
+  char *this_char = ( bottom_slider ? getStringValue () : getDisplayedText () ) ;   // Pointer to character in text
 
   num_lines = 0 ;
 
@@ -419,7 +418,7 @@ void puaLargeInput::draw ( int dx, int dy )
 
    /* Removed IF statement to permit highlighting to remain even when widget not active - JCJ 13 Jun 2002 */
     
-    char *val = bottom_slider ? getStringValue () : getWrappedText () ;
+    char *val = bottom_slider ? getStringValue () : getDisplayedText () ;
 
     // Highlight the select area
 
@@ -528,7 +527,7 @@ void puaLargeInput::draw ( int dx, int dy )
                     colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
 
       char *val ;                   // Pointer to the actual text in the box
-      val = bottom_slider ? getStringValue () : getWrappedText () ;
+      val = bottom_slider ? getStringValue () : getDisplayedText () ;
 
       if ( val )
       {
@@ -633,7 +632,7 @@ void puaLargeInput::draw ( int dx, int dy )
     if ( accepting )
     { 
       char *val ;                   // Pointer to the actual text in the box
-      val = bottom_slider ? getStringValue () : getWrappedText () ;
+      val = bottom_slider ? getStringValue () : getDisplayedText () ;
 
       // Draw the 'I' bar cursor.
 
@@ -764,7 +763,7 @@ void puaLargeInput::doHit ( int button, int updown, int x, int y )
 
     // Get the line number and position on the line of the mouse
 
-    char *strval = bottom_slider ? getStringValue () : getWrappedText () ;
+    char *strval = bottom_slider ? getStringValue () : getDisplayedText () ;
     char *tmpval = ulStrDup ( strval ) ;
 
     int i = strlen ( tmpval ) ;
@@ -865,7 +864,7 @@ int puaLargeInput::checkKey ( int key, int updown )
   normalizeCursors () ;
 
   //char *old_text = getStringValue () ;
-  char *old_text = bottom_slider ? getStringValue () : getWrappedText () ;
+  char *old_text = bottom_slider ? getStringValue () : getDisplayedText () ;
   int lines_in_window = getLinesInWindow () ;  /* Added lines_in_window and num_lines to allow for "END" */
   int num_lines = getNumLines () ;             /* and PGUP/DOWN to work properly        - JCJ 20 Jun 2002 */
   int line_width = 0 ;                         /* Width of current line (for bottomslider) */
@@ -1206,27 +1205,27 @@ int puaLargeInput::checkKey ( int key, int updown )
 
 void puaLargeInput::wrapText ( void )
 {
-  // Wrap the text in "text" and put it in "wrapped_text"
+  // Wrap the text in "text" and put it in "displayed_text"
 
-  delete [] wrapped_text ;
-  wrapped_text = ulStrDup ( getStringValue () ) ;
+  delete [] displayed_text ;
+  displayed_text = ulStrDup ( getStringValue () ) ;
 
-  char *wrapped_text_wp = wrapped_text,
+  char *displayed_text_wp = displayed_text,
        *space_ptr,
        *old_space_ptr ;
 
   /* Somewhat inspired by tuxracer */
-  while ( *wrapped_text_wp != '\0' )
+  while ( *displayed_text_wp != '\0' )
   {
     old_space_ptr = NULL ;
-    space_ptr = strchr ( wrapped_text_wp, ' ' ) ;
+    space_ptr = strchr ( displayed_text_wp, ' ' ) ;
 
     while (1)
     {
       if ( space_ptr != NULL )
         *space_ptr = '\0' ;
 
-      if ( legendFont.getStringWidth ( wrapped_text_wp ) >
+      if ( legendFont.getStringWidth ( displayed_text_wp ) >
            (   ( abox.max[0] - abox.min[0] )
              - slider_width
              - PUSTR_LGAP
@@ -1243,8 +1242,8 @@ void puaLargeInput::wrapText ( void )
         break ;
 
       // Check for carriage return in the original string
-      if ( strrchr ( wrapped_text_wp, '\n' ) > wrapped_text_wp )
-        wrapped_text_wp = strrchr ( wrapped_text_wp, '\n' ) + 1 ;
+      if ( strrchr ( displayed_text_wp, '\n' ) > displayed_text_wp )
+        displayed_text_wp = strrchr ( displayed_text_wp, '\n' ) + 1 ;
 
       *space_ptr = ' ' ;
 
@@ -1255,11 +1254,11 @@ void puaLargeInput::wrapText ( void )
     /* Either string is too wide for area, or the entire remaining portion
        of string fits in area (space_ptr == NULL). */
     {
-      wrapped_text_wp += strlen (wrapped_text_wp) ;
+      displayed_text_wp += strlen (displayed_text_wp) ;
 
       if ( space_ptr != NULL )
       /* Advance past the NULL since there's more string left */
-        wrapped_text_wp += 1 ;
+        displayed_text_wp += 1 ;
     }
     else
     {
@@ -1267,7 +1266,7 @@ void puaLargeInput::wrapText ( void )
         *space_ptr = ' ' ;
       *old_space_ptr = '\n' ;
 
-      wrapped_text_wp = old_space_ptr + 1 ;
+      displayed_text_wp = old_space_ptr + 1 ;
     }
   }
 }

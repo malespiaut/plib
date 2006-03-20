@@ -151,8 +151,6 @@ protected:
   puSlider *bottom_slider ;     // Horizontal slider at bottom of window
   puaScrollBar *right_slider ;  // Vertical slider at right of window
 
-  char *wrapped_text ;          // Pointer to word-wrapped text in the box
-
   int arrow_count ;             // Number of up/down arrows above and below the right slider
 
   void normalizeCursors ( void ) ;
@@ -164,8 +162,6 @@ public:
   puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text = FALSE ) ;
   ~puaLargeInput ()
   {
-    delete [] wrapped_text ;
-
     if ( puActiveWidget() == this )
       puDeactivateWidget () ;
   }
@@ -194,14 +190,16 @@ public:
   void  setValue ( const char *s ) ;
   void  setText ( const char *l ) { setValue ( l ) ; }  /* DEPRECATED */
   char *getText ( void ) { return getStringValue () ; }  /* DEPRECATED */
-  char *getWrappedText ( void )
-  {
-    return ( wrapped_text == NULL ? getStringValue () : wrapped_text ) ;
-  }
   void  addNewLine ( const char *l ) ;
   void  addText ( const char *l ) ;
   void  appendText ( const char *l ) ;
   void  removeText ( int start, int end ) ;
+  char *getDisplayedText ( void )
+  {
+    return ( displayed_text == NULL ? getStringValue () : displayed_text ) ;
+  }
+  char *getWrappedText ( void )  // THIS FUNCTION IS DEPRECATED  3/21/06
+  {  return getDisplayedText () ;  }
 } ;
 
 
