@@ -1547,6 +1547,8 @@ protected:
   char *valid_data ;
   int input_disabled ;
 
+  char *displayed_text ;          // Pointer to text as it is displayed in the box (chopped or word-wrapped)
+
   puObject *widget ; /* Pointer to associated input box widget */
 
   virtual void normalizeCursors ( void ) ;
@@ -1608,13 +1610,14 @@ public:
     select_start_position = -1 ;
     select_end_position = -1 ;
     valid_data = NULL;
+    displayed_text = NULL ;
 
     widget = (puObject *)NULL ;
 
     input_disabled = FALSE ;
   }
 
-  virtual ~puInputBase () { delete [] valid_data ; }
+  virtual ~puInputBase () { delete [] valid_data ;  delete [] displayed_text ;  }
 } ;
 
 
@@ -1927,8 +1930,6 @@ protected:
   puSlider *bottom_slider ;    // Horizontal slider at bottom of window
   puScrollBar *right_slider ;  // Vertical slider at right of window
 
-  char *wrapped_text ;         // Pointer to word-wrapped text in the box
-
   int arrow_count ;          // Number of up/down arrows above and below the right slider
 
   void normalizeCursors ( void ) ;
@@ -1940,8 +1941,6 @@ public:
   puLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text = FALSE ) ;
   ~puLargeInput ()
   {
-    delete [] wrapped_text ;
-
     if ( puActiveWidget() == this )
       puDeactivateWidget () ;
   }
@@ -1970,14 +1969,17 @@ public:
   void  setValue ( const char *s ) ;
   void  setText ( const char *l ) { setValue ( l ) ; }  /* DEPRECATED */
   char *getText ( void ) { return getStringValue () ; }  /* DEPRECATED */
-  char *getWrappedText ( void )
-  {
-    return ( wrapped_text == NULL ? getStringValue () : wrapped_text ) ;
-  }
   void  addNewLine ( const char *l ) ;
   void  addText ( const char *l ) ;
   void  appendText ( const char *l ) ;
   void  removeText ( int start, int end ) ;
+
+  char *getDisplayedText ( void )
+  {
+    return ( displayed_text == NULL ? getStringValue () : displayed_text ) ;
+  }
+  char *getWrappedText ( void )  // THIS FUNCTION IS DEPRECATED  3/21/06
+  {  return getDisplayedText () ;  }
 } ;
 //************************************************************************************
 //* THIS CLASS IS DEPRECATED 1/26/04 -- please link to "puAux" and use puaLargeInput *
