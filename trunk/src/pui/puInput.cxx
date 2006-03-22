@@ -27,7 +27,7 @@
 UL_RTTI_DEF2(puInput,puInputBase,puObject)
 
 
-static char *chop_to_width ( puFont fnt, const char *s, int width, int cursor_position, int *ncut )
+static char *chop_to_width ( puFont fnt, const char *s, int width, int cursor_position, int *display_starting_point )
 {
   int new_len = strlen ( s ) ;
   char *res = new char [ new_len + 1 ] ;
@@ -37,7 +37,7 @@ static char *chop_to_width ( puFont fnt, const char *s, int width, int cursor_po
   if ( new_len == 0 )
   {
     *res = '\0' ;
-    if ( ncut != NULL ) *ncut = 0 ;
+    if ( display_starting_point != NULL ) *display_starting_point = 0 ;
   }
   else
   {
@@ -49,7 +49,7 @@ static char *chop_to_width ( puFont fnt, const char *s, int width, int cursor_po
       w = fnt.getStringWidth ( res ) + 2 * PUSTR_RGAP + PUSTR_LGAP ;
     } while ( ( w >= width ) && ( n < cursor_position - 1 ) ) ;
 
-    if ( ncut != NULL ) *ncut = n - 1 ;
+    if ( display_starting_point != NULL ) *display_starting_point = n - 1 ;
 
     n = 0 ;
 
@@ -85,8 +85,8 @@ void puInput::draw ( int dx, int dy )
     int yy = ( ( abox.max[1] - abox.min[1] - legendFont.getStringHeight () ) / 2
                + legendFont.getStringDescender () ) ;
 
-    int ncut ;
-    char *s2 ;
+    if ( !displayed_text )
+      displayed_text = chop_to_width ( legendFont, getStringValue(), abox.max[0]-abox.min[0], getCursor (), &display_starting_point ) ;
 
     if ( accepting )
     {
@@ -95,31 +95,29 @@ void puInput::draw ( int dx, int dy )
       if ( select_end_position > 0 &&
            select_end_position != select_start_position )    
       {
-        s2 = chop_to_width ( legendFont, getStringValue(), abox.max[0]-abox.min[0], getCursor (), &ncut ) ;
-
-        int sep = select_end_position   - ncut ;
-        int ssp = select_start_position - ncut ;
+        int sep = select_end_position   - display_starting_point ;
+        int ssp = select_start_position - display_starting_point ;
 
         if ( sep < 0 ) sep = 0 ;
         if ( ssp < 0 ) ssp = 0 ;
 
         if ( ssp < sep )
         {
-          s2 [ sep ] = '\0' ;
-          int cpos2 = legendFont.getStringWidth ( s2 ) +
+          char save_char = displayed_text [ sep ] ;
+          displayed_text [ sep ] = '\0' ;
+          int cpos2 = legendFont.getStringWidth ( displayed_text ) +
                                                   xx + dx + abox.min[0] ;
-          s2 [ ssp ] = '\0' ;
-          int cpos1 = legendFont.getStringWidth ( s2 ) +
+          displayed_text [ sep ] = save_char ;
+          save_char = displayed_text [ ssp ] ;
+          displayed_text [ ssp ] = '\0' ;
+          int cpos1 = legendFont.getStringWidth ( displayed_text ) +
                                                   xx + dx + abox.min[0] ;
+          displayed_text [ ssp ] = save_char ;
 
           glColor3f ( 1.0f, 1.0f, 0.7f ) ;
           glRecti ( cpos1, dy + abox.min[1] + 2 ,
                     cpos2, dy + abox.max[1] - 2 ) ;
         }
-
-        /* Required because "chop_to_width" allocates the string space */
-
-        delete [] s2 ;
       }
     }
 
@@ -135,10 +133,7 @@ void puInput::draw ( int dx, int dy )
                   colour [ PUCOL_LEGEND ][2],
                   colour [ PUCOL_LEGEND ][3] / 2.0f ) ; /* 50% more transp */
 
-    s2 = chop_to_width ( legendFont, getStringValue(),
-                         abox.max[0]-abox.min[0], getCursor (), &ncut ) ;
-
-    legendFont.drawString ( s2,
+    legendFont.drawString ( displayed_text,
                   dx + abox.min[0] + xx,
                   dy + abox.min[1] + yy ) ;
 
@@ -147,11 +142,14 @@ void puInput::draw ( int dx, int dy )
     { 
       /* Draw the 'I' bar cursor. */
 
-      if ( cursor_position - ncut >= 0 )
+      if ( cursor_position - display_starting_point >= 0 )
       {
-        s2 [ cursor_position-ncut ] = '\0' ;
+        char save_char = displayed_text [ cursor_position-display_starting_point ] ;
+        displayed_text [ cursor_position-display_starting_point ] = '\0' ;
 
-        float cpos = 0.5f + legendFont.getStringWidth ( s2 ) + xx + dx + abox.min[0] ;
+        float cpos = 0.5f + legendFont.getStringWidth ( displayed_text ) + xx + dx + abox.min[0] ;
+        displayed_text [ cursor_position-display_starting_point ] = save_char ;
+
         float top = 0.5f + dy + abox.min[1] + yy + legendFont.getPointSize () ;
         float bot = 0.5f + dy + abox.min[1] + yy - legendFont.getStringDescender() ;
 
@@ -168,10 +166,6 @@ void puInput::draw ( int dx, int dy )
         glEnd      () ;
       }
     }
-
-    /* Required because "chop_to_width" allocates the string space */
-
-    delete [] s2 ;
   }
 
   draw_label ( dx, dy ) ;
@@ -197,29 +191,26 @@ void puInput::doHit ( int button, int updown, int x, int y )
 
     /* Find the position of the mouse on the line of text */
 
-    int ncut ;
-    char *s2 = chop_to_width ( legendFont, getStringValue(),
-                         abox.max[0]-abox.min[0], getCursor (), &ncut ) ;
-    int i = strlen ( s2 ) ;
+    if ( !displayed_text )
+      displayed_text = chop_to_width ( legendFont, getStringValue(),
+                                       abox.max[0]-abox.min[0], getCursor (), &display_starting_point ) ;
+    int i = strlen ( displayed_text ) ;
 
     int length, prev_length ;
-    length = legendFont.getStringWidth ( s2 ) + abox.min[0] ;
+    length = legendFont.getStringWidth ( displayed_text ) + abox.min[0] ;
     prev_length = length ;
 
     while ( ( x <= prev_length ) && ( i > 0 ) )
     {
       prev_length = length ;
-      s2[--i] = '\0' ;
-      length = legendFont.getStringWidth ( s2 ) + abox.min[0] ;
+      displayed_text[--i] = '\0' ;
+      length = legendFont.getStringWidth ( displayed_text ) + abox.min[0] ;
     }
-
-    /* Required because "chop_to_width" allocates the string space */
-    delete [] s2 ;
 
     if ( ( x - length ) > ( prev_length - x ) )
       i++ ;   /* Mouse is closer to next character than previous character */
 
-    i += ncut ;
+    i += display_starting_point ;
 
     /* Process the mouse click. */
 
@@ -264,6 +255,11 @@ void puInput::doHit ( int button, int updown, int x, int y )
     }
     else
       highlight () ;
+
+    /* Required because we have pretty much destroyed "displayed_text" */
+    delete [] displayed_text ;
+    displayed_text = chop_to_width ( legendFont, getStringValue(),
+                                     abox.max[0]-abox.min[0], getCursor (), &display_starting_point ) ;
   }
   else
     lowlight () ;
@@ -411,6 +407,10 @@ int puInput::checkKey ( int key, int updown )
       setValue ( p ) ; /* Set the widget value to the new string */
 
     delete [] p ;
+
+    /* Since the keystroke has changed the text value, we need to change the displayed text as well. */
+    delete [] displayed_text ;
+    displayed_text = NULL ;
   }
 
   normalizeCursors () ;
