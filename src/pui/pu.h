@@ -1625,6 +1625,13 @@ class puInput : public puInputBase, public puObject
 {
   UL_TYPE_DATA
 
+  int display_starting_point ;
+
+  char *getDisplayedText ( void )
+  {
+    return ( displayed_text == NULL ? getStringValue () : displayed_text ) ;
+  }
+
 public:
   void draw     ( int dx, int dy ) ;
   void doHit    ( int button, int updown, int x, int y ) ;
@@ -1641,6 +1648,8 @@ public:
              puInputBase (), puObject ( minx, miny, maxx, maxy )
   {
     type |= PUCLASS_INPUT ;
+
+    display_starting_point = 0 ;
 
     setColourScheme ( colour [ PUCOL_EDITFIELD ][0],
                       colour [ PUCOL_EDITFIELD ][1],
