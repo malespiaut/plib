@@ -890,27 +890,30 @@ class puaList : public puGroup
   puArrowButton * _up_arrow;
   puArrowButton * _down_arrow;
   int _style;
+  int _sw;       // slider width
 
 protected:
   virtual void init (int w, int h, short transparent);
 
 public:
-  puaList (int x, int y, int w, int h);
-  puaList (int x, int y, int w, int h, char ** contents);
-  puaList (int x, int y, int w, int h, short transparent);
-  puaList (int x, int y, int w, int h, short transparent, char ** contents);
+  puaList (int x, int y, int w, int h, int sl_width = 20);
+  puaList (int x, int y, int w, int h, char ** contents, int sl_width = 20);
+  puaList (int x, int y, int w, int h, short transparent, int sl_width = 20);
+  puaList (int x, int y, int w, int h, short transparent, char ** contents, int sl_width = 20);
   virtual ~puaList ();
 
   virtual void newList (char ** contents);
   virtual char * getListStringValue ();
-  virtual int getListIntegerValue();
+  virtual int    getListIntegerValue ();
 
   virtual char * getStringValue ();
   virtual int    getIntegerValue ();
   virtual void   getValue (char **ps);
   virtual void   getValue (int  *i);
 
-  virtual void   setStyle (int style);
+  virtual void   setColourScheme (float r, float g, float b, float a);
+  virtual void   setColour (int which, float r, float g, float b, float a);
+  virtual void   setSize (int w, int h);
 
   int  getNumItems ( void ) const ;
   int  getTopItem  ( void ) const ;

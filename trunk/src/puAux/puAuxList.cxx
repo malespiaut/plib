@@ -46,6 +46,17 @@ handle_slider (puObject * slider)
 
 
 /**
+ * Static function: handle list entry selection.
+ */
+static void
+handle_list_entry (puObject * listbox)
+{
+    puaList * box = (puaList *)listbox->getUserData();
+    box->invokeCallback();
+}
+
+
+/**
  * Static function: handle arrow clicks.
  */
 static void
@@ -79,16 +90,18 @@ handle_arrow (puObject * arrow)
 }
 
 /* Create an empty list box. */
-puaList::puaList (int x, int y, int w, int h)
-    : puGroup(x, y)
+puaList::puaList (int x, int y, int w, int h, int sl_width) :
+    puGroup(x, y),
+    _sw(sl_width)
 {
     type |= PUCLASS_LIST;
     init(w, h, 1);
 }
 
 /* Create a filled list box. */
-puaList::puaList (int x, int y, int w, int h, char ** contents)
-    : puGroup(x, y)
+puaList::puaList (int x, int y, int w, int h, char ** contents, int sl_width) :
+    puGroup(x, y),
+    _sw(sl_width)
 {
     type |= PUCLASS_LIST;
     init(w, h, 1);
@@ -96,16 +109,19 @@ puaList::puaList (int x, int y, int w, int h, char ** contents)
 }
 
 /* Create an empty list box. */
-puaList::puaList (int x, int y, int w, int h, short transparent)
-    : puGroup(x, y)
+puaList::puaList (int x, int y, int w, int h, short transparent, int sl_width) :
+    puGroup(x, y),
+    _sw(sl_width)
 {
     type |= PUCLASS_LIST;
     init(w, h, transparent);
 }
 
 /* Create a filled list box. */
-puaList::puaList (int x, int y, int w, int h, short transparent, char ** contents)
-    : puGroup(x, y)
+puaList::puaList (int x, int y, int w, int h, short transparent,
+                  char ** contents, int sl_width) :
+    puGroup(x, y),
+    _sw(sl_width)
 {
     type |= PUCLASS_LIST;
     init(w, h, transparent);
@@ -126,7 +142,8 @@ puaList::newList (char ** contents)
 char *
 puaList::getListStringValue ()
 {
-    return _contents[_list_box->getIntegerValue()];
+    int i = _list_box->getIntegerValue();
+    return i < 0 ? 0 : _contents[i];
 }
 
 int
@@ -189,6 +206,35 @@ puaList::getIntegerValue()
   return _list_box->getIntegerValue();
 }
 
+void
+puaList::setColourScheme (float r, float g, float b, float a)
+{
+    puObject::setColourScheme(r, g, b, a);
+    _list_box->setColourScheme(r, g, b, a);
+}
+
+void
+puaList::setColour (int which, float r, float g, float b, float a)
+{
+    puObject::setColour(which, r, g, b, a);
+    _list_box->setColour(which, r, g, b, a);
+}
+
+void
+puaList::setSize (int w, int h)
+{
+    puObject::setSize(w, h);
+    if (_frame)
+      _frame->setSize(w, h);
+
+    _list_box->setSize(w-_sw, h);
+
+    _slider->setPosition(w-_sw, _sw);
+    _slider->setSize(_sw, h-2*_sw);
+
+    _down_arrow->setPosition(w-_sw, 0);
+    _up_arrow->setPosition(w-_sw, h-_sw);
+}
 
 void
 puaList::init (int w, int h, short transparent)
@@ -198,22 +244,23 @@ puaList::init (int w, int h, short transparent)
   else
     _frame = new puFrame(0, 0, w, h);
 
-  _list_box = new puListBox(0, 0, w-30, h);
+  _list_box = new puListBox(0, 0, w-_sw, h);
   _list_box->setStyle(-PUSTYLE_SMALL_SHADED);
   _list_box->setUserData(this);
+  _list_box->setCallback(handle_list_entry);
   _list_box->setValue(0);
 
-  _slider = new puSlider(w-30, 30, h-60, true);
+  _slider = new puSlider(w-_sw, _sw, h-2*_sw, true, _sw);
   _slider->setValue(1.0f);
   _slider->setUserData(_list_box);
   _slider->setCallback(handle_slider);
   _slider->setCBMode(PUSLIDER_ALWAYS);
 
-  _down_arrow = new puArrowButton(w-30, 0, w, 30, PUARROW_DOWN) ;
+  _down_arrow = new puArrowButton(w-_sw, 0, w, _sw, PUARROW_DOWN) ;
   _down_arrow->setUserData(_slider);
   _down_arrow->setCallback(handle_arrow);
 
-  _up_arrow = new puArrowButton(w-30, h-30, w, h, PUARROW_UP);
+  _up_arrow = new puArrowButton(w-_sw, h-_sw, w, h, PUARROW_UP);
   _up_arrow->setUserData(_slider);
   _up_arrow->setCallback(handle_arrow);
 
