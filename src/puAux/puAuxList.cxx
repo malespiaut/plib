@@ -139,19 +139,6 @@ puaList::newList (char ** contents)
     _contents = contents;
 }
 
-char *
-puaList::getListStringValue ()
-{
-    int i = _list_box->getIntegerValue();
-    return i < 0 ? 0 : _contents[i];
-}
-
-int
-puaList::getListIntegerValue()
-{
-  return _list_box->getIntegerValue();
-}
-
 /*
  *  Return a pointer to a character string with the
  *  contents of the selected entry.

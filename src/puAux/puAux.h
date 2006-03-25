@@ -903,8 +903,6 @@ public:
   virtual ~puaList ();
 
   virtual void newList (char ** contents);
-  virtual char * getListStringValue ();
-  virtual int    getListIntegerValue ();
 
   virtual char * getStringValue ();
   virtual int    getIntegerValue ();

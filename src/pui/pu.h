@@ -537,11 +537,11 @@ public:
 
   int  getValue ( void ) { return getIntegerValue () ; } /* Obsolete ! */
 
-  int   getIntegerValue ( void ) { re_eval () ; return *getIntegerp () ; }
-  float getFloatValue ( void )   { re_eval () ; return *getFloaterp () ; }
-  char  getCharValue ( void )    { re_eval () ; return getStringp ()[0]; }
-  char *getStringValue ( void )  { re_eval () ; return getStringp   () ; }
-  bool  getBooleanValue ( void ) { re_eval () ; return *getBooleanp () ; }
+  virtual int   getIntegerValue ( void ) { re_eval () ; return *getIntegerp () ; }
+  virtual float getFloatValue ( void )   { re_eval () ; return *getFloaterp () ; }
+  virtual char  getCharValue ( void )    { re_eval () ; return getStringp ()[0]; }
+  virtual char *getStringValue ( void )  { re_eval () ; return getStringp   () ; }
+  virtual bool  getBooleanValue ( void ) { re_eval () ; return *getBooleanp () ; }
 
   /* RTTI */
   ulRTTItypeid getTypeInfo ( void ) const { return RTTI_vinfo () ; }
