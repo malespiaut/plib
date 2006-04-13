@@ -198,7 +198,7 @@ int puGroup::checkHit ( int button, int updown, int x, int y )
     for ( ; bo != NULL ; bo = bo -> getPrevObject() )
     {
       /* If this is a menu bar and the mouse is over the button, highlight the button, if it's in the right window - JCJ 6 Jun 2002 */
-      if ( ( ( getType () & PUCLASS_MENUBAR ) || ( getType () & PUCLASS_VERTMENU ) ) && ( bo->getType () & PUCLASS_ONESHOT ) && ( window == puGetWindow () ) )
+      if ( ( getType () & PUCLASS_MENUBAR )  && ( bo->getType () & PUCLASS_ONESHOT ) && ( window == puGetWindow () ) )
       /*
       Changing this statement to something like this:
       if ( bo->getType () & PUCLASS_ONESHOT )
@@ -289,16 +289,10 @@ void puGroup::draw ( int dx, int dy )
       int ydraw = dy + abox.min[1] ;
       bo -> getPosition (&x, &y) ;
 
-    /* Introduced PUCLASS_VERTMENU into the club of widgets being automatically moved */
-    /* to the top-left corner of the screen. This eliminates all Vertmenu-resize and  */
-    /* window-jumping problems.                                 - JCJ 31 May 2002     */
-
     /* If the object is a menubar or a vertmenu and supposed to be locked to the top, */
     /* then move it there. - JCJ 6 June 2002                                          */
-    if ( ( ( bo -> getType () & PUCLASS_MENUBAR ) || 
-           ( ( bo -> getType () & PUCLASS_VERTMENU ) && 
-           ( bo -> getVStatus () == 1 ) ) ) &&
-         ( bo -> getWindow () == puGetWindow () ) )
+    if ( (  bo -> getType () & PUCLASS_MENUBAR  ) &&
+         ( bo -> getWindow () == puGetWindow () )       )
     {
       int obWidth, obHeight ;
       bo -> getSize ( &obWidth, &obHeight ) ;
