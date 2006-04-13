@@ -32,21 +32,59 @@ int main(int argc, char *argv[])
   Display *dpy = XOpenDisplay(0);
   int scn=DefaultScreen(dpy);
   int cnt;
-  GLXFBConfig *cfg = glXGetFBConfigs(dpy, scn, &cnt);
-  fprintf(stderr,"glXGetFBConfigs returned %p (%d matches)\n", cfg, cnt);
+  GLXFBConfig *configs = glXGetFBConfigs(dpy, scn, &cnt);
+  if (!configs)
+  {
+    perror("glXGetFBConfigs");
+    exit(1);
+  }
+  fprintf(stderr,"glXGetFBConfigs returned %p (%d matches)\n", configs, cnt);
   assert(cnt);
+  GLXFBConfig fbc = configs[0];
+  XVisualInfo *vinf = glXGetVisualFromFBConfig(dpy, fbc);
+  if (!vinf)
+  {  
+    perror("glXGetVisualFromFBConfig");
+    exit(1);
+  }
+  fprintf
+  (
+    stderr,
+    "visualid=0x%lx (depth=%d,R/G/B=%lx/%lx/%lx)\n",
+    vinf->visualid,
+    vinf->depth,
+    vinf->red_mask,
+    vinf->green_mask,
+    vinf->blue_mask
+  );
+  GLXContext cx = glXCreateNewContext(dpy, fbc, GLX_RGBA_TYPE, 0, GL_TRUE);
+  if (!cx)
+  {
+    perror("glXCreateNewContext");
+    exit(1);
+  }
+  else
+  {
+    fprintf(stderr,"glX context created\n");
+  }
   int attrlist[] =
   {
     GLX_PBUFFER_WIDTH, 1,
     GLX_PBUFFER_HEIGHT, 1,
     0
   };
-  GLXPbufferSGIX pBuffer = glXCreatePbuffer(dpy, cfg[0], attrlist);
-  fprintf(stderr,"pBuffer = %p\n", pBuffer);
-  GLXContext cx = glXCreateNewContext(dpy, cfg[0], GLX_RGBA_TYPE, 0, GL_TRUE);
-  glXMakeCurrent(dpy, pBuffer, cx);
+  GLXPbuffer pBuffer = glXCreatePbuffer(dpy, fbc, attrlist);
+  fprintf(stderr,"pBuffer = %lx\n", pBuffer);
+
+  bool ok=glXMakeContextCurrent(dpy, pBuffer, pBuffer, cx);
+  if (!ok)
+  {
+    perror("glXMakeContextCurrent");
+    exit(1);
+  }
 
   // Initialize plib
+  fprintf(stderr,"Initializing plib...\n");
   ssgInit();
   ssgTexturePath ( "." ) ;
   ssgModelPath   ( "." ) ;
