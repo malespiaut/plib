@@ -96,7 +96,7 @@ public:
     sgAddScaledVec3 ( pos . hpr, vel . hpr, dt ) ; 
   }
 
-  virtual void update ( double dt ) = NULL ;
+  virtual void update ( double dt ) = 0 ;
 } ;
 
 
