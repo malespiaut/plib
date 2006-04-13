@@ -41,6 +41,7 @@
 #include <plib/ssg.h>
 #include <plib/ssgAux.h>
 #include <plib/pu.h>
+#include <plib/puAux.h>
 
 #ifndef GL_VERSION_1_3
 // ARB_multitexture
@@ -60,10 +61,10 @@ static puSlider    *trainHeightSlider  = (puSlider    *) NULL ;
 static puButton    *trainEnableButton  = (puButton    *) NULL ;
 static puOneShot   *trainDisableButton = (puOneShot   *) NULL ;
 static puDial      *trainHeadingDial   = (puDial      *) NULL ;
-static puSelectBox *trainSelectBox     = (puSelectBox *) NULL ;
+static puaSelectBox *trainSelectBox    = (puaSelectBox *) NULL ;
 static puText      *timeText           = (puText      *) NULL ;
 
-static puSelectBox *depthSelectBox     = (puSelectBox *) NULL ;
+static puaSelectBox *depthSelectBox     = (puaSelectBox *) NULL ;
 
 static puDial      *viewHeadingDial    = (puDial      *) NULL ;
 static puDial      *viewPitchDial      = (puDial      *) NULL ;
@@ -368,7 +369,7 @@ static void trainHeadingDial_cb ( puObject *ob )
 
 static void trainSelectBox_cb ( puObject *ob )
 {
-  curr_train = ((puSelectBox *) ob) -> getCurrentItem () ;
+  curr_train = ((puaSelectBox *) ob) -> getCurrentItem () ;
 
   if ( curr_train < 0 )
     curr_train = 0 ;
@@ -457,7 +458,7 @@ static char *depthNames [] =
 
 static void depthSelectBox_cb ( puObject *ob )
 {
-  curr_depthfunc = ((puSelectBox *) ob) -> getCurrentItem () ;
+  curr_depthfunc = ((puaSelectBox *) ob) -> getCurrentItem () ;
 
   if ( curr_depthfunc < 0 )
     curr_depthfunc = 0 ;
@@ -867,7 +868,7 @@ static void init_gui ()
   trainHeadingDial->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   trainHeadingDial->setLegendPlace ( PUPLACE_BOTTOM_CENTERED ) ;
   
-  trainSelectBox = new puSelectBox ( 200, GUI_BASE+109, 300, GUI_BASE+139,
+  trainSelectBox = new puaSelectBox ( 200, GUI_BASE+109, 300, GUI_BASE+139,
                                      trainNameList ) ;
   trainSelectBox->setCallback      ( trainSelectBox_cb ) ;
   trainSelectBox->setCurrentItem   ( 0 ) ;
@@ -878,7 +879,7 @@ static void init_gui ()
   /* Set everything up on the first time around */
   trainSelectBox_cb ( trainSelectBox ) ;
 
-  depthSelectBox = new puSelectBox ( 200, GUI_BASE, 400, GUI_BASE+20,
+  depthSelectBox = new puaSelectBox ( 200, GUI_BASE, 400, GUI_BASE+20,
                                      depthNames ) ;
   depthSelectBox->setCallback      ( depthSelectBox_cb ) ;
   depthSelectBox->setCurrentItem   ( 0 ) ;

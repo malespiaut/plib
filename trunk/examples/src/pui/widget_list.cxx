@@ -46,6 +46,7 @@
 #endif
 
 #include <plib/pu.h>
+#include <plib/puAux.h>
 
 //#define VOODOO 1
 
@@ -95,28 +96,28 @@ static int list_box_window ;
 static puListBox *list_box ;
 
 static int file_selector_window ;
-static puFileSelector *file_selector ;
+static puaFileSelector *file_selector ;
 
 static int bislider_window ;
-static puBiSlider *bislider ;
+static puaBiSlider *bislider ;
 
 static int trislider_window ;
-static puTriSlider *trislider ;
+static puaTriSlider *trislider ;
 
 static int vertical_menu_window ;
-static puVerticalMenu *vertical_menu ;
+static puaVerticalMenu *vertical_menu ;
 
 static int dialog_box_window ;
 static puDialogBox *dialog_box ;
 
 static int large_input_window ;
-static puLargeInput *large_input ;
+static puaLargeInput *large_input ;
 
 static int combo_box_window ;
-static puComboBox *combo_box ;
+static puaComboBox *combo_box ;
 
 static int select_box_window ;
-static puSelectBox *select_box ;
+static puaSelectBox *select_box ;
 
 //static fntTexFont *tim ;
 
@@ -518,7 +519,7 @@ int main ( int argc, char **argv )
 
   //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
-  file_selector = new puFileSelector ( 10, 10, 280, 200, "." ) ;
+  file_selector = new puaFileSelector ( 10, 10, 280, 200, "." ) ;
 
 
   bislider_window = glutCreateWindow      ( "BiSlider Window"  ) ;
@@ -535,7 +536,7 @@ int main ( int argc, char **argv )
 
   //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
-  bislider = new puBiSlider ( 10, 10, 120, FALSE ) ;
+  bislider = new puaBiSlider ( 10, 10, 120, FALSE ) ;
   bislider->setLabel ( "Label" ) ;
   bislider->setLegend ( "Legend" ) ;
   bislider->setMaxValue ( 20 ) ;
@@ -557,7 +558,7 @@ int main ( int argc, char **argv )
 
   //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
-  trislider = new puTriSlider ( 20, 10, 180, TRUE ) ;
+  trislider = new puaTriSlider ( 20, 10, 180, TRUE ) ;
   trislider->setLabel ( "Label" ) ;
   trislider->setLegend ( "Legend" ) ;
   trislider->setMaxValue ( 20 ) ;
@@ -580,7 +581,7 @@ int main ( int argc, char **argv )
 
   //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
-  vertical_menu = new puVerticalMenu () ;
+  vertical_menu = new puaVerticalMenu () ;
   {
     vertical_menu -> add_submenu ( "File", file_submenu, file_submenu_cb ) ;
     vertical_menu -> add_submenu ( "Edit", edit_submenu, edit_submenu_cb ) ;
@@ -626,7 +627,7 @@ int main ( int argc, char **argv )
 
   //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
-  large_input = new puLargeInput ( 10, 10, 240, 180, 2, 20 ) ;
+  large_input = new puaLargeInput ( 10, 10, 240, 180, 2, 20 ) ;
   large_input->setLabel ( "Label" ) ;
   large_input->setText ( "This is text in the Large Input widget.\n"
                          "This is a second line of text" ) ;
@@ -647,7 +648,7 @@ int main ( int argc, char **argv )
   //tim -> load ( "../fnt/data/old/times_bold.txf" ) ;
 
   char *combo_box_entries [] = { "First Entry", "Second Entry", "Third Entry", "Fourth Entry", "Sixth Entry", "Seventh Entry", NULL } ;
-  combo_box = new puComboBox ( 10, 158, 250, 190,
+  combo_box = new puaComboBox ( 10, 158, 250, 190,
                                combo_box_entries ) ;
   /* Don't do that in your own application ! */
   combo_box -> __getPopupMenu() -> reveal() ;
@@ -672,7 +673,7 @@ int main ( int argc, char **argv )
   glAlphaFunc ( GL_GEQUAL, 0.1f ) ;
   glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
 
-  select_box = new puSelectBox ( 10, 14, 250, 46,
+  select_box = new puaSelectBox ( 10, 14, 250, 46,
                                  combo_box_entries ) ;
   select_box->setLabel ( "Label" ) ;
 

@@ -33,6 +33,7 @@
 #include <math.h>
 #include <plib/ssg.h>
 #include <plib/pu.h>
+#include <plib/puAux.h>
 #include <plib/ssgAux.h>
 #include <plib/ssgaSky.h>
 
@@ -58,11 +59,11 @@
 static int wireframe  = FALSE ;
 static int displayGUI = TRUE  ;
 
-static puSelectBox *bodySelectBox         = (puSelectBox *) NULL ;
+static puaSelectBox *bodySelectBox        = (puaSelectBox *) NULL ;
 static puDial      *bodyRADial            = (puDial      *) NULL ;
 static puDial      *bodyDeclDial          = (puDial      *) NULL ;
 static puSlider    *cloudElevationSlider  = (puSlider    *) NULL ;
-static puSelectBox *cloudSelectBox        = (puSelectBox *) NULL ;
+static puaSelectBox *cloudSelectBox       = (puaSelectBox *) NULL ;
 static puButton    *cloudEnableButton     = (puButton    *) NULL ;
 
 static ssgRoot            *scene              = NULL ;
@@ -121,7 +122,7 @@ static sgCoord campos = { { -300, 0, 10 }, { -90, 0, 0 } } ;
 
 static void bodySelectBox_cb ( puObject *ob )
 {
-  curr_body = ((puSelectBox *) ob) -> getCurrentItem () ;
+  curr_body = ((puaSelectBox *) ob) -> getCurrentItem () ;
 
   if ( curr_body < 0 )
     curr_body = 0 ;
@@ -147,7 +148,7 @@ static void bodyDeclDial_cb ( puObject *ob )
 
 static void cloudSelectBox_cb ( puObject *ob )
 {
-  curr_cloud = ((puSelectBox *) ob) -> getCurrentItem () ;
+  curr_cloud = ((puaSelectBox *) ob) -> getCurrentItem () ;
 
   if ( curr_cloud < 0 )
     curr_cloud = 0 ;
@@ -632,7 +633,7 @@ static void init_gui ()
   bodyDeclDial->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   bodyDeclDial->setLegendPlace ( PUPLACE_BOTTOM_CENTERED ) ;
   
-  bodySelectBox = new puSelectBox ( 150, GUI_BASE+150, 300, GUI_BASE+180, bodyNameList ) ;
+  bodySelectBox = new puaSelectBox ( 150, GUI_BASE+150, 300, GUI_BASE+180, bodyNameList ) ;
   bodySelectBox->setCallback      ( bodySelectBox_cb ) ;
   bodySelectBox->setCurrentItem   ( 0 ) ;
   bodySelectBox->setLabel         ( "Edit Body" ) ;
@@ -659,7 +660,7 @@ static void init_gui ()
   cloudEnableButton->setLabelPlace ( PUPLACE_CENTERED_LEFT ) ;
   cloudEnableButton->setColour( PUCOL_LABEL, FONT_COLOUR ) ;
   
-  cloudSelectBox = new puSelectBox ( 150, GUI_BASE+50, 300, GUI_BASE+80, cloudNameList ) ;
+  cloudSelectBox = new puaSelectBox ( 150, GUI_BASE+50, 300, GUI_BASE+80, cloudNameList ) ;
   cloudSelectBox->setCallback      ( cloudSelectBox_cb ) ;
   cloudSelectBox->setCurrentItem   ( 0 ) ;
   cloudSelectBox->setLabel         ( "Edit Cloud" ) ;

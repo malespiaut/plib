@@ -45,6 +45,7 @@
 #endif
 
 #include <plib/pu.h>
+#include <plib/puAux.h>
 
 //#define VOODOO 1
 
@@ -70,11 +71,11 @@ static puSlider    *rspeedSlider ;
 static puSlider    *directSlider ;
 
 static int          save_window ;
-static puFileSelector *file_selector ;
+static puaFileSelector *file_selector ;
 
 static int          coordinate_window ;
-static puBiSlider  *x_coordinate ;
-static puTriSlider *y_coordinate ;
+static puaBiSlider  *x_coordinate ;
+static puaTriSlider *y_coordinate ;
 
 //static fntTexFont *hel ;
 //static fntTexFont *tim ;
@@ -412,7 +413,7 @@ static void save_cb ( puObject * )
   glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
   if ( ++save_count > 2 ) save_count = 0 ;
 
-  file_selector = new puFileSelector ( 0, 0, w, h, save_count, ".", "Pick Place To Save" ) ;
+  file_selector = new puaFileSelector ( 0, 0, w, h, save_count, ".", "Pick Place To Save" ) ;
   file_selector -> setCallback ( pick_cb ) ;
   file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
   file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
@@ -599,7 +600,7 @@ int main ( int argc, char **argv )
 
   puGroup *coordinate_group = new puGroup ( 0, 0 ) ;  // Necessary so that "groupdisplayfn" will draw all widgets
 
-  x_coordinate = new puBiSlider ( 50,10,350,TRUE ) ;
+  x_coordinate = new puaBiSlider ( 50,10,350,TRUE ) ;
   x_coordinate->setMinValue ( -20 ) ;
   x_coordinate->setMaxValue (  20 ) ;
   x_coordinate->setCurrentMin ( -20 ) ;
@@ -610,7 +611,7 @@ int main ( int argc, char **argv )
   x_coordinate->setLabel ( "X-coords" ) ;
   x_coordinate->setLabelPlace ( PUPLACE_TOP_CENTERED ) ;
 
-  y_coordinate = new puTriSlider (200,30,350,TRUE);
+  y_coordinate = new puaTriSlider (200,30,350,TRUE);
   y_coordinate->setMinValue ( -20 ) ;
   y_coordinate->setMaxValue (  20 ) ;
   y_coordinate->setCurrentMin ( -20 ) ;
