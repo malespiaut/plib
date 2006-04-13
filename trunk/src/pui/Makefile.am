@@ -10,10 +10,10 @@ libplibpu_a_SOURCES = \
         puInput.cxx       puInterface.cxx puLocal.h    puMenuBar.cxx      \
         puObject.cxx      puOneShot.cxx   puPopup.cxx  puPopupMenu.cxx    \
         puFilePicker.cxx  puListBox.cxx   puSlider.cxx puText.cxx         \
-        puValue.cxx       puFont.cxx      puBiSlider.cxx  puTriSlider.cxx \
-        puDial.cxx        puVerticalMenu.cxx  puLargeInput.cxx            \
-        puFileSelector.cxx puComboBox.cxx puSelectBox.cxx puRange.cxx	  \
-        puSpinBox.cxx     puScrollBar.cxx puInputBase.cxx
+        puValue.cxx       puFont.cxx      \
+        puDial.cxx        \
+        puRange.cxx	  \
+        puInputBase.cxx
 
 AM_CPPFLAGS = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/fnt
 AM_CPPFLAGS += -I$(top_srcdir)/src/util

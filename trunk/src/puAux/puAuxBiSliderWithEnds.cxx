@@ -29,8 +29,8 @@ UL_RTTI_DEF1(puaBiSliderWithEnds,puGroup)
 void puaBiSliderWithEnds::handle_slider ( puObject *obj )
 {
   puaBiSliderWithEnds *bisl = (puaBiSliderWithEnds *)obj->getUserData () ;
-  bisl->__setMax ( ((puBiSlider *)obj)->getCurrentMax () ) ;
-  bisl->__setMin ( ((puBiSlider *)obj)->getCurrentMin () ) ;
+  bisl->__setMax ( ((puaBiSlider *)obj)->getCurrentMax () ) ;
+  bisl->__setMin ( ((puaBiSlider *)obj)->getCurrentMin () ) ;
   bisl->invokeCallback () ;
 }
 
