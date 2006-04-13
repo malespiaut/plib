@@ -21,6 +21,7 @@
      $Id$
 */
 
+#include <plib/puAux.h>
 
 #include "exposer.h"
 
@@ -33,7 +34,7 @@ void  setTweenInterval ( float t ) { tweeninterval = t ;    }
 float getTweenInterval ()          { return tweeninterval ; }
 
 
-static puFileSelector *file_selector = NULL ;
+static puaFileSelector *file_selector = NULL ;
 
 
 static char lastModelFilePath [ PUSTRING_MAX ] ;
@@ -525,7 +526,7 @@ void twsaveCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+    file_selector = new puaFileSelector ( FILE_SELECTOR_ARGS,
 		            lastModelFilePath, "Save Tweened Model As..." ) ;
     file_selector -> setCallback ( twsavepickfn ) ;
 
@@ -549,7 +550,7 @@ void bnsaveCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+    file_selector = new puaFileSelector ( FILE_SELECTOR_ARGS,
 			            lastModelFilePath, "Save Bones As..." ) ;
     file_selector -> setCallback ( bnsavepickfn ) ;
 
@@ -573,7 +574,7 @@ void bnloadCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+    file_selector = new puaFileSelector ( FILE_SELECTOR_ARGS,
 			           lastModelFilePath, "Load Bones from..." ) ;
     file_selector -> setCallback ( bnpickfn ) ;
 
@@ -600,7 +601,7 @@ void scloadCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+    file_selector = new puaFileSelector ( FILE_SELECTOR_ARGS,
                                          "", "Load Scenery from..." ) ;
     file_selector -> setCallback ( scpickfn ) ;
   }
@@ -611,7 +612,7 @@ void loadCB ( puObject * )
 {
   if ( file_selector == NULL )
   {
-    file_selector = new puFileSelector ( FILE_SELECTOR_ARGS,
+    file_selector = new puaFileSelector ( FILE_SELECTOR_ARGS,
                                          "", "Load Model from..." ) ;
     file_selector -> setCallback ( pickfn ) ;
   }
