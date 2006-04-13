@@ -59,6 +59,7 @@
 #include <plib/ssg.h>
 #include <plib/fnt.h>
 #include <plib/pu.h>
+#include <plib/puAux.h>
 
 #define ARROWS_USED 1
 /*
@@ -84,7 +85,7 @@ font vars
 static fntRenderer *text ;
 static fntTexFont *font ;
 
-static puFileSelector* file_selector = 0 ;
+static puaFileSelector* file_selector = 0 ;
 
 /*
 frame rate vars
@@ -724,7 +725,7 @@ static void keyboard(unsigned char key, int, int)
   case 'l':
     if ( !file_selector )
     {
-      file_selector = new puFileSelector ( ( 640 - 320 ) / 2, ( 480 - 270 ) / 2, 320, 270, ARROWS_USED, "data" ) ;
+      file_selector = new puaFileSelector ( ( 640 - 320 ) / 2, ( 480 - 270 ) / 2, 320, 270, ARROWS_USED, "data" ) ;
       file_selector -> setCallback ( pick_cb ) ;
     }
     break;

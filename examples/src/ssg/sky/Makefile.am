@@ -4,7 +4,7 @@ noinst_PROGRAMS = sky
 
 sky_SOURCES = sky.cxx
 
-sky_LDADD = -lplibpu -lplibfnt -lplibssgaux -lplibssg -lplibsg -lplibul $(GLUT_LIBS) $(OGL_LIBS)
+sky_LDADD = -lplibpuaux -lplibpu -lplibfnt -lplibssgaux -lplibssg -lplibsg -lplibul $(GLUT_LIBS) $(OGL_LIBS)
 
 endif
 

@@ -63,6 +63,7 @@
 #endif
 
 #include <plib/pu.h>
+#include <plib/puAux.h>
 
 //#define VOODOO 1
 
@@ -77,7 +78,7 @@ static puText       *instruction ;
 static puInput      *point_no    ;
 static puOneShot    *move_point  ;
 static puButton     *exit_button ;
-static puLargeInput *input ;
+static puaLargeInput *input ;
 
 static int picked_point ;
 static int mouse_x, mouse_y ;  // Mouse coordinates
@@ -404,7 +405,7 @@ int main ( int argc, char **argv )
   exit_button->setStyle ( PUSTYLE_BOXED ) ;
   exit_button->setLegendPlace ( PUPLACE_CENTERED_LEFT ) ;
 
-  input = new puLargeInput ( 440, 0, 200, 300, 1, 20, TRUE ) ;
+  input = new puaLargeInput ( 440, 0, 200, 300, 1, 20, TRUE ) ;
   //input->setChildStyle ( PUCLASS_ARROW, PUSTYLE_BOXED ) ;
   //input->setChildBorderThickness ( PUCLASS_ARROW, 15 ) ;
   input->setText ( "This is a large input box\n"
