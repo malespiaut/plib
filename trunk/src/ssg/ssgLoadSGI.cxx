@@ -24,13 +24,6 @@
 
 #include "ssgLocal.h"
 
-/*eliminated by J. Nathan Matias
-static FILE          *image_fd ;
-static char           image_fname [ 512 ] ;
-static int            isSwapped ;
-static unsigned char *rle_temp ;*/
-
-
 /* Some magic constants in the file header. */
 
 #define SGI_IMG_MAGIC           0x01DA
@@ -264,6 +257,7 @@ ssgSGIHeader::ssgSGIHeader ( const char *fname, ssgTextureInfo* info )
 
   start = NULL ;
   leng = NULL ;
+  rle_temp = NULL ;
 
   bool success=openFile(fname);
 
@@ -291,51 +285,51 @@ ssgSGIHeader::ssgSGIHeader ( const char *fname, ssgTextureInfo* info )
     switch ( sgihdr->zsize )
     {
       case 1 :
-	sgihdr->getRow ( rbuf, y, 0 ) ;
+        sgihdr->getRow ( rbuf, y, 0 ) ;
 
-	for ( x = 0 ; x < sgihdr->xsize ; x++ )
-	  *ptr++ = rbuf [ x ] ;
+        for ( x = 0 ; x < sgihdr->xsize ; x++ )
+          *ptr++ = rbuf [ x ] ;
 
-	break ;
+        break ;
 
       case 2 :
-	sgihdr->getRow ( rbuf, y, 0 ) ;
-	sgihdr->getRow ( gbuf, y, 1 ) ;
+        sgihdr->getRow ( rbuf, y, 0 ) ;
+        sgihdr->getRow ( gbuf, y, 1 ) ;
 
-	for ( x = 0 ; x < sgihdr->xsize ; x++ )
-	{
-	  *ptr++ = rbuf [ x ] ;
-	  *ptr++ = gbuf [ x ] ;
-	}
-	break ;
+        for ( x = 0 ; x < sgihdr->xsize ; x++ )
+        {
+          *ptr++ = rbuf [ x ] ;
+          *ptr++ = gbuf [ x ] ;
+        }
+        break ;
 
       case 3 :
         sgihdr->getRow ( rbuf, y, 0 ) ;
-	sgihdr->getRow ( gbuf, y, 1 ) ;
-	sgihdr->getRow ( bbuf, y, 2 ) ;
+        sgihdr->getRow ( gbuf, y, 1 ) ;
+        sgihdr->getRow ( bbuf, y, 2 ) ;
 
-	for ( x = 0 ; x < sgihdr->xsize ; x++ )
-	{
-	  *ptr++ = rbuf [ x ] ;
-	  *ptr++ = gbuf [ x ] ;
-	  *ptr++ = bbuf [ x ] ;
-	}
-	break ;
+        for ( x = 0 ; x < sgihdr->xsize ; x++ )
+        {
+          *ptr++ = rbuf [ x ] ;
+          *ptr++ = gbuf [ x ] ;
+          *ptr++ = bbuf [ x ] ;
+        }
+        break ;
 
       case 4 :
         sgihdr->getRow ( rbuf, y, 0 ) ;
-	sgihdr->getRow ( gbuf, y, 1 ) ;
-	sgihdr->getRow ( bbuf, y, 2 ) ;
-	sgihdr->getRow ( abuf, y, 3 ) ;
+        sgihdr->getRow ( gbuf, y, 1 ) ;
+        sgihdr->getRow ( bbuf, y, 2 ) ;
+        sgihdr->getRow ( abuf, y, 3 ) ;
 
-	for ( x = 0 ; x < sgihdr->xsize ; x++ )
-	{
-	  *ptr++ = rbuf [ x ] ;
-	  *ptr++ = gbuf [ x ] ;
-	  *ptr++ = bbuf [ x ] ;
-	  *ptr++ = abuf [ x ] ;
-	}
-	break ;
+        for ( x = 0 ; x < sgihdr->xsize ; x++ )
+        {
+          *ptr++ = rbuf [ x ] ;
+          *ptr++ = gbuf [ x ] ;
+          *ptr++ = bbuf [ x ] ;
+          *ptr++ = abuf [ x ] ;
+        }
+        break ;
     }
   }
 
@@ -374,6 +368,9 @@ ssgSGIHeader::~ssgSGIHeader()
   
   if (image_fd != NULL)
     fclose(image_fd);
+  
+  if (rle_temp != NULL)
+    delete [] rle_temp;
 }
 
 
