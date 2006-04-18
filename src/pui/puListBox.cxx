@@ -76,7 +76,7 @@ void puListBox::setTopItem( int item_index )
   top = item_index ;
   if ( top < 0 )
     top = 0 ;
-  else if ( top > num-1 )
+  else if ( num > 0 && top > num-1 )
     top = num-1;
 
   puPostRefresh () ;
