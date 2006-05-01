@@ -1,7 +1,7 @@
 /*
      This file is part of P-GUIDE -
      PUI-based Graphical User Interface Designer.
-     Copyright (C) 2002  John F. Fay
+     Copyright (C) 2002, 2006  John F. Fay
 
      P-GUIDE is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <stdio.h>
 
 #include <plib/pu.h>
+#include <plib/puAux.h>
 
 #ifdef FREEGLUT_IS_PRESENT
 #  include <GL/freeglut.h>
@@ -141,6 +142,25 @@ static void vertical_menu_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
+static void spin_box_cb ( puObject *ob )
+{
+  selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
+  selected_object_type = PUCLASS_SPINBOX ;
+  strcpy ( selected_type_string, ob->getLegend () ) ;
+  active_button = (puButton *)ob ;
+}
+
+static void scrolling_list_cb ( puObject *ob )
+{
+  selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
+  selected_object_type = PUCLASS_SCROLLINGLIST ;
+  strcpy ( selected_type_string, ob->getLegend () ) ;
+  active_button = (puButton *)ob ;
+}
+
+
+
+
 static void input_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
@@ -180,6 +200,15 @@ static void list_box_cb ( puObject *ob )
   strcpy ( selected_type_string, ob->getLegend () ) ;
   active_button = (puButton *)ob ;
 }
+
+static void scroll_bar_cb ( puObject *ob )
+{
+  selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
+  selected_object_type = PUCLASS_SCROLLBAR ;
+  strcpy ( selected_type_string, ob->getLegend () ) ;
+  active_button = (puButton *)ob ;
+}
+
 
 
 
@@ -223,6 +252,15 @@ static void combo_box_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
+static void chooser_cb ( puObject *ob )
+{
+  selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
+  selected_object_type = PUCLASS_CHOOSER ;
+  strcpy ( selected_type_string, ob->getLegend () ) ;
+  active_button = (puButton *)ob ;
+}
+
+
 
 
 static void dial_cb ( puObject *ob )
@@ -257,25 +295,44 @@ static void trislider_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-static void spinbox_cb ( puObject *ob )
+static void slider_with_input_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
-  selected_object_type = PUCLASS_SPINBOX ;
+  selected_object_type = PUCLASS_SLIDERWITHINPUT ;
+  strcpy ( selected_type_string, ob->getLegend () ) ;
+  active_button = (puButton *)ob ;
+}
+
+static void bislider_with_ends_cb ( puObject *ob )
+{
+  selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
+  selected_object_type = PUCLASS_BISLIDERWITHENDS ;
   strcpy ( selected_type_string, ob->getLegend () ) ;
   active_button = (puButton *)ob ;
 }
 
 // Function to define the window
+// The widgets are arranged in a rectangle:
+//   Frame           Input           Button          Dial
+//   Text            Large Input     One Shot        Slider
+//   Menu Bar        Select Box      Arrow Button    Bi-Slider
+//   Vertical Menu   File Selector   Button Box      Tri-Slider
+//   Spin Box        List Box        Combo Box       Slider with Input
+//   Scrolling List  Scroll Bar      Chooser         Bi-Slider with Ends
+//
+// The following widgets are not offered:
+//   Group           Interface       Popup           Popup Menu
+//   Dialog Box
 
 int define_widget_window ()
 {
   widget_window = glutCreateWindow      ( "Widget List"  ) ;
-  int ln = 90 ;  // Button length
+  int ln = 120 ;  // Button length
   int ht = 20 ;  // Button height
-  int sp = 20 ;  // Button spacing
+  int sp = 10 ;  // Button spacing
   int total_screen_width = glutGet( GLUT_SCREEN_WIDTH ) ;
 
-  glutReshapeWindow     ( 4 * ln + 5 * sp,  5 * ht + 6 * sp ) ;
+  glutReshapeWindow     ( 4 * ln + 5 * sp,  6 * ht + 7 * sp ) ;
   glutPositionWindow    ( total_screen_width - (4 * ln + 5 * sp) - 20, 20 ) ;
   glutDisplayFunc       ( widget_window_displayfn ) ;
   glutKeyboardFunc      ( widget_window_keyfn     ) ;
@@ -290,90 +347,111 @@ int define_widget_window ()
 
   puGroup *widget_group = new puGroup ( 0, 0 ) ;
 
-  new puFrame ( 0, 0, 4 * ln + 5 * sp,  5 * ht + 6 * sp ) ;
+  new puFrame ( 0, 0, 4 * ln + 5 * sp,  6 * ht + 7 * sp ) ;
 
   puButton *button = (puButton *)NULL ;
-  button = new puButton ( sp, 5*sp+4*ht, sp+ln, 5*sp+5*ht ) ;
+  button = new puButton ( sp, 6*sp+5*ht, sp+ln, 6*sp+6*ht ) ;
   button->setLegend ( "puFrame" ) ;
   button->setCallback ( frame_cb ) ;
 
-  button = new puButton ( sp, 4*sp+3*ht, sp+ln, 4*sp+4*ht ) ;
+  button = new puButton ( sp, 5*sp+4*ht, sp+ln, 5*sp+5*ht ) ;
   button->setLegend ( "puText" ) ;
   button->setCallback ( text_cb ) ;
 
-  button = new puButton ( sp, 2*sp+ht, sp+ln, 2*sp+2*ht ) ;
+  button = new puButton ( sp, 4*sp+3*ht, sp+ln, 4*sp+4*ht ) ;
   button->setLegend ( "puMenuBar" ) ;
   button->setCallback ( menu_bar_cb ) ;
 
-  button = new puButton ( sp, sp, sp+ln, sp+ht ) ;
-  button->setLegend ( "puVerticalMenu" ) ;
+  button = new puButton ( sp, 3*sp+2*ht, sp+ln, 3*sp+3*ht ) ;
+  button->setLegend ( "puaVerticalMenu" ) ;
   button->setCallback ( vertical_menu_cb ) ;
 
+  button = new puButton ( sp, 2*sp+ht, sp+ln, 2*sp+2*ht ) ;
+  button->setLegend ( "puaSpinBox" ) ;
+  button->setCallback ( spin_box_cb ) ;
+
+  button = new puButton ( sp, sp, sp+ln, sp+ht ) ;
+  button->setLegend ( "puaScrollingList" ) ;
+  button->setCallback ( scrolling_list_cb ) ;
 
 
-  button = new puButton ( 2*sp+ln, 5*sp+4*ht, 2*sp+2*ln, 5*sp+5*ht ) ;
+
+  button = new puButton ( 2*sp+ln, 6*sp+5*ht, 2*sp+2*ln, 6*sp+6*ht ) ;
   button->setLegend ( "puInput" ) ;
   button->setCallback ( input_cb ) ;
 
-  button = new puButton ( 2*sp+ln, 4*sp+3*ht, 2*sp+2*ln, 4*sp+4*ht ) ;
-  button->setLegend ( "puLargeInput" ) ;
+  button = new puButton ( 2*sp+ln, 5*sp+4*ht, 2*sp+2*ln, 5*sp+5*ht ) ;
+  button->setLegend ( "puaLargeInput" ) ;
   button->setCallback ( large_input_cb ) ;
 
-  button = new puButton ( 2*sp+ln, 3*sp+2*ht, 2*sp+2*ln, 3*sp+3*ht ) ;
-  button->setLegend ( "puSelectBox" ) ;
+  button = new puButton ( 2*sp+ln, 4*sp+3*ht, 2*sp+2*ln, 4*sp+4*ht ) ;
+  button->setLegend ( "puaSelectBox" ) ;
   button->setCallback ( select_box_cb ) ;
 
-  button = new puButton ( 2*sp+ln, 2*sp+ht, 2*sp+2*ln, 2*sp+2*ht ) ;
-  button->setLegend ( "puFileSelector" ) ;
+  button = new puButton ( 2*sp+ln, 3*sp+2*ht, 2*sp+2*ln, 3*sp+3*ht ) ;
+  button->setLegend ( "puaFileSelector" ) ;
   button->setCallback ( file_selector_cb ) ;
 
-  button = new puButton ( 2*sp+ln, sp, 2*sp+2*ln, sp+ht ) ;
+  button = new puButton ( 2*sp+ln, 2*sp+ht, 2*sp+2*ln, 2*sp+2*ht ) ;
   button->setLegend ( "puListBox" ) ;
   button->setCallback ( list_box_cb ) ;
 
+  button = new puButton ( 2*sp+ln, sp, 2*sp+2*ln, sp+ht ) ;
+  button->setLegend ( "puaScrollBar" ) ;
+  button->setCallback ( scroll_bar_cb ) ;
 
 
-  button = new puButton ( 3*sp+2*ln, 5*sp+4*ht, 3*sp+3*ln, 5*sp+5*ht ) ;
+
+  button = new puButton ( 3*sp+2*ln, 6*sp+5*ht, 3*sp+3*ln, 6*sp+6*ht ) ;
   button->setLegend ( "puButton" ) ;
   button->setCallback ( button_cb ) ;
 
-  button = new puButton ( 3*sp+2*ln, 4*sp+3*ht, 3*sp+3*ln, 4*sp+4*ht ) ;
+  button = new puButton ( 3*sp+2*ln, 5*sp+4*ht, 3*sp+3*ln, 5*sp+5*ht ) ;
   button->setLegend ( "puOneShot" ) ;
   button->setCallback ( one_shot_cb ) ;
 
-  button = new puButton ( 3*sp+2*ln, 3*sp+2*ht, 3*sp+3*ln, 3*sp+3*ht ) ;
+  button = new puButton ( 3*sp+2*ln, 4*sp+3*ht, 3*sp+3*ln, 4*sp+4*ht ) ;
   button->setLegend ( "puArrowButton" ) ;
   button->setCallback ( arrow_button_cb ) ;
 
-  button = new puButton ( 3*sp+2*ln, 2*sp+ht, 3*sp+3*ln, 2*sp+2*ht ) ;
+  button = new puButton ( 3*sp+2*ln, 3*sp+2*ht, 3*sp+3*ln, 3*sp+3*ht ) ;
   button->setLegend ( "puButtonBox" ) ;
   button->setCallback ( button_box_cb ) ;
 
-  button = new puButton ( 3*sp+2*ln, sp, 3*sp+3*ln, sp+ht ) ;
-  button->setLegend ( "puComboBox" ) ;
+  button = new puButton ( 3*sp+2*ln, 2*sp+ht, 3*sp+3*ln, 2*sp+2*ht ) ;
+  button->setLegend ( "puaComboBox" ) ;
   button->setCallback ( combo_box_cb ) ;
 
+  button = new puButton ( 3*sp+2*ln, sp, 3*sp+3*ln, sp+ht ) ;
+  button->setLegend ( "puaChooser" ) ;
+  button->setCallback ( chooser_cb ) ;
+  // TODO:  It appears that the "puaChooser" file is not in the puAux library yet.
+  button->hide ();
 
 
-  button = new puButton ( 4*sp+3*ln, 5*sp+4*ht, 4*sp+4*ln, 5*sp+5*ht ) ;
+  button = new puButton ( 4*sp+3*ln, 6*sp+5*ht, 4*sp+4*ln, 6*sp+6*ht ) ;
   button->setLegend ( "puDial" ) ;
   button->setCallback ( dial_cb ) ;
 
-  button = new puButton ( 4*sp+3*ln, 4*sp+3*ht, 4*sp+4*ln, 4*sp+4*ht ) ;
+  button = new puButton ( 4*sp+3*ln, 5*sp+4*ht, 4*sp+4*ln, 5*sp+5*ht ) ;
   button->setLegend ( "puSlider" ) ;
   button->setCallback ( slider_cb ) ;
 
-  button = new puButton ( 4*sp+3*ln, 3*sp+2*ht, 4*sp+4*ln, 3*sp+3*ht ) ;
-  button->setLegend ( "puBiSlider" ) ;
+  button = new puButton ( 4*sp+3*ln, 4*sp+3*ht, 4*sp+4*ln, 4*sp+4*ht ) ;
+  button->setLegend ( "puaBiSlider" ) ;
   button->setCallback ( bislider_cb ) ;
 
-  button = new puButton ( 4*sp+3*ln, 2*sp+ht, 4*sp+4*ln, 2*sp+2*ht ) ;
-  button->setLegend ( "puTriSlider" ) ;
+  button = new puButton ( 4*sp+3*ln, 3*sp+2*ht, 4*sp+4*ln, 3*sp+3*ht ) ;
+  button->setLegend ( "puaTriSlider" ) ;
   button->setCallback ( trislider_cb ) ;
 
-  button = new puButton ( 4*sp+3*ln, 0*sp+ht, 4*sp+4*ln, 0*sp+2*ht ) ;
-  button->setLegend ( "puSpinBox" ) ;
-  button->setCallback ( spinbox_cb ) ;
+  button = new puButton ( 4*sp+3*ln, 2*sp+ht, 4*sp+4*ln, 2*sp+2*ht ) ;
+  button->setLegend ( "puaSliderWithInput" ) ;
+  button->setCallback ( slider_with_input_cb ) ;
+
+  button = new puButton ( 4*sp+3*ln, sp, 4*sp+4*ln, sp+ht ) ;
+  button->setLegend ( "puaBiSliderWithEnds" ) ;
+  button->setCallback ( bislider_with_ends_cb ) ;
 
   widget_group->close () ;
 

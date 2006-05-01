@@ -1,7 +1,7 @@
 /*
      This file is part of P-GUIDE -
      PUI-based Graphical User Interface Designer.
-     Copyright (C) 2002  John F. Fay
+     Copyright (C) 2002, 2006  John F. Fay
 
      P-GUIDE is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -109,8 +109,9 @@ void write_code ( puObject *ob )
 
   fprintf ( out, "// TODO:  Any additional includes you may need\n\n" ) ;
 
-  fprintf ( out, "#include <GL/glut.h>\n\n" ) ;
+  fprintf ( out, "#include <GL/freeglut.h>\n\n" ) ;
   fprintf ( out, "#include <plib/pu.h>\n\n" ) ;
+  fprintf ( out, "#include <plib/puAux.h>  // TODO:  Decide if you really need this\n\n" ) ;
 
   fprintf ( out, "// GLUT Window Handle\n" ) ;
   fprintf ( out, "int window_handle ;\n\n" ) ;
@@ -247,7 +248,7 @@ void write_code ( puObject *ob )
 
   fprintf ( out, "  // PUI Default Style, and Colors:\n" ) ;
   fprintf ( out, "  puSetDefaultStyle        ( PUSTYLE_SMALL_SHADED ) ;\n" ) ;
-  fprintf ( out, "  puSetDefaultColourScheme ( 0.3, 0.4, 0.6, 1.0 ) ;\n" ) ;
+  fprintf ( out, "  puSetDefaultColourScheme ( 0.3f, 0.4f, 0.6f, 1.0f ) ;\n" ) ;
   fprintf ( out, "  // TODO:  Customize this as you like\n\n" ) ;
 
   fprintf ( out, "  // Define the widgets:\n\n" ) ;
@@ -272,9 +273,10 @@ void write_code ( puObject *ob )
                   wid->object_type_name, x, y, x+w, y+h ) ;    */
 
         /* General minx, miny, maxx, maxy constructor */
-          if ( (wid->object_type == PUCLASS_FRAME)  || 
-               (wid->object_type == PUCLASS_BUTTON) || 
-               (wid->object_type == PUCLASS_INPUT ) )
+          if ( (wid->object_type == PUCLASS_FRAME           ) ||
+               (wid->object_type == PUCLASS_BUTTON          ) ||
+               (wid->object_type == PUCLASS_INPUT           ) ||
+               (wid->object_type == PUCLASS_BISLIDERWITHENDS))
           {
             fprintf ( out, "  %s = new %s (%d, %d, %d, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h) ;
           } 
@@ -384,10 +386,11 @@ void write_code ( puObject *ob )
             fprintf ( out, "  %s->close() ;\n", wid->object_name) ;
           }
   
-          if ( (wid->object_type == PUCLASS_LISTBOX)    ||
-               (wid->object_type == PUCLASS_COMBOBOX)   ||
-               (wid->object_type == PUCLASS_SELECTBOX)  ||
-               (wid->object_type == PUCLASS_BUTTONBOX)  )
+          if ( (wid->object_type == PUCLASS_LISTBOX)      ||
+               (wid->object_type == PUCLASS_COMBOBOX)     ||
+               (wid->object_type == PUCLASS_SELECTBOX)    ||
+               (wid->object_type == PUCLASS_BUTTONBOX)    ||
+               (wid->object_type == PUCLASS_SCROLLINGLIST))
           {
             char data[1024]; 
             char onedata[PUSTRING_MAX]; 
@@ -409,7 +412,8 @@ void write_code ( puObject *ob )
             }
 
             fprintf ( out, "  static char *%s_entries [] = { %s NULL } ;\n", wid->object_name, data) ;
-            if (wid->object_type == PUCLASS_LISTBOX)
+            if ( (wid->object_type == PUCLASS_LISTBOX)       ||
+                 (wid->object_type == PUCLASS_SCROLLINGLIST) )
                 fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name) ;
             if (wid->object_type == PUCLASS_BUTTONBOX)
                 fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries, %s ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name, trueOrFalse(wid->boolval1)) ;
@@ -441,10 +445,9 @@ void write_code ( puObject *ob )
           {
 
                 /* Constructors */
-                if (  (wid->object_type == PUCLASS_SLIDER )       || 
-                      (wid->object_type == PUCLASS_BISLIDER )     || 
-                      (wid->object_type == PUCLASS_TRISLIDER )    || 
-                      (wid->object_type == PUCLASS_SCROLLBAR )    )
+                if (  (wid->object_type == PUCLASS_SLIDER )   || 
+                      (wid->object_type == PUCLASS_BISLIDER ) || 
+                      (wid->object_type == PUCLASS_TRISLIDER ))
                 {
                     /* Sliders */
                     fprintf ( out, "  %s = new %s (%d, %d, %d, %s, %d ) ;\n", wid->object_name, wid->object_type_name, x, y, (wid->boolval2==1)?h:w, trueOrFalse(wid->boolval2), (wid->boolval2==1)?w:h) ;
@@ -473,6 +476,11 @@ void write_code ( puObject *ob )
                 {
                     fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, trueOrFalse(wid->boolval2) ) ;
                     fprintf ( out, "  %s->setArrowHeight(%ff) ;\n", wid->object_name, wid->floatval4 ) ;
+
+                } else if (wid->object_type == PUCLASS_SCROLLBAR )
+                {
+                    fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %d, %s ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->intval1, trueOrFalse(wid->boolval2) ) ;
+                    fprintf ( out, "  %s->setArrowHeight(%ff) ;\n", wid->object_name, wid->floatval4 ) ;
                 }
                 /* All puRange options */
                 fprintf ( out, "  %s->setMaxValue (%ff) ;\n", wid->object_name, wid->floatval1 ) ;
@@ -485,12 +493,12 @@ void write_code ( puObject *ob )
                     strcpy(cbmodetext,"PUSLIDER_CLICK");
                 fprintf ( out, "  %s->setCBMode (%s) ;\n", wid->object_name, cbmodetext) ;
           } 
-  
+
           if (wid->object_type == PUCLASS_DIALOGBOX)
           {
             /* Not yet implemented as a class */
           } 
-  
+
           if (wid->object_type == PUCLASS_ARROW)
           {
             char arr_name[20] = "PUARROW_UP";
@@ -515,7 +523,19 @@ void write_code ( puObject *ob )
             }    
             fprintf ( out, "  %s = new puArrowButton (%d, %d, %d, %d, %s ) ;\n", wid->object_name, x, y, x+w, y+h, arr_name) ;
           } 
-  
+
+          if (wid->object_type == PUCLASS_CHOOSER)
+          {
+            // Just give it a dummy legend; set the legend later on
+            fprintf ( out, "  %s = new %s (%d, %d, %d, %d, "" ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h) ;
+          } 
+
+          if (wid->object_type == PUCLASS_SLIDERWITHINPUT)
+          {
+            // Extra argument for input box being on the bottom of the slider
+            fprintf ( out, "  %s = new %s (%d, %d, %d, %d, 0 ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h) ;
+          } 
+
           if (wid->object_type == PUCLASS_INPUT )
           {
             /*Already had its constructor defined by the general -- look up*/

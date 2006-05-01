@@ -1,7 +1,7 @@
 /*
      This file is part of P-GUIDE -
      PUI-based Graphical User Interface Designer.
-     Copyright (C) 2002  John F. Fay
+     Copyright (C) 2002, 2006  John F. Fay
 
      P-GUIDE is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -505,30 +505,35 @@ void loadProject ( puObject *ob ) {
                         new_wid->object_type = 0 ;
                         new_wid->object_type_name = new char [strlen(tagvalue)+1] ;
                         strcpy(new_wid->object_type_name, tagvalue) ;
-                        /* BEWARE: Popup[menu], and Button[box] want to be each other! Don't let them! */
+                        /* BEWARE: Popup[menu], BiSlider[WithEnds], and Button[box] want to be each other! Don't let them! */
 
-                        if ( strstr(new_wid->object_type_name, "puSelectBox"))       new_wid->object_type |= PUCLASS_SELECTBOX   ;
-                        if ( strstr(new_wid->object_type_name, "puComboBox"))        new_wid->object_type |= PUCLASS_COMBOBOX    ;  
-                        if ( strstr(new_wid->object_type_name, "puLargeInput"))      new_wid->object_type |= PUCLASS_LARGEINPUT  ;
-                        if ( strstr(new_wid->object_type_name, "puVerticalMenu"))    new_wid->object_type |= PUCLASS_VERTMENU    ;
-                        if ( strstr(new_wid->object_type_name, "puTriSlider"))       new_wid->object_type |= PUCLASS_TRISLIDER   ;
-                        if ( strstr(new_wid->object_type_name, "puBiSlider"))        new_wid->object_type |= PUCLASS_BISLIDER    ;
-                        if ( strstr(new_wid->object_type_name, "puFileSelector"))    new_wid->object_type |= PUCLASS_FILESELECTOR;
-                        if ( strstr(new_wid->object_type_name, "puDial"))            new_wid->object_type |= PUCLASS_DIAL        ;
-                        if ( strstr(new_wid->object_type_name, "puListBox"))         new_wid->object_type |= PUCLASS_LISTBOX     ;
-                        if ( strstr(new_wid->object_type_name, "puArrowButton"))     new_wid->object_type |= PUCLASS_ARROW       ;
-                        if ( strstr(new_wid->object_type_name, "puDialogBox"))       new_wid->object_type |= PUCLASS_DIALOGBOX   ; /**/
-                        if ( strstr(new_wid->object_type_name, "puSlider"))          new_wid->object_type |= PUCLASS_SLIDER      ;
-                        if ( strstr(new_wid->object_type_name, "puButtonBox"))       new_wid->object_type |= PUCLASS_BUTTONBOX   ;
-                        else if ( strstr(new_wid->object_type_name, "puButton"))     new_wid->object_type |= PUCLASS_BUTTON      ; /* See above for why the elses' */
-                        if ( strstr(new_wid->object_type_name, "puInput"))           new_wid->object_type |= PUCLASS_INPUT       ;
-                        if ( strstr(new_wid->object_type_name, "puMenuBar"))         new_wid->object_type |= PUCLASS_MENUBAR     ;
-                        if ( strstr(new_wid->object_type_name, "puPopupMenu"))       new_wid->object_type |= PUCLASS_POPUPMENU   ; /**/
-                        else if ( strstr(new_wid->object_type_name, "puPopup"))      new_wid->object_type |= PUCLASS_POPUP       ; /**/
-                        if ( strstr(new_wid->object_type_name, "puOneShot"))         new_wid->object_type |= PUCLASS_ONESHOT     ;
-                        if ( strstr(new_wid->object_type_name, "puText"))            new_wid->object_type |= PUCLASS_TEXT        ;
-                        if ( strstr(new_wid->object_type_name, "puFrame"))           new_wid->object_type |= PUCLASS_FRAME       ;
-                        if ( strstr(new_wid->object_type_name, "puSpinBox"))         new_wid->object_type |= PUCLASS_SPINBOX     ; /**/
+                        if ( strstr(new_wid->object_type_name, "puaScrollingList"))    new_wid->object_type |= PUCLASS_SCROLLINGLIST    ;
+                        if ( strstr(new_wid->object_type_name, "puaChooser"))          new_wid->object_type |= PUCLASS_CHOOSER          ;
+                        if ( strstr(new_wid->object_type_name, "puaSliderWithInput"))  new_wid->object_type |= PUCLASS_SLIDERWITHINPUT  ;
+                        if ( strstr(new_wid->object_type_name, "puaBiSliderWithEnds")) new_wid->object_type |= PUCLASS_BISLIDERWITHENDS ;
+                        else if ( strstr(new_wid->object_type_name, "puaBiSlider"))    new_wid->object_type |= PUCLASS_BISLIDER         ;
+                        if ( strstr(new_wid->object_type_name, "puaScrollBar"))        new_wid->object_type |= PUCLASS_SCROLLBAR        ;
+                        if ( strstr(new_wid->object_type_name, "puaSpinBox"))          new_wid->object_type |= PUCLASS_SPINBOX          ; /**/
+                        if ( strstr(new_wid->object_type_name, "puaSelectBox"))        new_wid->object_type |= PUCLASS_SELECTBOX        ;
+                        if ( strstr(new_wid->object_type_name, "puaComboBox"))         new_wid->object_type |= PUCLASS_COMBOBOX         ; 
+                        if ( strstr(new_wid->object_type_name, "puaLargeInput"))       new_wid->object_type |= PUCLASS_LARGEINPUT       ;
+                        if ( strstr(new_wid->object_type_name, "puaVerticalMenu"))     new_wid->object_type |= PUCLASS_VERTMENU         ;
+                        if ( strstr(new_wid->object_type_name, "puaTriSlider"))        new_wid->object_type |= PUCLASS_TRISLIDER        ;
+                        if ( strstr(new_wid->object_type_name, "puaFileSelector"))     new_wid->object_type |= PUCLASS_FILESELECTOR     ;
+                        if ( strstr(new_wid->object_type_name, "puDial"))              new_wid->object_type |= PUCLASS_DIAL             ;
+                        if ( strstr(new_wid->object_type_name, "puListBox"))           new_wid->object_type |= PUCLASS_LISTBOX          ;
+                        if ( strstr(new_wid->object_type_name, "puArrowButton"))       new_wid->object_type |= PUCLASS_ARROW            ;
+                        if ( strstr(new_wid->object_type_name, "puDialogBox"))         new_wid->object_type |= PUCLASS_DIALOGBOX        ; /**/
+                        if ( strstr(new_wid->object_type_name, "puSlider"))            new_wid->object_type |= PUCLASS_SLIDER           ;
+                        if ( strstr(new_wid->object_type_name, "puButtonBox"))         new_wid->object_type |= PUCLASS_BUTTONBOX        ;
+                        else if ( strstr(new_wid->object_type_name, "puButton"))       new_wid->object_type |= PUCLASS_BUTTON           ; /* See above for why the elses' */
+                        if ( strstr(new_wid->object_type_name, "puInput"))             new_wid->object_type |= PUCLASS_INPUT            ;
+                        if ( strstr(new_wid->object_type_name, "puMenuBar"))           new_wid->object_type |= PUCLASS_MENUBAR          ;
+                        if ( strstr(new_wid->object_type_name, "puPopupMenu"))         new_wid->object_type |= PUCLASS_POPUPMENU        ; /**/
+                        else if ( strstr(new_wid->object_type_name, "puPopup"))        new_wid->object_type |= PUCLASS_POPUP            ; /**/
+                        if ( strstr(new_wid->object_type_name, "puOneShot"))           new_wid->object_type |= PUCLASS_ONESHOT          ;
+                        if ( strstr(new_wid->object_type_name, "puText"))              new_wid->object_type |= PUCLASS_TEXT             ;
+                        if ( strstr(new_wid->object_type_name, "puFrame"))             new_wid->object_type |= PUCLASS_FRAME            ;
                     }
                     if ( strstr(tag,"callbacks") )
                     {
