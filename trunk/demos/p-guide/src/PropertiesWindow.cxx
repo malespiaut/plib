@@ -1,7 +1,7 @@
 /*
      This file is part of P-GUIDE -
      PUI-based Graphical User Interface Designer.
-     Copyright (C) 2002  John F. Fay
+     Copyright (C) 2002, 2006  John F. Fay
 
      P-GUIDE is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -270,13 +270,14 @@ int define_properties_window ()
     puText *properties_nooptions = new puText (25, 100 );
     properties_nooptions->setLabelPlace(PUPLACE_CENTERED_RIGHT);
     properties_nooptions->setLabel("There are no options for puOneShot.");
-  } if ( (active_widget->object_type == PUCLASS_POPUPMENU)  || 
-         (active_widget->object_type == PUCLASS_MENUBAR)    ||
-         (active_widget->object_type == PUCLASS_VERTMENU)   ||
-         (active_widget->object_type == PUCLASS_LISTBOX)    ||
-         (active_widget->object_type == PUCLASS_COMBOBOX)   ||
-         (active_widget->object_type == PUCLASS_SELECTBOX)  ||
-         (active_widget->object_type == PUCLASS_BUTTONBOX)  )
+  } if ( (active_widget->object_type == PUCLASS_POPUPMENU)    || 
+         (active_widget->object_type == PUCLASS_MENUBAR)      ||
+         (active_widget->object_type == PUCLASS_VERTMENU)     ||
+         (active_widget->object_type == PUCLASS_LISTBOX)      ||
+         (active_widget->object_type == PUCLASS_COMBOBOX)     ||
+         (active_widget->object_type == PUCLASS_SELECTBOX)    ||
+         (active_widget->object_type == PUCLASS_BUTTONBOX)    ||
+         (active_widget->object_type == PUCLASS_SCROLLINGLIST))
   {
   /* List */
     puLargeInput *properties_list_items = new puLargeInput(10,10,300,195,0,5);
@@ -360,12 +361,14 @@ int define_properties_window ()
     properties_buttonbox_multiselect->setCallback(cb_bool1);
     properties_buttonbox_multiselect->setValue(active_widget->boolval1);
 
-  } if ( (active_widget->object_type == PUCLASS_SLIDER )       || 
-              (active_widget->object_type == PUCLASS_BISLIDER )     || 
-              (active_widget->object_type == PUCLASS_TRISLIDER )    || 
-              (active_widget->object_type == PUCLASS_DIAL )         || 
-              (active_widget->object_type == PUCLASS_SPINBOX )      || 
-              (active_widget->object_type == PUCLASS_SCROLLBAR )    )
+  } if ( (active_widget->object_type == PUCLASS_SLIDER )          || 
+         (active_widget->object_type == PUCLASS_BISLIDER )        || 
+         (active_widget->object_type == PUCLASS_TRISLIDER )       || 
+         (active_widget->object_type == PUCLASS_DIAL )            || 
+         (active_widget->object_type == PUCLASS_SPINBOX )         || 
+         (active_widget->object_type == PUCLASS_SCROLLBAR )       || 
+         (active_widget->object_type == PUCLASS_SLIDERWITHINPUT ) || 
+         (active_widget->object_type == PUCLASS_BISLIDERWITHENDS ))
   {
     /* int minx, int miny, int sz, {TRUE|FALSE}, int width */
     puSpinBox *properties_range_setmaxvalue = new puSpinBox(30,150,110,170);
@@ -401,7 +404,8 @@ int define_properties_window ()
    
   } if ( (active_widget->object_type == PUCLASS_SLIDER )       || 
          (active_widget->object_type == PUCLASS_BISLIDER )     || 
-         (active_widget->object_type == PUCLASS_TRISLIDER )     )  
+         (active_widget->object_type == PUCLASS_TRISLIDER )    || 
+         (active_widget->object_type == PUCLASS_SCROLLBAR )    )
   {
     static char *properties_range_vertical_callback_entries [] = { "Horizontal", "Vertical", NULL } ;
     puButtonBox *properties_range_vertical = new puButtonBox(20, 10, 170, 60, properties_range_vertical_callback_entries, TRUE);
@@ -421,7 +425,8 @@ int define_properties_window ()
     properties_slider_value->setStepSize(0.1f);
     properties_slider_value->setCallback(cb_float4);
 
-  } if (active_widget->object_type == PUCLASS_BISLIDER)
+  } if ((active_widget->object_type == PUCLASS_BISLIDER)        ||
+        (active_widget->object_type == PUCLASS_BISLIDERWITHENDS))
   {
     puSpinBox *properties_bislider_topvalue = new puSpinBox(230,110,310,130);
     properties_bislider_topvalue->setLabel("Top Slider Value:");
@@ -510,10 +515,6 @@ int define_properties_window ()
     properties_spinbox_arrowextra->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_spinbox_arrowextra->setLabel("(as porportion of spinbox height)");
 
-  } if (active_widget->object_type == PUCLASS_SCROLLBAR)
-  {
-    /* Not yet implemented as a class */
-
   } if (active_widget->object_type == PUCLASS_DIALOGBOX)
   {
     /* Not yet implemented as a class */
@@ -553,7 +554,8 @@ int define_properties_window ()
 
     properties_arrow_arrowtype->setCurrentItem(num);
 
-  } if ( (active_widget->object_type == PUCLASS_INPUT ) || (active_widget->object_type == PUCLASS_LARGEINPUT ) )
+  } if ( (active_widget->object_type == PUCLASS_INPUT )      ||
+         (active_widget->object_type == PUCLASS_LARGEINPUT ) )
   {
     /*int minx, int miny, int maxx, int maxy */
     /* Disabled, and Valid Data list */
@@ -571,9 +573,10 @@ int define_properties_window ()
     properties_input_enabled->setValue(active_widget->boolval1);
     properties_input_enabled->setCallback(cb_bool1);
 
-  } if (active_widget->object_type == PUCLASS_LARGEINPUT)
+  } if ((active_widget->object_type == PUCLASS_LARGEINPUT) ||
+        (active_widget->object_type == PUCLASS_SCROLLBAR)  )
   {
-    /*Arrows and Slider Size*/
+    /*Arrows*/
     static char *properties_largeinput_arrows_callback_entries [] = { "None", "Normal", "Normal and Fast", NULL } ;
     puButtonBox *properties_largeinput_arrows = new puButtonBox(20, 10, 200, 130, properties_largeinput_arrows_callback_entries, TRUE);
     properties_largeinput_arrows->setLabel("Which Arrow Buttons:");
@@ -581,6 +584,9 @@ int define_properties_window ()
     properties_largeinput_arrows->setValue(active_widget->intval1);
     properties_largeinput_arrows->setCallback(cb_int1);
 
+  } if (active_widget->object_type == PUCLASS_LARGEINPUT)
+  {
+    /*Slider Size*/
     puSpinBox *properties_largeinput_sliderwidth = new puSpinBox(300,90,400,110);
     properties_largeinput_sliderwidth->setLabel("Slider Width:");
     properties_largeinput_sliderwidth->setLabelPlace(PUPLACE_TOP_CENTERED);
@@ -589,9 +595,12 @@ int define_properties_window ()
     properties_largeinput_sliderwidth->setValue(active_widget->intval2);
     properties_largeinput_sliderwidth->setStepSize(1.0f);
     properties_largeinput_sliderwidth->setCallback(cb_int2);
-
   }
-  
+
+  /* TODO:
+   *  puaSliderWithInput:  is input above or below slider?
+   *  puaScrollingList:  can we add the transparency field?
+   */
   properties_group->close () ;
 
   return 0 ;

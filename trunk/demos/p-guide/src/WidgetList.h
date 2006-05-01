@@ -1,7 +1,7 @@
 /*
      This file is part of P-GUIDE -
      PUI-based Graphical User Interface Designer.
-     Copyright (C) 2002  John F. Fay
+     Copyright (C) 2002, 2006  John F. Fay
 
      P-GUIDE is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #define WIDGET_LIST_H
 
 #include <plib/pu.h>
+#include <plib/puAux.h>
 
 #ifdef FREEGLUT_IS_PRESENT
 #  include <GL/freeglut.h>

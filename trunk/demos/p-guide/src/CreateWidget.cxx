@@ -1,7 +1,7 @@
 /*
      This file is part of P-GUIDE -
      PUI-based Graphical User Interface Designer.
-     Copyright (C) 2002  John F. Fay
+     Copyright (C) 2002, 2006  John F. Fay
 
      P-GUIDE is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
@@ -23,18 +23,25 @@
 // Create Widget function for GUI Builder
 
 #include <plib/pu.h>
+#include <plib/puAux.h>
 
 puObject *createWidget ( int type )
 {
   static char *box_labels [] = { NULL } ;
 
-  if ( type & PUCLASS_SELECTBOX        ) return new puSelectBox ( 0, 0, 90, 20, box_labels ) ;
-  if ( type & PUCLASS_COMBOBOX         ) return new puComboBox ( 0, 0, 90, 40, box_labels ) ;
-  if ( type & PUCLASS_LARGEINPUT       ) return new puLargeInput ( 0, 0, 90, 40, 2, 20, FALSE ) ;
-  if ( type & PUCLASS_VERTMENU         ) return new puVerticalMenu ( 0, 0 ) ;
-  if ( type & PUCLASS_TRISLIDER        ) return new puTriSlider ( 0, 0, 90 ) ;
-  if ( type & PUCLASS_BISLIDER         ) return new puBiSlider ( 0, 0, 90 ) ;
-  if ( type & PUCLASS_FILESELECTOR     ) return new puFileSelector ( 0, 0, 90, 40, 2, "." ) ;
+  if ( type & PUCLASS_SCROLLINGLIST    ) return new puaScrollingList ( 0, 0, 90, 20, box_labels ) ;
+  if ( type & PUCLASS_CHOOSER          ) return new puaChooser ( 0, 0, 90, 20, "" ) ;
+  if ( type & PUCLASS_SLIDERWITHINPUT  ) return new puaSliderWithInput ( 0, 0, 90, 90, 0 ) ;
+  if ( type & PUCLASS_BISLIDERWITHENDS ) return new puaBiSliderWithEnds ( 0, 0, 90, 90 ) ;
+  if ( type & PUCLASS_SCROLLBAR        ) return new puaScrollBar ( 0, 0, 90, 20, 1, 0 ) ;
+  if ( type & PUCLASS_SPINBOX          ) return new puaSpinBox ( 0, 0, 90, 20, 1 ) ;
+  if ( type & PUCLASS_SELECTBOX        ) return new puaSelectBox ( 0, 0, 90, 20, box_labels ) ;
+  if ( type & PUCLASS_COMBOBOX         ) return new puaComboBox ( 0, 0, 90, 40, box_labels ) ;
+  if ( type & PUCLASS_LARGEINPUT       ) return new puaLargeInput ( 0, 0, 90, 40, 2, 20, FALSE ) ;
+  if ( type & PUCLASS_VERTMENU         ) return new puaVerticalMenu ( 0, 0 ) ;
+  if ( type & PUCLASS_TRISLIDER        ) return new puaTriSlider ( 0, 0, 90 ) ;
+  if ( type & PUCLASS_BISLIDER         ) return new puaBiSlider ( 0, 0, 90 ) ;
+  if ( type & PUCLASS_FILESELECTOR     ) return new puaFileSelector ( 0, 0, 90, 40, 2, "." ) ;
   if ( type & PUCLASS_DIAL             ) return new puDial ( 0, 0, 40 ) ;
   if ( type & PUCLASS_LISTBOX          ) return new puListBox ( 0, 0, 90, 40 ) ;
   if ( type & PUCLASS_ARROW            ) return new puArrowButton ( 0, 0, 20, 20, PUARROW_UP ) ;
