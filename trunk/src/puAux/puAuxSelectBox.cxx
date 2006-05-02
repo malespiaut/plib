@@ -45,6 +45,7 @@ void puaSelectBox::update_widgets ( void )
   /* There are some items */
   {
     setValue ( list[curr_item] ) ;
+    input->setValue( list[curr_item] );
 
     if ( curr_item == 0 )
     /* Current item is first item, deactivate 'down' button */
