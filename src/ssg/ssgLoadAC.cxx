@@ -936,6 +936,13 @@ ssgEntity *ssgLoadAC ( const char *fname, const ssgLoaderOptions* options )
       search ( top_tags, s ) ;
   }
 
+  for (int i = 0; i < num_materials; i++)
+  {
+    delete mlist[i];
+    mlist[i]=0;
+  }
+  num_materials=0;
+
   delete [] current_tfname ;
   current_tfname = NULL ;
   fclose ( loader_fd ) ;
