@@ -1,0 +1,5 @@
+Fri Oct 13 16:54:04 CEST 2006
+Moved from SF CVS to SF SVN.
+To grab a copy from svn, use this command:
+$ svn co https://svn.sf.net/svnroot/plib/trunk plib
+
