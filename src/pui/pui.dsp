@@ -23,6 +23,8 @@ CFG=pui - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
 CPP=cl.exe
 RSC=rc.exe
 
@@ -38,6 +40,7 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MT /W3 /GX /Zi /O2 /I "..\fnt" /I "..\sg" /I "..\util" /I ".." /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "PU_USE_NONE" /FD /c
 # SUBTRACT CPP /YX
@@ -52,7 +55,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy  release\*.lib  ..\..\*.* 	copy  pu.h  ..\..\pu.h 	copy  puGLUT.h  "..\..\" 	copy  puFLTK.h  "..\..\" 	copy  puSDL.h  "..\..\" 	copy  puNative.h  "..\..\" 	copy  puPW.h  ..\..\ 
+PostBuild_Cmds=copy   release\*.lib   ..\..\*.*  	copy   pu.h   ..\..\pu.h  	copy   puGLUT.h   "..\..\"  	copy   puFLTK.h   "..\..\"  	copy   puSDL.h   "..\..\"  	copy   puNative.h   "..\..\"  	copy   puPW.h   ..\..\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "pui - Win32 Debug"
@@ -67,6 +70,7 @@ PostBuild_Cmds=copy  release\*.lib  ..\..\*.* 	copy  pu.h  ..\..\pu.h 	copy  puG
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "..\fnt" /I "..\sg" /I "..\util" /I ".." /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "PU_USE_NONE" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -81,7 +85,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Copy Library to plib directory
-PostBuild_Cmds=copy  debug\*.lib  ..\..\*.* 	copy  pu.h  ..\..\pu.h 	copy  puGLUT.h  "..\..\" 	copy  puFLTK.h  "..\..\" 	copy  puSDL.h  "..\..\" 	copy  puNative.h  "..\..\" 	copy  puPW.h  ..\..\ 
+PostBuild_Cmds=copy   debug\*.lib   ..\..\*.*  	copy   pu.h   ..\..\pu.h  	copy   puGLUT.h   "..\..\"  	copy   puFLTK.h   "..\..\"  	copy   puSDL.h   "..\..\"  	copy   puNative.h   "..\..\"  	copy   puPW.h   ..\..\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -104,10 +108,6 @@ SOURCE=.\puArrowButton.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\puBiSlider.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\puBox.cxx
 # End Source File
 # Begin Source File
@@ -120,23 +120,11 @@ SOURCE=.\puButtonBox.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\puComboBox.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\puDial.cxx
 # End Source File
 # Begin Source File
 
 SOURCE=.\puDialogBox.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\puFilePicker.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\puFileSelector.cxx
 # End Source File
 # Begin Source File
 
@@ -169,10 +157,6 @@ SOURCE=.\puInputBase.cxx
 # Begin Source File
 
 SOURCE=.\puInterface.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\puLargeInput.cxx
 # End Source File
 # Begin Source File
 
@@ -216,15 +200,7 @@ SOURCE=.\puRange.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\puScrollBar.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\puSDL.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\puSelectBox.cxx
 # End Source File
 # Begin Source File
 
@@ -232,23 +208,11 @@ SOURCE=.\puSlider.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\puSpinBox.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\puText.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\puTriSlider.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=.\puValue.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=.\puVerticalMenu.cxx
 # End Source File
 # End Target
 # End Project
