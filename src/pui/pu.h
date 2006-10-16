@@ -1198,7 +1198,7 @@ public:
   
   int  isVertical ( void ) const { return vert ; }
 
-  void setSliderFraction ( float f ) { slider_fraction = (f<=0.0f) ? 0.1f : (f>=1.0f) ? 0.9f : f ; puPostRefresh () ; }
+  void setSliderFraction ( float f ) ;
   float getSliderFraction ( void ) const { return slider_fraction ; }
 } ;
 
