@@ -171,3 +171,13 @@ void puSlider::doHit ( int button, int updown, int x, int y )
 }
 
 
+void puSlider::setSliderFraction ( float f )
+{
+  int i = isVertical() ? 1 : 0 ;
+  int sz = abox.max [i] - abox.min [i] ;  // Size of slider box, in pixels
+  float minf = 10.0f / sz ;               // fraction that makes a 10px handle
+
+  slider_fraction = (f<minf) ? minf : (f>=1.0f) ? 0.9f : f ;
+  puPostRefresh () ;
+}
+

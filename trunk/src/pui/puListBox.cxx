@@ -74,10 +74,11 @@ void puListBox::newList ( char ** _list )
 void puListBox::setTopItem( int item_index )
 {
   top = item_index ;
-  if ( top < 0 )
+  int visible = getNumVisible();
+  if ( top < 0 || num <= visible )
     top = 0 ;
-  else if ( num > 0 && top > num-1 )
-    top = num-1;
+  else if ( num > 0 && top > num-visible )
+    top = num-visible;
 
   puPostRefresh () ;
 }

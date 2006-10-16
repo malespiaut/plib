@@ -269,6 +269,11 @@ public:
 
   void setSize ( int w, int h ) ;
 
+  void setValue ( float f ) { puValue::setValue ( f ) ;  input->setValue ( f ) ; }
+  void setValue ( int i ) { puValue::setValue ( i ) ;  input->setValue ( i ) ; }
+  void setValue ( const char *s ) { puValue::setValue ( s ) ;  input->setValue ( s ) ; }
+  void setValue ( puValue *pv ) { puValue::setValue ( pv ) ;  input->setValue ( pv ) ; }
+
   void draw ( int dx, int dy ) ;
   int  checkHit ( int button, int updown, int x, int y ) ;
   int  checkKey ( int key, int updown ) ;
@@ -885,15 +890,16 @@ class puaList : public puGroup
 
   char ** _contents;
   puFrame * _frame;
-  puListBox * _list_box;
   puSlider * _slider;
   puArrowButton * _up_arrow;
   puArrowButton * _down_arrow;
   int _style;
   int _sw;       // slider width
+  int _width, _height;
 
 protected:
   virtual void init (int w, int h, short transparent);
+  puListBox * _list_box;
 
 public:
   puaList (int x, int y, int w, int h, int sl_width = 20);
@@ -913,9 +919,10 @@ public:
   virtual void   setColour (int which, float r, float g, float b, float a);
   virtual void   setSize (int w, int h);
 
-  int  getNumItems ( void ) const ;
-  int  getTopItem  ( void ) const ;
-  void setTopItem  ( int item_index );
+  int  getNumVisible ( void ) const { return _list_box->getNumVisible(); }
+  int  getNumItems   ( void ) const { return _list_box->getNumItems(); }
+  int  getTopItem    ( void ) const { return _list_box->getTopItem(); }
+  void setTopItem    ( int item_index );
 };
 
 #endif

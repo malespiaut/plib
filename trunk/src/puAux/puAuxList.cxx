@@ -37,11 +37,13 @@ UL_RTTI_DEF1(puaList,puGroup)
 static void
 handle_slider (puObject * slider)
 {
-    puListBox * box = (puListBox *)slider->getUserData();
-    int index = int(box->getNumItems() * (1.0 - slider->getFloatValue()));
-    if (index >= box->getNumItems())
-        index = box->getNumItems() - 1;
-    box->setTopItem(index);
+    puListBox * list_box = (puListBox *)slider->getUserData();
+
+    int total = list_box->getNumItems();
+    int visible = list_box->getNumVisible();
+    // negative numbers are OK -- setTopItem() clamps anyway
+    int index = int((total - visible) * (1.0 - slider->getFloatValue()));
+    list_box->setTopItem(index);
 }
 
 
@@ -64,6 +66,7 @@ handle_arrow (puObject * arrow)
 {
     puSlider * slider = (puSlider *)arrow->getUserData();
     puListBox * list_box = (puListBox *)slider->getUserData();
+    puaList * list = (puaList *)list_box->getUserData();
 
     int step;
     switch (((puArrowButton *)arrow)->getArrowType()) {
@@ -78,15 +81,9 @@ handle_arrow (puObject * arrow)
         break;
     }
 
-    int index = list_box->getTopItem();
-    index += step;
-    if (index < 0)
-        index = 0;
-    else if (index >= list_box->getNumItems())
-        index = list_box->getNumItems() - 1;
-    list_box->setTopItem(index);
-
-    slider->setValue(1.0f - float(index)/list_box->getNumItems());
+    int index = list->getTopItem();
+    list->setTopItem(index + step);
+    slider->setValue(1.0f - float(list->getTopItem()) / (list->getNumItems() - list->getNumVisible()));
 }
 
 /* Create an empty list box. */
@@ -137,6 +134,21 @@ puaList::newList (char ** contents)
 {
     _list_box->newList(contents);
     _contents = contents;
+
+    // new size calculation to consider slider visibility
+    setSize(_width, _height);
+}
+
+void
+puaList::setTopItem (int item_index)
+{
+    _list_box->setTopItem(item_index);
+    item_index = _list_box->getTopItem();
+    // read clamped value back in, and only set slider if it doesn't match the new
+    // index to avoid jumps
+    int slider_index = int((1.0f - _slider->getFloatValue()) * (getNumItems() - getNumVisible()));
+    if (slider_index != item_index)
+        _slider->setValue(1.0f - float(getTopItem()) / (getNumItems() - getNumVisible()));
 }
 
 /*
@@ -210,17 +222,44 @@ puaList::setColour (int which, float r, float g, float b, float a)
 void
 puaList::setSize (int w, int h)
 {
+    _width = w;
+    _height = h;
     puObject::setSize(w, h);
     if (_frame)
-      _frame->setSize(w, h);
+        _frame->setSize(w, h);
 
-    _list_box->setSize(w-_sw, h);
+    int total = getNumItems();
+    int visible = getNumVisible();
 
-    _slider->setPosition(w-_sw, _sw);
-    _slider->setSize(_sw, h-2*_sw);
+    if (total > visible)
+    {
+        if (!_slider->isVisible())
+        {
+            _slider->setValue(1.0f);
+            _slider->reveal();
+            _up_arrow->reveal();
+            _down_arrow->reveal();
+        }
+        _list_box->setSize(w-_sw, h);
 
-    _down_arrow->setPosition(w-_sw, 0);
-    _up_arrow->setPosition(w-_sw, h-_sw);
+        _slider->setPosition(w-_sw, _sw);
+        _slider->setSize(_sw, h-2*_sw);
+        _slider->setSliderFraction(float(visible) / total);
+
+        _down_arrow->setPosition(w-_sw, 0);
+        _up_arrow->setPosition(w-_sw, h-_sw);
+
+    }
+    else
+    {
+        if (_slider->isVisible())
+        {
+            _slider->hide();
+            _up_arrow->hide();
+            _down_arrow->hide();
+        }
+        _list_box->setSize(w, h);
+    }
 }
 
 void
@@ -251,6 +290,7 @@ puaList::init (int w, int h, short transparent)
   _up_arrow->setUserData(_slider);
   _up_arrow->setCallback(handle_arrow);
 
+  setSize(w, h);
   close();
 }
 
