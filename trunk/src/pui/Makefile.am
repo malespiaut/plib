@@ -9,7 +9,7 @@ libplibpu_a_SOURCES = \
         puArrowButton.cxx puDialogBox.cxx puFrame.cxx  puGroup.cxx        \
         puInput.cxx       puInterface.cxx puLocal.h    puMenuBar.cxx      \
         puObject.cxx      puOneShot.cxx   puPopup.cxx  puPopupMenu.cxx    \
-        puFilePicker.cxx  puListBox.cxx   puSlider.cxx puText.cxx         \
+        puListBox.cxx   puSlider.cxx puText.cxx         \
         puValue.cxx       puFont.cxx      \
         puDial.cxx        \
         puRange.cxx	  \
