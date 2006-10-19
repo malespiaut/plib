@@ -1593,6 +1593,8 @@ void puSetWindowFuncs ( puGetWindowCallback,
 #elif defined(PU_USE_NATIVE)
 # include "puNative.h"
 # define puInit  puInitNative
+#else
+# define puInit
 #endif
 
 
