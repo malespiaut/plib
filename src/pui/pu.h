@@ -242,7 +242,6 @@ extern int puRefresh ; /* Should not be used directly by applications any
 #define PUCLASS_ARROW            0x00008000
 #define PUCLASS_LISTBOX          0x00010000
 #define PUCLASS_DIAL             0x00020000
-#define PUCLASS_FILEPICKER       0x00040000
 
 class puValue            ;
 class puObject           ;
