@@ -407,11 +407,11 @@ int puInput::checkKey ( int key, int updown )
       setValue ( p ) ; /* Set the widget value to the new string */
 
     delete [] p ;
-
-    /* Since the keystroke has changed the text value, we need to change the displayed text as well. */
-    delete [] displayed_text ;
-    displayed_text = NULL ;
   }
+
+  /* Since the keystroke has changed the text value, we need to change the displayed text as well. */
+  delete [] displayed_text ;
+  displayed_text = NULL ;
 
   normalizeCursors () ;
   return TRUE ;
