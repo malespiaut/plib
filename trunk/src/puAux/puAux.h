@@ -27,7 +27,7 @@
 #include "pu.h"
 
 // Widget Class Bit Patterns
-// PUI classes take up 0x00000001 through 0x01000000
+// PUI classes take up 0x00000001 through 0x00020000
 
 #define PUCLASS_FILESELECTOR        0x00040000 /* Because FilePicker is obsolete */
 #define PUCLASS_BISLIDER            0x00080000
@@ -38,11 +38,11 @@
 #define PUCLASS_SELECTBOX           0x01000000
 #define PUCLASS_SPINBOX             0x02000000
 #define PUCLASS_SCROLLBAR           0x04000000
-#define PUCLASS_BISLIDERWITHENDS    0x02000000
-#define PUCLASS_SLIDERWITHINPUT     0x04000000
-#define PUCLASS_COMPASS             0x08000000
-#define PUCLASS_CHOOSER             0x10000000
-#define PUCLASS_LIST                0x20000000
+#define PUCLASS_BISLIDERWITHENDS    0x08000000
+#define PUCLASS_SLIDERWITHINPUT     0x10000000
+#define PUCLASS_COMPASS             0x20000000
+#define PUCLASS_CHOOSER             0x40000000
+#define PUCLASS_LIST                0x80000000
 
 
 // Widget Declarations
