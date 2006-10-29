@@ -6,7 +6,12 @@ PLIB Change Log.
 PLIB v1.8.5 (Oct 2006)
 ~~~~~~~~~~~~~~~~~~~~~~
 
-  * Fixed pw for MacOSX.
+
+  * removed several widgets from pui/, which were declared
+    obsolete since a long time. Most of them are now available
+    in puAux/
+
+  * several fixes and improvements to puAuxList
 
   * puInputText scrolling fixed.
 
