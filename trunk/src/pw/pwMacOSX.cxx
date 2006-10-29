@@ -108,8 +108,8 @@
 #ifdef UL_MAC_OSX
 #  define ACTIVE_SLEEPTIME	0
 #  define INACTIVE_SLEEPTIME  10
-#  define mFile		0
-#  define iQuit		0
+#  define mFile		129
+#  define iQuit		1
 #else   // UL_MACINTOSH
 #  define ACTIVE_SLEEPTIME	1		// 0 is fastest, but does not let other app to catch events.
 									// set to 0 if you want your app only to have CPU time
@@ -259,8 +259,8 @@ static void CreateContext(int multisample, int num_samples, bool fullscreen)
 #ifdef UL_MAC_OSX
 	if (fullscreen) attrib[i++] = AGL_FULLSCREEN;
 #endif
-	//attrib[i++] = AGL_DEPTH_SIZE;
-	//attrib[i++] = 24;
+	attrib[i++] = AGL_DEPTH_SIZE;
+	attrib[i++] = 32;
 	//attrib[i++] = AGL_ALL_RENDERERS;
 	attrib[i++] = AGL_NONE;
 	
@@ -309,25 +309,25 @@ static void CreateContext(int multisample, int num_samples, bool fullscreen)
 
 void MakeMenu()
 {
-	OSErr err;
-	long response;
-	MenuHandle menu = NewMenu(mApple, "\p\024");
-	InsertMenu(menu, 0);
+	SInt32 response;
+	MenuRef menu;
+	CreateNewMenu(mApple, 0, &menu);
+	SetMenuTitleWithCFString( menu, CFSTR("Plib") );
 
-	InsertMenuItem(menu, "\pAbout Plib...", 0);
+	InsertMenu(menu, 0);
+	InsertMenuItemTextWithCFString(menu, CFSTR("About Plib..."), 0, 0, iAbout);
 
 #if !TARGET_API_MAC_CARBON
 	AppendResMenu(menu, 'DRVR');
 #endif
 
 	// If we not running on OS X then we need to add a File:Quit command: 
-	err = Gestalt(gestaltSystemVersion, &response );
-
-	if (err != noErr || response < 0x00001000)
+    Gestalt( gestaltMenuMgrAttr, &response );
+    if ( ( response & gestaltMenuMgrAquaLayoutMask ) == 0 )
 	{
-		menu = NewMenu (mFile, "\pFile");			// new menu
+		menu = NewMenu (mFile, (ConstStr255Param) "File");			// new menu
 		InsertMenu (menu, 0);						// add menu to end
-		AppendMenu (menu, "\pQuit/Q"); 				// add items
+		AppendMenu (menu, (ConstStr255Param) "Quit"); 				// add items
 	}
 	
 	DrawMenuBar();
@@ -366,11 +366,14 @@ static void pwAboutBox()
 	SInt16 outItemHit;
 	char version[32];
 	Str255 Pversion;
+	char* about = "for more info see <http://plib.sourceforge.net>";
+	Str255 Pabout;
 	sprintf(version, "PLIB v %i.%i.%i", PLIB_MAJOR_VERSION, PLIB_MINOR_VERSION, PLIB_TINY_VERSION );
 	CtoPcpy( Pversion, version );
+	CtoPcpy( Pabout, about );
 	StandardAlert ( kAlertPlainAlert,
    					Pversion,
-   					"\pfor more infos see <http://plib.sourceforge.net>",
+   					Pabout,
    					NULL,
    					&outItemHit  );
 }
