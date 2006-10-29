@@ -2,6 +2,52 @@
 PLIB Change Log.
 ================
 
+
+PLIB v1.8.5 (Oct 2006)
+~~~~~~~~~~~~~~~~~~~~~~
+
+  * Fixed pw for MacOSX.
+
+  * puInputText scrolling fixed.
+
+  * Improved DirectX loader.
+
+  * Check ownership before deleting in ssgSimpleList.
+
+  * Fixed netSocket.
+
+  * Fixed mem leak in ssgVertSplitter.
+
+  * Fixed pw window sizes on win32.
+
+  * Added pview ssg-example.
+
+  * Fix clock delta in first call.
+
+  * Made colour of listbox changable.
+
+  * Fixed text with negative coordinates
+
+  * Fixed misc bugs in puAuxLargeInput
+
+  * Allow the user to activate a widget with custom mouse button.
+
+  * Made material loading from wavefront models more robust.
+
+  * Handle linux joysticks with a lot of axes.
+
+  * Avoid specular anomalies in 3ds files.
+
+  * Added a demo for ssgaShapes.
+
+  * Fixed the diameter of ssgaSphere.
+
+  * Fixed inability to add colour to the ssgaTeapot.
+
+  * Remove scale dep in ssgaFire
+
+
+
 PLIB v1.8.4 (Jan 2005)
 ~~~~~~~~~~~~~~~~~
 
