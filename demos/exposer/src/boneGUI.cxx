@@ -172,7 +172,7 @@ static void currTranslateTxtZCB ( puObject *sl )
 
 static void currTranslateXCB ( puObject *sl )
 {
-  float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
+  float v = (((puSlider *)sl) -> getFloatValue () - 0.5f ) * 5.0f ;
 
   if ( eventList->getCurrentEvent() == NULL ) return ;
 
@@ -189,7 +189,7 @@ static void currTranslateXCB ( puObject *sl )
 
 static void currTranslateYCB ( puObject *sl )
 {
-  float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
+  float v = (((puSlider *)sl) -> getFloatValue () - 0.5f ) * 5.0f ;
 
   if ( eventList->getCurrentEvent() == NULL ) return ;
 
@@ -206,7 +206,7 @@ static void currTranslateYCB ( puObject *sl )
 
 static void currTranslateZCB ( puObject *sl )
 {
-  float v = (((puSlider *)sl) -> getFloatValue () - 0.5 ) * 5.0f ;
+  float v = (((puSlider *)sl) -> getFloatValue () - 0.5f ) * 5.0f ;
 
   if ( eventList->getCurrentEvent() == NULL ) return ;
 

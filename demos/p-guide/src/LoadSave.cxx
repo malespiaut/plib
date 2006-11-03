@@ -76,7 +76,7 @@ extern float main_window_color_r, main_window_color_g,
 extern void setStatusWidgets ( WidgetList *wid );
 extern int status_window ;
 extern int main_window ;
-extern puFileSelector *file_selector ;
+extern puaFileSelector *file_selector ;
 
 // Duplication checking
 static void chk_dupname ( WidgetList *new_wid ) ;
@@ -92,7 +92,7 @@ void saveProject ( puObject *ob ) {
     if (filename[0] == '\0')
     {
         puDeleteObject ( file_selector ) ;
-        file_selector = (puFileSelector *)NULL ;
+        file_selector = (puaFileSelector *)NULL ;
         glutHideWindow () ;
         glutSetWindow ( status_window ) ;
         return ;
@@ -116,7 +116,7 @@ void saveProject ( puObject *ob ) {
      printf ( "ERROR opening file <%s> for writing\n", filename ) ;
 
     puDeleteObject ( file_selector ) ;
-    file_selector = (puFileSelector *)NULL ;
+    file_selector = (puaFileSelector *)NULL ;
     glutHideWindow () ;
     glutSetWindow ( status_window ) ;
 
@@ -270,17 +270,17 @@ void loadProject ( puObject *ob ) {
     extern puInput *window_position_x ;
     extern puInput *window_position_y ;
 
-    extern puSpinBox *window_color_r ;
-    extern puSpinBox *window_color_g ;
-    extern puSpinBox *window_color_b ;
-    extern puSpinBox *window_color_a ;
+    extern puaSpinBox *window_color_r ;
+    extern puaSpinBox *window_color_g ;
+    extern puaSpinBox *window_color_b ;
+    extern puaSpinBox *window_color_a ;
 
     char* filename ;
     file_selector -> getValue ( &filename ) ;
     if (filename[0] == '\0')
     {
         puDeleteObject ( file_selector ) ;
-        file_selector = (puFileSelector *)NULL ;
+        file_selector = (puaFileSelector *)NULL ;
         glutHideWindow () ;
         glutSetWindow ( status_window ) ;
         return ;
@@ -300,7 +300,7 @@ void loadProject ( puObject *ob ) {
         printf ( "ERROR opening file <%s> for reading\n", filename ) ;
 
     puDeleteObject ( file_selector ) ;
-    file_selector = (puFileSelector *)NULL ;
+    file_selector = (puaFileSelector *)NULL ;
     glutHideWindow () ;
     glutSetWindow ( status_window ) ;
     
@@ -507,7 +507,7 @@ void loadProject ( puObject *ob ) {
                         strcpy(new_wid->object_type_name, tagvalue) ;
                         /* BEWARE: Popup[menu], BiSlider[WithEnds], and Button[box] want to be each other! Don't let them! */
 
-                        if ( strstr(new_wid->object_type_name, "puaScrollingList"))    new_wid->object_type |= PUCLASS_SCROLLINGLIST    ;
+                        if ( strstr(new_wid->object_type_name, "puaList"))             new_wid->object_type |= PUCLASS_LIST             ;
                         if ( strstr(new_wid->object_type_name, "puaChooser"))          new_wid->object_type |= PUCLASS_CHOOSER          ;
                         if ( strstr(new_wid->object_type_name, "puaSliderWithInput"))  new_wid->object_type |= PUCLASS_SLIDERWITHINPUT  ;
                         if ( strstr(new_wid->object_type_name, "puaBiSliderWithEnds")) new_wid->object_type |= PUCLASS_BISLIDERWITHENDS ;
@@ -652,17 +652,17 @@ void loadProject ( puObject *ob ) {
                                 boolval3 = false ;
                         }
                         if ( strstr(tag,"float1") )
-                            floatval1 = atof (tagvalue) ;
+                            floatval1 = (float)atof (tagvalue) ;
                         if ( strstr(tag,"float2") )
-                            floatval2 = atof (tagvalue) ;
+                            floatval2 = (float)atof (tagvalue) ;
                         if ( strstr(tag,"float3") )
-                            floatval3 = atof (tagvalue) ;
+                            floatval3 = (float)atof (tagvalue) ;
                         if ( strstr(tag,"float4") )
-                            floatval4 = atof (tagvalue) ;
+                            floatval4 = (float)atof (tagvalue) ;
                         if ( strstr(tag,"float5") )
-                            floatval5 = atof (tagvalue) ;
+                            floatval5 = (float)atof (tagvalue) ;
                         if ( strstr(tag,"float6") )
-                            floatval6 = atof (tagvalue) ;
+                            floatval6 = (float)atof (tagvalue) ;
 
                         if ( strstr(tag,"allowed") )
                         {

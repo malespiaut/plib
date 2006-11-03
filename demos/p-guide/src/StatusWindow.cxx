@@ -53,11 +53,11 @@ puInput *object_position_y ;
 static puFrame *widget_section_frame ;
 
 static puInput *object_label ;
-static puComboBox *object_vert_label_place ;
-static puComboBox *object_horz_label_place ;
+static puaComboBox *object_vert_label_place ;
+static puaComboBox *object_horz_label_place ;
 static puInput *object_legend ;
-static puComboBox *object_vert_legend_place ;
-static puComboBox *object_horz_legend_place ;
+static puaComboBox *object_vert_legend_place ;
+static puaComboBox *object_horz_legend_place ;
 
 static puInput *object_name ;
 static puButtonBox *object_callbacks ;
@@ -70,8 +70,8 @@ static puOneShot *hide_all_objects ;
 static puOneShot *reveal_all_layer ;
 static puOneShot *hide_all_layer ;
 
-static puSpinBox *layer_to_act_on ;
-static puSpinBox *object_layer ;
+static puaSpinBox *layer_to_act_on ;
+static puaSpinBox *object_layer ;
 
 static puText *object_layer_text ;
 static puFrame *layer_to_act_on_frame ;
@@ -84,10 +84,10 @@ puInput *window_position_x ;
 puInput *window_position_y ;
 
 static puText *window_color_label ;
-puSpinBox *window_color_r ;
-puSpinBox *window_color_g ;
-puSpinBox *window_color_b ;
-puSpinBox *window_color_a ;
+puaSpinBox *window_color_r ;
+puaSpinBox *window_color_g ;
+puaSpinBox *window_color_b ;
+puaSpinBox *window_color_a ;
 
 static puButtonBox *autolock_toggle ;
 
@@ -98,7 +98,7 @@ static puMenuBar *menubar ;
 
 // Saving Window Parameters
 
-puFileSelector *file_selector ;
+puaFileSelector *file_selector ;
 
 static int write_window = 0 ;
 
@@ -107,7 +107,7 @@ static void dupname_ok_cb ( puObject *ob ) ;
 
 // Function to set the widgets from the active object
 
-static void setHorizontalPlaceWidget ( puComboBox *ob, int place )
+static void setHorizontalPlaceWidget ( puaComboBox *ob, int place )
 {
   switch ( place )
   {
@@ -131,7 +131,7 @@ static void setHorizontalPlaceWidget ( puComboBox *ob, int place )
   }
 }
 
-static void setVerticalPlaceWidget ( puComboBox *ob, int place )
+static void setVerticalPlaceWidget ( puaComboBox *ob, int place )
 {
   switch ( place )
   {
@@ -376,7 +376,7 @@ static void write_code_cb ( puObject *ob )
   glutReshapeWindow ( w, h ) ;
   glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
 
-  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick File to Write To" ) ;
+  file_selector = new puaFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick File to Write To" ) ;
   file_selector -> setCallback ( write_code ) ;
   file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
   file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
@@ -408,7 +408,7 @@ static void saveProject_cb ( puObject *ob )
   glutReshapeWindow ( w, h ) ;
   glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
 
-  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick .XML File to Save To" ) ;
+  file_selector = new puaFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick .XML File to Save To" ) ;
   file_selector -> setCallback ( saveProject ) ;
   file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
   file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
@@ -446,7 +446,7 @@ static void loadProject_ok_cb ( puObject *ob )
   glutReshapeWindow ( w, h ) ;
   glutPositionWindow ( ( 640 - w ) / 2, ( 480 - h ) / 2 ) ;
 
-  file_selector = new puFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick P-Guide .XML File to load" ) ;
+  file_selector = new puaFileSelector ( 0, 0, w, h, 1, pguide_current_directory, "Pick P-Guide .XML File to load" ) ;
   file_selector -> setCallback ( loadProject ) ;
   file_selector->setChildStyle ( PUCLASS_ONESHOT, PUSTYLE_BOXED ) ;
   file_selector->setChildBorderThickness ( PUCLASS_ONESHOT, 5 ) ;
@@ -980,12 +980,12 @@ int define_status_window ()
   object_label->setCallback ( label_cb ) ;
   object_label->setDownCallback ( label_cb ) ;
 
-  object_vert_label_place = new puComboBox ( 310, 40, 400, 60, vert_place_entries, FALSE ) ;
+  object_vert_label_place = new puaComboBox ( 310, 40, 400, 60, vert_place_entries, FALSE ) ;
   object_vert_label_place->setLabel ( "Place" ) ;
   object_vert_label_place->setLabelPlace ( PUPLACE_LEFT ) ;
   object_vert_label_place->setCallback ( label_place_cb ) ;
 
-  object_horz_label_place = new puComboBox ( 400, 40, 490, 60, horz_place_entries, FALSE ) ;
+  object_horz_label_place = new puaComboBox ( 400, 40, 490, 60, horz_place_entries, FALSE ) ;
   object_horz_label_place->setCallback ( label_place_cb ) ;
 
   object_legend = new puInput ( 65, 70, 260, 90 ) ;
@@ -994,12 +994,12 @@ int define_status_window ()
   object_legend->setCallback ( legend_cb ) ;
   object_legend->setDownCallback ( legend_cb ) ;
 
-  object_vert_legend_place = new puComboBox ( 310, 70, 400, 90, vert_place_entries, FALSE ) ;
+  object_vert_legend_place = new puaComboBox ( 310, 70, 400, 90, vert_place_entries, FALSE ) ;
   object_vert_legend_place->setLabel ( "Place" ) ;
   object_vert_legend_place->setLabelPlace ( PUPLACE_LEFT ) ;
   object_vert_legend_place->setCallback ( legend_place_cb ) ;
 
-  object_horz_legend_place = new puComboBox ( 400, 70, 490, 90, horz_place_entries, FALSE ) ;
+  object_horz_legend_place = new puaComboBox ( 400, 70, 490, 90, horz_place_entries, FALSE ) ;
   object_horz_legend_place->setCallback ( legend_place_cb ) ;
 
   object_name = new puInput ( 65, 195, 260, 215 ) ;
@@ -1019,7 +1019,7 @@ int define_status_window ()
   object_visible = new puButtonBox ( 10, 140, 115, 170, visible_entries, FALSE ) ;
   object_visible->setCallback ( visible_cb ) ;
 
-  object_layer = new puSpinBox ( 65, 100, 115, 120) ;
+  object_layer = new puaSpinBox ( 65, 100, 115, 120) ;
   object_layer->setMinValue(0.0);
   object_layer->setMaxValue(999.0);
   object_layer->setStepSize(1.00f);
@@ -1056,7 +1056,7 @@ int define_status_window ()
   reveal_all_objects->setLegend ( "Reveal" ) ;
   reveal_all_objects->setCallback ( reveal_all_cb ) ;
 
-  layer_to_act_on = new puSpinBox ( 310, 150, 355, 170 ) ;
+  layer_to_act_on = new puaSpinBox ( 310, 150, 355, 170 ) ;
   layer_to_act_on->setMinValue(0.0);
   layer_to_act_on->setMaxValue(999.0);
   layer_to_act_on->setStepSize(1.00f);
@@ -1103,7 +1103,7 @@ int define_status_window ()
   window_color_label = new puText (340, 320) ;
   window_color_label->setLabel ( "Color:" ) ;
 
-  window_color_r = new puSpinBox ( 270, 285, 320, 305 ) ;
+  window_color_r = new puaSpinBox ( 270, 285, 320, 305 ) ;
   window_color_r->setMinValue(0.0);
   window_color_r->setMaxValue(1.0);
   window_color_r->setStepSize(0.05f);
@@ -1112,7 +1112,7 @@ int define_status_window ()
   window_color_r->setValuator ( &main_window_color_r ) ;
   window_color_r->setValue(1.0f);
 
-  window_color_g = new puSpinBox ( 320, 285, 370, 305 ) ;
+  window_color_g = new puaSpinBox ( 320, 285, 370, 305 ) ;
   window_color_g->setMinValue(0.0);
   window_color_g->setMaxValue(1.0);
   window_color_g->setStepSize(0.05f);
@@ -1121,7 +1121,7 @@ int define_status_window ()
   window_color_g->setValuator ( &main_window_color_g ) ;
   window_color_g->setValue(1.0f);
   
-  window_color_b = new puSpinBox ( 370, 285, 420, 305 ) ;
+  window_color_b = new puaSpinBox ( 370, 285, 420, 305 ) ;
   window_color_b->setMinValue(0.0);
   window_color_b->setMaxValue(1.0);
   window_color_b->setStepSize(0.05f);
@@ -1130,7 +1130,7 @@ int define_status_window ()
   window_color_b->setValuator ( &main_window_color_b ) ;
   window_color_b->setValue(1.0f);
 
-  window_color_a = new puSpinBox ( 420, 285, 470, 305 ) ;
+  window_color_a = new puaSpinBox ( 420, 285, 470, 305 ) ;
   window_color_a->setMinValue(0.0);
   window_color_a->setMaxValue(1.0);
   window_color_a->setStepSize(0.05f);

@@ -93,7 +93,7 @@ void TimeBox::deleteRegionAndCompress ()
 {
   eventList -> compressEventsBetween ( lcursor, rcursor ) ;
 
-  maxtime -= fabs(lcursor-rcursor) ;
+  maxtime -= (float)fabs(lcursor-rcursor) ;
 
   if ( lcursor > rcursor )
     lcursor = rcursor ;
@@ -120,7 +120,7 @@ void TimeBox::updateVCR ()
 
   if ( replay_speed != 0.0f )
   {
-    float delta_t = replay_speed * timer.getDeltaTime () ;
+    float delta_t = replay_speed * (float)timer.getDeltaTime () ;
 
     lcursor += delta_t ;
 
@@ -343,8 +343,8 @@ void TimeBox::init ()
   ground_speed    = 0.0f ;
   ground_position = 0.0f ;
 
-  timescroller =  new puSlider  ( TIMEBOX_LEFT, TIMEBOX_TOP+5,
-                                  570-TIMEBOX_LEFT, FALSE ) ;
+  timescroller =  new puSlider  ( (int)TIMEBOX_LEFT, (int)TIMEBOX_TOP+5,
+                                  570-(int)TIMEBOX_LEFT, FALSE ) ;
   timescroller -> setCBMode     ( PUSLIDER_DELTA   ) ;
   timescroller -> setDelta      ( 0.01f             ) ;
   timescroller -> setCallback   ( timescrollerCB   ) ;
@@ -353,7 +353,7 @@ void TimeBox::init ()
 
   puText    *message ;
   puOneShot *oneshot ;
-  puGroup   *vcr = new puGroup ( 579, TIMEBOX_TOP + 5 ) ;
+  puGroup   *vcr = new puGroup ( 579, (int)TIMEBOX_TOP + 5 ) ;
  
   oneshot = new puArrowButton (  0, 0, 30, 30, PUARROW_FASTLEFT  ) ;
   oneshot -> setCallback ( vcr_fastReverse ) ;

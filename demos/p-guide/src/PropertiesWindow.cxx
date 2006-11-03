@@ -270,17 +270,17 @@ int define_properties_window ()
     puText *properties_nooptions = new puText (25, 100 );
     properties_nooptions->setLabelPlace(PUPLACE_CENTERED_RIGHT);
     properties_nooptions->setLabel("There are no options for puOneShot.");
-  } if ( (active_widget->object_type == PUCLASS_POPUPMENU)    || 
-         (active_widget->object_type == PUCLASS_MENUBAR)      ||
-         (active_widget->object_type == PUCLASS_VERTMENU)     ||
-         (active_widget->object_type == PUCLASS_LISTBOX)      ||
-         (active_widget->object_type == PUCLASS_COMBOBOX)     ||
-         (active_widget->object_type == PUCLASS_SELECTBOX)    ||
-         (active_widget->object_type == PUCLASS_BUTTONBOX)    ||
-         (active_widget->object_type == PUCLASS_SCROLLINGLIST))
+  } if ( (active_widget->object_type == PUCLASS_POPUPMENU) || 
+         (active_widget->object_type == PUCLASS_MENUBAR)   ||
+         (active_widget->object_type == PUCLASS_VERTMENU)  ||
+         (active_widget->object_type == PUCLASS_LISTBOX)   ||
+         (active_widget->object_type == PUCLASS_COMBOBOX)  ||
+         (active_widget->object_type == PUCLASS_SELECTBOX) ||
+         (active_widget->object_type == PUCLASS_BUTTONBOX) ||
+         (active_widget->object_type == PUCLASS_LIST) )
   {
   /* List */
-    puLargeInput *properties_list_items = new puLargeInput(10,10,300,195,0,5);
+    puaLargeInput *properties_list_items = new puaLargeInput(10,10,300,195,0,5);
     properties_list_items->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_list_items->setLabel("Enter items, each on a new line.");
     properties_list_items->setValidData("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_012345679 :;.,\n");
@@ -321,7 +321,7 @@ int define_properties_window ()
   } if (active_widget->object_type == PUCLASS_COMBOBOX)
   {
     /* List and a setCurrentItem, and if editable  */
-    puSpinBox *properties_combobox_currentitem = new puSpinBox(320,135,480,155);
+    puaSpinBox *properties_combobox_currentitem = new puaSpinBox(320,135,480,155);
     properties_combobox_currentitem->setLabel("Initial Selection:");
     properties_combobox_currentitem->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_combobox_currentitem->setMinValue(0.0f);
@@ -339,7 +339,7 @@ int define_properties_window ()
   } if (active_widget->object_type == PUCLASS_SELECTBOX)
   {
     /* List and a setCurrentItem  */
-    puSpinBox *properties_selectbox_currentitem = new puSpinBox(320,135,480,155);
+    puaSpinBox *properties_selectbox_currentitem = new puaSpinBox(320,135,480,155);
     properties_selectbox_currentitem->setLabel("Initial Selection:");
     properties_selectbox_currentitem->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_selectbox_currentitem->setMinValue(0.0f);
@@ -371,7 +371,7 @@ int define_properties_window ()
          (active_widget->object_type == PUCLASS_BISLIDERWITHENDS ))
   {
     /* int minx, int miny, int sz, {TRUE|FALSE}, int width */
-    puSpinBox *properties_range_setmaxvalue = new puSpinBox(30,150,110,170);
+    puaSpinBox *properties_range_setmaxvalue = new puaSpinBox(30,150,110,170);
     properties_range_setmaxvalue->setLabel("Maximum Value:");
     properties_range_setmaxvalue->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_range_setmaxvalue->setMinValue(-5000.0f);
@@ -379,7 +379,7 @@ int define_properties_window ()
     properties_range_setmaxvalue->setCallback(cb_float1);
     properties_range_setmaxvalue->setValue(active_widget->floatval1);
 
-    puSpinBox *properties_range_setminvalue = new puSpinBox(230,150,310,170);
+    puaSpinBox *properties_range_setminvalue = new puaSpinBox(230,150,310,170);
     properties_range_setminvalue->setLabel("Minimum Value:");
     properties_range_setminvalue->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_range_setminvalue->setMinValue(-5000.0f);
@@ -387,7 +387,7 @@ int define_properties_window ()
     properties_range_setminvalue->setCallback(cb_float2);
     properties_range_setminvalue->setValue(active_widget->floatval2);
 
-    puSpinBox *properties_range_setstepvalue = new puSpinBox(400,150,480,170);
+    puaSpinBox *properties_range_setstepvalue = new puaSpinBox(400,150,480,170);
     properties_range_setstepvalue->setLabel("Step Size:");
     properties_range_setstepvalue->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_range_setstepvalue->setMinValue(0.0f);
@@ -416,7 +416,7 @@ int define_properties_window ()
 
   } if (active_widget->object_type == PUCLASS_SLIDER)
   {
-    puSpinBox *properties_slider_value = new puSpinBox(230,110,310,130);
+    puaSpinBox *properties_slider_value = new puaSpinBox(230,110,310,130);
     properties_slider_value->setLabel("Starting Value:");
     properties_slider_value->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_slider_value->setMinValue(-5000.0f);
@@ -428,7 +428,7 @@ int define_properties_window ()
   } if ((active_widget->object_type == PUCLASS_BISLIDER)        ||
         (active_widget->object_type == PUCLASS_BISLIDERWITHENDS))
   {
-    puSpinBox *properties_bislider_topvalue = new puSpinBox(230,110,310,130);
+    puaSpinBox *properties_bislider_topvalue = new puaSpinBox(230,110,310,130);
     properties_bislider_topvalue->setLabel("Top Slider Value:");
     properties_bislider_topvalue->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_bislider_topvalue->setMinValue(-5000.0f);
@@ -437,7 +437,7 @@ int define_properties_window ()
     properties_bislider_topvalue->setStepSize(0.1f);
     properties_bislider_topvalue->setCallback(cb_float4);
 
-    puSpinBox *properties_bislider_botvalue = new puSpinBox(230,40,310,60);
+    puaSpinBox *properties_bislider_botvalue = new puaSpinBox(230,40,310,60);
     properties_bislider_botvalue->setLabel("Bottom Slider Value:");
     properties_bislider_botvalue->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_bislider_botvalue->setMinValue(-5000.0f);
@@ -448,7 +448,7 @@ int define_properties_window ()
 
   } if (active_widget->object_type == PUCLASS_TRISLIDER)
   {
-    puSpinBox *properties_trislider_topvalue = new puSpinBox(230,110,310,130);
+    puaSpinBox *properties_trislider_topvalue = new puaSpinBox(230,110,310,130);
     properties_trislider_topvalue->setLabel("Top Slider Value:");
     properties_trislider_topvalue->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_trislider_topvalue->setMinValue(-5000.0f);
@@ -457,7 +457,7 @@ int define_properties_window ()
     properties_trislider_topvalue->setStepSize(0.1f);
     properties_trislider_topvalue->setCallback(cb_float4);
 
-    puSpinBox *properties_trislider_centvalue = new puSpinBox(230,60,310,80);
+    puaSpinBox *properties_trislider_centvalue = new puaSpinBox(230,60,310,80);
     properties_trislider_centvalue->setLabel("Center Slider Value:");
     properties_trislider_centvalue->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_trislider_centvalue->setMinValue(-5000.0f);
@@ -466,7 +466,7 @@ int define_properties_window ()
     properties_trislider_centvalue->setStepSize(0.1f);
     properties_trislider_centvalue->setCallback(cb_float6);
 
-    puSpinBox *properties_trislider_botvalue = new puSpinBox(230,10,310,30);
+    puaSpinBox *properties_trislider_botvalue = new puaSpinBox(230,10,310,30);
     properties_trislider_botvalue->setLabel("Bottom Slider Value:");
     properties_trislider_botvalue->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_trislider_botvalue->setMinValue(-5000.0f);
@@ -502,7 +502,7 @@ int define_properties_window ()
     properties_spinbox_arrow->setValue(active_widget->boolval2);
     properties_spinbox_arrow->setCallback(cb_bool2);
 
-    puSpinBox *properties_spinbox_arrowheight = new puSpinBox(230,110,310,130);
+    puaSpinBox *properties_spinbox_arrowheight = new puaSpinBox(230,110,310,130);
     properties_spinbox_arrowheight->setLabel("Arrow Height:");
     properties_spinbox_arrowheight->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_spinbox_arrowheight->setMinValue(0.0f);
@@ -525,7 +525,7 @@ int define_properties_window ()
                                                    "Double-Up", "Double-Down", "Double-Left", 
                                                    "Double-Right", NULL } ;
 
-    puComboBox *properties_arrow_arrowtype = new puComboBox ( 120,10,310,30, properties_arrow_arrowtype_options, FALSE ) ;
+    puaComboBox *properties_arrow_arrowtype = new puaComboBox ( 120,10,310,30, properties_arrow_arrowtype_options, FALSE ) ;
     properties_arrow_arrowtype->setLabel ( "Arrow Type:" ) ;
     properties_arrow_arrowtype->setLabelPlace ( PUPLACE_LOWER_LEFT ) ;
     properties_arrow_arrowtype->setCallback(cb_items);
@@ -587,7 +587,7 @@ int define_properties_window ()
   } if (active_widget->object_type == PUCLASS_LARGEINPUT)
   {
     /*Slider Size*/
-    puSpinBox *properties_largeinput_sliderwidth = new puSpinBox(300,90,400,110);
+    puaSpinBox *properties_largeinput_sliderwidth = new puaSpinBox(300,90,400,110);
     properties_largeinput_sliderwidth->setLabel("Slider Width:");
     properties_largeinput_sliderwidth->setLabelPlace(PUPLACE_TOP_CENTERED);
     properties_largeinput_sliderwidth->setMinValue(0.0f);
@@ -599,7 +599,7 @@ int define_properties_window ()
 
   /* TODO:
    *  puaSliderWithInput:  is input above or below slider?
-   *  puaScrollingList:  can we add the transparency field?
+   *  puaList:  can we add the transparency field?
    */
   properties_group->close () ;
 

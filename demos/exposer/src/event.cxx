@@ -85,7 +85,7 @@ void EventList::compressEventsBetween ( float t1, float t2 )
     float t = ev -> getTime () ;
  
     if ( t > t1 || t > t2 )
-      ev -> setTime ( t - fabs(t1-t2) ) ;
+      ev -> setTime ( t - (float)fabs(t1-t2) ) ;
   }
 }
 
@@ -277,7 +277,7 @@ void Event::read ( FILE *fd )
  
     fscanf ( fd, "  (%d,%d,%d)\n", & ssh, & ssp, & ssr ) ;
 
-    sgSetVec3  ( bone_angles [ i ] . hpr, ssh, ssp, ssr ) ;
+    sgSetVec3  ( bone_angles [ i ] . hpr, (float)ssh, (float)ssp, (float)ssr ) ;
     sgCopyVec3 ( bone_angles [ i ] . xyz, getBone(i)->getXYZ() ) ;
   }
 }

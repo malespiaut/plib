@@ -52,10 +52,10 @@ void help        () {     help_timer = 0 ; }
 static void drawText ( const char *str, int sz, int x, int y )
 {
   text -> setFont      ( font ) ;
-  text -> setPointSize ( sz ) ;
+  text -> setPointSize ( (float)sz ) ;
 
   text -> begin () ;
-    text -> start2f ( x, y ) ;
+    text -> start2f ( (float)x, (float)y ) ;
     text -> puts ( str ) ;
   text -> end () ;
 }
@@ -244,9 +244,9 @@ static void drawGameOverText ( int score )
   drawTitleText () ;
   drawScore () ;
 
-  glColor4f ( sin ( (float)timer/5.1f ) / 2.0f + 0.5f,
-              sin ( (float)timer/6.3f ) / 2.0f + 0.5f,
-              sin ( (float)timer/7.2f ) / 2.0f + 0.5f, 0.5 ) ;
+  glColor4f ( (float)sin ( (float)timer/5.1f ) / 2.0f + 0.5f,
+              (float)sin ( (float)timer/6.3f ) / 2.0f + 0.5f,
+              (float)sin ( (float)timer/7.2f ) / 2.0f + 0.5f, 0.5 ) ;
 
 
   switch ( puzzle -> getGameState () )

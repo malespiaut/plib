@@ -24,6 +24,8 @@
 
 #include "simon.h"
 #include <plib/js.h>
+#include <plib/ul.h>
+#include <plib/ssg.h>
 
 class siEntity ;
 
@@ -92,8 +94,8 @@ public:
 
   void updatePhysics ( double dt )
   {
-    sgAddScaledVec3 ( pos . xyz, vel . xyz, dt ) ; 
-    sgAddScaledVec3 ( pos . hpr, vel . hpr, dt ) ; 
+    sgAddScaledVec3 ( pos . xyz, vel . xyz, (float)dt ) ; 
+    sgAddScaledVec3 ( pos . hpr, vel . hpr, (float)dt ) ; 
   }
 
   virtual void update ( double dt ) = 0 ;
@@ -266,7 +268,7 @@ static void siRedraw ()
 
   glutPostRedisplay () ;
   glutSwapBuffers () ;
-  usleep(16000);
+  ulSleep(16);
 }
 
 

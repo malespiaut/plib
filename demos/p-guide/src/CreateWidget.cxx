@@ -29,7 +29,7 @@ puObject *createWidget ( int type )
 {
   static char *box_labels [] = { NULL } ;
 
-  if ( type & PUCLASS_SCROLLINGLIST    ) return new puaScrollingList ( 0, 0, 90, 20, box_labels ) ;
+  if ( type & PUCLASS_LIST             ) return new puaList ( 0, 0, 90, 20, box_labels ) ;
   if ( type & PUCLASS_CHOOSER          ) return new puaChooser ( 0, 0, 90, 20, "" ) ;
   if ( type & PUCLASS_SLIDERWITHINPUT  ) return new puaSliderWithInput ( 0, 0, 90, 90, 0 ) ;
   if ( type & PUCLASS_BISLIDERWITHENDS ) return new puaBiSliderWithEnds ( 0, 0, 90, 90 ) ;
