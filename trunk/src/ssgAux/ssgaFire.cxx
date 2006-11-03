@@ -126,7 +126,7 @@ static ssgTexture     *fireTexture = NULL ;
 static bool            isfogged    = true ;
 static int preFireDraw ( ssgEntity * )
 {
-  isfogged = glIsEnabled ( GL_FOG ) ;
+  isfogged = ( glIsEnabled ( GL_FOG ) == GL_TRUE ) ;
 
   if ( isfogged )
     glDisable ( GL_FOG ) ;
