@@ -84,8 +84,8 @@ static void update_motion ()
   js -> read ( &buttons, ax ) ;
 
   tuxpos.hpr[0] -= ax [ 0 ] * ROT_SPEED ;
-  tuxpos.xyz[0] -= sin ( tuxpos.hpr[0] * SG_DEGREES_TO_RADIANS ) * ax[1] * TRANS_SPEED ;
-  tuxpos.xyz[1] += cos ( tuxpos.hpr[0] * SG_DEGREES_TO_RADIANS ) * ax[1] * TRANS_SPEED ;
+  tuxpos.xyz[0] -= (float)sin ( tuxpos.hpr[0] * SG_DEGREES_TO_RADIANS ) * ax[1] * TRANS_SPEED ;
+  tuxpos.xyz[1] += (float)cos ( tuxpos.hpr[0] * SG_DEGREES_TO_RADIANS ) * ax[1] * TRANS_SPEED ;
 
   sgVec3 test_vec ;
   sgMat4 invmat ;
@@ -304,7 +304,7 @@ static ssgBranch *createTileLOD ( int x, int y, ssgSimpleState *state, int ntris
 
       nrm [ 0 ] = (zz - zzE) / (TILE_SIZE/12.0f) ;
       nrm [ 1 ] = (zz - zzN) / (TILE_SIZE/12.0f) ;
-      nrm [ 2 ] = sqrt ( nrm[0] * nrm[0] + nrm[1] * nrm[1] ) ;
+      nrm [ 2 ] = (float)sqrt ( nrm[0] * nrm[0] + nrm[1] * nrm[1] ) ;
 
       sgCopyVec3( snorms  [i+j*(ntris+1)], nrm ) ;
       sgSetVec2 ( tcoords [i+j*(ntris+1)], xx/LAMBDA, yy/LAMBDA ) ;

@@ -68,7 +68,7 @@ static void update_motion ()
 
   sgSetCoord ( & campos, 0.0f, -5.0f, 1.0f,
                           /*25.0 * sin(frameno/100.0)*/0.0f, 0.0f, 0.0f ) ;
-  sgSetCoord ( & objpos, 0.0f,  0.0f, 0.0f, frameno, 0.0f, 0.0f ) ;
+  sgSetCoord ( & objpos, 0.0f,  0.0f, 0.0f, (float)frameno, 0.0f, 0.0f ) ;
 
   ssgSetCamera ( & campos ) ;
   object -> setTransform ( & objpos ) ;

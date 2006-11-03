@@ -49,7 +49,7 @@
 #define VIEW_GUI_BASE 20
 #define FONT_COLOUR   1,1,1,1
 #define DEEPEST_HELL  -10000.0
-#define HOT_TOLERANCE  1.0
+#define HOT_TOLERANCE  1.0f
 
 static ssgRoot            *scene        = NULL ;
 static ssgaWaveSystem     *ocean        = NULL ;
@@ -221,12 +221,12 @@ static void update_motion ( int frameno )
 {
   ssgSetCamera ( & campos ) ;
 
-  ocean -> setWindDirn ( 25.0 * sin ( frameno / 10.0 ) ) ;
+  ocean -> setWindDirn ( 25.0f * (float)sin ( frameno / 10.0 ) ) ;
 
   static ulClock ck ; ck . update () ;
 
-  float t  = ck . getAbsTime   () ;
-  float dt = ck . getDeltaTime () ;
+  float t  = (float)ck . getAbsTime   () ;
+  float dt = (float)ck . getDeltaTime () ;
 
   if ( dt > 0.05f ) dt = 0.05f ;
 

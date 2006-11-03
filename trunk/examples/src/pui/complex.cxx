@@ -224,7 +224,7 @@ static void displayfn (void)
   float val ; rspeedSlider->getValue ( &val ) ;
   float dir ; directSlider->getValue ( &dir ) ;
 
-  glRotatef( 4*val, 3.0 * ( 2.0 * dir - 1.0 ) , 2.0 * ( 1.0 - 2.0 * dir ) , 1.0 );
+  glRotatef( 4*val, 3.0f * ( 2.0f * dir - 1.0f ) , 2.0f * ( 1.0f - 2.0f * dir ) , 1.0f );
 
   drawCube  () ;
 

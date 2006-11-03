@@ -59,9 +59,9 @@ static void update_motion ()
     morphing the sphere/spike as we go.
   */
 
-  tween_ctrl -> selectBank ( fabs(sin(frameno/100.0)) ) ;
+  tween_ctrl -> selectBank ( (float)fabs(sin(frameno/100.0)) ) ;
 
-  sgSetCoord ( & campos, 0.0f, -5.0f, 0.0f, 25.0 * sin(frameno/100.0), 0.0f, 0.0f ) ;
+  sgSetCoord ( & campos, 0.0f, -5.0f, 0.0f, 25.0f * (float)sin(frameno/100.0), 0.0f, 0.0f ) ;
   ssgSetCamera ( & campos ) ;
 }
 
@@ -191,7 +191,7 @@ static void load_database ()
       sgVec4 co ;
 
       sgCopyVec3 ( vx, vt -> getVertex (i) ) ;
-      sgScaleVec3 ( vx, (i&7) ? 0.5 : 2.0 ) ;
+      sgScaleVec3 ( vx, (i&7) ? 0.5f : 2.0f ) ;
 
       /*
         Put random colours on the vertices.
