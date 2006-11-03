@@ -156,8 +156,8 @@ static void deleteRegionAndCompressCB ( puObject * )
 
 static void zoom_nrm_CB     ( puObject * ) { timebox -> setZoom ( 1.0f ) ; }
 static void zoom_in_CB      ( puObject * ) { timebox -> setZoom (
-                                              timebox -> getZoom () * 1.5 ) ; }
-static void zoom_out_CB     ( puObject * ) { float scale = timebox->getZoom() / 1.5 ;
+                                              timebox -> getZoom () * 1.5f ) ; }
+static void zoom_out_CB     ( puObject * ) { float scale = timebox->getZoom() / 1.5f ;
                     timebox -> setZoom ( ( scale <= 1.0f ) ? 1.0f : scale ) ; }
 
 static void add_1_CB ( puObject * ) {timebox->setMaxTime(timebox->getMaxTime()+1.0f);}
@@ -469,7 +469,7 @@ int main ( int argc, char **argv )
     return 1 ;
   }
 
-  setTweenInterval ( 1.0f / atof ( argv [ 2 ] ) ) ;
+  setTweenInterval ( 1.0f / (float)atof ( argv [ 2 ] ) ) ;
   loadFile      ( argv [ 3 ], FALSE ) ;
   loadBoneFile  ( argv [ 4 ], FALSE ) ;
   saveTweenFile ( argv [ 5 ], FALSE ) ;

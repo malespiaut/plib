@@ -150,10 +150,10 @@ static void spin_box_cb ( puObject *ob )
   active_button = (puButton *)ob ;
 }
 
-static void scrolling_list_cb ( puObject *ob )
+static void list_cb ( puObject *ob )
 {
   selected_object_sticky = ( glutGetModifiers () & GLUT_ACTIVE_CTRL ) ? 1 : 0 ;
-  selected_object_type = PUCLASS_SCROLLINGLIST ;
+  selected_object_type = PUCLASS_LIST ;
   strcpy ( selected_type_string, ob->getLegend () ) ;
   active_button = (puButton *)ob ;
 }
@@ -318,7 +318,7 @@ static void bislider_with_ends_cb ( puObject *ob )
 //   Menu Bar        Select Box      Arrow Button    Bi-Slider
 //   Vertical Menu   File Selector   Button Box      Tri-Slider
 //   Spin Box        List Box        Combo Box       Slider with Input
-//   Scrolling List  Scroll Bar      Chooser         Bi-Slider with Ends
+//   List            Scroll Bar      Chooser         Bi-Slider with Ends
 //
 // The following widgets are not offered:
 //   Group           Interface       Popup           Popup Menu
@@ -371,8 +371,8 @@ int define_widget_window ()
   button->setCallback ( spin_box_cb ) ;
 
   button = new puButton ( sp, sp, sp+ln, sp+ht ) ;
-  button->setLegend ( "puaScrollingList" ) ;
-  button->setCallback ( scrolling_list_cb ) ;
+  button->setLegend ( "puaList" ) ;
+  button->setCallback ( list_cb ) ;
 
 
 

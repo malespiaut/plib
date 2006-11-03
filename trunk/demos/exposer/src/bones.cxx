@@ -246,9 +246,9 @@ ssgBranch *Bone::generateGeometry ( int root )
 
   sgScaleVec3 ( org, 0.5 ) ;
 
-  siz[0] = fabs ( siz[0] ) ; if ( siz[0] <= 0.1f ) siz [ 0 ] = 0.1f ;
-  siz[1] = fabs ( siz[1] ) ; if ( siz[1] <= 0.1f ) siz [ 1 ] = 0.1f ;
-  siz[2] = fabs ( siz[2] ) ; if ( siz[2] <= 0.1f ) siz [ 2 ] = 0.1f ;
+  siz[0] = (float)fabs ( siz[0] ) ; if ( siz[0] <= 0.1f ) siz [ 0 ] = 0.1f ;
+  siz[1] = (float)fabs ( siz[1] ) ; if ( siz[1] <= 0.1f ) siz [ 1 ] = 0.1f ;
+  siz[2] = (float)fabs ( siz[2] ) ; if ( siz[2] <= 0.1f ) siz [ 2 ] = 0.1f ;
 
   if ( boneState == NULL )
   {

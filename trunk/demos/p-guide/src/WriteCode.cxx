@@ -54,7 +54,7 @@ extern float main_window_color_r, main_window_color_g,
 // From the Status Window
 
 extern int status_window ;
-extern puFileSelector *file_selector ;
+extern puaFileSelector *file_selector ;
 
 const char* trueOrFalse(bool tf)
 {
@@ -72,7 +72,7 @@ void write_code ( puObject *ob )
   if (filename[0] == '\0')
   {
       puDeleteObject ( file_selector ) ;
-      file_selector = (puFileSelector *)NULL ;
+      file_selector = (puaFileSelector *)NULL ;
       glutHideWindow () ;
       glutSetWindow ( status_window ) ;
       return ;
@@ -96,7 +96,7 @@ void write_code ( puObject *ob )
     printf ( "ERROR opening file <%s> for writing\n", filename ) ;
 
   puDeleteObject ( file_selector ) ;
-  file_selector = (puFileSelector *)NULL ;
+  file_selector = (puaFileSelector *)NULL ;
   glutHideWindow () ;
   glutSetWindow ( status_window ) ;
 
@@ -390,7 +390,7 @@ void write_code ( puObject *ob )
                (wid->object_type == PUCLASS_COMBOBOX)     ||
                (wid->object_type == PUCLASS_SELECTBOX)    ||
                (wid->object_type == PUCLASS_BUTTONBOX)    ||
-               (wid->object_type == PUCLASS_SCROLLINGLIST))
+               (wid->object_type == PUCLASS_LIST))
           {
             char data[1024]; 
             char onedata[PUSTRING_MAX]; 
@@ -413,7 +413,7 @@ void write_code ( puObject *ob )
 
             fprintf ( out, "  static char *%s_entries [] = { %s NULL } ;\n", wid->object_name, data) ;
             if ( (wid->object_type == PUCLASS_LISTBOX)       ||
-                 (wid->object_type == PUCLASS_SCROLLINGLIST) )
+                 (wid->object_type == PUCLASS_LIST) )
                 fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name) ;
             if (wid->object_type == PUCLASS_BUTTONBOX)
                 fprintf ( out, "  %s = new %s (%d, %d, %d, %d, %s_entries, %s ) ;\n", wid->object_name, wid->object_type_name, x, y, x+w, y+h, wid->object_name, trueOrFalse(wid->boolval1)) ;
