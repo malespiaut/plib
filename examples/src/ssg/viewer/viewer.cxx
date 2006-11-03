@@ -146,8 +146,12 @@ static GLfloat Ey     = 0.0f;
 static GLfloat Ez     = 0.0f;
 
 #define FOVY 45.0f
-#define NEAR 0.1f
-#define FAR  10000.0f
+#define FOV_NEAR 0.1f
+#define FOV_FAR  10000.0f
+
+#ifndef M_PI
+#define M_PI   3.14159265358979323846264338327950f
+#endif
 
 static int getWindowHeight () { return glutGet ( (GLenum) GLUT_WINDOW_HEIGHT ) ; }
 static int getWindowWidth  () { return glutGet ( (GLenum) GLUT_WINDOW_WIDTH  ) ; }
@@ -392,11 +396,11 @@ static void reshape ( int w, int h )
   glViewport ( 0, 0, w, h ) ;
 
   float aspect = w / (float)h;
-  float angle = 0.5 * FOVY * M_PI / 180.0;
-  float y = NEAR * tan(angle);
+  float angle = 0.5f * FOVY * M_PI / 180.0f;
+  float y = FOV_NEAR * (float)tan(angle);
   float x = aspect * y;
 
-  context->setFrustum(-x,x,-y,y,NEAR,FAR);
+  context->setFrustum(-x,x,-y,y,FOV_NEAR,FOV_FAR);
 }
 
 
@@ -673,8 +677,8 @@ static void pick_cb ( puObject * )
   
   SGfloat radius = scene->getBSphere()->getRadius();
   EyeDist = float( radius * 1.5f / tan( float( FOVY/2 * SG_DEGREES_TO_RADIANS ) ) );
-  if (EyeDist < NEAR*2)
-    EyeDist = NEAR*2;
+  if (EyeDist < FOV_NEAR*2)
+    EyeDist = FOV_NEAR*2;
   
   sgSphere sp = *( scene -> getBSphere() ) ;
   if ( sp.isEmpty() )

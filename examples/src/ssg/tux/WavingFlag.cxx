@@ -125,9 +125,9 @@ WavingFlag::WavingFlag( sgVec4 color, char *texture1, char *texture2, int s )
 			int i = x*size + z;
 
 			float *v = vertices->get( i );
-			v[0] = (float)x/(size - 1.0);
+			v[0] = (float)x/(size - 1.0f);
 			v[1] = 0.0;
-			v[2] = (float)z/(size - 1.0);
+			v[2] = (float)z/(size - 1.0f);
 
 			float *t = texCoords->get( i );
 			sgSetVec2( t, v[0], v[2] );
@@ -167,10 +167,10 @@ void WavingFlag::animate( float time, float windVelocity )
 {
 	if ( windVelocity < 3.0 ) windVelocity = 3.0;
 	if ( windVelocity > 25.0 ) windVelocity = 25.0;
-	float r = 0.6/windVelocity;  // half wave height
-	float w = windVelocity/2.0;  // angular acceleration
-	float k = windVelocity*3.0;  // wave number
-	float d = (1.0-windVelocity/25.0)*(SG_PI/2.0);
+	float r = 0.6f/windVelocity;  // half wave height
+	float w = windVelocity/2.0f;  // angular acceleration
+	float k = windVelocity*3.0f;  // wave number
+	float d = (1.0f-windVelocity/25.0f)*(SG_PI/2.0f);
 
 	int x,z;
 	for ( z = size-1; z >= 0; z-- )
@@ -180,13 +180,13 @@ void WavingFlag::animate( float time, float windVelocity )
 			int i = x*size + z;
 
 			float *v = vertices->get( i );
-			v[0] = ((float)x * cos(d)) / (size - 1.0);
+			v[0] = ((float)x * (float)cos(d)) / (size - 1.0f);
 			float a = k*(v[0]) - w*time;  // phase angle
-			v[1] = r * cos( a );
+			v[1] = r * (float)cos( a );
 			v[0] -= v[1];
-			v[2] = ((float)z - (float)x * sin(d)) / (size - 1.0);
+			v[2] = ((float)z - (float)x * (float)sin(d)) / (size - 1.0f);
 			float *n = normals->get( i );
-			n[0] = cos(d);
+			n[0] = (float)cos(d);
 			n[1] = v[1];
 			//d *= 1.002;
 		}

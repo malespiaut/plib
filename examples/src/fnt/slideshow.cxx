@@ -156,7 +156,7 @@ static void displayfn (void)
     for ( int i = page [ curr_page ] ;
                   i < page [ curr_page+1 ]-1 && i < num_lines && row > 0 ; i++ )
     {
-      text -> start2f ( 10.0f, row ) ;
+      text -> start2f ( 10.0f, (float)row ) ;
       text -> puts ( line[i] ) ;
       row -= 30 ;
     }

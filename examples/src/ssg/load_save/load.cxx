@@ -66,8 +66,8 @@ static void update_motion ()
     Spin Tux, make the camera pan sinusoidally left and right
   */
 
-  sgSetCoord ( & campos, 0.0f, -5.0f, 1.0f, 25.0 * sin(frameno/100.0), 0.0f, 0.0f ) ;
-  sgSetCoord ( & tuxpos, 0.0f,  0.0f, 0.0f, frameno, 0.0f, 0.0f ) ;
+  sgSetCoord ( & campos, 0.0f, -5.0f, 1.0f, 25.0f * (float)sin(frameno/100.0), 0.0f, 0.0f ) ;
+  sgSetCoord ( & tuxpos, 0.0f,  0.0f, 0.0f, (float)frameno, 0.0f, 0.0f ) ;
 
   ssgSetCamera ( & campos ) ;
   penguin -> setTransform ( & tuxpos ) ;
