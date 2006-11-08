@@ -13,7 +13,7 @@ CFG=tween_test - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "tween_test.mak" CFG="stest - Win32 Debug"
+!MESSAGE NMAKE /f "tween_test.mak" CFG="tween_test - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -23,6 +23,8 @@ CFG=tween_test - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
 CPP=cl.exe
 RSC=rc.exe
 
@@ -48,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssg.lib sg.lib ul.lib opengl32.lib glu32.lib glut32.lib ssgAux.lib /nologo /subsystem:console /machine:I386 /out:"tween_test.exe" /libpath:"..\..\..\..\..\plib"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssg.lib sg.lib ul.lib pw.lib winmm.lib opengl32.lib glu32.lib glut32.lib ssgAux.lib /nologo /subsystem:console /machine:I386 /out:"tween_test.exe" /libpath:"..\..\..\..\..\plib"
 
 !ELSEIF  "$(CFG)" == "tween_test - Win32 Debug"
 
@@ -72,7 +74,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssg_d.lib ssgAux_d.lib sg_d.lib ul_d.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /debug /machine:I386 /out:"tween_test.exe" /pdbtype:sept /libpath:"..\..\..\..\..\plib"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ssg_d.lib ssgAux_d.lib sg_d.lib ul_d.lib pw_d.lib winmm.lib opengl32.lib glu32.lib glut32.lib /nologo /subsystem:console /debug /machine:I386 /out:"tween_test.exe" /pdbtype:sept /libpath:"..\..\..\..\..\plib"
 
 !ENDIF 
 
