@@ -227,17 +227,6 @@ static _ssgSave3dsChunk* create_maplist_chunk( ssgLeaf* leaf ) {
   unsigned short *num_verts;
   _ssgSave3dsData *nverts;
   float* vdata;
-  int flip_texture_y = FALSE;
-  
-  /* flip textures y-coord if texture is a BMP */
-  char *texture_filename = 
-    ((ssgSimpleState*)leaf->getState())->getTextureFilename();
-  if (texture_filename != NULL) {
-    char *texture_extension = 
-      texture_filename + strlen(texture_filename) - 3;
-    
-    flip_texture_y = ulStrEqual( texture_extension, "BMP" );
-  }
 
   num_verts = new unsigned short;
   *num_verts = leaf->getNumTexCoords();
@@ -246,9 +235,6 @@ static _ssgSave3dsChunk* create_maplist_chunk( ssgLeaf* leaf ) {
   vdata = new float[ *num_verts * 2];
   for (int i = 0; i < *num_verts; i++) {
     sgCopyVec2(&vdata[i*2], leaf->getTexCoord(i));
-
-    if (flip_texture_y)
-      vdata[i * 2 + 1] = 1.0f - vdata[i * 2 + 1];
   }
   _ssgSave3dsData *mapdata = new _ssgSave3dsData(vdata, 4, 
 					       *num_verts * 2);
@@ -493,7 +479,7 @@ static void create_materials_chunk( ssgEntity* ent, _ssgSave3dsChunk* parent ) {
 }
 
 int ssgSave3ds( const char* filename, ssgEntity* ent ) {
-  save_fd = fopen( filename, "wba" );
+  save_fd = fopen( filename, "wb" );
 
   if (save_fd == NULL) {
     ulSetError( UL_WARNING, "ssgSave3ds: Failed to open '%s' for writing",

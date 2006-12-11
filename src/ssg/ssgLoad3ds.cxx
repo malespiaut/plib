@@ -50,6 +50,7 @@
 */
 
 #define USE_VTXARRAYS
+const int maxFacesPerLeaf = 10922; // = 32768 / 3
 
 #include "ssgLocal.h"
 #include "ssg3ds.h"
@@ -81,7 +82,9 @@ static char debug_indent[256];
 /* this is the minimum value of the dot product for
    to faces if their normals should be smoothed, if
    they don't use smooth groups. */
-static const float _ssg_smooth_threshold = 0.8f;
+// Until we are able to route such param through the LoaderOptions mechanism,
+// make it globally accessible
+/*static const*/ float _ssg_smooth_threshold = 0.8f;
 
 // parsing functions for chunks that need separate treatment.
 static int parse_material( unsigned int length);
@@ -114,6 +117,7 @@ static int parse_frame  ( unsigned int length);
 static int parse_frame_objname  ( unsigned int length);
 static int parse_frame_hierarchy( unsigned int length);
 static int identify_face_materials( unsigned int length );
+static int parse_frame_dummyname( unsigned int length );
 
 /* _ssg3dsChunk defines how a certain chunk is handled when encountered -
    what subchunks it might have and what parse function should be used
@@ -193,9 +197,7 @@ static _ssg3dsChunk ObjMeshChunks[] =
 static _ssg3dsChunk FrameChunks[] =
 { { CHUNK_FRAME_OBJNAME  , NULL, parse_frame_objname    },
   { CHUNK_FRAME_HIERARCHY, NULL, parse_frame_hierarchy  },
-//    { CHUNK_FRAME_ROTATION , NULL, parse_frame_rotation   },
-//    { CHUNK_FRAME_POSITION , NULL, parse_frame_position   },
-//    { CHUNK_FRAME_SCALE    , NULL, parse_frame_scale      },
+  { CHUNK_FRAME_DUMMYNAME, NULL, parse_frame_dummyname  },
   { 0, NULL, NULL }
 };
 
@@ -317,7 +319,7 @@ static unsigned short *vertex_index, *normal_index, num_vertices, num_faces;
 static unsigned int  *smooth_list;
 static _ssg3dsFaceList **face_lists;
 
-static ssgTransform *current_transform;
+static ssgTransform *current_transform, *last_dummy_object;
 
 static sgVec3 *vertex_list;
 static sgVec3 *face_normals, *vertex_normals;
@@ -328,6 +330,14 @@ static int colour_mode;
 
 static _ssg3dsStructureNode *object_list            = NULL;
 static short current_structure_id                   = -1;
+static short dummy_id = 0;
+static short last_id = 0;
+
+/* flag to control whether to use smooting groups found in the file
+   or not */
+// Until we are able to route such param through the LoaderOptions mechanism,
+// make it globally accessible
+int _3DS_use_smoothing_groups = 0;
 
 // convenient functions
 static unsigned char get_byte() {
@@ -641,11 +651,14 @@ static void free_trimesh()
 }
 
 static int parse_trimesh( unsigned int length ) {
-  current_transform = new ssgTransform();
-
   free_trimesh();
 
+#if 0
+  current_transform = new ssgTransform();
   current_branch -> addKid( current_transform );
+#else // avoid introducing a useless ssgTransform
+  current_transform = (ssgTransform*) current_branch;
+#endif
 
   /* Before we parse CHUNK_FACEMAT, we have to know vertices and texture
      coordinates. To ensure this, we make a special pass of the Trimesh
@@ -803,7 +816,7 @@ static int parse_face_list( unsigned int length ) {
 
   /* now apply correct smoothing. If smooth list has been found,
      use it, otherwise use threshold value. */
-  smooth_normals( 0 /*smooth_found*/ );
+  smooth_normals( _3DS_use_smoothing_groups && smooth_found );
 
   if (!facemat_found) {
     DEBUGPRINT("%sNo CHUNK_FACEMAT found. Adding default faces of material " \
@@ -812,7 +825,18 @@ static int parse_face_list( unsigned int length ) {
     for (i = 0; i < num_faces; i++) {
       face_indices[i] = i;
     }
+#if 0
     add_leaf(materials[0], num_faces, face_indices);
+#else
+    if( num_faces > maxFacesPerLeaf ) {
+      float num_objs = (float)num_faces / maxFacesPerLeaf; int int_num_objs = int(num_objs);
+      ulSetError( UL_DEBUG, "\tgeometry objects '%s' split into %d leaves",
+		current_branch->getName(), num_objs > int_num_objs ? int_num_objs+1 : int_num_objs);
+	}
+    for ( int il = 0; il < num_faces; il += maxFacesPerLeaf ) {
+      add_leaf(materials[0], min(num_faces-il,maxFacesPerLeaf), &face_indices[il]);
+	}
+#endif
   }
 
   return PARSE_OK;
@@ -852,6 +876,7 @@ static int parse_tra_matrix( unsigned int length ) {
     }
   }
   
+#if 0
   m[3][3] = 1.0f;
   sgTransposeNegateMat4( m );
     
@@ -865,8 +890,8 @@ static int parse_tra_matrix( unsigned int length ) {
   }
 #endif  
 
-  //current_transform -> setTransform( m );
-  
+//  current_transform -> setTransform( m );
+#endif  
   return PARSE_OK;
 }
 
@@ -874,7 +899,7 @@ static void add_leaf( _3dsMat *material, int listed_faces,
 		      unsigned short *face_indices ) {
   int is_ds          = material->flags & IS_DOUBLESIDED;
   int has_texture    = material->tex_name != NULL;
-  int flip_texture_y = FALSE;
+
   ssgVertexArray   *vertices = new ssgVertexArray();
   ssgNormalArray   *normals  = new ssgNormalArray();
   ssgTexCoordArray *texcrds  = NULL;
@@ -887,12 +912,6 @@ static void add_leaf( _3dsMat *material, int listed_faces,
       ulSetError(UL_WARNING, "ssgLoad3ds: Texture coords missing.");
     } else {
       texcrds = new ssgTexCoordArray();
-
-      /* flip textures y-coord if texture is a BMP */
-      char *texture_extension = 
-	material->tex_name + strlen(material->tex_name) - 3;
-      
-      flip_texture_y = ulStrEqual( texture_extension, "BMP" );
     }
   }
 
@@ -926,21 +945,16 @@ static void add_leaf( _3dsMat *material, int listed_faces,
       sgCopyVec2( _texcrds[2], texcrd_list[ vertex_index[v3] ] );
       if (is_ds) {
         num_texcrds = 6;
-	sgCopyVec2( _texcrds[3], texcrd_list[ vertex_index[v1] ] );
-	sgCopyVec2( _texcrds[4], texcrd_list[ vertex_index[v3] ] );
-	sgCopyVec2( _texcrds[5], texcrd_list[ vertex_index[v2] ] );
+        sgCopyVec2( _texcrds[3], texcrd_list[ vertex_index[v1] ] );
+        sgCopyVec2( _texcrds[4], texcrd_list[ vertex_index[v3] ] );
+        sgCopyVec2( _texcrds[5], texcrd_list[ vertex_index[v2] ] );
       }
 
       for (int j = 0; j < num_texcrds; j++) {
         _texcrds[j][0] *= material->tex_scale[0];
         _texcrds[j][1] *= material->tex_scale[1];
-
-	if (flip_texture_y) {
-	  _texcrds[j][1] = 1.0f - _texcrds[j][1];
-	}
-
         sgAddVec2( _texcrds[j], material->tex_offset );
-	texcrds->add( _texcrds[j] );
+        texcrds->add( _texcrds[j] );
       }
     }
 
@@ -956,8 +970,8 @@ static void add_leaf( _3dsMat *material, int listed_faces,
       sgCopyVec3( n[2], vertex_normals[v2] );
 
       for (int j = 0; j < 3; j++) {
-	sgNegateVec3( n[j] );
-	normals->add( n[j] );
+        sgNegateVec3( n[j] );
+        normals->add( n[j] );
       }
 
 #ifdef USE_VTXARRAYS
@@ -1014,7 +1028,18 @@ static int parse_face_materials( unsigned int length ) {
     face_indices[i] = ulEndianReadLittle16(model);
   }
 
+#if 0
   add_leaf(material, listed_faces, face_indices);
+#else
+  if( listed_faces > maxFacesPerLeaf ) {
+	  float num_objs = (float)listed_faces / maxFacesPerLeaf; int int_num_objs = int(num_objs);
+    ulSetError( UL_DEBUG, "\tgeometry objects '%s' split into %d leaves",
+		current_branch->getName(), num_objs > int_num_objs ? int_num_objs+1 : int_num_objs);
+  }
+  for ( int il = 0; il < listed_faces; il += maxFacesPerLeaf ) {
+    add_leaf(material, min(listed_faces-il,maxFacesPerLeaf), &face_indices[il]);
+  }
+#endif
 
   delete [] face_indices;
 
@@ -1078,6 +1103,20 @@ static int parse_frame( unsigned int length ) {
   return PARSE_OK;
 }
 
+
+static int parse_frame_dummyname( unsigned int length ) {
+  char *dummyname = get_string();
+  if ( last_dummy_object != (ssgTransform*)NULL )
+	  last_dummy_object->setName( dummyname );
+  delete dummyname;
+
+  return PARSE_OK;
+}
+
+
+static unsigned int last_structure_id;
+
+
 static int parse_frame_objname( unsigned int length ) {
   /* This chunk defines a hierarchy elements name and its parent object's
      identifier. 
@@ -1086,31 +1125,43 @@ static int parse_frame_objname( unsigned int length ) {
      root to leaf, i.e. a nodes parent must have been declared before the
      node itself is declared. */
 
-  char *objname = get_string();
+  char *objname = get_string(), dummyname[255];
   ulEndianReadLittle16(model);
   ulEndianReadLittle16(model);
   short parent_id = ulEndianReadLittle16(model);
+  int dummy = 0;
 
   DEBUGPRINT("%sObject name: %s, parent: %d%s",
 	     objname, parent_id, "");
+
+  if ( strcmp(objname,"$$$DUMMY") == 0 ) {
+    sprintf( dummyname, "%s_%d", objname, dummy_id++ );
+    objname = dummyname;
+    dummy = 1;
+  }
 
   _ssg3dsStructureNode *current_structure_node = findStructureNode( objname );
 
   if ( current_structure_node == NULL ) {
     current_structure_node = new _ssg3dsStructureNode;
-    current_structure_node -> object = new ssgTransform;
+    current_structure_node -> object = last_dummy_object = new ssgTransform;
     current_structure_node -> object -> setName( objname );
 
     addStructureNode( current_structure_node );
   }
 
-  current_structure_node -> id = current_structure_id;
-  
+  if ( current_structure_id >= 0 ) {
+    current_structure_node -> id = current_structure_id;
+    current_structure_id = -1;
+  }
+  else
+    current_structure_node -> id = last_id++;
+
   if ( parent_id != -1 ) {
     _ssg3dsStructureNode *parent = findStructureNode( parent_id );
     if (parent == NULL) {
       ulSetError( UL_WARNING, "ssgLoad3ds: Hierarchy entry \"%d\" does "\
-		  "not match any defined objects.", parent_id );      
+      "not match any defined objects.", parent_id );      
     } else {
       parent -> object -> addKid( current_structure_node -> object );
       current_structure_node -> has_been_used = true;
@@ -1120,7 +1171,7 @@ static int parse_frame_objname( unsigned int length ) {
     current_structure_node -> has_been_used = true;
   }
 
-  delete objname;
+  if ( !dummy ) delete objname;
 
   return PARSE_OK;
 }
@@ -1214,6 +1265,9 @@ ssgEntity *ssgLoad3ds( const char *filename, const ssgLoaderOptions* options ) {
   unsigned long size = ftell(model);
   rewind(model);
 
+  current_structure_id = -1;
+  dummy_id = last_id = 0;
+  last_dummy_object = (ssgTransform*)NULL;
   num_objects  = num_materials = num_textures = 0;
   object_list  = NULL;
   vertex_list  = NULL;
