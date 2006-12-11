@@ -277,7 +277,7 @@ static char *mystrchr( const char *string, int c )
 	if (string == NULL )
 		return NULL;
 	else
-#ifdef UL_BB
+#ifdef UL_EXPLICIT_CASTS
 		return strchr( (char*)string, c );
 #else
 		return strchr( string, c );
