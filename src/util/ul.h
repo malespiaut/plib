@@ -87,6 +87,7 @@
 #elif defined(SOLARIS) || defined(sun)
 
 #define UL_SOLARIS   1
+#define UL_EXPLICIT_CASTS     1
 
 #elif defined(hpux)
 
@@ -101,7 +102,7 @@
 
 #if defined(BORLANDBUILDER)
 
-#define UL_BB     1
+#define UL_EXPLICIT_CASTS     1
 
 #endif
 

@@ -316,7 +316,7 @@ bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
   FILE *tfile;
   int index = 0;
   if ( (tfile = fopen(fname, "rb")) == NULL) {
-#ifdef UL_BB
+#ifdef UL_EXPLICIT_CASTS
 		char *p = strrchr((char*)fname,'_');
 #else
 		char *p = strrchr(fname,'_');
