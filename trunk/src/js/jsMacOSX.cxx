@@ -275,7 +275,7 @@ void os_specific_s::enumerateElements(jsJoystick* joy, CFTypeRef element)
 		&elementEnumerator, joy);
 }
 
-static void os_specific_s::elementEnumerator( const void *element, void* vjs)
+void os_specific_s::elementEnumerator( const void *element, void* vjs)
 {
 	if (CFGetTypeID((CFTypeRef) element) != CFDictionaryGetTypeID()) {
 		ulSetError(UL_WARNING, "element enumerator passed non-dictionary value");
