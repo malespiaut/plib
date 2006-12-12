@@ -195,6 +195,13 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
   h   = bmphdr.Height ;
   bpp = bmphdr.Planes * bmphdr.BitCount ;
 
+  bool top_down = false ;
+  if ( h < 0 )
+  {
+    top_down = true ;
+    h = -1 * h ;
+  }
+
 #ifdef PRINT_BMP_HEADER_DEBUG
   ulSetError ( UL_DEBUG, "Filetype %04x",      bmphdr.FileType      ) ;
   ulSetError ( UL_DEBUG, "Filesize %08x",      bmphdr.FileSize      ) ;
@@ -226,7 +233,7 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
       pal[i].r = readByte () ;
 
       /* According to BMP specs, this fourth value is not really alpha value
-	 but just a filler byte, so it is ignored for now. */
+         but just a filler byte, so it is ignored for now. */
       pal[i].a = readByte () ;
       if (old_format == true) {
         pal[i].a = (i<index)?0:255;
@@ -243,12 +250,22 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
   bmphdr.SizeImage = w * h * (bpp / 8) ;
   GLubyte *data = new GLubyte [ bmphdr.SizeImage ] ;
 
-  /* read and flip image */
+  /* read (and maybe flip) image */
   {
     int row_size = w * (bpp / 8) ;
     for ( int y = h-1 ; y >= 0 ; y-- )
     {
-      GLubyte *row_ptr = &data [ y * row_size ] ;
+      GLubyte *row_ptr ;
+      if ( top_down )
+      {
+        /* store flipped image */
+        row_ptr = &data [ y * row_size ] ;
+      }
+      else
+      {
+        /* store without flipping */
+        row_ptr = &data [ ( h - ( y + 1 ) ) * row_size ] ;
+      }
       if ( fread ( row_ptr, 1, row_size, curr_image_fd ) != (unsigned)row_size )
       {
         ulSetError ( UL_WARNING, "Premature EOF in '%s'", curr_image_fname ) ;
