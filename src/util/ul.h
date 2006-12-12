@@ -111,6 +111,7 @@
 */
 
 #ifdef UL_WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
 #include <regstr.h>
@@ -188,6 +189,12 @@ typedef int bool ;
 const   int true  = 1 ;
 const   int false = 0 ;
 #endif
+
+/* Let's define our own "min" and "max" so that different operating systems
+ * don't complain
+ */
+#define ulMax(a,b)	((a)>(b)?(a):(b))
+#define ulMin(a,b)	((a)<(b)?(a):(b))
 
 
 /*

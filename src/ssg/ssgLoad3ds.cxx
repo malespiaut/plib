@@ -834,7 +834,7 @@ static int parse_face_list( unsigned int length ) {
 		current_branch->getName(), num_objs > int_num_objs ? int_num_objs+1 : int_num_objs);
 	}
     for ( int il = 0; il < num_faces; il += maxFacesPerLeaf ) {
-      add_leaf(materials[0], min(num_faces-il,maxFacesPerLeaf), &face_indices[il]);
+      add_leaf(materials[0], ulMin(num_faces-il,maxFacesPerLeaf), &face_indices[il]);
 	}
 #endif
   }
@@ -1037,7 +1037,7 @@ static int parse_face_materials( unsigned int length ) {
 		current_branch->getName(), num_objs > int_num_objs ? int_num_objs+1 : int_num_objs);
   }
   for ( int il = 0; il < listed_faces; il += maxFacesPerLeaf ) {
-    add_leaf(material, min(listed_faces-il,maxFacesPerLeaf), &face_indices[il]);
+    add_leaf(material, ulMin(listed_faces-il,maxFacesPerLeaf), &face_indices[il]);
   }
 #endif
 
@@ -1112,9 +1112,6 @@ static int parse_frame_dummyname( unsigned int length ) {
 
   return PARSE_OK;
 }
-
-
-static unsigned int last_structure_id;
 
 
 static int parse_frame_objname( unsigned int length ) {
