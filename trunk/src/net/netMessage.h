@@ -42,8 +42,11 @@
 
 #include "netBuffer.h"
 
-#ifndef UL_MSVC
-#include <netinet/in.h> // ntohs() etc prototypes
+// ntohs() etc prototypes
+#ifdef UL_MSVC
+#include <winsock2.h>
+#else
+#include <netinet/in.h>
 #endif
 
 #ifdef __FreeBSD__
