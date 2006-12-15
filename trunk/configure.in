@@ -346,6 +346,10 @@ mips-sgi-irix*)
     if test "x$CXX" = "xicpc" || test "x$CXX" = "xicc"; then
         WFLAG="-w1"
     fi
+   if test "x$GCC" != xyes; then
+      # if the compiler is not GCC we reset WFLAG to null for safety
+      WFLAG=""
+   fi
 	;;
 esac
 
