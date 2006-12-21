@@ -163,11 +163,13 @@ jsJoystick::jsJoystick ( int ident )
   id = ident ;
   os = new struct os_specific_s;
 
-  switch ( ident )
-  {
-    case 0  : os->js_id = JOYSTICKID1 ; open () ; break ;
-    case 1  : os->js_id = JOYSTICKID2 ; open () ; break;
-    default :    num_axes = 0 ; setError () ; break ;
+  if (ident >= 0 && ident < (int)joyGetNumDevs()) {
+        os->js_id = JOYSTICKID1 + ident;
+        open();
+  }
+  else {
+        num_axes = 0;
+        setError();
   }
 }
 
