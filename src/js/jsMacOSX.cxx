@@ -315,11 +315,12 @@ void os_specific_s::parseElement(jsJoystick* joy, CFDictionaryRef element)
 				case kHIDUsage_GD_Ry:
 				case kHIDUsage_GD_Rz:
 				case kHIDUsage_GD_Slider: // for throttle / trim controls
+        case kHIDUsage_GD_Dial:
 					//printf(" axis\n");
 					/*joy->os->*/addAxisElement(joy, (CFDictionaryRef) element);
 					break;
-					
-				case kHIDUsage_GD_Hatswitch:
+
+        case kHIDUsage_GD_Hatswitch:
 					//printf(" hat\n");
 					/*joy->os->*/addHatElement(joy, (CFDictionaryRef) element);
 					break;
