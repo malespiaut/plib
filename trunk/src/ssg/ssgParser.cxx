@@ -271,17 +271,13 @@ void _ssgParser::addOneCharToken ( char *ptr )
 	onechartokenbuf_ptr += 2; // prepare for nect onechartoken
 }
 
-static char *mystrchr( const char *string, int c )
+static const char *mystrchr( const char *string, int c )
 // like strchr, but string may be NULL
 {
 	if (string == NULL )
 		return NULL;
 	else
-#ifdef UL_EXPLICIT_CASTS
-		return strchr( (char*)string, c );
-#else
 		return strchr( string, c );
-#endif
 }
 
 
