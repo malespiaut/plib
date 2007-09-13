@@ -63,11 +63,7 @@ find_terminator (const netBuffer& haystack, const char* needle)
   if (needle && *needle)
   {
     const char* data = haystack.getData();
-#ifdef UL_EXPLICIT_CASTS
-    char* ptr = (char *)strstr(data,needle);
-#else
-    char* ptr = strstr(data,needle);
-#endif
+    const char* ptr = strstr(data,needle);
     if (ptr != NULL)
       return(ptr-data);
   }

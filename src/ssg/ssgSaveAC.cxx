@@ -87,17 +87,9 @@ static int ssgSaveLeaf ( ssgEntity *ent )
         if ( writeTextureWithoutPath )
         {
 
-#ifdef UL_EXPLICIT_CASTS
-          char *s = strrchr ( (char*)tfname, '\\' ) ;
-#else
-          char *s = strrchr ( tfname, '\\' ) ;
-#endif
+          const char *s = strrchr ( tfname, '\\' ) ;
           if ( s == NULL )
-#ifdef UL_EXPLICIT_CASTS
-            s = strrchr ( (char*)tfname, '/' ) ;
-#else
             s = strrchr ( tfname, '/' ) ;
-#endif
 
           if ( s == NULL )
             fprintf ( save_fd, "texture \"%s\"\n", tfname ) ;

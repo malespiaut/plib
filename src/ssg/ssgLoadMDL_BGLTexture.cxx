@@ -316,24 +316,22 @@ bool ssgLoadMDLTexture ( const char *fname, ssgTextureInfo* info )
   FILE *tfile;
   int index = 0;
   if ( (tfile = fopen(fname, "rb")) == NULL) {
-#ifdef UL_EXPLICIT_CASTS
-		char *p = strrchr((char*)fname,'_');
-#else
-		char *p = strrchr(fname,'_');
-#endif
+    char *dupfname = strdup( fname);
+    char *p = strrchr( dupfname,'_');
     if (p != 0) {
       *p = '\0';
       p++;
       index = atoi (p);
-      if ( (tfile = fopen(fname, "rb")) == NULL) {
-        ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname );
+      if ( (tfile = fopen(dupfname, "rb")) == NULL) {
+        ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", dupfname );
+        free( dupfname);
         return false ;
       }
-      p--;
-      *p = '_';
+      free( dupfname);
     }
     else {
       ulSetError( UL_WARNING, "ssgLoadTexture: Failed to load '%s'.", fname );
+      free( dupfname);
       return false ;
     }
   }
