@@ -26,7 +26,7 @@
 #if defined (UL_MAC_OSX)
 
 #include <mach/mach.h>
-#include <IOKit/IOkitLib.h>
+#include <IOKit/IOKitLib.h>
 #include <IOKit/hid/IOHIDLib.h>
 #include <mach/mach_error.h>
 #include <IOKit/hid/IOHIDKeys.h>
