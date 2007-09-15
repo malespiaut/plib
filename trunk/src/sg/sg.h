@@ -138,6 +138,10 @@ inline SGfloat sgHeightOfPlaneVec2 ( const sgVec4 plane, const sgVec2 pnt )
 /*
   Convert a direction vector into a set of euler angles,
   (with zero roll)
+  The direction vector is X-coordinate = north, Y-coordinate = east, Z-coordinate = down
+  The heading ( = hpr[0] ) is in degrees south of east -- this is VERY nonstandard
+  The pitch ( = hpr[1] ) is in degrees positive up
+  The roll ( = hpr[2] ) is zero
 */
 
 extern void sgHPRfromVec3 ( sgVec3 hpr, const sgVec3 src ) ;
