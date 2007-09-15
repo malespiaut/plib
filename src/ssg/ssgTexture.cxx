@@ -27,13 +27,17 @@
 
 void ssgTexture::copy_from ( ssgTexture *src, int clone_flags )
 {
-  ssgBase::copy_from ( src, clone_flags ) ;
+  if ( this != src )
+  {
+    /* Avoid meaningless assignments (OK) and corrupting file name (important) when copying to self */
+    ssgBase::copy_from ( src, clone_flags ) ;
 
-  wrapu  = src -> wrapu  ;
-  wrapv  = src -> wrapv  ;
-  mipmap = src -> mipmap ;
+    wrapu  = src -> wrapu  ;
+    wrapv  = src -> wrapv  ;
+    mipmap = src -> mipmap ;
 
-  setFilename ( src -> getFilename () ) ;
+    setFilename ( src -> getFilename () ) ;
+  }
 
   alloc_handle () ;
   ssgTextureInfo info ;
