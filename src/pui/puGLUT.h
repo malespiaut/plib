@@ -33,7 +33,11 @@
 #ifdef UL_MAC_OSX
 # include <GLUT/glut.h>
 #else
-# include <GL/glut.h>
+# ifdef FREEGLUT_IS_PRESENT /* for FreeGLUT like PLIB 1.6.1*/
+#  include <GL/freeglut.h>
+# else
+#  include <GL/glut.h>
+# endif
 #endif
 
 
