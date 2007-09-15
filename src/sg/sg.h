@@ -1063,6 +1063,11 @@ class sgFrustum
   sgVec4 plane [ 6 ] ;
 
   /* These two are only valid for simple frusta */
+  /* Note that to convert to parameters for gluPerspective you do the following:
+   *   "fovy" is "vfov"
+   *   "aspect" is the ratio "hfov" / "vfov"
+   * Note also that the "hfov" and "vfov" variables are NOT automatically set.
+   */
 
   SGfloat hfov ;    /* Horizontal Field of View  -or-  Orthographic Width  */
   SGfloat vfov ;    /* Vertical   Field of View  -or-  Orthographic Height */
