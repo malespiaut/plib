@@ -124,7 +124,7 @@ ulDirEnt* ulReadDir ( ulDir* dir )
 #endif
 
   char path[ 1000 + UL_NAME_MAX+1 ];
-#ifdef UL_MSVC
+#if defined( UL_MSVC ) && _MSC_VER <= 1200
   // handle stat difficulty in msvc++ 6.0
   sprintf( path, "%s%s", dir->dirname, dir->curr.d_name );
 #else
