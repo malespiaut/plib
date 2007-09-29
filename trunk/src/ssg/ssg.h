@@ -201,6 +201,10 @@ inline int ssgTypeTexture      () { return _SSG_TYPE_TEXTURE   | ssgTypeBase    
 int ssgGetFrameCounter () ;
 void ssgSetFrameCounter ( int fc ) ;
 
+// Returns GL_TRUE if the OpenGL Extension whose name is *extName
+// is supported by the system, or GL_FALSE otherwise.
+bool ssgIsExtensionSupported(char *extName);
+
 class ssgList
 {
 protected:
