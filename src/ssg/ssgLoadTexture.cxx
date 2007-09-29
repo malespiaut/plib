@@ -48,8 +48,11 @@ int ssgGetNumTexelsLoaded ()
 
 bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
 {
-  if ( ! ((xsize & (xsize-1))==0) ||
-       ! ((ysize & (ysize-1))==0) )
+  bool non_power_of_two_tex_supported = ssgIsExtensionSupported( "GL_ARB_texture_non_power_of_two" );
+  
+  if ( !non_power_of_two_tex_supported &&
+       ( ! ((xsize & (xsize-1))==0) ||
+         ! ((ysize & (ysize-1))==0) ) )
   {
     ulSetError ( UL_WARNING, "Map is not a power-of-two in size!" ) ;
     return false ;
