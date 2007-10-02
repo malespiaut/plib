@@ -699,7 +699,7 @@ void ssgAddTextureFormat ( const char* extension,
                           bool (*) (const char*, ssgTextureInfo* info) ) ;
 
 int ssgGetNumTexelsLoaded () ;
-bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize ) ;
+bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize, bool freeData = true ) ;
 
 
 class ssgTexture : public ssgBase
