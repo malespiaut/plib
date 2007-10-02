@@ -46,7 +46,7 @@ int ssgGetNumTexelsLoaded ()
 }
 
 
-bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize )
+bool ssgMakeMipMaps ( GLubyte *image, int xsize, int ysize, int zsize, bool freeData )
 {
   bool non_power_of_two_tex_supported = ssgIsExtensionSupported( "GL_ARB_texture_non_power_of_two" );
   
@@ -137,7 +137,11 @@ else
 
     if ( ww == 0 )
     {
-      delete [] texels [ 0 ] ;
+      if ( freeData )
+        delete [] texels [ 0 ] ;
+      else
+        delete [] texels [ 1 ] ;  /* User does not want input image freed, but we need to free all the rest of them */
+
       xsize >>= 1 ;
       ysize >>= 1 ;
 
@@ -171,7 +175,8 @@ else
                                        GL_RGBA,
                             GL_UNSIGNED_BYTE, (GLvoid *) texels[i] ) ;
     map_level++ ;
-    delete [] texels [ i ] ;
+    if ( freeData || ( i > 0 ) )
+      delete [] texels [ i ] ;
   }
 
   return true ;
