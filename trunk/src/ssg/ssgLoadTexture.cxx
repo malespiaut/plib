@@ -239,10 +239,11 @@ static int fileMTimeCmp( const char *fname_input, const char *fname_output )
 //  1: fname_input older than fname_output
 //  0: stat error
 {
-  struct _stat buffer_in, buffer_out;
 #ifdef UL_WIN32
 #define stat _stat
 #endif
+  struct stat buffer_in, buffer_out;
+
   if ( stat( fname_input, &buffer_in ) == 0 && stat( fname_output, &buffer_out ) == 0 )
     return buffer_in.st_mtime > buffer_out.st_mtime ? -1 : 1;
   else
