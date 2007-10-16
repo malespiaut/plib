@@ -123,23 +123,12 @@ ulDirEnt* ulReadDir ( ulDir* dir )
   strcpy( dir->curr.d_name, direntp->d_name );
 #endif
 
-  char path[ 1000 + UL_NAME_MAX+1 ];
-#if defined( UL_MSVC ) && _MSC_VER <= 1200
-  // handle stat difficulty in msvc++ 6.0
-  sprintf( path, "%s%s", dir->dirname, dir->curr.d_name );
-#else
-  sprintf( path, "%s/%s", dir->dirname, dir->curr.d_name );
-#endif
-
   //determine if this entry is a directory
 #ifdef UL_MSVC
-  struct _stat buf;
-  int result = _stat(path,&buf);
-  if ( result == 0 )
-    dir->curr.d_isdir = (buf.st_mode & _S_IFDIR) != 0 ;
-  else
-    dir->curr.d_isdir = false ;
-#else
+  dir->curr.d_isdir = ( dir->data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0;
+ #else
+  char path[ 1000 + UL_NAME_MAX+1 ];
+  sprintf( path, "%s/%s", dir->dirname, dir->curr.d_name );
   struct stat buf ;
   if ( stat(path,&buf) == 0 )
     dir->curr.d_isdir = (buf.st_mode & S_IFDIR) != 0 ;
