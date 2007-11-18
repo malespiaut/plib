@@ -29,7 +29,7 @@
 #endif
 
 #include "pu.h"
-#include <SDL/SDL.h>
+#include "SDL.h"
 
 
 inline int puGetWindowSDL ()
