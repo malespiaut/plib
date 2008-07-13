@@ -49,10 +49,19 @@
 class netAddress
 {
   /* DANGER!!!  This MUST match 'struct sockaddr_in' exactly! */
+#ifdef UL_MAC_OSX
+// This member is added since OS X 10.5.2 ... I'm wondering how to handle this...
+  __uint8_t      sin_len;
+  __uint8_t      sin_family;
+  in_port_t      sin_port;
+  in_addr_t      sin_addr;
+  char           sin_zero[8];
+#else
   short          sin_family     ;
   unsigned short sin_port       ;
   unsigned int   sin_addr       ;
   char           sin_zero [ 8 ] ;
+#endif
 
 public:
   netAddress () {}
