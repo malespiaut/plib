@@ -142,7 +142,7 @@
 
 typedef unsigned char ubyte;
 
-#ifdef UL_WIN32
+#if defined(UL_WIN32) || defined(UL_MAC_OSX)
 typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
