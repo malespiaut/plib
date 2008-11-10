@@ -43,6 +43,10 @@
 #include "ul.h"
 #include <errno.h>
 
+#if defined(UL_MAC_OSX)
+#  include <netinet/in.h>
+#endif
+
 /*
  * Socket address, internet style.
  */
