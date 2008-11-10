@@ -25,10 +25,6 @@
 
 #if defined(UL_CYGWIN) || !defined (UL_WIN32)
 
-#if defined(UL_MAC_OSX)
-#  include <netinet/in.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
