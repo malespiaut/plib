@@ -1445,31 +1445,31 @@ public:
   virtual void setValue ( puValue *pv )
   {
     puValue::setValue ( pv ) ;
-    delete displayed_text ;  displayed_text = NULL ;
+    delete [] displayed_text ;  displayed_text = NULL ;
   }
 
   virtual void setValue ( int   i )
   {
     puValue::setValue ( i ) ;
-    delete displayed_text ;  displayed_text = NULL ;
+    delete [] displayed_text ;  displayed_text = NULL ;
   }
 
   virtual void setValue ( float f )
   {
     puValue::setValue ( f ) ;
-    delete displayed_text ;  displayed_text = NULL ;
+    delete [] displayed_text ;  displayed_text = NULL ;
   }
 
   virtual void setValue ( const char *s )
   {
     puValue::setValue ( s ) ;
-    delete displayed_text ;  displayed_text = NULL ;
+    delete [] displayed_text ;  displayed_text = NULL ;
   }
 
   virtual void setValue ( bool b )
   {
     puValue::setValue ( b ) ;
-    delete displayed_text ;  displayed_text = NULL ;
+    delete [] displayed_text ;  displayed_text = NULL ;
   }
 } ;
 
