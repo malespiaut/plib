@@ -40,7 +40,7 @@ void puSlider::draw_slider_box ( int dx, int dy, const puBox &box, float val, co
   val *= (float) sz * (1.0f - slider_fraction) ;
 
   puBox bx ;
-    
+
   bx.min [ sd ] = box.min [ sd ] + (int) val ;
   bx.max [ sd ] = (int) ( (float) bx.min [ sd ] + (float) sz * slider_fraction ) ;
   bx.min [ od ] = box.min [ od ] + 2 ;
@@ -139,24 +139,24 @@ void puSlider::doHit ( int button, int updown, int x, int y )
     next_value = next_value * ( maximum_value - minimum_value ) + minimum_value ;
 
     setValue ( checkStep (next_value) );
-    
+
     switch ( cb_mode )
     {
       case PUSLIDER_CLICK :
         if ( updown == active_mouse_edge )
         {
-	  last_cb_value = next_value ;
-    puSetActiveWidget ( this, x, y ) ;
-	  invokeCallback () ;
+          last_cb_value = next_value ;
+          puSetActiveWidget ( this, x, y ) ;
+          invokeCallback () ;
         }
         break ;
 
       case PUSLIDER_DELTA : /* Deprecated! */
         if ( fabs ( last_cb_value - next_value ) >= cb_delta )
         {
-	  last_cb_value = next_value ;
-    puSetActiveWidget ( this, x, y ) ;
-	  invokeCallback () ;
+          last_cb_value = next_value ;
+          puSetActiveWidget ( this, x, y ) ;
+          invokeCallback () ;
         }
         break ;
 
