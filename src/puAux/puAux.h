@@ -155,6 +155,7 @@ protected:
 
   void normalizeCursors ( void ) ;
   void removeSelectRegion ( void ) ;
+  void setSliders ( void ) ;
 
   void wrapText ( void ) ;
 
