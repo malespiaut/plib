@@ -131,8 +131,11 @@ void puSlider::doHit ( int button, int updown, int x, int y )
       next_value = 0.5f ;
     else
     {
-      next_value = ( (float)coord - (float)abox.min[sd] - (float)sz * slider_fraction / 2.0f ) /
-                   ( (float) sz * (1.0f - slider_fraction) ) ;
+      if ( slider_fraction >= 1.0f )
+        next_value = 0 ;
+      else
+        next_value = ( (float)coord - (float)abox.min[sd] - (float)sz * slider_fraction / 2.0f ) /
+                     ( (float) sz * (1.0f - slider_fraction) ) ;
     }
 
     next_value = (next_value < 0.0f) ? 0.0f : (next_value > 1.0f) ? 1.0f : next_value ;
@@ -177,7 +180,7 @@ void puSlider::setSliderFraction ( float f )
   int sz = abox.max [i] - abox.min [i] ;  // Size of slider box, in pixels
   float minf = 10.0f / sz ;               // fraction that makes a 10px handle
 
-  slider_fraction = (f<minf) ? minf : (f>=1.0f) ? 0.9f : f ;
+  slider_fraction = (f<minf) ? minf : (f>1.0f) ? 1.0f : f ;
   puPostRefresh () ;
 }
 
