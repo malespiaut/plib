@@ -31,14 +31,13 @@ UL_RTTI_DEF2(puaLargeInput,puInputBase,puGroup)
 
 static void puaLargeInputHandleRightSlider ( puObject *slider )
 {
-  float val = ((puaScrollBar *)slider)->getMaxValue () - slider->getFloatValue () ;
-
   puaLargeInput* text = (puaLargeInput*) slider->getUserData () ;
-  //int lines_in_window = text->getLinesInWindow () ; 
+  int lines_in_window = text->getLinesInWindow () ; 
   int num_lines = text->getNumLines () ;
+  float val = 1 - slider->getFloatValue () ;
 
   if ( num_lines > 0 )
-    text->setTopLineInWindow ( int ( val + 0.5f ) ) ;
+    text->setTopLineInWindow ( int ( val * ( num_lines - lines_in_window ) + 0.5f ) ) ;
 }
 
 // Private function from the widget itself
@@ -75,39 +74,32 @@ puaLargeInput::puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_wi
   type |= PUCLASS_LARGEINPUT ;
   num_lines = 1 ;
   slider_width = sl_width ;
-  lines_in_window = ( h - (bottom_slider?slider_width:0) ) /
-                    ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
   top_line_in_window = 0 ;
   max_width = 0 ;
-
   widget = this ;
 
   // Set up the widgets
 
   frame = new puFrame ( 0, 0, w, h );
 
+  int bottom_slider_width = 0;
   if ( wrap_text )
     bottom_slider = (puSlider *)NULL ;
   else
   {
     bottom_slider = new puSlider ( 0, 0, w - slider_width, FALSE, slider_width ) ,
     bottom_slider->setValue ( 0.0f ) ;   // All the way to the left
-//    bottom_slider->setDelta(0.1f); // Commented out CBModes and Deltas for these sliders to increase response time and to ensure the sliders react properly even when first selected - JCJ 13 Jun 2002
-    bottom_slider->setSliderFraction (1.0f) ;
-//    bottom_slider->setCBMode( PUSLIDER_DELTA );
+    bottom_slider_width = slider_width;
   }
 
-  right_slider = new puaScrollBar ( w - slider_width, (bottom_slider?slider_width:0),
-                                    h - (bottom_slider?slider_width:0), arrows, TRUE, slider_width ) ,
+  right_slider = new puaScrollBar ( w - slider_width, bottom_slider_width,
+                                    h - bottom_slider_width, arrows, TRUE, slider_width ) ,
   right_slider->setValue ( 1.0f ) ;    // All the way to the top
-//  right_slider->setDelta(0.1f);
-  right_slider->setSliderFraction (1.0f) ;
-  right_slider->setStepSize ( 1.0f ) ;
-//  right_slider->setCBMode( PUSLIDER_DELTA );
   right_slider->setUserData ( this ) ;
   right_slider->setCallback ( puaLargeInputHandleRightSlider ) ;
 
   setValue ( "\n" ) ;
+  setSize ( w, h ) ;
 
   close  () ;
   reveal () ;
@@ -115,29 +107,40 @@ puaLargeInput::puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_wi
 
 void puaLargeInput::setSize ( int w, int h )
 {
-  // Resize the frame:
-  frame->setSize ( w, h ) ;
+  int bottom_slider_width = bottom_slider ? slider_width : 0 ;
+  int line_size = legendFont.getStringHeight() + legendFont.getStringDescender() + 1 ;
+  if ( !w ) w = 1 ;
+  if ( !h ) h = 1 ;
 
-  // Resize and reposition the sliders
   if ( bottom_slider )
     bottom_slider->setSize ( w - slider_width, slider_width ) ;
   else  // No bottom slider, rewrap the text
     wrapText () ;
 
-  right_slider->setPosition ( w-slider_width, (bottom_slider?slider_width:0) ) ;
-  right_slider->setSize ( slider_width, h-(bottom_slider?slider_width:0) ) ;
+  right_slider->setPosition ( w - slider_width, bottom_slider_width ) ;
+  right_slider->setSize ( slider_width, h - bottom_slider_width ) ;
 
-  lines_in_window = ( h - (bottom_slider?slider_width:0) ) /
-                    ( getLegendFont().getStringHeight() + getLegendFont().getStringDescender() + 1 ) ;
+  lines_in_window = ( h - bottom_slider_width ) / line_size ;
+  frame->setSize ( w, h ) ;
+  setSliders () ;
+}
 
-  int line_size = legendFont.getStringHeight () +     // Height of a line
-                  legendFont.getStringDescender() ;  // of text, in pixels
-  int box_height = ( abox.max[1] - abox.min[1] - slider_width ) / line_size ;
-  int right_slider_max = num_lines - lines_in_window + 1 ;
-  if ( right_slider_max < 1 ) right_slider_max = 1 ;
+void puaLargeInput::setSliders ( void )
+{
+  int w = abox.max[0] - abox.min[0] ;
+  int h = abox.max[1] - abox.min[1] ;
+  int line_size = legendFont.getStringHeight() + legendFont.getStringDescender() + 1 ;
+  int bottom_slider_width = bottom_slider ? slider_width : 0 ;
+  int box_width = w - slider_width ;                         // in pixels
+  int box_height = ( h - bottom_slider_width ) / line_size ; // in lines
 
-  right_slider->setSliderFraction ( float(box_height) / float(right_slider_max) ) ;
-  right_slider->setMaxValue ( float(right_slider_max) ) ;
+  if ( bottom_slider ) {
+    float frac = box_width > max_width ? 1 : float(box_width) / max_width ;
+    bottom_slider->setSliderFraction ( frac ) ;
+  }
+
+  right_slider->setSliderFraction ( float(box_height) / num_lines ) ;
+  right_slider->setValue ( 1.0f - float(top_line_in_window) / num_lines ) ;
 }
 
 void puaLargeInput::setSelectRegion ( int s, int e )
@@ -297,14 +300,12 @@ void  puaLargeInput::removeText ( int start, int end )
 
 void  puaLargeInput::setValue ( const char *s )
 {
-  if ( bottom_slider ) bottom_slider->setSliderFraction ( 0.0f ) ;
-  right_slider->setSliderFraction ( 0.0f ) ;
-
   if ( s == NULL )
   {
     puValue::setValue ( "\n" ) ;
     num_lines = 0 ;
     cursor_position = select_start_position = select_end_position = 0 ;
+    setSliders () ;
     return ;
   }
 
@@ -353,26 +354,8 @@ void  puaLargeInput::setValue ( const char *s )
   if ( max_width < line_width )
     max_width = line_width ;
 
-  // Set slider fractions
-
-  int line_size = legendFont.getStringHeight () +     // Height of a line
-                  legendFont.getStringDescender() ;  // of text, in pixels
-
-  int box_width = abox.max[0] - abox.min[0] - slider_width ;   // Input box width, in pixels
-  int box_height = ( abox.max[1] - abox.min[1] - slider_width ) / line_size ;
-                                                // Input box height, in lines
-
-  if ( bottom_slider )
-    bottom_slider->setSliderFraction ( float(box_width) / float(max_width) ) ;
-
-  int right_slider_max = num_lines - lines_in_window + 1 ;
-  if ( right_slider_max < 1 ) right_slider_max = 1 ;
-
-  right_slider->setSliderFraction ( float(box_height) / float(right_slider_max) ) ;
-  right_slider->setMaxValue ( float(right_slider_max) ) ;
-
-  // Normalize the cursors
   normalizeCursors () ;
+  setSliders () ;
 }
 
 
@@ -397,14 +380,14 @@ void puaLargeInput::draw ( int dx, int dy )
     int ywidget = abox.min[1] + dy ;
 
     int line_size = legendFont.getStringHeight () +         // Height of a line
-                    legendFont.getStringDescender() + 1 ;  // of text, in pixels
+                    legendFont.getStringDescender() + 1 ;   // of text, in pixels
 
     int xx = int(legendFont.getFloatStringWidth ( " " )) ;
     int yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f ) ;
 
-    int box_width = abox.max[0] - abox.min[0] - slider_width - xx - xx ;   // Input box width, in pixels
-    int box_height = ( abox.max[1] - abox.min[1] - (bottom_slider?slider_width:0) ) / line_size ;
-                                                  // Input box height, in lines
+    int box_width = abox.max[0] - abox.min[0] - slider_width - xx - xx ;    // Input box width, in pixels
+    int box_height = ( abox.max[1] - abox.min[1] - (bottom_slider?slider_width:0) - 1
+                     - legendFont.getStringHeight () * 0.5f ) / line_size ; // Input box height, in lines
 
     float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0f ;
 
@@ -416,8 +399,6 @@ void puaLargeInput::draw ( int dx, int dy )
     int end_lin      // Position on line count of bottom of window, in lines
                 = top_line_in_window + box_height ;
 
-   /* Removed IF statement to permit highlighting to remain even when widget not active - JCJ 13 Jun 2002 */
-    
     char *val = bottom_slider ? getStringValue () : getDisplayedText () ;
 
     // Highlight the select area
@@ -544,7 +525,7 @@ void puaLargeInput::draw ( int dx, int dy )
             val = end_of_line + 1 ;
             end_of_line = strchr (val, '\n') ;     // Just go to the next line
           }
-          else if ( line_count <= end_lin )        // Within the window, draw it
+          else if ( line_count < end_lin )        // Within the window, draw it
           {
             char temp_char = *end_of_line ;   // Temporary holder for last char on line
 
@@ -620,7 +601,7 @@ void puaLargeInput::draw ( int dx, int dy )
             val = end_of_line + 1 ;
             end_of_line = strchr (val, '\n') ;     // On to the next line
           }
-          else if ( line_count > end_lin )        // Have gone beyond window, end process
+          else if ( line_count >= end_lin )        // Have gone beyond window, end process
             end_of_line = NULL ;
 
           line_count++ ;
