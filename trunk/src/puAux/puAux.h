@@ -143,10 +143,16 @@ protected:
   int num_lines ;               // Number of lines of text in the box
   int lines_in_window ;         // Number of lines showing in the window
   int top_line_in_window ;      // Number of the first line in the window
-  float max_width ;             // Width of longest line of text in box, in pixels
+  int max_width ;               // Width of longest line of text in box, in pixels
   int slider_width ;
+  int line_height ;             // Text height + interline gap
+  int vgap ;                    // Gap on top and bottom
+  int hgap ;                    // Gap on the left and right side
+  int input_width ;             // Width of display area (widget minus gaps & slider)
+  int input_height ;            // Height of display area
 
   puFrame *frame ;
+  puFrame *plug ;               // Little square in the bottom right corner
 
   puSlider *bottom_slider ;     // Horizontal slider at bottom of window
   puaScrollBar *right_slider ;  // Vertical slider at right of window
@@ -155,9 +161,11 @@ protected:
 
   void normalizeCursors ( void ) ;
   void removeSelectRegion ( void ) ;
-  void setSliders ( void ) ;
+  void updateGeometry ( void ) ;
 
-  void wrapText ( void ) ;
+  char *wrapText ( int target_width = 0, int *numlines = 0, int *maxwidth = 0 ) ;
+  void getTextProperties(int *numlines, int *maxwidth) ;
+  char *getText () { return bottom_slider ? getStringValue () : getDisplayedText () ; }
 
 public:
   puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_width, int wrap_text = FALSE ) ;
@@ -169,9 +177,10 @@ public:
 
   void setSize ( int w, int h ) ;
 
-  int getNumLines ( void ) const {  return num_lines ;  }
+  int getNumLines ( void ) const { return num_lines ; }
   int getLinesInWindow ( void ) const { return lines_in_window ; }
-  void setTopLineInWindow ( int val ) {  top_line_in_window = (val<0) ? 0 : ( (val>num_lines-2) ? num_lines-2 : val ) ;  }
+  void setTopLineInWindow ( int val ) { top_line_in_window = (val<0) ? 0 : ( (val>num_lines-2) ? num_lines-2 : val ) ;  }
+  void setSliderPosition ( float fraction ) ;
 
   void draw     ( int dx, int dy ) ;
   int  checkHit ( int button, int updown, int x, int y ) ;
@@ -189,8 +198,6 @@ public:
   }
 
   void  setValue ( const char *s ) ;
-  void  setText ( const char *l ) { setValue ( l ) ; }  /* DEPRECATED */
-  char *getText ( void ) { return getStringValue () ; }  /* DEPRECATED */
   void  addNewLine ( const char *l ) ;
   void  addText ( const char *l ) ;
   void  appendText ( const char *l ) ;
@@ -199,8 +206,6 @@ public:
   {
     return ( displayed_text == NULL ? getStringValue () : displayed_text ) ;
   }
-  char *getWrappedText ( void )  // THIS FUNCTION IS DEPRECATED  3/21/06
-  {  return getDisplayedText () ;  }
 } ;
 
 
