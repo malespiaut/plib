@@ -32,12 +32,7 @@ UL_RTTI_DEF2(puaLargeInput,puInputBase,puGroup)
 static void puaLargeInputHandleRightSlider ( puObject *slider )
 {
   puaLargeInput* text = (puaLargeInput*) slider->getUserData () ;
-  int lines_in_window = text->getLinesInWindow () ; 
-  int num_lines = text->getNumLines () ;
-  float val = 1 - slider->getFloatValue () ;
-
-  if ( num_lines > 0 )
-    text->setTopLineInWindow ( int ( val * ( num_lines - lines_in_window ) + 0.5f ) ) ;
+  text->setSliderPosition ( 1 - slider->getFloatValue () ) ;
 }
 
 // Private function from the widget itself
@@ -47,7 +42,6 @@ void puaLargeInput::normalizeCursors ( void )
   puInputBase::normalizeCursors () ;
 
   // Set the top line in the window so that the last line is at the bottom of the window
-
   if ( top_line_in_window > num_lines - lines_in_window + 2 )
     top_line_in_window = num_lines - lines_in_window + 2 ;
 
@@ -57,8 +51,7 @@ void puaLargeInput::normalizeCursors ( void )
 void puaLargeInput::removeSelectRegion ( void )
 {
   puInputBase::removeSelectRegion () ;
-
-  wrapText () ;
+  updateGeometry () ;
 }
 
 
@@ -75,30 +68,33 @@ puaLargeInput::puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_wi
   num_lines = 1 ;
   slider_width = sl_width ;
   top_line_in_window = 0 ;
+  lines_in_window = 1 ;
   max_width = 0 ;
   widget = this ;
 
   // Set up the widgets
 
-  frame = new puFrame ( 0, 0, w, h );
+  frame = new puFrame ( 0, 0, w, h ) ;
 
-  int bottom_slider_width = 0;
-  if ( wrap_text )
-    bottom_slider = (puSlider *)NULL ;
+  // filler for the little square in the lower right corner when both sliders are visible
+  plug = new puFrame ( 0, 0, slider_width, slider_width ) ;
+  plug->setStyle ( -PUSTYLE_SMALL_BEVELLED ) ;
+  plug->setBorderThickness ( 2 ) ;
+
+  if (wrap_text )
+    bottom_slider = NULL ;
   else
   {
-    bottom_slider = new puSlider ( 0, 0, w - slider_width, FALSE, slider_width ) ,
+    bottom_slider = new puSlider ( 0, 0, slider_width, FALSE, slider_width ) ;
     bottom_slider->setValue ( 0.0f ) ;   // All the way to the left
-    bottom_slider_width = slider_width;
   }
 
-  right_slider = new puaScrollBar ( w - slider_width, bottom_slider_width,
-                                    h - bottom_slider_width, arrows, TRUE, slider_width ) ,
+  right_slider = new puaScrollBar ( 0, 0, slider_width, arrows, TRUE, slider_width ) ;
   right_slider->setValue ( 1.0f ) ;    // All the way to the top
   right_slider->setUserData ( this ) ;
   right_slider->setCallback ( puaLargeInputHandleRightSlider ) ;
 
-  setValue ( "\n" ) ;
+  setValue ( "" ) ;
   setSize ( w, h ) ;
 
   close  () ;
@@ -107,47 +103,136 @@ puaLargeInput::puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_wi
 
 void puaLargeInput::setSize ( int w, int h )
 {
-  int bottom_slider_width = bottom_slider ? slider_width : 0 ;
-  int line_size = legendFont.getStringHeight() + legendFont.getStringDescender() + 1 ;
-  if ( !w ) w = 1 ;
-  if ( !h ) h = 1 ;
-
-  if ( bottom_slider )
-    bottom_slider->setSize ( w - slider_width, slider_width ) ;
-  else  // No bottom slider, rewrap the text
-    wrapText () ;
-
-  right_slider->setPosition ( w - slider_width, bottom_slider_width ) ;
-  right_slider->setSize ( slider_width, h - bottom_slider_width ) ;
-
-  lines_in_window = ( h - bottom_slider_width ) / line_size ;
+  puGroup::setSize ( w, h ) ;
+  if ( w < 2 * slider_width ) w = 2 * slider_width ;
+  if ( h < 2 * line_height ) h = 2 * line_height ;
   frame->setSize ( w, h ) ;
-  setSliders () ;
+  abox.max[0] = abox.min[0] + w ;
+  abox.max[1] = abox.min[1] + h ;
+  updateGeometry () ;
 }
 
-void puaLargeInput::setSliders ( void )
+void puaLargeInput::setSliderPosition ( float fraction )
 {
+  if ( num_lines > lines_in_window )
+    top_line_in_window = int( ( num_lines - lines_in_window ) * fraction ) ;
+  else
+    top_line_in_window = 0 ;
+  updateGeometry () ;
+}
+
+void puaLargeInput::updateGeometry ( void )
+{
+  enum { HORIZONTAL = 1, VERTICAL = 2, BOTH = 3 } ;
   int w = abox.max[0] - abox.min[0] ;
   int h = abox.max[1] - abox.min[1] ;
-  int line_size = legendFont.getStringHeight() + legendFont.getStringDescender() + 1 ;
-  int bottom_slider_width = bottom_slider ? slider_width : 0 ;
-  int box_width = w - slider_width ;                         // in pixels
-  int box_height = ( h - bottom_slider_width ) / line_size ; // in lines
 
-  if ( bottom_slider ) {
-    float frac = box_width > max_width ? 1 : float(box_width) / max_width ;
-    bottom_slider->setSliderFraction ( frac ) ;
+  int frame_width = getStyle() == PUSTYLE_BOXED ? getBorderThickness() : 0 ;
+  hgap = int(legendFont.getFloatStringWidth(" ")) + frame_width ;
+  vgap = int(legendFont.getStringHeight()) / 2 + frame_width ;
+  line_height = legendFont.getStringHeight() + legendFont.getStringDescender() + 1 ;
+  input_width = w - hgap - hgap - frame_width ;
+  input_height = h - vgap - vgap - frame_width ;
+
+  int slider = 0 ;
+  if (bottom_slider) {  // no line wrapping
+    if (max_width > input_width) {
+      slider |= HORIZONTAL ;
+      input_height -= slider_width ;
+    }
+    if (num_lines > input_height / line_height) {
+      slider |= VERTICAL ;
+      input_width -= slider_width ;
+    }
+    if (max_width > input_width && !(slider & HORIZONTAL)) {
+      slider |= HORIZONTAL ;
+      input_height -= slider_width ;
+    }
+    if (num_lines > input_height / line_height && !(slider & VERTICAL)) {
+      slider |= VERTICAL ;
+      input_height -= slider_width ;
+    }
+
+  } else {              // with line wrapping
+    int narrow_numlines, narrow_maxwidth ;
+    char *narrow = wrapText(input_width - slider_width, &narrow_numlines, &narrow_maxwidth) ;
+
+    int wide_numlines, wide_maxwidth ;
+    char *wide = wrapText(input_width, &wide_numlines, &wide_maxwidth) ;
+
+    if ( wide_maxwidth > input_width ) {
+      slider |= HORIZONTAL ;
+      input_height -= slider_width ;
+    }
+    if ( wide_numlines > input_height / line_height ) {
+      slider |= VERTICAL ;
+      input_width -= slider_width ;
+    }
+    if ( narrow_maxwidth > input_width && !( slider & HORIZONTAL ) ) {
+      slider |= HORIZONTAL ;
+      input_height -= slider_width ;
+    }
+    if ( narrow_numlines > input_height / line_height && !(slider & VERTICAL ) ) {
+      slider |= VERTICAL ;
+      input_height -= slider_width ;
+    }
+
+    delete [] displayed_text ;
+    if ( slider & VERTICAL ) {
+      displayed_text = narrow ;
+      num_lines = narrow_numlines ;
+      max_width = narrow_maxwidth ;
+      delete [] wide ;
+
+    } else {
+      displayed_text = wide ;
+      num_lines = wide_numlines ;
+      max_width = wide_maxwidth ;
+      delete [] narrow ;
+    }
   }
 
-  right_slider->setSliderFraction ( float(box_height) / num_lines ) ;
-  right_slider->setValue ( 1.0f - float(top_line_in_window) / num_lines ) ;
+  lines_in_window = input_height / line_height ;
+
+  // horizontal slider
+  if ( bottom_slider ) {
+    bottom_slider->setSize ( w - ( slider & VERTICAL ? slider_width : 0 ), slider_width ) ;
+    bottom_slider->setSliderFraction ( float(input_width) / max_width ) ;
+    if ( slider & HORIZONTAL )
+      bottom_slider->reveal () ;
+    else
+      bottom_slider->hide () ;
+  }
+
+  // vertical slider
+  right_slider->setPosition ( w - slider_width, slider & HORIZONTAL ? slider_width : 0 ) ;
+  right_slider->setSize ( slider_width, h - ( slider & HORIZONTAL ? slider_width : 0 ) ) ;
+  right_slider->setSliderFraction ( float(lines_in_window) / num_lines ) ;
+  if ( slider & VERTICAL )
+    right_slider->reveal () ;
+  else
+    right_slider->hide () ;
+
+  if ( top_line_in_window + lines_in_window > num_lines )
+      top_line_in_window = num_lines - lines_in_window ;
+
+  float val = 0.0;
+  if ( num_lines > lines_in_window )
+      val = 1.0f - float(top_line_in_window) / (num_lines - lines_in_window ) ;
+  right_slider->setValue (val) ;
+
+  plug->setPosition ( w - slider_width, 0 ) ;
+  if ( slider == BOTH )
+    plug->reveal () ;
+  else
+    plug->hide () ;
 }
 
 void puaLargeInput::setSelectRegion ( int s, int e )
 {
   select_start_position = s ;
   select_end_position   = e ;
-  char *lin_ptr = ( bottom_slider ? getStringValue () : getDisplayedText () ) ;
+  char *lin_ptr = getText() ;
   char *text_start = lin_ptr ;
 
   if ( num_lines > lines_in_window )
@@ -180,8 +265,8 @@ void puaLargeInput::setSelectRegion ( int s, int e )
 
 void  puaLargeInput::selectEntireLine ( void )
 {
-  char *temp_text = ( bottom_slider ? getStringValue () : getDisplayedText () ) ;
-   
+  char *temp_text = getText() ;
+
   if ( select_start_position < 0 )
       select_start_position = 0 ;
 
@@ -298,64 +383,31 @@ void  puaLargeInput::removeText ( int start, int end )
   delete [] temp_text ;
 }
 
-void  puaLargeInput::setValue ( const char *s )
+void puaLargeInput::setValue ( const char *s )
 {
-  if ( s == NULL )
-  {
+  if (!s || !*s) {
     puValue::setValue ( "\n" ) ;
-    num_lines = 0 ;
     cursor_position = select_start_position = select_end_position = 0 ;
-    setSliders () ;
-    return ;
-  }
 
-  int s_len = strlen ( s ) ;
-  int length = s_len + 2 ;
-  if ( ( s_len > 0 ) && ( *(s+s_len-1) == '\n' ) )
-    length -- ;  /* Already have a trailing carriage return, don't need to add one */
+  } else {
+    int len = strlen(s);
+    if (s[len - 1] == '\n') {
+      puValue::setValue ( s ) ;
 
-  char *text = new char [ length ] ;
-  memcpy ( text, s, s_len + 1 ) ;  /* Plus one to get the final '\0' */
-  if ( ( s [ 0 ] == '\0' ) || ( *(s+s_len-1) != '\n' ) )
-    strcpy ( text + s_len, "\n" ) ;
-
-  puValue::setValue ( text ) ;
-  delete [] text ;
-
-  // Find the greatest width of a line
-  max_width = 0 ;
-
-  float line_width = 0.0f ;       // Width of current line
-  if ( !bottom_slider ) wrapText () ;
-  char *this_char = ( bottom_slider ? getStringValue () : getDisplayedText () ) ;   // Pointer to character in text
-
-  num_lines = 0 ;
-
-  while ( *this_char != '\0' )
-  {
-    char *line_end = strchr ( this_char, '\n' ) ;
-    if ( line_end )  // Found an end-of-line
-    {
-      *line_end = '\0' ;  // Temporary break in line
-      line_width = legendFont.getFloatStringWidth ( this_char ) ;
-      *line_end = '\n' ;  // Reset the carriage return
-
-      if ( max_width < line_width )
-        max_width = line_width ;
-
-      num_lines++ ;                 // Increment line counter
-
-      this_char = line_end + 1 ;
+    } else {
+      char *buf = new char [ len + 2 ] ;
+      strcpy ( buf, s ) ;
+      strcat ( buf, "\n" ) ;
+      puValue::setValue ( buf ) ;
+      delete [] buf ;
     }
-    else  // No carriage return.  Since a carriage return should be the last character,
-      this_char++ ;        // we should not get here.
   }
 
-  if ( max_width < line_width )
-    max_width = line_width ;
+  if ( bottom_slider )
+    getTextProperties ( &num_lines, &max_width ) ;
 
+  updateGeometry () ;
   normalizeCursors () ;
-  setSliders () ;
 }
 
 
@@ -365,10 +417,10 @@ void puaLargeInput::draw ( int dx, int dy )
   normalizeCursors () ;
 
   // 3D Input boxes look nicest if they are always in inverse style.
-
   abox.draw ( dx, dy, ( (style==PUSTYLE_SMALL_BEVELLED ||
                          style==PUSTYLE_SMALL_SHADED) ) ? -style :
                         (accepting ? -style : style ), colour, FALSE, border_thickness ) ;
+  plug->draw ( abox.min[0] + dx, abox.min[1] + dy ) ;
 
   if ( r_cb )
     r_cb ( this, dx, dy, render_data ) ;
@@ -379,44 +431,36 @@ void puaLargeInput::draw ( int dx, int dy )
     int xwidget = abox.min[0] + dx ;
     int ywidget = abox.min[1] + dy ;
 
-    int line_size = legendFont.getStringHeight () +         // Height of a line
-                    legendFont.getStringDescender() + 1 ;   // of text, in pixels
-
-    int xx = int(legendFont.getFloatStringWidth ( " " )) ;
-    int yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f ) ;
-
-    int box_width = abox.max[0] - abox.min[0] - slider_width - xx - xx ;    // Input box width, in pixels
-    int box_height = ( abox.max[1] - abox.min[1] - (bottom_slider?slider_width:0) - 1
-                     - legendFont.getStringHeight () * 0.5f ) / line_size ; // Input box height, in lines
+    int xx = hgap;
+    int yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap ) ;
 
     float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0f ;
 
     int beg_pos      // Position in window of start of line, in pixels
-                = int(( box_width - max_width ) * bottom_value ) ;
+                = int(( input_width - max_width ) * bottom_value ) ;
 ////  int end_pos      // Position in window of end of line, in pixels
 ////              = beg_pos + max_width - 1 ;
     if ( top_line_in_window < 0 ) top_line_in_window = 0 ;
     int end_lin      // Position on line count of bottom of window, in lines
-                = top_line_in_window + box_height ;
+                = top_line_in_window + lines_in_window ;
 
-    char *val = bottom_slider ? getStringValue () : getDisplayedText () ;
+    char *val = getText () ;
 
     // Highlight the select area
 
-    if ( select_end_position > 0 &&
-          select_end_position != select_start_position )    
+    if ( select_end_position > 0 && select_end_position != select_start_position )
     {
        // First:  find the positions on the window of the selection start and end
 
        char temp_char = val[ select_start_position ] ;
        val [ select_start_position ] = '\0' ;
 
-       xx = dx + abox.min[0] + int(legendFont.getFloatStringWidth ( " " )) ;
-       yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f
-               + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
+       xx = dx + abox.min[0] + hgap ;
+       yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap
+               + top_line_in_window * line_height ) ;   // Offset y-coord for unprinted lines
 
        char *end_of_line = strchr ( val, '\n' ) ;
-       char *start_of_line = val;
+       char *start_of_line = val ;
 
        // Step down the lines until you reach the line with the selection start
 
@@ -426,7 +470,7 @@ void puaLargeInput::draw ( int dx, int dy )
        {
          select_start_line++ ;
          start_of_line = end_of_line + 1 ;
-         yy -= line_size ;
+         yy -= line_height ;
          end_of_line = strchr ( start_of_line, '\n' ) ;
        }
 
@@ -460,7 +504,7 @@ void puaLargeInput::draw ( int dx, int dy )
 
        // Now draw the selection area.
 
-       for ( int line_count = select_start_line ; ( ( line_count <= select_end_line ) && ( line_count <= end_lin ) ) ;
+       for ( int line_count = select_start_line ; ( ( line_count <= select_end_line ) && ( line_count < end_lin ) ) ;
                  line_count++ )
        {
          if ( line_count >= top_line_in_window )
@@ -488,11 +532,11 @@ void puaLargeInput::draw ( int dx, int dy )
            glRecti ( x_start, bot, x_end, top ) ;
          }
 
-         yy -= line_size ;
+         yy -= line_height ;
          if ( line_count == end_lin ) break ;
        }
      }
-    
+
 
     // Draw the text
 
@@ -507,16 +551,15 @@ void puaLargeInput::draw ( int dx, int dy )
                     colour [ PUCOL_LEGEND ][2],
                     colour [ PUCOL_LEGEND ][3] / 2.0f ) ; // 50% more transparent
 
-      char *val ;                   // Pointer to the actual text in the box
-      val = bottom_slider ? getStringValue () : getDisplayedText () ;
+      char *val = getText () ;                     // Pointer to the actual text in the box
 
       if ( val )
       {
         char *end_of_line = strchr (val, '\n') ;
         int line_count = 0;
 
-        xx = int(legendFont.getFloatStringWidth ( " " )) ;
-        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f ) ;
+        xx = hgap;
+        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap ) ;
 
         while ( end_of_line )  // While there is a carriage return in the string
         {
@@ -525,7 +568,7 @@ void puaLargeInput::draw ( int dx, int dy )
             val = end_of_line + 1 ;
             end_of_line = strchr (val, '\n') ;     // Just go to the next line
           }
-          else if ( line_count < end_lin )        // Within the window, draw it
+          else if ( line_count < end_lin )         // Within the window, draw it
           {
             char temp_char = *end_of_line ;   // Temporary holder for last char on line
 
@@ -541,7 +584,7 @@ void puaLargeInput::draw ( int dx, int dy )
                 char * firstonright = end_of_line ;
                 int leftpos = start_pos ;
                 int rightpos = end_pos ;
-                while ( lastonleft < firstonright - 1 ) 
+                while ( lastonleft < firstonright - 1 )
                 {
                     int chpos = -leftpos * ( firstonright - lastonleft ) / ( rightpos - leftpos ) + 1;
                     if ( chpos >= firstonright - lastonleft ) chpos = firstonright - lastonleft - 1 ;
@@ -578,7 +621,7 @@ void puaLargeInput::draw ( int dx, int dy )
                 }
             }
 
-            while ( end_pos > box_width )  // Step up the line until it is in the window
+            while ( end_pos > input_width )  // Step up the line until it is in the window
             {
               *end_of_line = temp_char ;
               end_of_line-- ;
@@ -597,7 +640,7 @@ void puaLargeInput::draw ( int dx, int dy )
             if ( temp_char != '\n' )               // If we had to step up from the end of
               end_of_line = strchr (val, '\n') ;   // the line, go back to the actual end
 
-            yy -= line_size ;
+            yy -= line_height ;
             val = end_of_line + 1 ;
             end_of_line = strchr (val, '\n') ;     // On to the next line
           }
@@ -611,9 +654,8 @@ void puaLargeInput::draw ( int dx, int dy )
     }
 
     if ( accepting )
-    { 
-      char *val ;                   // Pointer to the actual text in the box
-      val = bottom_slider ? getStringValue () : getDisplayedText () ;
+    {
+      char *val = getText () ;                     // Pointer to the actual text in the box
 
       // Draw the 'I' bar cursor.
 
@@ -622,9 +664,9 @@ void puaLargeInput::draw ( int dx, int dy )
         char temp_char = val[ cursor_position ] ;
         val [ cursor_position ] = '\0' ;
 
-        xx = int(legendFont.getFloatStringWidth ( " " )) ;
-        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () * 1.5f )
-                + top_line_in_window * line_size ;   // Offset y-coord for unprinted lines
+        xx = hgap ;
+        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap )
+                + top_line_in_window * line_height ;   // Offset y-coord for unprinted lines
 
         char *end_of_line = strchr ( val, '\n' ) ;
         char *start_of_line = val ;
@@ -637,14 +679,14 @@ void puaLargeInput::draw ( int dx, int dy )
         {
           line_count++ ;
           start_of_line = end_of_line + 1 ;
-          yy -= line_size ;
+          yy -= line_height ;
           end_of_line = strchr ( start_of_line, '\n' ) ;
         }
 
         if ( ( line_count > top_line_in_window ) && ( line_count <= end_lin ) )
         {
           int begpos      // Position in window of start of line, in pixels
-                    = int( ( box_width - max_width ) * bottom_value ) ;
+                    = int( ( input_width - max_width ) * bottom_value ) ;
           int cpos = int( legendFont.getFloatStringWidth ( start_of_line ) + xx +
                      abox.min[0] + begpos ) ;
           int top = int( abox.min[1] + yy + legendFont.getStringHeight () ) ;
@@ -713,7 +755,7 @@ void puaLargeInput::doHit ( int button, int updown, int x, int y )
   }
 
   if ( updown != PU_DRAG )
-    puMoveToLast ( this );
+    puMoveToLast ( this ) ;
 
   if ( button == active_mouse_button )
   {
@@ -721,36 +763,27 @@ void puaLargeInput::doHit ( int button, int updown, int x, int y )
 
     // Text and window parameters:
 
-    int line_size = legendFont.getStringHeight () +         // Height of a line
-                    legendFont.getStringDescender() + 1 ;  // of text, in pixels
-
-    int box_width = abox.max[0] - abox.min[0] - slider_width ;   // Input box width, in pixels
-//  int box_height = ( abox.max[1] - abox.min[1] ) / line_size ;
-                                               // Input box height, in lines
-
     float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0f ;
 
     int beg_pos      // Position in window of start of line, in pixels
-                = int( ( box_width - max_width ) * bottom_value ) ;
+                = int( ( input_width - max_width ) * bottom_value ) ;
 //  int end_pos      // Position in window of end of line, in pixels
 //              = (int)( beg_pos + max_width - 1 ) ;
     if ( top_line_in_window < 0 ) top_line_in_window = 0 ;
 //  int end_lin      // Position on line count of bottom of window, in lines
-//              = top_line_in_window + box_height - 1 ;
+//              = top_line_in_window + lines_in_window - 1 ;
 
 //  int xx = legendFont.getStringWidth ( " " ) ;
-    int yy = int( abox.max[1] - legendFont.getStringHeight () * 1.5f
-            + top_line_in_window * line_size ) ;   // Offset y-coord for unprinted lines
+    int yy = int( abox.max[1] - legendFont.getStringHeight () - vgap
+            + top_line_in_window * line_height ) ;   // Offset y-coord for unprinted lines
 
     // Get the line number and position on the line of the mouse
-
-    char *strval = bottom_slider ? getStringValue () : getDisplayedText () ;
-    char *tmpval = ulStrDup ( strval ) ;
+    char *tmpval = ulStrDup ( getText() ) ;
 
     int i = strlen ( tmpval ) ;
 
     char *end_of_line = strchr ( tmpval, '\n' ) ;
-    char *start_of_line = tmpval;
+    char *start_of_line = tmpval ;
 
     // Step down the lines until the y-coordinate is less than the mouse
 
@@ -760,7 +793,7 @@ void puaLargeInput::doHit ( int button, int updown, int x, int y )
     {
       line_count++ ;
       start_of_line = end_of_line + 1 ;
-      yy -= line_size ;
+      yy -= line_height ;
       end_of_line = strchr ( start_of_line, '\n' ) ;
     }
 
@@ -845,7 +878,7 @@ int puaLargeInput::checkKey ( int key, int updown )
   normalizeCursors () ;
 
   //char *old_text = getStringValue () ;
-  char *old_text = bottom_slider ? getStringValue () : getDisplayedText () ;
+  char *old_text = getText () ;
   int lines_in_window = getLinesInWindow () ;  /* Added lines_in_window and num_lines to allow for "END" */
   int num_lines = getNumLines () ;             /* and PGUP/DOWN to work properly        - JCJ 20 Jun 2002 */
   int line_width = 0 ;                         /* Width of current line (for bottomslider) */
@@ -853,7 +886,6 @@ int puaLargeInput::checkKey ( int key, int updown )
   int prev_line_width = 0 ;                    /* Width of previous line (for left mouse arrow) */
   int i = 1;                                   /* Happy useful variable */
   int line_counter = 0 ;                       /* Happy useful variable #2 */
-  int box_width = abox.max[0] - abox.min[0] - slider_width ;   /* Text box width */
   int tmp_cursor_position = cursor_position ;  /* Temporary cursor position for counting without moving the cursor */
   int bottom_line_in_window = 0;                  /* # of bottom line in window */
   int current_line_in_window = 0;                 /* Current line # in window */
@@ -871,7 +903,7 @@ int puaLargeInput::checkKey ( int key, int updown )
     /*Find the length of the current line*/
     while ( ( old_text [ tmp_cursor_position ] != '\n' ) &&
              ( tmp_cursor_position > 0) )
-      tmp_cursor_position-- ;          
+      tmp_cursor_position-- ;
   
     strcpy ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
     if ( bottom_slider )
@@ -889,15 +921,15 @@ int puaLargeInput::checkKey ( int key, int updown )
     }
 
     /* Now find the length of the previous line */
-    tmp_cursor_position-- ;          
+    tmp_cursor_position-- ;
     while ( ( old_text [ tmp_cursor_position ] != '\n' ) &&
             ( tmp_cursor_position > 0) )
-      tmp_cursor_position-- ;          
+      tmp_cursor_position-- ;
 
     strcpy ( p, ( old_text + tmp_cursor_position + 1 ) ) ;
     if ( bottom_slider )
     {
-      line_end = strchr ( p, '\n' ) ; 
+      line_end = strchr ( p, '\n' ) ;
       if ( line_end )  /*Actually, we KNOW there's a line after this one, but hey, let's be safe, eh? - JCJ 21 Jun 2002 */
       {
         *line_end = '\0' ;  // Temporary break in line
@@ -906,7 +938,7 @@ int puaLargeInput::checkKey ( int key, int updown )
       }
     }
 
-    delete [] p  ;
+    delete [] p ;
     p = NULL ;
   }
 
@@ -917,14 +949,14 @@ int puaLargeInput::checkKey ( int key, int updown )
   case PU_KEY_PAGE_UP   :
     while ( old_text [ cursor_position ] != '\0' ) /* Move the cursor to the top of the data */
       cursor_position-- ;
-    select_start_position = select_end_position = cursor_position ; 
+    select_start_position = select_end_position = cursor_position ;
     setTopLineInWindow ( top_line_in_window - lines_in_window + 2 ) ;
     right_slider->setValue (1.0f - float(top_line_in_window) / num_lines ) ;
     break;
   case PU_KEY_PAGE_DOWN :
     while ( old_text [ cursor_position ] != '\0' ) /* Move the cursor to the end of the data */
       cursor_position++ ;
-    select_start_position = select_end_position = cursor_position ; 
+    select_start_position = select_end_position = cursor_position ;
     setTopLineInWindow ( top_line_in_window + lines_in_window - 2 ) ; /* Plus two for consistency - JCJ 20 Jun 2002 */
     right_slider->setValue (1.0f - float(top_line_in_window) / num_lines ) ;
     break;
@@ -980,7 +1012,6 @@ int puaLargeInput::checkKey ( int key, int updown )
           setTopLineInWindow ( top_line_in_window + 1 ); /* Go down - JCJ 21 Jun 2002 */
           right_slider->setValue (1.0f - float(top_line_in_window) / num_lines ) ;
       }
-          
     }
 
     select_start_position = select_end_position = cursor_position ;
@@ -1004,7 +1035,7 @@ int puaLargeInput::checkKey ( int key, int updown )
   case PU_KEY_END    :
     if (bottom_slider)
     {
-      bottom_slider->setValue ( ( (line_width - box_width)<0 ) ? 0.0f : float(line_width+10) / max_width);
+      bottom_slider->setValue ( ( (line_width - input_width)<0 ) ? 0.0f : float(line_width+10) / max_width);
     }
     while ( old_text [ cursor_position ] != '\n' ) /* Move the cursor to the end of the line - JCJ 20 Jun 2002 */
       cursor_position++ ;
@@ -1015,31 +1046,31 @@ int puaLargeInput::checkKey ( int key, int updown )
   case PU_KEY_RIGHT  :
     if ( key == PU_KEY_LEFT )
       {
-	/* This stops it crashing out sometimes when wrappable text is used.
-	 * Since there is no bottom scrollbar when wrapped text is turned on, the bottom
-	 * slider code could make the application die when the user pressed the left
-	 * cursor key before they began the first line.
-	 * Fix by Simon <sickz6sickz AT hotmail DOT com> */
-	cursor_position-- ; /* Left key pressed */
-	if ( bottom_slider )
-	  {
-	    if (old_text [ cursor_position ] == '\n')
-	      bottom_slider->setValue( ( (prev_line_width - box_width)<0 ) ? 0.0f : float(prev_line_width+10) /max_width);
-	    /* If the cursor is going off the left edge of the box, scroll left. */
-	    else if ((bottom_value*max_width) > line_width_to_cursor+5) {
-	      bottom_slider->setValue( ((bottom_value*max_width)-(box_width/2)-5)<0 ? 0.0f :
-				       ((bottom_value*max_width)-(box_width/2)-5)/max_width ) ;
-	    }
-	  }
+        /* This stops it crashing out sometimes when wrappable text is used.
+         * Since there is no bottom scrollbar when wrapped text is turned on, the bottom
+         * slider code could make the application die when the user pressed the left
+         * cursor key before they began the first line.
+         * Fix by Simon <sickz6sickz AT hotmail DOT com> */
+        cursor_position-- ; /* Left key pressed */
+        if ( bottom_slider )
+          {
+            if (old_text [ cursor_position ] == '\n')
+              bottom_slider->setValue( ( (prev_line_width - input_width)<0 ) ? 0.0f : float(prev_line_width+10) /max_width);
+            /* If the cursor is going off the left edge of the box, scroll left. */
+            else if ((bottom_value*max_width) > line_width_to_cursor+5) {
+              bottom_slider->setValue( ((bottom_value*max_width)-(input_width/2)-5)<0 ? 0.0f :
+                                       ((bottom_value*max_width)-(input_width/2)-5)/max_width ) ;
+            }
+          }
       } else {
-	cursor_position++ ; /* Right key pressed */
-	if ( bottom_slider ) {
-	  if (old_text [ cursor_position-1 ] == '\n')
-	    bottom_slider->setValue(0.0f) ;
-	  else if ((bottom_value*max_width)+(box_width) < line_width_to_cursor+5) {
-	    bottom_slider->setValue( ((bottom_value*max_width)+(box_width/2)+5)/max_width ) ;
-	  }
-	}
+        cursor_position++ ; /* Right key pressed */
+        if ( bottom_slider ) {
+          if (old_text [ cursor_position-1 ] == '\n')
+            bottom_slider->setValue(0.0f) ;
+          else if ((bottom_value*max_width)+(input_width) < line_width_to_cursor+5) {
+            bottom_slider->setValue( ((bottom_value*max_width)+(input_width/2)+5)/max_width ) ;
+          }
+        }
       }
     select_start_position = select_end_position = cursor_position ;
     break ;
@@ -1150,13 +1181,13 @@ int puaLargeInput::checkKey ( int key, int updown )
       memcpy ( p, old_text, cursor_position ) ;
 
       p [ cursor_position ] = key ;
-     
+
       strcpy ( p + cursor_position + 1, ( old_text + cursor_position ) ) ;
       bottom_line_in_window = top_line_in_window + getLinesInWindow() ;
 
       /* If running off the screen, scroll right. - JCJ 28 Jun 2002 */
-      if ((bottom_value*max_width)+(box_width) < line_width_to_cursor+5) {
-          bottom_slider->setValue( ((bottom_value*max_width)+(box_width/2)+5)/max_width ) ;
+      if ((bottom_value*max_width)+(input_width) < line_width_to_cursor+5) {
+          bottom_slider->setValue( ((bottom_value*max_width)+(input_width/2)+5)/max_width ) ;
       }
 
       if (key == '\n') {
@@ -1167,7 +1198,7 @@ int puaLargeInput::checkKey ( int key, int updown )
           }
       /* If hitting enter at the bottom of the screen, scroll down. - JCJ 28 Jun 2002 */
           if ( (current_line_in_window+1) >= bottom_line_in_window ) {
-              setTopLineInWindow ( top_line_in_window + 1 ); 
+              setTopLineInWindow ( top_line_in_window + 1 );
               right_slider->setValue (1.0f - float(top_line_in_window) / num_lines ) ;
           }
       }
@@ -1184,14 +1215,32 @@ int puaLargeInput::checkKey ( int key, int updown )
   return TRUE ;
 }
 
-void puaLargeInput::wrapText ( void )
+void puaLargeInput::getTextProperties(int *numlines, int *maxwidth)
 {
-  // Wrap the text in "text" and put it in "displayed_text"
+  int num = 0, max = 0 ;
+  char *s = ulStrDup ( getStringValue () ) ;
+  while ( *s ) {
+    char *cr = strchr ( s, '\n' ) ;
+    if ( cr )
+      *cr = '\0' ;
+    int w = legendFont.getStringWidth (s) ;
+    if ( w > max )
+      max = w ;
+    num++ ;
+    if ( cr )
+      s = ++cr ;
+  }
+  *numlines = num ;
+  *maxwidth = max ;
+}
 
-  delete [] displayed_text ;
-  displayed_text = ulStrDup ( getStringValue () ) ;
+char *puaLargeInput::wrapText ( int target_width, int *numlines, int *maxwidth )
+{
+  char *buf = ulStrDup ( getStringValue () ) ;
+  int numl = 0 ;
+  int maxw = 0 ;
 
-  char *displayed_text_wp = displayed_text,
+  char *displayed_text_wp = buf,
        *space_ptr,
        *old_space_ptr ;
 
@@ -1206,16 +1255,11 @@ void puaLargeInput::wrapText ( void )
       if ( space_ptr != NULL )
         *space_ptr = '\0' ;
 
-      if ( legendFont.getStringWidth ( displayed_text_wp ) >
-           (   ( abox.max[0] - abox.min[0] )
-             - slider_width
-             - PUSTR_LGAP
-             - ( getStyle () == PUSTYLE_BOXED ? getBorderThickness () : 0 )
-             - PUSTR_RGAP
-           )
-         )
+      int w = legendFont.getStringWidth ( displayed_text_wp ) ;
+      if ( w > target_width )
         break ;
 
+      if ( w > maxw ) maxw = w ;
       old_space_ptr = space_ptr ;
 
       if ( space_ptr == NULL )
@@ -1223,14 +1267,15 @@ void puaLargeInput::wrapText ( void )
         break ;
 
       // Check for carriage return in the original string
-      if ( strrchr ( displayed_text_wp, '\n' ) > displayed_text_wp )
-        displayed_text_wp = strrchr ( displayed_text_wp, '\n' ) + 1 ;
+      for (char *s = 0; (s = strchr ( displayed_text_wp, '\n' )); displayed_text_wp = s + 1)
+        numl++;
 
       *space_ptr = ' ' ;
 
       space_ptr = strchr ( space_ptr+1, ' ' ) ;
     }
 
+    numl++ ;
     if ( old_space_ptr == NULL )
     /* Either string is too wide for area, or the entire remaining portion
        of string fits in area (space_ptr == NULL). */
@@ -1250,6 +1295,9 @@ void puaLargeInput::wrapText ( void )
       displayed_text_wp = old_space_ptr + 1 ;
     }
   }
+  if (numlines) *numlines = numl ;
+  if (maxwidth) *maxwidth = maxw ;
+  return buf ;
 }
 
 
