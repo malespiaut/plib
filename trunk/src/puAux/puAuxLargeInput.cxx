@@ -216,6 +216,9 @@ void puaLargeInput::updateGeometry ( void )
   if ( top_line_in_window + lines_in_window > num_lines )
       top_line_in_window = num_lines - lines_in_window ;
 
+  if ( top_line_in_window < 0 )
+      top_line_in_window = 0 ;
+
   float val = 0.0;
   if ( num_lines > lines_in_window )
       val = 1.0f - float(top_line_in_window) / (num_lines - lines_in_window ) ;
