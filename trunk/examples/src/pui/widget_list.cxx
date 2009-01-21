@@ -629,8 +629,8 @@ int main ( int argc, char **argv )
 
   large_input = new puaLargeInput ( 10, 10, 240, 180, 2, 20 ) ;
   large_input->setLabel ( "Label" ) ;
-  large_input->setText ( "This is text in the Large Input widget.\n"
-                         "This is a second line of text" ) ;
+  large_input->setValue ( "This is text in the Large Input widget.\n"
+                          "This is a second line of text" ) ;
 
 
   combo_box_window = glutCreateWindow      ( "Combo Box window"  ) ;

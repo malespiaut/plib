@@ -408,7 +408,7 @@ int main ( int argc, char **argv )
   input = new puaLargeInput ( 440, 0, 200, 300, 1, 20, TRUE ) ;
   //input->setChildStyle ( PUCLASS_ARROW, PUSTYLE_BOXED ) ;
   //input->setChildBorderThickness ( PUCLASS_ARROW, 15 ) ;
-  input->setText ( "This is a large input box\n"
+  input->setValue( "This is a large input box\n"
                    "This is line two of a large input box\n"
                    "Line 3\n"
                    "Line 4\n"
