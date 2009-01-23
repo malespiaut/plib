@@ -1100,6 +1100,13 @@ protected:
     cb_mode = PUSLIDER_ALWAYS ;
   }
 
+  float clamp ( float f )
+  {
+    if ( f < minimum_value ) return minimum_value ;
+    else if ( f > maximum_value ) return maximum_value ;
+    return f ;
+  }
+
 public:
   puRange ()
   {
@@ -1152,7 +1159,9 @@ class puSlider : public puRange, public puObject
 
 protected:
   int vert ;
+  int start_offset ;
   float slider_fraction ;
+  float page_step_size ;
   void draw_slider_box ( int dx, int dy, const puBox &box, float val, const char *box_label = NULL ) ;
 
   void puSlider_init ( int vertical )
@@ -1160,6 +1169,7 @@ protected:
     type |= PUCLASS_SLIDER ;
     slider_fraction = 0.1f ;
     vert = vertical ;
+    page_step_size = -1.0f ;
   }
 
 public:
@@ -1199,6 +1209,8 @@ public:
 
   void setSliderFraction ( float f ) ;
   float getSliderFraction ( void ) const { return slider_fraction ; }
+  void setPageStepSize ( float s ) { page_step_size = s ; }
+  float getPageStepSize ( void ) const { return page_step_size ; }
 } ;
 
 

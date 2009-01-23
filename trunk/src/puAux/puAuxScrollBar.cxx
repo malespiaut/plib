@@ -51,24 +51,24 @@ void puaScrollBar::draw ( int dx, int dy )
         box.min[1] = abox.max[1] - width ;
         box.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
         puDrawArrowButtonTriangle ( dx+box.min[0]+width/2, dy+box.min[1]+width/2, width, width, colour [ PUCOL_MISC ],
-                                    PUARROW_FASTUP, fast_up_arrow_active ) ;
+                                    PUARROW_FASTUP, active_arrow & FASTUP ) ;
         box.min[1] = abox.min[1] ;
         box.max[1] = box.min[1] + width ;
         box.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
         puDrawArrowButtonTriangle ( dx+box.min[0]+width/2, dy+box.min[1]+width/2, width, width, colour [ PUCOL_MISC ],
-                                    PUARROW_FASTDOWN, fast_down_arrow_active ) ;
+                                    PUARROW_FASTDOWN, active_arrow & FASTDOWN ) ;
       }
       else
       {
         box.min[0] = abox.max[0] - width ;
         box.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
         puDrawArrowButtonTriangle ( dx+box.min[0]+width/2, dy+box.min[1]+width/2, width, width, colour [ PUCOL_MISC ],
-                                    PUARROW_FASTRIGHT, fast_up_arrow_active ) ;
+                                    PUARROW_FASTRIGHT, active_arrow & FASTUP ) ;
         box.min[0] = abox.min[0] ;
         box.max[0] = box.min[0] + width ;
         box.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
         puDrawArrowButtonTriangle ( dx+box.min[0]+width/2, dy+box.min[1]+width/2, width, width, colour [ PUCOL_MISC ],
-                                    PUARROW_FASTLEFT, fast_down_arrow_active ) ;
+                                    PUARROW_FASTLEFT, active_arrow & FASTDOWN ) ;
       }
     }
 
@@ -80,12 +80,12 @@ void puaScrollBar::draw ( int dx, int dy )
         box.max[1] = box.min[1] + width ;
         box.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
         puDrawArrowButtonTriangle ( dx+box.min[0]+width/2, dy+box.min[1]+width/2, width, width, colour [ PUCOL_MISC ],
-                                    PUARROW_UP, up_arrow_active ) ;
+                                    PUARROW_UP, active_arrow & UP ) ;
         box.max[1] = abox.min[1] + arrow_count * width ;
         box.min[1] = box.max[1] - width ;
         box.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
         puDrawArrowButtonTriangle ( dx+box.min[0]+width/2, dy+box.min[1]+width/2, width, width, colour [ PUCOL_MISC ],
-                                    PUARROW_DOWN, down_arrow_active ) ;
+                                    PUARROW_DOWN, active_arrow & DOWN ) ;
       }
       else
       {
@@ -93,12 +93,12 @@ void puaScrollBar::draw ( int dx, int dy )
         box.max[0] = box.min[0] + width ;
         box.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
         puDrawArrowButtonTriangle ( dx+box.min[0]+width/2, dy+box.min[1]+width/2, width, width, colour [ PUCOL_MISC ],
-                                    PUARROW_RIGHT, up_arrow_active ) ;
+                                    PUARROW_RIGHT, active_arrow & UP ) ;
         box.max[0] = abox.min[0] + arrow_count * width ;
         box.min[0] = box.max[0] - width ;
         box.draw ( dx, dy, style, colour, FALSE, border_thickness ) ;
         puDrawArrowButtonTriangle ( dx+box.min[0]+width/2, dy+box.min[1]+width/2, width, width, colour [ PUCOL_MISC ],
-                                    PUARROW_LEFT, down_arrow_active ) ;
+                                    PUARROW_LEFT, active_arrow & DOWN ) ;
       }
     }
 
@@ -139,92 +139,121 @@ void puaScrollBar::doHit ( int button, int updown, int x, int y )
   if ( updown != PU_DRAG )
     puMoveToLast ( this );
 
-  if ( ( button == active_mouse_button ) && ( updown == PU_UP ) )
+  if ( button != active_mouse_button )
+    return;
+
+  if ( updown == PU_UP )
   {
+    active_arrow = NONE ;
     puDeactivateWidget () ;
     return ;
   }
 
-  if ( button == active_mouse_button )
-  {
-    int width = isVertical () ? abox.max[0] - abox.min[0] : abox.max[1] - abox.min[1] ;
+  int sd = isVertical() ;
+  int coord = sd ? y : x ;
+  float range = maximum_value - minimum_value ;
+  float last_value = clamp ( getFloatValue () ), next_value = last_value ;
+  float norm_value = ( last_value - minimum_value ) / range ;
+  int width = abox.max[!sd] - abox.min[!sd] ;
+  int box_len = abox.max [sd] - abox.min [sd] - arrow_count * width * 2 ;
 
-    float next_value = getFloatValue () ;
-    float step = getStepSize () ;
-    if ( step == 0.0f ) step = ( getMaxValue () - getMinValue () ) / 10.0f ;
+  if ( updown == PU_DOWN ) {
+    int lower = abox.min [sd] + int(float(box_len) * (1.0 - slider_fraction) * norm_value)
+                + arrow_count * width ;
+    int upper = lower + int(float(box_len) * slider_fraction) ;  // upper/lower slider margin in pixels
 
-    /* Check for hitting a button */
+    float line_step = step_size ;
+    float page_step = page_step_size ;
+    if ( line_step <= 0.0f ) line_step = range / 10.0f ;
+    if ( page_step <= 0.0f ) page_step = range ;
 
-    int sd = isVertical() ;
-    int coord = ( isVertical() ? y : x ) ;
-
-    if( arrow_count == 2 )
-    {
-      if ( coord < abox.min[sd] + width )  /* Fast down button */
-        next_value -= 10.0f * step ;
-
-      if ( coord > abox.max[sd] - width )  /* Fast up button */
-        next_value += 10.0f * step ;
-    }
-
-    if ( arrow_count > 0 )
-    {
-      if ( ( coord < abox.min[sd] + arrow_count*width ) && ( coord > abox.min[sd] + (arrow_count-1)*width ) )  /* Down button */
-        next_value -= step ;
-
-      if ( ( coord > abox.max[sd] - arrow_count*width ) && ( coord < abox.max[sd] - (arrow_count-1)*width ) )  /* Down button */
-        next_value += step ;
-    }
-
-    /* Check for hitting the slider bar */
-
-    if ( ( coord > abox.min[sd]+arrow_count*width ) && ( coord < abox.max[sd]-arrow_count*width ) )
-    {
-      int sz = abox.max [sd] - abox.min [sd] - 2 * arrow_count * width ;
-
-      if ( sz <= 0 )
-        next_value = 0.5f ;
-      else
-      {
-        next_value = ( float(coord - arrow_count * width - abox.min[sd]) - float(sz) * slider_fraction / 2.0f ) /
-                     ( float(sz) * (1.0f - slider_fraction) ) ;
+    start_offset = -1 ;
+    if ( arrow_count && coord < abox.min[sd] + width ) {                 // lowest button
+      if (arrow_count == 2) {
+        next_value -= page_step ;
+        active_arrow |= FASTDOWN ;
+      } else {
+        next_value -= line_step ;
+        active_arrow |= DOWN ;
       }
 
-      next_value = (next_value < 0.0f) ? 0.0f : (next_value > 1.0f) ? 1.0f : next_value ;
-      next_value = getMinValue () + next_value * ( getMaxValue () - getMinValue () ) ;
+    } else if ( arrow_count == 2 && coord < abox.min[sd] + 2 * width ) { // 2nd low button
+      next_value -= line_step ;
+      active_arrow |= DOWN ;
+
+    } else if ( arrow_count && coord > abox.max[sd] - width ) {          // highest button
+      if (arrow_count == 2) {
+        next_value += page_step ;
+        active_arrow |= FASTUP ;
+      } else {
+        next_value += line_step ;
+        active_arrow |= UP ;
+      }
+
+    } else if ( arrow_count == 2 && coord > abox.max[sd] - 2 * width ) { // 2nd high button
+      next_value += line_step ;
+      active_arrow |= UP ;
+
+    } else if ( page_step_size < 0.0f ) {                                // old slider behavior (jumping)
+      start_offset = int(float(box_len) * slider_fraction * 0.5f) + 2 * arrow_count * width ;
+      updown = PU_DRAG ;
+
+    } else if (coord < lower) {                                          // lower background
+      next_value -= page_step ;
+
+    } else if (coord > upper) {                                          // upper background
+      next_value += page_step ;
+
+    } else {                                                             // slider handle (new behavior)
+      start_offset = coord + arrow_count * width - abox.min [sd]
+                     - int(float(box_len) * (1.0f - slider_fraction) * norm_value) ;
+      puSetActiveWidget ( this, x, y ) ;
+      return;
     }
+  }
 
-    if ( next_value < getMinValue () ) next_value = getMinValue () ;
-    if ( next_value > getMaxValue () ) next_value = getMaxValue () ;
-    setValue ( checkStep (next_value) );
-    
-    switch ( cb_mode )
-    {
-      case PUSLIDER_CLICK :
-        if ( updown == active_mouse_edge )
-        {
-	  last_cb_value = next_value ;
-    puSetActiveWidget ( this, x, y ) ;
-	  invokeCallback () ;
-        }
-        break ;
-
-      case PUSLIDER_DELTA : /* Deprecated! */
-        if ( fabs ( last_cb_value - next_value ) >= cb_delta )
-        {
-	  last_cb_value = next_value ;
-    puSetActiveWidget ( this, x, y ) ;
-	  invokeCallback () ;
-        }
-        break ;
-
-      case PUSLIDER_ALWAYS :
-      default :
-        last_cb_value = next_value ;
-        puSetActiveWidget ( this, x, y ) ;
-        invokeCallback () ;
-        break ;
+  if ( updown == PU_DRAG && start_offset >= 0 ) {
+    if ( box_len == 0 ) {
+      norm_value = 0.5f ;
+    } else if ( slider_fraction >= 1.0f ) {
+      norm_value = 0 ;
+    } else {
+      norm_value = ( coord + arrow_count * width - abox.min[sd] - start_offset )
+                   / ( box_len * (1.0f - slider_fraction) ) ;
     }
+    next_value = norm_value * range + minimum_value ;
+  }
+
+  setValue ( checkStep ( clamp ( next_value ) ) ) ;
+
+  if ( next_value == last_value ) return ;
+
+  switch ( cb_mode )
+  {
+    case PUSLIDER_CLICK :
+      if ( updown == active_mouse_edge )
+      {
+  last_cb_value = next_value ;
+  puSetActiveWidget ( this, x, y ) ;
+  invokeCallback () ;
+      }
+      break ;
+
+    case PUSLIDER_DELTA : /* Deprecated! */
+      if ( fabs ( last_cb_value - next_value ) >= cb_delta )
+      {
+  last_cb_value = next_value ;
+  puSetActiveWidget ( this, x, y ) ;
+  invokeCallback () ;
+      }
+      break ;
+
+    case PUSLIDER_ALWAYS :
+    default :
+      last_cb_value = next_value ;
+      puSetActiveWidget ( this, x, y ) ;
+      invokeCallback () ;
+      break ;
   }
 }
 
