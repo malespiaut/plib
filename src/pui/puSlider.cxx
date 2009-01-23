@@ -113,63 +113,91 @@ void puSlider::doHit ( int button, int updown, int x, int y )
   if ( updown != PU_DRAG )
     puMoveToLast ( this );
 
-  if ( ( button == active_mouse_button ) && ( updown == PU_UP ) )
+  if ( button != active_mouse_button )
+    return ;
+
+  if ( updown == PU_UP )
   {
     puDeactivateWidget () ;
     return ;
   }
 
-  if ( button == active_mouse_button )
-  {
-    int sd = isVertical() ;
-    int sz = abox.max [sd] - abox.min [sd] ;
-    int coord = isVertical() ? y : x ;
+  int sd = isVertical() ;
+  int coord = sd ? y : x ;
+  float range = maximum_value - minimum_value ;
+  float last_value = clamp ( getFloatValue () );
+  float next_value = last_value ;
+  float norm_value = ( next_value - minimum_value ) / range ;
+  int box_len = abox.max [sd] - abox.min [sd] ;
 
-    float next_value ;
+  if ( updown == PU_DOWN ) {
+    int lower = abox.min [sd] + int(float(box_len) * (1.0 - slider_fraction) * norm_value) ;
+    int upper = lower + int(float(box_len) * slider_fraction) ;  // upper/lower slider margin in pixels
 
-    if ( sz == 0 )
-      next_value = 0.5f ;
-    else
-    {
-      if ( slider_fraction >= 1.0f )
-        next_value = 0 ;
-      else
-        next_value = ( (float)coord - (float)abox.min[sd] - (float)sz * slider_fraction / 2.0f ) /
-                     ( (float) sz * (1.0f - slider_fraction) ) ;
+    float line_step = getStepSize () ;
+    float page_step = getPageStepSize () ;
+    if ( line_step == 0.0f ) line_step = range / 10.0f ;
+    if ( page_step == 0.0f ) page_step = slider_fraction * range + minimum_value ;
+
+    start_offset = -1 ;
+    if ( page_step_size < 0.0f ) {      // old slider behavior
+      start_offset = int(float(box_len) * slider_fraction * 0.5f) ;
+      updown = PU_DRAG ;
+
+    } else if ( coord < lower ) {
+      next_value -= page_step ;
+
+    } else if ( coord > upper ) {
+      next_value += page_step ;
+
+    } else {                            // new slider behavior
+      start_offset = coord - abox.min [sd] - int(float(box_len) * (1.0 - slider_fraction) * norm_value) ;
+      puSetActiveWidget ( this, x, y ) ;
+      return;
     }
+  }
 
-    next_value = (next_value < 0.0f) ? 0.0f : (next_value > 1.0f) ? 1.0f : next_value ;
-    next_value = next_value * ( maximum_value - minimum_value ) + minimum_value ;
+  if ( updown == PU_DRAG && start_offset >= 0 ) {
+    if ( box_len == 0 ) {
+      norm_value = 0.5f ;
+    } else if ( slider_fraction >= 1.0f ) {
+      norm_value = 0 ;
+    } else {
+      norm_value = ( coord - abox.min[sd] - start_offset ) / ( box_len * (1.0f - slider_fraction) ) ;
+    }
+    next_value = norm_value * range + minimum_value ;
+  }
 
-    setValue ( checkStep (next_value) );
+  setValue ( checkStep ( clamp ( next_value ) ) ) ;
 
-    switch ( cb_mode )
-    {
-      case PUSLIDER_CLICK :
-        if ( updown == active_mouse_edge )
-        {
-          last_cb_value = next_value ;
-          puSetActiveWidget ( this, x, y ) ;
-          invokeCallback () ;
-        }
-        break ;
+  if ( next_value == last_value ) return ;
 
-      case PUSLIDER_DELTA : /* Deprecated! */
-        if ( fabs ( last_cb_value - next_value ) >= cb_delta )
-        {
-          last_cb_value = next_value ;
-          puSetActiveWidget ( this, x, y ) ;
-          invokeCallback () ;
-        }
-        break ;
-
-      case PUSLIDER_ALWAYS :
-      default :
+  switch ( cb_mode )
+  {
+    case PUSLIDER_CLICK :
+      if ( updown == active_mouse_edge )
+      {
         last_cb_value = next_value ;
         puSetActiveWidget ( this, x, y ) ;
         invokeCallback () ;
-        break ;
-    }
+      }
+      break ;
+
+    case PUSLIDER_DELTA : /* Deprecated! */
+      if ( fabs ( last_cb_value - next_value ) >= cb_delta )
+      {
+        last_cb_value = next_value ;
+        puSetActiveWidget ( this, x, y ) ;
+        invokeCallback () ;
+      }
+      break ;
+
+    case PUSLIDER_ALWAYS :
+    default :
+      last_cb_value = next_value ;
+      puSetActiveWidget ( this, x, y ) ;
+      invokeCallback () ;
+      break ;
   }
 }
 
@@ -178,7 +206,7 @@ void puSlider::setSliderFraction ( float f )
 {
   int i = isVertical() ? 1 : 0 ;
   int sz = abox.max [i] - abox.min [i] ;  // Size of slider box, in pixels
-  float minf = 10.0f / sz ;               // fraction that makes a 10px handle
+  float minf = 8.0f / sz ;                // fraction that makes a 8px handle
 
   slider_fraction = (f<minf) ? minf : (f>1.0f) ? 1.0f : f ;
   puPostRefresh () ;

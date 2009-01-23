@@ -385,8 +385,9 @@ class puaScrollBar : public puSlider
 
 protected:
   int arrow_count ;
-  int fast_up_arrow_active, fast_down_arrow_active ;
+  int active_arrow ;
   int up_arrow_active, down_arrow_active ;
+  enum { NONE = 0, FASTDOWN = 1, DOWN = 2, UP = 4, FASTUP = 8 };
 
 public:
   void doHit ( int button, int updown, int x, int y ) ;
@@ -396,7 +397,7 @@ public:
   {
     type |= PUCLASS_SCROLLBAR ;
     arrow_count = arrows ;
-    fast_up_arrow_active = fast_down_arrow_active = up_arrow_active = down_arrow_active = FALSE ;
+    active_arrow = NONE ;
   }
 
   /* Alternate constructor which lets you explicitly set width */
@@ -406,7 +407,7 @@ public:
   {
     type |= PUCLASS_SCROLLBAR ;
     arrow_count = arrows ;
-    fast_up_arrow_active = fast_down_arrow_active = up_arrow_active = down_arrow_active = FALSE ;
+    active_arrow = NONE ;
   }
 
   void setMaxValue ( float f )
