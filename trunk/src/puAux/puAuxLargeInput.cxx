@@ -1217,7 +1217,7 @@ int puaLargeInput::checkKey ( int key, int updown )
 void puaLargeInput::getTextProperties(int *numlines, int *maxwidth)
 {
   int num = 0, max = 0 ;
-  char *s = ulStrDup ( getStringValue () ) ;
+  char *buf = ulStrDup ( getStringValue () ), *s = buf ;
   while ( *s ) {
     char *cr = strchr ( s, '\n' ) ;
     if ( cr )
@@ -1231,6 +1231,7 @@ void puaLargeInput::getTextProperties(int *numlines, int *maxwidth)
   }
   *numlines = num ;
   *maxwidth = max ;
+  delete [] buf ;
 }
 
 char *puaLargeInput::wrapText ( int target_width, int *numlines, int *maxwidth )
