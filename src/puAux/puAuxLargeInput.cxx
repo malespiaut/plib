@@ -85,11 +85,11 @@ puaLargeInput::puaLargeInput ( int x, int y, int w, int h, int arrows, int sl_wi
     bottom_slider = NULL ;
   else
   {
-    bottom_slider = new puSlider ( 0, 0, slider_width, FALSE, slider_width ) ;
+    bottom_slider = new puaScrollBar ( 0, 0, slider_width, (arrows / 10) & 3, FALSE, slider_width ) ;
     bottom_slider->setValue ( 0.0f ) ;   // All the way to the left
   }
 
-  right_slider = new puaScrollBar ( 0, 0, slider_width, arrows, TRUE, slider_width ) ;
+  right_slider = new puaScrollBar ( 0, 0, slider_width, (arrows % 10) & 3, TRUE, slider_width ) ;
   right_slider->setValue ( 1.0f ) ;    // All the way to the top
   right_slider->setUserData ( this ) ;
   right_slider->setCallback ( puaLargeInputHandleRightSlider ) ;
@@ -115,7 +115,7 @@ void puaLargeInput::setSize ( int w, int h )
 void puaLargeInput::setSliderPosition ( float fraction )
 {
   if ( num_lines > lines_in_window )
-    top_line_in_window = int( ( num_lines - lines_in_window ) * fraction ) ;
+    top_line_in_window = int ( ( num_lines - lines_in_window ) * fraction + 0.5f ) ;
   else
     top_line_in_window = 0 ;
   updateGeometry () ;
@@ -134,70 +134,52 @@ void puaLargeInput::updateGeometry ( void )
   input_width = w - hgap - hgap - frame_width ;
   input_height = h - vgap - vgap - frame_width ;
 
+  // determine which sliders are necessary
   int slider = 0 ;
-  if (bottom_slider) {  // no line wrapping
-    if (max_width > input_width) {
+  if ( bottom_slider ) {  // no line wrapping
+    if ( max_width > input_width ) {
       slider |= HORIZONTAL ;
       input_height -= slider_width ;
     }
-    if (num_lines > input_height / line_height) {
+    if ( num_lines > input_height / line_height ) {
       slider |= VERTICAL ;
       input_width -= slider_width ;
     }
-    if (max_width > input_width && !(slider & HORIZONTAL)) {
+    if ( max_width > input_width && !(slider & HORIZONTAL) ) {
       slider |= HORIZONTAL ;
       input_height -= slider_width ;
     }
-    if (num_lines > input_height / line_height && !(slider & VERTICAL)) {
+    if ( num_lines > input_height / line_height && !(slider & VERTICAL) ) {
       slider |= VERTICAL ;
       input_height -= slider_width ;
     }
 
   } else {              // with line wrapping
-    int narrow_numlines, narrow_maxwidth ;
-    char *narrow = wrapText(input_width - slider_width, &narrow_numlines, &narrow_maxwidth) ;
+    delete [] displayed_text ;
+    displayed_text = wrapText ( input_width, &num_lines, &max_width ) ;
 
-    int wide_numlines, wide_maxwidth ;
-    char *wide = wrapText(input_width, &wide_numlines, &wide_maxwidth) ;
-
-    if ( wide_maxwidth > input_width ) {
-      slider |= HORIZONTAL ;
-      input_height -= slider_width ;
-    }
-    if ( wide_numlines > input_height / line_height ) {
+    if ( num_lines > input_height / line_height ) {
       slider |= VERTICAL ;
       input_width -= slider_width ;
-    }
-    if ( narrow_maxwidth > input_width && !( slider & HORIZONTAL ) ) {
-      slider |= HORIZONTAL ;
-      input_height -= slider_width ;
-    }
-    if ( narrow_numlines > input_height / line_height && !(slider & VERTICAL ) ) {
-      slider |= VERTICAL ;
-      input_height -= slider_width ;
-    }
 
-    delete [] displayed_text ;
-    if ( slider & VERTICAL ) {
-      displayed_text = narrow ;
-      num_lines = narrow_numlines ;
-      max_width = narrow_maxwidth ;
-      delete [] wide ;
-
-    } else {
-      displayed_text = wide ;
-      num_lines = wide_numlines ;
-      max_width = wide_maxwidth ;
-      delete [] narrow ;
+      delete [] displayed_text ;
+      displayed_text = wrapText( input_width, &num_lines, &max_width ) ;
     }
   }
-
-  lines_in_window = input_height / line_height ;
 
   // horizontal slider
   if ( bottom_slider ) {
     bottom_slider->setSize ( w - ( slider & VERTICAL ? slider_width : 0 ), slider_width ) ;
     bottom_slider->setSliderFraction ( float(input_width) / max_width ) ;
+    float page_step = 1.0f, line_step = 1.0f ;
+    if ( max_width > input_width ) {
+      page_step = float(input_width) / ( max_width - input_width ) ;
+      line_step = legendFont.getFloatStringWidth( "M" ) / ( max_width - input_width ) ;
+    }
+
+    bottom_slider->setPageStepSize ( page_step ) ;
+    bottom_slider->setLineStepSize ( line_step ) ;
+
     if ( slider & HORIZONTAL )
       bottom_slider->reveal () ;
     else
@@ -205,25 +187,39 @@ void puaLargeInput::updateGeometry ( void )
   }
 
   // vertical slider
+  lines_in_window = input_height / line_height ;
+
+  // if the slider was in bottom position, make sure the last line is shown after lines were added
+  if ( right_slider->getFloatValue() <= 0.0f && right_slider->getSliderFraction() < 1.0f )
+    top_line_in_window = num_lines ;
+
+  if ( top_line_in_window + lines_in_window > num_lines )
+    top_line_in_window = num_lines - lines_in_window ;
+
+  if ( top_line_in_window < 0 )
+      top_line_in_window = 0 ;
+
   right_slider->setPosition ( w - slider_width, slider & HORIZONTAL ? slider_width : 0 ) ;
   right_slider->setSize ( slider_width, h - ( slider & HORIZONTAL ? slider_width : 0 ) ) ;
   right_slider->setSliderFraction ( float(lines_in_window) / num_lines ) ;
+  float page_step = 1.0f ;
+  if ( num_lines > lines_in_window )
+    page_step = float(lines_in_window) / ( num_lines - lines_in_window ) ;
+
+  right_slider->setPageStepSize ( page_step ) ;
+  right_slider->setLineStepSize ( page_step / lines_in_window ) ;
+
+  float val = 0.0f ;
+  if ( num_lines > lines_in_window )
+      val = 1.0f - float(top_line_in_window) / (num_lines - lines_in_window ) ;
+  right_slider->setValue (val) ;
+
   if ( slider & VERTICAL )
     right_slider->reveal () ;
   else
     right_slider->hide () ;
 
-  if ( top_line_in_window + lines_in_window > num_lines )
-      top_line_in_window = num_lines - lines_in_window ;
-
-  if ( top_line_in_window < 0 )
-      top_line_in_window = 0 ;
-
-  float val = 0.0;
-  if ( num_lines > lines_in_window )
-      val = 1.0f - float(top_line_in_window) / (num_lines - lines_in_window ) ;
-  right_slider->setValue (val) ;
-
+  // corner filler
   plug->setPosition ( w - slider_width, 0 ) ;
   if ( slider == BOTH )
     plug->reveal () ;
@@ -435,7 +431,7 @@ void puaLargeInput::draw ( int dx, int dy )
     int ywidget = abox.min[1] + dy ;
 
     int xx = hgap;
-    int yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap ) ;
+    int yy = abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap ;
 
     float bottom_value = bottom_slider ? bottom_slider->getFloatValue () : 0.0f ;
 
@@ -459,8 +455,8 @@ void puaLargeInput::draw ( int dx, int dy )
        val [ select_start_position ] = '\0' ;
 
        xx = dx + abox.min[0] + hgap ;
-       yy = (int)( abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap
-               + top_line_in_window * line_height ) ;   // Offset y-coord for unprinted lines
+       yy = abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap
+            + top_line_in_window * line_height ;   // Offset y-coord for unprinted lines
 
        char *end_of_line = strchr ( val, '\n' ) ;
        char *start_of_line = val ;
@@ -562,7 +558,7 @@ void puaLargeInput::draw ( int dx, int dy )
         int line_count = 0;
 
         xx = hgap;
-        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap ) ;
+        yy = abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap + 1 ;
 
         while ( end_of_line )  // While there is a carriage return in the string
         {
@@ -668,8 +664,8 @@ void puaLargeInput::draw ( int dx, int dy )
         val [ cursor_position ] = '\0' ;
 
         xx = hgap ;
-        yy = int( abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap )
-                + top_line_in_window * line_height ;   // Offset y-coord for unprinted lines
+        yy = abox.max[1] - abox.min[1] - legendFont.getStringHeight () - vgap
+             + top_line_in_window * line_height ;   // Offset y-coord for unprinted lines
 
         char *end_of_line = strchr ( val, '\n' ) ;
         char *start_of_line = val ;

@@ -1074,6 +1074,14 @@ width.
 The 'slider fraction' is the proportion of the total width of the slider
 widget that is taken up with the sliders' "handle". It defaults to 0.1
 (ie one tenth of the width of the entire widget).
+
+<p><pre>&nbsp; void&nbsp; puSlider::setPageStepSize ( float f ) ;
+&nbsp; float puSlider::getPageStepSize ( void ) const ;
+</pre>
+The 'page step size' defines how much the slider handle jumps
+if one clicks on the slider background. It defaults to 0, which makes
+the slider handle jump immediately to the clicked upon position.
+
 <p>There are several choices to be made relating to when (or how often)
 you wish your callback function to be called:
 <pre>&nbsp; void&nbsp; puSlider::setCBMode ( int mode ) ;

@@ -154,7 +154,7 @@ protected:
   puFrame *frame ;
   puFrame *plug ;               // Little square in the bottom right corner
 
-  puSlider *bottom_slider ;     // Horizontal slider at bottom of window
+  puaScrollBar *bottom_slider ; // Horizontal slider at bottom of window
   puaScrollBar *right_slider ;  // Vertical slider at right of window
 
   int arrow_count ;             // Number of up/down arrows above and below the right slider
@@ -176,6 +176,7 @@ public:
   }
 
   void setSize ( int w, int h ) ;
+  void setLegendFont ( puFont f ) { puGroup::setLegendFont ( f ) ; updateGeometry () ; }
 
   int getNumLines ( void ) const { return num_lines ; }
   int getLinesInWindow ( void ) const { return lines_in_window ; }
@@ -386,7 +387,7 @@ class puaScrollBar : public puSlider
 protected:
   int arrow_count ;
   int active_arrow ;
-  int up_arrow_active, down_arrow_active ;
+  float line_step_size ;
   enum { NONE = 0, FASTDOWN = 1, DOWN = 2, UP = 4, FASTUP = 8 };
 
 public:
@@ -398,6 +399,7 @@ public:
     type |= PUCLASS_SCROLLBAR ;
     arrow_count = arrows ;
     active_arrow = NONE ;
+    line_step_size = 0.0f ;
   }
 
   /* Alternate constructor which lets you explicitly set width */
@@ -408,6 +410,7 @@ public:
     type |= PUCLASS_SCROLLBAR ;
     arrow_count = arrows ;
     active_arrow = NONE ;
+    line_step_size = 0.0f ;
   }
 
   void setMaxValue ( float f )
@@ -424,6 +427,9 @@ public:
     slider_fraction = 1.0f / ( getMaxValue() - getMinValue() + 1.0f ) ;
     puPostRefresh () ;
   }
+
+  void setLineStepSize ( float s ) { line_step_size = s ; }
+  float getLineStepSize ( void ) const { return line_step_size ; }
 } ;
 
 
