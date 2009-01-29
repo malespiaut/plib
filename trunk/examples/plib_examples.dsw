@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "PointPicker"=".\src\pui\PointPicker.dsp" - Package Owner=<4>
+Project: "PointPicker"=.\src\pui\PointPicker.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "WavingFlag"=".\src\ssg\tux\WavingFlag.dsp" - Package Owner=<4>
+Project: "WavingFlag"=.\src\ssg\tux\WavingFlag.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "complex"=".\src\pui\complex.dsp" - Package Owner=<4>
+Project: "complex"=.\src\pui\complex.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -39,7 +39,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "dynamics"=".\src\ssg\dynamics\dynamics.dsp" - Package Owner=<4>
+Project: "dynamics"=.\src\ssg\dynamics\dynamics.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -51,7 +51,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "example"=".\src\sl\example.dsp" - Package Owner=<4>
+Project: "example"=.\src\sl\example.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -63,7 +63,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "fnt_test"=".\src\fnt\fnt_test.dsp" - Package Owner=<4>
+Project: "fnt_test"=.\src\fnt\fnt_test.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -75,7 +75,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "http_get"=".\src\net\http_get\http_get.dsp" - Package Owner=<4>
+Project: "http_get"=.\src\net\http_get\http_get.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -87,7 +87,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "js_demo"=".\src\js\js_demo.dsp" - Package Owner=<4>
+Project: "js_demo"=.\src\js\js_demo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -99,7 +99,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "load"=".\src\ssg\load_save\load.dsp" - Package Owner=<4>
+Project: "load"=.\src\ssg\load_save\load.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -111,7 +111,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "majik_demo"=".\src\ssg\majik\majik_demo.dsp" - Package Owner=<4>
+Project: "majik_demo"=.\src\ssg\majik\majik_demo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -123,7 +123,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mod_demo"=".\src\sl\mod_demo.dsp" - Package Owner=<4>
+Project: "mod_demo"=.\src\sl\mod_demo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -135,7 +135,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "net_echo"=".\src\net\net_echo\net_echo.dsp" - Package Owner=<4>
+Project: "net_echo"=.\src\net\net_echo\net_echo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -147,7 +147,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "net_udp_client"=".\src\net\client_server\net_udp_client.dsp" - Package Owner=<4>
+Project: "net_udp_client"=.\src\net\client_server\net_udp_client.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -159,7 +159,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "net_udp_server"=".\src\net\client_server\net_udp_server.dsp" - Package Owner=<4>
+Project: "net_udp_server"=.\src\net\client_server\net_udp_server.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -171,7 +171,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "plib_examples"=".\plib_examples.dsp" - Package Owner=<4>
+Project: "plib_examples"=.\plib_examples.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -269,13 +269,11 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name stest
     End Project Dependency
-    Project_Dep_Name pview
-    End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "psl_demo"=".\src\psl\psl_demo.dsp" - Package Owner=<4>
+Project: "psl_demo"=.\src\psl\psl_demo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -287,7 +285,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "pview"=".\src\ssg\viewer\pview.dsp" - Package Owner=<4>
+Project: "pview"=.\src\ssg\viewer\pview.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -299,7 +297,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "pw_demo"=".\src\pw\pw_demo.dsp" - Package Owner=<4>
+Project: "pw_demo"=.\src\pw\pw_demo.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -311,7 +309,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "pw_pui"=".\src\pw\pw_pui.dsp" - Package Owner=<4>
+Project: "pw_pui"=.\src\pw\pw_pui.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -323,7 +321,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "save"=".\src\ssg\load_save\save.dsp" - Package Owner=<4>
+Project: "save"=.\src\ssg\load_save\save.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -335,7 +333,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sg_quat_test"=".\src\sg\sg_quat_test.dsp" - Package Owner=<4>
+Project: "sg_quat_test"=.\src\sg\sg_quat_test.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -347,7 +345,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simple"=".\src\pui\simple.dsp" - Package Owner=<4>
+Project: "simple"=.\src\pui\simple.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -359,7 +357,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sky"=".\src\ssg\sky\sky.dsp" - Package Owner=<4>
+Project: "sky"=.\src\ssg\sky\sky.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -371,7 +369,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "slideshow"=".\src\fnt\slideshow.dsp" - Package Owner=<4>
+Project: "slideshow"=.\src\fnt\slideshow.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -383,7 +381,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "stest"=".\src\ssg\state_test\stest.dsp" - Package Owner=<4>
+Project: "stest"=.\src\ssg\state_test\stest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -395,7 +393,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "test_dir"=".\src\util\test_dir.dsp" - Package Owner=<4>
+Project: "test_dir"=.\src\util\test_dir.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -407,7 +405,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "tux_example"=".\src\ssg\tux\tux_example.dsp" - Package Owner=<4>
+Project: "tux_example"=.\src\ssg\tux\tux_example.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -419,7 +417,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "tween_test"=".\src\ssg\tween_test\tween_test.dsp" - Package Owner=<4>
+Project: "tween_test"=.\src\ssg\tween_test\tween_test.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -431,7 +429,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "viewer"=".\src\ssg\viewer\viewer.dsp" - Package Owner=<4>
+Project: "viewer"=.\src\ssg\viewer\viewer.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -443,7 +441,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "water"=".\src\ssg\water\water.dsp" - Package Owner=<4>
+Project: "water"=.\src\ssg\water\water.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -455,7 +453,19 @@ Package=<4>
 
 ###############################################################################
 
-Project: "widget_list"=".\src\pui\widget_list.dsp" - Package Owner=<4>
+Project: "widget_list"=.\src\pui\widget_list.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "widget_test"=.\src\pui\widget_test.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
