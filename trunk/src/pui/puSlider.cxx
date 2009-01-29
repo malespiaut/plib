@@ -131,17 +131,13 @@ void puSlider::doHit ( int button, int updown, int x, int y )
   int box_len = abox.max [sd] - abox.min [sd] ;
 
   if ( updown == PU_DOWN ) {
-    int lower = abox.min [sd] + int(float(box_len) * (1.0 - slider_fraction) * norm_value) ;
-    int upper = lower + int(float(box_len) * slider_fraction) ;  // upper/lower slider margin in pixels
-
-    float line_step = getStepSize () ;
+    int lower = abox.min [sd] + int(box_len * (1.0 - slider_fraction) * norm_value) ;
+    int upper = lower + int(box_len * slider_fraction) ;  // upper/lower slider margin in pixels
     float page_step = getPageStepSize () ;
-    if ( line_step == 0.0f ) line_step = range / 10.0f ;
-    if ( page_step == 0.0f ) page_step = slider_fraction * range + minimum_value ;
 
     start_offset = -1 ;
-    if ( page_step_size < 0.0f ) {      // old slider behavior
-      start_offset = int(float(box_len) * slider_fraction * 0.5f) ;
+    if ( page_step_size <= 0.0f ) {      // old slider behavior
+      start_offset = int(box_len * slider_fraction * 0.5f) ;
       updown = PU_DRAG ;
 
     } else if ( coord < lower ) {
@@ -151,7 +147,7 @@ void puSlider::doHit ( int button, int updown, int x, int y )
       next_value += page_step ;
 
     } else {                            // new slider behavior
-      start_offset = coord - abox.min [sd] - int(float(box_len) * (1.0 - slider_fraction) * norm_value) ;
+      start_offset = coord - abox.min [sd] - int(box_len * (1.0 - slider_fraction) * norm_value) ;
       puSetActiveWidget ( this, x, y ) ;
       return;
     }
@@ -161,7 +157,7 @@ void puSlider::doHit ( int button, int updown, int x, int y )
     if ( box_len == 0 ) {
       norm_value = 0.5f ;
     } else if ( slider_fraction >= 1.0f ) {
-      norm_value = 0 ;
+      norm_value = 0.0f ;
     } else {
       norm_value = ( coord - abox.min[sd] - start_offset ) / ( box_len * (1.0f - slider_fraction) ) ;
     }
