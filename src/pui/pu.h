@@ -1167,9 +1167,9 @@ protected:
   void puSlider_init ( int vertical )
   {
     type |= PUCLASS_SLIDER ;
-    slider_fraction = 0.1f ;
     vert = vertical ;
-    page_step_size = -1.0f ;
+    slider_fraction = 0.1f ;
+    page_step_size = 0.0f ;
   }
 
 public:
