@@ -245,6 +245,7 @@ puaList::setSize (int w, int h)
         _slider->setPosition(w-_sw, _sw);
         _slider->setSize(_sw, h-2*_sw);
         _slider->setSliderFraction(float(visible) / total);
+        _slider->setPageStepSize(float(visible) / (total - visible));
 
         _down_arrow->setPosition(w-_sw, 0);
         _up_arrow->setPosition(w-_sw, h-_sw);

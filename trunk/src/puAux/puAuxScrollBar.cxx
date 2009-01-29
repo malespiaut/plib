@@ -162,7 +162,7 @@ void puaScrollBar::doHit ( int button, int updown, int x, int y )
                 + arrow_count * width ;
     int upper = lower + int(float(box_len) * slider_fraction) ;  // upper/lower slider margin in pixels
 
-    float line_step = step_size ;
+    float line_step = line_step_size ;
     float page_step = page_step_size ;
     if ( line_step <= 0.0f ) line_step = range / 10.0f ;
     if ( page_step <= 0.0f ) page_step = range ;
@@ -194,7 +194,7 @@ void puaScrollBar::doHit ( int button, int updown, int x, int y )
       next_value += line_step ;
       active_arrow |= UP ;
 
-    } else if ( page_step_size < 0.0f ) {                                // old slider behavior (jumping)
+    } else if ( page_step_size <= 0.0f ) {                               // old slider behavior (jumping)
       start_offset = int(float(box_len) * slider_fraction * 0.5f) + 2 * arrow_count * width ;
       updown = PU_DRAG ;
 
@@ -216,7 +216,7 @@ void puaScrollBar::doHit ( int button, int updown, int x, int y )
     if ( box_len == 0 ) {
       norm_value = 0.5f ;
     } else if ( slider_fraction >= 1.0f ) {
-      norm_value = 0 ;
+      norm_value = 0.0f ;
     } else {
       norm_value = ( coord + arrow_count * width - abox.min[sd] - start_offset )
                    / ( box_len * (1.0f - slider_fraction) ) ;
@@ -233,18 +233,18 @@ void puaScrollBar::doHit ( int button, int updown, int x, int y )
     case PUSLIDER_CLICK :
       if ( updown == active_mouse_edge )
       {
-  last_cb_value = next_value ;
-  puSetActiveWidget ( this, x, y ) ;
-  invokeCallback () ;
+        last_cb_value = next_value ;
+        puSetActiveWidget ( this, x, y ) ;
+        invokeCallback () ;
       }
       break ;
 
     case PUSLIDER_DELTA : /* Deprecated! */
       if ( fabs ( last_cb_value - next_value ) >= cb_delta )
       {
-  last_cb_value = next_value ;
-  puSetActiveWidget ( this, x, y ) ;
-  invokeCallback () ;
+        last_cb_value = next_value ;
+        puSetActiveWidget ( this, x, y ) ;
+        invokeCallback () ;
       }
       break ;
 
