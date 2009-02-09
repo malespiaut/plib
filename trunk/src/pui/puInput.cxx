@@ -369,6 +369,9 @@ int puInput::checkKey ( int key, int updown )
 
       case 0x16 /* ^V */ : /* Paste buffer into text */
         {
+          if ( ! puGetPasteBuffer () )
+            break ;
+
           if ( select_start_position != select_end_position )
             removeSelectRegion () ;
 
