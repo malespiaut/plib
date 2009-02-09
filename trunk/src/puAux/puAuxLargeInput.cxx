@@ -170,11 +170,14 @@ void puaLargeInput::updateGeometry ( void )
   // horizontal slider
   if ( bottom_slider ) {
     bottom_slider->setSize ( w - ( slider & VERTICAL ? slider_width : 0 ), slider_width ) ;
-    bottom_slider->setSliderFraction ( float(input_width) / max_width ) ;
     float page_step = 1.0f, line_step = 1.0f ;
     if ( max_width > input_width ) {
       page_step = float(input_width) / ( max_width - input_width ) ;
       line_step = legendFont.getFloatStringWidth( "M" ) / ( max_width - input_width ) ;
+      bottom_slider->setSliderFraction ( float(input_width) / max_width ) ;
+    } else {
+      bottom_slider->setSliderFraction ( 1.0f ) ;
+      bottom_slider->setValue ( 0.0f );
     }
 
     bottom_slider->setPageStepSize ( page_step ) ;
