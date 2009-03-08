@@ -329,9 +329,22 @@ void os_specific_s::parseElement(jsJoystick* joy, CFDictionaryRef element)
 					ulSetError(UL_WARNING, "input type element has weird usage (%lx)\n", usage);
 		break;
 			}					
+		} else if (page == kHIDPage_Simulation) {
+			switch (usage) /* look at usage to determine function */
+			{
+				case kHIDUsage_Sim_Rudder:
+				case kHIDUsage_Sim_Throttle:
+					//printf(" axis\n");
+					/*joy->os->*/addAxisElement(joy, (CFDictionaryRef) element);
+					break;
+				default:
+					ulSetError(UL_WARNING, "Simulation page input type element has weird usage (%lx)\n", usage);
+			}
 		} else if (page == kHIDPage_Button) {
 			//printf(" button\n");
 			/*joy->os->*/addButtonElement(joy, (CFDictionaryRef) element);
+		} else if (page == kHIDPage_PID) {
+			ulSetError(UL_WARNING, "Force feedback and related data ignored\n", usage);
 		} else
 			ulSetError(UL_WARNING, "input type element has weird usage (%lx)\n", usage);
 		break;
