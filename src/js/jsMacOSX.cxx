@@ -425,12 +425,14 @@ void os_specific_s::addHatElement(jsJoystick* joy, CFDictionaryRef hat)
 
 void jsJoystick::rawRead(int *buttons, float *axes)
 {
-	*buttons = 0;
+  if (buttons)
+	  *buttons = 0;
+
 	 IOHIDEventStruct hidEvent;
 	
 	for (int b=0; b<num_buttons; ++b) {
 		(*(os->hidDev))->getElementValue(os->hidDev, os->buttonCookies[b], &hidEvent);
-		if (hidEvent.value)
+		if (hidEvent.value && buttons)
 			*buttons |= 1 << b; 
 	}
 	
