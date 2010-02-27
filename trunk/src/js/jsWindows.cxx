@@ -63,7 +63,7 @@ bool os_specific_s::getOEMProductName ( jsJoystick* joy, char *buf, int buf_sz )
 
   if ( lr != ERROR_SUCCESS )
   {
-    // XP/Vista seem to have moved it to "current user"
+    // XP/Vista/7 seem to have moved it to "current user"
     lr = RegOpenKeyEx ( HKEY_CURRENT_USER, key, 0, KEY_QUERY_VALUE, &hKey) ;
     if ( lr != ERROR_SUCCESS ) return false ;
   }
@@ -84,7 +84,12 @@ bool os_specific_s::getOEMProductName ( jsJoystick* joy, char *buf, int buf_sz )
 
   lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, key, 0, KEY_QUERY_VALUE, &hKey ) ;
 
-  if ( lr != ERROR_SUCCESS ) return false ;
+  if ( lr != ERROR_SUCCESS )
+  {
+    // XP/Vista/7 seem to have moved it to "current user"
+    lr = RegOpenKeyEx ( HKEY_CURRENT_USER, key, 0, KEY_QUERY_VALUE, &hKey) ;
+    if ( lr != ERROR_SUCCESS ) return false ;
+  }
 
   // Get OEM Name
   dwcb = buf_sz ;
