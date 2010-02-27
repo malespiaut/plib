@@ -393,6 +393,7 @@ protected:
 public:
   void doHit ( int button, int updown, int x, int y ) ;
   void draw  ( int dx, int dy ) ;
+  int checkHit ( int button, int updown, int x, int y ) ;
   puaScrollBar ( int minx, int miny, int sz, int arrows, int vertical = FALSE ) :
       puSlider ( minx, miny, sz, vertical )
   {
@@ -932,6 +933,7 @@ public:
   virtual void   setColour (int which, float r, float g, float b, float a);
   virtual void   setSize (int w, int h);
 
+  int  checkHit      ( int button, int updown, int x, int y );
   int  getNumVisible ( void ) const { return _list_box->getNumVisible(); }
   int  getNumItems   ( void ) const { return _list_box->getNumItems(); }
   int  getTopItem    ( void ) const { return _list_box->getTopItem(); }

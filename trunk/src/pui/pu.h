@@ -36,6 +36,8 @@
 #define PU_LEFT_BUTTON          0
 #define PU_MIDDLE_BUTTON        1
 #define PU_RIGHT_BUTTON         2
+#define PU_SCROLL_UP_BUTTON     3
+#define PU_SCROLL_DOWN_BUTTON   4
 #define PU_DOWN                 0
 #define PU_UP                   1
 
