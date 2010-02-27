@@ -725,6 +725,9 @@ void puaLargeInput::draw ( int dx, int dy )
 
 int puaLargeInput::checkHit ( int button, int updown, int x, int y )
 {
+  if ( button == PU_SCROLL_UP_BUTTON || button == PU_SCROLL_DOWN_BUTTON )
+    return right_slider->checkHit ( button, updown, x, y ) ;
+
   int xwidget = x - abox.min[0] ;
   int ywidget = y - abox.min[1] ;
 

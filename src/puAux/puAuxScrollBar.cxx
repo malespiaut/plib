@@ -127,6 +127,24 @@ void puaScrollBar::draw ( int dx, int dy )
   draw_label ( dx, dy ) ;
 }
 
+int puaScrollBar::checkHit ( int button, int updown, int x, int y )
+{
+  if ( updown == PU_UP && ( button == PU_SCROLL_UP_BUTTON || button == PU_SCROLL_DOWN_BUTTON ) )
+  {
+    float last_value = clamp ( getFloatValue () ), next_value = last_value ;
+    float range = maximum_value - minimum_value ;
+    float line_step = line_step_size ;
+    if ( line_step <= 0.0f ) line_step = range / 10.0f ;
+    if ( button == PU_SCROLL_UP_BUTTON )
+      next_value += line_step;
+    else
+      next_value -= line_step;
+    setValue ( checkStep ( clamp ( next_value ) ) ) ;
+    if ( next_value != last_value ) invokeCallback () ;
+    return TRUE;
+  }
+  return puSlider::checkHit ( button, updown, x, y ) ;
+}
 
 void puaScrollBar::doHit ( int button, int updown, int x, int y )
 {

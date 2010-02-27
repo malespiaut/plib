@@ -263,6 +263,25 @@ puaList::setSize (int w, int h)
     }
 }
 
+int
+puaList::checkHit (int button, int updown, int x, int y)
+{
+  if (updown == PU_UP)
+  {
+    if (button == PU_SCROLL_UP_BUTTON)
+    {
+      _up_arrow->invokeCallback();
+      return TRUE;
+    }
+    if (button == PU_SCROLL_DOWN_BUTTON)
+    {
+      _down_arrow->invokeCallback();
+      return TRUE;
+    }
+  }
+  return puGroup::checkHit(button, updown, x, y);
+}
+
 void
 puaList::init (int w, int h, short transparent)
 {
