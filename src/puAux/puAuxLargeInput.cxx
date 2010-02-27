@@ -725,8 +725,12 @@ void puaLargeInput::draw ( int dx, int dy )
 
 int puaLargeInput::checkHit ( int button, int updown, int x, int y )
 {
-  if ( button == PU_SCROLL_UP_BUTTON || button == PU_SCROLL_DOWN_BUTTON )
-    return right_slider->checkHit ( button, updown, x, y ) ;
+  if ( ( button == PU_SCROLL_UP_BUTTON || button == PU_SCROLL_DOWN_BUTTON ) && isHit( x, y ) )
+  {
+    int sx, sy;
+    right_slider->getPosition ( &sx, &sy );
+    return right_slider->checkHit ( button, updown, ++sx, ++sy ) ;
+  }
 
   int xwidget = x - abox.min[0] ;
   int ywidget = y - abox.min[1] ;
