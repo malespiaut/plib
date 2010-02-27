@@ -266,7 +266,7 @@ puaList::setSize (int w, int h)
 int
 puaList::checkHit (int button, int updown, int x, int y)
 {
-  if (updown == PU_UP)
+  if (updown == PU_UP && isHit(x, y))
   {
     if (button == PU_SCROLL_UP_BUTTON)
     {

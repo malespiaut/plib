@@ -129,7 +129,7 @@ void puaScrollBar::draw ( int dx, int dy )
 
 int puaScrollBar::checkHit ( int button, int updown, int x, int y )
 {
-  if ( updown == PU_UP && ( button == PU_SCROLL_UP_BUTTON || button == PU_SCROLL_DOWN_BUTTON ) )
+  if ( updown == PU_UP && ( button == PU_SCROLL_UP_BUTTON || button == PU_SCROLL_DOWN_BUTTON ) && isHit ( x, y ) )
   {
     float last_value = clamp ( getFloatValue () ), next_value = last_value ;
     float range = maximum_value - minimum_value ;
