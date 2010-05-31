@@ -779,7 +779,8 @@ int sgFrustum::contains ( const sgSphere *s ) const
   }
   else
   {
-    /*
+#if 0
+  /*
       left:    (  x,  0,  x,  0  )
       right:   (  x,  0,  x,  0  )
       bottom:  (  0,  x,  x,  0  )
@@ -789,8 +790,7 @@ int sgFrustum::contains ( const sgSphere *s ) const
     sp2 = plane[ SG_RIGHT_PLANE ][0] * center[0] + plane[ SG_RIGHT_PLANE ][2] * center[2] ;
     sp3 = plane[ SG_BOT_PLANE   ][1] * center[1] + plane[ SG_BOT_PLANE   ][2] * center[2] ;
     sp4 = plane[ SG_TOP_PLANE   ][1] * center[1] + plane[ SG_TOP_PLANE   ][2] * center[2] ;
-  }
-
+#else
   /* 
      Note: in the general case, we would have to do:
 
@@ -799,7 +799,12 @@ int sgFrustum::contains ( const sgSphere *s ) const
      ...
      sp6 = sgScalarProductVec3 (   far_plane, center ) +   far_plane[3] ;
   */
-  
+    sp1 = sgScalarProductVec3 ( plane[ SG_LEFT_PLANE  ], center ) + plane[ SG_LEFT_PLANE  ][3] ;
+    sp2 = sgScalarProductVec3 ( plane[ SG_RIGHT_PLANE ], center ) + plane[ SG_RIGHT_PLANE ][3] ;
+    sp3 = sgScalarProductVec3 ( plane[ SG_BOT_PLANE   ], center ) + plane[ SG_BOT_PLANE   ][3] ;
+    sp4 = sgScalarProductVec3 ( plane[ SG_TOP_PLANE   ], center ) + plane[ SG_TOP_PLANE   ][3] ;
+#endif
+  }
 
   if ( -sp1 > radius || -sp2 > radius || -sp3 > radius || -sp4 > radius )
     return SG_OUTSIDE ;
@@ -1303,6 +1308,13 @@ void sgQuatToAngleAxis ( SGfloat *angle,
 void sgQuatToAngleAxis ( SGfloat *angle, sgVec3 axis, const sgQuat src )
 {
   SGfloat a = (SGfloat) acos ( src[SG_W] ) ;
+  if ( _isnan(a) || !_finite(a) ) {
+    ulSetError(UL_WARNING,"sgQuatToAngleAxis: acos(%f) %f",src[SG_W],a);
+    if ( src[SG_W] >= 1 ) a = 0;
+    else if ( src[SG_W] <= -1 ) a = SG_PI;
+    ulSetError(UL_WARNING," - recovered to %f\n",a);
+  }
+
   SGfloat s = (SGfloat) sin  ( a ) ;
  
   *angle = a * SG_RADIANS_TO_DEGREES * SG_TWO ;
