@@ -23,6 +23,11 @@
 
 
 #include "sg.h"
+#ifdef UL_WIN32 
+#  define isnan _isnan 
+#  define finite _finite 
+#endif
+
 
 sgVec3 _sgGravity = { 0.0f, 0.0f, -9.8f } ;
 
@@ -1308,7 +1313,7 @@ void sgQuatToAngleAxis ( SGfloat *angle,
 void sgQuatToAngleAxis ( SGfloat *angle, sgVec3 axis, const sgQuat src )
 {
   SGfloat a = (SGfloat) acos ( src[SG_W] ) ;
-  if ( _isnan(a) || !_finite(a) ) {
+  if ( isnan(a) || !finite(a) ) {
     ulSetError(UL_WARNING,"sgQuatToAngleAxis: acos(%f) %f",src[SG_W],a);
     if ( src[SG_W] >= 1 ) a = 0;
     else if ( src[SG_W] <= -1 ) a = SG_PI;
