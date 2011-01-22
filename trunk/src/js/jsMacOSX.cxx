@@ -261,6 +261,8 @@ CFDictionaryRef getCFProperties(io_object_t ioDev)
 
 void jsJoystick::close()
 {
+	if (!os)
+		return;
 	if (os->hidDev != NULL)  (*(os->hidDev))->close(os->hidDev);
 	if (os) delete os;
 }
