@@ -247,13 +247,15 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
 
   fseek ( curr_image_fd, bmphdr.OffBits, SEEK_SET ) ;
 
-  bmphdr.SizeImage = w * h * (bpp / 8) ;
-  GLubyte *data = new GLubyte [ bmphdr.SizeImage ] ;
+  GLubyte *data = new GLubyte [ w * h * (bpp / 8) ] ;
 
   /* read (and maybe flip) image */
   {
-    int row_size = w * (bpp / 8) ;
-    for ( int y = h-1 ; y >= 0 ; y-- )
+    int row_size = w * (bpp / 8), padded_row_size = ceil( w * float(bpp) / 32 ) * 4;
+    size_t pad = padded_row_size - row_size;
+	unsigned char buff[4];
+
+	for ( int y = h-1 ; y >= 0 ; y-- )
     {
       GLubyte *row_ptr ;
       if ( top_down )
@@ -271,6 +273,9 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
         ulSetError ( UL_WARNING, "Premature EOF in '%s'", curr_image_fname ) ;
         return false ;
       }
+	  // padding bytes
+	  if ( pad )
+		  fread ( buff, 1, pad, curr_image_fd );
     }
   }
 
@@ -321,6 +326,7 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
   if ( bpp == 24 )
   {
     z = 3 ;
+	isOpaque = TRUE ;
     image = data ;
 
     /* BGR --> RGB */
@@ -336,6 +342,7 @@ bool ssgLoadBMP ( const char *fname, ssgTextureInfo* info )
   if ( bpp == 32 )
   {
     z = 4 ;
+	isOpaque = FALSE ;
     image = data ;
 
     /* BGRA --> RGBA */
