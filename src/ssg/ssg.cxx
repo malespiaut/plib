@@ -108,14 +108,17 @@ ssgLight *ssgGetLight ( int i )
 
 void ssgInit ()
 {
+#ifndef NO_GFX_DISPLAY
   if ( ! glIsValidContext () )
   {
     ulSetError ( UL_FATAL, "ssgInit called without a valid OpenGL context.");
   }
+#endif
 
   ssgTexturePath ( "." ) ;
   ssgModelPath   ( "." ) ;
 
+#ifndef NO_GFX_DISPLAY
   _ssgLights [ 0 ] . setID ( 0 ) ;
   _ssgLights [ 0 ] . on    () ;
 
@@ -124,6 +127,8 @@ void ssgInit ()
     _ssgLights [ i ] . setID ( i ) ;
     _ssgLights [ i ] . off   () ;
   }
+#endif
+
 
   new ssgContext ;  /* Sets the current context with defaults */
 
