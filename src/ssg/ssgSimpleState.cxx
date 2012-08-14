@@ -111,12 +111,12 @@ void ssgSimpleState::apply (void)
   _ssgCurrentContext->getState()->enables &= ~turn_off ;
 
   if ( ~ dont_care & ( (1<<SSG_GL_COLOR_MATERIAL_EN) |
-		       (1<<SSG_GL_COLOR_MATERIAL   ) ) )
+                       (1<<SSG_GL_COLOR_MATERIAL   ) ) )
   {
     int indeterminate = turn_off & (1<<SSG_GL_COLOR_MATERIAL_EN) ;
 
     if ( ~ dont_care & (1<<SSG_GL_COLOR_MATERIAL ) &&
-	 _ssgCurrentContext->getState()->colour_material_mode != colour_material_mode )
+         _ssgCurrentContext->getState()->colour_material_mode != colour_material_mode )
     {
       glColorMaterial ( GL_FRONT_AND_BACK, (GLenum) colour_material_mode ) ;
       _ssgCurrentContext->getState()->colour_material_mode = colour_material_mode ;
@@ -363,7 +363,7 @@ void ssgSimpleState::disable ( GLenum mode )
 
     default :
       ulSetError ( UL_WARNING, "Illegal mode passed to ssgSimpleState::disable(%d)",
-			       mode ) ;
+             mode ) ;
       break ; 
   }
 }
@@ -404,8 +404,8 @@ void ssgSimpleState::enable  ( GLenum mode )
 
     default :
       ulSetError ( UL_WARNING,
-	     "Illegal mode passed to ssgSimpleState::enable(%d)",
-			       mode ) ;
+       "Illegal mode passed to ssgSimpleState::enable(%d)",
+             mode ) ;
       break ; 
   }
 }
@@ -542,7 +542,7 @@ int ssgSimpleStateArray::findIndex ( ssgSimpleState* st )
 void ssgSimpleStateArray::collect ( ssgEntity *e )
 {
   removeAll () ;
-	collect_recursive (e);
+  collect_recursive (e);
 }
 
 
@@ -588,7 +588,7 @@ void ssgSimpleStateArray::removeAll ()
 }
 
 
-ssgSimpleState* ssgSimpleStateArray::findMatch ( ssgSimpleState* st )
+ssgSimpleState* ssgSimpleStateArray::findMatch ( ssgSimpleState* st, bool testNamesAsWell )
 {
   if ( st == NULL )
      return NULL ;
@@ -600,11 +600,21 @@ ssgSimpleState* ssgSimpleStateArray::findMatch ( ssgSimpleState* st )
     if ( st == st2 )
       return NULL ; //same pointer -- don't change state
 
+    if (testNamesAsWell && ( 0 != strcmp(st->getName(), st2->getName())) )
+      continue ;
+
+
     if ( st->isEnabled ( GL_TEXTURE_2D ) != st2->isEnabled ( GL_TEXTURE_2D ) )
       continue ;
 
     if ( st->isEnabled ( GL_TEXTURE_2D ) &&
        st -> getTextureHandle () != st2 -> getTextureHandle () )
+      continue ;
+    
+    if ( st->isEnabled ( GL_TEXTURE_2D ) &&
+       (st -> getTextureHandle () == 0) &&
+       (st2-> getTextureHandle () == 0) &&
+       0 != strcmp( st->getTextureFilename(), st2->getTextureFilename()))
       continue ;
 
     if ( st->getCareAbout (SSG_GL_SPECULAR) != st2->getCareAbout (SSG_GL_SPECULAR) ||
