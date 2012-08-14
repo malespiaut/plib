@@ -43,8 +43,8 @@ static ssgBranch *curr_branch_;
 struct EntityType
 {
   const char * sName;
-	HandlerFunctionType *HandleEntity;
-	int bMayBeIgnored;
+  HandlerFunctionType *HandleEntity;
+  int bMayBeIgnored;
 } ;
 
 
@@ -60,7 +60,7 @@ static _ssgParserSpec parser_spec =
    "}",          // close_brace_chars
    '"',        // quote_char
    '#',          // comment_char
-	 "//"        // comment_string
+   "//"        // comment_string
 } ;
 
    
@@ -72,12 +72,12 @@ static int Ascii2Int(int &retVal, const char *token, const char* name )
 {
   char *endptr;
   retVal = int(strtol( token, &endptr, 10));
-	if ( (endptr == NULL) || (*endptr == 0))
+  if ( (endptr == NULL) || (*endptr == 0))
     return TRUE;
-	else
-	{ parser.error("The field %s should contain an integer number but contains %s",name, token) ;
-		return FALSE;
-	}
+  else
+  { parser.error("The field %s should contain an integer number but contains %s",name, token) ;
+    return FALSE;
+  }
 }
 
 static int Ascii2UInt(unsigned int &retVal, const char *token, const char* name )
@@ -85,12 +85,12 @@ static int Ascii2UInt(unsigned int &retVal, const char *token, const char* name 
 {
   char *endptr;
   retVal = (unsigned int)(strtol( token, &endptr, 10));
-	if ( (endptr == NULL) || (*endptr == 0))
+  if ( (endptr == NULL) || (*endptr == 0))
     return TRUE;
-	else
-	{ parser.error("The field %s should contain an integer number but contains %s",name, token) ;
-		return FALSE;
-	}
+  else
+  { parser.error("The field %s should contain an integer number but contains %s",name, token) ;
+    return FALSE;
+  }
 }
 
 static int Ascii2Float(SGfloat &retVal, const char *token, const char* name )
@@ -98,56 +98,56 @@ static int Ascii2Float(SGfloat &retVal, const char *token, const char* name )
 {
   char *endptr;
   retVal = SGfloat(strtod( token, &endptr));
-	if ( (endptr == NULL) || (*endptr == 0))
+  if ( (endptr == NULL) || (*endptr == 0))
     return TRUE;
-	else
-	{ parser.error("The field %s should contain an integer number but contains %s",name, token) ;
-		return FALSE;
-	}
+  else
+  { parser.error("The field %s should contain an integer number but contains %s",name, token) ;
+    return FALSE;
+  }
 }
 
 static int HandleHeader(const char * /* sName */, const char *firstToken)
 {
-	//parser.expectNextToken("{");
-	int Dummy;
+  //parser.expectNextToken("{");
+  int Dummy;
   if (! Ascii2Int(Dummy, firstToken, "Header.major"))
-		return FALSE;
-		
-	parser.expectNextToken(";");
-	if (!parser.getNextInt(Dummy, "Header.minor"))
-		return FALSE;
-	parser.expectNextToken(";");
-	if (!parser.getNextInt(Dummy, "Header.flags"))
-		return FALSE;
-	parser.expectNextToken(";");
-	parser.expectNextToken("}");
-	return TRUE;
+    return FALSE;
+    
+  parser.expectNextToken(";");
+  if (!parser.getNextInt(Dummy, "Header.minor"))
+    return FALSE;
+  parser.expectNextToken(";");
+  if (!parser.getNextInt(Dummy, "Header.flags"))
+    return FALSE;
+  parser.expectNextToken(";");
+  parser.expectNextToken("}");
+  return TRUE;
 }
 
 static void IgnoreEntity(int startLevel)
 // startLevel should be 0 when you are "in front of the {" (normally)
 // or 1 when you have already parsed the "{"
 { 
-	int Level = startLevel;
+  int Level = startLevel;
   char *token;
 
-	while ( TRUE)
-	{ token = parser.getNextToken(0);
-		if ( parser.eof ) 
-		{ parser.error("unexpected end of file\n");
-			return ; //FALSE;
-		}
+  while ( TRUE)
+  { token = parser.getNextToken(0);
+    if ( parser.eof ) 
+    { parser.error("unexpected end of file\n");
+      return ; //FALSE;
+    }
         
-		assert(token!=NULL); 
+    assert(token!=NULL); 
     if ( ulStrEqual (token,"{") )
-			Level++;
-		else if ( ulStrEqual (token,"}") )
-		{ assert(Level>0); // Fixme, NIV14: Handle this gracefully.
-			if (Level==1) 
-		    return; // found THE closing brace of entitiy
-		  Level--; // Found A closing brace
-		}
-	}      
+      Level++;
+    else if ( ulStrEqual (token,"}") )
+    { assert(Level>0); // Fixme, NIV14: Handle this gracefully.
+      if (Level==1) 
+        return; // found THE closing brace of entitiy
+      Level--; // Found A closing brace
+    }
+  }      
 }
 
 static int HandleMesh(const char *sName, const char *firstToken);
@@ -159,34 +159,34 @@ static int HandleTextureFileName(const char *sName, const char *firstToken);
 
 static EntityType aEntities[] =
 {
-	{ "Header", HandleHeader, FALSE}, 
-	{ "Vector", NULL, FALSE}, 
-	{ "Coords2d", NULL, FALSE}, 
-	{ "Quaternion", NULL, FALSE}, 
-	{ "Matrix4x4", NULL, FALSE}, 
-	{ "ColorRGBA", NULL, FALSE}, 
-	{ "ColorRGB", NULL, FALSE}, 
-	{ "Indexed Color", NULL, FALSE}, 
-	{ "Boolean", NULL, FALSE}, 
-	{ "Boolean2d", NULL, FALSE}, 
-	{ "Material", HandleMaterial, FALSE}, 
-	{ "TextureFilename", HandleTextureFileName, FALSE},  
-	{ "MeshFace", NULL, FALSE}, 
-	{ "MeshFaceWraps", NULL, FALSE}, 
-	{ "MeshTextureCoords", HandleTextureCoords, FALSE}, 
-	{ "MeshNormals", NULL, TRUE}, 
-	{ "MeshVertexColors", NULL, FALSE}, 
-	{ "MeshMaterialList", HandleMeshMaterialList, FALSE}, 
-	{ "Mesh", HandleMesh, FALSE}, 
-	{ "FrameTransformMatrix", NULL, FALSE}, 
-	{ "Frame", NULL, FALSE}, 
-	{ "FloatKeys", NULL, FALSE}, 
-	{ "TimedFloatKeys", NULL, FALSE}, 
-	{ "AnimationKey", NULL, FALSE}, 
-	{ "AnimationOptions", NULL, FALSE}, 
-	{ "Animation", NULL, FALSE}, 
-	{ "AnimationSet", NULL, FALSE}, 
-	{ "template", NULL, TRUE},
+  { "Header", HandleHeader, FALSE}, 
+  { "Vector", NULL, FALSE}, 
+  { "Coords2d", NULL, FALSE}, 
+  { "Quaternion", NULL, FALSE}, 
+  { "Matrix4x4", NULL, FALSE}, 
+  { "ColorRGBA", NULL, FALSE}, 
+  { "ColorRGB", NULL, FALSE}, 
+  { "Indexed Color", NULL, FALSE}, 
+  { "Boolean", NULL, FALSE}, 
+  { "Boolean2d", NULL, FALSE}, 
+  { "Material", HandleMaterial, FALSE}, 
+  { "TextureFilename", HandleTextureFileName, FALSE},  
+  { "MeshFace", NULL, FALSE}, 
+  { "MeshFaceWraps", NULL, FALSE}, 
+  { "MeshTextureCoords", HandleTextureCoords, FALSE}, 
+  { "MeshNormals", NULL, TRUE}, 
+  { "MeshVertexColors", NULL, FALSE}, 
+  { "MeshMaterialList", HandleMeshMaterialList, FALSE}, 
+  { "Mesh", HandleMesh, FALSE}, 
+  { "FrameTransformMatrix", NULL, FALSE}, 
+  { "Frame", NULL, FALSE}, 
+  { "FloatKeys", NULL, FALSE}, 
+  { "TimedFloatKeys", NULL, FALSE}, 
+  { "AnimationKey", NULL, FALSE}, 
+  { "AnimationOptions", NULL, FALSE}, 
+  { "Animation", NULL, FALSE}, 
+  { "AnimationSet", NULL, FALSE}, 
+  { "template", NULL, TRUE},
   { NULL, NULL, FALSE}
 };
 
@@ -195,58 +195,58 @@ static int ParseEntity(char *token)
 // called recursively
 { int i=0;
 
-	while(aEntities[i].sName!=NULL)
-	{ if (ulStrEqual (token,aEntities[i].sName))
-		{	if (aEntities[i].HandleEntity)
-			{	char *sNextToken, *sName=globEmpty;
-				sNextToken=parser.getNextToken(0);
-				if ( parser.eof ) 
-				{ parser.error("unexpected end of file\n");
-					return FALSE;
-				}
+  while(aEntities[i].sName!=NULL)
+  { if (ulStrEqual (token,aEntities[i].sName))
+    {	if (aEntities[i].HandleEntity)
+      {	char *sNextToken, *sName=globEmpty;
+        sNextToken=parser.getNextToken(0);
+        if ( parser.eof ) 
+        { parser.error("unexpected end of file\n");
+          return FALSE;
+        }
         // if entity is named, read the name. skip "{":
         sName = NULL;
-				if (0 != strcmp(sNextToken, "{"))
-				{ sName = new char[ strlen(sNextToken) + 1 ];
-					assert ( sName );
-					strcpy(sName, sNextToken);
-					sNextToken = parser.getNextToken(0);
-					if (0 != strcmp(sNextToken, "{"))
-						parser.error("\"{\" expected\n");
-				}
-				sNextToken = parser.getNextToken(0);
-				
-				if(sNextToken[0] == '<') // UUID
-					sNextToken = parser.getNextToken(0);
-				if ( parser.eof ) 
-				{ parser.error("unexpected end of file\n");
-					return FALSE;
-				}
+        if (0 != strcmp(sNextToken, "{"))
+        { sName = new char[ strlen(sNextToken) + 1 ];
+          assert ( sName );
+          strcpy(sName, sNextToken);
+          sNextToken = parser.getNextToken(0);
+          if (0 != strcmp(sNextToken, "{"))
+            parser.error("\"{\" expected\n");
+        }
+        sNextToken = parser.getNextToken(0);
         
-				if (!aEntities[i].HandleEntity(sName, sNextToken))
-					return FALSE;
-				if ( sName )
-					delete [] sName;
-			}
-			else
-				if (aEntities[i].bMayBeIgnored)
-					IgnoreEntity ( 0 );
-				else
-				{
-					parser.error("I am sorry, but Entity-type '%s' is not yet implemented.", aEntities[i].sName);
-					return FALSE ;
-				}
-				
-			break;
-		}
-		i++;
-	}
-	if (aEntities[i].sName==NULL)
-	{
-		parser.error("unexpected token %s", token);
-		return FALSE ;
-	}
-	return TRUE;
+        if(sNextToken[0] == '<') // UUID
+          sNextToken = parser.getNextToken(0);
+        if ( parser.eof ) 
+        { parser.error("unexpected end of file\n");
+          return FALSE;
+        }
+        
+        if (!aEntities[i].HandleEntity(sName, sNextToken))
+          return FALSE;
+        if ( sName )
+          delete [] sName;
+      }
+      else
+        if (aEntities[i].bMayBeIgnored)
+          IgnoreEntity ( 0 );
+        else
+        {
+          parser.error("I am sorry, but Entity-type '%s' is not yet implemented.", aEntities[i].sName);
+          return FALSE ;
+        }
+        
+      break;
+    }
+    i++;
+  }
+  if (aEntities[i].sName==NULL)
+  {
+    parser.error("unexpected token %s", token);
+    return FALSE ;
+  }
+  return TRUE;
 }
 
 
@@ -260,68 +260,68 @@ extern sgVec4 currentDiffuse;
 
 static int HandleTextureFileName(const char * /*sName*/, const char *firstToken)
 {/*
-	  TextureFilename {
+    TextureFilename {
     "../image/box_top.gif";
    } #TextureFilename
  */
   char *filename_ptr, *filename = new char [ strlen(firstToken)+1 ] ;
-	assert(filename!=NULL);
+  assert(filename!=NULL);
   strcpy ( filename, firstToken ) ;
-	filename_ptr = filename ;
-	
-	if ( filename_ptr[0] == '"' ) 
-		filename_ptr++;
-	if (filename_ptr[strlen(filename_ptr)-1] == '"')
-		filename_ptr[strlen(filename_ptr)-1] = 0;
+  filename_ptr = filename ;
+  
+  if ( filename_ptr[0] == '"' ) 
+    filename_ptr++;
+  if (filename_ptr[strlen(filename_ptr)-1] == '"')
+    filename_ptr[strlen(filename_ptr)-1] = 0;
   currentState -> setTexture( current_options -> createTexture( filename_ptr ) );
   currentState -> enable( GL_TEXTURE_2D );
 
 
-	parser.expectNextToken(";");
-	parser.expectNextToken("}");
-	delete [] filename;
-	return TRUE;
+  parser.expectNextToken(";");
+  parser.expectNextToken("}");
+  delete [] filename;
+  return TRUE;
 }
 
 static class ssgSimpleStateList *globalMaterialList;
-static int HandleMaterial(const char * /*sName*/, const char *firstToken)
+static int HandleMaterial(const char * sName, const char *firstToken)
 // return TRUE on success
 { SGfloat power;
   int bFoundTextureFileName = FALSE;
-	sgVec4 specularColour, EmissiveColour;
+  sgVec4 specularColour, EmissiveColour;
 
-	// read body
-	if (! Ascii2Float(currentDiffuse[0], firstToken, "Facecolour R"))
-		return FALSE;
+  // read body
+  if (! Ascii2Float(currentDiffuse[0], firstToken, "Facecolour R"))
+    return FALSE;
 
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(currentDiffuse[1], "Facecolour G")) return FALSE;
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(currentDiffuse[2], "Facecolour B")) return FALSE;
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(currentDiffuse[3], "Facecolour A")) return FALSE;
-	parser.expectNextToken(";");
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(power, "power")) return FALSE;
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(specularColour[0], "Specular R")) return FALSE;
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(specularColour[1], "Specular G")) return FALSE;
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(specularColour[2], "Specular B")) return FALSE;
-	specularColour[3] = 0.0;
-	parser.expectNextToken(";");
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(EmissiveColour[0], "Emissive R")) return FALSE;
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(EmissiveColour[1], "Emissive G")) return FALSE;
-	parser.expectNextToken(";");
-	if (!parser.getNextFloat(EmissiveColour[2], "Emissive B")) return FALSE;
-	EmissiveColour[3] = 0.0;
-	parser.expectNextToken(";");
-	parser.expectNextToken(";");
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(currentDiffuse[1], "Facecolour G")) return FALSE;
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(currentDiffuse[2], "Facecolour B")) return FALSE;
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(currentDiffuse[3], "Facecolour A")) return FALSE;
+  parser.expectNextToken(";");
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(power, "power")) return FALSE;
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(specularColour[0], "Specular R")) return FALSE;
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(specularColour[1], "Specular G")) return FALSE;
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(specularColour[2], "Specular B")) return FALSE;
+  specularColour[3] = 0.0;
+  parser.expectNextToken(";");
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(EmissiveColour[0], "Emissive R")) return FALSE;
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(EmissiveColour[1], "Emissive G")) return FALSE;
+  parser.expectNextToken(";");
+  if (!parser.getNextFloat(EmissiveColour[2], "Emissive B")) return FALSE;
+  EmissiveColour[3] = 0.0;
+  parser.expectNextToken(";");
+  parser.expectNextToken(";");
 
-	// create SimpleState
+  // create SimpleState
 
   currentState = new ssgSimpleState () ;
 
@@ -329,11 +329,11 @@ static int HandleMaterial(const char * /*sName*/, const char *firstToken)
   currentState -> setMaterial ( GL_DIFFUSE, currentDiffuse) ;
   currentState -> setMaterial ( GL_SPECULAR, specularColour) ;
   currentState -> setMaterial ( GL_SPECULAR, specularColour[0], 
-		                      specularColour[1], specularColour[2], currentDiffuse[3] ) ;
+                          specularColour[1], specularColour[2], currentDiffuse[3] ) ;
   currentState -> setMaterial ( GL_EMISSION, EmissiveColour[0], 
-		                      EmissiveColour[1], EmissiveColour[2], currentDiffuse[3] ) ;
-	
-	currentState -> setShininess ( power ) ; // Fixme, NIV14: Is that correct?
+                          EmissiveColour[1], EmissiveColour[2], currentDiffuse[3] ) ;
+  
+  currentState -> setShininess ( power ) ; // Fixme, NIV14: Is that correct?
 
   currentState -> enable ( GL_COLOR_MATERIAL ) ;
   currentState -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
@@ -354,306 +354,311 @@ static int HandleMaterial(const char * /*sName*/, const char *firstToken)
   }
   currentState -> disable( GL_TEXTURE_2D );
 
+  currentState -> setName ( sName ) ;
 
-
-	while(TRUE)
-	{ char *nextToken =parser.getNextToken(0);
-	  if (0==strcmp("}", nextToken))
-		{ 
-			
-			/*if(currentMesh.theMaterialsExists())
-				currentMesh.addMaterial( &currentState );
-			else*/
-			{
-				if(!globalMaterialList)
-					globalMaterialList = new ssgSimpleStateList(3);
-				
-				globalMaterialList->add(&currentState);
-			}
-			return TRUE; // Material is finished. success
-		}
-		
-		if (! ulStrEqual ( "TextureFilename", nextToken) )
-		{ parser.error("TextureFilename expected!\n");
-			return FALSE; 
-		}
-		if ( bFoundTextureFileName )
-		{ parser.error("Only one TextureFileName per Material please!\n");
-			return FALSE; 
-		}
-		if (!ParseEntity(nextToken)) // read "TextureFileName"
-			return FALSE;
-		bFoundTextureFileName = TRUE;
-	}
-	return TRUE; //lint !e527
+  while(TRUE)
+  { char *nextToken =parser.getNextToken(0);
+    if (0==strcmp("}", nextToken))
+    { 
+      
+      /*if(currentMesh.theMaterialsExists())
+        currentMesh.addMaterial( &currentState );
+      else*/
+      {
+        if(!globalMaterialList)
+          globalMaterialList = new ssgSimpleStateList(3);
+        
+        globalMaterialList->add(&currentState);
+      }
+      return TRUE; // Material is finished. success
+    }
+    
+    if (! ulStrEqual ( "TextureFilename", nextToken) )
+    { parser.error("TextureFilename expected!\n");
+      return FALSE; 
+    }
+    if ( bFoundTextureFileName )
+    { parser.error("Only one TextureFileName per Material please!\n");
+      return FALSE; 
+    }
+    if (!ParseEntity(nextToken)) // read "TextureFileName"
+      return FALSE;
+    bFoundTextureFileName = TRUE;
+  }
+  return TRUE; //lint !e527
 }
 
 static int HandleTextureCoords(const char * /* sName */, const char *firstToken)
 {
-	u32 nNoOfVertices, i;
+  u32 nNoOfVertices, i;
 
-	  
-	if (! Ascii2UInt(nNoOfVertices, firstToken, "nNoOfVertices"))
-		return FALSE;
+    
+  if (! Ascii2UInt(nNoOfVertices, firstToken, "nNoOfVertices"))
+    return FALSE;
 
-	if ( nNoOfVertices != currentMesh.getNumVertices())
-	{ parser.error("No of vertices of mesh (%d) and no "
-	            "of texture coordinates (%d) do not match!\n" 
-							"Therefore the texture coordinates are ignored!",
-							( int ) currentMesh.getNumVertices(), ( int ) nNoOfVertices );
-	  IgnoreEntity ( 1 ); // ignores TC.
-		return FALSE;
-	}
-	currentMesh.createPerVertexTextureCoordinates2( nNoOfVertices ) ;
+  if ( nNoOfVertices != currentMesh.getNumVertices())
+  { parser.error("No of vertices of mesh (%d) and no "
+              "of texture coordinates (%d) do not match!\n" 
+              "Therefore the texture coordinates are ignored!",
+              ( int ) currentMesh.getNumVertices(), ( int ) nNoOfVertices );
+    IgnoreEntity ( 1 ); // ignores TC.
+    return FALSE;
+  }
+  currentMesh.createPerVertexTextureCoordinates2( nNoOfVertices ) ;
 
-	parser.expectNextToken(";");
-	for(i=0;i<nNoOfVertices;i++)
-	{ 
-		sgVec2 tv;
+  parser.expectNextToken(";");
+  for(i=0;i<nNoOfVertices;i++)
+  { 
+    sgVec2 tv;
       
     if (!parser.getNextFloat(tv[0], "x"))
-			return FALSE;
-		parser.expectNextToken(";");
-		if (!parser.getNextFloat(tv[1], "y"))
-			return FALSE;
-		parser.expectNextToken(";");
-		if(i==nNoOfVertices-1)
-			parser.expectNextToken(";");
+      return FALSE;
+    parser.expectNextToken(";");
+    if (!parser.getNextFloat(tv[1], "y"))
+      return FALSE;
+    parser.expectNextToken(";");
+    if(i==nNoOfVertices-1)
+      parser.expectNextToken(";");
+    // Wolfram Kuss (WK), 14.8.2012: Now it should really work with files conforming to the standard and those that don't
+
     // Commented out by J. Reucker 2005-12-16
     // Some .x export plugins forget to add the ",", but the
     // parser will work with and without "," if it doesn't expect it
-		//~ else
-			//~ parser.expectNextToken(",");
+    else
+    {
+      if ( 0 == strcmp(parser.peekAtNextToken(","), ","))
+        parser.getNextToken(","); // remove token 
+    }
 
-		currentMesh.addPerVertexTextureCoordinate2( tv ) ;
-	}
-	parser.expectNextToken("}");
-	return TRUE;
+    currentMesh.addPerVertexTextureCoordinate2( tv ) ;
+  }
+  parser.expectNextToken("}");
+  return TRUE;
 }
 
 static int HandleMeshMaterialList(const char * /* sName */, const char *firstToken)
 {
-	u32 i, nFaceIndexes, nMaterialsRead = 0, nMaterials;
-	  
-	if (! Ascii2UInt(nMaterials, firstToken, "nMaterials"))
-		return FALSE;
+  u32 i, nFaceIndexes, nMaterialsRead = 0, nMaterials;
+    
+  if (! Ascii2UInt(nMaterials, firstToken, "nMaterials"))
+    return FALSE;
 
-	parser.expectNextToken(";");
-	currentMesh.createMaterials( nMaterials );
-	if (!parser.getNextUInt(nFaceIndexes, "number of Face Indexes"))
-		return FALSE;
-	currentMesh.createMaterialIndices( nFaceIndexes ) ;
-	parser.expectNextToken(";");
+  parser.expectNextToken(";");
+  currentMesh.createMaterials( nMaterials );
+  if (!parser.getNextUInt(nFaceIndexes, "number of Face Indexes"))
+    return FALSE;
+  currentMesh.createMaterialIndices( nFaceIndexes ) ;
+  parser.expectNextToken(";");
 
 
-	if ( nFaceIndexes > currentMesh.getNumFaces())
-	{ parser.error("No of face indexes of materiallist (%d) is greater than then no "
-	            "of faces (%d)!\n" 
-							"Therefore the material list is ignored!",
-							( int ) nFaceIndexes, ( int ) currentMesh.getNumFaces());
-	  IgnoreEntity ( 1 ); // ignores TC.
-		return TRUE; // go on parsing
-	}
-	if ( nFaceIndexes > currentMesh.getNumFaces())
-	  parser.message("Informational: No of face indexes of materiallist (%d) is less than then no "
-	            "of faces (%d)\n" ,
-							( int ) nFaceIndexes, ( int ) currentMesh.getNumFaces());
-	for ( i=0 ; i<nFaceIndexes ; i++ )
-	{
-		int iIndex, j;
-		char *ptr;
-		if (!parser.getNextInt(iIndex, "Face index"))
-			return FALSE;
-		currentMesh.addMaterialIndex ( iIndex ) ;
-		// I don't quite know why, but different .X files I have have a 
-		// different syntax here, some have one ";" and some two.
-		// Therefore, the following code
-		for (j=0;j<2;j++)
-		{ ptr = parser.peekAtNextToken( "," );
-		  if ( strlen(ptr) == 1)
-				if ( (ptr[0]==',') || (ptr[0]==';') )
-				{ ptr = parser.getNextToken( "," ); // ignore this token
-				}
+  if ( nFaceIndexes > currentMesh.getNumFaces())
+  { parser.error("No of face indexes of materiallist (%d) is greater than then no "
+              "of faces (%d)!\n" 
+              "Therefore the material list is ignored!",
+              ( int ) nFaceIndexes, ( int ) currentMesh.getNumFaces());
+    IgnoreEntity ( 1 ); // ignores TC.
+    return TRUE; // go on parsing
+  }
+  if ( nFaceIndexes > currentMesh.getNumFaces())
+    parser.message("Informational: No of face indexes of materiallist (%d) is less than then no "
+              "of faces (%d)\n" ,
+              ( int ) nFaceIndexes, ( int ) currentMesh.getNumFaces());
+  for ( i=0 ; i<nFaceIndexes ; i++ )
+  {
+    int iIndex, j;
+    char *ptr;
+    if (!parser.getNextInt(iIndex, "Face index"))
+      return FALSE;
+    currentMesh.addMaterialIndex ( iIndex ) ;
+    // I don't quite know why, but different .X files I have have a 
+    // different syntax here, some have one ";" and some two.
+    // Therefore, the following code
+    for (j=0;j<2;j++)
+    { ptr = parser.peekAtNextToken( "," );
+      if ( strlen(ptr) == 1)
+        if ( (ptr[0]==',') || (ptr[0]==';') )
+        { ptr = parser.getNextToken( "," ); // ignore this token
+        }
   
-		}
-	}
-	while(TRUE)
-	{
+    }
+  }
+  while(TRUE)
+  {
       char *nextToken =parser.getNextToken(0);
-	  if (0==strcmp("}", nextToken))
-		{ if ( nMaterialsRead < nMaterials )
-		    parser.error("Too few Materials!\n");
-			//else	parser.error("Success! MeshMaterialList!\n");
+    if (0==strcmp("}", nextToken))
+    { if ( nMaterialsRead < nMaterials )
+        parser.error("Too few Materials!\n");
+      //else	parser.error("Success! MeshMaterialList!\n");
             for (int i = 0; i < globalMaterialList->getNum(); i++)
             {
               currentMesh.addMaterial(globalMaterialList->get(i));
             }
-			return TRUE; // Mesh is finished. success
-		}
-		if(ulStrEqual ("{", nextToken) )
-		{ // reference to global material
-			nextToken =parser.getNextToken(0); // name of material
-			parser.expectNextToken("}");
-			// search for "name" in global list
-			if(globalMaterialList == NULL)
-			{
-				parser.error("No global materials defined, but used!\n");
-				return FALSE; 
-			}
-			for(int i=0; i<globalMaterialList->getNum(); i++)
-			{
-				ssgSimpleState * ss = *(globalMaterialList->get(i));
-				if(ulStrEqual(nextToken, ss->getName()))
-					break;
-			}
-		}
-		else
-		{
-			if ( !ulStrEqual ("Material", nextToken) )
-			{ parser.error("Material expected!\n");
-				return FALSE; 
-			}
-			if ( nMaterialsRead >= nMaterials )
-			{ parser.error("Too many Materials!\n");
-				return FALSE; 
-			}
-			if (!ParseEntity(nextToken)) // read "Material"
-				return FALSE;
-		}
-		nMaterialsRead++;
-	}
-	return TRUE; //lint !e527
+      return TRUE; // Mesh is finished. success
+    }
+    if(ulStrEqual ("{", nextToken) )
+    { // reference to global material
+      nextToken =parser.getNextToken(0); // name of material
+      parser.expectNextToken("}");
+      // search for "name" in global list
+      if(globalMaterialList == NULL)
+      {
+        parser.error("No global materials defined, but used!\n");
+        return FALSE; 
+      }
+      for(int i=0; i<globalMaterialList->getNum(); i++)
+      {
+        ssgSimpleState * ss = *(globalMaterialList->get(i));
+        if(ulStrEqual(nextToken, ss->getName()))
+          break;
+      }
+    }
+    else
+    {
+      if ( !ulStrEqual ("Material", nextToken) )
+      { parser.error("Material expected!\n");
+        return FALSE; 
+      }
+      if ( nMaterialsRead >= nMaterials )
+      { parser.error("Too many Materials!\n");
+        return FALSE; 
+      }
+      if (!ParseEntity(nextToken)) // read "Material"
+        return FALSE;
+    }
+    nMaterialsRead++;
+  }
+  return TRUE; //lint !e527
 }
 
 
 static int HandleMesh(const char * sName, const char *firstToken)
 { u32 i, j, nNoOfVertices, nNoOfVerticesForThisFace, nNoOfFaces;
-	int iVertex, aiVertices[MAX_NO_VERTICES_PER_FACE];
-	
-	//char *sMeshName = parser.getNextToken("Mesh name");
-	//parser.expectNextToken("{");
-	if (! Ascii2UInt(nNoOfVertices, firstToken, "nNoOfVertices"))
-		return FALSE;
+  int iVertex, aiVertices[MAX_NO_VERTICES_PER_FACE];
+  
+  //char *sMeshName = parser.getNextToken("Mesh name");
+  //parser.expectNextToken("{");
+  if (! Ascii2UInt(nNoOfVertices, firstToken, "nNoOfVertices"))
+    return FALSE;
 
-	//parser.getNextInt("number of vertices");
+  //parser.getNextInt("number of vertices");
 
-	currentMesh.reInit ();
-	currentMesh.setName( sName );
-	currentMesh.createVertices( nNoOfVertices );
+  currentMesh.reInit ();
+  currentMesh.setName( sName );
+  currentMesh.createVertices( nNoOfVertices );
  
-	parser.expectNextToken(";");
-	for(i=0;i<nNoOfVertices;i++)
-	{ 
-		sgVec3 vert;
+  parser.expectNextToken(";");
+  for(i=0;i<nNoOfVertices;i++)
+  { 
+    sgVec3 vert;
       
     if (!parser.getNextFloat(vert[0], "x"))
-			return FALSE;
-		parser.expectNextToken(";");
-		if (!parser.getNextFloat(vert[1], "y"))
-			return FALSE;
-		parser.expectNextToken(";");
-		if (!parser.getNextFloat(vert[2], "z"))
-			return FALSE;
-		parser.expectNextToken(";");
-		if(i==nNoOfVertices-1)
-			parser.expectNextToken(";");
-		else
-			parser.expectNextToken(",");
+      return FALSE;
+    parser.expectNextToken(";");
+    if (!parser.getNextFloat(vert[1], "y"))
+      return FALSE;
+    parser.expectNextToken(";");
+    if (!parser.getNextFloat(vert[2], "z"))
+      return FALSE;
+    parser.expectNextToken(";");
+    if(i==nNoOfVertices-1)
+      parser.expectNextToken(";");
+    else
+      parser.expectNextToken(",");
 
-		currentMesh.addVertex(vert);
-	}
-	if (!parser.getNextUInt(nNoOfFaces, "number of faces"))
-		 return FALSE;
-	currentMesh.createFaces( nNoOfFaces );
+    currentMesh.addVertex(vert);
+  }
+  if (!parser.getNextUInt(nNoOfFaces, "number of faces"))
+     return FALSE;
+  currentMesh.createFaces( nNoOfFaces );
 
   
   
-	parser.expectNextToken(";");
-	for(i=0;i<nNoOfFaces;i++)
-	{ if (!parser.getNextUInt(nNoOfVerticesForThisFace , "number of vertices for this face"))
-	    return FALSE;
-		assert(nNoOfVerticesForThisFace<MAX_NO_VERTICES_PER_FACE);
-	
-		// parse faces and put the info into the array aiVertices
+  parser.expectNextToken(";");
+  for(i=0;i<nNoOfFaces;i++)
+  { if (!parser.getNextUInt(nNoOfVerticesForThisFace , "number of vertices for this face"))
+      return FALSE;
+    assert(nNoOfVerticesForThisFace<MAX_NO_VERTICES_PER_FACE);
+  
+    // parse faces and put the info into the array aiVertices
 
-		parser.expectNextToken(";");
-		for(j=0;j<nNoOfVerticesForThisFace;j++)
-		{ if (!parser.getNextInt(iVertex, "Vertex index"))
-				return FALSE;
+    parser.expectNextToken(";");
+    for(j=0;j<nNoOfVerticesForThisFace;j++)
+    { if (!parser.getNextInt(iVertex, "Vertex index"))
+        return FALSE;
 
-			aiVertices[j]=iVertex;
-			
-			if(j==nNoOfVerticesForThisFace-1)
-				parser.expectNextToken(";");
-			else
-				parser.expectNextToken(",");
-		}
-		if(i==nNoOfFaces-1)
-			parser.expectNextToken(";");
-		else
-			parser.expectNextToken(",");
-		
-		// use array aiVertices
-#ifdef NOT_PLIB
-		CreateFaceInMdi_Edit(vl, nNoOfVerticesForThisFace, aiVertices); // This line is for the "Mdi" 3D Editor, NOT for plib
-#else
-		currentMesh.addFaceFromIntegerArray(nNoOfVerticesForThisFace, aiVertices); 
-#endif
-	}
-	while(TRUE)
-	{ char *nextToken =parser.getNextToken(0);
-	  if ( parser.eof ) 
-		{ parser.error("unexpected end of file\n");
-			return FALSE;
-		}
+      aiVertices[j]=iVertex;
+      
+      if(j==nNoOfVerticesForThisFace-1)
+        parser.expectNextToken(";");
+      else
+        parser.expectNextToken(",");
+    }
+    if(i==nNoOfFaces-1)
+      parser.expectNextToken(";");
+    else
+      parser.expectNextToken(",");
     
-	  if (0==strcmp("}", nextToken))
-			break; // Mesh is finished
-		if (!ParseEntity(nextToken))
-			return FALSE;
-	}
+    // use array aiVertices
+#ifdef NOT_PLIB
+    CreateFaceInMdi_Edit(vl, nNoOfVerticesForThisFace, aiVertices); // This line is for the "Mdi" 3D Editor, NOT for plib
+#else
+    currentMesh.addFaceFromIntegerArray(nNoOfVerticesForThisFace, aiVertices); 
+#endif
+  }
+  while(TRUE)
+  { char *nextToken =parser.getNextToken(0);
+    if ( parser.eof ) 
+    { parser.error("unexpected end of file\n");
+      return FALSE;
+    }
+    
+    if (0==strcmp("}", nextToken))
+      break; // Mesh is finished
+    if (!ParseEntity(nextToken))
+      return FALSE;
+  }
 
 //
-	if ( currentState == NULL )
-	{	currentState = new ssgSimpleState();
-	  currentState->setOpaque();
-		currentState->disable(GL_BLEND);
-		currentState->disable(GL_ALPHA_TEST);
-		currentState->disable(GL_TEXTURE_2D);
-		currentState->enable(GL_COLOR_MATERIAL);
-		currentState->enable(GL_LIGHTING);
-		currentState->setShadeModel(GL_SMOOTH);
-		currentState->setMaterial(GL_AMBIENT , 0.7f, 0.7f, 0.7f, 1.0f);
-		currentState->setMaterial(GL_DIFFUSE , 0.7f, 0.7f, 0.7f, 1.0f);
-		currentState->setMaterial(GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
-		currentState->setMaterial(GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
-		currentState->setShininess(50);
+  if ( currentState == NULL )
+  {	currentState = new ssgSimpleState();
+    currentState->setOpaque();
+    currentState->disable(GL_BLEND);
+    currentState->disable(GL_ALPHA_TEST);
+    currentState->disable(GL_TEXTURE_2D);
+    currentState->enable(GL_COLOR_MATERIAL);
+    currentState->enable(GL_LIGHTING);
+    currentState->setShadeModel(GL_SMOOTH);
+    currentState->setMaterial(GL_AMBIENT , 0.7f, 0.7f, 0.7f, 1.0f);
+    currentState->setMaterial(GL_DIFFUSE , 0.7f, 0.7f, 0.7f, 1.0f);
+    currentState->setMaterial(GL_SPECULAR, 1.0f, 1.0f, 1.0f, 1.0f);
+    currentState->setMaterial(GL_EMISSION, 0.0f, 0.0f, 0.0f, 1.0f);
+    currentState->setShininess(50);
 /*
-		currentState -> setMaterial ( GL_AMBIENT, 0.5, 0.5, 0.5);
-   	currentState -> setMaterial ( GL_DIFFUSE,  0.7, 0.7, 0.7); // light grey
-		currentState -> setMaterial ( GL_SPECULAR, 1.0, 1.0, 1.0);
-		currentState -> setMaterial ( GL_EMISSION, 0.0, 0.0, 0.0);
-		
-		currentState -> setShininess ( 3 ) ; 
+    currentState -> setMaterial ( GL_AMBIENT, 0.5, 0.5, 0.5);
+    currentState -> setMaterial ( GL_DIFFUSE,  0.7, 0.7, 0.7); // light grey
+    currentState -> setMaterial ( GL_SPECULAR, 1.0, 1.0, 1.0);
+    currentState -> setMaterial ( GL_EMISSION, 0.0, 0.0, 0.0);
+    
+    currentState -> setShininess ( 3 ) ; 
 
-		//currentState -> enable ( GL_COLOR_MATERIAL ) ;
-		//currentState -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
+    //currentState -> enable ( GL_COLOR_MATERIAL ) ;
+    //currentState -> setColourMaterial ( GL_AMBIENT_AND_DIFFUSE ) ;
 
-		currentState -> enable  ( GL_LIGHTING       ) ;
-		currentState -> setShadeModel ( GL_SMOOTH ) ;
+    currentState -> enable  ( GL_LIGHTING       ) ;
+    currentState -> setShadeModel ( GL_SMOOTH ) ;
 
-		currentState -> disable ( GL_BLEND ) ;
-		currentState -> setOpaque () ;
-		currentState -> disable( GL_TEXTURE_2D );
-		*/
-	}
+    currentState -> disable ( GL_BLEND ) ;
+    currentState -> setOpaque () ;
+    currentState -> disable( GL_TEXTURE_2D );
+    */
+  }
 
-	currentMesh.addToSSG(
-		currentState // Pfusch, kludge. NIV135
-		,
-		current_options,
-		curr_branch_);
-	return TRUE;
+  currentMesh.addToSSG(
+    currentState // Pfusch, kludge. NIV135
+    ,
+    current_options,
+    curr_branch_);
+  return TRUE;
 }
 
 inline int TwoCharsToInt(char char1, char char2)
@@ -668,32 +673,32 @@ static int HeaderIsValid(char *firstToken)
     parser.error("not X format, invalid Header");
     return FALSE ;
   }
-	char* token = parser.getNextToken("2nd Header field");
-	if (strlen(token)!=7)
-	{
+  char* token = parser.getNextToken("2nd Header field");
+  if (strlen(token)!=7)
+  {
     parser.error("not X format, invalid Header");
     return FALSE ;
   }
-	char *sp=&(token[4]);
-	if (!ulStrEqual (sp,"txt"))
+  char *sp=&(token[4]);
+  if (!ulStrEqual (sp,"txt"))
   {
     if (!ulStrEqual (sp,"bin"))
-			parser.error("not X format, invalid Header");
-		else
-			parser.error("Binary X format files are not supported. If you have access to Windows, "
-			             "please use Microsofts conversion-utility convx from the directX-SDK "
-									 "to convert to ascii.");
+      parser.error("not X format, invalid Header");
+    else
+      parser.error("Binary X format files are not supported. If you have access to Windows, "
+                   "please use Microsofts conversion-utility convx from the directX-SDK "
+                   "to convert to ascii.");
     return FALSE ;
   }
-	if (strncmp(token, "0302", 4))
-		parser.message("This loader is written for X-file-format version 3.2.\n" 
-					"AFAIK this is the only documented version.\n"
-					"Your file has version %d.%d\n"
-					"Use the file at your own risk\n", 
-					TwoCharsToInt(token[0], token[1]),
-					TwoCharsToInt(token[2], token[3]));
-	token = parser.getNextToken("3rd Header field");
-	if (!ulStrEqual(token,"0032") && !ulStrEqual (token,"0064"))
+  if (strncmp(token, "0302", 4))
+    parser.message("This loader is written for X-file-format version 3.2.\n" 
+          "AFAIK this is the only documented version.\n"
+          "Your file has version %d.%d\n"
+          "Use the file at your own risk\n", 
+          TwoCharsToInt(token[0], token[1]),
+          TwoCharsToInt(token[2], token[3]));
+  token = parser.getNextToken("3rd Header field");
+  if (!ulStrEqual(token,"0032") && !ulStrEqual (token,"0064"))
   {
     parser.error("not X format, invalid Header");
     return FALSE ;
@@ -706,21 +711,21 @@ static int parse()
   int firsttime = TRUE;
   char* token;
   //int startLevel = parser.level;
-	token = parser.getNextToken(0);
+  token = parser.getNextToken(0);
   while (! parser.eof )
-	{ 
-		if (firsttime)
-		{ 
-			if(!HeaderIsValid(token))
-					return FALSE;
-			firsttime = FALSE;
-		}
-		else 
-		{ if (!ParseEntity(token))
-				return FALSE;
-		}
-		token = parser.getNextToken(0);
-	}
+  { 
+    if (firsttime)
+    { 
+      if(!HeaderIsValid(token))
+          return FALSE;
+      firsttime = FALSE;
+    }
+    else 
+    { if (!ParseEntity(token))
+        return FALSE;
+    }
+    token = parser.getNextToken(0);
+  }
   return TRUE ;
 }
 
@@ -730,23 +735,23 @@ ssgEntity *ssgLoadX ( const char *fname, const ssgLoaderOptions* options )
   ssgSetCurrentOptions ( (ssgLoaderOptions*)options ) ;
   current_options = ssgGetCurrentOptions () ;
 
-	currentState = NULL; 
-	globalMaterialList = NULL;
+  currentState = NULL; 
+  globalMaterialList = NULL;
   top_branch = new ssgBranch ;
-	curr_branch_ = top_branch;
-	if ( !parser.openFile( fname, &parser_spec ))
-	{
+  curr_branch_ = top_branch;
+  if ( !parser.openFile( fname, &parser_spec ))
+  {
     delete top_branch ;
-		return 0;
+    return 0;
   }
   if ( !parse() )
   {
-		delete top_branch ;
-		top_branch = 0 ;
+    delete top_branch ;
+    top_branch = 0 ;
   }
 //  parse_free();
   parser.closeFile();
 
-	delete globalMaterialList;
+  delete globalMaterialList;
   return top_branch ;
 }
