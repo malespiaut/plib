@@ -644,7 +644,7 @@ public:
   }
   void add ( ssgSimpleState* ss ) ;
   void removeAll () ;
-  ssgSimpleState* findMatch ( ssgSimpleState* ss ) ;
+  ssgSimpleState* findMatch ( ssgSimpleState* ss, bool testNamesAsWell = FALSE ) ;
 
   void collect ( ssgEntity *e );
 	int findIndex ( ssgSimpleState* st ) ;  //returns -1 if not found
@@ -2873,5 +2873,11 @@ ssgBase *ssgCreateOfType ( int type ) ;
 #define SSG_BACKFACE_COLLISIONS_SUPPORTED 1
 void ssgSetBackFaceCollisions ( bool b ) ;
 
+#if (_MSC_VER >= 1700)
+// WK
+#define SSG_SAVE_TEXT_FILE "wt"
+#elif
+#define SSG_SAVE_TEXT_FILE "wa" 
+#endif
 #endif
 
