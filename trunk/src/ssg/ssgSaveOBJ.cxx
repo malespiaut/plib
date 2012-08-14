@@ -30,15 +30,39 @@
 
 static FILE *fileout ;
 static int total_vert ;
+static int total_texture ;
 static int total_normal ;
+static ssgSimpleStateArray gSSL;
+
+/* unused
+static void MakeIdentifier( char *Dest, const char *Source )
+// pDest is a buffer that is at least of size strlen(pSource)+1
+{
+  char *pDest;
+  const char *pSource;
+  pDest = Dest;
+  pSource = Source;
+
+  while ( *pSource != '\0' )
+  {
+    if ((*pSource != '\\') && (*pSource != '.') && (*pSource != '/') && (*pSource != ' '))
+      *pDest++ = *pSource++;
+    else
+      pSource++;
+  }
+  *pDest = '\0';
+}*/
 
 static void save_vtx_table ( ssgVtxTable *vt )
 {
   float w = 1.0f ;
-	short iv1, iv2;
+  short iv1, iv2;
 
   GLenum mode = vt -> getPrimitiveType () ;
-	//fprintf ( fileout, "g test\n" ); wk: Pfusch fixme: is this necessary? NIV135
+  //fprintf ( fileout, "g test\n" ); wk: Pfusch fixme: is this necessary? NIV135
+  char *s = vt->getName() ;
+  fprintf ( fileout, "\ng %s\n\n", s == NULL ? "Object" : s);
+ 
   
   if (( mode == GL_LINES ) || ( mode == GL_LINE_LOOP) || ( mode == GL_LINE_STRIP))
   {
@@ -56,7 +80,7 @@ static void save_vtx_table ( ssgVtxTable *vt )
   
     // L: lines. 
     fprintf ( fileout, "\n" );
-		int num_lines = vt -> getNumLines () ;
+    int num_lines = vt -> getNumLines () ;
     for ( int j = 0; j < num_lines; j ++ )
     { vt -> getLine ( j, &iv1, &iv2 ) ;
       fprintf ( fileout, "l %d %d\n",
@@ -71,6 +95,16 @@ static void save_vtx_table ( ssgVtxTable *vt )
     mode == GL_TRIANGLE_STRIP )
   {
     int num_vert = vt -> getNumVertices () ;
+    bool haveTexture = FALSE;
+
+    ssgSimpleState* st = (ssgSimpleState*) vt->getState();
+    if ( st )
+    {
+      if ( NULL == gSSL.findMatch(st, TRUE) )
+        gSSL.add(st);
+      haveTexture = TRUE;
+      fprintf ( fileout, "usemtl %s\n", st -> getName() );
+    }
 
     // V: vertex coordinates. 
     for ( int i = 0; i < num_vert; i++ ) {
@@ -79,6 +113,21 @@ static void save_vtx_table ( ssgVtxTable *vt )
       fprintf ( fileout, "v %f %f %f %f\n", 
         vert[0], vert[1], vert[2], w );
     }
+
+    if ( haveTexture )
+      // VT: vertex coordinates. 
+    {
+      long ntc = vt->getNumTexCoords();
+      fprintf ( fileout, "\n" );
+      //fprintf ( fileout, "# num_vert = %ld, NumTexCoords = %ld\n", (long)num_vert,  ntc);
+      for ( int i = 0; i < num_vert; i++ ) {
+        sgVec2 tc ;
+        sgCopyVec2 ( tc, vt -> getTexCoord( i ) ) ;
+        fprintf ( fileout, "vt %f %f\n", 
+          tc[0], tc[1] );
+      }
+    }
+
 
     // VN: Vertex face normal vectors. 
     bool haveNormals = ( vt -> getNumNormals () >= num_vert ) ;
@@ -104,9 +153,17 @@ static void save_vtx_table ( ssgVtxTable *vt )
       fprintf ( fileout, "f" );
       for ( int ivert = 0; ivert < 3; ivert++ ) {
         if ( haveNormals )
-          fprintf ( fileout, " %d//%d",
-            total_vert + face[ivert] + 1,
-            total_normal + face[ivert] + 1 );
+        {
+          if ( haveTexture )
+            fprintf ( fileout, " %d/%d/%d",
+                  total_vert + face[ivert] + 1,
+                  total_texture + face[ivert] + 1,
+                  total_normal + face[ivert] + 1 );
+          else
+            fprintf ( fileout, " %d//%d",
+                  total_vert + face[ivert] + 1,
+                  total_normal + face[ivert] + 1 );
+        }
         else
           fprintf ( fileout, " %d",
             total_vert + face[ivert] + 1 );
@@ -117,6 +174,8 @@ static void save_vtx_table ( ssgVtxTable *vt )
     total_vert += num_vert ;
     if ( haveNormals )
        total_normal += num_vert ;
+    if ( haveTexture )
+      total_texture += num_vert ;
   }
 }
 
@@ -178,7 +237,7 @@ int ssgSaveOBJ ( const char *filename, ssgEntity *ent )
     John Burkardt
 */
 {
-  fileout = fopen ( filename, "wa" ) ;
+  fileout = fopen ( filename, SSG_SAVE_TEXT_FILE ) ;
 
   if ( fileout == NULL )
   {
@@ -191,17 +250,100 @@ int ssgSaveOBJ ( const char *filename, ssgEntity *ent )
 */
   fprintf ( fileout, "# %s created by SSG.\n", filename );
   fprintf ( fileout, "\n" );
-  fprintf ( fileout, "g SSG\n" );
-  fprintf ( fileout, "\n" );
+
+
+  int i;
+  char *MTL_FileName;
+
+  if( strlen( filename ) > 4 )
+  {
+    // decide on name for the MTL (material) file. Write a reference to the MTL file into the obj file (fileout)
+
+    char *p, *p1;
+    MTL_FileName = new char[ strlen(filename)+1 ];
+    strcpy ( MTL_FileName, filename );
+    p = MTL_FileName + strlen ( MTL_FileName ) -4; // should point to '.' now
+    strcpy (p, ".mtl");
+
+    // Experiment tells that mtllib may not contain a path.
+    p  = strrchr( MTL_FileName, '\\' );
+    p1 = strrchr( MTL_FileName, '/'  );
+    if (( p == NULL) || (p < p1))
+      p = p1;
+    if ( !p ) // MTL_FileName seems to contain no path
+      p = MTL_FileName;
+    else
+      p++;
+
+    fprintf ( fileout, "mtllib %s\n", p ); // Kludge: Unused if nothing is textured
+  }
 
   total_vert = 0 ;
+  total_texture = 0;
   total_normal = 0 ;
 
   save_entities ( ent ) ;
 
 /*
-  Close.
+  Close OBJ.
 */
   fclose ( fileout ) ;
+  // write MTL file
+  if ((gSSL.getNum() > 0) && ( strlen(filename) > 4))
+  {
+    // open the file
+    fileout = fopen ( MTL_FileName, SSG_SAVE_TEXT_FILE ) ;
+    delete [] MTL_FileName;
+
+    for(i = 0; i < gSSL.getNum(); i++)
+    {
+      ssgSimpleState *ss = gSSL.get(i);
+      fprintf ( fileout, "\n\nnewmtl %s\n", ss->getName());
+      
+      /* From IT5 sample:
+      newmtl sitzkissen
+      Ka 0.300000 0.300000 0.300000
+      Kd 0.700000 0.700000 0.700000
+      Ks 0.735000 0.735000 0.735000
+      Ns 20.000000
+      Tr 0.000000
+      illum 2
+      map_Kd chair_demo_texture2.jpg
+
+      */
+      fprintf ( fileout, "Ka 0.7 0.7 0.7\n");
+      fprintf ( fileout, "Kd 0.3 0.3 0.3\n");
+      fprintf ( fileout, "Ks 1 1 1\n");
+      fprintf ( fileout, "illum 2\n");
+      fprintf ( fileout, "Ns 32\n");  // specular exponent 
+      // 			Tr 0.000000
+      
+      if (ss -> isEnabled ( GL_TEXTURE_2D ) )
+      {
+        char *TextureName = ss->getTextureFilename();
+        char *p = TextureName;
+        if ((p[0] == '.') && (p[1] == '/'))
+          p += 2;
+        //char *p = new char [ strlen(TextureName) + 1 ]; 
+        //MakeIdentifier( p, TextureName );
+        fprintf ( fileout, "map_Kd %s\n", p);
+        //delete [] p;
+      }
+
+      /*fprintf ( fileout, "map_bump\n");
+      fprintf ( fileout, "bump\n");
+      fprintf ( fileout, "map_opacity\n");
+      fprintf ( fileout, "map_d\n");
+      fprintf ( fileout, "refl\n");
+      fprintf ( fileout, "map_kS\n");
+      fprintf ( fileout, "map_kA\n");
+      fprintf ( fileout, "map_Ns\n");*/
+    }
+    // close the MTL
+    fclose ( fileout ) ;
+  }
+
+  gSSL.removeAll();
+
   return TRUE;
 }
