@@ -2876,7 +2876,7 @@ void ssgSetBackFaceCollisions ( bool b ) ;
 #if (_MSC_VER >= 1700)
 // WK
 #define SSG_SAVE_TEXT_FILE "wt"
-#elif
+#else
 #define SSG_SAVE_TEXT_FILE "wa" 
 #endif
 #endif
