@@ -1,7 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/ttt3d.cxx)
-AM_INIT_AUTOMAKE(ttt3d, 0.2.0)
+AC_INIT([ttt3d], [0.2.0])
+AC_CONFIG_SRCDIR([src/ttt3d.cxx])
+AM_INIT_AUTOMAKE([1.16])
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -12,14 +13,14 @@ AC_PROG_INSTALL
 
 plib_suffix="-lplibjs -lplibsl -lplibssgaux -lplibssg -lplibpu -lplibfnt -lplibsg -lplibul"
 
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 AC_CHECK_HEADERS([unistd.h])
-AC_PREREQ
+AC_PREREQ([2.71])
 
 dnl Command line arguments.
 
-dnl Don't use AC_HELP_STRING here as old versions of autoconf do not
+dnl Don't use AS_HELP_STRING here as old versions of autoconf do not
 dnl understand it.
 AC_ARG_WITH(GL,
 [  --with-GL=DIR           set the prefix directory where GL resides],
@@ -102,8 +103,6 @@ LIBS="$plib_suffix $LIBS"
 
 dnl Checks for header files.
 
-AC_HEADER_STDC
-
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
 
 case "${host}" in
@@ -164,7 +163,7 @@ CXXFLAGS="$CXXFLAGS $WFLAG"
 MY_EXPAND_DIR(ttt3d, "$datadir/games/$PACKAGE")
 AC_DEFINE_UNQUOTED(TTT3D_DATADIR, "$ttt3d_datadir")
 
-AC_OUTPUT( Makefile         \
+AC_CONFIG_FILES([Makefile         \
            data/Makefile    \
            doc/Makefile     \
            fonts/Makefile   \
@@ -172,5 +171,6 @@ AC_OUTPUT( Makefile         \
            mods/Makefile    \
            src/Makefile     \
            wavs/Makefile    \
-          )
+          ])
+AC_OUTPUT
 
