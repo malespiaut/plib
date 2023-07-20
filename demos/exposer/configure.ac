@@ -20,6 +20,20 @@ AC_CHECK_FUNCS([floor])
 AC_CHECK_HEADERS([unistd.h])
 AC_PREREQ([2.71])
 
+dnl List files of a given extension in a given directory
+file_list() {
+  for f in $top_srcdir/$1/*.$2; do
+    echo $(basename $f)
+  done
+}
+
+dnl # Create the list of files
+AC_SUBST([RGB_FILES], [$(file_list data rgb)])
+AC_SUBST([AC_FILES], [$(file_list data ac)])
+AC_SUBST([BONES_FILES], [$(file_list data bones)])
+AC_SUBST([HTML_FILES], [$(file_list doc html)])
+AC_SUBST([PNG_FILES], [$(file_list doc png)])
+
 dnl Command line arguments.
 
 dnl Don't use AS_HELP_STRING here as old versions of autoconf do not
