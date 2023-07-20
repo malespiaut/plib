@@ -183,7 +183,8 @@ static void chooseVisual ( PixelFormat *pf )
 
 void pwInit ( int multisample, int num_samples )
 {
-  pwInit ( 0, 0, -1, -1, multisample, "NoName", FALSE, num_samples ) ;
+  const char *title = "NoName";
+  pwInit ( 0, 0, -1, -1, multisample, title, FALSE, num_samples ) ;
 }
 
 
@@ -206,11 +207,17 @@ void pwSetCallbacks ( pwKeybdFunc *kb, pwMouseFunc *ms,
 
 
 void pwInit ( int x, int y, int w, int h, int multisample,
-              char *title, int border, int num_samples )
+              const char *title, int border, int num_samples )
 {
-  char *displayName = getenv ( "DISPLAY" ) ;
-
-  if ( displayName == NULL ) displayName = ":0.0" ;
+  const char *displayName;
+  if (!getenv ( "DISPLAY" ))
+  {
+    displayName = ":0.0" ;
+  }
+  else
+  {
+    displayName = getenv ( "DISPLAY" ) ;
+  }
 
   currDisplay = XOpenDisplay ( displayName ) ;
 

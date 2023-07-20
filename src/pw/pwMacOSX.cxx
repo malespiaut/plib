@@ -757,7 +757,8 @@ bool InitDSP()
 
 void pwInit ( int multisample, int num_samples )
 {
-	pwInit ( 0,0,-1,-1, multisample, "", 0, num_samples ) ;
+	const char *title = "";
+	pwInit ( 0,0,-1,-1, multisample, title, 0, num_samples ) ;
 }
 
 

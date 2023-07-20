@@ -246,14 +246,15 @@ void pwSetCallbacks ( pwKeybdFunc *kb, pwMouseFunc *ms,
 
 void pwInit ( int multisample, int num_samples )
 {
-  pwInit ( 0, 0, -1, -1, multisample, "NoName", FALSE, num_samples ) ;
+  const char *title = "NoName";
+  pwInit ( 0, 0, -1, -1, multisample, title, FALSE, num_samples ) ;
 }
 
 
 //typedef const char * wglGetExtensionsStringARBtype ( HDC hdc ) ;
 
 void pwInit ( int x, int y, int w, int h, int multisample,
-              char *title, int border, int num_samples )
+              const char *title, int border, int num_samples )
 {
   currInstance = GetModuleHandleA( NULL ) ;
 

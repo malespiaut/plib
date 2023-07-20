@@ -39,7 +39,7 @@ void pwInit ( int multisample, int num_samples ) ;
 
 void pwInit ( int x, int y, int w, int h,
               int multisample,
-              char *title, int border, int num_samples ) ;
+              const char *title, int border, int num_samples ) ;
 
 void pwSetCallbacks ( pwKeybdFunc    *kb = NULL, pwMouseFunc *ms = NULL,
                       pwMousePosFunc *mp = NULL, pwResizeCB *rcb = NULL,
