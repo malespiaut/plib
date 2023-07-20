@@ -1,8 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT
-AC_CONFIG_SRCDIR([src/js/js.h])
-
 # **WARNING**WARNING**WARNING**WARNING**WARNING**WARNING**
 #
 # When you make a new release, there are TWO places where you
@@ -12,7 +9,9 @@ AC_CONFIG_SRCDIR([src/js/js.h])
 #
 # **WARNING**WARNING**WARNING**WARNING**WARNING**WARNING**
 
-AM_INIT_AUTOMAKE(plib, 1.8.5)
+AC_INIT([plib], [1.8.5])
+AC_CONFIG_SRCDIR([src/js/js.h])
+AM_INIT_AUTOMAKE([1.16])
 
 # This AC_PREFIX_DEFAULT will place the library files
 # into /usr/lib - but will put the include files into
