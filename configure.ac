@@ -38,6 +38,50 @@ AC_PROG_CXXCPP
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
+dnl Missing checks detected by autoscan
+AC_CHECK_FUNCS([atexit])
+AC_CHECK_FUNCS([floor])
+AC_CHECK_FUNCS([getcwd])
+AC_CHECK_FUNCS([gethostbyname])
+AC_CHECK_FUNCS([gethostname])
+AC_CHECK_FUNCS([gettimeofday])
+AC_CHECK_FUNCS([inet_ntoa])
+AC_CHECK_FUNCS([memmove])
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([munmap])
+AC_CHECK_FUNCS([pow])
+AC_CHECK_FUNCS([select])
+AC_CHECK_FUNCS([socket])
+AC_CHECK_FUNCS([sqrt])
+AC_CHECK_FUNCS([strchr])
+AC_CHECK_FUNCS([strcspn])
+AC_CHECK_FUNCS([strdup])
+AC_CHECK_FUNCS([strerror])
+AC_CHECK_FUNCS([strncasecmp])
+AC_CHECK_FUNCS([strrchr])
+AC_CHECK_FUNCS([strstr])
+AC_CHECK_FUNCS([strtol])
+AC_CHECK_HEADERS([arpa/inet.h])
+AC_CHECK_HEADERS([fcntl.h])
+AC_CHECK_HEADERS([mach/mach.h])
+AC_CHECK_HEADERS([netdb.h])
+AC_CHECK_HEADERS([netinet/in.h])
+AC_CHECK_HEADERS([sys/ioctl.h])
+AC_CHECK_HEADERS([sys/param.h])
+AC_CHECK_HEADERS([sys/socket.h])
+AC_CHECK_HEADERS([sys/time.h])
+AC_CHECK_HEADERS([unistd.h])
+AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_MALLOC
+AC_FUNC_MMAP
+AC_FUNC_REALLOC
+AC_FUNC_STRTOD
+AC_PREREQ
+AC_PROG_MAKE_SET
+AC_TYPE_SIZE_T
+
 dnl Command line arguments
 
 dnl Don't use AC_HELP_STRING here as old versions of autoconf do not
