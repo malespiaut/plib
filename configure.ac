@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/js/js.h)
+AC_INIT
+AC_CONFIG_SRCDIR([src/js/js.h])
 
 # **WARNING**WARNING**WARNING**WARNING**WARNING**WARNING**
 #
@@ -78,13 +79,13 @@ AC_FUNC_MALLOC
 AC_FUNC_MMAP
 AC_FUNC_REALLOC
 AC_FUNC_STRTOD
-AC_PREREQ
+AC_PREREQ([2.71])
 AC_PROG_MAKE_SET
 AC_TYPE_SIZE_T
 
 dnl Command line arguments
 
-dnl Don't use AC_HELP_STRING here as old versions of autoconf do not
+dnl Don't use AS_HELP_STRING here as old versions of autoconf do not
 dnl understand it.
 AC_ARG_WITH(GL,
 [  --with-GL=DIR           set the prefix directory where GL resides],
@@ -350,8 +351,6 @@ esac
 
 dnl Checks for header files.
 
-AC_HEADER_STDC
-
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
 
 if test "x$need_opengl" = "xyes"; then
@@ -418,13 +417,13 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl check for socklen_t (in Unix98)
 AC_MSG_CHECKING(for socklen_t)
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <sys/socket.h>
 socklen_t apa;
-],[],[
+]], [[]])],[
 AC_MSG_RESULT(yes)],[   
-AC_TRY_COMPILE([
+_au_m4_changequote([,])AC_TRY_COMPILE([
 #include <sys/types.h>
 #include <sys/socket.h>
 int accept (int, struct sockaddr *, size_t *);
@@ -435,7 +434,7 @@ AC_MSG_RESULT(int)
 AC_DEFINE(socklen_t,int)])])
 
 
-AC_OUTPUT( \
+AC_CONFIG_FILES([\
 	Makefile \
 	src/Makefile \
 	src/js/Makefile \
@@ -449,7 +448,8 @@ AC_OUTPUT( \
 	src/pui/Makefile \
 	src/puAux/Makefile \
 	src/pw/Makefile \
-	src/net/Makefile )
+	src/net/Makefile ])
+AC_OUTPUT
 
 AC_MSG_RESULT(
 [PLIB configuration information:
