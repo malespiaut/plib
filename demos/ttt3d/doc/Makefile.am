@@ -1,5 +1,5 @@
 # doc/
 
-pkgdata_DATA = $(wildcard *.html) $(wildcard *.gif)
+pkgdata_DATA = @HTML_FILES@ @GIF_FILES@
 
 EXTRA_DIST = $(pkgdata_DATA)

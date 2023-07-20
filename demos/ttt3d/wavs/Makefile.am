@@ -2,6 +2,6 @@
 
 pkgdatadir = $(datadir)/games/@PACKAGE@/wavs
 
-pkgdata_DATA = $(wildcard *.wav)
+pkgdata_DATA = @WAV_FILES@
 
 EXTRA_DIST = $(pkgdata_DATA)

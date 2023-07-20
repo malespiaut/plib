@@ -2,6 +2,6 @@
 
 pkgdatadir = $(datadir)/games/@PACKAGE@/fonts
 
-pkgdata_DATA = $(wildcard *.txf)
+pkgdata_DATA = @TXF_FILES@
 
 EXTRA_DIST = $(pkgdata_DATA)

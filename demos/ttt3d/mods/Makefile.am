@@ -2,6 +2,6 @@
 
 pkgdatadir = $(datadir)/games/@PACKAGE@/mods
 
-pkgdata_DATA = $(wildcard *.mod)
+pkgdata_DATA = @MOD_FILES@
 
 EXTRA_DIST = $(pkgdata_DATA)
