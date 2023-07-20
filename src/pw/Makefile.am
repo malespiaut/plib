@@ -6,7 +6,7 @@ include_HEADERS = pw.h
 
 libplibpw_a_SOURCES = pw.cxx pwX11.cxx pwWindows.cxx pwMacOSX.cxx
 
-INCLUDES = -I$(top_srcdir)/src/util
+AM_CPPFLAGS = -I$(top_srcdir)/src/util
 
 endif
 

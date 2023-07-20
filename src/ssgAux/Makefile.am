@@ -31,8 +31,8 @@ libplibssgaux_a_SOURCES = ssgAux.cxx               \
                           ssgaTeapot.cxx           \
                           ssgaBillboards.cxx
 
-INCLUDES = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/ssg
-INCLUDES += -I$(top_srcdir)/src/util
+AM_CPPFLAGS = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/ssg
+AM_CPPFLAGS += -I$(top_srcdir)/src/util
 
 endif
 

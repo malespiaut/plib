@@ -20,7 +20,7 @@ libplibpuaux_a_SOURCES = puAux.cxx                  \
                          puAuxVerticalMenu.cxx      \
                          puAuxChooser.cxx
 
-INCLUDES = -I$(top_srcdir)/src/sg  \
+AM_CPPFLAGS = -I$(top_srcdir)/src/sg  \
            -I$(top_srcdir)/src/pui \
            -I$(top_srcdir)/src/fnt \
            -I$(top_srcdir)/src/util

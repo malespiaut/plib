@@ -29,7 +29,7 @@ libplibssg_a_SOURCES = ssg.cxx ssgAnimation.cxx ssgBase.cxx \
 	ssgSaveIV.cxx ssgAnimTransform.cxx\
 	ssgVertSplitter.h ssgVertSplitter.cxx ssgStatistics.cxx
 
-INCLUDES = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/util
+AM_CPPFLAGS = -I$(top_srcdir)/src/sg -I$(top_srcdir)/src/util
 
 endif
 
