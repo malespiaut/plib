@@ -14,6 +14,10 @@ plib_suffix="-lplibpu -lplibfnt -lplibsg -lplibul"
 
 AC_LANG_CPLUSPLUS
 
+AC_CHECK_FUNCS([strchr])
+AC_CHECK_FUNCS([strstr])
+AC_CHECK_HEADER_STDBOOL
+AC_PREREQ
 
 dnl Command line arguments.
 
