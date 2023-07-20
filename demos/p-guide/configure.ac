@@ -1,7 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/pGuide.cxx)
-AM_INIT_AUTOMAKE(pguide, 0.0.1)
+AC_INIT([pguide], [0.0.1])
+AC_CONFIG_SRCDIR([src/pGuide.cxx])
+AM_INIT_AUTOMAKE([1.16])
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -12,16 +13,16 @@ AC_PROG_INSTALL
 
 plib_suffix="-lplibpu -lplibfnt -lplibsg -lplibul"
 
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 AC_CHECK_FUNCS([strchr])
 AC_CHECK_FUNCS([strstr])
 AC_CHECK_HEADER_STDBOOL
-AC_PREREQ
+AC_PREREQ([2.71])
 
 dnl Command line arguments.
 
-dnl Don't use AC_HELP_STRING here as old versions of autoconf do not
+dnl Don't use AS_HELP_STRING here as old versions of autoconf do not
 dnl understand it.
 AC_ARG_WITH(GL,
 [  --with-GL=DIR           set the prefix directory where GL resides],
@@ -102,7 +103,6 @@ LIBS="$plib_suffix $LIBS"
 
 dnl Checks for header files.
 
-AC_HEADER_STDC
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
 
 case "${host}" in
@@ -160,7 +160,8 @@ CFLAGS="$CFLAGS $WFLAG"
 CXXFLAGS="$CXXFLAGS $WFLAG"
 
 
-AC_OUTPUT( Makefile         \
+AC_CONFIG_FILES([Makefile         \
            src/Makefile     \
-          )
+          ])
+AC_OUTPUT
 
