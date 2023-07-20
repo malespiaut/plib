@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/js/js_demo.cxx)
-AM_INIT_AUTOMAKE(plib_examples, 1.8.5)
-
+AC_INIT([plib_examples], [1.8.5])
+AC_CONFIG_SRCDIR([src/js/js_demo.cxx])
+AM_INIT_AUTOMAKE([1.16])
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -11,7 +11,7 @@ AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_INSTALL
 
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 AC_CHECK_FUNCS([atexit])
 AC_CHECK_FUNCS([floor])
@@ -23,12 +23,12 @@ AC_CHECK_HEADERS([sys/time.h])
 AC_CHECK_HEADERS([unistd.h])
 AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
-AC_PREREQ
+AC_PREREQ([2.71])
 AC_TYPE_OFF_T
 
 dnl Command line arguments.
 
-dnl Don't use AC_HELP_STRING here as old versions of autoconf do not
+dnl Don't use AS_HELP_STRING here as old versions of autoconf do not
 dnl understand it.
 AC_ARG_WITH(GL,
 [  --with-GL=DIR           set the prefix directory where GL resides],
@@ -205,8 +205,6 @@ AC_SUBST(SND_LIBS)
 
 dnl Checks for header files.
 
-AC_HEADER_STDC
-
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
 
 if test "x$need_opengl" = "xyes"; then
@@ -268,7 +266,7 @@ CFLAGS="$CFLAGS $WFLAG"
 CXXFLAGS="$CXXFLAGS $WFLAG"
 
 
-AC_OUTPUT( \
+AC_CONFIG_FILES([\
 	Makefile \
 	src/Makefile \
 	src/js/Makefile \
@@ -294,7 +292,8 @@ AC_OUTPUT( \
 	src/net/http_get/Makefile \
 	src/net/net_echo/Makefile \
 	src/psl/Makefile \
-	src/util/Makefile )
+	src/util/Makefile ])
+AC_OUTPUT
 
 if test "x$need_opengl" = "xyes"; then
     if test "x$ac_cv_lib_freeglut_glutGetModifiers" = "xyes"; then
