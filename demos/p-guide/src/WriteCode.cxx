@@ -306,7 +306,7 @@ void write_code ( puObject *ob )
             {
                 char *temp_items = wid->items ;
                 char *cr = strchr(temp_items, '\n');
-                while ( cr != '\0' )
+                while ( cr )
                 {
                     char *spc = strchr ( temp_items, ' ' ) ;
                     while ( spc )
@@ -364,7 +364,7 @@ void write_code ( puObject *ob )
                 char unspaced_items[PUSTRING_MAX];
                 char *cr = strchr(temp_items, '\n');
                 fprintf ( out, "  {\n") ;
-                while ( cr != '\0' )
+                while ( cr )
                 {
                     *cr = '\0';
                     strcpy(unspaced_items, temp_items);
@@ -400,7 +400,7 @@ void write_code ( puObject *ob )
                 char *temp_items = wid->items ;
                 char *cr = strchr(temp_items, '\n');
                 sprintf ( data, " ");
-                while ( cr != '\0' )
+                while ( cr )
                 {
                     *cr = '\0';
                     sprintf ( onedata, "\"%s\",", temp_items);

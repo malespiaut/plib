@@ -235,7 +235,7 @@ void saveProject ( puObject *ob ) {
         {
             char *temp_items = wid->items ;
             char *cr = strchr(temp_items, '\n');
-            while ( cr != '\0' )
+            while ( cr )
             {
                 *cr = '\0';
                 fprintf ( out, "\t\t\t<item>%s</item>\n", temp_items);
