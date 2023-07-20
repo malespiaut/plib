@@ -131,7 +131,7 @@ void ssgBranch::replaceKid ( ssgEntity *old_entity, ssgEntity *new_entity )
 }
 
 
-void ssgBranch::print ( FILE *fd, char *indent, int how_much )
+void ssgBranch::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgEntity::print ( fd, indent, how_much ) ;
   fprintf ( fd, "%s  Num Kids=%d\n", indent, getNumKids() ) ;

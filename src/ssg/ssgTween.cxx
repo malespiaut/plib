@@ -479,7 +479,7 @@ int ssgTween::save ( FILE *fd )
 
 
 
-void ssgTween::print ( FILE *fd, char *indent, int how_much )
+void ssgTween::print ( FILE *fd, const char *indent, int how_much )
 {
   char in [ 100 ] ;
 

@@ -684,7 +684,7 @@ void ssgVTable::isect_triangles ( sgSphere *s, sgMat4 m, int test_needed )
 }
 
 
-void ssgVTable::print ( FILE *fd, char *indent, int how_much )
+void ssgVTable::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgLeaf::print ( fd, indent, how_much ) ;
 }

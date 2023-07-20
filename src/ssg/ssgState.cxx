@@ -99,7 +99,7 @@ ssgState::~ssgState (void)
 }
 
 
-void ssgState::print ( FILE *fd, char *indent, int how_much )
+void ssgState::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgBase::print ( fd, indent, how_much ) ;
 

@@ -83,7 +83,7 @@ ssgBase *ssgIndexArray::clone ( int clone_flags )
 
 
  
-void ssgVertexArray::print ( FILE *fd, char *indent, int how_much )
+void ssgVertexArray::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
 
@@ -98,7 +98,7 @@ void ssgVertexArray::print ( FILE *fd, char *indent, int how_much )
 
 
  
-void ssgNormalArray::print ( FILE *fd, char *indent, int how_much )
+void ssgNormalArray::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
 
@@ -112,7 +112,7 @@ void ssgNormalArray::print ( FILE *fd, char *indent, int how_much )
  
 
 
-void ssgIndexArray::print ( FILE *fd, char *indent, int how_much )
+void ssgIndexArray::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
 
@@ -124,7 +124,7 @@ void ssgIndexArray::print ( FILE *fd, char *indent, int how_much )
                      (int) (*get(i)) ) ;
 }
  
-void ssgTexCoordArray::print ( FILE *fd, char *indent, int how_much )
+void ssgTexCoordArray::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
 
@@ -139,7 +139,7 @@ void ssgTexCoordArray::print ( FILE *fd, char *indent, int how_much )
 
 
  
-void ssgColourArray::print ( FILE *fd, char *indent, int how_much )
+void ssgColourArray::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgSimpleList::print ( fd, indent, how_much ) ;
 
@@ -153,7 +153,7 @@ void ssgColourArray::print ( FILE *fd, char *indent, int how_much )
  
 
 
-void ssgSimpleList::print ( FILE *fd, char *indent, int how_much )
+void ssgSimpleList::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgBase::print ( fd, indent, how_much ) ;
 

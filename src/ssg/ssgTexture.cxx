@@ -199,7 +199,7 @@ void ssgTexture::setHandle ( GLuint _handle )
 }
 
 
-void ssgTexture::print ( FILE *fd, char *ident, int how_much )
+void ssgTexture::print ( FILE *fd, const char *ident, int how_much )
 {
   fprintf ( fd, "%s%s: %s\n", ident, getTypeName (), getFilename () ) ;
 }

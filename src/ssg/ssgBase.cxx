@@ -105,7 +105,7 @@ void ssgBase::setSpare  ( int ss ) { spare = ss   ; }
 int  ssgBase::getSpare  ()         { return spare ; }
 
 
-void ssgBase::print ( FILE *fd, char *indent, int how_much )
+void ssgBase::print ( FILE *fd, const char *indent, int how_much )
 {
   if ( how_much > 2 )
   {

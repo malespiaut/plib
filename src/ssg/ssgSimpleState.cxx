@@ -483,7 +483,7 @@ static void printStateString ( FILE *fd, unsigned int bits )
 }
 
  
-void ssgSimpleState::print ( FILE *fd, char *indent, int how_much )
+void ssgSimpleState::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgState::print ( fd, indent, how_much ) ;
  

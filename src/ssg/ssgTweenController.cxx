@@ -85,7 +85,7 @@ int ssgTweenController::save ( FILE *fd )
 
  
  
-void ssgTweenController::print ( FILE *fd, char *indent, int how_much )
+void ssgTweenController::print ( FILE *fd, const char *indent, int how_much )
 {
   if ( how_much == 0 )
     return ;

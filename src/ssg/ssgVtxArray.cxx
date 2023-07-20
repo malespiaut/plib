@@ -395,7 +395,7 @@ void ssgVtxArray::getLine ( int n, short *v1, short *v2 )
 }
 
 
-void ssgVtxArray::print ( FILE *fd, char *indent, int how_much )
+void ssgVtxArray::print ( FILE *fd, const char *indent, int how_much )
 {
   char in [ 100 ] ;
 

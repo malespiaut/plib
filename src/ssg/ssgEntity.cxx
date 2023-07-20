@@ -101,7 +101,7 @@ void ssgEntity::visualiseBSphere ()
 }
 
 
-void ssgEntity::print ( FILE *fd, char *indent, int how_much )
+void ssgEntity::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgBase::print ( fd, indent, how_much ) ;
 

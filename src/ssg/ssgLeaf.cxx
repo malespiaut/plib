@@ -168,7 +168,7 @@ void ssgLeaf::getStats ( int *num_branches, int *num_leaves, int *num_tris, int 
 }
 
 
-void ssgLeaf::print ( FILE *fd, char *indent, int how_much )
+void ssgLeaf::print ( FILE *fd, const char *indent, int how_much )
 {
   if ( how_much == 0 ) 
     return ;

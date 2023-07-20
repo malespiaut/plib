@@ -319,7 +319,7 @@ public:
   int   isA        ( int ty ) { return getType() == ty ; }
   int   isAKindOf  ( int ty ) { return ( getType() & ty ) == ty ; }
 
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
@@ -473,7 +473,7 @@ public:
     }
   }
 
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual const char *getTypeName(void) ;
@@ -497,7 +497,7 @@ public:
   { sgVec3 tmp = { x, y, z } ; raw_set ( (char *) tmp, n ) ; } ;
   void   add ( float x, float y, float z )
   { sgVec3 tmp = { x, y, z } ; raw_add ( (char *) tmp ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual const char *getTypeName(void) ;
 } ;
 
@@ -519,7 +519,7 @@ public:
   { sgVec3 tmp = { x, y, z } ; raw_set ( (char *) tmp, n ) ; } ;
   void   add ( float x, float y, float z )
   { sgVec3 tmp = { x, y, z } ; raw_add ( (char *) tmp ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual const char *getTypeName(void) ;
 } ;
 
@@ -541,7 +541,7 @@ public:
   { sgVec2 tmp = { u, v } ; raw_set ( (char *) tmp, n ) ; } ;
   void   add ( float u, float v )
   { sgVec2 tmp = { u, v } ; raw_add ( (char *) tmp ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual const char *getTypeName(void) ;
 } ;
 
@@ -563,7 +563,7 @@ public:
   { sgVec4 tmp = { r,g,b,a } ; raw_set ( (char *) tmp, n ) ; } ;
   void   add ( float r, float g, float b, float a )
   { sgVec4 tmp = { r,g,b,a } ; raw_add ( (char *) tmp ) ; } ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual const char *getTypeName(void) ;
 } ;
 
@@ -578,7 +578,7 @@ public:
   {
     type = ssgTypeIndexArray () ;
   }
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   short *get ( unsigned int n ) { return (short *) raw_get ( n ) ; }
   void   add ( short    thing ) { raw_add ( (char *) &thing ) ; } ;
   void   set ( short    thing, unsigned int n ) { raw_set ( (char *) &thing, n ) ; } ;
@@ -758,7 +758,7 @@ public:
       filename = ulStrDup ( fname ) ;
   }
 
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
   virtual const char *getTypeName(void) ;
@@ -829,7 +829,7 @@ public:
   virtual void force (void) = 0 ;
   virtual void apply (void) = 0 ;
 
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1027,7 +1027,7 @@ public:
  
 	/*int getWrapU();
   int getWrapV();*/
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1100,7 +1100,7 @@ public:
   void   setShininess ( float sh ) ; 
   void   setShadeModel ( GLenum model ) ; 
   void   setAlphaClamp ( float clamp ) ; 
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1198,7 +1198,7 @@ public:
   virtual void isect ( sgSphere  *s, sgMat4 m, int test_needed ) = 0 ;
   virtual void hot   ( sgVec3     s, sgMat4 m, int test_needed ) = 0 ;
   virtual void los   ( sgVec3     s, sgMat4 m, int test_needed ) = 0 ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual void getStats ( int *num_branches, int *num_leaves, int *num_tris, int *num_vertices ) = 0 ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1289,7 +1289,7 @@ public:
 
   virtual void recalcBSphere () = 0 ;
   virtual const char *getTypeName(void) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual void getStats ( int *num_branches, int *num_leaves, int *num_tris, int *num_vertices ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1405,7 +1405,7 @@ public:
   virtual void isect_triangles ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void los_triangles   ( sgVec3     s, sgMat4 m, int test_needed ) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1497,7 +1497,7 @@ public:
   virtual void isect_triangles ( sgSphere *s, sgMat4 m, int test_needed ) ;
   virtual void hot_triangles   ( sgVec3    s, sgMat4 m, int test_needed ) ;
   virtual void los_triangles   ( sgVec3    s, sgMat4 m, int test_needed ) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2);
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2);
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
@@ -1539,7 +1539,7 @@ public:
   virtual void transform ( const sgMat4 m ) ;
 
   virtual const char *getTypeName(void) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2);
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2);
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 
@@ -1598,7 +1598,7 @@ public:
 
   virtual const char *getTypeName(void) ;
 
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -1644,7 +1644,7 @@ public:
   virtual void isect         ( sgSphere  *s, sgMat4 m, int test_needed ) ;
   virtual void hot           ( sgVec3     s, sgMat4 m, int test_needed ) ;
   virtual void los           ( sgVec3     s, sgMat4 m, int test_needed ) ;
-  virtual void print         ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print         ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual void getStats ( int *num_branches, int *num_leaves, int *num_tris, int *num_vertices ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
@@ -1678,7 +1678,7 @@ public:
 
   virtual void cull ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual const char *getTypeName(void) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;
@@ -2017,7 +2017,7 @@ public:
   virtual int save ( FILE *fd ) ;
 
   virtual const char *getTypeName(void) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
 } ;
 
 
@@ -2078,7 +2078,7 @@ public:
 
   virtual void cull ( sgFrustum *f, sgMat4 m, int test_needed ) ;
   virtual const char *getTypeName(void) ;
-  virtual void print ( FILE *fd = stderr, char *indent = "", int how_much = 2 ) ;
+  virtual void print ( FILE *fd = stderr, const char *indent = "", int how_much = 2 ) ;
   virtual int load ( FILE *fd ) ;
   virtual int save ( FILE *fd ) ;
 } ;

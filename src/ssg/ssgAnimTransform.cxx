@@ -158,7 +158,7 @@ int ssgAnimTransform::save ( FILE *fd )
 
  
  
-void ssgAnimTransform::print ( FILE *fd, char *indent, int how_much )
+void ssgAnimTransform::print ( FILE *fd, const char *indent, int how_much )
 {
   if ( how_much == 0 )
     return ;

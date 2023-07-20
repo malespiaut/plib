@@ -374,7 +374,7 @@ void ssgStateSelector::setAlphaClamp ( float clamp )
     s -> setAlphaClamp(clamp) ;
 }
 
-void ssgStateSelector::print ( FILE *fd, char *indent, int how_much )
+void ssgStateSelector::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgStateSelector * s = (ssgStateSelector *) getCurrentStep() ;
 

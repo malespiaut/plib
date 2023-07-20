@@ -65,7 +65,7 @@ int ssgBaseTransform::save ( FILE *fd )
 }
 
 
-void ssgBaseTransform::print ( FILE *fd, char *indent, int how_much )
+void ssgBaseTransform::print ( FILE *fd, const char *indent, int how_much )
 {
   ssgBranch::print ( fd, indent, how_much ) ;
 
