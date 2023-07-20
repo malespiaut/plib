@@ -15,6 +15,9 @@ plib_suffix="-lplibjs -lplibsl -lplibssgaux -lplibssg -lplibpuaux -lplibpu -lpli
 
 AC_LANG_CPLUSPLUS
 
+AC_CHECK_FUNCS([floor])
+AC_CHECK_HEADERS([unistd.h])
+AC_PREREQ
 
 dnl Command line arguments.
 
