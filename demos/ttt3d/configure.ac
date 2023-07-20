@@ -28,12 +28,8 @@ file_list() {
 dnl # Create the list of files
 AC_SUBST([DAT_FILES], [$(file_list data dat)])
 AC_SUBST([HTML_FILES], [$(file_list doc html)])
-AC_SUBST([GIF_FILES], [$(file_list doc gif)])
 AC_SUBST([TXF_FILES], [$(file_list fonts txf)])
 AC_SUBST([RGB_FILES], [$(file_list images rgb)])
-AC_SUBST([RGBA_FILES], [$(file_list images rgba)])
-AC_SUBST([INT_FILES], [$(file_list images int)])
-AC_SUBST([INTA_FILES], [$(file_list images inta)])
 AC_SUBST([MOD_FILES], [$(file_list mods mod)])
 AC_SUBST([WAV_FILES], [$(file_list wavs wav)])
 
