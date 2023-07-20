@@ -22,7 +22,7 @@ AM_INIT_AUTOMAKE([1.16])
 
 AC_PREFIX_DEFAULT(/usr)
 
-if echo $includedir | egrep "plib$" > /dev/null; then
+if echo $includedir | grep -E "plib$" > /dev/null; then
     echo "includedir is" $includedir "libdir is" $libdir
 else
     includedir="${includedir}/plib"
