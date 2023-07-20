@@ -415,24 +415,20 @@ LIBS=$save_LIBS
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
-dnl check for socklen_t (in Unix98)
+dnl socklen_t check
 AC_MSG_CHECKING(for socklen_t)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <sys/socket.h>
-socklen_t apa;
-]], [[]])],[
-AC_MSG_RESULT(yes)],[   
-_au_m4_changequote([,])AC_TRY_COMPILE([
-#include <sys/types.h>
-#include <sys/socket.h>
-int accept (int, struct sockaddr *, size_t *);
-],[],[
-AC_MSG_RESULT(size_t)
-AC_DEFINE(socklen_t,size_t)], [
-AC_MSG_RESULT(int)
-AC_DEFINE(socklen_t,int)])])
-
+]], [[
+  socklen_t foo;
+]])],[
+ac_cv_c_socklen_t=yes
+	AC_DEFINE(HAVE_SOCKLEN_T, 1, [Have socklen_t])
+	AC_MSG_RESULT(yes)
+],[
+	AC_MSG_RESULT(no)
+])
 
 AC_CONFIG_FILES([\
 	Makefile \
