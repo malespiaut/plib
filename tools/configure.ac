@@ -1,7 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/af2rgb/af2rgb.cxx)
-AM_INIT_AUTOMAKE(plib_tools, 1.7.0)
+AC_INIT([plib_tools], [1.7.0])
+AC_CONFIG_SRCDIR([src/af2rgb/af2rgb.cxx])
+AM_INIT_AUTOMAKE([1.16])
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -10,15 +11,15 @@ AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_INSTALL
 
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 AC_CHECK_HEADER_STDBOOL
-AC_PREREQ
+AC_PREREQ([2.71])
 AC_TYPE_SIZE_T
 
 dnl Command line arguments.
 
-dnl Don't use AC_HELP_STRING here as old versions of autoconf do not
+dnl Don't use AS_HELP_STRING here as old versions of autoconf do not
 dnl understand it.
 AC_ARG_WITH(GL,
 [  --with-GL=DIR           set the prefix directory where GL resides],
@@ -98,7 +99,6 @@ AC_MSG_ERROR([there seems to be a problem with the PLIB libraries]))
 
 dnl Checks for header files.
 
-AC_HEADER_STDC
 AC_CHECK_HEADER(windows.h, AC_DEFINE(WIN32))
 
 case "${host}" in
@@ -156,9 +156,10 @@ CFLAGS="$CFLAGS $WFLAG"
 CXXFLAGS="$CXXFLAGS $WFLAG"
 
 
-AC_OUTPUT( \
+AC_CONFIG_FILES([\
 	Makefile \
 	src/Makefile \
 	src/af2rgb/Makefile \
-	)
+	])
+AC_OUTPUT
 
