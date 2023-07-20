@@ -13,6 +13,18 @@ AC_PROG_INSTALL
 
 AC_LANG_CPLUSPLUS
 
+AC_CHECK_FUNCS([atexit])
+AC_CHECK_FUNCS([floor])
+AC_CHECK_FUNCS([gettimeofday])
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([pow])
+AC_CHECK_FUNCS([sqrt])
+AC_CHECK_HEADERS([sys/time.h])
+AC_CHECK_HEADERS([unistd.h])
+AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
+AC_PREREQ
+AC_TYPE_OFF_T
 
 dnl Command line arguments.
 
